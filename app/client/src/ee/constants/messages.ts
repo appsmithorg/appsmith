@@ -8,6 +8,7 @@ export const ADD_ROLE = () => `Add Role`;
 export const SEARCH_PLACEHOLDER = () => `Search`;
 export const SEARCH_GROUPS_PLACEHOLDER = () => `Search groups`;
 export const SEARCH_ROLES_PLACEHOLDER = () => `Search roles`;
+export const SEARCH_USERS_PLACEHOLDER = () => `Search Users`;
 export const ACL_DELETED_SUCCESS = () => `Deleted successfully`;
 export const ACL_CLONED_SUCCESS = () => `Cloned successfully`;
 export const SUCCESSFULLY_SAVED = () => `Saved successfully`;

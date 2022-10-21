@@ -126,6 +126,7 @@ export function RoleAddEdit(props: RoleEditProps) {
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
+        searchValue={searchValue}
         title={selected.name || ""}
       />
       {tabs.length > 0 && (

@@ -13,12 +13,12 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { takeLatest, all, call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-
 import { ApiResponse } from "api/ApiResponses";
 import { User } from "constants/userConstants";
 import { RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/acl/components";
+import log from "loglevel";
 
 export function* fetchAclUsersSaga() {
   try {
@@ -36,6 +36,7 @@ export function* fetchAclUsersSaga() {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACL_USERS_ERROR,
     });
@@ -62,6 +63,7 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACL_USER_ERROR,
     });
@@ -112,6 +114,7 @@ export function* fetchAclUserByIdSaga(
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACL_USER_BY_ID_ERROR,
     });
@@ -144,6 +147,7 @@ export function* updateGroupsInUserSaga(
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.UPDATE_GROUPS_IN_USER_ERROR,
     });
@@ -176,6 +180,7 @@ export function* updateRolesInUserSaga(
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ROLES_IN_USER_ERROR,
     });
@@ -198,6 +203,7 @@ export function* fetchAclGroupsSaga() {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACL_GROUPS_ERROR,
     });
@@ -238,6 +244,7 @@ export function* fetchAclGroupSagaById(
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACL_GROUP_BY_ID_ERROR,
     });
@@ -282,6 +289,7 @@ export function* createAclGroupSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACL_GROUP_ERROR,
     });
@@ -305,6 +313,7 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACL_GROUP_ERROR,
     });
@@ -328,6 +337,7 @@ export function* cloneGroupSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.CLONE_ACL_GROUP_ERROR,
     });
@@ -353,6 +363,7 @@ export function* updateGroupNameSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACL_GROUP_NAME_ERROR,
     });
@@ -385,6 +396,7 @@ export function* updateRolesInGroupSaga(
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACL_GROUP_ROLES_ERROR,
     });
@@ -409,6 +421,7 @@ export function* addUsersInGroupSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.ADD_USERS_IN_GROUP_ERROR,
     });
@@ -433,6 +446,7 @@ export function* removeUsersFromGroupSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.REMOVE_USERS_FROM_GROUP_ERROR,
     });
@@ -455,6 +469,7 @@ export function* fetchAclRolesSaga() {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACL_ROLES_ERROR,
     });
@@ -480,6 +495,7 @@ export function* fetchAclRoleSagaById(
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACL_ROLE_BY_ID_ERROR,
     });
@@ -505,6 +521,7 @@ export function* updateRoleNameSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_NAME_ERROR,
     });
@@ -528,6 +545,7 @@ export function* updateRoleSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR,
     });
@@ -556,6 +574,7 @@ export function* createAclRoleSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACL_ROLE_ERROR,
     });
@@ -579,6 +598,7 @@ export function* deleteAclRoleSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACL_ROLE_ERROR,
     });
@@ -602,6 +622,7 @@ export function* cloneRoleSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.CLONE_ACL_ROLE_ERROR,
     });
@@ -632,6 +653,7 @@ export function* fetchRolesGroupsForInviteSaga() {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ROLES_GROUPS_FOR_INVITE_ERROR,
     });
@@ -663,6 +685,7 @@ export function* createAclUserSaga(action: ReduxAction<any>) {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.CREATE_ACL_USER_ERROR,
     });
@@ -686,6 +709,7 @@ export function* fetchIconLocationsSagas() {
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ICON_LOCATIONS_ERROR,
     });

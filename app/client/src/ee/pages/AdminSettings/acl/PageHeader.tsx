@@ -99,6 +99,7 @@ export function PageHeader(props: PageHeaderProps) {
     onSearch,
     pageMenuItems,
     searchPlaceholder,
+    searchValue,
     title,
   } = props;
 
@@ -173,6 +174,7 @@ export function PageHeader(props: PageHeaderProps) {
           <StyledSearchInput
             className="acl-search-input"
             data-testid={"t--acl-search-input"}
+            defaultValue={searchValue.toLowerCase()}
             onChange={handleSearch}
             placeholder={searchPlaceholder}
             variant={SearchVariant.BACKGROUND}

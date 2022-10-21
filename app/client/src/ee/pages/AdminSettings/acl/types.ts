@@ -97,6 +97,7 @@ export type PageHeaderProps = {
   isTitleEditable?: boolean;
   isEditingTitle?: boolean;
   onEditTitle?: (name: string) => void;
+  searchValue: string;
 };
 
 export type GroupsForUser = {

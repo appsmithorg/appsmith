@@ -136,14 +136,18 @@ export function UserEdit(props: UserEditProps) {
   const { isLoading, isSaving, searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
-    setUserGroups({
-      groups: selectedUser.groups,
-      allGroups: selectedUser.allGroups,
-    });
-    setPermissionGroups({
-      roles: selectedUser.roles,
-      allRoles: selectedUser.allRoles,
-    });
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setUserGroups({
+        groups: selectedUser.groups,
+        allGroups: selectedUser.allGroups,
+      });
+      setPermissionGroups({
+        roles: selectedUser.roles,
+        allRoles: selectedUser.allRoles,
+      });
+    }
   }, [selectedUser]);
 
   useEffect(() => {
@@ -305,7 +309,7 @@ export function UserEdit(props: UserEditProps) {
     }
   };
 
-  const handleSearch = debounce((search: string) => {
+  const onSearch = debounce((search: string) => {
     let groupResults: BaseAclProps[] = [];
     let allGroupResults: BaseAclProps[] = [];
     let permissionResults: BaseAclProps[];
@@ -431,7 +435,8 @@ export function UserEdit(props: UserEditProps) {
           <StyledSearchInput
             className="acl-search-input"
             data-testid={"t--acl-search-input"}
-            onChange={handleSearch}
+            defaultValue={searchValue.toLowerCase()}
+            onChange={onSearch}
             placeholder={searchPlaceholder}
             variant={SearchVariant.BACKGROUND}
             width={"376px"}

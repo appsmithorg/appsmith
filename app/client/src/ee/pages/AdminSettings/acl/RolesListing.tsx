@@ -62,7 +62,11 @@ export function RolesListing() {
   const selectedRoleId = params?.selected;
 
   useEffect(() => {
-    setData(roles);
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setData(roles);
+    }
   }, [roles]);
 
   useEffect(() => {
@@ -191,6 +195,7 @@ export function RolesListing() {
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
             searchPlaceholder={createMessage(SEARCH_ROLES_PLACEHOLDER)}
+            searchValue={searchValue}
           />
           <Listing
             columns={columns}

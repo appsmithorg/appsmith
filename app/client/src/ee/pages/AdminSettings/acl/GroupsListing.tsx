@@ -61,7 +61,11 @@ export function GroupListing() {
   const selectedUserGroupId = params?.selected;
 
   useEffect(() => {
-    setData(userGroups);
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setData(userGroups);
+    }
   }, [userGroups]);
 
   useEffect(() => {
@@ -189,6 +193,7 @@ export function GroupListing() {
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
             searchPlaceholder={createMessage(SEARCH_GROUPS_PLACEHOLDER)}
+            searchValue={searchValue}
           />
           <Listing
             columns={columns}

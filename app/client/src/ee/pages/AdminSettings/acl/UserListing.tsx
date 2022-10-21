@@ -33,6 +33,7 @@ import {
   ACL_DELETE,
   SHOW_LESS_GROUPS,
   SHOW_MORE_GROUPS,
+  SEARCH_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -113,7 +114,11 @@ export function UserListing() {
   const selectedUserId = params?.selected;
 
   useEffect(() => {
-    setData(aclUsers);
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setData(aclUsers);
+    }
   }, [aclUsers]);
 
   useEffect(() => {
@@ -425,7 +430,8 @@ export function UserListing() {
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder="Search Users"
+            searchPlaceholder={createMessage(SEARCH_USERS_PLACEHOLDER)}
+            searchValue={searchValue}
           />
           <Listing
             columns={columns}

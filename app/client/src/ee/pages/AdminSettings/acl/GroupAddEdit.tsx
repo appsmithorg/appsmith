@@ -159,11 +159,15 @@ export function GroupAddEdit(props: GroupEditProps) {
   }, [removedActiveGroups, addedAllGroups]);
 
   useEffect(() => {
-    setUsers(selected.users || []);
-    setPermissions({
-      roles: selected.roles || [],
-      allRoles: selected.allRoles || [],
-    });
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setUsers(selected.users || []);
+      setPermissions({
+        roles: selected.roles || [],
+        allRoles: selected.allRoles || [],
+      });
+    }
   }, [selected]);
 
   const onButtonClick = () => {
@@ -176,16 +180,16 @@ export function GroupAddEdit(props: GroupEditProps) {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       userResults =
-        users &&
-        users.filter((user) =>
+        selected.users &&
+        selected.users.filter((user) =>
           user.username?.toLocaleUpperCase().includes(search),
         );
       setUsers(userResults);
       permissionResults = permissions && {
-        roles: permissions.roles.filter((permission: BaseAclProps) =>
+        roles: selected.roles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
-        allRoles: permissions.allRoles.filter((permission: BaseAclProps) =>
+        allRoles: selected.allRoles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
       };
@@ -434,6 +438,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
+        searchValue={searchValue}
         title={selected?.name || ""}
       />
       <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
