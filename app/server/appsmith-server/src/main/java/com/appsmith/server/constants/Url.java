@@ -34,5 +34,4 @@ public interface Url {
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
 
     String ENVIRONMENT_URL = BASE_URL + VERSION + "/environments";
-    String ENVIRONMENT_VARIABLE_URL = BASE_URL + VERSION + "/environment-variables";
 }
