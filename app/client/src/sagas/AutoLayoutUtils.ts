@@ -106,14 +106,16 @@ export function updateFillChildStatus(
   if (!canvas) return widgets;
 
   const flexLayers: FlexLayer[] = canvas.flexLayers || [];
+  let layerIndex = -1;
   if (!flexLayers.length) return widgets;
 
-  const updatedLayers = flexLayers?.map((layer) => {
+  const updatedLayers = flexLayers?.map((layer, index: number) => {
     const children = layer.children || [];
     const selectedWidgetIndex: number = children.findIndex(
       (each: LayerChild) => each.id === widgetId,
     );
     if (selectedWidgetIndex === -1) return layer;
+    layerIndex = index;
     return {
       ...layer,
       hasFillChild: children.reduce((acc, each, index) => {
@@ -129,7 +131,9 @@ export function updateFillChildStatus(
     flexLayers: updatedLayers,
   };
   widgets[canvas.widgetId] = canvas;
-  return widgets;
+
+  if (layerIndex === -1) return widgets;
+  return updateFlexChildColumns(widgets, layerIndex, canvas.widgetId);
 }
 
 export function updateFlexChildColumns(
