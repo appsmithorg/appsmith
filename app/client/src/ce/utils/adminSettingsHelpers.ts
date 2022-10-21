@@ -39,7 +39,7 @@ export const getDefaultAdminSettingsPath = (
   isSuperUser: boolean,
   tenantPermissions?: string[],
 ): string => {
-  if (!isSuperUser) {
+  if (isSuperUser) {
     return ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH;
   }
   return ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH;
