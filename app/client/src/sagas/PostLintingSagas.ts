@@ -14,10 +14,13 @@ import {
 } from "workers/Evaluation/evaluationUtils";
 
 // We currently only log lint errors in JSObjects
-export function logLatestLintPropertyErrors(
-  errors: LintErrors,
-  dataTree: DataTree,
-) {
+export function* logLatestLintPropertyErrors({
+  dataTree,
+  errors,
+}: {
+  errors: LintErrors;
+  dataTree: DataTree;
+}) {
   for (const path of Object.keys(errors)) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];

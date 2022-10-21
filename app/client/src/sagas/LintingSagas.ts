@@ -48,5 +48,5 @@ export function* lintTreeSaga({
   );
 
   yield put(setLintingErrors(errors));
-  logLatestLintPropertyErrors(errors, unevalTree);
+  yield call(logLatestLintPropertyErrors, { errors, dataTree: unevalTree });
 }
