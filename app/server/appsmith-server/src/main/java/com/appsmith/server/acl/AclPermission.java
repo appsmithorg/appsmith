@@ -9,6 +9,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -129,6 +130,8 @@ public enum AclPermission {
     EXECUTE_ENVIRONMENTS("execute:environments", Environment.class),
     CREATE_ENVIRONMENTS("create:environments", Environment.class),
     DELETE_ENVIRONMENTS("delete:environments", Environment.class),
+    // Manage tenant permissions
+    MANAGE_TENANT("manage:tenants", Tenant.class),
     ;
 
 

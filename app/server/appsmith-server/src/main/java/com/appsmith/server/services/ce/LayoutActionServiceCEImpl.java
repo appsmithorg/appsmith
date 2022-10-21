@@ -449,7 +449,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     if (widgetNames.contains(newName)) {
                         isAllowed = false;
                     }
-                    Set<String> collectionNames = tuple.getT2();
+                    Set<String> collectionNames = tuple.getT3();
                     if (collectionNames.contains(newName)) {
                         isAllowed = false;
                     }

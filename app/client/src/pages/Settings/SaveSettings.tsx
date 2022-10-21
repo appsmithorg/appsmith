@@ -33,8 +33,7 @@ const SettingsButtonWrapper = styled.div`
     ${(props) =>
       props.theme.homePage.leftPane.leftPadding +
       props.theme.homePage.leftPane.width +
-      props.theme.homePage.main.marginLeft -
-      props.theme.spaces[11]}px;
+      props.theme.spaces[8]}px;
   box-shadow: ${(props) => props.theme.settings.footerShadow};
   z-index: 2;
   background-color: ${(props) => props.theme.colors.homepageBackground};

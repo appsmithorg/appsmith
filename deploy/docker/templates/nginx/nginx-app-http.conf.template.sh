@@ -74,7 +74,7 @@ server {
   }
 
   # If the path has an extension at the end, then respond with 404 status if the file not found.
-  location ~ \.[a-z]+$ {
+  location ~ ^/(?!supervisor/).*\.[a-z]+$ {
     try_files \$uri =404;
   }
 

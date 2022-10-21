@@ -136,12 +136,6 @@ describe("Table Widget property pane feature validation", function() {
     // Verify font size is 14px
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
 
-    // Click on text size JS
-    cy.get(widgetsPage.toggleTextAlign)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
     // Open txe size dropdown options
     cy.get(widgetsPage.textSize)
       .last()
@@ -192,9 +186,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.rowHeight)
       .last()
       .click({ force: true });
-    cy.get(".t--dropdown-option")
-      .contains("Short")
-      .click({ force: true });
+    cy.get(".t--button-tab-SHORT").click({ force: true });
     cy.wait(2000);
     cy.PublishtheApp();
     cy.readTableV2dataValidateCSS("0", "1", "height", "29px", true);

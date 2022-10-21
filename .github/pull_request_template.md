@@ -11,6 +11,7 @@ Fixes # (issue)
 
 > if no issue exists, please create an issue and ask the maintainers about this first
 
+
 ## Type of change
 
 > Please delete options that are not relevant.
@@ -20,13 +21,23 @@ Fixes # (issue)
 - Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - This change requires a documentation update
 
+
 ## How Has This Been Tested?
 
 > Please describe the tests that you ran to verify your changes. Provide instructions, so we can reproduce.
 > Please also list any relevant details for your test configuration.
+> Delete anything that is not important
 
-- Test A
-- Test B
+- Manual
+- Jest
+- Cypress
+
+### Test Plan
+> Add Testsmith test cases links that relate to this PR
+
+### Issues raised during DP testing
+> Link issues raised during DP testing for better visiblity and tracking
+
 
 ## Checklist:
 
