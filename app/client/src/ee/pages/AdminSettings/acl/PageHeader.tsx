@@ -137,6 +137,7 @@ export function PageHeader(props: PageHeaderProps) {
             <TooltipComponent
               boundary="viewport"
               content={title ?? pageTitle}
+              disabled={(title ?? pageTitle).length < 40}
               maxWidth="400px"
               position={PopoverPosition.BOTTOM_LEFT}
             >
@@ -154,16 +155,9 @@ export function PageHeader(props: PageHeaderProps) {
             </TooltipComponent>
           </StyledSettingsHeader>
         ) : (
-          <TooltipComponent
-            boundary="viewport"
-            content={title ?? pageTitle}
-            maxWidth="400px"
-            position={PopoverPosition.BOTTOM_LEFT}
-          >
-            <StyledSettingsHeader data-testid="t--page-title">
-              {title ?? pageTitle}
-            </StyledSettingsHeader>
-          </TooltipComponent>
+          <StyledSettingsHeader data-testid="t--page-title">
+            {title ?? pageTitle}
+          </StyledSettingsHeader>
         )}
         {details?.subText && (
           <SettingsSubHeader>{details.subText}</SettingsSubHeader>

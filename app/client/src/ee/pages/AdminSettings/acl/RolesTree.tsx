@@ -572,7 +572,9 @@ export default function RolesTree(props: RoleTreeProps) {
         }
 
         return cellProps.row.canExpand ? (
-          <ResourceCellWrapper {...cellProps.row.getToggleRowExpandedProps()}>
+          <ResourceCellWrapper
+            {...cellProps.row.getToggleRowExpandedProps({ title: undefined })}
+          >
             {cellProps.row.depth ? del : null}
             {cellProps.row.isExpanded ? (
               <Icon name="down-arrow" size={IconSize.XL} />
