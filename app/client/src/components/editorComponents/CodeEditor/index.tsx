@@ -352,9 +352,9 @@ class CodeEditor extends Component<Props, State> {
           if (this.codeEditorTarget.current) {
             this.codeEditorTarget.current.focus();
           }
-        }
-        if (this.props.editorLastCursorPosition) {
-          editor.setCursor(this.props.editorLastCursorPosition);
+          if (this.props.editorLastCursorPosition) {
+            editor.setCursor(this.props.editorLastCursorPosition);
+          }
         }
       }.bind(this);
 
@@ -394,9 +394,9 @@ class CodeEditor extends Component<Props, State> {
       if (this.codeEditorTarget.current) {
         this.codeEditorTarget.current.focus();
       }
-    }
-    if (this.props.editorLastCursorPosition) {
-      this.editor.setCursor(this.props.editorLastCursorPosition);
+      if (this.props.editorLastCursorPosition) {
+        this.editor.setCursor(this.props.editorLastCursorPosition);
+      }
     }
     this.editor.operation(() => {
       if (this.state.isFocused) return;
