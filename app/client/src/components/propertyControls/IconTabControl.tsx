@@ -50,9 +50,10 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
     }
   };
   render() {
-    const { options, propertyValue } = this.props;
+    const { fullWidth, options, propertyValue } = this.props;
     return (
       <ButtonTab
+        fullWidth={fullWidth}
         options={options}
         ref={this.componentRef}
         selectButton={this.selectOption}
@@ -79,6 +80,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
 export interface IconTabControlProps extends ControlProps {
   options: ButtonTabOption[];
   defaultValue: string;
+  fullWidth: boolean;
 }
 
 export default IconTabControl;
