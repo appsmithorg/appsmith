@@ -19,6 +19,7 @@ const StyledRTEditor = styled.div<{
   labelPosition?: LabelPosition;
   isValid?: boolean;
   isDisabled?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }>`
   && {
     width: 100%;
@@ -207,17 +208,24 @@ const StyledRTEditor = styled.div<{
   }
 
   ${labelLayoutStyles}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { align-items: stretch; }" : ""};
 `;
 
 export const RichTextEditorInputWrapper = styled.div<{
   isValid?: boolean;
   borderRadius: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -302,6 +310,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       compactMode={compactMode}
       data-testid="rte-container"
       isDisabled={props.isDisabled}
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       isValid={props.isValid}
       labelPosition={labelPosition}
     >
@@ -322,6 +331,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       )}
       <RichTextEditorInputWrapper
         borderRadius={props.borderRadius}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         isValid={props.isValid}
       >
         <Editor
