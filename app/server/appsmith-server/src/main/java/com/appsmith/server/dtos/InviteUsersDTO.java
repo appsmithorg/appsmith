@@ -1,19 +1,11 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.server.dtos.ce.InviteUsersCE_DTO;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotNull;
-import java.util.List;
-
 @Getter
 @Setter
-public class InviteUsersDTO {
-
-    @NotNull
-    List<String> usernames;
-
-    @NotNull
-    String permissionGroupId;
+public class InviteUsersDTO extends InviteUsersCE_DTO {
 
 }
