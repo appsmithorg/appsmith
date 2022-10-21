@@ -11,6 +11,7 @@ import {
   NAVIGATE_TO,
   NO_ACTION,
   OPEN_MODAL,
+  POST_MESSAGE,
   RESET_WIDGET,
   SET_INTERVAL,
   SHOW_MESSAGE,
@@ -105,5 +106,13 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.stopWatchGeolocation]: {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
     fields: [],
+  },
+  [AppsmithFunction.postWindowMessage]: {
+    label: createMessage(POST_MESSAGE),
+    fields: [
+      FieldType.MESSAGE_FIELD,
+      FieldType.SOURCE_FIELD,
+      FieldType.TARGET_ORIGIN_FIELD,
+    ],
   },
 };
