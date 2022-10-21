@@ -68,7 +68,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         case AppsmithFunction.resetWidget:
           defaultParams = `"",true`;
           break;
-        case AppsmithFunction.postMessage:
+        case AppsmithFunction.postWindowMessage:
           defaultParams = `'', 'window', '*'`;
           break;
         default:
