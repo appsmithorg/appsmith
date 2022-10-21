@@ -139,7 +139,7 @@ public class FieldName {
     public static final String FORM_LOGIN = "FormLogin";
     public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
-    public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
@@ -148,5 +148,6 @@ public class FieldName {
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
+    public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
 
 }
