@@ -348,6 +348,7 @@ export function UserListing() {
         value: role.id,
         id: role.id,
       })),
+      dropdownPlaceholder: "Select a role",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
@@ -366,6 +367,7 @@ export function UserListing() {
         value: group.id,
         id: group.id,
       })),
+      dropdownPlaceholder: "Select a group",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,

@@ -191,6 +191,7 @@ function WorkspaceInviteUsersForm(props: any) {
     disableEmailSetup = false,
     disableManageUsers = false,
     disableUserList = false,
+    dropdownPlaceholder = "",
     error,
     fetchAllRoles,
     fetchCurrentWorkspace,
@@ -415,7 +416,7 @@ function WorkspaceInviteUsersForm(props: any) {
               onSelect={(value, option) => onSelect(value, option)}
               options={styledRoles}
               outline={false}
-              placeholder="Select a role"
+              placeholder={dropdownPlaceholder || "Select a role"}
               removeSelectedOption={onRemoveOptions}
               {...(isAclFlow ? { selected: selectedOption } : {})}
               showLabelOnly={isMultiSelectDropdown}
