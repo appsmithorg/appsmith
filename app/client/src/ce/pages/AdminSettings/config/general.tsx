@@ -137,10 +137,15 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     }
   },
   parse: (value: { value: string; additionalData?: any }) => {
+    // Retrieve values from local storage while switching to limit by url option
     const sources = isUndefined(value.additionalData)
       ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
       : value.additionalData.replaceAll(",", " ");
-    localStorage.setItem("ALLOWED_FRAME_ANCESTORS", sources);
+    // If they are one of the other options we don't store it in storage since it will
+    // set in the env variable on save
+    if (sources !== "*" && sources !== "'none'") {
+      localStorage.setItem("ALLOWED_FRAME_ANCESTORS", sources);
+    }
 
     if (value.value === "ALLOW_EMBEDDING_EVERYWHERE") {
       return "*";
@@ -148,6 +153,11 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       return "'none'";
     } else {
       return sources;
+    }
+  },
+  validate: (value: string) => {
+    if (!value) {
+      return "This field cannot be empty";
     }
   },
 };

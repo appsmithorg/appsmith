@@ -148,6 +148,7 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                         }
                         buttonVariant="SECONDARY"
                         className="h-8"
+                        data-cy="viewmode-share"
                         text="Share"
                       />
                     }

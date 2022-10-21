@@ -16,6 +16,7 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
+import { FieldError } from "design-system";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
@@ -188,6 +189,9 @@ function RadioFieldWrapper(
                     onChange: onInputNodeChangeHandler,
                   },
                 })}
+                {componentProps.meta.error && (
+                  <FieldError error={componentProps.meta.error} />
+                )}
               </NodeWrapper>
             )}
           </RadioWrapper>
