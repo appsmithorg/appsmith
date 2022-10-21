@@ -2297,7 +2297,7 @@ public class DatabaseChangelog2 {
         );
     }
 
-    @ChangeSet(order = "033", id = "update-super-users", author = "", runAlways = true)
+    @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
         // Read the admin emails from the environment and update the super users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
@@ -2311,7 +2311,9 @@ public class DatabaseChangelog2 {
         String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
         Query permissionGroupQuery = new Query();
-        permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+        permissionGroupQuery
+                .addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId))
+                .fields().include(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds));
         PermissionGroup instanceAdminPG = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
         Query tenantQuery = new Query();
@@ -2339,6 +2341,7 @@ public class DatabaseChangelog2 {
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
         evictPermissionCacheForUsers(updatedUserIds, mongockTemplate, cacheableRepositoryHelper);
         instanceAdminPG.setAssignedToUserIds(userIds);
+
         mongockTemplate.save(instanceAdminPG);
     }
 
@@ -2660,12 +2663,12 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "036", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
     public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
 
-        Query query = new Query(Criteria.where("policies.*.permission").is("read:permissionGroups"));
-        UpdateDefinition updateDefinition;
-        mongockTemplate.updateFirst(query, updateDefinition, PermissionGroup.class);
+        Query query = new Query(Criteria.where("policies.permission").is("read:permissionGroups"));
+        Update update = new Update().set("policies.$.permission", "read:permissionGroupMembers");
+        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
-        private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
+    private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
         Query queryToGetNonDeletedWorkspaces = new Query();
         queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
         List<Workspace> workspaces = mongockTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
