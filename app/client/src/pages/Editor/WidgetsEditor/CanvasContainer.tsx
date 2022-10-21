@@ -28,10 +28,10 @@ import {
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { noop } from "utils/AppsmithUtils";
+// import { noop } from "utils/AppsmithUtils";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
+// import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import Canvas from "../Canvas";
 import { Positioning } from "components/constants";
 
@@ -113,11 +113,11 @@ function CanvasContainer() {
       const initialWidth = ele.offsetWidth;
       // The current position of mouse
       let x = 0;
-      let y = 0;
+      // let y = 0;
 
       // The dimension of the element
       let w = 0;
-      let h = 0;
+      // let h = 0;
       let events: any = [];
 
       // Handle the mousedown event
@@ -125,12 +125,12 @@ function CanvasContainer() {
       const mouseDownHandler = function(e: any, rightHandle: boolean) {
         // Get the current mouse position
         x = e.clientX;
-        y = e.clientY;
+        // y = e.clientY;
 
         // Calculate the dimension of element
         const styles = window.getComputedStyle(ele);
         w = parseInt(styles.width, 10);
-        h = parseInt(styles.height, 10);
+        // h = parseInt(styles.height, 10);
         const mouseMove = (e: any) => mouseMoveHandler(e, rightHandle);
         events.push(mouseMove);
         // Attach the listeners to `document`
@@ -173,7 +173,7 @@ function CanvasContainer() {
   }, [appLayout]);
 
   const leftResizer = useRef<HTMLElement | null>(null);
-  const resizer = useHorizontalResize(leftResizer, noop, noop);
+  // const resizer = useHorizontalResize(leftResizer, noop, noop);
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
   const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
