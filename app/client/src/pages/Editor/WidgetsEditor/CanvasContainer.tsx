@@ -32,8 +32,8 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 // import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import Canvas from "../Canvas";
 import { Positioning } from "components/constants";
+import Canvas from "../Canvas";
 
 const Container = styled.section<{
   background: string;
@@ -136,7 +136,7 @@ function CanvasContainer() {
         // Attach the listeners to `document`
         document.addEventListener("mousemove", mouseMove);
         document.addEventListener("mouseup", mouseUpHandler);
-        e.stopEventPropagation();
+        // e.stopPropagation();
       };
 
       const mouseMoveHandler = function(e: any, rightHandle: boolean) {
@@ -147,7 +147,7 @@ function CanvasContainer() {
           // Adjust the dimension of element
           ele.style.width = `${w + dx}px`;
         }
-        e.stopEventPropagation();
+        // e.stopPropagation();
       };
 
       const mouseUpHandler = function() {
