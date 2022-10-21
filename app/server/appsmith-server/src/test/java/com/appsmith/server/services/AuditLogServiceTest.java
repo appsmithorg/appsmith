@@ -2564,6 +2564,11 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getUser().getName()).isEqualTo("api_user");
                     //assertThat(auditLog.getUser().getIpAddress()).isNotEmpty();
 
+                    // Workspace validation
+                    assertThat(auditLog.getWorkspace().getId()).isEqualTo(createdWorkspace.getId());
+                    assertThat(auditLog.getWorkspace().getName()).isEqualTo(workspace.getName());
+                    assertThat(auditLog.getWorkspace().getDestination()).isNull();
+
                     // Invited users validation
                     assertThat(auditLog.getInvitedUsers().size()).isEqualTo(invitedUsers.size());
                     assertThat(auditLog.getInvitedUsers().get(0)).isIn(invitedUsers);
@@ -2576,7 +2581,6 @@ public class AuditLogServiceTest {
 
                     // Misc. fields validation
                     assertThat(auditLog.getResource()).isNull();
-                    assertThat(auditLog.getWorkspace()).isNull();
                     assertThat(auditLog.getApplication()).isNull();
                     assertThat(auditLog.getPage()).isNull();
                     assertThat(auditLog.getAuthentication()).isNull();

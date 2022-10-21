@@ -319,8 +319,16 @@ public class AuditLogServiceImpl implements AuditLogService {
         auditLogMetadata.setAppsmithVersion(releaseNotesService.getReleasedVersion());
         auditLog.setMetadata(auditLogMetadata);
 
+        Map<String, Object> eventData = new HashMap<>();
+        if (properties != null && properties.containsKey(FieldName.EVENT_DATA) && properties.get(FieldName.EVENT_DATA) != null) {
+            eventData.putAll((Map) properties.get(FieldName.EVENT_DATA));
+            if (properties.containsKey(FieldName.INVITED_USERS)) {
+                eventData.put(FieldName.INVITED_USERS, properties.get(FieldName.INVITED_USERS));
+            }
+        }
+
         if (AnalyticsEvents.EXECUTE_INVITE_USERS.equals(event)) {
-            setInvitedUsers(auditLog, properties);
+            setUserInvitedProperties(auditLog, eventData);
         }
 
         Mono<AuditLog> auditLogMono = Mono.just(auditLog);
@@ -455,13 +463,16 @@ public class AuditLogServiceImpl implements AuditLogService {
     }
 
     /**
-     * To set invited users list to user.invited events
+     * To set properties for user invited events
      * @param auditLog auditLog
-     * @param properties extra analytic properties
+     * @param eventData eventData from analytics event
      */
-    private void setInvitedUsers(AuditLog auditLog, Map<String, Object> properties) {
-        if (properties != null && properties.get(FieldName.INVITED_USERS) != null) {
-            auditLog.setInvitedUsers((ArrayList<String>) properties.get(FieldName.INVITED_USERS));
+    private void setUserInvitedProperties(AuditLog auditLog, Map<String, Object> eventData) {
+        if (eventData.containsKey(FieldName.INVITED_USERS)) {
+            auditLog.setInvitedUsers((ArrayList<String>) eventData.get(FieldName.INVITED_USERS));
+        }
+        if (eventData.containsKey(FieldName.WORKSPACE)) {
+            setWorkspaceProperties(auditLog, (Workspace) eventData.get(FieldName.WORKSPACE));
         }
     }
 
