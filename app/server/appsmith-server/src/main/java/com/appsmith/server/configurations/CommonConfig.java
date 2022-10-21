@@ -63,9 +63,15 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
-    @Value("${appsmith.rts.url:http://localhost:8091}")
-    private String rtsBaseDomain;
+    private String rtsBaseDomain = "http://localhost:8091";
+
     private List<String> allowedDomains;
+
+    @Value("${APPSMITH_OIDC_DISABLE_NONCE:false}")
+    private boolean isNonceDisabled;
+
+    @Value("${APPSMITH_OAUTH2_OIDC_AUDIENCE:}")
+    private String oidcAudience;
 
 
     @Bean

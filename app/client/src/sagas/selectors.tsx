@@ -134,7 +134,7 @@ export const getPluginIdOfPackageName = (
   name: string,
 ): string | undefined => {
   const plugins = state.entities.plugins.list;
-  const plugin = _.find(plugins, { packageName: name });
+  const plugin = plugins.find((plugin) => plugin.packageName === name);
   if (plugin) return plugin.id;
   return undefined;
 };

@@ -39,6 +39,8 @@ import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
 import appThemingReducer from "./appThemingReducer";
 import mainCanvasReducer from "./mainCanvasReducer";
+import focusHistoryReducer from "./focusHistoryReducer";
+import { editorContextReducer } from "./editorContextReducer";
 import guidedTourReducer from "./guidedTourReducer";
 
 const uiReducer = combineReducers({
@@ -83,6 +85,8 @@ const uiReducer = combineReducers({
   widgetReflow: widgetReflowReducer,
   appTheming: appThemingReducer,
   mainCanvas: mainCanvasReducer,
+  focusHistory: focusHistoryReducer,
+  editorContext: editorContextReducer,
 });
 
 export default uiReducer;

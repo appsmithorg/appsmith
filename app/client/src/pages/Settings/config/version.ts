@@ -10,6 +10,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 
 export const config: AdminConfigType = {
+  icon: "timer-2-line",
   type: SettingCategories.VERSION,
   controlType: SettingTypes.GROUP,
   title: "Version",

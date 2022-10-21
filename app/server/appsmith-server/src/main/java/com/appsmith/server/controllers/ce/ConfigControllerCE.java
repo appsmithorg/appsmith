@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 public class ConfigControllerCE {
 
     private final ConfigService service;
+
     public ConfigControllerCE(ConfigService service) {
         this.service = service;
     }
@@ -31,4 +32,5 @@ public class ConfigControllerCE {
         return service.updateByName(config)
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
+
 }

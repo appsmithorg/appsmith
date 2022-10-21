@@ -34,6 +34,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 
+
     @Override
     public Mono<String> getDefaultTenantId() {
 
@@ -76,7 +77,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      *  start saving other pertinent environment variables in the tenant collection
      */
     @Override
-    public Mono<TenantConfiguration> getTenantConfiguration() {
-        return Mono.just(new TenantConfiguration());
+    public Mono<Tenant> getTenantConfiguration() {
+        return Mono.just(new Tenant());
     }
 }

@@ -1,0 +1,50 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": [
+    {
+      "id": "1",
+      "isEditing": false,
+      "isDeleting": false,
+      "permissionName": "HR_Appsmith",
+      "isAppsmithProvided": false
+    },
+    {
+      "id": "2",
+      "isEditing": false,
+      "isDeleting": false,
+      "permissionName": "devops_design",
+      "isAppsmithProvided": false
+    },
+    {
+      "id": "3",
+      "isEditing": false,
+      "isDeleting": false,
+      "permissionName": "devops_eng_nov",
+      "isAppsmithProvided": false
+    },
+    {
+      "id": "4",
+      "isEditing": false,
+      "isDeleting": false,
+      "permissionName": "marketing_nov",
+      "isAppsmithProvided": false
+    },
+    {
+      "id": "5",
+      "isEditing": false,
+      "isDeleting": false,
+      "permissionName": "Administrator",
+      "isAppsmithProvided": true
+    },
+    {
+      "id": "6",
+      "isEditing": false,
+      "isDeleting": false,
+      "permissionName": "App Viewer",
+      "isAppsmithProvided": true
+    }
+  ]
+}

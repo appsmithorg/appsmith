@@ -33,5 +33,12 @@ public interface Url {
     String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
 
+
     String ENVIRONMENT_URL = BASE_URL + VERSION + "/environments";
+
+    // EE specific endpoints.
+    String AUDIT_LOGS_URL = BASE_URL + VERSION + "/audit-logs";
+    String PERMISSION_GROUP_URL = BASE_URL + VERSION + "/roles";
+    String USER_GROUP_URL = BASE_URL + VERSION + "/user-groups";
+
 }

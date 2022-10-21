@@ -115,6 +115,16 @@ public class FieldName {
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
+    public static final String APPSMITH_VERSION = "appsmithVersion";
+    public static final String AUDIT_LOG_EVENT_DELIMITER = ".";
+    public static final String CREATED = "created";
+    public static final String UPDATED = "updated";
+    public static final String IMPORTED = "imported";
+    public static final String EXPORTED = "exported";
+    public static final String CLONED = "cloned";
+    public static final String FORKED = "forked";
+    public static final String EXECUTED = "executed";
+    public static final String QUERY = "query";
     public static final String ADMINISTRATOR = "Administrator";
     public static final String WORKSPACE_ADMINISTRATOR_DESCRIPTION = "Can modify all workspace settings including " +
             "editing applications, inviting other users to the workspace and exporting applications " +
@@ -139,14 +149,41 @@ public class FieldName {
     public static final String FORM_LOGIN = "FormLogin";
     public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
-    public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+    public static final String LOGGED_IN = "logged_in";
+    public static final String LOGGED_OUT = "logged_out";
+    public static final String SIGNED_UP = "signed_up";
+    public static final String INSTANCE_SETTING = "instance_setting";
+    public static final String GOOGLE = "Google";
+    public static final String GITHUB = "GitHub";
+    public static final String SAML = "SAML";
+    public static final String OIDC = "OIDC";
+    public static final String DEPLOYED = "deployed";
+    public static final String VIEWED = "viewed";
+    public static final String INVITED = "invited";
+    public static final String GROUP = "group";
+    public static final String INVITED_USERS = "userEmails";
+    public static final String PROVIDER = "provider";
+    public static final String PUBLIC = "public";
+    public static final String PRIVATE = "private";
+    public static final String IS_SUCCESSFUL_EXECUTION = "isSuccessfulExecution";
+    public static final String STATUS_CODE = "statusCode";
+    public static final String TIME_ELAPSED = "timeElapsed";
+    public static final String SUCCESS = "success";
+    public static final String FAILED = "failed";
+    public static final String AUDIT_LOG_FILTER_EVENT_DELIMITER = "_";
+    public static final String AUDIT_LOG_APP_MODE_EDIT = "edit";
+    public static final String AUDIT_LOG_APP_MODE_VIEW = "view";
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
+    public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
+
+    public static final String AUDIT_LOGS = "Audit Logs";
 
 }
