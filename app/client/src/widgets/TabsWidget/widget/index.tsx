@@ -42,6 +42,7 @@ class TabsWidget extends BaseWidget<
             propertyName: "tabsObj",
             isJSConvertible: false,
             label: "Tabs",
+            helpText: "Tabs",
             controlType: "TABS_INPUT",
             isBindProperty: false,
             isTriggerProperty: false,
