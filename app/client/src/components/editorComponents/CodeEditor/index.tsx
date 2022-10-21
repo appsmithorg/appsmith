@@ -100,6 +100,7 @@ import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
+  getCodeEditorHistory,
   getCodeEditorLastCursorPosition,
   getIsCodeEditorFocused,
 } from "selectors/editorContextSelectors";
@@ -461,23 +462,6 @@ class CodeEditor extends Component<Props, State> {
   };
 
   componentWillUnmount() {
-    if (document.activeElement === this.codeEditorTarget.current) {
-      const cursorPosition = { ch: 0, line: 0 };
-      if (this.props.editorLastCursorPosition) {
-        const { ch, line } = this.props.editorLastCursorPosition;
-        cursorPosition.ch = ch;
-        cursorPosition.line = line;
-      }
-      if (this.editor) {
-        const { ch, line } = this.editor.getCursor();
-        cursorPosition.ch = ch;
-        cursorPosition.line = line;
-      }
-      this.props.setCodeEditorLastFocus({
-        key: this.props.dataTreePath,
-        cursorPosition,
-      });
-    }
     // if the highlighted element exists, remove the event listeners to prevent memory leaks
     if (this.highlightedUrlElement) {
       removeEventFromHighlightedElement(this.highlightedUrlElement, [
