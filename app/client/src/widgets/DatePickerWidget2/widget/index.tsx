@@ -133,11 +133,12 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
+              { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
-              { label: "Auto", value: LabelPosition.Auto },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -287,6 +288,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           {
             propertyName: "onDateSelected",
             label: "onDateSelected",
+            helpText:
+              "Triggers an action when a date is selected in the calendar",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -305,6 +308,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           {
             propertyName: "labelTextColor",
             label: "Font Color",
+            helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -314,6 +318,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           {
             propertyName: "labelTextSize",
             label: "Font Size",
+            helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -356,6 +361,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           {
             propertyName: "labelStyle",
             label: "Emphasis",
+            helpText: "Control if the label should be bold or italics",
             controlType: "BUTTON_TABS",
             options: [
               {

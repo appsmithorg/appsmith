@@ -40,18 +40,19 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "overflow",
             label: "Overflow Text",
             helpText: "Controls the text behavior when length of text exceeds",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
-                label: "Scroll contents",
+                label: "Scroll",
                 value: OverflowTypes.SCROLL,
               },
               {
-                label: "Truncate text",
+                label: "Truncate",
                 value: OverflowTypes.TRUNCATE,
               },
               {
-                label: "No overflow",
+                label: "None",
                 value: OverflowTypes.NONE,
               },
             ],
@@ -106,6 +107,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontFamily",
             label: "Font Family",
+            helpText: "Controls the font family being used",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -160,6 +162,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontSize",
             label: "Font Size",
+            helpText: "Controls the size of the font used",
             controlType: "DROP_DOWN",
             defaultValue: "1rem",
             options: [
@@ -209,6 +212,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "textColor",
             label: "Text Color",
+            helpText: "Controls the color of the text displayed",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -223,6 +227,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "backgroundColor",
             label: "Background Color",
+            helpText: "Background color of the text added",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -252,6 +257,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "truncateButtonColor",
             label: "Truncate Button Color",
+            helpText: "Controls the color of the truncate button",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -275,7 +281,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "textAlign",
             label: "Alignment",
+            helpText: "Controls the horizontal alignment of the text",
             controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 icon: "LEFT_ALIGN",
@@ -299,6 +307,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontStyle",
             label: "Emphasis",
+            helpText: "Controls the font emphasis of the text displayed",
             controlType: "BUTTON_TABS",
             options: [
               {

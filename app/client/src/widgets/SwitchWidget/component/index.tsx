@@ -1,4 +1,4 @@
-import { Alignment, Classes, Switch } from "@blueprintjs/core";
+import { Classes, Switch } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
@@ -36,7 +36,7 @@ const SwitchComponentContainer = styled.div<{
 
 const SwitchLabel = styled.div<{
   disabled?: boolean;
-  labelPosition: LabelPosition;
+  alignment: AlignWidgetTypes;
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
@@ -45,7 +45,7 @@ const SwitchLabel = styled.div<{
   width: 100%;
   display: inline-block;
   vertical-align: top;
-  text-align: ${({ labelPosition }) => labelPosition.toLowerCase()};
+  text-align: ${({ alignment }) => alignment.toLowerCase()};
   ${({ disabled, labelStyle, labelTextColor, labelTextSize }) => `
   color: ${disabled ? Colors.GREY_8 : labelTextColor || "inherit"};
   font-size: ${labelTextSize ?? "inherit"};
@@ -91,7 +91,7 @@ export const StyledSwitch = styled(Switch)<{
 
 function SwitchComponent({
   accentColor,
-  alignWidget,
+  alignWidget = AlignWidgetTypes.LEFT,
   inputRef,
   isDisabled,
   isDynamicHeightEnabled,
@@ -105,7 +105,7 @@ function SwitchComponent({
   onChange,
 }: SwitchComponentProps): JSX.Element {
   const switchAlignClass =
-    alignWidget === AlignWidgetTypes.RIGHT ? Alignment.RIGHT : Alignment.LEFT;
+    labelPosition === LabelPosition.Right ? "left" : "right";
 
   return (
     <SwitchComponentContainer accentColor={accentColor}>
@@ -126,10 +126,10 @@ function SwitchComponent({
         inputRef={inputRef}
         labelElement={
           <SwitchLabel
+            alignment={alignWidget}
             className="t--switch-widget-label"
             disabled={isDisabled}
             isDynamicHeightEnabled={isDynamicHeightEnabled}
-            labelPosition={labelPosition}
             labelStyle={labelStyle}
             labelTextColor={labelTextColor}
             labelTextSize={labelTextSize}
