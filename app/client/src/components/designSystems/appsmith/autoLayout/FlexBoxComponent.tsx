@@ -1,6 +1,6 @@
+import { isArray } from "lodash";
 import React, { ReactNode } from "react";
 import styled from "styled-components";
-import { isArray } from "lodash";
 
 import { AppState } from "ce/reducers";
 import {
