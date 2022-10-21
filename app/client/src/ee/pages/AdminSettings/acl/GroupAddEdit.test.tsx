@@ -32,7 +32,7 @@ const props: GroupEditProps = {
   isNew: false,
 };
 
-function renderComponent(): any {
+function renderComponent() {
   return render(<GroupAddEdit {...props} />);
 }
 

@@ -46,6 +46,7 @@ export type GroupResponse = ApiResponse<GroupResponsePayload>;
 
 export type UpdateGroupsInUserRequestPayload = {
   userId: string;
+  usernames: string[];
   groupsAdded: string[];
   groupsRemoved: string[];
 };
@@ -98,13 +99,11 @@ export class AclApi extends Api {
   static async updateGroupsInUser(
     payload: UpdateGroupsInUserRequestPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.put(
-      `${AclApi.userGroups}/users/${payload.userId}`,
-      {
-        groupsAdded: payload.groupsAdded,
-        groupsRemoved: payload.groupsRemoved,
-      },
-    );
+    const response = await Api.put(`${AclApi.userGroups}/users`, {
+      usernames: payload.usernames,
+      groupsAdded: payload.groupsAdded,
+      groupsRemoved: payload.groupsRemoved,
+    });
     return response;
   }
 

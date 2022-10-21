@@ -18,7 +18,7 @@ export enum INVITE_USERS_TAB_ID {
 
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin: 32px 0 0 ${(props) => props.theme.homePage.main.marginLeft}px;
+  margin: 32px 0 0 0;
   padding: 0 30px 0 0;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 
@@ -32,7 +32,6 @@ export const AclWrapper = styled.div`
 
         .save-button-bar {
           bottom: 4px;
-          width: calc(100% - 10px);
           flex-shrink: 0;
           margin: auto;
         }
@@ -42,7 +41,7 @@ export const AclWrapper = styled.div`
 `;
 
 export const SaveButtonBarWrapper = styled.div`
-  position: sticky;
+  position: fixed;
   bottom: 0;
   height: ${(props) => props.theme.settings.footerHeight}px;
   box-shadow: ${(props) => props.theme.settings.footerShadow};
@@ -52,7 +51,8 @@ export const SaveButtonBarWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  width: 100%;
+  min-width: 800px;
+  width: calc(100% - 320px);
 `;
 
 export const TabsWrapper = styled.div<{ isSaving?: boolean }>`
@@ -64,7 +64,7 @@ export const TabsWrapper = styled.div<{ isSaving?: boolean }>`
   }
   .react-tabs__tab-panel {
     height: ${({ isSaving }) =>
-      isSaving ? `calc(100% - 128px - 80px)` : `calc(100% - 128px)`};
+      isSaving ? `calc(100% - 148px - 80px)` : `calc(100% - 148px)`};
   }
 `;
 

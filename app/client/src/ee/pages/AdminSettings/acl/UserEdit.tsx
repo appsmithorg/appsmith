@@ -128,7 +128,7 @@ export function UserEdit(props: UserEditProps) {
   const [
     removedActivePermissionGroups,
     setRemovedActivePermissionGroups,
-  ] = useState<Array<any>>([]);
+  ] = useState<BaseAclProps[]>([]);
   const [addedAllPermGroups, setAddedAllPermGroups] = useState<BaseAclProps[]>(
     [],
   );
@@ -181,7 +181,7 @@ export function UserEdit(props: UserEditProps) {
     }
   };
 
-  const onRemoveGroup = (group: any) => {
+  const onRemoveGroup = (group: BaseAclProps) => {
     if (selectedTabIndex === 0) {
       const updateUserGroups =
         getFilteredData(removedActiveUserGroups, group, true).length > 0
@@ -215,20 +215,31 @@ export function UserEdit(props: UserEditProps) {
         addedAllPermGroups.length > 0);
 
     if (onlyGroupsUdated) {
-      const groupsAdded = addedAllUserGroups.map((group: any) => group.id);
-      const groupsRemoved = removedActiveUserGroups.map(
-        (group: any) => group.id,
+      const groupsAdded = addedAllUserGroups.map(
+        (group: BaseAclProps) => group.id,
       );
-      dispatch(updateGroupsInUser(selectedUser.id, groupsAdded, groupsRemoved));
+      const groupsRemoved = removedActiveUserGroups.map(
+        (group: BaseAclProps) => group.id,
+      );
+      dispatch(
+        updateGroupsInUser(
+          selectedUser.id,
+          selectedUser.username,
+          groupsAdded,
+          groupsRemoved,
+        ),
+      );
     } else if (onlyRolesUdated) {
-      const rolesAdded = addedAllPermGroups.map((group: any) => ({
+      const rolesAdded = addedAllPermGroups.map((group: BaseAclProps) => ({
         id: group.id,
         name: group.name,
       }));
-      const rolesRemoved = removedActivePermissionGroups.map((role: any) => ({
-        id: role.id,
-        name: role.name,
-      }));
+      const rolesRemoved = removedActivePermissionGroups.map(
+        (role: BaseAclProps) => ({
+          id: role.id,
+          name: role.name,
+        }),
+      );
       dispatch(
         updateRolesInUser(
           { id: selectedUser.id, name: selectedUser.name },
@@ -237,19 +248,30 @@ export function UserEdit(props: UserEditProps) {
         ),
       );
     } else if (bothGroupsRolesUpdated) {
-      const rolesAdded = addedAllPermGroups.map((group: any) => ({
+      const rolesAdded = addedAllPermGroups.map((group: BaseAclProps) => ({
         id: group.id,
         name: group.name,
       }));
-      const rolesRemoved = removedActivePermissionGroups.map((role: any) => ({
-        id: role.id,
-        name: role.name,
-      }));
-      const groupsAdded = addedAllUserGroups.map((group: any) => group.id);
-      const groupsRemoved = removedActiveUserGroups.map(
-        (group: any) => group.id,
+      const rolesRemoved = removedActivePermissionGroups.map(
+        (role: BaseAclProps) => ({
+          id: role.id,
+          name: role.name,
+        }),
       );
-      dispatch(updateGroupsInUser(selectedUser.id, groupsAdded, groupsRemoved));
+      const groupsAdded = addedAllUserGroups.map(
+        (group: BaseAclProps) => group.id,
+      );
+      const groupsRemoved = removedActiveUserGroups.map(
+        (group: BaseAclProps) => group.id,
+      );
+      dispatch(
+        updateGroupsInUser(
+          selectedUser.id,
+          selectedUser.username,
+          groupsAdded,
+          groupsRemoved,
+        ),
+      );
       dispatch(
         updateRolesInUser(
           { id: selectedUser.id, name: selectedUser.name },

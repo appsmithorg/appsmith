@@ -5,8 +5,9 @@ import { RoleAddEdit } from "./RoleAddEdit";
 import { rolesTableData } from "./mocks/RolesListingMock";
 import userEvent from "@testing-library/user-event";
 import { response1 } from "./mocks/mockRoleTreeResponse";
-import { RoleEditProps } from "./types";
+import { BaseAclProps, RoleEditProps } from "./types";
 import { makeData } from "./RolesTree";
+import { MenuItemProps } from "design-system";
 
 let container: any = null;
 
@@ -59,11 +60,13 @@ describe("<RoleAddEdit />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    const options = listMenuItems.map((menuItem: any) => menuItem.text);
+    const options = listMenuItems.map(
+      (menuItem: MenuItemProps) => menuItem.text,
+    );
     const menuElements = options
-      .map((option: any) => getAllByText(option))
+      .map((option: string) => getAllByText(option))
       .flat();
-    options.forEach((option: any, index: any) => {
+    options.forEach((option: string, index: number) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
@@ -98,7 +101,7 @@ describe("<RoleAddEdit />", () => {
     renderComponent();
     const tabData: any = Object.values(response1.tabs)[0];
     const columns = tabData?.permissions;
-    const tableColumns: any[] = screen.getAllByRole("columnheader");
+    const tableColumns: HTMLElement[] = screen.getAllByRole("columnheader");
     for (const index in columns) {
       expect(tableColumns[parseInt(index) + 1]).toHaveTextContent(
         columns[index],
@@ -151,9 +154,9 @@ describe("<RoleAddEdit />", () => {
     const hoverCheckboxEl = getAllByTestId(elId);
     const rightArrows = document.getElementsByName("right-arrow-2");
     rightArrows[0].click();
-    const hoverEls: any[] = [];
+    const hoverEls: HTMLElement[] = [];
     const tabData: any = Object.values(response1.tabs)[0];
-    tabData.hoverMap[elId].forEach((item: any) => {
+    tabData.hoverMap[elId].forEach((item: { id: string; p: string }) => {
       hoverEls.push(...queryAllByTestId(`${item.id}_${item.p}`));
     });
     userEvent.hover(hoverCheckboxEl[0]);
@@ -167,7 +170,7 @@ describe("<RoleAddEdit />", () => {
     const inputs = rows[1].getElementsByTagName("input");
     const tabData: any = Object.values(response1.tabs)[0];
     const data = makeData([tabData.data] || []);
-    const noCheckboxCount = data[0].permissions.filter((p: any) => p);
+    const noCheckboxCount = data[0].permissions.filter((p: BaseAclProps) => p);
     expect(inputs.length).toEqual(
       data[0].permissions.length - noCheckboxCount.length,
     );

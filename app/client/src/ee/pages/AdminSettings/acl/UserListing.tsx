@@ -137,7 +137,7 @@ export function UserListing() {
       dispatch(
         inviteUsersViaRoles(
           values.users
-            ? values.users.split(",").map((user: any) => ({
+            ? values.users.split(",").map((user: string) => ({
                 name: user,
               }))
             : [],
@@ -203,7 +203,8 @@ export function UserListing() {
             ) : (
               <GroupWrapper>
                 {cellProps.cell.row.values.roles?.[0]?.name}
-                {cellProps.cell.row.values.roles?.[0]?.name.length < 40 ? (
+                {cellProps.cell.row.values.roles?.[0]?.name.length < 40 &&
+                cellProps.cell.row.values.roles?.length > 1 ? (
                   <>
                     , {cellProps.cell.row.values.roles?.[1]?.name}
                     {cellProps.cell.row.values.roles?.length > 2 && (
@@ -261,7 +262,8 @@ export function UserListing() {
             ) : (
               <GroupWrapper>
                 {cellProps.cell.row.values.groups?.[0]?.name}
-                {cellProps.cell.row.values.groups?.[0]?.name.length < 40 ? (
+                {cellProps.cell.row.values.groups?.[0]?.name.length < 40 &&
+                cellProps.cell.row.values.groups?.length > 1 ? (
                   <>
                     , {cellProps.cell.row.values.groups?.[1]?.name}
                     {cellProps.cell.row.values.groups?.length > 2 && (
@@ -382,7 +384,7 @@ export function UserListing() {
       setSearchValue(search);
       const results =
         aclUsers &&
-        aclUsers.filter((user: any) =>
+        aclUsers.filter((user: UserProps) =>
           user.username?.toLocaleUpperCase().includes(search),
         );
       setData(results);

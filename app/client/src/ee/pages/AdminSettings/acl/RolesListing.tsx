@@ -56,7 +56,7 @@ export function RolesListing() {
 
   const [data, setData] = useState<RoleProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [selectedRole, setSelectedRole] = useState<RoleProps | null>(null);
   const [isNewRole, setIsNewRole] = useState(false);
 
   const selectedRoleId = params?.selected;

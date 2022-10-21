@@ -99,7 +99,7 @@ describe("<ActiveAllGroupsList />", () => {
 
     await waitFor(() => {
       const searchedActive = getAllByTestId("t--highlighted-text");
-      searchedActive.forEach((searched: any) => {
+      searchedActive.forEach((searched: HTMLElement) => {
         expect(searched).toHaveTextContent("devops");
       });
     });
@@ -127,7 +127,7 @@ describe("<ActiveAllGroupsList />", () => {
       expect(activeGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
       expect(searchedActive[0]).toHaveTextContent("devops");
-      activeGroups.forEach((group: any) => {
+      activeGroups.forEach((group: HTMLElement) => {
         expect(group).not.toHaveTextContent("marketing_nov");
         expect(group).toHaveTextContent("devops");
       });
@@ -138,7 +138,7 @@ describe("<ActiveAllGroupsList />", () => {
       expect(allGroups).toHaveLength(1);
       const searchedActive = getAllByTestId("t--highlighted-text");
       expect(searchedActive[0]).toHaveTextContent("devops");
-      allGroups.forEach((group: any) => {
+      allGroups.forEach((group: HTMLElement) => {
         expect(group).not.toHaveTextContent("Administrator");
         expect(group).toHaveTextContent("devops");
       });

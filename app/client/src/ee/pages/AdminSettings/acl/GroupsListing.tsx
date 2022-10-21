@@ -53,7 +53,9 @@ export function GroupListing() {
 
   const [data, setData] = useState<GroupProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedUserGroup, setSelectedUserGroup] = useState<any>({});
+  const [selectedUserGroup, setSelectedUserGroup] = useState<GroupProps | null>(
+    null,
+  );
   const [isNewGroup, setIsNewGroup] = useState(false);
 
   const selectedUserGroupId = params?.selected;

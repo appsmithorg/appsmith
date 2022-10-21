@@ -75,10 +75,10 @@ describe("<RoleListing />", () => {
     const role = screen.getAllByTestId("t--roles-cell");
     const appsmithBadge = screen.getAllByTestId("t--appsmith-badge");
     const appsmithProvided = rolesTableData.filter(
-      (role: any) => role.isAppsmithProvided,
+      (role: RoleProps) => role.isAppsmithProvided,
     );
     expect(appsmithBadge.length).toEqual(appsmithProvided.length);
-    rolesTableData.forEach((group: any, index: any) => {
+    rolesTableData.forEach((group: RoleProps, index: number) => {
       if (!group.isAppsmithProvided) {
         expect(
           role[index].querySelectorAll("[data-testid='t--appsmith-badge']"),
@@ -100,11 +100,13 @@ describe("<RoleListing />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const options = listMenuItems.map((menuItem: any) => menuItem.text);
+    const options = listMenuItems.map(
+      (menuItem: MenuItemProps) => menuItem.text,
+    );
     const menuElements = options
-      .map((option: any) => getAllByText(option))
+      .map((option: string) => getAllByText(option))
       .flat();
-    options.forEach((option: any, index: any) => {
+    options.forEach((option: string, index: number) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });

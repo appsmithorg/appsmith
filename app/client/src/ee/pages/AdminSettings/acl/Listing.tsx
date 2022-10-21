@@ -14,7 +14,7 @@ import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { ListingProps } from "./types";
 
 const ListingWrapper = styled.div`
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  height: calc(100vh - 148px);
   overflow: auto;
   table {
     border-collapse: separate;
