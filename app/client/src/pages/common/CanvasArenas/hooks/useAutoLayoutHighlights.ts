@@ -227,7 +227,7 @@ export const useAutoLayoutHighlights = ({
     let index = 0;
     const arr: HighlightInfo[] = [];
     const rects: DOMRect[] = [];
-
+    // TODO: add documentation for the updated logic.
     for (const layer of flexLayers) {
       // remove dragged blocks from the layer
       const filteredLayer = filterLayer(layer, offsetChildren);
