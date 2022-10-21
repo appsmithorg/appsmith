@@ -80,6 +80,8 @@ const getTabs = (
                   }
                 : {})}
               applicationId={applicationId}
+              dropdownMaxHeight={tab.dropdownMaxHeight}
+              dropdownPlaceholder={tab.dropdownPlaceholder}
               formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
               onCancel={() => setIsOpen(false)}
               options={tab.options}
