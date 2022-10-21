@@ -73,7 +73,7 @@ export type FieldProps = {
   widgetOptionTree: TreeDropdownOption[];
   modalDropdownList: TreeDropdownOption[];
   pageDropdownOptions: TreeDropdownOption[];
-  integrationOptionTree: TreeDropdownOption[];
+  queriesAndJsObjectsOption: TreeDropdownOption[];
   depth: number;
   maxDepth: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
