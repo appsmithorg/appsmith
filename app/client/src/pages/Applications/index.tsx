@@ -327,7 +327,7 @@ const StyledAnchor = styled.a`
 
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 292}px);
   ${thinScrollbar};
   /* padding-bottom: 160px; */
 `;
