@@ -38,6 +38,10 @@ const CheckboxWrapper = styled.div`
   input:indeterminate + .bp3-control-indicator::before {
     background-color: var(--appsmith-color-black-700);
   }
+
+  .bp3-control.bp3-checkbox .bp3-control-indicator {
+    border-radius: unset;
+  }
 `;
 
 const StyledTable = styled.table`
@@ -705,7 +709,6 @@ export default function RolesTree(props: RoleTreeProps) {
      the rowIndex, columnId and new value to update the
      original data */
   const updateMyData = (newValue: any, cellId: string, rowId: any) => {
-    dataToBeSent = [];
     setIsSaving(true);
     setData((old: any[]) => {
       return updateData(old, newValue, cellId, rowId, tabData);

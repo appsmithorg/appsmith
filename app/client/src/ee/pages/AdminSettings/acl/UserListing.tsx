@@ -143,7 +143,7 @@ export function UserListing() {
         inviteUsersViaRoles(
           values.users
             ? values.users.split(",").map((user: string) => ({
-                name: user,
+                username: user,
               }))
             : [],
           values.options.map((option: any) => ({
