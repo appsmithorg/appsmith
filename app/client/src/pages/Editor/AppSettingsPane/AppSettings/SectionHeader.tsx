@@ -1,5 +1,4 @@
 import classNames from "classnames";
-import { Colors } from "constants/Colors";
 import { Icon, IconName, IconSize } from "design-system";
 import React from "react";
 import styled from "styled-components";
@@ -18,8 +17,8 @@ const StyledWrapper = styled.div`
 
 class SectionHeader extends React.Component<SectionHeaderProps> {
   render(): React.ReactNode {
-    const hoverBgColor = `hover:bg-[#E7E7E7]`;
-    const bgColor = `bg-[#E7E7E7]`;
+    const hoverBgColor = `hover:bg-[color:var(--appsmith-color-black-200)]`;
+    const bgColor = `bg-[color:var(--appsmith-color-black-200)]`;
     return (
       <StyledWrapper
         className={classNames({

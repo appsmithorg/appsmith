@@ -8,7 +8,7 @@ import { CommonComponentProps } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { HeaderIcons } from "icons/HeaderIcons";
-import { Colors } from "constants/Colors";
+import { MenuDivider } from "design-system";
 
 const ShareIcon = HeaderIcons.SHARE;
 
@@ -179,7 +179,7 @@ export function NavigationMenuItem({
         />
       );
     case MenuTypes.MENU_DIVIDER:
-      return <div className={`border-t-[1px] border-[#E8E8E8]`} />;
+      return <MenuDivider className="!m-0" />;
     default:
       return null;
   }

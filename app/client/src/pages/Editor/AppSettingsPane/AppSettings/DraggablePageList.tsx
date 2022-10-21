@@ -22,8 +22,9 @@ function PageListHeader(props: {
   return (
     <div
       className={classNames({
-        "h-9 flex items-center cursor-pointer hover:bg-[#E7E7E7]": true,
-        "bg-[#E7E7E7]": props.selectedPage === props.page.pageId,
+        "h-9 flex items-center cursor-pointer hover:bg-[color:var(--appsmith-color-black-200)]": true,
+        "bg-[color:var(--appsmith-color-black-200)]":
+          props.selectedPage === props.page.pageId,
       })}
       onClick={() => {
         props.onPageSelect(props.page.pageId);

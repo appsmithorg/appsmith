@@ -5,7 +5,6 @@ import {
   GENERAL_SETTINGS_APP_NAME_LABEL,
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
-import { Colors } from "constants/Colors";
 import {
   AppIconName,
   TextInput,

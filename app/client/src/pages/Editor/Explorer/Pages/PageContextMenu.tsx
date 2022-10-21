@@ -143,7 +143,7 @@ export function PageContextMenu(props: {
     });
   } else {
     optionTree.push({
-      className: "!text-[#939393]",
+      className: "!text-[color:var(--appsmith-color-black-500)]",
       disabled: true,
       value: "setdefault",
       label: createMessage(CONTEXT_SET_AS_HOME_PAGE),

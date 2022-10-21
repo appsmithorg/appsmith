@@ -190,11 +190,13 @@ function PageSettings(props: { page: Page }) {
 
       <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_URL_LABEL()}</Text>
       {appNeedsUpdate && (
-        <div className={`pt-1 text-[#575757] text-[13px] leading-extra-tight`}>
+        <div
+          className={`pt-1 text-[color:var(--appsmith-color-black-700)] text-[13px] leading-extra-tight`}
+        >
           {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1()}{" "}
           <ManualUpgrades inline>
             <a>
-              <u className="text-[#191919]">
+              <u className="text-[color:var(--appsmith-color-black-900)]">
                 {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2()}
               </u>
             </a>
@@ -232,9 +234,11 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       {!appNeedsUpdate && (
-        <UrlPreviewWrapper className={`mb-2 bg-[#f1f1f1]`}>
+        <UrlPreviewWrapper
+          className={`mb-2 bg-[color:var(--appsmith-color-black-100)]`}
+        >
           <UrlPreviewScroll
-            className={`py-1 pl-2 mr-0.5 text-[#575757] text-xs leading-extra-tight break-all`}
+            className={`py-1 pl-2 mr-0.5 text-[color:var(--appsmith-color-black-700)] text-xs leading-extra-tight break-all`}
           >
             {location.protocol}
             {"//"}
@@ -242,7 +246,11 @@ function PageSettings(props: { page: Page }) {
             {Array.isArray(pathPreview) && (
               <>
                 {pathPreview[0]}
-                <strong className={`text-[#393939]`}>{pathPreview[1]}</strong>
+                <strong
+                  className={`text-[color:var(--appsmith-color-black-800))]`}
+                >
+                  {pathPreview[1]}
+                </strong>
                 {pathPreview[2]}
                 {pathPreview[3]}
               </>
@@ -269,7 +277,7 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       <div className="flex justify-between content-center">
-        <div className={`text-[#575757]`}>
+        <div className={`text-[color:var(--appsmith-color-black-700)]`}>
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
             tooltip={PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP()}
