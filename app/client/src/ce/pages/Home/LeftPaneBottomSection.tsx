@@ -22,8 +22,9 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "../../../pages/common/CustomizedDropdown/dropdownHelpers";
-import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
@@ -60,7 +61,7 @@ function LeftPaneBottomSection() {
   const { appVersion, cloudHosting } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const user = useSelector(getCurrentUser);
-
+  const tenantPermissions = useSelector(getTenantPermissions);
   return (
     <Wrapper>
       {user?.isSuperUser && user?.isConfigurable && !isFetchingApplications && (
@@ -69,7 +70,10 @@ function LeftPaneBottomSection() {
           icon="setting"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+              path: getDefaultAdminSettingsPath(
+                user?.isSuperUser,
+                tenantPermissions,
+              ),
             });
           }}
           text={createMessage(ADMIN_SETTINGS)}
