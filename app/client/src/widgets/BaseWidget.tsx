@@ -70,7 +70,6 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
   context!: React.ContextType<typeof EditorContext>;
-  expectedHeight = 0;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -517,7 +516,6 @@ abstract class BaseWidget<
 
   addDynamicHeightContainer = (content: ReactNode) => {
     const onHeightUpdate = (height: number) => {
-      this.expectedHeight = height;
       requestAnimationFrame(() => {
         this.updateDynamicHeight(height);
       });
