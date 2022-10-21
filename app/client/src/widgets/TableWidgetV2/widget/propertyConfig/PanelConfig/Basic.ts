@@ -47,6 +47,7 @@ export default {
     {
       propertyName: "buttonLabel",
       label: "Text",
+      helpText: "Sets the label of the button",
       controlType: "TABLE_COMPUTE_VALUE",
       defaultValue: "Action",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -59,6 +60,7 @@ export default {
     {
       propertyName: "menuButtonLabel",
       label: "Text",
+      helpText: "Sets the label of the button",
       controlType: "TABLE_COMPUTE_VALUE",
       defaultValue: "Open Menu",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
