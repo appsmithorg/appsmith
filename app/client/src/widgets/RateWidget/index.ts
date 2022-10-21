@@ -23,6 +23,7 @@ export const CONFIG = {
     isRequired: false,
     isAllowHalf: false,
     isDisabled: false,
+    isReadOnly: false,
     tooltips: ["Terrible", "Bad", "Neutral", "Good", "Great"],
     widgetName: "Rating",
   },

@@ -62,6 +62,7 @@ import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 // import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
 // import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
+import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1088,6 +1089,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 63) {
     currentDSL = migrateMapChartWidgetReskinningData(currentDSL);
+    currentDSL.version = 64;
+  }
+
+  if (currentDSL.version === 64) {
+    currentDSL = migrateRateWidgetDisabledState(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
