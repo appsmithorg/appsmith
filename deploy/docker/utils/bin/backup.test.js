@@ -89,7 +89,7 @@ it('Checks for the current Appsmith Version.', async () => {
 })
 
 test('If encriytpion env values are being removed', () => {
-  expect(backup.removeEncryptionEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=hCzxbSpCCFSo4\nAPPSMITH_ENCRYPTION_SALT=hCzxbSpCCFSo4\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+  expect(backup.removeEncryptionEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_INSTANCE_NAME=Appsmith\n
   `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
 });
 
