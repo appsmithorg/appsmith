@@ -31,8 +31,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<RoleViewDTO> findConfigurableRoleById(String id);
 
-    Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO);
-
     Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup permissionGroup);
 
     Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup);

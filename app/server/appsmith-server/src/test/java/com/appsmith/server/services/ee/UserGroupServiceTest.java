@@ -8,6 +8,7 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -560,6 +561,39 @@ public class UserGroupServiceTest {
                     assertEquals(1, group2.getUsers().size());
                     assertEquals(api_user.getId(), group2.getUsers().get(0).getId());
                     assertEquals(api_user.getUsername(), group2.getUsers().get(0).getUsername());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    @DirtiesContext
+    public void testAddUsersToUserGroup_nonExistentUser() {
+        String usernameNonExistentUser = "username-non-existent-user@test.com";
+        String idNonExistentUser = null;
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : testAddUsersToUserGroup_nonExistentUser";
+        String description = "Test Group Description : testAddUsersToUserGroup_nonExistentUser";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of(usernameNonExistentUser));
+
+        UserGroupDTO userGroupDTO = userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block().get(0);
+        assertThat(userGroupDTO.getUsers().size()).isEqualTo(1);
+        UserCompactDTO userCompactDTO = userGroupDTO.getUsers().get(0);
+        assertThat(userCompactDTO.getUsername()).isEqualTo(usernameNonExistentUser);
+        idNonExistentUser = userCompactDTO.getId();
+
+        Mono<User> nonExistentUserMono = userRepository.findById(idNonExistentUser);
+        StepVerifier.create(nonExistentUserMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(usernameNonExistentUser);
                 })
                 .verifyComplete();
     }

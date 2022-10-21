@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import reactor.core.publisher.Mono;
 
@@ -11,4 +12,5 @@ public interface UserManagementService {
     Mono<UserForManagementDTO> getUserById(String userId);
 
     Mono<Boolean> deleteUser(String userId);
+    Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO);
 }

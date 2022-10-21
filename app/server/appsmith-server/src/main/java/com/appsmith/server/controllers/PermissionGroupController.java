@@ -6,6 +6,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.solutions.UserManagementService;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
@@ -32,10 +33,12 @@ public class PermissionGroupController {
 
     private final PermissionGroupService service;
     private final RoleConfigurationSolution roleConfigurationSolution;
+    private final UserManagementService userManagementService;
 
-    public PermissionGroupController(PermissionGroupService service, RoleConfigurationSolution roleConfigurationSolution) {
+    public PermissionGroupController(PermissionGroupService service, RoleConfigurationSolution roleConfigurationSolution, UserManagementService userManagementService) {
         this.service = service;
         this.roleConfigurationSolution = roleConfigurationSolution;
+        this.userManagementService = userManagementService;
     }
 
     @GetMapping
@@ -81,8 +84,8 @@ public class PermissionGroupController {
     }
 
     @PutMapping("/associate")
-    public Mono<ResponseDTO<Boolean>> updatePermissionGroupsAssoication(@RequestBody UpdateRoleAssociationDTO updateRoleAssociationDTO) {
-        return service.changeRoleAssociations(updateRoleAssociationDTO)
+    public Mono<ResponseDTO<Boolean>> updatePermissionGroupsAssociation(@RequestBody UpdateRoleAssociationDTO updateRoleAssociationDTO) {
+        return userManagementService.changeRoleAssociations(updateRoleAssociationDTO)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

@@ -23,6 +23,7 @@ import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.UserManagementService;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +81,9 @@ public class PermissionGroupServiceTest {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    UserManagementService userManagementService;
 
     @Autowired
     UserWorkspaceService userWorkspaceService;
@@ -354,6 +358,36 @@ public class PermissionGroupServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     @DirtiesContext
+    public void testAssignNonExistentUsers() {
+        String name = "testBulkAssignMultipleUsersToMultipleRoles Test Role 1";
+        PermissionGroup mockPermissionGroup = new PermissionGroup();
+        mockPermissionGroup.setName(name);
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(mockPermissionGroup)
+                .flatMap(permissionGroup -> permissionGroupService.findById(permissionGroup.getId(), READ_PERMISSION_GROUPS))
+                .block();
+        String usernameNonExistentUser = "username-non-existent-user@test.com";
+        String idNonExistentUser = null;
+        UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
+        updateRoleAssociationDTO.setUsers(Set.of(new UserCompactDTO(null, usernameNonExistentUser, usernameNonExistentUser)));
+        updateRoleAssociationDTO.setRolesAdded(Set.of(new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
+        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+
+        PermissionGroup updatedPermissionGroup = permissionGroupService.findById(createdPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS).block();
+        assertThat(updatedPermissionGroup).isNotNull();
+        assertThat(updatedPermissionGroup.getAssignedToUserIds().size()).isEqualTo(1);
+        idNonExistentUser = (String)updatedPermissionGroup.getAssignedToUserIds().toArray()[0];
+        Mono<User> nonExistentUserMono = userRepository.findById(idNonExistentUser);
+        StepVerifier.create(nonExistentUserMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(usernameNonExistentUser);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    @DirtiesContext
     public void testBulkAssignMultipleUsersToMultipleRoles() {
         String name = "testBulkAssignMultipleUsersToMultipleRoles Test Role 1";
         PermissionGroup mockPermissionGroup = new PermissionGroup();
@@ -375,8 +409,8 @@ public class PermissionGroupServiceTest {
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
         updateRoleAssociationDTO.setUsers(
                 Set.of(
-                        new UserCompactDTO(usertest.getId(), usertest.getName(), usertest.getEmail()),
-                        new UserCompactDTO(api_user.getId(), api_user.getName(), api_user.getEmail())
+                        new UserCompactDTO(usertest.getId(), usertest.getEmail(), usertest.getName()),
+                        new UserCompactDTO(api_user.getId(), api_user.getEmail(), usertest.getName())
                 )
         );
         updateRoleAssociationDTO.setRolesAdded(
@@ -387,7 +421,7 @@ public class PermissionGroupServiceTest {
         );
 
         // Now assign the users to the roles
-        permissionGroupService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
                 permissionGroupService.findById(createdPermissionGroup1.getId(), ASSIGN_PERMISSION_GROUPS),
@@ -469,7 +503,7 @@ public class PermissionGroupServiceTest {
         );
 
         // Now assign the users to the roles
-        permissionGroupService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
                 permissionGroupService.findById(createdPermissionGroup1.getId(), ASSIGN_PERMISSION_GROUPS),
@@ -568,7 +602,7 @@ public class PermissionGroupServiceTest {
         // First associate the createdPermissionGroup3 with the groups and users
         updateRoleAssociationDTO.setUsers(
                 Set.of(
-                        new UserCompactDTO(usertest.getId(), usertest.getName(), usertest.getEmail())
+                        new UserCompactDTO(usertest.getId(), usertest.getEmail(), usertest.getName())
                 )
         );
 
@@ -585,7 +619,7 @@ public class PermissionGroupServiceTest {
                 )
         );
 
-        permissionGroupService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
         // Now associate the created workspcae default role, createdPermissionGroup1 and createdPermissionGroup2 with the groups and users and remove
         // createdPermissionGroup3 from the groups and users
@@ -604,7 +638,7 @@ public class PermissionGroupServiceTest {
                 )
         );
 
-        permissionGroupService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
 
         Mono<Workspace> workspaceMonoWithPermission = workspaceService.findById(createdWorkspace.getId(), READ_WORKSPACES)

@@ -215,8 +215,14 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .collectList()
                 .flatMap(userGroups -> {
 
-                    // TODO: Handle adding a username which doesn't exist by creating a new user.
-                    Mono<Set<String>> toBeAddedUserIdsMono = userService.findAllByUsernameIn(usernames)
+                    Mono<Set<String>> toBeAddedUserIdsMono = Flux.fromIterable(usernames)
+                            .flatMap(username -> {
+                                User newUser = new User();
+                                newUser.setEmail(username.toLowerCase());
+                                newUser.setIsEnabled(false);
+                                return userService.findByEmail(username)
+                                        .switchIfEmpty(userService.userCreate(newUser, false));
+                            })
                             .map(User::getId)
                             .collect(Collectors.toSet())
                             .cache();
