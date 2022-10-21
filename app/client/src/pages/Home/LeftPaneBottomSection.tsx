@@ -21,7 +21,7 @@ import { Colors } from "constants/Colors";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
-} from "../../../pages/common/CustomizedDropdown/dropdownHelpers";
+} from "../common/CustomizedDropdown/dropdownHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
