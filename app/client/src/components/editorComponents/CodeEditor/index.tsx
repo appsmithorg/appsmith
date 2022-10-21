@@ -100,7 +100,6 @@ import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
-  getCodeEditorHistory,
   getCodeEditorLastCursorPosition,
   getIsCodeEditorFocused,
 } from "selectors/editorContextSelectors";
