@@ -1,5 +1,8 @@
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
+import {
+  ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+} from "constants/routes";
 const {
   disableLoginForm,
   enableGithubOAuth,
@@ -35,8 +38,9 @@ export const saveAllowed = (settings: any) => {
 export const getDefaultAdminSettingsPath = (
   isSuperUser: boolean,
   tenantPermissions?: string[],
-) => {
-  if (isSuperUser) {
+): string => {
+  if (!isSuperUser) {
     return ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH;
   }
+  return ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH;
 };
