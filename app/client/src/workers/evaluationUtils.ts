@@ -822,6 +822,9 @@ export const isATriggerPath = (
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };
 
+const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
+  "action cannot be triggered from this field";
+
 class TransformError {
   private typeErrorRegex = /TypeError: ([\w_]+\.[\w_]+) is not a function/;
   private referenceErrorRegex = /ReferenceError: ([\w_]+) is not defined/;
@@ -836,7 +839,7 @@ class TransformError {
     if (refMatchResult) {
       const referencedIdentifier = refMatchResult[1];
       if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
-        return `${referencedIdentifier} action cannot be triggered from this field`;
+        return `${referencedIdentifier} ${UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR}`;
       }
     }
 
@@ -844,7 +847,7 @@ class TransformError {
     if (typeMatchResult) {
       const referencedIdentifier = typeMatchResult[1];
       if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
-        return `${referencedIdentifier} action cannot be triggered from this field`;
+        return `${referencedIdentifier} ${UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR}`;
       }
     }
 
