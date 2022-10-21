@@ -55,7 +55,9 @@ export function* wrapChildren(
   }
   canvas = { ...canvas, flexLayers };
   widgets[canvas.widgetId] = canvas;
-  return widgets;
+  // update size
+  const updatedWidgets = updateSizeOfAllChildren(widgets, canvas.widgetId);
+  return updatedWidgets;
 }
 
 export function* updateFlexLayersOnDelete(
@@ -69,7 +71,9 @@ export function* updateFlexLayersOnDelete(
 
   const flexLayers = parent.flexLayers || [];
   if (!flexLayers.length) return widgets;
+  let layerIndex = -1; // Find the layer in which the deleted widget exists.
   for (const layer of flexLayers) {
+    layerIndex += 1;
     const children = layer.children || [];
     if (!children.length) continue;
     const index = children.findIndex(
@@ -86,7 +90,8 @@ export function* updateFlexLayersOnDelete(
     ),
   };
   widgets[parentId] = parent;
-  return widgets;
+  if (layerIndex === -1) return widgets;
+  return updateFlexChildColumns(widgets, layerIndex, parentId);
 }
 
 export function updateFillChildStatus(
@@ -124,5 +129,90 @@ export function updateFillChildStatus(
     flexLayers: updatedLayers,
   };
   widgets[canvas.widgetId] = canvas;
+  return widgets;
+}
+
+export function updateFlexChildColumns(
+  allWidgets: CanvasWidgetsReduxState,
+  layerIndex: number,
+  parentId: string,
+): CanvasWidgetsReduxState {
+  const widgets = Object.assign({}, allWidgets);
+  const canvas = widgets[parentId];
+  const children = canvas.children;
+  if (!children || !children.length) return widgets;
+
+  const layer = canvas.flexLayers[layerIndex];
+  if (!layer || !layer?.children?.length || !layer.hasFillChild) return widgets;
+
+  const fillChildren: any[] = [];
+  const hugChildrenColumns = layer?.children?.reduce(
+    (acc: number, child: LayerChild) => {
+      const widget = widgets[child.id];
+      if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+        fillChildren.push(widget);
+        return acc;
+      }
+      return (
+        acc +
+        (widget.columns
+          ? widget.columns
+          : widget.rightColumn - widget.leftColumn)
+      );
+    },
+    0,
+  );
+  if (!fillChildren.length) return widgets;
+
+  const columnsPerFillChild = Math.floor(
+    (64 - hugChildrenColumns) / fillChildren.length,
+  );
+
+  for (const child of fillChildren) {
+    widgets[child.widgetId] = {
+      ...child,
+      rightColumn: child.leftColumn + columnsPerFillChild,
+    };
+  }
+  return widgets;
+}
+
+export function updateChildrenSize(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  widgetId: string,
+): CanvasWidgetsReduxState {
+  const widgets = Object.assign({}, allWidgets);
+  const parent = widgets[parentId];
+  if (!parent || !parent?.flexLayers || !parent?.flexLayers?.length)
+    return widgets;
+
+  const layerIndex = parent.flexLayers.reduce(
+    (acc: number, layer: FlexLayer, index: number) => {
+      if (layer.children.some((child: LayerChild) => child.id === widgetId)) {
+        return index;
+      }
+      return acc;
+    },
+    -1,
+  );
+
+  return updateFlexChildColumns(widgets, layerIndex, parentId);
+}
+
+export function updateSizeOfAllChildren(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+): CanvasWidgetsReduxState {
+  let widgets = Object.assign({}, allWidgets);
+  const parent = widgets[parentId];
+
+  if (!parent || !parent?.flexLayers || !parent?.flexLayers?.length)
+    return widgets;
+
+  for (let i = 0; i < parent.flexLayers.length; i++) {
+    widgets = updateFlexChildColumns(widgets, i, parentId);
+  }
+
   return widgets;
 }

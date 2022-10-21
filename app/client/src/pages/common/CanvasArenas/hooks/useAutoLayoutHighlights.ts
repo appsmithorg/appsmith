@@ -13,6 +13,7 @@ import {
 // import { useDispatch } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import { DRAG_MARGIN } from "widgets/constants";
 
 interface XYCord {
   x: number;
@@ -48,7 +49,6 @@ export interface HighlightSelectionPayload {
 }
 
 const OFFSET_WIDTH = 4;
-const DRAG_MARGIN = 8;
 
 export const useAutoLayoutHighlights = ({
   blocksToDraw,
@@ -231,10 +231,10 @@ export const useAutoLayoutHighlights = ({
     for (const layer of flexLayers) {
       // remove dragged blocks from the layer
       const filteredLayer = filterLayer(layer, offsetChildren);
-      // const isEmpty = !filteredLayer.children.length;
+      const isEmpty = !filteredLayer.children.length;
       // if (isEmpty) {
       //   discardedLayers += 1;
-      //   index += 1;
+      //   // index += 1;
       //   // continue;
       // }
       const el = document.querySelector(
@@ -246,20 +246,23 @@ export const useAutoLayoutHighlights = ({
         continue;
       }
       const rect: DOMRect = el.getBoundingClientRect();
-      rects.push(rect);
-      const info: HighlightInfo = {
-        isNewLayer: true,
-        index: childCount,
-        layerIndex: index - discardedLayers,
-        posX: 0,
-        posY: Math.max(rect.y - containerDimensions?.top - 4, 0),
-        width: containerDimensions?.width,
-        height: OFFSET_WIDTH,
-        alignment: FlexLayerAlignment.Start,
-        isVertical: false,
-      };
-      // Add the horizontal highlight before the layer.
-      arr.push(info);
+      // Add a horizontal highlight if the layer is not empty.
+      if (!isEmpty) {
+        rects.push(rect);
+        const info: HighlightInfo = {
+          isNewLayer: true,
+          index: childCount,
+          layerIndex: index - discardedLayers,
+          posX: 0,
+          posY: Math.max(rect.y - containerDimensions?.top - 4, 0),
+          width: containerDimensions?.width,
+          height: OFFSET_WIDTH,
+          alignment: FlexLayerAlignment.Start,
+          isVertical: false,
+        };
+        // Add the horizontal highlight before the layer.
+        arr.push(info);
+      }
       // Add vertical highlights for each child in the layer.
       arr.push(
         ...generateHighlightsForLayer(
@@ -269,6 +272,7 @@ export const useAutoLayoutHighlights = ({
           childCount,
         ),
       );
+      if (isEmpty) discardedLayers += 1;
       index += 1;
       childCount += filteredLayer.children?.length || 0;
     }
@@ -407,10 +411,10 @@ export const useAutoLayoutHighlights = ({
           ? 0
           : alignment === FlexLayerAlignment.Center
           ? containerDimensions.width / 2
-          : containerDimensions?.width - DRAG_MARGIN,
+          : containerDimensions?.width - DRAG_MARGIN * 2,
       posY: rect.y - containerDimensions?.top,
       width: verticalFlex ? rect?.width : OFFSET_WIDTH,
-      height: verticalFlex ? OFFSET_WIDTH : rect.height - DRAG_MARGIN,
+      height: verticalFlex ? OFFSET_WIDTH : rect.height - DRAG_MARGIN * 2,
       isVertical: !verticalFlex,
       rowIndex: 0,
     };

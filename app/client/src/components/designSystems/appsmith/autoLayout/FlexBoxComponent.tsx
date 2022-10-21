@@ -51,7 +51,7 @@ export const FlexContainer = styled.div<{
   width: 100%;
   height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
 
-  overflow: "hidden";
+  overflow: hidden;
   overflow-y: ${({ isMainContainer, isMobile }) =>
     isMainContainer || isMobile ? "auto" : "hidden"};
   padding: 4px;

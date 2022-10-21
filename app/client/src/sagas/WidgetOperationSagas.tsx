@@ -141,6 +141,7 @@ import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
+import { updateChildrenSize } from "./AutoLayoutUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -186,9 +187,14 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         bottomRow: updatedCanvasBottomRow,
       };
     }
+    const updatedWidgetsAfterResizing = updateChildrenSize(
+      movedWidgets,
+      parentId,
+      widgetId,
+    );
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
-    yield put(updateAndSaveLayout(movedWidgets));
+    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,

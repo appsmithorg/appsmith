@@ -44,6 +44,7 @@ import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { getMainCanvasProps } from "selectors/editorSelectors";
+import { ResponsiveBehavior } from "components/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -142,6 +143,10 @@ function* getChildWidgetProps(
       });
     }
   }
+
+  // TODO: add check for positioning value in parent.
+  if (restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill)
+    columns = 64;
 
   const widgetProps = {
     ...restDefaultConfig,

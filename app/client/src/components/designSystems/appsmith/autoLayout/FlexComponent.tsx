@@ -14,6 +14,7 @@ import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainer
 import { checkIsDropTarget } from "../PositionedContainer";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { AppState } from "ce/reducers";
+import { DRAG_MARGIN } from "widgets/constants";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -43,8 +44,10 @@ const FlexWidget = styled.div<{
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
 
-  width: ${({ componentWidth, isFillWidget }) =>
-    isFillWidget ? "auto" : `${Math.floor(componentWidth)}px`};
+  width: ${({ componentWidth, isCurrentCanvasDragging, isFillWidget }) =>
+    isFillWidget || isCurrentCanvasDragging
+      ? "auto"
+      : `${Math.floor(componentWidth)}px`};
   height: ${({ componentHeight, isMobile }) =>
     isMobile ? "100%" : Math.floor(componentHeight) + "px"};
   min-width: ${({ minWidth }) => minWidth};
@@ -58,8 +61,7 @@ const FlexWidget = styled.div<{
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
   margin: ${({ isCurrentCanvasDragging }) =>
-    isCurrentCanvasDragging ? "4px" : 0};
-  transition: margin 10ms;
+    isCurrentCanvasDragging ? `${DRAG_MARGIN}px` : 0};
 `;
 
 // TODO: update min width logic.

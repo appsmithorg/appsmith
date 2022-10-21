@@ -91,6 +91,13 @@ export const ResizableComponent = memo(function ResizableComponent(
   );
   const isWidgetFocused = isFocused || isLastSelected || isSelected;
 
+  const { dragDetails } = useSelector(
+    (state: AppState) => state.ui.widgetDragResize,
+  );
+
+  const isCurrentCanvasDragging =
+    dragDetails && dragDetails?.draggedOn === props.parentId;
+
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
@@ -277,12 +284,16 @@ export const ResizableComponent = memo(function ResizableComponent(
       updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
-
+  const multiplier = props.parentId === "0" ? 0.99 : 0.95;
   return (
     <Resizable
       allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
-      componentWidth={dimensions.width}
+      componentWidth={
+        isCurrentCanvasDragging && props.isFlexChild
+          ? dimensions.width * multiplier
+          : dimensions.width
+      }
       direction={props.direction}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}

@@ -278,3 +278,5 @@ export const dateFormatOptions = [
     value: "MM/DD/YY",
   },
 ];
+
+export const DRAG_MARGIN = 4;

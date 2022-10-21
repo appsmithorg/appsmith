@@ -134,7 +134,7 @@ export const useCanvasDragging = (
 
   setTimeout(() => {
     calculateHighlights();
-  }, 100);
+  }, 0);
 
   if (!isDragging || !isCurrentDraggedCanvas) {
     cleanUpTempStyles();

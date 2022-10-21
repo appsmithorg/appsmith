@@ -19,6 +19,10 @@ import {
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import {
+  updateFlexChildColumns,
+  updateSizeOfAllChildren,
+} from "sagas/AutoLayoutUtils";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -53,7 +57,19 @@ function* addWidgetAndReorderSaga(
         layerIndex,
       },
     );
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    let updatedWidgetsAfterResizing = updatedWidgetsOnMove;
+    if (
+      !isNewLayer &&
+      direction === LayoutDirection.Vertical &&
+      layerIndex !== undefined
+    )
+      updatedWidgetsAfterResizing = updateFlexChildColumns(
+        updatedWidgetsOnMove,
+        layerIndex,
+        parentId,
+      );
+
+    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
     // console.error(e);
@@ -95,8 +111,14 @@ function* autoLayoutReorderSaga(
         layerIndex,
       },
     );
+    let updatedWidgetsAfterResizing = updatedWidgets;
+    if (direction === LayoutDirection.Vertical)
+      updatedWidgetsAfterResizing = updateSizeOfAllChildren(
+        updatedWidgets,
+        parentId,
+      );
 
-    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
     // console.error(e);
@@ -144,6 +166,7 @@ function* reorderAutolayoutChildren(params: {
       selectedWidgets,
       flexLayers,
     );
+
     // Create a temporary layer from moved widgets.
     const newLayer: FlexLayer = createFlexLayer(
       selectedWidgets,
@@ -153,10 +176,16 @@ function* reorderAutolayoutChildren(params: {
 
     // Add the new layer to the flex layers.
     updatedWidgets = isNewLayer
-      ? addNewLayer(newLayer, widgets, parentId, filteredLayers, layerIndex)
+      ? addNewLayer(
+          newLayer,
+          updatedWidgets,
+          parentId,
+          filteredLayers,
+          layerIndex,
+        )
       : updateExistingLayer(
           newLayer,
-          widgets,
+          updatedWidgets,
           parentId,
           filteredLayers,
           index,
@@ -193,18 +222,20 @@ function* reorderAutolayoutChildren(params: {
  */
 function updateRelationships(
   movedWidgets: string[],
-  widgets: CanvasWidgetsReduxState,
+  allWidgets: CanvasWidgetsReduxState,
   parentId: string,
 ): CanvasWidgetsReduxState {
+  const widgets = { ...allWidgets };
   // Check if parent has changed
   const orphans = movedWidgets.filter(
     (item) => widgets[item].parentId !== parentId,
   );
+  let prevParentId: string | undefined;
   if (orphans && orphans.length) {
     //parent has changed
     orphans.forEach((item) => {
       // remove from previous parent
-      const prevParentId = widgets[item].parentId;
+      prevParentId = widgets[item].parentId;
       if (prevParentId !== undefined) {
         const prevParent = Object.assign({}, widgets[prevParentId]);
         if (prevParent.children && isArray(prevParent.children)) {
@@ -228,6 +259,9 @@ function updateRelationships(
       };
     });
   }
+  if (prevParentId) {
+    return updateSizeOfAllChildren(widgets, prevParentId);
+  }
   return widgets;
 }
 
@@ -247,6 +281,7 @@ function addNewLayer(
     ...canvas,
     flexLayers: [...layers.slice(0, pos), newLayer, ...layers.slice(pos)],
   };
+
   const updatedWidgets = {
     ...widgets,
     [parentId]: updatedCanvas,
@@ -272,7 +307,13 @@ function updateExistingLayer(
   let childCount = 0;
   layers.forEach((layer: FlexLayer, index: number) => {
     if (index >= layerIndex) return;
-    childCount += layer.children.length;
+    const layerChildren = (layer.children || []).filter(
+      (child: LayerChild) =>
+        newLayer.children.findIndex(
+          (each: LayerChild) => each.id === child.id,
+        ) === -1,
+    );
+    childCount += layerChildren.length;
   });
   const pos = index - childCount;
 
