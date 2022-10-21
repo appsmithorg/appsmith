@@ -349,6 +349,7 @@ export function UserListing() {
         id: role.id,
       })),
       dropdownPlaceholder: "Select a role",
+      dropdownMaxHeight: "240px",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
@@ -368,6 +369,7 @@ export function UserListing() {
         id: group.id,
       })),
       dropdownPlaceholder: "Select a group",
+      dropdownMaxHeight: "240px",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
