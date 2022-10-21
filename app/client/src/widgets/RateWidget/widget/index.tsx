@@ -155,6 +155,16 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isReadOnly",
+            helpText: "Makes the widget read only",
+            label: "Read only",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "animateLoading",
             label: "Animate Loading",
             controlType: "SWITCH",
@@ -284,7 +294,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
           onValueChanged={this.valueChangedHandler}
-          readonly={this.props.isDisabled}
+          readonly={this.props.isReadOnly}
           rightColumn={this.props.rightColumn}
           size={this.props.size}
           tooltips={this.props.tooltips}
@@ -311,6 +321,7 @@ export interface RateWidgetProps extends WidgetProps {
   isAllowHalf?: boolean;
   onRateChanged?: string;
   tooltips?: Array<string>;
+  isReadOnly?: boolean;
 }
 
 export default RateWidget;
