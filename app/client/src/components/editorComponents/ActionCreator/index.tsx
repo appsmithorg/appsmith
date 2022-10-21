@@ -359,18 +359,18 @@ function getQueryOptions(
       action.config.pluginType === PluginType.REMOTE,
   );
 
-  const integrationOption = actionList.find(
+  const queriesOption = actionList.find(
     (action) => action.value === AppsmithFunction.integration,
   );
-  if (integrationOption) {
-    integrationOption.children = [createQueryObject];
+  if (queriesOption) {
+    queriesOption.children = [createQueryObject];
 
     apis.forEach((api) => {
-      (integrationOption.children as TreeDropdownOption[]).push({
+      (queriesOption.children as TreeDropdownOption[]).push({
         label: api.config.name,
         id: api.config.id,
         value: api.config.name,
-        type: integrationOption.value,
+        type: queriesOption.value,
         icon: getActionConfig(api.config.pluginType)?.getIcon(
           api.config,
           plugins[(api as any).config.datasource.pluginId],
@@ -380,11 +380,11 @@ function getQueryOptions(
     });
 
     queries.forEach((query) => {
-      (integrationOption.children as TreeDropdownOption[]).push({
+      (queriesOption.children as TreeDropdownOption[]).push({
         label: query.config.name,
         id: query.config.id,
         value: query.config.name,
-        type: integrationOption.value,
+        type: queriesOption.value,
         icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
@@ -522,7 +522,7 @@ const ActionCreator = React.forwardRef(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
     const dataTree = useSelector(getDataTree);
-    const integrationOptionTree = useQueriesAndJsActionOptions();
+    const queriesAndJsObjectsOption = useQueriesAndJsActionOptions();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const fields = getFieldFromValue(
@@ -539,12 +539,12 @@ const ActionCreator = React.forwardRef(
           additionalAutoComplete={props.additionalAutoComplete}
           depth={1}
           fields={fields}
-          integrationOptionTree={integrationOptionTree}
           maxDepth={1}
           modalDropdownList={modalDropdownList}
           navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
           onValueChange={props.onValueChange}
           pageDropdownOptions={props.pageDropdownOptions}
+          queriesAndJsObjectsOption={queriesAndJsObjectsOption}
           value={props.value}
           widgetOptionTree={widgetOptionTree}
         />
