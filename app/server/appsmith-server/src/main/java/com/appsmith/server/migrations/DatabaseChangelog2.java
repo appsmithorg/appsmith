@@ -76,7 +76,6 @@ import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
@@ -2297,6 +2296,13 @@ public class DatabaseChangelog2 {
         );
     }
 
+    /**
+     * Changing the order of this function to 10000 so that it always gets executed at the end.
+     * This ensures that any permission changes for super users happen once all other migrations are completed
+     *
+     * @param mongockTemplate
+     * @param cacheableRepositoryHelper
+     */
     @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
         // Read the admin emails from the environment and update the super users accordingly
@@ -2340,9 +2346,9 @@ public class DatabaseChangelog2 {
         Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
         evictPermissionCacheForUsers(updatedUserIds, mongockTemplate, cacheableRepositoryHelper);
-        instanceAdminPG.setAssignedToUserIds(userIds);
 
-        mongockTemplate.save(instanceAdminPG);
+        Update update = new Update().set(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), userIds);
+        mongockTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
     }
 
     private User createNewUser(String email, String tenantId, MongockTemplate mongockTemplate) {
@@ -2660,7 +2666,7 @@ public class DatabaseChangelog2 {
         mongockTemplate.save(updatedTenant);
     }
 
-    @ChangeSet(order = "036", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
+    @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
     public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
 
         Query query = new Query(Criteria.where("policies.permission").is("read:permissionGroups"));
