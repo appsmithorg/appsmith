@@ -337,7 +337,7 @@ class TabsWidget extends BaseWidget<
       return null;
     }
 
-    childWidgetData.shouldScrollContents = false;
+    childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     childWidgetData.rightColumn = componentWidth;
@@ -398,6 +398,7 @@ class TabsWidget extends BaseWidget<
         "selectedTabWidgetId",
         defaultTabWidgetId,
       );
+      setTimeout(this.callDynamicHeightUpdates, 0);
     }
   };
 

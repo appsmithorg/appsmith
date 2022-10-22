@@ -74,6 +74,7 @@ function findAndUpdatePropertyPaneControlConfig(
             (controlConfig as PropertyPaneControlConfig).propertyName ===
             propertyName,
         );
+
         if (
           controlConfigIndex &&
           controlConfigIndex > -1 &&
@@ -104,8 +105,12 @@ export const WidgetFeaturePropertyPaneEnhancements: Record<
     return findAndUpdatePropertyPaneControlConfig(config, {
       shouldScrollContents: {
         hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
       },
-      overflow: { hidden: hideWhenDynamicHeightIsEnabled },
+      overflow: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
+      },
     });
   },
 };

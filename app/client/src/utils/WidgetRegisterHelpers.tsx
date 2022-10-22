@@ -68,8 +68,8 @@ export const configureWidget = (config: WidgetConfiguration) => {
   }
 
   const _config = {
-    ...features,
     ...config.defaults,
+    ...features,
     searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,

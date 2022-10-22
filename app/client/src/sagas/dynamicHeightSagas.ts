@@ -111,7 +111,15 @@ export function* getChildOfContainerLikeWidget(
       containerLikeWidget.widgetId,
     );
     if (tabsMeta) return tabsMeta.selectedTabWidgetId;
-    return containerLikeWidget.tabsObj[0].widgetId;
+
+    const firstTab = Object.values(
+      containerLikeWidget.tabsObj as Record<
+        string,
+        { widgetId: string; index: number }
+      >,
+    ).find((entry: { widgetId: string; index: number }) => entry.index === 0);
+
+    return firstTab?.widgetId;
   } else if (Array.isArray(containerLikeWidget.children)) {
     return containerLikeWidget.children[0];
   }
@@ -721,7 +729,9 @@ export function* dynamicallyUpdateContainersSaga() {
           isDynamicHeightEnabledForWidget(parentContainerWidget) ||
           (bottomRow && topRow && bottomRow === topRow)
         ) {
-          const childWidgetId: string = yield getChildOfContainerLikeWidget(
+          const childWidgetId:
+            | string
+            | undefined = yield getChildOfContainerLikeWidget(
             parentContainerWidget,
           );
           if (childWidgetId !== canvasWidget.widgetId) continue;
