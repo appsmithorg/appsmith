@@ -706,12 +706,20 @@ export function* dynamicallyUpdateContainersSaga() {
     for (const canvasWidget of canvasWidgetsAtThisLevel) {
       if (canvasWidget.parentId) {
         const parentContainerWidget = stateWidgets[canvasWidget.parentId];
-        const { bottomRow, topRow } = dynamicHeightLayoutTree[
-          parentContainerWidget.widgetId
-        ];
+
+        let bottomRow, topRow;
+        if (dynamicHeightLayoutTree[parentContainerWidget.widgetId]) {
+          const layoutNode =
+            dynamicHeightLayoutTree[parentContainerWidget.widgetId];
+          bottomRow = layoutNode.bottomRow;
+          topRow = layoutNode.topRow;
+        } else {
+          bottomRow = parentContainerWidget.bottomRow;
+          topRow = parentContainerWidget.topRow;
+        }
         if (
           isDynamicHeightEnabledForWidget(parentContainerWidget) ||
-          bottomRow === topRow
+          (bottomRow && topRow && bottomRow === topRow)
         ) {
           const childWidgetId: string = yield getChildOfContainerLikeWidget(
             parentContainerWidget,
