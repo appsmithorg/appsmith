@@ -192,7 +192,9 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "size",
             label: "Star Size",
-            controlType: "DROP_DOWN",
+            helpText: "Controls the size of the stars in the widget",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 label: "Small",
@@ -218,6 +220,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "activeColor",
             label: "Active Color",
+            helpText: "Color of the selected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -227,6 +230,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "inactiveColor",
             label: "Inactive Color",
+            helpText: "Color of the unselected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

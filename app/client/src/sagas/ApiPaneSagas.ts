@@ -4,7 +4,7 @@
 import get from "lodash/get";
 import omit from "lodash/omit";
 import cloneDeep from "lodash/cloneDeep";
-import { all, select, put, takeEvery, call, take } from "redux-saga/effects";
+import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
@@ -19,24 +19,18 @@ import {
   QUERY_EDITOR_FORM_NAME,
 } from "@appsmith/constants/forms";
 import {
-  POST_BODY_FORMAT_OPTIONS_ARRAY,
-  POST_BODY_FORMAT_OPTIONS,
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
   HTTP_METHODS_DEFAULT_FORMAT_TYPES,
+  POST_BODY_FORMAT_OPTIONS,
+  POST_BODY_FORMAT_OPTIONS_ARRAY,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import {
-  REST_PLUGIN_PACKAGE_NAME,
-  DEFAULT_CREATE_API_CONFIG,
-} from "constants/ApiEditorConstants/ApiEditorConstants";
-import {
-  GRAPHQL_PLUGIN_PACKAGE_NAME,
-  DEFAULT_CREATE_GRAPHQL_CONFIG,
-} from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { DEFAULT_CREATE_API_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { DEFAULT_CREATE_GRAPHQL_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
-import { initialize, autofill, change } from "redux-form";
+import { autofill, change, initialize } from "redux-form";
 import { Property } from "api/ActionAPI";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -51,7 +45,12 @@ import {
   setActionProperty,
 } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
-import { Action, ApiAction, PluginType } from "entities/Action";
+import {
+  Action,
+  ApiAction,
+  PluginPackageName,
+  PluginType,
+} from "entities/Action";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
@@ -59,7 +58,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { EventLocation } from "utils/AnalyticsUtil";
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   createMessage,
   ERROR_ACTION_RENAME_FAIL,
@@ -565,11 +564,11 @@ function* handleCreateNewApiActionSaga(
   }>,
 ) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
-  const { pageId, apiType = REST_PLUGIN_PACKAGE_NAME } = action.payload;
+  const { pageId, apiType = PluginPackageName.REST_API } = action.payload;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
   // Default Config is Rest Api Plugin Config
   let defaultConfig = DEFAULT_CREATE_API_CONFIG;
-  if (apiType === GRAPHQL_PLUGIN_PACKAGE_NAME) {
+  if (apiType === PluginPackageName.GRAPHQL) {
     defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
   }
 

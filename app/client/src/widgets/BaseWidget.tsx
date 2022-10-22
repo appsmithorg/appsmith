@@ -35,8 +35,8 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { CanvasWidgetStructure } from "./constants";
-import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import Skeleton from "./Skeleton";
+import { DataTreeWidget } from "entities/DataTree/Widget/types";
 
 /***
  * BaseWidget
@@ -515,10 +515,7 @@ export interface WidgetProps
     DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
-  [key: string]: unknown;
-  logBlackList: Record<string, true>;
-  privateWidgets: PrivateWidgets;
-  defaultProps: Record<string, unknown>;
+  [key: string]: any;
 }
 
 export interface WidgetEvalProps extends WidgetDisplayProps {

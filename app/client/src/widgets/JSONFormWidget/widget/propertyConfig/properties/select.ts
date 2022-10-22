@@ -107,6 +107,7 @@ const PROPERTIES = {
       {
         propertyName: "placeholderText",
         label: "Placeholder",
+        helpText: "Sets a placeholder text",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "Enter placeholder text",
         isBindProperty: true,

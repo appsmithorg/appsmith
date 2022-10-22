@@ -53,6 +53,7 @@ public enum AnalyticsEvents {
     GIT_MERGE_CHECK,
     GIT_FETCH,
     AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured"),
+    INSTANCE_SETTING_UPDATED,
     GENERATE_SSH_KEY("generate_SSH_KEY"),
     UNIT_EXECUTION_TIME,
 

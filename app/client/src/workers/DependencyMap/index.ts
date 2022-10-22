@@ -12,9 +12,6 @@ import {
 } from "workers/evaluationUtils";
 import {
   DataTree,
-  DataTreeAction,
-  DataTreeWidget,
-  DataTreeJSAction,
   EvalTree,
   EntityConfigCollection,
 } from "entities/DataTree/DataTreeFactory";
@@ -30,6 +27,7 @@ import {
   extractInfoFromBindings,
   extractInfoFromReferences,
   listTriggerFieldDependencies,
+  listValidationDependencies,
   mergeArrays,
 } from "./utils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
@@ -44,17 +42,20 @@ interface CreateDependencyMap {
    *  because an entity or path is newly added.
    * */
   invalidReferencesMap: DependencyMap;
+  validationDependencyMap: DependencyMap;
 }
 
 export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
-  unEvalTree: DataTree,
+  unEvalTree: EvalTree,
+  entityConfigCollection: EntityConfigCollection,
 ): CreateDependencyMap {
   let dependencyMap: DependencyMap = {};
   let triggerFieldDependencyMap: DependencyMap = {};
+  let validationDependencyMap: DependencyMap = {};
   const invalidReferencesMap: DependencyMap = {};
   Object.keys(unEvalTree).forEach((entityName) => {
-    const entity = unEvalTree[entityName];
+    const entity = entityConfigCollection[entityName];
     if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
       const entityListedDependencies = dataTreeEvalRef.listEntityDependencies(
         entity,
@@ -67,6 +68,11 @@ export function createDependencyMap(
       triggerFieldDependencyMap = {
         ...triggerFieldDependencyMap,
         ...listTriggerFieldDependencies(entity, entityName),
+      };
+      // only widgets have validation paths
+      validationDependencyMap = {
+        ...validationDependencyMap,
+        ...listValidationDependencies(entity, entityName),
       };
     }
   });
@@ -108,11 +114,18 @@ export function createDependencyMap(
       dataTreeEvalRef.errors.push(error);
     });
   });
+
   dependencyMap = makeParentsDependOnChildren(
     dependencyMap,
     dataTreeEvalRef.allKeys,
   );
-  return { dependencyMap, triggerFieldDependencyMap, invalidReferencesMap };
+
+  return {
+    dependencyMap,
+    triggerFieldDependencyMap,
+    invalidReferencesMap,
+    validationDependencyMap,
+  };
 }
 
 interface UpdateDependencyMap {
@@ -139,6 +152,7 @@ export const updateDependencyMap = ({
 }): UpdateDependencyMap => {
   const diffCalcStart = performance.now();
   let didUpdateDependencyMap = false;
+  let didUpdateValidationDependencyMap = false;
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
   const extraPathsToLint = new Set<string>();
@@ -165,7 +179,11 @@ export const updateDependencyMap = ({
           // add all the internal bindings for this entity to the global dependency map
           if (
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
-            !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
+            !isDynamicLeaf(
+              unEvalDataTree,
+              entityConfigCollection,
+              dataTreeDiff.payload.propertyPath,
+            )
           ) {
             const entityDependencyMap: DependencyMap = dataTreeEvalRef.listEntityDependencies(
               entity,
@@ -207,8 +225,10 @@ export const updateDependencyMap = ({
                 },
               );
             }
-            // For widgets, we need to update the triggerfield dependencyMap
+
             if (isWidget(entity)) {
+              // For widgets,
+              // we need to update the triggerField dependencyMap and validation dependencyMap
               const triggerFieldDependencies = listTriggerFieldDependencies(
                 entity,
                 entityName,
@@ -247,6 +267,13 @@ export const updateDependencyMap = ({
                   });
                 },
               );
+
+              // update validation dependencies
+              dataTreeEvalRef.validationDependencyMap = {
+                ...dataTreeEvalRef.validationDependencyMap,
+                ...listValidationDependencies(entity, entityName),
+              };
+              didUpdateValidationDependencyMap = true;
             }
           }
           // Either a new entity or a new property path has been added. Go through the list of invalid references and
@@ -378,6 +405,16 @@ export const updateDependencyMap = ({
                 delete dataTreeEvalRef.triggerFieldDependencyMap[triggerDep];
                 delete dataTreeEvalRef.invalidReferencesMap[triggerDep];
               });
+
+              // remove validation dependencies
+              const validationDependencies = listValidationDependencies(
+                entity,
+                entityName,
+              );
+              Object.keys(validationDependencies).forEach((validationDep) => {
+                delete dataTreeEvalRef.validationDependencyMap[validationDep];
+              });
+              didUpdateValidationDependencyMap = true;
             }
           }
           // Either an existing entity or an existing property path has been deleted. Update the global dependency map
@@ -512,17 +549,13 @@ export const updateDependencyMap = ({
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
             typeof dataTreeDiff.payload.value === "string"
           ) {
-            const entity:
-              | DataTreeAction
-              | DataTreeWidget
-              | DataTreeJSAction = unEvalDataTree[entityName] as
-              | DataTreeAction
-              | DataTreeWidget
-              | DataTreeJSAction;
+            const entity = unEvalDataTree[entityName];
+            const entityConfig = entityConfigCollection[entityName];
+
             const fullPropertyPath = dataTreeDiff.payload.propertyPath;
             const entityPropertyPath = getPropertyPath(fullPropertyPath);
             const isADynamicBindingPath = isPathADynamicBinding(
-              entity,
+              entityConfig,
               entityPropertyPath,
             );
             if (isADynamicBindingPath) {
@@ -569,8 +602,8 @@ export const updateDependencyMap = ({
               }
               if (isAction(entity) || isJSAction(entity)) {
                 // Actions have a defined dependency map that should always be maintained
-                if (entityPropertyPath in entity.dependencyMap) {
-                  const entityDependenciesName = entity.dependencyMap[
+                if (entityPropertyPath in entityConfig.dependencyMap) {
+                  const entityDependenciesName = entityConfig.dependencyMap[
                     entityPropertyPath
                   ].map((dep) => `${entityName}.${dep}`);
 
@@ -615,7 +648,7 @@ export const updateDependencyMap = ({
             // If the whole binding was removed, then the value at this path would be a string without any bindings.
             // In this case, if the path exists in the dependency map and is a bindingPath, then remove it.
             else if (
-              entity.bindingPaths[entityPropertyPath] &&
+              entityConfig.bindingPaths[entityPropertyPath] &&
               fullPropertyPath in dataTreeEvalRef.dependencyMap
             ) {
               didUpdateDependencyMap = true;
@@ -693,6 +726,22 @@ export const updateDependencyMap = ({
     );
     dataTreeEvalRef.inverseDependencyMap = dataTreeEvalRef.getInverseDependencyTree();
   }
+
+  if (didUpdateValidationDependencyMap) {
+    // This is being called purely to test for new circular dependencies that might have been added
+    dataTreeEvalRef.sortedValidationDependencies = dataTreeEvalRef.sortDependencies(
+      dataTreeEvalRef.validationDependencyMap,
+      translatedDiffs,
+    );
+
+    dataTreeEvalRef.inverseValidationDependencyMap = dataTreeEvalRef.getInverseDependencyTree(
+      {
+        dependencyMap: dataTreeEvalRef.validationDependencyMap,
+        sortedDependencies: dataTreeEvalRef.sortedValidationDependencies,
+      },
+    );
+  }
+
   const updateChangedDependenciesStop = performance.now();
   dataTreeEvalRef.logs.push({
     diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),

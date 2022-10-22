@@ -1,5 +1,5 @@
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   ReduxAction,
   ReduxActionErrorTypes,

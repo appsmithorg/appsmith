@@ -51,8 +51,8 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginType } from "entities/Action";
-import { Toaster } from "components/ads/Toast";
+import { PluginPackageName, PluginType } from "entities/Action";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
@@ -71,7 +71,6 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "RouteBuilder";
@@ -83,6 +82,7 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
+import { DebugButton } from "../components/editorComponents/Debugger/DebugCTA";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 function* handleCreateNewJsActionSaga(
@@ -93,7 +93,7 @@ function* handleCreateNewJsActionSaga(
   const { from, pageId } = action.payload;
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
-    JS_PLUGIN_PACKAGE_NAME,
+    PluginPackageName.JS,
   );
   if (pageId && pluginId) {
     const jsActions: JSCollectionDataState = yield select(getJSCollections);
@@ -420,7 +420,13 @@ export function* handleExecuteJSFunctionSaga(data: {
       text:
         (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       variant: Variant.danger,
-      showDebugButton: true,
+      showDebugButton: {
+        component: DebugButton,
+        componentProps: {
+          className: "t--toast-debug-button",
+          source: "TOAST",
+        },
+      },
     });
   }
 }

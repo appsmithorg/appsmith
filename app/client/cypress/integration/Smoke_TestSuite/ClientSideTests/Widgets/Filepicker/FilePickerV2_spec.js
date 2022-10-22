@@ -29,18 +29,44 @@ describe("File picker widget v2", () => {
     cy.get(".t--widget-textwidget").should("contain", "true");
   });
 
-  it("Check if the uploaded data reset when back from query page", () => {
+  it("Check if the uploaded data does not reset when back from query page", () => {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{FilePicker1.files[0].name}}`,
     );
-    cy.createAndFillApi("{{FilePicker1.files[0]}}", "");
+    cy.createAndFillApi("https://mock-api.appsmith.com/users", "");
+    cy.updateCodeInput(
+      "[class*='t--actionConfiguration']",
+      "{{FilePicker1.files}}",
+    );
+    cy.wait(1000);
+    cy.validateEvaluatedValue("testFile.mov");
+
     cy.get(".t--more-action-menu")
       .first()
       .click({ force: true });
+
+    // Go back to widgets page
     cy.get(explorer.widgetSwitchId).click();
+    cy.get(widgetsPage.filepickerwidgetv2).should(
+      "contain",
+      "1 files selected",
+    );
+    cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
+  });
+
+  it("Check if the uploaded file is removed on click of cancel button", () => {
+    cy.get(widgetsPage.filepickerwidgetv2).click();
+    cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
-    cy.get(`.t--widget-textwidget`).should("contain", "");
+    cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
+    cy.get(widgetsPage.explorerSwitchId).click();
+    cy.get(".t--entity-item:contains(Api1)").click();
+    cy.get("[class*='t--actionConfiguration']")
+      .eq(0)
+      .click();
+    cy.wait(1000);
+    cy.validateEvaluatedValue("[]");
   });
 });

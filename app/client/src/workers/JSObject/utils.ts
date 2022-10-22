@@ -9,6 +9,7 @@ import {
   JSActionEntityConfig,
   JSActionEvalTree,
 } from "entities/DataTree/JSAction/types";
+import { isJSAction } from "workers/evaluationUtils";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -263,3 +264,15 @@ export const removeFunctionsAndVariableJSCollection = (
   );
   set(entityConfigCollection, `${entity.name}.meta`, meta);
 };
+
+export function isJSObjectFunction(
+  dataTree: DataTree,
+  jsObjectName: string,
+  key: string,
+) {
+  const entity = dataTree[jsObjectName];
+  if (isJSAction(entity)) {
+    return entity.meta.hasOwnProperty(key);
+  }
+  return false;
+}

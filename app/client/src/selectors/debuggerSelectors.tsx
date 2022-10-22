@@ -102,9 +102,6 @@ export const isParentVisible = (
 export const hasParentWidget = (widget: DataTreeWidget) =>
   widget.parentId && widget.parentId !== "0";
 
-export const getCurrentDebuggerTab = (state: AppState) =>
-  state.ui.debugger.currentTab;
-
 export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
   const errorKeys = Object.keys(errors);
   const warningsCount = errorKeys.filter((key: string) =>

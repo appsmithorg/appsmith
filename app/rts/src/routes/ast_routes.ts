@@ -20,5 +20,11 @@ router.post(
   validator.validateRequest,
   astController.getIdentifierDataFromMultipleScripts
 );
+router.post(
+  "/entity-refactor",
+  AstRules.getScriptValidator(),
+  validator.validateRequest,
+  astController.entityRefactorController
+);
 
 export default router;

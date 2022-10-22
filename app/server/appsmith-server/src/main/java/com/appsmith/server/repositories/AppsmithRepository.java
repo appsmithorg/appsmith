@@ -22,7 +22,9 @@ public interface AppsmithRepository<T> {
 
     Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
 
-    T setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+    Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+
+    Mono<T> setUserPermissionsInObject(T obj);
 
     Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
 
