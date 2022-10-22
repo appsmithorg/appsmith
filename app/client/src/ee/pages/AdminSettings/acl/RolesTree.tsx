@@ -542,7 +542,7 @@ export default function RolesTree(props: RoleTreeProps) {
     } else {
       setFilteredData([]);
     }
-  }, [searchValue]);
+  }, [searchValue, isSaving]);
 
   useEffect(() => {
     if (JSON.stringify(data) === JSON.stringify(dataFromProps)) {
