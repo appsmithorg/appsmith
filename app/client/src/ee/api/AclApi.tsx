@@ -52,7 +52,7 @@ export type UpdateGroupsInUserRequestPayload = {
 };
 
 export type UpdateRolesInUserRequestPayload = {
-  users: BaseAclProps[];
+  users: { id: string; username: string }[];
   rolesAdded: BaseAclProps[];
   rolesRemoved: BaseAclProps[];
 };

@@ -246,7 +246,7 @@ export function UserEdit(props: UserEditProps) {
       );
       dispatch(
         updateRolesInUser(
-          { id: selectedUser.id, name: selectedUser.name },
+          { id: selectedUser.id, username: selectedUser.username },
           rolesAdded,
           rolesRemoved,
         ),
@@ -278,7 +278,7 @@ export function UserEdit(props: UserEditProps) {
       );
       dispatch(
         updateRolesInUser(
-          { id: selectedUser.id, name: selectedUser.name },
+          { id: selectedUser.id, username: selectedUser.username },
           rolesAdded,
           rolesRemoved,
         ),

@@ -33,7 +33,7 @@ export const updateGroupsInUser = (
 });
 
 export const updateRolesInUser = (
-  user: BaseAclProps,
+  user: { id: string; username: string },
   rolesAdded: BaseAclProps[],
   rolesRemoved: BaseAclProps[],
 ) => ({
@@ -153,7 +153,7 @@ export const inviteUsersViaGroups = (
 };
 
 export const inviteUsersViaRoles = (
-  users: string[],
+  users: { username: string }[],
   rolesAdded: string[],
   via: string,
 ) => {
