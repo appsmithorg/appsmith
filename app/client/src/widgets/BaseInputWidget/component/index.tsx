@@ -72,6 +72,7 @@ const InputComponentWrapper = styled((props) => (
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   ${labelLayoutStyles}
 
@@ -296,6 +297,9 @@ const InputComponentWrapper = styled((props) => (
       return "flex-start";
     }};
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&&&& { align-items: stretch; }" : ""};
 `;
 
 const StyledNumericInput = styled(NumericInput)`
@@ -331,6 +335,7 @@ const TextInputWrapper = styled.div<{
   accentColor?: string;
   hasError?: boolean;
   disabled?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: flex;
@@ -381,6 +386,9 @@ const TextInputWrapper = styled.div<{
 
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -650,6 +658,7 @@ class BaseInputComponent extends React.Component<
         fill
         hasError={isInvalid}
         inputType={inputType}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
@@ -684,6 +693,7 @@ class BaseInputComponent extends React.Component<
           disabled={this.props.disabled}
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           labelPosition={labelPosition}
         >
           <ErrorTooltip
