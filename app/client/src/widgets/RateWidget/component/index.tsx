@@ -19,6 +19,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 
 interface RateContainerProps {
   isDisabled: boolean;
+  readonly?: boolean;
 }
 
 export const RateContainer = styled.div<RateContainerProps>`
@@ -80,50 +81,53 @@ export interface RateComponentProps extends ComponentProps {
   bottomRow?: number;
 }
 
-function renderStarsWithTooltip(props: RateComponentProps) {
+const getIconColor = (props: RateComponentProps, isActive?: boolean) => {
+  const { activeColor, inactiveColor, isDisabled } = props;
+
+  if (isDisabled) {
+    return isActive
+      ? "var(--wds-color-bg-disabled-strong)"
+      : inactiveColor ?? "var(--wds-color-icon)";
+  }
+
+  return isActive
+    ? activeColor ?? "var(--wds-color-icon)"
+    : inactiveColor ?? "var(--wds-color-icon)";
+};
+
+function renderStarsWithTooltip(props: RateComponentProps, isActive?: boolean) {
   const rateTooltips = props.tooltips || [];
   const rateTooltipsCount = rateTooltips.length;
   const deltaCount = props.maxCount - rateTooltipsCount;
   if (rateTooltipsCount === 0) {
     return (
       <Star
-        color={
-          props.isDisabled
-            ? "var(--wds-color-bg-disabled-strong)"
-            : props.activeColor
-        }
+        color={getIconColor(props, isActive)}
         icon={IconNames.STAR}
         iconSize={RATE_SIZES[props.size]}
-        isActive
+        isActive={isActive}
         isDisabled={props.isDisabled}
       />
     );
   }
+
   const starWithTooltip = rateTooltips.map((tooltip) => (
     <TooltipComponent content={tooltip} key={tooltip} position="top">
       <Star
-        color={
-          props.isDisabled
-            ? "var(--wds-color-bg-disabled-strong)"
-            : props.activeColor
-        }
+        color={getIconColor(props, isActive)}
         icon={IconNames.STAR}
         iconSize={RATE_SIZES[props.size]}
-        isActive
+        isActive={isActive}
         isDisabled={props.isDisabled}
       />
     </TooltipComponent>
   ));
   const starWithoutTooltip = _.times(deltaCount, (num: number) => (
     <Star
-      color={
-        props.isDisabled
-          ? "var(--wds-color-bg-disabled-strong)"
-          : props.activeColor
-      }
+      color={getIconColor(props, isActive)}
       icon={IconNames.STAR}
       iconSize={RATE_SIZES[props.size]}
-      isActive
+      isActive={isActive}
       isDisabled={props.isDisabled}
       key={num}
     />
@@ -136,33 +140,24 @@ function RateComponent(props: RateComponentProps) {
   const rateContainerRef = React.createRef<HTMLDivElement>();
 
   const {
-    inactiveColor,
     isAllowHalf,
     isDisabled,
     maxCount,
     onValueChanged,
     readonly,
-    size,
     value,
   } = props;
 
   return (
-    <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
+    <RateContainer
+      isDisabled={Boolean(isDisabled)}
+      readonly={readonly}
+      ref={rateContainerRef}
+    >
       <Rating
-        emptySymbol={
-          <Star
-            color={
-              isDisabled
-                ? "var(--wds-color-bg-strong)"
-                : inactiveColor ?? "var(--wds-color-bg)"
-            }
-            icon={IconNames.STAR}
-            iconSize={RATE_SIZES[size]}
-            isDisabled={isDisabled}
-          />
-        }
+        emptySymbol={renderStarsWithTooltip(props, false)}
         fractions={isAllowHalf ? 2 : 1}
-        fullSymbol={renderStarsWithTooltip(props)}
+        fullSymbol={renderStarsWithTooltip(props, true)}
         initialRating={value}
         onChange={onValueChanged}
         readonly={readonly}

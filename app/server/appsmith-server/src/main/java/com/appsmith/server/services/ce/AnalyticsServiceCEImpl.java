@@ -224,7 +224,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         List<AnalyticsEvents> nonResourceEvents = List.of(
                 AnalyticsEvents.EXECUTE_ACTION,
                 AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION,
-                AnalyticsEvents.EXECUTE_INVITE_USERS
+                AnalyticsEvents.EXECUTE_INVITE_USERS,
+                AnalyticsEvents.UPDATE_LAYOUT
         );
         boolean isNonResourceEvent = nonResourceEvents.contains(event);
         final String eventTag = isNonResourceEvent ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
