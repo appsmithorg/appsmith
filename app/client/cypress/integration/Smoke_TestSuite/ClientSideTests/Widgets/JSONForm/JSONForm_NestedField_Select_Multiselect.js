@@ -33,14 +33,14 @@ describe("JSONForm select field", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("object");
-    cy.openFieldConfiguration("select");
+    cy.openFieldConfiguration("select", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
 
     cy.closePropertyPane();
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("array");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("select");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("select", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
   });
 
@@ -93,14 +93,14 @@ describe("JSONForm select field", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.testJsontext("sourcedata", JSON.stringify(schema));
     cy.openFieldConfiguration("object");
-    cy.openFieldConfiguration("multiselect");
+    cy.openFieldConfiguration("multiselect", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Multiselect$/);
 
     cy.closePropertyPane();
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("array");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("multiselect");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("multiselect", false);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Multiselect$/);
   });
 

@@ -44,6 +44,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.changeColumnType("Image");
     cy.closePropertyPane();
     cy.SearchEntityandOpen("Table1");
+    cy.backFromPropertyPanel();
     cy.moveToStyleTab();
     cy.get(widgetsPage.centerAlign)
       .first()

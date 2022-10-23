@@ -48,21 +48,23 @@ Cypress.Commands.add("changeZoomLevel", (zoomValue) => {
     });
 });
 
-Cypress.Commands.add("changeColumnType", (dataType) => {
-  cy.moveToContentTab();
-  cy.get(commonlocators.changeColType)
-    .last()
-    .click();
-  cy.get(".t--dropdown-option")
-    .children()
-    .contains(dataType)
-    .click();
-  cy.wait("@updateLayout").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  /*
+Cypress.Commands.add(
+  "changeColumnType",
+  (dataType, doesPropertyTabExist = true) => {
+    if (doesPropertyTabExist) cy.moveToContentTab();
+    cy.get(commonlocators.changeColType)
+      .last()
+      .click();
+    cy.get(".t--dropdown-option")
+      .children()
+      .contains(dataType)
+      .click();
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    /*
       cy.get(commonlocators.selectedColType)
         .first()
         .invoke("text")
@@ -71,7 +73,8 @@ Cypress.Commands.add("changeColumnType", (dataType) => {
           expect(someText).to.equal(dataType);
         });
         */
-});
+  },
+);
 
 Cypress.Commands.add("switchToPaginationTab", () => {
   cy.get(apiwidget.paginationTab)
@@ -716,10 +719,11 @@ Cypress.Commands.add("tableV2ColumnPopertyUpdate", (colId, newColName) => {
 });
 
 Cypress.Commands.add("backFromPropertyPanel", () => {
+  cy.wait(500);
   cy.get("body").then(($body) => {
     const count = $body.find(commonlocators.editPropBackButton)?.length || 0;
     if (count > 0) {
-      cy.get(commonlocators.editPropBackButton).click();
+      cy.get(commonlocators.editPropBackButton).click({ force: true });
       cy.wait(500);
     }
   });

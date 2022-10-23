@@ -83,6 +83,7 @@ describe("Validate API Panel CSS Styles", function() {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
+        cy.CheckAndUnfoldEntityItem("Queries/JS");
         cy.get(commonLocators.entityName)
           .contains("test_styles")
           .click();
@@ -108,6 +109,7 @@ describe("Validate API Panel CSS Styles", function() {
           .contains("test_styles")
           .should("not.exist");
         //Delete two datasources
+        cy.CheckAndUnfoldEntityItem("Datasources");
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);
       });

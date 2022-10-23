@@ -35,6 +35,7 @@ describe("Table Widget Image Resize feature validation", function() {
   it("2. Verify image size with cell wrapping turned on", function() {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("title");
+    cy.moveToContentTab();
     cy.get(".t--property-control-cellwrapping .bp3-switch").click();
     cy.closePropertyPane();
 
