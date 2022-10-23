@@ -6,7 +6,7 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.solutions.UserManagementService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
@@ -33,12 +33,12 @@ public class PermissionGroupController {
 
     private final PermissionGroupService service;
     private final RoleConfigurationSolution roleConfigurationSolution;
-    private final UserManagementService userManagementService;
+    private final UserAndAccessManagementService userAndAccessManagementService;
 
-    public PermissionGroupController(PermissionGroupService service, RoleConfigurationSolution roleConfigurationSolution, UserManagementService userManagementService) {
+    public PermissionGroupController(PermissionGroupService service, RoleConfigurationSolution roleConfigurationSolution, UserAndAccessManagementService userAndAccessManagementService) {
         this.service = service;
         this.roleConfigurationSolution = roleConfigurationSolution;
-        this.userManagementService = userManagementService;
+        this.userAndAccessManagementService = userAndAccessManagementService;
     }
 
     @GetMapping
@@ -85,7 +85,7 @@ public class PermissionGroupController {
 
     @PutMapping("/associate")
     public Mono<ResponseDTO<Boolean>> updatePermissionGroupsAssociation(@RequestBody UpdateRoleAssociationDTO updateRoleAssociationDTO) {
-        return userManagementService.changeRoleAssociations(updateRoleAssociationDTO)
+        return userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

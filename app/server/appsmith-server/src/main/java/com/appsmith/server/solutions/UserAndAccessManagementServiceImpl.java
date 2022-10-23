@@ -12,13 +12,18 @@ import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ce.UserAndAccessManagementServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -40,7 +45,8 @@ import static java.lang.Boolean.TRUE;
 
 @Component
 @Slf4j
-public class UserManagementServiceImpl implements UserManagementService {
+public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementService {
+
     private final UserGroupService userGroupService;
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
@@ -49,23 +55,30 @@ public class UserManagementServiceImpl implements UserManagementService {
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserGroupRepository userGroupRepository;
 
+    public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
+                                              PermissionGroupService permissionGroupService,
+                                              WorkspaceService workspaceService,
+                                              UserRepository userRepository,
+                                              AnalyticsService analyticsService,
+                                              UserService userService,
+                                              EmailSender emailSender,
+                                              UserGroupService userGroupService,
+                                              TenantService tenantService,
+                                              PermissionGroupRepository permissionGroupRepository,
+                                              UserGroupRepository userGroupRepository) {
 
-    public UserManagementServiceImpl(UserGroupService userGroupService,
-                                     PermissionGroupService permissionGroupService,
-                                     TenantService tenantService,
-                                     UserRepository userRepository,
-                                     UserService userService,
-                                     PermissionGroupRepository permissionGroupRepository,
-                                     UserGroupRepository userGroupRepository) {
-
-        this.userGroupService = userGroupService;
+        super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService,
+                userService, emailSender);
         this.permissionGroupService = permissionGroupService;
-        this.tenantService = tenantService;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.userGroupService = userGroupService;
+        this.tenantService = tenantService;
         this.permissionGroupRepository = permissionGroupRepository;
         this.userGroupRepository = userGroupRepository;
     }
+
+
 
     @Override
     public Mono<List<UserForManagementDTO>> getAllUsers() {

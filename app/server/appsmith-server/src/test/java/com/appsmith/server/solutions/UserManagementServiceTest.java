@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserManagementServiceTest {
 
     @Autowired
-    UserManagementService userManagementService;
+    UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
     UserRepository userRepository;
@@ -71,7 +71,7 @@ public class UserManagementServiceTest {
     @WithUserDetails(value = "api_user")
     public void getAllUsersForManagementTest_valid() {
 
-        Mono<List<UserForManagementDTO>> allUsersMono = userManagementService.getAllUsers();
+        Mono<List<UserForManagementDTO>> allUsersMono = userAndAccessManagementService.getAllUsers();
 
         StepVerifier.create(allUsersMono)
                 .assertNext(users -> {
@@ -98,7 +98,7 @@ public class UserManagementServiceTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void getAllUsersForManagementTest_invalid() {
-        Mono<List<UserForManagementDTO>> allUsersMono = userManagementService.getAllUsers();
+        Mono<List<UserForManagementDTO>> allUsersMono = userAndAccessManagementService.getAllUsers();
 
         StepVerifier.create(allUsersMono)
                 .expectErrorMatches(throwable ->
@@ -113,7 +113,7 @@ public class UserManagementServiceTest {
     @WithUserDetails(value = "api_user")
     public void getSingleUserForManagementTest_valid() {
 
-        Mono<UserForManagementDTO> userByIdMono = userManagementService.getUserById(api_user.getId());
+        Mono<UserForManagementDTO> userByIdMono = userAndAccessManagementService.getUserById(api_user.getId());
 
         StepVerifier.create(userByIdMono)
                 .assertNext(user -> {
@@ -137,7 +137,7 @@ public class UserManagementServiceTest {
     @Test
     @WithUserDetails(value = "usertest@usertest.com")
     public void getSingleUserForManagementTest_invalid() {
-        Mono<UserForManagementDTO> userByIdMono = userManagementService.getUserById(api_user.getId());
+        Mono<UserForManagementDTO> userByIdMono = userAndAccessManagementService.getUserById(api_user.getId());
 
         StepVerifier.create(userByIdMono)
                 .expectErrorMatches(throwable ->
@@ -168,7 +168,7 @@ public class UserManagementServiceTest {
         UserGroupDTO createdUserGroup = userGroupService.createGroup(ug).block();
 
         // Delete the user
-        userManagementService.deleteUser(createdUser.getId()).block();
+        userAndAccessManagementService.deleteUser(createdUser.getId()).block();
 
         Mono<PermissionGroup> existingPermissionGroupPostDeleteMono = permissionGroupService.findById(existingPermissionGroup.getId());
         Mono<UserGroup> existingGroupAfterDeleteMono = userGroupService.findById(createdUserGroup.getId(), AclPermission.READ_USER_GROUPS);

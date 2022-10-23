@@ -23,7 +23,7 @@ import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.UserManagementService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,7 +83,7 @@ public class PermissionGroupServiceTest {
     PermissionGroupRepository permissionGroupRepository;
 
     @Autowired
-    UserManagementService userManagementService;
+    UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
     UserWorkspaceService userWorkspaceService;
@@ -370,7 +370,7 @@ public class PermissionGroupServiceTest {
         UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
         updateRoleAssociationDTO.setUsers(Set.of(new UserCompactDTO(null, usernameNonExistentUser, usernameNonExistentUser)));
         updateRoleAssociationDTO.setRolesAdded(Set.of(new PermissionGroupCompactDTO(createdPermissionGroup.getId(), createdPermissionGroup.getName())));
-        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
         PermissionGroup updatedPermissionGroup = permissionGroupService.findById(createdPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS).block();
         assertThat(updatedPermissionGroup).isNotNull();
@@ -421,7 +421,7 @@ public class PermissionGroupServiceTest {
         );
 
         // Now assign the users to the roles
-        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
                 permissionGroupService.findById(createdPermissionGroup1.getId(), ASSIGN_PERMISSION_GROUPS),
@@ -503,7 +503,7 @@ public class PermissionGroupServiceTest {
         );
 
         // Now assign the users to the roles
-        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
         Mono<Tuple2<PermissionGroup, PermissionGroup>> permissionGroupsPostUpdateMono = Mono.zip(
                 permissionGroupService.findById(createdPermissionGroup1.getId(), ASSIGN_PERMISSION_GROUPS),
@@ -619,7 +619,7 @@ public class PermissionGroupServiceTest {
                 )
         );
 
-        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
         // Now associate the created workspcae default role, createdPermissionGroup1 and createdPermissionGroup2 with the groups and users and remove
         // createdPermissionGroup3 from the groups and users
@@ -638,7 +638,7 @@ public class PermissionGroupServiceTest {
                 )
         );
 
-        userManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
 
         Mono<Workspace> workspaceMonoWithPermission = workspaceService.findById(createdWorkspace.getId(), READ_WORKSPACES)

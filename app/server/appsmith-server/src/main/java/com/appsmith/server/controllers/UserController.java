@@ -8,7 +8,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.solutions.UserManagementService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,35 +26,35 @@ import java.util.List;
 @Slf4j
 public class UserController extends UserControllerCE {
 
-    private final UserManagementService userManagementService;
+    private final UserAndAccessManagementService userAndAccessManagementService;
 
     public UserController(UserService service,
                           SessionUserService sessionUserService,
                           UserWorkspaceService userWorkspaceService,
                           UserSignup userSignup,
                           UserDataService userDataService,
-                          UserManagementService userManagementService) {
+                          UserAndAccessManagementService userAndAccessManagementService) {
 
-        super(service, sessionUserService, userWorkspaceService, userSignup, userDataService);
-        this.userManagementService = userManagementService;
+        super(service, sessionUserService, userWorkspaceService, userSignup, userDataService, userAndAccessManagementService);
+        this.userAndAccessManagementService = userAndAccessManagementService;
     }
 
     @GetMapping("/manage/all")
     public Mono<ResponseDTO<List<UserForManagementDTO>>> getAllUsersForManagement() {
-        return userManagementService.getAllUsers()
+        return userAndAccessManagementService.getAllUsers()
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 
     @GetMapping("/manage/{userId}")
     public Mono<ResponseDTO<UserForManagementDTO>> getUserForManagement(@PathVariable String userId) {
-        return userManagementService.getUserById(userId)
+        return userAndAccessManagementService.getUserById(userId)
                 .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 
     @DeleteMapping("/id/{id}")
     public Mono<ResponseDTO<Boolean>> deleteUser(@PathVariable String id) {
         log.debug("Going to delete user with id: {}", id);
-        return userManagementService.deleteUser(id)
+        return userAndAccessManagementService.deleteUser(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 }
