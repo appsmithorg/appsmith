@@ -118,7 +118,7 @@ function AppSettings() {
             case AppSettingsTabs.General:
               return (
                 <div className="px-4">
-                  <div className="pt-3 pb-1 font-medium text-[color:var(--appsmith-color-black-800)]">
+                  <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
                     {GENERAL_SETTINGS_SECTION_CONTENT_HEADER()}
                   </div>
                   <GeneralSettings />
@@ -128,7 +128,7 @@ function AppSettings() {
               return (
                 <>
                   <div className="px-4">
-                    <div className="pt-3 pb-1 font-medium text-[color:var(--appsmith-color-black-800)]">
+                    <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
                       {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
                     </div>
                   </div>
@@ -141,7 +141,7 @@ function AppSettings() {
               return (
                 selectedTab.page && (
                   <div className="px-4">
-                    <div className="pt-3 pb-1 font-medium text-[color:var(--appsmith-color-black-800)] text-ellipsis whitespace-nowrap overflow-hidden">
+                    <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)] text-ellipsis whitespace-nowrap overflow-hidden">
                       {selectedTab.page.pageName +
                         " " +
                         PAGE_SETTINGS_SECTION_CONTENT_HEADER()}

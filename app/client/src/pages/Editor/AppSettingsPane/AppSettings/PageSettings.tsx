@@ -165,7 +165,7 @@ function PageSettings(props: { page: Page }) {
   return (
     <>
       <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_NAME_LABEL()}</Text>
-      <div className="pt-1 pb-2.5 relative">
+      <div className="pt-1 pb-2 relative">
         {isPageNameSaving && <TextLoaderIcon />}
         <TextInput
           fill
@@ -261,7 +261,9 @@ function PageSettings(props: { page: Page }) {
       )}
 
       <div className="pb-2 flex justify-between content-center">
-        <Text type={TextType.P1}>{PAGE_SETTINGS_SHOW_PAGE_NAV()}</Text>
+        <Text textAlign="center" type={TextType.P1}>
+          {PAGE_SETTINGS_SHOW_PAGE_NAV()}
+        </Text>
         <SwitchWrapper>
           <AdsSwitch
             checked={isShown}

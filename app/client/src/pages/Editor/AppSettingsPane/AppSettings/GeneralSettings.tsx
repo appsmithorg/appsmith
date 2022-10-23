@@ -80,7 +80,7 @@ function GeneralSettings() {
   return (
     <>
       <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_NAME_LABEL()}</Text>
-      <div className="pt-1 pb-2.5 relative">
+      <div className="pt-1 pb-2 relative">
         {isSavingAppName && <TextLoaderIcon />}
         <TextInput
           fill
