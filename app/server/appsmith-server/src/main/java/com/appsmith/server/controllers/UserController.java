@@ -39,6 +39,7 @@ public class UserController extends UserControllerCE {
         this.userAndAccessManagementService = userAndAccessManagementService;
     }
 
+
     @GetMapping("/manage/all")
     public Mono<ResponseDTO<List<UserForManagementDTO>>> getAllUsersForManagement() {
         return userAndAccessManagementService.getAllUsers()

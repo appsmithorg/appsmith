@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
@@ -46,7 +47,7 @@ import static java.lang.Boolean.TRUE;
 @Component
 @Slf4j
 public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementService {
-
+    
     private final UserGroupService userGroupService;
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
@@ -77,7 +78,6 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.permissionGroupRepository = permissionGroupRepository;
         this.userGroupRepository = userGroupRepository;
     }
-
 
 
     @Override
@@ -273,5 +273,39 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         if (permissionGroup.getAssignedToGroupIds() == null) {
             permissionGroup.setAssignedToUserIds(new HashSet<>());
         }
+    }
+
+    @Override
+    public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
+
+        Mono<List<User>> inviteIndividualUsersMono = Mono.just(List.of());
+        Mono<Boolean> inviteGroupsMono = Mono.just(TRUE);
+
+        List<String> usernames = inviteUsersDTO.getUsernames();
+        if (!CollectionUtils.isEmpty(usernames)) {
+            inviteIndividualUsersMono = super.inviteUsers(inviteUsersDTO, originHeader);
+        }
+
+        Set<String> groups = inviteUsersDTO.getGroups();
+        String permissionGroupId = inviteUsersDTO.getPermissionGroupId();
+
+        if (!CollectionUtils.isEmpty(groups)) {
+            Set<UserGroupCompactDTO> groupCompactDTOS = groups.stream()
+                    .map(id -> new UserGroupCompactDTO(id, null))
+                    .collect(Collectors.toSet());
+
+            UpdateRoleAssociationDTO updateRoleAssociationDTO = new UpdateRoleAssociationDTO();
+            updateRoleAssociationDTO.setGroups(groupCompactDTOS);
+            updateRoleAssociationDTO.setRolesAdded(
+                    Set.of(new PermissionGroupCompactDTO(permissionGroupId, null))
+            );
+
+            inviteGroupsMono = this.changeRoleAssociations(updateRoleAssociationDTO);
+        }
+
+        Mono<Boolean> finalInviteGroupsMono = inviteGroupsMono;
+        // First invite the user and then invite the groups.
+        return inviteIndividualUsersMono
+                .flatMap(users -> finalInviteGroupsMono.thenReturn(users));
     }
 }

@@ -5,6 +5,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -14,6 +16,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,13 +30,14 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-public class UserManagementServiceTest {
+public class UserAndAccessManagementServiceTest {
 
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
@@ -52,6 +56,10 @@ public class UserManagementServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    WorkspaceService workspaceService;
+
 
     User api_user = null;
 
@@ -185,5 +193,65 @@ public class UserManagementServiceTest {
 
         User userFetchedAfterDelete = userService.findByEmail(email).block();
         assertThat(userFetchedAfterDelete).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteGroupTest_valid() {
+        UserGroup ug = new UserGroup();
+        ug.setName("inviteGroupTest_valid User Group");
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(ug).block();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("inviteUserAndGroupTest_valid Workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(permissionGroupId);
+        inviteUsersDTO.setGroups(Set.of(createdUserGroup.getId()));
+
+        // Now invite the user group to the permission group
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "origin").block();
+
+        // fetch the permission group after inviting and assert
+        StepVerifier.create(permissionGroupService.findById(permissionGroupId))
+                .assertNext(permissionGroup -> {
+                    assertThat(permissionGroup.getAssignedToGroupIds()).contains(createdUserGroup.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteUserAndGroupTest_valid() {
+        UserGroup ug = new UserGroup();
+        ug.setName("inviteUserAndGroupTest_valid User Group");
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(ug).block();
+
+        Workspace workspace = new Workspace();
+        workspace.setName("inviteUserAndGroupTest_valid Workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        String permissionGroupId = createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get();
+
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setPermissionGroupId(permissionGroupId);
+        inviteUsersDTO.setGroups(Set.of(createdUserGroup.getId()));
+        inviteUsersDTO.setUsernames(List.of(UUID.randomUUID().toString()));
+
+        // Now invite the user group to the permission group
+        List<User> invitedUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, "origin").block();
+
+        assertThat(invitedUsers).isNotNull();
+        assertThat(invitedUsers.size()).isEqualTo(1);
+        assertThat(invitedUsers.get(0).getEmail()).isEqualTo(inviteUsersDTO.getUsernames().get(0));
+
+        // fetch the permission group after inviting and assert
+        StepVerifier.create(permissionGroupService.findById(permissionGroupId))
+                .assertNext(permissionGroup -> {
+                    assertThat(permissionGroup.getAssignedToGroupIds()).contains(createdUserGroup.getId());
+                })
+                .verifyComplete();
     }
 }
