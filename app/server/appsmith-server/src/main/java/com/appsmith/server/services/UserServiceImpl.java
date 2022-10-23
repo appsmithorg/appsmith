@@ -111,7 +111,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     }
 
     @Override
-    protected Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params) {
+    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params) {
         return tenantService.getDefaultTenant()
                 .map(tenant -> {
                     TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();

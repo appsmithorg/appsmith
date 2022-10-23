@@ -49,6 +49,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import lombok.extern.slf4j.Slf4j;
@@ -130,6 +131,9 @@ public class AuditLogServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -2544,7 +2548,7 @@ public class AuditLogServiceTest {
         inviteUsersDTO.setUsernames(invitedUsers);
         inviteUsersDTO.setPermissionGroupId(createdWorkspace.getDefaultPermissionGroups().stream().findFirst().get());
 
-        userService.inviteUsers(inviteUsersDTO, "https://test.com").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "https://test.com").block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "user.invited", null, null, null, null, null, null, null);
 

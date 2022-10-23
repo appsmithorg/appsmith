@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
@@ -65,6 +66,11 @@ public class DatabaseChangelogEE {
                 READ_PERMISSION_GROUPS.getValue(),
                 Policy.builder()
                         .permission(READ_PERMISSION_GROUPS.getValue())
+                        .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
+                        .build(),
+                READ_PERMISSION_GROUP_MEMBERS.getValue(),
+                Policy.builder()
+                        .permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
                         .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
                         .build()
         );

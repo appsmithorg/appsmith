@@ -140,6 +140,7 @@ public enum AclPermission {
     MANAGE_PERMISSION_GROUPS("manage:permissionGroups", PermissionGroup.class),
     // This permission should only be used to read the members of a permission group
     READ_PERMISSION_GROUP_MEMBERS("read:permissionGroupMembers", PermissionGroup.class),
+    READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
     DELETE_PERMISSION_GROUPS("delete:permissionGroups", PermissionGroup.class),

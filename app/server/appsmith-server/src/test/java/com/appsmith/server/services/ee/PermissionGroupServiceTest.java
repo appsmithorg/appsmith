@@ -253,31 +253,8 @@ public class PermissionGroupServiceTest {
 
         StepVerifier.create(listMono)
                 .assertNext(list -> {
-                    assertThat(list.size()).isEqualTo(3);
-
-                    // Assert that instance admin role is not returned
-                    assertThat(list.stream()
-                            .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().equals(INSTANCE_ADMIN_ROLE))
-                            .findFirst()
-                            .isPresent()
-                    ).isFalse();
-
-                    // Assert that workspace roles are returned
-                    assertThat(list.stream()
-                            .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
-                    assertThat(list.stream()
-                            .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
-                    assertThat(list.stream()
-                            .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
-                            .findFirst()
-                            .get())
-                            .isNotNull();
+                    // No roles should be read by the user since they haven't been given read permissions for any role.
+                    assertThat(list.size()).isEqualTo(0);
                 })
                 .verifyComplete();
     }
@@ -548,7 +525,10 @@ public class PermissionGroupServiceTest {
         PermissionGroup adminRole = defaultRoles.stream().filter(role -> role.getName().startsWith(ADMINISTRATOR)).findFirst().get();
 
         User usertest = userService.findByEmail("usertest@usertest.com").block();
-        userService.inviteUsers(new InviteUsersDTO(List.of("usertest@usertest.com"), adminRole.getId()), "origin").block();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
+        inviteUsersDTO.setPermissionGroupId(adminRole.getId());
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "origin").block();
         userWorkspaceService.leaveWorkspace(createdWorkspace.getId()).block();
 
         // After leaving the workspace, user should not be able to access this.
