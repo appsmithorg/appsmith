@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Column, useTable, useExpanded } from "react-table";
-import { Icon, IconSize, Spinner, Toaster } from "design-system";
-import { Checkbox } from "@blueprintjs/core";
+import { Checkbox, Icon, IconSize, Spinner, Toaster } from "design-system";
 import { HighlightText } from "design-system";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
@@ -25,22 +24,29 @@ import { updateRoleById } from "@appsmith/actions/aclActions";
 let dataToBeSent: any[] = [];
 
 const CheckboxWrapper = styled.div`
-  display: inline-block;
   width: 100%;
   height: 36px;
   &.hover-state {
-    .bp3-control-indicator {
-      opacity: 0.4;
+    .design-system-checkbox {
+      span {
+        opacity: 0.4;
+      }
     }
   }
 
-  input:checked + .bp3-control-indicator::before,
-  input:indeterminate + .bp3-control-indicator::before {
-    background-color: var(--appsmith-color-black-700);
-  }
+  .design-system-checkbox {
+    display: unset;
 
-  .bp3-control.bp3-checkbox .bp3-control-indicator {
-    border-radius: unset;
+    span {
+      left: -8px;
+      width: 16px;
+      height: 16px;
+
+      &:after {
+        width: 5px;
+        height: 10px;
+      }
+    }
   }
 `;
 
@@ -643,8 +649,8 @@ export default function RolesTree(props: RoleTreeProps) {
         };
 
         const onChangeHandler = (e: any, cellId: string) => {
-          setIsChecked(e.target.checked);
-          updateMyData(e.target.checked, cellId, rowId);
+          setIsChecked(e);
+          updateMyData(e, cellId, rowId);
         };
 
         return row.permissions && row.permissions[i] !== -1 ? (
@@ -666,13 +672,11 @@ export default function RolesTree(props: RoleTreeProps) {
             }
           >
             <Checkbox
-              checked={isChecked}
-              /*disabled={
-                row.editable[i]] === 0 ? true : false
+              className="design-system-checkbox"
+              isDefaultChecked={isChecked}
+              onCheckChange={(value: boolean) =>
+                onChangeHandler(value, `${row.id}_${column}`)
               }
-              id={`${row.id}-${column}`} */
-              indeterminate={row.permissions[i] === 3 ? true : false}
-              onChange={(e: any) => onChangeHandler(e, `${row.id}_${column}`)}
               value={`${row.id}_${column}`}
             />
           </CheckboxWrapper>

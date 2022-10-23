@@ -195,7 +195,7 @@ describe("<RoleAddEdit />", () => {
     expect(saveButton).not.toBeInTheDocument();
     const elId = "633ae5bf174013666db972c2_Create";
     const checkboxEl = document.querySelector(
-      `[data-testid="${elId}"] .bp3-control-indicator`,
+      `[data-testid="${elId}"] .design-system-checkbox span`,
     ) as HTMLElement;
     await checkboxEl?.click();
     saveButton = queryByText("Save Changes");
@@ -205,7 +205,7 @@ describe("<RoleAddEdit />", () => {
     const { queryByText } = renderComponent();
     const elId = "633ae5bf174013666db972c2_Create";
     const checkboxEl = document.querySelector(
-      `[data-testid="${elId}"] .bp3-control-indicator`,
+      `[data-testid="${elId}"] .design-system-checkbox span`,
     ) as HTMLElement;
     await checkboxEl?.click();
     let saveButton = queryByText("Save Changes");
