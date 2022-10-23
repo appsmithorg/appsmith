@@ -259,6 +259,19 @@ export function minRangeValidation(
     };
   }
 
+  const minValue = props.min;
+  const maxValue = props.max;
+
+  const sliderRange = maxValue - minValue;
+
+  if (defaultMinRange > sliderRange) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: [`This value must be less than ${sliderRange}`],
+    };
+  }
+
   if (defaultMinRange < 0.1) {
     return {
       isValid: false,
