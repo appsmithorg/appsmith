@@ -51,18 +51,18 @@ public class MongoPluginUtils {
         }
     }
 
-    public static Object parseSafelyRawInput(String fieldName, String input){
+    public static Object parseSafelyDocumentAndArrayOfDocuments(String fieldName, String input){
         try {
             new JSONObject(input);
             return parseSafely(fieldName, input);
         } catch (JSONException e) {
             try {
-                List<Document> jsonList = new ArrayList<>();
-                JSONArray jsonArray = new JSONArray(input);
-                for (int i=0; i < jsonArray.length(); i++) {
-                    jsonList.add(parseSafely(fieldName, jsonArray.getJSONObject(i).toString()));
+                List<Document> parsedDocumentList = new ArrayList<>();
+                JSONArray rawInputJsonArray  = new JSONArray(input);
+                for (int i=0; i < rawInputJsonArray.length(); i++) {
+                    parsedDocumentList.add(parseSafely(fieldName, rawInputJsonArray.getJSONObject(i).toString()));
                 }
-                return jsonList;
+                return parsedDocumentList;
             } catch (JSONException ne) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format.");
             }

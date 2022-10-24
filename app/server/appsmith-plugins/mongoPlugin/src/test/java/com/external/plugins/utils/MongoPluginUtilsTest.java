@@ -32,31 +32,31 @@ public class MongoPluginUtilsTest {
     }
 
     @Test
-    void testParseSafelyRawInput_Success() {
-        assertNotNull(MongoPluginUtils.parseSafelyRawInput("field", "{\"$set\":{name: \"Ram singh\"}}"));
+    void testParseSafelyDocumentAndArrayOfDocuments_Success() {
+        assertNotNull(MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field", "{\"$set\":{name: \"Ram singh\"}}"));
     }
 
     @Test
-    void testParseSafelyRawInput_FailureOnNonJsonValue() {
+    void testParseSafelyDocumentAndArrayOfDocumentst_FailureOnNonJsonValue() {
         assertThrows(AppsmithPluginException.class,
-                () -> MongoPluginUtils.parseSafelyRawInput("field", "{abc, pqr}"));
+                () -> MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field", "{abc, pqr}"));
     }
 
     @Test
-    void testParseSafelyRawInput_OnArrayValues_Success() {
-        assertNotNull(MongoPluginUtils.parseSafelyRawInput("field",
+    void testParseSafelyDocumentAndArrayOfDocuments_OnArrayValues_Success() {
+        assertNotNull(MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field",
                 "[{\"$set\":{name: \"Ram singh\"}},{\"$set\":{age: 40}}]"));
     }
 
     @Test
-    void testParseSafelyRawInput_OnArrayValues_EmptyArray_Success() {
-        assertNotNull(MongoPluginUtils.parseSafelyRawInput("field", "[]"));
+    void testParseSafelyDocumentAndArrayOfDocuments_OnArrayValues_EmptyArray_Success() {
+        assertNotNull(MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field", "[]"));
     }
 
     @Test
-    void testParseSafelyRawInput_onArrayValues_FailureOnNonJsonValue() {
+    void testParseSafelyDocumentAndArrayOfDocuments_onArrayValues_FailureOnNonJsonValue() {
         assertThrows(AppsmithPluginException.class,
-                () -> MongoPluginUtils.parseSafelyRawInput("field", "[abc, pqr]"));
+                () -> MongoPluginUtils.parseSafelyDocumentAndArrayOfDocuments("field", "[abc, pqr]"));
     }
 
 }
