@@ -207,6 +207,7 @@ abstract class BaseWidget<
       log.debug(
         "updateDynamicHeight",
         this.props.widgetId,
+        this.props.widgetName,
         height,
         shouldUpdate,
       );
@@ -238,13 +239,25 @@ abstract class BaseWidget<
     // then we need to compute.
     // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
     // Does this widget have dynamic height enabled
-    const isDynamicHeightEnabled =
-      isDynamicHeightEnabledForWidget(this.props) ||
-      (canWidgetCollapse &&
-        (expectedHeight === 0 || currentHeightInRows === 0));
+    const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
 
+    // console.log("Dynamic height should update?::", {
+    //   isDynamicHeightEnabled,
+    //   name: this.props.widgetName,
+    //   canWidgetCollapse,
+    //   expectedHeight,
+    //   expectedHeightInRows,
+    //   currentHeightInRows,
+    // });
     // Run the following pieces of code only if dynamic height is enabled
     if (!isDynamicHeightEnabled) return false;
+
+    if (
+      canWidgetCollapse &&
+      expectedHeightInRows === 0 &&
+      currentHeightInRows === 0
+    )
+      return true;
 
     const maxDynamicHeightInRows = getWidgetMaxDynamicHeight(this.props);
 
@@ -570,7 +583,7 @@ abstract class BaseWidget<
           // When widgets are invisible in view mode, they should not take up space.
           // We're sending an update that sets the widget to have zero height,
           // this should make sure that widgets below this invisible widget move up
-          this.updateDynamicHeight(0);
+          // this.updateDynamicHeight(0);
         }
         return null;
       default:

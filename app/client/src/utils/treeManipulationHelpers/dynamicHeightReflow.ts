@@ -110,6 +110,14 @@ export function computeChangeInPositionBasedOnDelta(
     (a, b) => tree[a].bottomRow - tree[b].bottomRow,
   );
 
+  // console.log(
+  //   "Reflow DH: baseline",
+  //   { sortedEffectedBoxIds },
+  //   { ...repositionedBoxes },
+  //   { delta },
+  //   { tree },
+  // );
+
   for (const effectedBoxId of sortedEffectedBoxIds) {
     const aboves = tree[effectedBoxId].aboves;
     // We're trying to find the neared boxes above this box
@@ -117,15 +125,15 @@ export function computeChangeInPositionBasedOnDelta(
       (prev: string[], next: string) => {
         if (!prev[0]) return [next];
         // Get the bottomRow of the above box
-        let nextBottomRow = tree[next].bottomRow;
-        let prevBottomRow = tree[prev[0]].bottomRow;
-        // If we've already repositioned this, use the new bottomRow of the box
-        if (repositionedBoxes[next]) {
-          nextBottomRow = repositionedBoxes[next].bottomRow;
-        }
-        if (repositionedBoxes[prev[0]]) {
-          prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
-        }
+        const nextBottomRow = tree[next].bottomRow;
+        const prevBottomRow = tree[prev[0]].bottomRow;
+        // // If we've already repositioned this, use the new bottomRow of the box
+        // if (repositionedBoxes[next]) {
+        //   nextBottomRow = repositionedBoxes[next].bottomRow;
+        // }
+        // if (repositionedBoxes[prev[0]]) {
+        //   prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
+        // }
 
         // If the current box's (next) bottomRow is larger than the previous
         // This (next) box is the bottom most above so far
@@ -133,19 +141,19 @@ export function computeChangeInPositionBasedOnDelta(
         // If this (next) box's bottom row is the same as the previous
         // We have two bottom most boxes
         else if (nextBottomRow === prevBottomRow) {
-          if (
-            repositionedBoxes[prev[0]] &&
-            repositionedBoxes[prev[0]].bottomRow ===
-              repositionedBoxes[prev[0]].topRow
-          ) {
-            return prev;
-          }
-          if (
-            repositionedBoxes[next] &&
-            repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
-          ) {
-            return [next];
-          }
+          // if (
+          //   repositionedBoxes[prev[0]] &&
+          //   repositionedBoxes[prev[0]].bottomRow ===
+          //     repositionedBoxes[prev[0]].topRow
+          // ) {
+          //   return prev;
+          // }
+          // if (
+          //   repositionedBoxes[next] &&
+          //   repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
+          // ) {
+          //   return [next];
+          // }
           return [...prev, next];
         }
         // This (next) box's bottom row is lower than the boxes selected so far
@@ -154,6 +162,12 @@ export function computeChangeInPositionBasedOnDelta(
       },
       [],
     );
+
+    // console.log("Reflow DH: computed bottomMost aboves", {
+    //   effectedBoxId,
+    //   bottomMostAboves,
+    //   aboves,
+    // });
     let _offset;
 
     // for each of the bottom most above boxes.
@@ -165,6 +179,12 @@ export function computeChangeInPositionBasedOnDelta(
         const _aboveOffset = repositionedBoxes[aboveId]
           ? repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow
           : 0;
+        // console.log("Reflow DH computing offset:", {
+        //   aboveId,
+        //   _aboveOffset,
+        //   layout: tree[aboveId],
+        //   repositioned: repositionedBoxes[aboveId],
+        // });
         // If so far, we haven't got any _offset updates
         // This can happen if this is the first aboveId we're checking
         if (_offset === undefined) _offset = _aboveOffset;

@@ -22,6 +22,10 @@ const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
     action: ReduxAction<DynamicHeightLayoutTreePayload>,
   ) => {
     const { tree } = action.payload;
+    const diff = xor(Object.keys(state), ...Object.keys(tree));
+    for (const widgetId in diff) {
+      delete state[widgetId];
+    }
     for (const widgetId in tree) {
       if (state[widgetId]) {
         const differentAboves = xor(

@@ -59,10 +59,7 @@ export function* getMinHeightBasedOnChildren(
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
 ) {
   let minHeightInRows = 0;
-  const isPreviewMode: boolean = yield select(previewModeSelector);
-  const appMode: APP_MODE = yield select(getAppMode);
-
-  const shouldCollapse = isPreviewMode || appMode === APP_MODE.PUBLISHED;
+  const shouldCollapse: boolean = yield shouldWidgetsCollapse();
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
     getDynamicHeightLayoutTree,
@@ -75,22 +72,20 @@ export function* getMinHeightBasedOnChildren(
     // We ignore widgets like ModalWidget which don't occupy parent's space.
     // detachFromLayout helps us identify such widgets
     if (detachFromLayout) continue;
+    const { bottomRow, topRow } = dynamicHeightLayoutTree[childWidgetId];
 
     if (changesSoFar.hasOwnProperty(childWidgetId)) {
-      if (
-        !(
-          shouldCollapse &&
-          changesSoFar[childWidgetId].bottomRow ===
-            changesSoFar[childWidgetId].topRow
-        )
-      )
+      const collapsing =
+        changesSoFar[childWidgetId].bottomRow ===
+        changesSoFar[childWidgetId].topRow;
+
+      if (!(shouldCollapse && collapsing))
         minHeightInRows = Math.max(
           minHeightInRows,
           changesSoFar[childWidgetId].bottomRow,
         );
       // If we need to get the existing bottomRow from the state
     } else {
-      const { bottomRow, topRow } = dynamicHeightLayoutTree[childWidgetId];
       if (!(shouldCollapse && bottomRow === topRow))
         minHeightInRows = Math.max(minHeightInRows, bottomRow);
     }
@@ -125,6 +120,13 @@ export function* getChildOfContainerLikeWidget(
   }
 }
 
+export function* shouldWidgetsCollapse() {
+  const isPreviewMode: boolean = yield select(previewModeSelector);
+  const appMode: APP_MODE = yield select(getAppMode);
+
+  return isPreviewMode || appMode === APP_MODE.PUBLISHED;
+}
+
 /**
  * Saga to update a widget's dynamic height
  * When a widget changes in height, it must do the following
@@ -137,7 +139,6 @@ export function* getChildOfContainerLikeWidget(
 export function* updateWidgetDynamicHeightSaga() {
   const updates = dynamicHeightUpdateWidgets;
   const start = performance.now();
-  const isPreviewMode: boolean = yield select(previewModeSelector);
 
   log.debug(
     "Dynamic height: Computing debounced: ",
@@ -163,7 +164,7 @@ export function* updateWidgetDynamicHeightSaga() {
     hasScroll?: boolean;
   }> = [];
 
-  const appMode: APP_MODE = yield select(getAppMode);
+  const shouldCollapse: boolean = yield shouldWidgetsCollapse();
 
   // For each widget which have new heights to update.
   for (const widgetId in updates) {
@@ -177,10 +178,7 @@ export function* updateWidgetDynamicHeightSaga() {
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
       // In case of a widget going invisible in view mode
-      if (
-        updates[widgetId] === 0 &&
-        (appMode === APP_MODE.PUBLISHED || isPreviewMode)
-      ) {
+      if (updates[widgetId] === 0 && shouldCollapse) {
         minDynamicHeightInPixels = 0;
       }
 
@@ -198,14 +196,16 @@ export function* updateWidgetDynamicHeightSaga() {
         newHeightInPixels = maxDynamicHeightInPixels;
       }
 
+      const expectedHeightInRows = Math.ceil(
+        newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
+          (widget.bottomRow - widget.topRow),
+      );
+      if (Math.abs(expectedHeightInRows) === 0) continue;
       // Push the updates into the initialised array.
       expectedUpdates.push({
         widgetId,
         expectedHeightinPx: newHeightInPixels,
-        expectedChangeInHeightInRows: Math.ceil(
-          newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
-            (widget.bottomRow - widget.topRow),
-        ),
+        expectedChangeInHeightInRows: expectedHeightInRows,
         currentTopRow: widget.topRow,
         currentBottomRow: widget.bottomRow,
         expectedBottomRow: Math.ceil(
@@ -249,10 +249,27 @@ export function* updateWidgetDynamicHeightSaga() {
       // Get all updates for that level.
       // Move up a level, add it to the expectedUpdatesGroupedByParent. A new entry if unavailable, or append to an existing entry,
       // Repeat for the next level.
-      const expectedUpdatesGroupedByParentCanvasWidget = groupBy(
-        expectedUpdates,
-        "parentId",
-      );
+      // const expectedUpdatesGroupedByParentCanvasWidget = groupBy(
+      //   expectedUpdates,
+      //   "parentId",
+      // );
+
+      const expectedUpdatesGroupedByParentCanvasWidget: Record<
+        string,
+        unknown[]
+      > = {};
+      for (const expectedUpdate of expectedUpdates) {
+        if (expectedUpdate.parentId) {
+          expectedUpdatesGroupedByParentCanvasWidget[
+            `${expectedUpdate.parentId}`
+          ] = [
+            ...(expectedUpdatesGroupedByParentCanvasWidget[
+              expectedUpdate.parentId
+            ] || []),
+            expectedUpdate,
+          ];
+        }
+      }
 
       // Initialise a map of the levels and canvaswidgetIds at that level.
       const parentCanvasWidgetsGroupedByLevel: { [level: string]: string[] } = {
@@ -281,9 +298,9 @@ export function* updateWidgetDynamicHeightSaga() {
         getDynamicHeightLayoutTree,
       );
 
-      log.debug("Dynamic height: Working with tree:", {
-        dynamicHeightLayoutTree,
-      });
+      // log.debug("Dynamic height: Working with tree:", {
+      //   dynamicHeightLayoutTree,
+      // });
 
       // Initialise a list of changes so far.
       // This contains a map of widgetIds with their new topRow and bottomRow
@@ -301,13 +318,13 @@ export function* updateWidgetDynamicHeightSaga() {
           parentCanvasWidgetsGroupedByLevel[level];
         const delta: Record<string, number> = {};
 
-        log.debug(
-          "Dynamic height considering: ",
-          { level },
-          { parentCanvasWidgetsToConsider },
-          { expectedUpdatesGroupedByParentCanvasWidget },
-          { parentCanvasWidgetsGroupedByLevel },
-        );
+        // log.debug(
+        //   "Dynamic height considering: ",
+        //   { level },
+        //   { parentCanvasWidgetsToConsider },
+        //   { expectedUpdatesGroupedByParentCanvasWidget },
+        //   { parentCanvasWidgetsGroupedByLevel },
+        // );
 
         if (
           Array.isArray(parentCanvasWidgetsToConsider) &&
@@ -324,9 +341,16 @@ export function* updateWidgetDynamicHeightSaga() {
               // For each widget to update, add to the delta, the expected change.
               expectedUpdatesGroupedByParentCanvasWidget[
                 parentCanvasWidgetId
-              ].forEach((expectedUpdate) => {
-                delta[expectedUpdate.widgetId] =
-                  expectedUpdate.expectedChangeInHeightInRows;
+              ].forEach((update) => {
+                delta[
+                  (update as {
+                    widgetId: string;
+                    expectedChangeInHeightInRows: number;
+                  }).widgetId
+                ] = (update as {
+                  widgetId: string;
+                  expectedChangeInHeightInRows: number;
+                }).expectedChangeInHeightInRows;
               });
             }
           });
@@ -339,15 +363,18 @@ export function* updateWidgetDynamicHeightSaga() {
             delta,
           );
 
+          // Add to the changes so far, the changes computed for this canvas widget's children.
+          changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
+
           log.debug("Dynamic height: Computing sibling updates:", {
             siblingWidgetsToUpdate,
             dynamicHeightLayoutTree,
             delta,
             parentCanvasWidgetsToConsider,
+            changesSoFar,
+            expectedUpdatesGroupedByParentCanvasWidget,
+            expectedUpdates,
           });
-
-          // Add to the changes so far, the changes computed for this canvas widget's children.
-          changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
 
           // Repeat the previous loop, we need to do this, because we need the changesSoFar
           // populated before we can reliably work on the parents
@@ -406,13 +433,13 @@ export function* updateWidgetDynamicHeightSaga() {
 
                 minHeightInRows = Math.min(maxDynamicHeight, minHeightInRows);
 
-                log.debug("Dynamic height, updating parent:", {
-                  parentContainerLikeWidget,
-                  canvasHeightOffset,
-                  minHeightInRows,
-                  maxBottomRow,
-                  maxDynamicHeight,
-                });
+                // log.debug("Dynamic height, updating parent:", {
+                //   parentContainerLikeWidget,
+                //   canvasHeightOffset,
+                //   minHeightInRows,
+                //   maxBottomRow,
+                //   maxDynamicHeight,
+                // });
 
                 // We need to make sure that the canvas widget doesn't have
                 // any extra scroll, to this end, we need to add the `minHeight` update
@@ -449,10 +476,10 @@ export function* updateWidgetDynamicHeightSaga() {
                   parentId: parentContainerLikeWidget.parentId,
                 };
 
-                log.debug("Dynamic height parent container like widget:", {
-                  parentContainerLikeWidget,
-                  type: parentContainerLikeWidget.type,
-                });
+                // log.debug("Dynamic height parent container like widget:", {
+                //   parentContainerLikeWidget,
+                //   type: parentContainerLikeWidget.type,
+                // });
 
                 // If this widget is actually removed from the layout
                 // For example, if this is a ModalWidget
@@ -492,10 +519,10 @@ export function* updateWidgetDynamicHeightSaga() {
                   !parentContainerLikeWidget.detachFromLayout &&
                   parentContainerLikeWidget.parentId
                 ) {
-                  log.debug("Dynamic height: Adding parent update", {
-                    parentContainerLikeWidget,
-                    expectedUpdate,
-                  });
+                  // log.debug("Dynamic height: Adding parent update", {
+                  //   parentContainerLikeWidget,
+                  //   expectedUpdate,
+                  // });
                   // If this widget's parent canvas already has some updates
                   // We push this update to the existing array.
                   if (
@@ -725,10 +752,7 @@ export function* dynamicallyUpdateContainersSaga() {
           bottomRow = parentContainerWidget.bottomRow;
           topRow = parentContainerWidget.topRow;
         }
-        if (
-          isDynamicHeightEnabledForWidget(parentContainerWidget) ||
-          (bottomRow && topRow && bottomRow === topRow)
-        ) {
+        if (isDynamicHeightEnabledForWidget(parentContainerWidget)) {
           const childWidgetId:
             | string
             | undefined = yield getChildOfContainerLikeWidget(
