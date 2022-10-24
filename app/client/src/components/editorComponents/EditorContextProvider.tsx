@@ -35,6 +35,7 @@ import {
   ModifyMetaWidgetPayload,
   DeleteMetaWidgetsPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -73,7 +74,58 @@ export const EditorContext: Context<EditorContextType> = createContext({});
 
 type EditorContextProviderProps = EditorContextType & {
   children: ReactNode;
+  renderMode: RenderMode;
 };
+
+type EditorContextTypeKey = keyof EditorContextType;
+
+const COMMON_API_METHODS: EditorContextTypeKey[] = [
+  "batchUpdateWidgetProperty",
+  "executeAction",
+  "getWidgetCache",
+  "modifyMetaWidgets",
+  "resetChildrenMetaProperty",
+  "setWidgetCache",
+  "syncUpdateWidgetMetaProperty",
+  "triggerEvalOnMetaUpdate",
+];
+
+const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
+
+const CANVAS_MODE_API_METHODS: EditorContextTypeKey[] = [
+  ...COMMON_API_METHODS,
+  "deleteMetaWidgets",
+  "deleteWidgetProperty",
+  "disableDrag",
+  "modifyMetaWidgets",
+  "updateWidget",
+  "updateWidgetProperty",
+];
+
+const ApiMethodsListByRenderModes: Record<
+  RenderMode,
+  EditorContextTypeKey[]
+> = {
+  [RenderModes.CANVAS]: CANVAS_MODE_API_METHODS,
+  [RenderModes.PAGE]: PAGE_MODE_API_METHODS,
+  [RenderModes.CANVAS_SELECTED]: [],
+  [RenderModes.COMPONENT_PANE]: [],
+};
+
+function extractFromObj<T, K extends keyof T>(
+  obj: T,
+  keys: K[],
+): [Pick<T, K>, T[K][]] {
+  const deps = [] as T[K][];
+  const newObj = keys.reduce((newObj, curr) => {
+    newObj[curr] = obj[curr];
+    deps.push(obj[curr]);
+
+    return newObj;
+  }, {} as Pick<T, K>);
+
+  return [newObj, deps];
+}
 
 function EditorContextProvider(props: EditorContextProviderProps) {
   const widgetCache = useRef<Record<string, unknown>>({});
@@ -88,55 +140,23 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     [],
   );
 
-  const {
-    batchUpdateWidgetProperty,
-    children,
-    deleteMetaWidgets,
-    deleteWidgetProperty,
-    disableDrag,
-    executeAction,
-    modifyMetaWidgets,
-    resetChildrenMetaProperty,
-    syncUpdateWidgetMetaProperty,
-    triggerEvalOnMetaUpdate,
-    updateWidget,
-    updateWidgetProperty,
-  } = props;
+  const allMethods: EditorContextProviderProps = {
+    ...props,
+    setWidgetCache,
+    getWidgetCache,
+  };
+
+  const { children, renderMode } = props;
+
+  const apiMethodsList = ApiMethodsListByRenderModes[renderMode];
+  const [apiMethods, apiMethodsDeps] = extractFromObj(
+    allMethods,
+    apiMethodsList,
+  );
 
   // Memoize the context provider to prevent
   // unnecessary renders
-  const contextValue = useMemo(
-    () => ({
-      executeAction,
-      updateWidget,
-      updateWidgetProperty,
-      syncUpdateWidgetMetaProperty,
-      disableDrag,
-      resetChildrenMetaProperty,
-      deleteWidgetProperty,
-      batchUpdateWidgetProperty,
-      triggerEvalOnMetaUpdate,
-      modifyMetaWidgets,
-      setWidgetCache,
-      getWidgetCache,
-      deleteMetaWidgets,
-    }),
-    [
-      executeAction,
-      updateWidget,
-      updateWidgetProperty,
-      syncUpdateWidgetMetaProperty,
-      disableDrag,
-      resetChildrenMetaProperty,
-      deleteWidgetProperty,
-      batchUpdateWidgetProperty,
-      triggerEvalOnMetaUpdate,
-      modifyMetaWidgets,
-      setWidgetCache,
-      getWidgetCache,
-      deleteMetaWidgets,
-    ],
-  );
+  const contextValue = useMemo(() => apiMethods, apiMethodsDeps);
   return (
     <EditorContext.Provider value={contextValue}>
       {children}
