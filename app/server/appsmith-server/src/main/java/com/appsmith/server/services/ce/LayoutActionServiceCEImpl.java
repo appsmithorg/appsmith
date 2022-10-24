@@ -587,8 +587,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             "error", error == null ? "" : error.getMessage()
                     );
 
-                    analyticsService.sendEvent(AnalyticsEvents.UPDATE_LAYOUT.getEventName(), t1.getUsername(), data);
-                    return Mono.just(isSuccess);
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.UPDATE_LAYOUT, t2, data).thenReturn(isSuccess);
                 })
                 .onErrorResume(e -> {
                     log.warn("Error sending action execution data point", e);
