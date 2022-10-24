@@ -541,6 +541,10 @@ export default function RolesTree(props: RoleTreeProps) {
   }, []);
 
   useEffect(() => {
+    setData(dataFromProps);
+  }, [tabData]);
+
+  useEffect(() => {
     if (searchValue && searchValue.trim().length > 0) {
       const currentData = JSON.parse(JSON.stringify(data));
       const result = getSearchData(currentData, searchValue);

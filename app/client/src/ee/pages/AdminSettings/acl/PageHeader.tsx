@@ -58,6 +58,14 @@ const StyledSettingsHeader = styled(SettingsHeader)`
   max-width: 440px;
   cursor: pointer;
 
+  &.not-editable {
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
   span.bp3-popover-target {
     width: 100%;
 
@@ -155,9 +163,20 @@ export function PageHeader(props: PageHeaderProps) {
             </TooltipComponent>
           </StyledSettingsHeader>
         ) : (
-          <StyledSettingsHeader data-testid="t--page-title">
-            {title ?? pageTitle}
-          </StyledSettingsHeader>
+          <TooltipComponent
+            boundary="viewport"
+            content={title ?? pageTitle}
+            disabled={(title ?? pageTitle).length < 48}
+            maxWidth="400px"
+            position={PopoverPosition.BOTTOM_LEFT}
+          >
+            <StyledSettingsHeader
+              className="not-editable"
+              data-testid="t--page-title"
+            >
+              {title ?? pageTitle}
+            </StyledSettingsHeader>
+          </TooltipComponent>
         )}
         {details?.subText && (
           <SettingsSubHeader>{details.subText}</SettingsSubHeader>
