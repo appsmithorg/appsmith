@@ -1,8 +1,5 @@
 import { AppState } from "@appsmith/reducers";
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useSelector } from "store";
 
 export const useAllowEditorDragToSelect = () => {
@@ -31,12 +28,6 @@ export const useAllowEditorDragToSelect = () => {
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging || !!isSelecting;
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
 
-  return (
-    !isResizingOrDragging &&
-    !isDraggingDisabled &&
-    !isSnipingMode &&
-    !isPreviewMode
-  );
+  return !isResizingOrDragging && !isDraggingDisabled && !isSnipingMode;
 };

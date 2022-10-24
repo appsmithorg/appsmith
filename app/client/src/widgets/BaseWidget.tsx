@@ -33,7 +33,6 @@ import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
@@ -320,14 +319,6 @@ abstract class BaseWidget<
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }
 
-  addPreviewModeWidget(content: ReactNode): React.ReactElement {
-    return (
-      <PreviewModeComponent isVisible={this.props.isVisible}>
-        {content}
-      </PreviewModeComponent>
-    );
-  }
-
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -354,7 +345,6 @@ abstract class BaseWidget<
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();
-        content = this.addPreviewModeWidget(content);
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
@@ -367,6 +357,7 @@ abstract class BaseWidget<
 
       // return this.getCanvasView();
       case RenderModes.PAGE:
+      case RenderModes.PREVIEW:
         content = this.getWidgetComponent();
         if (this.props.isVisible) {
           content = this.addErrorBoundary(content);

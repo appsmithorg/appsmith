@@ -171,10 +171,11 @@ export const selectURLSlugs = createSelector(
   },
 );
 
-export const getRenderMode = (state: AppState) =>
-  state.entities.app.mode === APP_MODE.EDIT
-    ? RenderModes.CANVAS
-    : RenderModes.PAGE;
+export const getRenderMode = (state: AppState) => {
+  if (state.ui.editor.isPreviewMode) return RenderModes.PREVIEW;
+  else if (state.entities.app.mode === APP_MODE.EDIT) return RenderModes.CANVAS;
+  else return RenderModes.PAGE;
+};
 
 export const getViewModePageList = createSelector(
   getPageList,

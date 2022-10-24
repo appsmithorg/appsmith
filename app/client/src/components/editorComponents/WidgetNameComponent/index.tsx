@@ -14,10 +14,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "utils/WidgetFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
@@ -57,7 +54,6 @@ type WidgetNameComponentProps = {
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
   const showTableFilterPane = useShowTableFilterPane();
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
@@ -130,7 +126,6 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidgets.includes(props.widgetId);
   const shouldShowWidgetName = () => {
     return (
-      !isPreviewMode &&
       !isMultiSelectedWidget &&
       (isSnipingMode
         ? focusedWidget === props.widgetId
