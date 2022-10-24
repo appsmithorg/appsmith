@@ -95,6 +95,9 @@ public class ShareWorkspacePermissionTests {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
+
     Application savedApplication;
 
     Workspace savedWorkspace;
@@ -135,7 +138,7 @@ public class ShareWorkspacePermissionTests {
         emails.add("admin@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         emails.clear();
 
@@ -143,7 +146,7 @@ public class ShareWorkspacePermissionTests {
         emails.add("developer@solutiontest.com");
         inviteUsersDTO.setUsernames(emails);
         inviteUsersDTO.setPermissionGroupId(developerPermissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         User userAdmin = userService.findByEmail("admin@solutiontest.com").block();
         User userDeveloper = userService.findByEmail("developer@solutiontest.com").block();

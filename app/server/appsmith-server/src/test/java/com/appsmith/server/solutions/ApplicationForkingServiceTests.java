@@ -153,6 +153,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private PermissionGroupService permissionGroupService;
 
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
+
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;
@@ -269,7 +272,7 @@ public class ApplicationForkingServiceTests {
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;
     }
