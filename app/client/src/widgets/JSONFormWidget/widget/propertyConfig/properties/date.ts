@@ -48,7 +48,8 @@ const PROPERTIES = {
       {
         propertyName: "timePrecision",
         label: "Time precision",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         helpText: "Sets the different time picker or hide.",
         defaultValue: TimePrecision.MINUTE,
         options: [
@@ -165,6 +166,7 @@ const PROPERTIES = {
       {
         propertyName: "onDateSelected",
         label: "onDateSelected",
+        helpText: "Triggers an action when a date is selected in the calendar",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
