@@ -16,7 +16,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
       if (responseData) {
         const endTime = performance.now();
         try {
-          postMessage({
+          self.postMessage({
             requestId,
             responseData,
             timeTaken: (endTime - startTime).toFixed(2),
@@ -24,7 +24,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
         } catch (e) {
           // eslint-disable-next-line no-console
           console.error(e);
-          postMessage({
+          self.postMessage({
             requestId,
             responseData: {
               errors: [
@@ -64,4 +64,4 @@ function eventRequestHandler({
   }
 }
 
-addEventListener("message", messageEventListener(eventRequestHandler));
+self.onmessage = messageEventListener(eventRequestHandler);

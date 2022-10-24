@@ -53,7 +53,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
       if (responseData) {
         const endTime = performance.now();
         try {
-          postMessage({
+          self.postMessage({
             requestId,
             responseData,
             timeTaken: (endTime - startTime).toFixed(2),
@@ -63,7 +63,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
           // we dont want to log dataTree because it is huge.
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { dataTree, ...rest } = requestData;
-          postMessage({
+          self.postMessage({
             requestId,
             responseData: {
               errors: [
@@ -412,4 +412,4 @@ function eventRequestHandler({
   }
 }
 
-addEventListener("message", messageEventListener(eventRequestHandler));
+self.onmessage = messageEventListener(eventRequestHandler);
