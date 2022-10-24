@@ -11,7 +11,7 @@ import { requiresUnauth } from "./requiresAuthHOC";
 import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "@appsmith/reducers";
-import styled, { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components";
 import { Link, Box } from "design-system";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
