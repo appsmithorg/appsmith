@@ -1,6 +1,7 @@
 import {
   ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionType,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -526,7 +527,7 @@ export function* getPropertiesUpdatedWidget(
 ) {
   const { dynamicUpdates, updates, widgetId } = updatesObj;
 
-  const { modify = {}, remove = [], triggerPaths } = updates;
+  const { modify = {}, remove = [], postUpdateActions, triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
@@ -571,7 +572,10 @@ export function* getPropertiesUpdatedWidget(
   // If there exists another spot in this workflow, where we are iterating over the dynamicTriggerPathList and dynamicBindingPathList, after
   // performing all updates to the widget, we can piggy back on that iteration to purge orphaned paths
   // I couldn't find it, so here it is.
-  return purgeOrphanedDynamicPaths(widget);
+  return {
+    updatedWidget: purgeOrphanedDynamicPaths(widget),
+    actionsToDispatch: postUpdateActions,
+  };
 }
 
 function* batchUpdateWidgetPropertySaga(
@@ -583,12 +587,15 @@ function* batchUpdateWidgetPropertySaga(
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
-  const updatedWidget: WidgetProps = yield call(
-    getPropertiesUpdatedWidget,
-    action.payload,
-  );
+  const updatedWidgetAndActionsToDispatch: {
+    updatedWidget: WidgetProps;
+    actionsToDispatch?: ReduxActionType[];
+  } = yield call(getPropertiesUpdatedWidget, action.payload);
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: updatedWidget };
+  const widgets = {
+    ...stateWidgets,
+    [widgetId]: updatedWidgetAndActionsToDispatch.updatedWidget,
+  };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
@@ -596,6 +603,15 @@ function* batchUpdateWidgetPropertySaga(
   );
   // Save the layout
   yield put(updateAndSaveLayout(widgets, { shouldReplay }));
+  const uniqueActions = uniq(
+    updatedWidgetAndActionsToDispatch.actionsToDispatch,
+  );
+  for (const actionType of uniqueActions) {
+    yield put({
+      type: actionType,
+      payload: { widgetId },
+    });
+  }
 }
 
 function* batchUpdateMultipleWidgetsPropertiesSaga(
@@ -604,22 +620,31 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   const start = performance.now();
   const { updatesArray } = action.payload;
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const updatedWidgets: WidgetProps[] = yield all(
+  const updatedWidgetsAndActionsToDispatch: Array<{
+    updatedWidget: WidgetProps;
+    actionsToDispatch?: ReduxActionType[];
+  }> = yield all(
     updatesArray.map((eachUpdate) => {
       return call(getPropertiesUpdatedWidget, eachUpdate);
     }),
   );
-  const updatedStateWidgets = updatedWidgets.reduce(
-    (allWidgets, eachUpdatedWidget) => {
+
+  const updatedStateWidgets = updatedWidgetsAndActionsToDispatch.reduce(
+    (allWidgets, eachUpdatedWidgetAndActionsToDispatch) => {
       return {
         ...allWidgets,
-        [eachUpdatedWidget.widgetId]: eachUpdatedWidget,
+        [eachUpdatedWidgetAndActionsToDispatch.updatedWidget.widgetId]:
+          eachUpdatedWidgetAndActionsToDispatch.updatedWidget,
       };
     },
     stateWidgets,
   );
 
-  const updatedWidgetIds = uniq(updatedWidgets.map((each) => each.widgetId));
+  const updatedWidgetIds = uniq(
+    updatedWidgetsAndActionsToDispatch.map(
+      (each) => each.updatedWidget.widgetId,
+    ),
+  );
 
   log.debug(
     "Batch multi-widget properties update calculations took: ",
@@ -633,6 +658,15 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
       updatedWidgetIds,
     }),
   );
+  for (const updatedWidgetAndActions of updatedWidgetsAndActionsToDispatch) {
+    const uniqueActions = uniq(updatedWidgetAndActions.actionsToDispatch);
+    for (const actionType of uniqueActions) {
+      yield put({
+        type: actionType,
+        payload: { widgetId: updatedWidgetAndActions.updatedWidget.widgetId },
+      });
+    }
+  }
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
@@ -734,7 +768,10 @@ function* updateCanvasSize(
   action: ReduxAction<{ canvasWidgetId: string; snapRows: number }>,
 ) {
   const { canvasWidgetId, snapRows } = action.payload;
-  const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
+  const canvasWidget: FlattenedWidgetProps = yield select(
+    getWidget,
+    canvasWidgetId,
+  );
 
   const originalSnapRows = canvasWidget.bottomRow - canvasWidget.topRow;
 
