@@ -7,6 +7,7 @@ import {
   Icon,
   IconSize,
   Size,
+  Spinner,
   Text,
   TextInput,
   TextType,
@@ -57,7 +58,7 @@ const Wrapper = styled.div`
     .search-CTA {
       display: flex;
       flex-direction: column;
-      margin: 16px 0;
+      margin-top: 16px;
     }
   }
   .search-results {
@@ -118,6 +119,57 @@ export default function InstallationWindow(props: TInstallWindowProps) {
         />
       </Tooltip>
     </Popover2>
+  );
+}
+
+const InstallationProgressWrapper = styled.div`
+  display: flex;
+  margin-top: 0.75rem;
+  flex-direction: column;
+  background: var(--appsmith-color-black-100);
+  text-overflow: ellipsis;
+  .progress-container {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 1.5rem 0.75rem;
+    gap: 0.5rem;
+    background: var(--appsmith-color-black-50);
+    span {
+      font-size: 12px;
+      font-weight: normal;
+    }
+    .progress-bar {
+      height: 6px;
+      width: 100%;
+      background: #d3d3d3;
+      .completed {
+        height: 6px;
+        background: #03b365;
+        width: 60%;
+      }
+    }
+  }
+`;
+
+function InstallationProgress(props: any) {
+  const {
+    url = "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.6/dayjs.min.js",
+  } = props;
+  return (
+    <InstallationProgressWrapper>
+      <div className="pl-6 pr-6 pt-3 pb-3 bg-g overflow-hidden text-ellipsis fw-500 text-sm">
+        {url}
+      </div>
+      <div className="progress-container">
+        <div className="flex flex-row gap-2 items-center">
+          <Spinner />
+          <span>Installing libraries for App</span>
+        </div>
+        <div className="progress-bar">
+          <div className="completed" />
+        </div>
+      </div>
+    </InstallationProgressWrapper>
   );
 }
 
@@ -198,12 +250,13 @@ function InstallationPopoverContent(props: any) {
           </Text>
         </div>
       </div>
-      <div className="ml-6 mb-3">
+      <InstallationProgress />
+      <div className="ml-6 mb-3 mt-4">
         <Text type={TextType.P1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.REC_LIBRARY)}
         </Text>
       </div>
-      <div className="search-results overflow-auto">
+      <div className="search-results">
         {new Array(20).fill(0).map((_, idx) => (
           <div className="library-card" key={idx}>
             <div className="flex flex-row justify-between">
