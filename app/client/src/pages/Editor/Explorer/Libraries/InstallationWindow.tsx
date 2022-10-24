@@ -1,5 +1,5 @@
 import { Popover2 } from "@blueprintjs/popover2";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import {
   Button,
@@ -90,8 +90,12 @@ function installLibraryInit(payload: string) {
 }
 
 export default function InstallationWindow(props: TInstallWindowProps) {
-  const { className } = props;
-  const [show, setShow] = useState(false);
+  const { className, open } = props;
+  const [show, setShow] = useState(open);
+
+  useEffect(() => {
+    setShow(open);
+  }, [open]);
 
   const closeWindow = useCallback(() => {
     setShow(false);
@@ -176,7 +180,7 @@ function InstallationProgress() {
       <div className="progress-container">
         <div className="flex flex-row gap-2 items-center">
           <Spinner />
-          <span>Installing libraries for {application?.name}</span>
+          <span>Installing library for {application?.name}</span>
         </div>
         <div className="progress-bar">
           <div className="completed" />
@@ -231,6 +235,7 @@ function InstallationPopoverContent(props: any) {
         <div className="flex flex-row gap-2 justify-between items-center">
           <TextInput
             $padding="12px"
+            data-testid="library-url"
             leftIcon="link-2"
             onChange={updateURL}
             padding="12px"
@@ -241,6 +246,7 @@ function InstallationPopoverContent(props: any) {
           {URL && isValid && (
             <Button
               category={Category.tertiary}
+              data-testid="install-library-btn"
               icon="download"
               onClick={() => installLibrary()}
               size={Size.small}
