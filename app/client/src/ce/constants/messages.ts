@@ -1284,3 +1284,8 @@ export const ALERT_STYLE_OPTIONS = [
   { label: "Error", value: "'error'", id: "error" },
   { label: "Warning", value: "'warning'", id: "warning" },
 ];
+
+export const customJSLibraryMessages = {
+  ADD_JS_LIBRARY: () => "Add JS Libraries",
+  REC_LIBRARY: () => "RECOMMENDED LIBRARIES",
+};
