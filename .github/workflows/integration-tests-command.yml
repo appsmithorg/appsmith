@@ -837,9 +837,9 @@ jobs:
         if: needs.fat-container-test.result != 'success'
         run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat
 
-      # Force save the failed spec list into a cache
+      # save the failed spec list into a cache
       - name: Store the combined run result
-        if: needs.ui-test.result
+        if: needs.ui-test.result != 'success'
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
