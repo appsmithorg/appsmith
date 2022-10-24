@@ -178,7 +178,11 @@ export function* updateWidgetDynamicHeightSaga() {
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
       // In case of a widget going invisible in view mode
-      if (updates[widgetId] === 0 && shouldCollapse) {
+      if (
+        updates[widgetId] === 0 &&
+        shouldCollapse &&
+        isDynamicHeightEnabledForWidget(widget)
+      ) {
         minDynamicHeightInPixels = 0;
       }
 
