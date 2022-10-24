@@ -138,18 +138,10 @@ export const useDynamicAppLayout = () => {
    */
   const resizeToLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
-    const { isMobile, width: rightColumn } = mainCanvasProps || {};
+    const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, calculatedMinHeight));
-      if (calculatedWidth <= MOBILE_MAX_WIDTH) {
-        (!isMobile || !isCanvasInitialized) &&
-          dispatch(updateLayoutForMobileBreakpoint("0", true));
-      }
-      if (calculatedWidth > MOBILE_MAX_WIDTH) {
-        (isMobile || !isCanvasInitialized) &&
-          dispatch(updateLayoutForMobileBreakpoint("0", false));
-      }
     }
   };
 
@@ -210,8 +202,14 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,
-    mainCanvasProps?.isMobile,
   ]);
+
+  useEffect(() => {
+    function relayoutAtBreakpoint() {
+      dispatch(updateLayoutForMobileBreakpoint("0", mainCanvasProps?.isMobile));
+    }
+    relayoutAtBreakpoint();
+  }, [mainCanvasProps?.isMobile]);
 
   return isCanvasInitialized;
 };
