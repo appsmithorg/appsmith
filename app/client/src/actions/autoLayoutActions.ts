@@ -11,3 +11,14 @@ export const addWrappers = (parentId: string) => ({
     parentId,
   },
 });
+
+export const updateLayoutForMobileBreakpoint = (
+  parentId: string,
+  isMobile: boolean,
+) => ({
+  type: ReduxActionTypes.RECALCULATE_COLUMNS,
+  payload: {
+    parentId,
+    isMobile,
+  },
+});

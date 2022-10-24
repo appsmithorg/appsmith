@@ -707,6 +707,7 @@ export const ReduxActionTypes = {
   REMOVE_CHILD_WRAPPERS: "REMOVE_CHILD_WRAPPERS",
   ADD_CHILD_WRAPPERS: "ADD_CHILD_WRAPPERS",
   UPDATE_FILL_CHILD_LAYER: "UPDATE_FILL_CHILD_LAYER",
+  RECALCULATE_COLUMNS: "RECALCULATE_COLUMNS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

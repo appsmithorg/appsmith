@@ -9,6 +9,8 @@ import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
+  alterLayoutForDesktop,
+  alterLayoutForMobile,
   removeChildLayers,
   updateFillChildStatus,
   wrapChildren,
@@ -92,10 +94,44 @@ export function* updateFillChildInfo(
   }
 }
 
+export function* updateLayoutForMobileCheckpoint(
+  actionPayload: ReduxAction<{
+    parentId: string;
+    isMobile: boolean;
+  }>,
+) {
+  try {
+    const start = performance.now();
+    const { isMobile, parentId } = actionPayload.payload;
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const updatedWidgets: CanvasWidgetsReduxState = isMobile
+      ? alterLayoutForMobile(allWidgets, parentId)
+      : alterLayoutForDesktop(allWidgets, parentId);
+    yield put(updateAndSaveLayout(updatedWidgets));
+    log.debug(
+      "updating layout for mobile viewport took",
+      performance.now() - start,
+      "ms",
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.RECALCULATE_COLUMNS,
+        error,
+      },
+    });
+  }
+}
+
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(ReduxActionTypes.ADD_CHILD_WRAPPERS, addChildWrappers),
     takeLatest(ReduxActionTypes.REMOVE_CHILD_WRAPPERS, removeChildWrappers),
     takeLatest(ReduxActionTypes.UPDATE_FILL_CHILD_LAYER, updateFillChildInfo),
+    takeLatest(
+      ReduxActionTypes.RECALCULATE_COLUMNS,
+      updateLayoutForMobileCheckpoint,
+    ),
   ]);
 }

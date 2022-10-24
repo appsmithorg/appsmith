@@ -12,9 +12,9 @@ import { useSelector } from "store";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { checkIsDropTarget } from "../PositionedContainer";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { AppState } from "ce/reducers";
 import { DRAG_MARGIN } from "widgets/constants";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -67,7 +67,7 @@ const FlexWidget = styled.div<{
 // TODO: update min width logic.
 
 export function FlexComponent(props: AutoLayoutProps) {
-  const isMobile = useIsMobileDevice();
+  const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const onClickFn = useCallback(() => {

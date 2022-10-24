@@ -23,6 +23,8 @@ import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { updateLayoutForMobileBreakpoint } from "actions/autoLayoutActions";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -136,10 +138,18 @@ export const useDynamicAppLayout = () => {
    */
   const resizeToLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
-    const { width: rightColumn } = mainCanvasProps || {};
+    const { isMobile, width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
       dispatch(updateCanvasLayoutAction(calculatedWidth, calculatedMinHeight));
+      if (calculatedWidth <= MOBILE_MAX_WIDTH) {
+        (!isMobile || !isCanvasInitialized) &&
+          dispatch(updateLayoutForMobileBreakpoint("0", true));
+      }
+      if (calculatedWidth > MOBILE_MAX_WIDTH) {
+        (isMobile || !isCanvasInitialized) &&
+          dispatch(updateLayoutForMobileBreakpoint("0", false));
+      }
     }
   };
 
@@ -200,6 +210,7 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,
+    mainCanvasProps?.isMobile,
   ]);
 
   return isCanvasInitialized;

@@ -9,8 +9,8 @@ import {
   Overflow,
 } from "components/constants";
 import { useSelector } from "react-redux";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import AutoLayoutLayer from "./AutoLayoutLayer";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -49,7 +49,8 @@ export const FlexContainer = styled.div<{
     overflow?.indexOf("wrap") > -1 ? overflow : "nowrap"};
 
   width: 100%;
-  height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
+  height: ${({ isMainContainer, stretchHeight }) =>
+    isMainContainer || stretchHeight ? "100%" : "auto"};
 
   overflow: hidden;
   overflow-y: ${({ isMainContainer, isMobile }) =>
@@ -59,7 +60,7 @@ export const FlexContainer = styled.div<{
 
 function FlexBoxComponent(props: FlexBoxProps) {
   // TODO: set isMobile as a prop at the top level
-  const isMobile = useIsMobileDevice();
+  const isMobile = useSelector(getIsMobile);
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
 

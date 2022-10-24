@@ -1,4 +1,8 @@
-import { FlexLayerAlignment, ResponsiveBehavior } from "components/constants";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "components/constants";
 import {
   FlexLayer,
   LayerChild,
@@ -219,4 +223,57 @@ export function updateSizeOfAllChildren(
   }
 
   return widgets;
+}
+
+export function alterLayoutForMobile(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[parentId];
+  const children = parent.children;
+
+  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0")
+    return widgets;
+  if (!children || !children.length) return widgets;
+
+  for (const child of children) {
+    const widget = { ...widgets[child] };
+
+    if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+      widget.rightColumn = 64;
+      widget.leftColumn = 0;
+    }
+
+    widgets = alterLayoutForMobile(widgets, child);
+    widgets[child] = widget;
+  }
+  return widgets;
+}
+
+export function alterLayoutForDesktop(
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+): CanvasWidgetsReduxState {
+  let widgets = { ...allWidgets };
+  const parent = widgets[parentId];
+  const children = parent.children;
+
+  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0")
+    return widgets;
+  if (!children || !children.length) return widgets;
+
+  widgets = updateSizeOfAllChildren(widgets, parentId);
+  for (const child of children) {
+    widgets = alterLayoutForDesktop(widgets, child);
+  }
+
+  return widgets;
+}
+
+function checkIsNotVerticalStack(widget: any): boolean {
+  return (
+    widget.positioning !== undefined &&
+    widget.positioning !== Positioning.Vertical
+  );
 }
