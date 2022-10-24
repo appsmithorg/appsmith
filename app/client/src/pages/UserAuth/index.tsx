@@ -12,19 +12,9 @@ import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "@appsmith/reducers";
 import styled, { ThemeProvider } from "styled-components";
-import { Link } from "design-system";
+import { Link, Box } from "design-system";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
-
-// TODO: replace with container from design-system
-const FooterLink = styled.div`
-  padding: var(--ads-spaces-9);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: 100%;
-  max-width: 440px;
-`;
 
 export function UserAuth() {
   const { path } = useRouteMatch();
@@ -55,14 +45,14 @@ export function UserAuth() {
             </Switch>
           </AuthCard>
         </AuthCardContainer>
-        <FooterLink>
+        <Box>
           <Link target="_blank" to="/privacy-policy.html">
             Privacy Policy
           </Link>
           <Link target="_blank" to="/terms-and-conditions.html">
             Terms and conditions
           </Link>
-        </FooterLink>
+        </Box>
       </AuthContainer>
     </ThemeProvider>
   );
