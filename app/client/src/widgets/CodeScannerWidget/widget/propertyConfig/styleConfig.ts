@@ -24,6 +24,7 @@ export default [
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
+        fullWidth: true,
         options: [
           {
             icon: "VERTICAL_LEFT",
@@ -45,8 +46,8 @@ export default [
       },
       {
         propertyName: "placement",
-        label: "Items Placement",
-        controlType: "ICON_TABS",
+        label: "Placement",
+        controlType: "DROP_DOWN",
         helpText: "Sets the space between items",
         options: [
           {
