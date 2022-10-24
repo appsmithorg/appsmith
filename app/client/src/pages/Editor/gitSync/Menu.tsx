@@ -1,5 +1,5 @@
 import React from "react";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent } from "design-system";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import TabItem from "./components/TabItem";

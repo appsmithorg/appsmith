@@ -28,9 +28,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
   background-color: ${Colors.WHITE};
-  position: absolute;
-  bottom: 0;
   width: 100%;
+  margin-top: auto;
 
   & .ads-dialog-trigger {
     margin-top: ${(props) => props.theme.spaces[1]}px;

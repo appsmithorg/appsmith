@@ -8,7 +8,7 @@ const ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators;
 
 describe("Entity explorer tests related to widgets and validation", function() {
-  beforeEach(() => {
+  before(() => {
     cy.addDsl(dsl);
   });
 

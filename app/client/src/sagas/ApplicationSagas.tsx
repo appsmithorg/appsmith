@@ -52,7 +52,7 @@ import {
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { APP_MODE } from "entities/App";
 import { Workspace, Workspaces } from "constants/workspaceConstants";
 import { Variant } from "components/ads/common";

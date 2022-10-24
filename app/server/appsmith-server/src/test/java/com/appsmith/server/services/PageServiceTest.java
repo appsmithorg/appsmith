@@ -17,11 +17,11 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -562,7 +562,7 @@ public class PageServiceTest {
 
         action.setPageId(page.getId());
 
-        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), layout.getId(), layout).block();
+        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 
         layoutActionService.createSingleAction(action).block();
 
@@ -743,7 +743,7 @@ public class PageServiceTest {
 
         action.setPageId(page.getId());
 
-        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), layout.getId(), layout).block();
+        final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 
         layoutActionService.createSingleAction(action).block();
 

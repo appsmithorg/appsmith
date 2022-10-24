@@ -7,10 +7,10 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
@@ -18,6 +18,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.result.UpdateResult;
@@ -75,24 +76,20 @@ public class ActionCollectionServiceImplTest {
     private CollectionService collectionService;
     @MockBean
     private PolicyGenerator policyGenerator;
-
     @MockBean
     NewPageService newPageService;
-
     @MockBean
     LayoutActionService layoutActionService;
-
     @MockBean
     ActionCollectionRepository actionCollectionRepository;
-
     @MockBean
     NewActionService newActionService;
-
     @MockBean
     ApplicationService applicationService;
-
     @MockBean
     ResponseUtils responseUtils;
+    @MockBean
+    RefactoringSolution refactoringSolution;
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
@@ -114,6 +111,7 @@ public class ActionCollectionServiceImplTest {
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
                 layoutActionService,
+                refactoringSolution,
                 actionCollectionService,
                 newActionService,
                 analyticsService,
@@ -743,7 +741,7 @@ public class ActionCollectionServiceImplTest {
         jsonObject.put("key", "value");
         layout.setDsl(jsonObject);
         Mockito
-                .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         Mockito
@@ -821,7 +819,7 @@ public class ActionCollectionServiceImplTest {
         layout.setActionUpdates(new ArrayList<>());
         layout.setLayoutOnLoadActions(new ArrayList<>());
         Mockito
-                .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         Mockito
@@ -916,7 +914,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(jsonObject);
 
         Mockito
-                .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.moveCollection(actionCollectionMoveDTO);
@@ -927,5 +925,51 @@ public class ActionCollectionServiceImplTest {
                     assertEquals("newPageId", actionCollectionDTO.getPageId());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testGenerateActionCollectionByViewModeTestTransientFields() {
+        ActionCollection actionCollection = new ActionCollection();
+        String mockId = "mock-id";
+        String mockAppId = "mock-app-id";
+        String mockWorkspaceId = "mock-workspace-id";
+        Set<String> mockPermissions = Set.of("mock-permission-1", "mock-permission-2", "mock-permission-3");
+        DefaultResources mockDefaultResources = new DefaultResources();
+        mockDefaultResources.setApplicationId(mockAppId);
+        ActionCollectionDTO mockApplicationCollectionDTO = new ActionCollectionDTO();
+        mockApplicationCollectionDTO.setDefaultResources(mockDefaultResources);
+        actionCollection.setId(mockId);
+        actionCollection.setApplicationId(mockAppId);
+        actionCollection.setWorkspaceId(mockWorkspaceId);
+        actionCollection.setUserPermissions(mockPermissions);
+        actionCollection.setPublishedCollection(mockApplicationCollectionDTO);
+        actionCollection.setUnpublishedCollection(mockApplicationCollectionDTO);
+        actionCollection.setDefaultResources(mockDefaultResources);
+
+        Mono<ActionCollectionDTO> unpublishedActionCollectionDTOMono = actionCollectionService.generateActionCollectionByViewMode(actionCollection, false);
+        Mono<ActionCollectionDTO> publishedActionCollectionDTOMono = actionCollectionService.generateActionCollectionByViewMode(actionCollection, true);
+
+        StepVerifier
+                .create(Mono.zip(publishedActionCollectionDTOMono, unpublishedActionCollectionDTOMono))
+                .assertNext(tuple -> {
+                    ActionCollectionDTO publishedActionCollectionDTO = tuple.getT1();
+                    ActionCollectionDTO unpublishedActionCollectionDTO = tuple.getT2();
+                    assertNotNull(publishedActionCollectionDTO);
+                    assertEquals(mockId, publishedActionCollectionDTO.getId());
+                    assertEquals(mockAppId, publishedActionCollectionDTO.getApplicationId());
+                    assertEquals(mockWorkspaceId, publishedActionCollectionDTO.getWorkspaceId());
+                    assertEquals(mockPermissions, publishedActionCollectionDTO.getUserPermissions());
+                    assertEquals(mockAppId, publishedActionCollectionDTO.getDefaultResources().getApplicationId());
+
+                    assertNotNull(unpublishedActionCollectionDTO);
+                    assertEquals(mockId, unpublishedActionCollectionDTO.getId());
+                    assertEquals(mockAppId, unpublishedActionCollectionDTO.getApplicationId());
+                    assertEquals(mockWorkspaceId, unpublishedActionCollectionDTO.getWorkspaceId());
+                    assertEquals(mockPermissions, unpublishedActionCollectionDTO.getUserPermissions());
+                    assertEquals(mockAppId, unpublishedActionCollectionDTO.getDefaultResources().getApplicationId());
+                })
+                .verifyComplete();
+
+
     }
 }

@@ -17,11 +17,11 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -153,6 +153,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private PermissionGroupService permissionGroupService;
 
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
+
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;
@@ -253,13 +256,13 @@ public class ApplicationForkingServiceTests {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(parentDsl);
 
-        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+        layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).block();
         // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceWorkspace and we are
         // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
-        PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUPS)
+        PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
@@ -269,7 +272,7 @@ public class ApplicationForkingServiceTests {
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;
     }
@@ -340,9 +343,9 @@ public class ApplicationForkingServiceTests {
                         newPage.getUnpublishedPage()
                                 .getLayouts()
                                 .forEach(layout -> {
-                                            assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
+                                            assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
                                             layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                                assertThat(dslActionDTOS).hasSize(2);
+                                                assertThat(dslActionDTOS).hasSize(1);
                                                 dslActionDTOS.forEach(actionDTO -> {
                                                     assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                                     if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {

@@ -2,8 +2,11 @@ import React, { RefObject, useRef } from "react";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system";
 import DebuggerLogs from "./DebuggerLogs";
-import { useDispatch } from "react-redux";
-import { showDebugger } from "actions/debuggerActions";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "actions/debuggerActions";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import EntityDeps from "./EntityDependecies";
@@ -17,6 +20,8 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
+import { getSelectedCanvasDebuggerTab } from "selectors/editorContextSelectors";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const TABS_HEADER_HEIGHT = 36;
 
@@ -24,7 +29,7 @@ const Container = styled.div`
   ${ResizerCSS}
   position: absolute;
   bottom: 0;
-  height: 25%;
+  height: ${ActionExecutionResizerHeight}px;
   min-height: ${TABS_HEADER_HEIGHT}px;
   background-color: ${(props) => props.theme.colors.debugger.background};
   border-top: 1px solid ${Colors.ALTO};
@@ -44,10 +49,6 @@ const Container = styled.div`
   }
 `;
 
-type DebuggerTabsProps = {
-  defaultIndex: number;
-};
-
 const DEBUGGER_TABS = [
   {
     key: DEBUGGER_TAB_KEYS.ERROR_TAB,
@@ -66,23 +67,33 @@ const DEBUGGER_TABS = [
   },
 ];
 
-function DebuggerTabs(props: DebuggerTabsProps) {
+function DebuggerTabs() {
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const selectedTab = useSelector(getSelectedCanvasDebuggerTab);
+  const setSelectedTab = (tabKey: string) => {
+    dispatch(setCanvasDebuggerSelectedTab(tabKey));
+  };
   const onClose = () => dispatch(showDebugger(false));
 
   return (
-    <Container onClick={stopEventPropagation} ref={panelRef}>
+    <Container
+      className="t--debugger-tabs-container"
+      onClick={stopEventPropagation}
+      ref={panelRef}
+    >
       <Resizer panelRef={panelRef} />
       <EntityBottomTabs
-        defaultIndex={props.defaultIndex}
+        expandedHeight={`${ActionExecutionResizerHeight}px`}
+        onSelect={setSelectedTab}
+        selectedTabKey={selectedTab}
         tabs={DEBUGGER_TABS}
       />
       <Icon
         className="close-debugger t--close-debugger"
-        name="cross"
+        name="expand-more"
         onClick={onClose}
-        size={IconSize.SMALL}
+        size={IconSize.XXXXL}
       />
     </Container>
   );

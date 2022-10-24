@@ -122,7 +122,7 @@ public class UserWorkspaceServiceUnitTest {
         // mock repository methods so that they return the objects we've created
         Mockito.when(workspaceRepository.findById("test-org-id", READ_WORKSPACES))
                 .thenReturn(Mono.just(testWorkspace));
-        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUPS)))
+        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUP_MEMBERS)))
                 .thenReturn(Flux.empty());
         Mockito.when(userRepository.findAllById(ArgumentMatchers.<Iterable<String>>any()))
                 .thenReturn(Flux.empty());
@@ -142,7 +142,7 @@ public class UserWorkspaceServiceUnitTest {
         // mock repository methods so that they return the objects we've created
         Mockito.when(workspaceRepository.findById(sampleWorkspaceId, READ_WORKSPACES))
                 .thenReturn(Mono.empty());
-        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUPS)))
+        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUP_MEMBERS)))
                 .thenReturn(Flux.empty());
         Mockito.when(userRepository.findAllById(ArgumentMatchers.<Iterable<String>>any()))
                 .thenReturn(Flux.empty());
