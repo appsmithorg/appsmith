@@ -11,7 +11,11 @@ export enum InstallState {
 
 export type LibraryState = {
   installationStatus: Record<string, InstallState>;
-  installedLibraries: Array<{ displayName: string; docsURL: string }>;
+  installedLibraries: {
+    displayName: string;
+    docsURL: string;
+    version?: string;
+  }[];
 };
 
 const initialState = {
@@ -20,6 +24,7 @@ const initialState = {
     return {
       displayName: lib.displayName,
       docsURL: lib.docsURL,
+      version: lib.version,
     };
   }),
 };
@@ -46,21 +51,27 @@ const jsLibraryReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (state, action) => {
+    const installationStatus = Object.assign({}, state.installationStatus);
+    delete installationStatus[action.payload];
     return {
       ...state,
-      installationStatus: {
-        ...state.installationStatus,
-        [action.payload]: InstallState.Success,
-      },
+      installationStatus: installationStatus,
+      installedLibraries: [
+        ...state.installedLibraries,
+        {
+          displayName: action.payload,
+          docsURL: action.payload,
+          version: "",
+        },
+      ],
     };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_FAILED]: (state, action) => {
+    const installationStatus = Object.assign({}, state.installationStatus);
+    delete installationStatus[action.payload];
     return {
       ...state,
-      installationStatus: {
-        ...state.installationStatus,
-        [action.payload]: InstallState.Failed,
-      },
+      installationStatus,
     };
   },
 });

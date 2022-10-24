@@ -29,6 +29,7 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { InstallState } from "reducers/uiReducers/libraryReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -843,5 +844,25 @@ export const getNumberOfEntitiesInCurrentPage = createSelector(
     return (
       Object.keys(widgets).length - 1 + actions.length + jsCollections.length
     );
+  },
+);
+
+export const selectInstallationStatus = (state: AppState) =>
+  state.ui.libraries.installationStatus;
+export const selectInstalledLibraries = (state: AppState) =>
+  state.ui.libraries.installedLibraries;
+
+export const selectLibrariesForExplorer = createSelector(
+  selectInstalledLibraries,
+  selectInstallationStatus,
+  (libs, libStatus) => {
+    const queuedInstalls = Object.keys(libStatus)
+      .filter((key) => libStatus[key] !== InstallState.Success)
+      .map((lib) => ({
+        displayName: lib,
+        docsURL: lib,
+        version: "",
+      }));
+    return [...libs, ...queuedInstalls];
   },
 );

@@ -22,7 +22,7 @@ export function* installLibrary(url: string) {
   );
   if (status) {
     TernServer.updateDef(defs["!name"], defs);
-    yield delay(10000);
+    yield delay(1000);
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
       payload: url,

@@ -1,14 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import { AppIcon as Icon, Size } from "design-system";
+import { AppIcon as Icon, Size, Spinner } from "design-system";
 import { Colors } from "constants/Colors";
-import { extraLibraries } from "utils/DynamicBindingUtils";
 import Entity, { EntityClassNames } from "../Entity";
 import {
   createMessage,
   CREATE_DATASOURCE_TOOLTIP,
 } from "ce/constants/messages";
 import InstallationWindow from "./InstallationWindow";
+import { useSelector } from "react-redux";
+import {
+  selectInstallationStatus,
+  selectLibrariesForExplorer,
+} from "selectors/entitiesSelector";
 
 const ListItem = styled.li`
   list-style: none;
@@ -18,7 +22,7 @@ const ListItem = styled.li`
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 0 12px 0 20px;
+  padding: 8px 12px 8px 20px;
   position: relative;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
@@ -42,20 +46,37 @@ const ListItem = styled.li`
     display: block;
   }
 `;
-const Name = styled.span``;
+const Name = styled.div`
+  width: calc(100% - 36px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+`;
 const Version = styled.span``;
 
 function JSDependencies() {
   const openDocs = (name: string, url: string) => () => window.open(url, name);
-  const dependencyList = extraLibraries.map((lib) => {
+  const installationStatus = useSelector(selectInstallationStatus);
+  const libraries = useSelector(selectLibrariesForExplorer);
+  const dependencyList = libraries.map((lib) => {
     return (
       <ListItem
         key={lib.displayName}
         onClick={openDocs(lib.displayName, lib.docsURL)}
       >
         <Name>{lib.displayName}</Name>
-        <Version className="t--package-version">{lib.version}</Version>
+        {lib.version ? (
+          <Version className="t--package-version">{lib.version}</Version>
+        ) : null}
         <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} />
+        {installationStatus.hasOwnProperty(lib.displayName) && (
+          <div className="shrink-0">
+            <Spinner />
+          </div>
+        )}
       </ListItem>
     );
   });
