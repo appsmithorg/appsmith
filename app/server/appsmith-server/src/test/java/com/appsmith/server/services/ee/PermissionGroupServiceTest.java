@@ -39,6 +39,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -209,11 +210,11 @@ public class PermissionGroupServiceTest {
                     assertThat(list.size()).isEqualTo(7);
 
                     // Assert that instance admin roles are returned
-                    assertThat(list.stream()
+                    Optional<PermissionGroupInfoDTO> pgiDTO = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().equals(INSTANCE_ADMIN_ROLE))
-                            .findFirst()
-                            .isPresent()
-                    ).isTrue();
+                            .findFirst();
+                    assertThat(pgiDTO.isPresent()).isTrue();
+                    assertThat(pgiDTO.get().isAutoCreated()).isTrue();
 
                     // Assert that workspace roles are returned
                     assertThat(list.stream()
@@ -238,6 +239,19 @@ public class PermissionGroupServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void testGetAllPermissionGroups() {
+        PermissionGroup adminPermissionGroup = userUtils.getSuperAdminPermissionGroup().block();
+        Optional<PermissionGroupInfoDTO> permissionGroupInfoDTO = permissionGroupService.getAll()
+                .block()
+                .stream()
+                .filter(permissionGroup -> permissionGroup.getId().equals(adminPermissionGroup.getId()))
+                .findFirst();
+        assertThat(permissionGroupInfoDTO.isPresent()).isTrue();
+        assertThat(permissionGroupInfoDTO.get().isAutoCreated()).isTrue();
     }
 
 

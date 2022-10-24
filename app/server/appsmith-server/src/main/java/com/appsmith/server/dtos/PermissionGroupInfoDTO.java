@@ -18,6 +18,7 @@ public class PermissionGroupInfoDTO {
     private String description;
 
     private Set<String> userPermissions;
+    private boolean autoCreated;
 
     public PermissionGroupInfoDTO(String id, String name) {
         this.id = id;
