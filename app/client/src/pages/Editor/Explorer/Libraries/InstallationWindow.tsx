@@ -25,8 +25,12 @@ import EntityAddButton from "../Entity/AddButton";
 import ProfileImage from "pages/common/ProfileImage";
 import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { AppState } from "ce/reducers";
+import { createSelector } from "reselect";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { InstallState } from "reducers/uiReducers/libraryReducer";
 
 type TInstallWindowProps = any;
 
@@ -151,10 +155,19 @@ const InstallationProgressWrapper = styled.div`
   }
 `;
 
-function InstallationProgress(props: any) {
-  const {
-    url = "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.6/dayjs.min.js",
-  } = props;
+const selectCurrentInstallation = createSelector(
+  (state: AppState) => state.ui.libraries.installationStatus,
+  (queue: any) => {
+    return Object.keys(queue).filter(
+      (lib) => queue[lib] === InstallState.Installing,
+    )[0];
+  },
+);
+
+function InstallationProgress() {
+  const url = useSelector(selectCurrentInstallation);
+  const application = useSelector(getCurrentApplication);
+  if (!url) return null;
   return (
     <InstallationProgressWrapper>
       <div className="pl-6 pr-6 pt-3 pb-3 bg-g overflow-hidden text-ellipsis fw-500 text-sm">
@@ -163,7 +176,7 @@ function InstallationProgress(props: any) {
       <div className="progress-container">
         <div className="flex flex-row gap-2 items-center">
           <Spinner />
-          <span>Installing libraries for App</span>
+          <span>Installing libraries for {application?.name}</span>
         </div>
         <div className="progress-bar">
           <div className="completed" />
@@ -211,7 +224,7 @@ function InstallationPopoverContent(props: any) {
           fillColor={Colors.GRAY}
           name="close-modal"
           onClick={closeWindow}
-          size={IconSize.XL}
+          size={IconSize.XXL}
         />
       </div>
       <div className="search-area">

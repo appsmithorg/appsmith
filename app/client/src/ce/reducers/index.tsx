@@ -66,6 +66,7 @@ import tenantReducer, {
 } from "@appsmith/reducers/tenantReducer";
 import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
+import { LibraryState } from "reducers/uiReducers/libraryReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -121,6 +122,7 @@ export interface AppState {
     mainCanvas: MainCanvasReduxState;
     focusHistory: FocusHistoryState;
     editorContext: EditorContextState;
+    libraries: LibraryState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
