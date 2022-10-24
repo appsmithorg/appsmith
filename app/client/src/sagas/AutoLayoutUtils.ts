@@ -86,7 +86,16 @@ export function* updateFlexLayersOnDelete(
     if (index === -1) continue;
     children.splice(index, 1);
     layer.children = children;
+    break;
   }
+  // update hasFillChild property
+  flexLayers[layerIndex] = {
+    ...flexLayers[layerIndex],
+    hasFillChild: flexLayers[layerIndex].children.some(
+      (each: LayerChild) =>
+        widgets[each.id].responsiveBehavior === ResponsiveBehavior.Fill,
+    ),
+  };
   parent = {
     ...parent,
     flexLayers: flexLayers.filter(
@@ -94,6 +103,7 @@ export function* updateFlexLayersOnDelete(
     ),
   };
   widgets[parentId] = parent;
+
   if (layerIndex === -1) return widgets;
   return updateFlexChildColumns(widgets, layerIndex, parentId);
 }
