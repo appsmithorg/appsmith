@@ -171,26 +171,28 @@ function* startEvaluationProcess(
     EVAL_WORKER_ACTIONS.UPDATE_DEPENDENCY,
     updateDependencyRequestData,
   );
-  // Eval
-  yield fork(evaluateTreeSaga, {
-    postEvalActions,
-    shouldReplay,
-    evalOrder,
-    jsUpdates,
-    theme,
-    widgets,
-    unEvalUpdates,
-    unevalTree,
-    uncaughtError,
-    nonDynamicFieldValidationOrder,
-  });
 
-  // Linting
-  yield fork(lintTreeSaga, {
-    pathsToLint: lintOrder,
-    jsUpdates,
-    unevalTree,
-  });
+  yield all([
+    // Evaluation
+    call(evaluateTreeSaga, {
+      postEvalActions,
+      shouldReplay,
+      evalOrder,
+      jsUpdates,
+      theme,
+      widgets,
+      unEvalUpdates,
+      unevalTree,
+      uncaughtError,
+      nonDynamicFieldValidationOrder,
+    }),
+    // Linting
+    call(lintTreeSaga, {
+      pathsToLint: lintOrder,
+      jsUpdates,
+      unevalTree,
+    }),
+  ]);
 }
 
 function* evaluateTreeSaga(arg: {

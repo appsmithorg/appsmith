@@ -9,7 +9,6 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate basic Promises", () => {
-
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
