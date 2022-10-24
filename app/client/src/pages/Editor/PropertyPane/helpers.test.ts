@@ -70,7 +70,7 @@ describe("Property configuration search", () => {
               ...commonProperties,
             },
             {
-              label: "Placement",
+              label: "Items Placement",
               propertyName: "placement",
               ...commonProperties,
             },

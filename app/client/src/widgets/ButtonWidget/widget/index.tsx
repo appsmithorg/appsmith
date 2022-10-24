@@ -270,26 +270,26 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
           {
             propertyName: "placement",
-            label: "Placement",
-            controlType: "DROP_DOWN",
+            label: "Items Placement",
+            controlType: "ICON_TABS",
             helpText: "Sets the space between items",
             options: [
               {
-                label: "Start",
+                icon: "LEFT_ALIGN",
                 value: ButtonPlacementTypes.START,
               },
               {
-                label: "Between",
+                icon: "SPACE_BETWEEN",
                 value: ButtonPlacementTypes.BETWEEN,
               },
               {
-                label: "Center",
+                icon: "CENTER_ALIGN",
                 value: ButtonPlacementTypes.CENTER,
               },
             ],
             defaultValue: ButtonPlacementTypes.CENTER,
             isJSConvertible: true,
-            isBindProperty: true,
+            isBindProperty: false,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
