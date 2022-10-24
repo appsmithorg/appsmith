@@ -24,6 +24,8 @@ import EntityAddButton from "../Entity/AddButton";
 import ProfileImage from "pages/common/ProfileImage";
 import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 type TInstallWindowProps = any;
 
@@ -75,6 +77,13 @@ const Wrapper = styled.div`
   }
 `;
 
+function installLibraryInit(payload: string) {
+  return {
+    type: ReduxActionTypes.INSTALL_LIBRARY_INIT,
+    payload,
+  };
+}
+
 export default function InstallationWindow(props: TInstallWindowProps) {
   const { className } = props;
   const [show, setShow] = useState(false);
@@ -116,6 +125,7 @@ function InstallationPopoverContent(props: any) {
   const { closeWindow } = props;
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
+  const dispatch = useDispatch();
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
@@ -129,6 +139,15 @@ function InstallationPopoverContent(props: any) {
       message: isValid ? "" : "Please enter a valid URL",
     };
   }, []);
+
+  const installLibrary = useCallback(
+    (index?: number) => {
+      if (!index) {
+        dispatch(installLibraryInit(URL));
+      }
+    },
+    [URL],
+  );
 
   return (
     <Wrapper>
@@ -158,6 +177,7 @@ function InstallationPopoverContent(props: any) {
             <Button
               category={Category.tertiary}
               icon="download"
+              onClick={() => installLibrary()}
               size={Size.small}
               tag="button"
               text="INSTALL"

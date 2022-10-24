@@ -145,10 +145,11 @@ export enum EVAL_WORKER_ACTIONS {
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
   INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
+  INSTALL_LIBRARY = "INSTALL_LIBRARY",
 }
 
 export type ExtraLibrary = {
-  version: string;
+  version?: string;
   docsURL: string;
   displayName: string;
   accessor: string;
@@ -319,7 +320,6 @@ export const unsafeFunctionForEval = [
   "clearInterval",
   "setImmediate",
   "XMLHttpRequest",
-  "importScripts",
   "Navigator",
 ];
 

@@ -42,6 +42,7 @@ import mainCanvasReducer from "./mainCanvasReducer";
 import focusHistoryReducer from "./focusHistoryReducer";
 import { editorContextReducer } from "./editorContextReducer";
 import guidedTourReducer from "./guidedTourReducer";
+import libraryReducer from "./libraryReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -87,6 +88,7 @@ const uiReducer = combineReducers({
   mainCanvas: mainCanvasReducer,
   focusHistory: focusHistoryReducer,
   editorContext: editorContextReducer,
+  libraries: libraryReducer,
 });
 
 export default uiReducer;

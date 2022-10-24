@@ -108,6 +108,8 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
+export { worker as EvalWorker };
+
 export type EvalTreePayload = {
   dataTree: DataTree;
   dependencies: Record<string, string[]>;

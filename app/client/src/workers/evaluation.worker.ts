@@ -6,6 +6,7 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  extraLibraries,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -27,6 +28,8 @@ import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { EvalTreePayload } from "../sagas/EvaluationsSaga";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { validateWidgetProperty } from "./DataTreeEvaluator/validationUtils";
+import difference from "lodash/difference";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 const CANVAS = "canvas";
 
@@ -337,6 +340,30 @@ ctx.addEventListener(
         const { currentEvalState, payload, type } = requestData;
         const response = setFormEvaluationSaga(type, payload, currentEvalState);
         return response;
+      case EVAL_WORKER_ACTIONS.INSTALL_LIBRARY:
+        const url = requestData;
+        const existingKeys = Object.keys(self);
+        let keysPostInstallation = [];
+        const defs: any = {};
+        keysPostInstallation = Object.keys(self);
+        try {
+          //@ts-expect-error test
+          self.importScripts(url);
+        } catch (e) {
+          return { status: false, defs };
+        }
+        const libraryAccessor = difference(
+          existingKeys,
+          keysPostInstallation,
+        ).pop();
+        if (!libraryAccessor) return { status: true, defs };
+        //@ts-expect-error test
+        const library = self[libraryAccessor];
+        defs["!name"] = libraryAccessor;
+        for (const prop of Object.keys(library)) {
+          defs[prop] = generateTypeDef(library[prop]);
+        }
+        return { status: true, defs, libraryAccessor };
       default: {
         console.error("Action not registered on worker", method);
       }
