@@ -104,7 +104,7 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
 
-const Workspace = styled.div<{ isMobile?: boolean }>`
+const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
   padding: ${(props) => (props.isMobile ? `10px 16px` : `10px 10px`)};
   font-size: ${(props) => props.theme.fontSizes[1]}px;
@@ -689,7 +689,7 @@ function ApplicationsSection(props: any) {
             isMobile={isMobile}
             key={index}
           >
-            <Workspace isMobile={isMobile}>
+            <WorkspaceDropDown isMobile={isMobile}>
               {(currentUser || isFetchingApplications) &&
                 WorkspaceMenuTarget({
                   workspaceName: workspace.name,
@@ -897,7 +897,7 @@ function ApplicationsSection(props: any) {
                     )}
                   </WorkspaceShareUsers>
                 )}
-            </Workspace>
+            </WorkspaceDropDown>
             <ApplicationCardsWrapper isMobile={isMobile} key={workspace.id}>
               {applications.map((application: any) => {
                 return (
