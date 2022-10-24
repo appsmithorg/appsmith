@@ -862,7 +862,7 @@ jobs:
       # Upload combined failed spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
-        if: needs.ui-test.result
+        if: needs.ui-test.result != 'success'
         uses: actions/upload-artifact@v2
         with:
           name: combined_failed_spec
