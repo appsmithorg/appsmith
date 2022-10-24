@@ -61,6 +61,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -112,6 +113,8 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 
 @ExtendWith(SpringExtension.class)
@@ -189,6 +192,9 @@ public class AuditLogServiceTest {
 
     @MockBean
     PluginExecutor pluginExecutor;
+
+    @SpyBean
+    DatasourceContextServiceImpl datasourceContextService;
 
     private static String workspaceId;
     private static Application app;
@@ -2207,15 +2213,26 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.just("connection_1"));
+
         Datasource datasource = new Datasource();
         datasource.setName("Default Database 1");
         datasource.setWorkspaceId(workspaceId);
         Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
-        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        DBAuth authenticationDTO = new DBAuth();
+        String username = "username";
+        String password = "password";
+        authenticationDTO.setUsername(username);
+        authenticationDTO.setPassword(password);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -2226,6 +2243,8 @@ public class AuditLogServiceTest {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
+
+        Mockito.when(pluginExecutor.executeParameterized(any(), any(), any(), any())).thenReturn(Mono.just(mockResult));
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -2311,15 +2330,26 @@ public class AuditLogServiceTest {
 
         PageDTO createdPageDTO = createNewPage("AuditLogPage", createdApplication).block();
 
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+        Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.just("connection_1"));
+
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);
         Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
-        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("http://test.com");
+        DBAuth authenticationDTO = new DBAuth();
+        String username = "username";
+        String password = "password";
+        authenticationDTO.setUsername(username);
+        authenticationDTO.setPassword(password);
+        datasourceConfiguration.setAuthentication(authenticationDTO);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
-        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
@@ -2330,6 +2360,8 @@ public class AuditLogServiceTest {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
         mockResult.setSuggestedWidgets(widgetTypeList);
+
+        Mockito.when(pluginExecutor.executeParameterized(any(), any(), any(), any())).thenReturn(Mono.just(mockResult));
 
         ActionDTO action = new ActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
