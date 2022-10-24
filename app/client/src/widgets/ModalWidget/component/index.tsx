@@ -227,7 +227,8 @@ export default function ModalComponent(props: ModalComponentProps) {
         allowResize
         componentHeight={props.height || 0}
         componentWidth={props.width || 0}
-        enable={enableResize}
+        enableHorizontalResize={enableResize}
+        enableVerticalResize={enableResize}
         handles={handles}
         isColliding={() => false}
         onStart={onResizeStart}

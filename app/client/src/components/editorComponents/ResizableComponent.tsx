@@ -111,8 +111,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeHorizontally = true,
-      canResizeVertically = true;
+    let canResizeVertically = true;
+    let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
     if (props.ignoreCollision)
@@ -269,12 +269,25 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
+  const snapGrid = useMemo(
+    () => ({
+      x: props.parentColumnSpace,
+      y: props.parentRowSpace,
+    }),
+    [props.parentColumnSpace, props.parentRowSpace],
+  );
+
+  const isVerticalResizeEnabled = useMemo(() => {
+    return isEnabled;
+  }, [isEnabled]);
+
   return (
     <Resizable
       allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={isEnabled}
+      enableHorizontalResize={isEnabled}
+      enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
@@ -282,7 +295,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStop={updateSize}
       originalPositions={originalPositions}
       parentId={props.parentId}
-      snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
