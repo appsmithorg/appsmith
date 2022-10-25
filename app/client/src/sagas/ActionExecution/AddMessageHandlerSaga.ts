@@ -60,6 +60,8 @@ function isValidDomain(domain: string): boolean {
   const regex4 = new RegExp("/(.+?)[.]manabie.net$");
   if (
     (window.location.origin == "http://localhost" ||
+      window.location.origin ==
+        "https://appsmith.local-green.manabie.io:31600" ||
       regex3.test(window.location.origin)) &&
     domain.indexOf("localhost") > -1
   ) {
