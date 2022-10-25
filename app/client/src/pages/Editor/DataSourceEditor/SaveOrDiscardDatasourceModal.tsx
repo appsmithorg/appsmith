@@ -1,12 +1,9 @@
 import React from "react";
-
-import { Variant } from "components/ads/common";
 import {
   createMessage,
   DELETE_CONFIRMATION_MODAL_TITLE,
   SAVE_OR_DISCARD_DATASOURCE_WARNING,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
 import {
   Button,
   Category,
