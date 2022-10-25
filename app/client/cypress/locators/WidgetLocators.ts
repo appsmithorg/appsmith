@@ -26,6 +26,9 @@ export const WIDGET = {
   CAMERA: "camerawidget",
   FILEPICKER: "filepickerwidgetv2",
   DOCUMENT_VIEWER: "documentviewerwidget",
+  CATEGORY_SLIDER: "categorysliderwidget",
+  NUMBER_SLIDER: "numbersliderwidget",
+  RANGE_SLIDER: "rangesliderwidget",
   IFRAME: "iframewidget",
 } as const;
 
