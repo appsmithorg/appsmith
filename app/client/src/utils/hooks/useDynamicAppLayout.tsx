@@ -23,7 +23,6 @@ import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { updateLayoutForMobileBreakpoint } from "actions/autoLayoutActions";
 
 const BORDERS_WIDTH = 2;
