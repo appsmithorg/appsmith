@@ -35,6 +35,7 @@ export default {
     {
       propertyName: "isDisabled",
       label: "Disabled",
+      helpText: "Controls the disabled state of the button",
       defaultValue: false,
       controlType: "SWITCH",
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -145,7 +146,8 @@ export const GeneralStyle = {
     {
       propertyName: "buttonVariant",
       label: "Button Variant",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       helpText: "Sets the variant",
@@ -191,7 +193,8 @@ export const GeneralStyle = {
     {
       propertyName: "menuVariant",
       label: "Button Variant",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       helpText: "Sets the variant of the menu button",
       options: [
@@ -236,8 +239,10 @@ export const GeneralStyle = {
       propertyName: "imageSize",
       dependencies: ["primaryColumns", "columnType"],
       label: "Image Size",
+      helpText: "Sets the size of the image",
       defaultValue: "DEFAULT",
-      controlType: "DROP_DOWN",
+      controlType: "ICON_TABS",
+      fullWidth: true,
       options: [
         {
           label: "Default",

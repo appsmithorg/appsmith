@@ -79,3 +79,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com,moolya.com
+
+    - uid: DATASOURCE_ENVIRONMENTS
+      enable: true
+      description: Introducing multiple execution environments for datasources
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
