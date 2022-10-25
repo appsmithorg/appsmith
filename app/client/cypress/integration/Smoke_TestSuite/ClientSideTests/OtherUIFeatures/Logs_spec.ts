@@ -382,7 +382,7 @@ describe("Debugger logs", function() {
           console.log("start:", data);
           for(let i=0; i<5; i++)
             data.push(i);
-          console.log("end:", data);
+          console.log("end:", JSON.stringify(data));
           return data;
         },
         myFun2: () => {
@@ -399,6 +399,6 @@ describe("Debugger logs", function() {
     );
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist("start: []");
-    debuggerHelper.DoesConsoleLogExist("end: [ 0, 1, 2, 3, 4 ]");
+    debuggerHelper.DoesConsoleLogExist("end: [0,1,2,3,4]");
   });
 });
