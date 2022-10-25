@@ -26,14 +26,6 @@ export type CodeEditorFocusState = {
   };
 };
 
-export type CodeEditorFocusState = {
-  key: string | undefined;
-  cursorPosition: {
-    ch: number;
-    line: number;
-  };
-};
-
 export const generateKeyAndSetCodeEditorLastFocus = (
   payload: CodeEditorFocusState,
 ) => {

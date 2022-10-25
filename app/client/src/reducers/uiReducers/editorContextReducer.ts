@@ -1,6 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { CodeEditorFocusState } from "actions/editorContextActions";
 
 export type CursorPosition = {
   line: number;
