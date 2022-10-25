@@ -58,6 +58,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.github.zafarkhaja.semver.util.Stream;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -914,10 +915,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return importedNewPagesMono
                             .collectList()
                             .map(newPageList -> {
-                                Map<ResourceModes, List<ApplicationPage>> applicationPages = Map.of(
-                                        EDIT, unpublishedPages,
-                                        VIEW, publishedPages
-                                );
+                                Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
+                                applicationPages.put(EDIT, unpublishedPages);
+                                applicationPages.put(VIEW, publishedPages);
+
                                 Iterator<ApplicationPage> unpublishedPageItr = unpublishedPages.iterator();
                                 while (unpublishedPageItr.hasNext()) {
                                     ApplicationPage applicationPage = unpublishedPageItr.next();
@@ -940,7 +941,16 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                 }
 
-                                Iterator<ApplicationPage> publishedPagesItr = publishedPages.iterator();
+                                Iterator<ApplicationPage> publishedPagesItr;
+                                // Remove the newly added pages from merge app flow. Keep only the existing page from the old app
+                                if(appendToApp) {
+                                    List<String> existingPagesId = savedApp.getPublishedPages().stream().map(applicationPage -> applicationPage.getId()).collect(Collectors.toList());
+                                    List<ApplicationPage> publishedApplicationPages = publishedPages.stream().filter(applicationPage -> existingPagesId.contains(applicationPage.getId())).collect(Collectors.toList());
+                                    applicationPages.replace(VIEW, publishedApplicationPages);
+                                    publishedPagesItr = publishedApplicationPages.iterator();
+                                } else {
+                                    publishedPagesItr = publishedPages.iterator();
+                                }
                                 while (publishedPagesItr.hasNext()) {
                                     ApplicationPage applicationPage = publishedPagesItr.next();
                                     NewPage newPage = pageNameMap.get(applicationPage.getId());
