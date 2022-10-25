@@ -3,6 +3,8 @@ import React from "react";
 import { Button, Size, Text, TextType } from "design-system";
 import { Variant } from "design-system/build/constants/variants";
 import { FooterProps } from "./types";
+import { createMessage } from "design-system/build/constants/messages";
+import { AVAILABLE_ON_BUSINESS, UPGRADE } from "../../constants/messages";
 
 const FooterContainer = styled.div`
   position: fixed;
@@ -24,10 +26,6 @@ const FooterContainer = styled.div`
     flex-grow: 9;
     display: flex;
     flex-direction: column;
-
-    //& .text-container {
-    //  width: 288px;
-    //}
   }
 
   & .right {
@@ -44,7 +42,7 @@ export function FooterComponent(props: FooterProps) {
     >
       <div className="left">
         <div className="heading-container">
-          <Text type={TextType.H1}>Available on a business plan only</Text>
+          <Text type={TextType.H1}>{createMessage(AVAILABLE_ON_BUSINESS)}</Text>
         </div>
         <div className="text-container">
           <Text type={TextType.P1}>{message}</Text>
@@ -54,7 +52,7 @@ export function FooterComponent(props: FooterProps) {
         <Button
           onClick={onClick}
           size={Size.large}
-          text="UPGRADE"
+          text={createMessage(UPGRADE)}
           type="button"
           variant={Variant.info}
         />

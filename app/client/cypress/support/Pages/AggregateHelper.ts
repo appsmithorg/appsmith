@@ -770,6 +770,12 @@ export class AggregateHelper {
       });
   }
 
+  public VerifyEvaluatedErrorMessage(errorMessage: string) {
+    cy.get(this.locator._evaluatedErrorMessage)
+      .should("be.visible")
+      .should("have.text", errorMessage);
+  }
+
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
     cy.get(this.locator._evaluatedCurrentValue)
