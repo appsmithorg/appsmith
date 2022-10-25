@@ -55,7 +55,8 @@ class ButtonGroupWidget extends BaseWidget<
                     {
                       propertyName: "buttonType",
                       label: "Button Type",
-                      controlType: "DROP_DOWN",
+                      controlType: "ICON_TABS",
+                      fullWidth: true,
                       helpText: "Sets button type",
                       options: [
                         {
@@ -195,6 +196,7 @@ class ButtonGroupWidget extends BaseWidget<
                                 helpText:
                                   "Sets the icon alignment of a menu item",
                                 controlType: "ICON_TABS",
+                                fullWidth: true,
                                 options: [
                                   {
                                     icon: "VERTICAL_LEFT",
@@ -332,6 +334,7 @@ class ButtonGroupWidget extends BaseWidget<
                       label: "Position",
                       helpText: "Sets the icon alignment of a button",
                       controlType: "ICON_TABS",
+                      fullWidth: true,
                       options: [
                         {
                           icon: "VERTICAL_LEFT",
@@ -451,7 +454,8 @@ class ButtonGroupWidget extends BaseWidget<
           {
             propertyName: "buttonVariant",
             label: "Button Variant",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Sets the variant of the button",
             options: [
               {
@@ -486,7 +490,8 @@ class ButtonGroupWidget extends BaseWidget<
             helpText: "Controls widget orientation",
             propertyName: "orientation",
             label: "Orientation",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 label: "Horizontal",
