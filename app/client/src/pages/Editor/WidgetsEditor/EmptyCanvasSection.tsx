@@ -99,7 +99,7 @@ function CanvasTopSection() {
   };
 
   return (
-    <Wrapper>
+    <Wrapper data-cy="canvas-ctas">
       {!!featureFlags.TEMPLATES_PHASE_2 && (
         <Card data-cy="start-from-template" onClick={showTemplatesModal}>
           <Layout />
