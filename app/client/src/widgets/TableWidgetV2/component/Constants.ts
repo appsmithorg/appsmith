@@ -8,6 +8,7 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -146,6 +147,24 @@ export interface ButtonCellProperties {
 export interface MenuButtonCellProperties {
   menuButtonLabel?: string;
   menuItems: MenuItems;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: {
+    label: string;
+    id: string;
+    config: {
+      id: string;
+      label: any;
+      isVisible: any;
+      isDisabled: any;
+      onClick?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+    };
+  };
+  sourceData?: Array<Record<string, unknown>>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   menuButtoniconName?: IconName;
@@ -321,6 +340,24 @@ export interface ColumnProperties
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
   menuItems?: MenuItems;
+  menuItemsSource?: MenuItemsSource;
+  configureMenuItems?: {
+    label: string;
+    id: string;
+    config: {
+      id: string;
+      label: any;
+      isVisible: any;
+      isDisabled: any;
+      onClick?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+    };
+  };
+  sourceData?: Array<Record<string, unknown>>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
