@@ -59,7 +59,6 @@ import static org.mockito.Mockito.spy;
 
 @Slf4j
 @Testcontainers
-
 public class MySqlPluginTest {
 
         MySqlPlugin.MySqlPluginExecutor pluginExecutor = new MySqlPlugin.MySqlPluginExecutor();
