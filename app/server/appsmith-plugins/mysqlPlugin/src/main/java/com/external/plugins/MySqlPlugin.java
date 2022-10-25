@@ -11,11 +11,9 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -26,12 +24,8 @@ import com.external.plugins.datatypes.MySQLSpecificDataTypes;
 import com.external.utils.MySqlDatasourceUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
-import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.Connection;
-import io.r2dbc.spi.ConnectionFactories;
-import io.r2dbc.spi.ConnectionFactory;
-import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Result;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -42,7 +36,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -66,7 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -74,9 +66,6 @@ import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
-import static com.external.utils.MySqlDatasourceUtils.MAX_CONNECTION_POOL_SIZE;
-import static com.external.utils.MySqlDatasourceUtils.addSslOptionsToBuilder;
-import static com.external.utils.MySqlDatasourceUtils.getBuilder;
 import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
 import static com.external.utils.MySqlGetStructureUtils.getKeyInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
@@ -268,7 +257,7 @@ public class MySqlPlugin extends BasePlugin {
             return Mono.usingWhen(
                     connectionPool.create(),
                     connection -> {
-                        // TODO: add JUnit TC for the `connection.validate` check
+                        // TODO: add JUnit TC for the `connection.validate` check. Not sure how to do it at the moment.
                         Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
                                 .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
                                 .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
