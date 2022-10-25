@@ -7,14 +7,17 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
+import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.pool.ConnectionPoolConfiguration;
+import io.r2dbc.spi.ConnectionFactories;
+import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
 import org.apache.commons.lang.ObjectUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Mono;
 
-import javax.xml.crypto.Data;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +29,8 @@ import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;
 public class MySqlDatasourceUtils {
 
     public static int MAX_CONNECTION_POOL_SIZE = 5;
+
+    private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10);
 
     public static ConnectionFactoryOptions.Builder getBuilder(DatasourceConfiguration datasourceConfiguration) {
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -71,7 +76,7 @@ public class MySqlDatasourceUtils {
     }
 
     public static ConnectionFactoryOptions.Builder addSslOptionsToBuilder(DatasourceConfiguration datasourceConfiguration,
-                                                                          ConnectionFactoryOptions.Builder ob) {
+                                                                          ConnectionFactoryOptions.Builder ob) throws AppsmithPluginException {
         /*
          * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
          */
@@ -166,5 +171,21 @@ public class MySqlDatasourceUtils {
         }
 
         return invalids;
+    }
+
+    public static ConnectionPool getNewConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
+        ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
+        ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
+        ConnectionFactory cf = ConnectionFactories.get(ob.build());
+
+        /**
+         * The pool configuration object does not seem to have any option to set the minimum pool size, hence could
+         * not configure the minimum pool size.
+         */
+        ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(cf)
+                .maxIdleTime(MAX_IDLE_TIME)
+                .maxSize(MAX_CONNECTION_POOL_SIZE)
+                .build();
+        return new ConnectionPool(configuration);
     }
 }
