@@ -34,6 +34,7 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -599,8 +600,17 @@ export const selectJSCollections = (state: AppState) =>
 export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
-  (canvasWidgets, inPreviewMode) => {
-    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
+  getCurrentPageId,
+  (canvasWidgets, inPreviewMode, pageId) => {
+    const state = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
+    );
+    if (
+      !state[pageId] ||
+      Object.keys(canvasWidgets).length > 1 ||
+      inPreviewMode
+    )
+      return false;
 
     return true;
   },
