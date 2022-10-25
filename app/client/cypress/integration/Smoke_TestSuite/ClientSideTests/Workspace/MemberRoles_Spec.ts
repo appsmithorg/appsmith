@@ -48,7 +48,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      .should("have.length", 1)
+      .should("have.length", Cypress.env("Edition") === 0 ? 1 : 2)
       .and("contain.text", `App Viewer - ${workspaceId}`);
     cy.get(HomePage.closeBtn).click();
     homePage.LaunchAppFromAppHover();
@@ -86,7 +86,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      .should("have.length", 2)
+      .should("have.length", Cypress.env("Edition") === 0 ? 2 : 3)
       .and(
         "contain.text",
         `App Viewer - ${workspaceId}`,
@@ -134,7 +134,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
-      .should("have.length", 3)
+      .should("have.length", Cypress.env("Edition") === 0 ? 3 : 4)
       .should(
         "contain.text",
         `App Viewer - ${workspaceId}`,
