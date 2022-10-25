@@ -10,8 +10,8 @@ import { getCurrentPageId } from "./editorSelectors";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 
-export const getFocusableField = (state: AppState) =>
-  state.ui.editorContext.focusableField;
+export const getFocusableCodeEditorField = (state: AppState) =>
+  state.ui.editorContext.focusableCodeEditor;
 
 export const getCodeEditorHistory = (state: AppState) =>
   state.ui.editorContext.codeEditorHistory;
@@ -19,7 +19,7 @@ export const getCodeEditorHistory = (state: AppState) =>
 export const getIsCodeEditorFocused = createSelector(
   [
     getCurrentPageId,
-    getFocusableField,
+    getFocusableCodeEditorField,
     selectFeatureFlags,
     (_state: AppState, key: string | undefined) => key,
   ],
@@ -55,22 +55,6 @@ export const getCodeEditorLastCursorPosition = createSelector(
     if (propertyFieldKey && propertyFieldKey in codeEditorHistory) {
       return codeEditorHistory[propertyFieldKey].cursorPosition;
     }
-  },
-);
-
-export const getShouldFocusPropertyPath = createSelector(
-  [
-    getFocusableField,
-    getCurrentPageId,
-    (_state: AppState, key: string | undefined) => key,
-  ],
-  (
-    focusableField: string | undefined,
-    pageId: string,
-    key: string | undefined,
-  ): boolean => {
-    const propertyFieldKey = generatePropertyKey(key, pageId);
-    return !!(propertyFieldKey && focusableField === propertyFieldKey);
   },
 );
 

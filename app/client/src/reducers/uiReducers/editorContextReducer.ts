@@ -1,6 +1,5 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { CodeEditorFocusState } from "actions/editorContextActions";
 
 export type CursorPosition = {
   line: number;
@@ -21,7 +20,7 @@ export type CodeEditorContext = {
 export type CodeEditorHistory = Record<string, CodeEditorContext>;
 
 export type EditorContextState = {
-  focusableField?: string;
+  focusableCodeEditor?: string;
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
@@ -39,26 +38,25 @@ const initialState: EditorContextState = {
  * Context Reducer to store states of different components of editor
  */
 export const editorContextReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD]: (
+  [ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD]: (
     state: EditorContextState,
     action: {
       payload: { path: string };
     },
   ) => {
     const { path } = action.payload;
-    state.focusableField = path;
+    state.focusableCodeEditor = path;
   },
-  [ReduxActionTypes.SET_CODE_EDITOR_FOCUS]: (
+  [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY]: (
     state: EditorContextState,
     action: {
-      payload: CodeEditorFocusState;
+      payload: { path: string; cursorPosition: CursorPosition };
     },
   ) => {
-    const { cursorPosition, key } = action.payload;
-    if (!key) return;
-    if (!state.codeEditorHistory[key]) state.codeEditorHistory[key] = {};
-    state.codeEditorHistory[key].cursorPosition = cursorPosition;
-    state.focusableField = key;
+    const { cursorPosition, path } = action.payload;
+    if (!path) return;
+    if (!state.codeEditorHistory[path]) state.codeEditorHistory[path] = {};
+    state.codeEditorHistory[path].cursorPosition = cursorPosition;
   },
   [ReduxActionTypes.SET_EVAL_POPUP_STATE]: (
     state: EditorContextState,

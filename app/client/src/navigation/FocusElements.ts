@@ -12,11 +12,11 @@ import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
-  getFocusableField,
+  getFocusableCodeEditorField,
   getSelectedCanvasDebuggerTab,
   getSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
-import { setFocusableField } from "actions/editorContextActions";
+import { setFocusableCodeEditorField } from "actions/editorContextActions";
 import { getSelectedWidgets } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -44,10 +44,12 @@ import {
 } from "actions/jsPaneActions";
 import {
   setAllPropertySectionState,
+  setFocusablePropertyPaneField,
   setSelectedPropertyTabIndex,
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import { PluginPackageName } from "entities/Action";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -98,8 +100,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.JS_OBJECT]: [
     {
       name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      selector: getFocusableCodeEditorField,
+      setter: setFocusableCodeEditorField,
     },
     {
       name: FocusElement.JSPaneConfigTabs,
@@ -122,8 +124,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.QUERY]: [
     {
       name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      selector: getFocusableCodeEditorField,
+      setter: setFocusableCodeEditorField,
     },
     {
       name: FocusElement.QueryPaneConfigTabs,
@@ -153,15 +155,15 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
     {
       name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
     },
   ],
   [FocusEntity.API]: [
     {
       name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      selector: getFocusableCodeEditorField,
+      setter: setFocusableCodeEditorField,
     },
     {
       name: FocusElement.ApiPaneConfigTabs,

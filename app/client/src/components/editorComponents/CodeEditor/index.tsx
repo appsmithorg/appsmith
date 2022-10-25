@@ -348,14 +348,14 @@ class CodeEditor extends Component<Props, State> {
 
         this.lintCode(editor);
 
-        if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
-          if (this.codeEditorTarget.current) {
-            this.codeEditorTarget.current.focus();
+        setTimeout(() => {
+          if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
+            editor.focus();
           }
           if (this.props.editorLastCursorPosition) {
             editor.setCursor(this.props.editorLastCursorPosition);
           }
-        }
+        }, 200);
       }.bind(this);
 
       // Finally create the Codemirror editor
@@ -390,14 +390,14 @@ class CodeEditor extends Component<Props, State> {
       this.props.dataTreePath !== prevProps.dataTreePath &&
       shouldFocusOnPropertyControl()
     ) {
-      if (this.props.editorIsFocused) {
-        if (this.codeEditorTarget.current) {
-          this.codeEditorTarget.current.focus();
+      setTimeout(() => {
+        if (this.props.editorIsFocused) {
+          this.editor.focus();
         }
-      }
-      if (this.props.editorLastCursorPosition) {
-        this.editor.setCursor(this.props.editorLastCursorPosition);
-      }
+        if (this.props.editorLastCursorPosition) {
+          this.editor.setCursor(this.props.editorLastCursorPosition);
+        }
+      }, 200);
     }
     this.editor.operation(() => {
       if (this.state.isFocused) return;
