@@ -215,8 +215,8 @@ function* evaluateTreeSaga(arg: {
     shouldReplay = true,
     uncaughtError,
     unevalTree,
-    unEvalUpdates,
   } = arg;
+  let { unEvalUpdates } = arg;
 
   const evalTreeRequestData: EvalTreeRequestData = {
     evalOrder,
@@ -248,6 +248,7 @@ function* evaluateTreeSaga(arg: {
       getUpdatedLocalUnEvalTreeAfterJSUpdates(jsUpdates, unevalTree),
       widgetTypeConfigMap,
     );
+    unEvalUpdates = [];
   }
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
