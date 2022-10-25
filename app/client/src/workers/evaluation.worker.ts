@@ -207,7 +207,11 @@ ctx.addEventListener(
             });
             console.error(error);
           }
-          dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
+          dataTree = getSafeToRenderDataTree(
+            unevalTree,
+            entityConfigCollection,
+            widgetTypeConfigMap,
+          );
           unEvalUpdates = [];
         }
         return {
@@ -256,18 +260,19 @@ ctx.addEventListener(
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
-        dataTreeEvaluator.evaluateTriggers(
-          dynamicTrigger,
-          evalTree,
+        dataTreeEvaluator.evaluateTriggers({
+          userScript: dynamicTrigger,
+          dataTree: evalTree,
           requestId,
           resolvedFunctions,
           callbackData,
-          {
+          context: {
             globalContext,
             eventType,
             triggerMeta,
           },
-        );
+          entityConfigCollection,
+        });
 
         break;
       }

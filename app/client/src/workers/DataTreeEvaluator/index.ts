@@ -15,9 +15,10 @@ import {
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import {
   DataTree,
-  DataTreeEntity,
+  DataTreeEntityConfig,
   EntityConfigCollection,
   EvalTree,
+  EvalTreeEntity,
   EvaluationSubstitutionType,
 } from "entities/DataTree/DataTreeFactory";
 import {
@@ -88,7 +89,10 @@ import {
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
-import { DataTreeAction } from "entities/DataTree/Action/types";
+import {
+  ActionEntityConfig,
+  DataTreeAction,
+} from "entities/DataTree/Action/types";
 
 type SortedDependencies = Array<string>;
 
@@ -110,7 +114,7 @@ export default class DataTreeEvaluator {
    * This contains raw evaluated value without any validation or parsing.
    * This is used for revalidation as we do not store the raw validated value.
    */
-  unParsedEvalTree: DataTree = {};
+  unParsedEvalTree: EvalTree = {};
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
 
@@ -157,7 +161,7 @@ export default class DataTreeEvaluator {
     return this.evalTree;
   }
 
-  setEvalTree(evalTree: DataTree) {
+  setEvalTree(evalTree: EvalTree) {
     this.evalTree = evalTree;
   }
 
@@ -165,7 +169,7 @@ export default class DataTreeEvaluator {
     return this.unParsedEvalTree;
   }
 
-  setUnParsedEvalTree(unParsedEvalTree: DataTree) {
+  setUnParsedEvalTree(unParsedEvalTree: EvalTree) {
     this.unParsedEvalTree = unParsedEvalTree;
   }
 
@@ -938,20 +942,24 @@ export default class DataTreeEvaluator {
 
   getDynamicValue(
     dynamicBinding: string,
-    data: DataTree,
+    data: EvalTree,
     resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
+    entityConfigCollection: EntityConfigCollection,
     contextData?: EvaluateContext,
     callBackData?: Array<any>,
     fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
-    let entity: DataTreeEntity | undefined = undefined;
+    let entity: EvalTreeEntity | undefined = undefined;
+    let entityConfig: DataTreeEntityConfig | undefined = undefined;
+
     let propertyPath: string;
     if (fullPropertyPath) {
       const entityName = fullPropertyPath.split(".")[0];
       propertyPath = fullPropertyPath.split(".")[1];
       entity = data[entityName];
+      entityConfig = entityConfigCollection[entityName];
     }
     // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(
@@ -971,17 +979,23 @@ export default class DataTreeEvaluator {
             data,
             resolvedFunctions,
             !!entity && isJSAction(entity),
+            entityConfigCollection,
             contextData,
             callBackData,
             fullPropertyPath?.includes("body") ||
               !toBeSentForEval.includes("console."),
           );
           if (fullPropertyPath && result.errors.length) {
-            addErrorToEntityProperty(result.errors, data, fullPropertyPath);
+            addErrorToEntityProperty(
+              result.errors,
+              data,
+              entityConfigCollection,
+              fullPropertyPath,
+            );
           }
           // if there are any console outputs found from the evaluation, extract them and add them to the logs array
           if (
-            !!entity &&
+            !!entityConfig &&
             !!result.logs &&
             result.logs.length > 0 &&
             !propertyPath.includes("body")
@@ -990,15 +1004,15 @@ export default class DataTreeEvaluator {
             let id = "";
 
             // extracting the id and type of the entity from the entity for logs object
-            if (isWidget(entity)) {
+            if (isWidget(entityConfig)) {
               type = CONSOLE_ENTITY_TYPE.WIDGET;
-              id = entity.widgetId;
-            } else if (isAction(entity)) {
+              id = entityConfig.widgetId;
+            } else if (isAction(entityConfig)) {
               type = CONSOLE_ENTITY_TYPE.ACTION;
-              id = entity.actionId;
-            } else if (isJSAction(entity)) {
+              id = (entityConfig as ActionEntityConfig).actionId;
+            } else if (isJSAction(entityConfig)) {
               type = CONSOLE_ENTITY_TYPE.JSACTION;
-              id = entity.actionId;
+              id = (entityConfig as JSActionEntityConfig).actionId;
             }
 
             // This is the object that will help to associate the log with the origin entity
@@ -1046,6 +1060,7 @@ export default class DataTreeEvaluator {
               },
             ],
             data,
+            entityConfigCollection,
             fullPropertyPath,
           );
         }
@@ -1065,7 +1080,7 @@ export default class DataTreeEvaluator {
     userScript,
   }: {
     userScript: string;
-    dataTree: DataTree;
+    dataTree: EvalTree;
     requestId: string;
     resolvedFunctions: Record<string, any>;
     callbackData: Array<unknown>;
@@ -1088,9 +1103,10 @@ export default class DataTreeEvaluator {
   // Also returns any action triggers found after evaluating value
   evaluateDynamicBoundValue(
     js: string,
-    data: DataTree,
+    data: EvalTree,
     resolvedFunctions: Record<string, any>,
     createGlobalData: boolean,
+    entityConfigCollection: EntityConfigCollection,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,

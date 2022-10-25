@@ -12,7 +12,7 @@ import {
   isTrueObject,
 } from "workers/evaluationUtils";
 import forge from "node-forge";
-import { DataTreeEntity } from "entities/DataTree/DataTreeFactory";
+import { EvalTreeEntity } from "entities/DataTree/DataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -71,7 +71,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
 //{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
-  entity?: DataTreeEntity,
+  entity?: EvalTreeEntity,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {
