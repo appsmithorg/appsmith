@@ -107,7 +107,7 @@ export function* updateFlexLayersOnDelete(
   if (layerIndex === -1) return widgets;
   return updateFlexChildColumns(widgets, layerIndex, parentId);
 }
-
+// TODO: refactor these implementations
 export function updateFillChildStatus(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
