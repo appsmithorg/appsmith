@@ -160,6 +160,7 @@ describe("Cyclic Dependency Informational Error Messagaes", function() {
 
   // Case 6: When updating Datasource query
   it("7. Update Query and check for errors", () => {
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name")
       .contains(queryName)
       .click({ force: true });

@@ -119,7 +119,8 @@ describe("Number Slider spec", () => {
     agHelper
       .GetElement(locator._sliderThumb)
       .focus()
-      .type("{rightArrow}");
+      .type("{rightArrow}")
+      .wait(500);
 
     // Assert the Text widget has value 20
     agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {

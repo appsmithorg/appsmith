@@ -205,15 +205,18 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
 
     // Add a Menu item 1
-    cy.get(".t--add-menu-item-btn").click({
-      force: true,
-    });
+    cy.get(".t--add-menu-item-btn")
+      .click({
+        force: true,
+      })
+      .wait(500);
     // Edit a Menu item
     cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
       .first()
       .click({
         force: true,
       });
+    cy.wait(1000);
     // update menu item background color
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .type("#03b365", {

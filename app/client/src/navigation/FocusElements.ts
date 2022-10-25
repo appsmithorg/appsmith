@@ -126,7 +126,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.WidgetMeta,
       selector: getWidgetsMeta,
       setter: setAllMetaProps,
-      defaultValue: MetaDefaultState,
     },
     {
       name: FocusElement.EntityCollapsibleState,

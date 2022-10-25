@@ -287,6 +287,7 @@ describe("Table Widget V2 property pane feature validation", function() {
         force: true,
       });
     cy.wait(1000);
+    cy.moveToContentTab();
     cy.get(".t--property-control-disabled label.bp3-switch.unchecked").click({
       force: true,
     });

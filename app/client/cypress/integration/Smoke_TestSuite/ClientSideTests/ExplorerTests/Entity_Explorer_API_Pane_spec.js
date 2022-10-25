@@ -61,7 +61,8 @@ describe("Entity explorer API pane related testcases", function() {
     cy.Createpage(pageid);
     cy.get(".t--entity-name")
       .contains("Page1")
-      .click();
+      .click()
+      .wait(1000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");
@@ -71,6 +72,7 @@ describe("Entity explorer API pane related testcases", function() {
       .invoke("show")
       .click({ force: true });
     ee.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
+    cy.wait(500);
     cy.get(".t--entity-name")
       .contains("SecondAPI")
       .should("exist");
