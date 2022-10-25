@@ -6,6 +6,8 @@ export type TreeNode = {
   belows: string[];
   topRow: number;
   bottomRow: number;
+  originalTopRow: number;
+  originalBottomRow: number;
 };
 
 type NodeSpace = {
@@ -13,20 +15,25 @@ type NodeSpace = {
   right: number;
   top: number;
   bottom: number;
+  originalBottom: number;
+  originalTop: number;
   id: string;
 };
 const MAX_BOX_SIZE = 20000;
 
 // Takes all siblings and arranges them in a structure to figure out
 // Which widgets could affect their sibling positions based on changes in height
-export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
+export function generateTree(
+  spaces: NodeSpace[],
+  layoutUpdated: boolean,
+): Record<string, TreeNode> {
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
   spaces.sort((a, b) => a.top - b.top); // Sort based on position, top to bottom
   const _spaces = [...spaces];
 
   const aboveMap: Record<string, string[]> = {};
   const belowMap: Record<string, string[]> = {};
-  for (let i = 0; i < _spaces.length - 1; i++) {
+  for (let i = 0; i < spaces.length - 1; i++) {
     const _curr = _spaces.shift();
     if (_curr) {
       const currentSpace = { ..._curr };
@@ -51,11 +58,24 @@ export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
   const tree: Record<string, TreeNode> = {};
   for (let i = 0; i < spaces.length; i++) {
     const space = spaces[i];
+    const bottomRow = Math.floor(space.bottom);
+    const topRow = Math.floor(space.top);
+    const originalTopRow =
+      space.originalTop === undefined || layoutUpdated
+        ? topRow
+        : space.originalTop;
+    const originalBottomRow =
+      space.originalBottom === undefined || layoutUpdated
+        ? bottomRow
+        : space.originalBottom;
+
     tree[space.id] = {
       aboves: aboveMap[space.id] || [],
       belows: belowMap[space.id] || [],
-      topRow: Math.floor(space.top),
-      bottomRow: Math.ceil(space.bottom),
+      topRow,
+      bottomRow,
+      originalTopRow,
+      originalBottomRow,
     };
   }
 
@@ -107,16 +127,8 @@ export function computeChangeInPositionBasedOnDelta(
   }
 
   const sortedEffectedBoxIds = Object.keys(effectedBoxMap).sort(
-    (a, b) => tree[a].bottomRow - tree[b].bottomRow,
+    (a, b) => tree[a].topRow - tree[b].topRow,
   );
-
-  // console.log(
-  //   "Reflow DH: baseline",
-  //   { sortedEffectedBoxIds },
-  //   { ...repositionedBoxes },
-  //   { delta },
-  //   { tree },
-  // );
 
   for (const effectedBoxId of sortedEffectedBoxIds) {
     const aboves = tree[effectedBoxId].aboves;
@@ -125,15 +137,15 @@ export function computeChangeInPositionBasedOnDelta(
       (prev: string[], next: string) => {
         if (!prev[0]) return [next];
         // Get the bottomRow of the above box
-        const nextBottomRow = tree[next].bottomRow;
-        const prevBottomRow = tree[prev[0]].bottomRow;
-        // // If we've already repositioned this, use the new bottomRow of the box
-        // if (repositionedBoxes[next]) {
-        //   nextBottomRow = repositionedBoxes[next].bottomRow;
-        // }
-        // if (repositionedBoxes[prev[0]]) {
-        //   prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
-        // }
+        let nextBottomRow = tree[next].bottomRow;
+        let prevBottomRow = tree[prev[0]].bottomRow;
+        // If we've already repositioned this, use the new bottomRow of the box
+        if (repositionedBoxes[next]) {
+          nextBottomRow = repositionedBoxes[next].bottomRow;
+        }
+        if (repositionedBoxes[prev[0]]) {
+          prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
+        }
 
         // If the current box's (next) bottomRow is larger than the previous
         // This (next) box is the bottom most above so far
@@ -141,19 +153,19 @@ export function computeChangeInPositionBasedOnDelta(
         // If this (next) box's bottom row is the same as the previous
         // We have two bottom most boxes
         else if (nextBottomRow === prevBottomRow) {
-          // if (
-          //   repositionedBoxes[prev[0]] &&
-          //   repositionedBoxes[prev[0]].bottomRow ===
-          //     repositionedBoxes[prev[0]].topRow
-          // ) {
-          //   return prev;
-          // }
-          // if (
-          //   repositionedBoxes[next] &&
-          //   repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
-          // ) {
-          //   return [next];
-          // }
+          if (
+            repositionedBoxes[prev[0]] &&
+            repositionedBoxes[prev[0]].bottomRow ===
+              repositionedBoxes[prev[0]].topRow
+          ) {
+            return prev;
+          }
+          if (
+            repositionedBoxes[next] &&
+            repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
+          ) {
+            return [next];
+          }
           return [...prev, next];
         }
         // This (next) box's bottom row is lower than the boxes selected so far
@@ -163,11 +175,6 @@ export function computeChangeInPositionBasedOnDelta(
       [],
     );
 
-    // console.log("Reflow DH: computed bottomMost aboves", {
-    //   effectedBoxId,
-    //   bottomMostAboves,
-    //   aboves,
-    // });
     let _offset;
 
     // for each of the bottom most above boxes.
@@ -179,21 +186,29 @@ export function computeChangeInPositionBasedOnDelta(
         const _aboveOffset = repositionedBoxes[aboveId]
           ? repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow
           : 0;
-        // console.log("Reflow DH computing offset:", {
-        //   aboveId,
-        //   _aboveOffset,
-        //   layout: tree[aboveId],
-        //   repositioned: repositionedBoxes[aboveId],
-        // });
+
         // If so far, we haven't got any _offset updates
         // This can happen if this is the first aboveId we're checking
         if (_offset === undefined) _offset = _aboveOffset;
+        const oldSpacing =
+          tree[effectedBoxId].originalTopRow - tree[aboveId].originalBottomRow;
+        const currentSpacing =
+          tree[effectedBoxId].topRow - tree[aboveId].bottomRow;
+
+        let negativeOffset = _aboveOffset;
+        if (oldSpacing < currentSpacing + _aboveOffset) {
+          negativeOffset = oldSpacing + _aboveOffset - currentSpacing;
+        }
+
         // Otherwise, we see which change is larger, a previously computed aboveId
         // or this one. we use the larger, because, this is the delta
         // Larger delta means smaller change if the value is negative, moves up less
         // Larger delta means larger change if the value is positive, moves down more
         // The above is so that the widget doesn't accidentally collide with the above widget.
-        _offset = Math.max(_aboveOffset, _offset);
+        if (_aboveOffset > 0) _offset = Math.max(_aboveOffset, _offset);
+        else if (_aboveOffset < 0) {
+          _offset = Math.min(_aboveOffset, _offset, negativeOffset);
+        }
       } else {
         // Stick to the widget above.
         _offset = 0;

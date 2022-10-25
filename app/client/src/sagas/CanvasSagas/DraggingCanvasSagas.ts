@@ -124,7 +124,7 @@ function* addWidgetAndMoveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
-    yield put(generateDynamicHeightComputationTree(true));
+    yield put(generateDynamicHeightComputationTree(true, true));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [newWidget.newWidgetId],
@@ -278,7 +278,7 @@ function* moveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
-    yield put(generateDynamicHeightComputationTree(true));
+    yield put(generateDynamicHeightComputationTree(true, true));
 
     const block = draggedBlocksToUpdate[0];
     const oldParentId = block.updateWidgetParams.payload.parentId;
