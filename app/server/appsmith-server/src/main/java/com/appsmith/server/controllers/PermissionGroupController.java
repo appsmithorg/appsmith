@@ -4,15 +4,16 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
+import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.solutions.roles.RoleConfigurationView;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,12 +29,9 @@ import java.util.List;
 public class PermissionGroupController {
 
     private final PermissionGroupService service;
-    private final RoleConfigurationView generateRoleViewsSolution;
 
-    public PermissionGroupController(PermissionGroupService service,
-                                     RoleConfigurationView generateRoleViewsSolution) {
+    public PermissionGroupController(PermissionGroupService service) {
         this.service = service;
-        this.generateRoleViewsSolution = generateRoleViewsSolution;
     }
 
     @GetMapping
@@ -69,5 +67,17 @@ public class PermissionGroupController {
     public Mono<ResponseDTO<RoleViewDTO>> getPermissionGroupConfiguration(@PathVariable String permissionGroupId) {
         return service.findConfigurableRoleById(permissionGroupId)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @PutMapping("/associate")
+    public Mono<ResponseDTO<Boolean>> updatePermissionGroupsAssoication(@RequestBody UpdateRoleAssociationDTO updateRoleAssociationDTO) {
+        return service.changeRoleAssociations(updateRoleAssociationDTO)
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @PutMapping("/{id}")
+    public Mono<ResponseDTO<PermissionGroupInfoDTO>> updatePermissionGroup(@PathVariable String id, PermissionGroup resource) {
+        return service.updatePermissionGroup(id, resource)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 }

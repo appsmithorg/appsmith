@@ -35,7 +35,7 @@ export default function ResourceIdFilter() {
   }
 
   return (
-    <div>
+    <div data-testid="t--audit-logs-resource-id-filter-container">
       <Label>Resource ID</Label>
       <TextInput
         className="audit-logs-filter audit-logs-resource-id-filter"

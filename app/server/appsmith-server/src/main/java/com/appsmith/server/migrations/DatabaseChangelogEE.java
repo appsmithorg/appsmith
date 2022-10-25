@@ -2,6 +2,7 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
@@ -86,6 +87,27 @@ public class DatabaseChangelogEE {
     public void addIndexOnUserGroupCollection(MongockTemplate mongoTemplate, @NonLockGuarded PolicyUtils policyUtils) {
         Index tenantIdIndex = makeIndex("tenantId");
         ensureIndexes(mongoTemplate, UserGroup.class, tenantIdIndex);
+    }
+
+    @ChangeSet(order = "003", id = "add-index-for-audit-logs", author = "", runAlways = true)
+    public void addIndexOnAuditLogsCollection(MongockTemplate mongockTemplate) {
+        Index userEmailIndex = makeIndex("user.email");
+        ensureIndexes(mongockTemplate, AuditLog.class, userEmailIndex);
+
+        Index resourceIdIndex = makeIndex("resource.id");
+        ensureIndexes(mongockTemplate, AuditLog.class, resourceIdIndex);
+
+        Index resourceTypeIndex = makeIndex("resource.type");
+        ensureIndexes(mongockTemplate, AuditLog.class, resourceTypeIndex);
+
+        Index createdTimeIndex = makeIndex("timestamp");
+        ensureIndexes(mongockTemplate, AuditLog.class, createdTimeIndex);
+
+        Index eventIndex = makeIndex("event");
+        ensureIndexes(mongockTemplate, AuditLog.class, eventIndex);
+
+        Index userEmailEventCompoundIndex = makeIndex("event", "user.email", "timestamp").named("userEmail_event_compound_index");
+        ensureIndexes(mongockTemplate, AuditLog.class, userEmailEventCompoundIndex);
     }
 
 }

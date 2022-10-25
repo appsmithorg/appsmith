@@ -32,17 +32,14 @@ describe("audit-logs/utils/searchFiltersToUrl", () => {
           value: "group.created",
         },
       ],
-      days: {
-        id: "last-7",
-        label: "Last 7 days",
-        value: "8",
-      },
+      startDate: 12345,
+      endDate: 56789,
       dateSortOrder: DATE_SORT_ORDER.DESC,
       resourceId: "631f13d6a9521f0a85fe8c32",
     };
     const actual = searchFiltersToUrl(searchFilters);
     const expected =
-      "?emails=user@appsmith.com&events=page.created,group.created&resourceId=631f13d6a9521f0a85fe8c32&sort=DESC&days=8";
+      "?emails=user@appsmith.com&events=page.created,group.created&resourceId=631f13d6a9521f0a85fe8c32&sort=DESC&startDate=12345&endDate=56789";
     expect(actual).toEqual(expected);
   });
   it("returns proper url from incomplete (non email, non days) searchFilters Object", () => {
@@ -60,7 +57,8 @@ describe("audit-logs/utils/searchFiltersToUrl", () => {
           value: "group.created",
         },
       ],
-      days: {},
+      startDate: 0,
+      endDate: 0,
       dateSortOrder: DATE_SORT_ORDER.DESC,
       resourceId: "631f13d6a9521f0a85fe8c32",
     };
@@ -74,7 +72,8 @@ describe("audit-logs/utils/searchFiltersToUrl", () => {
     const searchFilters = {
       selectedEmails: [],
       selectedEvents: [],
-      days: {},
+      startDate: 0,
+      endDate: 0,
       dateSortOrder: DATE_SORT_ORDER.DESC,
       resourceId: "",
     };

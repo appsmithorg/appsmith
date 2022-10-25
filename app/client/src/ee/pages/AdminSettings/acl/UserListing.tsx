@@ -8,8 +8,8 @@ import debounce from "lodash/debounce";
    import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions"; */
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { Toaster, Variant } from "components/ads";
-import { HighlightText, MenuItemProps } from "design-system";
+import { Variant } from "components/ads";
+import { HighlightText, MenuItemProps, Toaster } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";

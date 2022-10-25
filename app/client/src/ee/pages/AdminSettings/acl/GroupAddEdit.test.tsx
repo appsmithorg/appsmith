@@ -166,8 +166,6 @@ describe("<GroupAddEdit />", () => {
   });
   it("should show input box on group name on double clicking title", async () => {
     const { getAllByTestId } = renderComponent();
-    const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
     let titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).not.toContain("input");
     await userEvent.dblClick(titleEl[0]);
@@ -178,10 +176,10 @@ describe("<GroupAddEdit />", () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    const renameOption = document.getElementsByClassName("rename-menu-item");
     let titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).not.toContain("input");
-    await userEvent.dblClick(titleEl[0]);
+    const renameOption = document.getElementsByClassName("rename-menu-item");
+    await userEvent.click(renameOption[0]);
     titleEl = getAllByTestId("t--page-title");
     expect(titleEl[0]).toContainHTML("input");
   });

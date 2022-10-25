@@ -61,7 +61,7 @@ export const addUsersInGroup = (usernames: string[], groupId: string) => ({
   type: ReduxActionTypes.ADD_USERS_IN_GROUP,
   payload: {
     usernames,
-    groupId,
+    groupIds: [groupId],
   },
 });
 
@@ -69,6 +69,6 @@ export const removeUsersFromGroup = (usernames: string[], groupId: string) => ({
   type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
   payload: {
     usernames,
-    groupId,
+    groupIds: [groupId],
   },
 });

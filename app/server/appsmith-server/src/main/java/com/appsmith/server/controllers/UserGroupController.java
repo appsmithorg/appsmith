@@ -1,11 +1,10 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.UserGroup;
-import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.services.UserGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,9 +41,9 @@ public class UserGroupController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<UserGroup>> create(@Valid @RequestBody UserGroup resource) {
+    public Mono<ResponseDTO<UserGroupDTO>> create(@Valid @RequestBody UserGroup resource) {
         log.debug("Going to create resource from user group controller {}", resource.getClass().getName());
-        return service.create(resource)
+        return service.createGroup(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -65,11 +64,10 @@ public class UserGroupController {
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<UserGroup>> update(@PathVariable String id,
-                                       @RequestBody UserGroup resource,
-                                       @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<UserGroupDTO>> update(@PathVariable String id,
+                                                  @RequestBody UserGroup resource) {
         log.debug("Going to update resource from user group controller with id: {}", id);
-        return service.update(id, resource)
+        return service.updateGroup(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -81,7 +79,7 @@ public class UserGroupController {
     }
 
     @PostMapping("/invite")
-    public Mono<ResponseDTO<UserGroupDTO>> inviteUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO,
+    public Mono<ResponseDTO<List<UserGroupDTO>>> inviteUsers(@RequestBody UsersForGroupDTO inviteUsersToGroupDTO,
                                                      @RequestHeader("Origin") String originHeader) {
         return service.inviteUsers(inviteUsersToGroupDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));

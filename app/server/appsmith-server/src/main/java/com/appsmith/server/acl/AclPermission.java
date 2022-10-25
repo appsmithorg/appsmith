@@ -151,6 +151,9 @@ public enum AclPermission {
 
     // AuditLogs Permission
     READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),
+
+    // Manage tenant permissions
+    MANAGE_TENANT("manage:tenants", Tenant.class),
     ;
 
 

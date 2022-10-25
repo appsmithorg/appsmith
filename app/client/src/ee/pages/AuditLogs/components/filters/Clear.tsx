@@ -24,6 +24,11 @@ export default function Clear() {
   }
 
   return dirty ? (
-    <StyledClearAllButton onClick={handleClear}>clear all</StyledClearAllButton>
+    <StyledClearAllButton
+      data-testid="t--audit-logs-filters-clear-all-button"
+      onClick={handleClear}
+    >
+      clear all
+    </StyledClearAllButton>
   ) : null;
 }

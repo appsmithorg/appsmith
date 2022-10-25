@@ -9,7 +9,7 @@ import {
 } from "ce/sagas/SuperUserSagas";
 import UserApi, { FetchSamlMetadataPayload } from "@appsmith/api/UserApi";
 import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   ReduxAction,
   ReduxActionTypes,

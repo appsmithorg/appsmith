@@ -3,7 +3,7 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Position, Spinner } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
-import { Toaster, Variant } from "components/ads";
+import { Variant } from "components/ads";
 import {
   Icon,
   IconSize,
@@ -11,9 +11,11 @@ import {
   MenuItemProps,
   Menu,
   SearchVariant,
+  TabComponent,
+  TabProp,
+  Toaster,
 } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
-import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import {
   TabsWrapper,
@@ -318,7 +320,7 @@ export function UserEdit(props: UserEditProps) {
           </Menu>
         </Container>
       </Header>
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
+      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}

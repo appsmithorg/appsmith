@@ -8,12 +8,17 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
+import com.appsmith.server.dtos.UserCompactDTO;
+import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.PermissionGroupServiceCEImpl;
 import com.appsmith.server.solutions.roles.RoleConfigurationView;
@@ -23,6 +28,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -39,6 +45,7 @@ import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -50,6 +57,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
     private final PolicyGenerator policyGenerator;
+
+    private final UserRepository userRepository;
+
+    private final UserGroupRepository userGroupRepository;
 
     private final RoleConfigurationView roleConfigurationView;
 
@@ -66,6 +77,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       ConfigRepository configRepository,
                                       ModelMapper modelMapper,
                                       PolicyGenerator policyGenerator,
+                                      UserGroupRepository userGroupRepository,
                                       RoleConfigurationView roleConfigurationView) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
@@ -74,7 +86,9 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         this.policyGenerator = policyGenerator;
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
+        this.userGroupRepository = userGroupRepository;
         this.roleConfigurationView = roleConfigurationView;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -159,7 +173,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                         permissionGroup1.setPolicies(policiesWithoutEditPermission);
                         return repository.save(permissionGroup1);
                     }
-                    return Mono.just(permissionGroup1);
+                    // If this is not a default created role, then return the role as is from the DB
+                    return repository.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS);
                 });
     }
 
@@ -224,6 +239,112 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                             roleViewDTO.setUserPermissions(permissionGroup.getUserPermissions());
                             return roleViewDTO;
                         }));
+    }
+
+    @Override
+    public Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO) {
+        Set<UserCompactDTO> userDTOs = updateRoleAssociationDTO.getUsers();
+        Set<UserGroupCompactDTO> groupDTOs = updateRoleAssociationDTO.getGroups();
+        Set<PermissionGroupCompactDTO> rolesAddedDTOs = updateRoleAssociationDTO.getRolesAdded();
+        Set<PermissionGroupCompactDTO> rolesRemovedDTOs = updateRoleAssociationDTO.getRolesRemoved();
+
+        Flux<User> userFlux = Flux.empty();
+        Flux<UserGroup> groupFlux = Flux.empty();
+        Flux<PermissionGroup> rolesAddedFlux = Flux.empty();
+        Flux<PermissionGroup> rolesRemovedFlux = Flux.empty();
+
+        if (!CollectionUtils.isEmpty(userDTOs)) {
+            userFlux = userRepository.findAllById(userDTOs.stream().map(UserCompactDTO::getId).collect(Collectors.toSet()))
+                    .cache();
+        }
+        if (!CollectionUtils.isEmpty(groupDTOs)) {
+            groupFlux = userGroupRepository.findAllById(groupDTOs.stream().map(UserGroupCompactDTO::getId).collect(Collectors.toSet()))
+                    .cache();
+        }
+        if (!CollectionUtils.isEmpty(rolesAddedDTOs)) {
+            rolesAddedFlux = repository.findAllById(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()),
+                            ASSIGN_PERMISSION_GROUPS);
+        }
+        if (!CollectionUtils.isEmpty(rolesRemovedDTOs)) {
+            rolesRemovedFlux = repository.findAllById(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()),
+                            UNASSIGN_PERMISSION_GROUPS);
+        }
+
+        // Bulk assign to roles added
+        Flux<PermissionGroup> bulkAssignToRolesMono = Flux.zip(rolesAddedFlux, userFlux.collectList().repeat(), groupFlux.collectList().repeat())
+                .flatMap(tuple -> {
+                    PermissionGroup permissionGroup = tuple.getT1();
+                    List<User> users = tuple.getT2();
+                    List<UserGroup> groups = tuple.getT3();
+                    return bulkAssignToUsersAndGroups(permissionGroup, users, groups);
+                });
+
+        // Bulk unassign from roles removed
+        Flux<PermissionGroup> bulkUnassignFromRolesMono = Flux.zip(rolesRemovedFlux, userFlux.collectList().repeat(), groupFlux.collectList().repeat())
+                .flatMap(tuple -> {
+                    PermissionGroup permissionGroup = tuple.getT1();
+                    List<User> users = tuple.getT2();
+                    List<UserGroup> groups = tuple.getT3();
+                    return bulkUnassignFromUsersAndGroups(permissionGroup, users, groups);
+                });
+
+        // Clear cache for all the affected users
+        Mono<Void> cleanCacheForUsersMono = Mono.zip(userFlux.collectList(), groupFlux.collectList())
+                .flatMap(tuple -> {
+                    List<User> users = tuple.getT1();
+                    List<UserGroup> groups = tuple.getT2();
+                    List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+                    // Get the userIds from all the user groups that we are unassigning
+                    List<String> usersInGroups = groups.stream()
+                            .map(ug -> ug.getUsers())
+                            .flatMap(Collection::stream)
+                            .collect(Collectors.toList());
+                    userIds.addAll(usersInGroups);
+                    return cleanPermissionGroupCacheForUsers(userIds);
+                });
+
+        return Mono.when(bulkAssignToRolesMono.collectList(), bulkUnassignFromRolesMono.collectList())
+                .then(cleanCacheForUsersMono)
+                .thenReturn(TRUE);
+
+    }
+
+    private Mono<PermissionGroup> bulkUnassignFromUsersAndGroups(PermissionGroup permissionGroup, List<User> users, List<UserGroup> groups) {
+        ensureAssignedToUserIds(permissionGroup);
+        ensureAssignedToUserGroups(permissionGroup);
+
+        List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        List<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toList());
+        permissionGroup.getAssignedToUserIds().removeAll(userIds);
+        permissionGroup.getAssignedToGroupIds().removeAll(groupIds);
+        return repository.updateById(permissionGroup.getId(), permissionGroup, UNASSIGN_PERMISSION_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
+    }
+
+    private Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup permissionGroup, List<User> users, List<UserGroup> groups) {
+        ensureAssignedToUserIds(permissionGroup);
+        ensureAssignedToUserGroups(permissionGroup);
+
+        List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        List<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toList());
+        permissionGroup.getAssignedToUserIds().addAll(userIds);
+        permissionGroup.getAssignedToGroupIds().addAll(groupIds);
+        return repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
+
+    }
+
+    public Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup resource) {
+        return repository.findById(id, MANAGE_PERMISSION_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update permission group")))
+                .flatMap(permissionGroup -> {
+                    // The update API is only supposed to update the NAME and DESCRIPTION of the Permission Group.
+                    // ANY OTHER FIELD SHOULD NOT BE UPDATED USING THIS FUNCTION.
+                    permissionGroup.setName(resource.getName());
+                    permissionGroup.setDescription(resource.getDescription());
+                    return super.update(id, permissionGroup);
+                })
+                .map(savedPermissionGroup -> modelMapper.map(savedPermissionGroup, PermissionGroupInfoDTO.class));
     }
 
 }

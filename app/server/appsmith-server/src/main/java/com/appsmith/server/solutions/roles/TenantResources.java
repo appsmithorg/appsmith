@@ -340,6 +340,9 @@ public class TenantResources {
                 .then(trimmedHoverMapMono);
     }
 
+    /*
+    This method is currently unused since the current relationships covered in the tab are unrelated. This method is kept for future use.
+     */
     private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForOtherRoles(RoleTab roleTab,
                                                                                        Flux<Workspace> workspaceFlux) {
         Set<AclPermission> tabPermissions = roleTab.getPermissions();

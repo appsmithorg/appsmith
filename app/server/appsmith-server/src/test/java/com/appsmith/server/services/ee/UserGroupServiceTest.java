@@ -103,7 +103,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        Mono<UserGroup> createUserGroupMono = userGroupService.create(userGroup)
+        Mono<UserGroup> createUserGroupMono = userGroupService.createGroup(userGroup)
                 // Assert that the created role is also editable by the user who created it
                 .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), MANAGE_USER_GROUPS));
 
@@ -149,7 +149,7 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        Mono<UserGroup> createUserGroupMono = userGroupService.create(userGroup);
+        Mono<UserGroupDTO> createUserGroupMono = userGroupService.createGroup(userGroup);
 
         StepVerifier.create(createUserGroupMono)
                 .expectErrorMatches(throwable ->
@@ -169,7 +169,7 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        userGroupService.create(userGroup).block();
+        userGroupService.createGroup(userGroup).block();
 
         Mono<List<UserGroup>> listMono = userGroupService.get(new LinkedMultiValueMap<>()).collectList();
 
@@ -213,7 +213,7 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        UserGroup createdUserGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(userGroup).block();
 
         Mono<UserGroup> deleteGroupMono = userGroupService.archiveById(createdUserGroup.getId())
                 .then(userGroupService.findById(createdUserGroup.getId(), READ_USER_GROUPS));
@@ -234,7 +234,7 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UserGroup update = new UserGroup();
         name = "Updated Name";
@@ -242,7 +242,7 @@ public class UserGroupServiceTest {
         update.setName(name);
         update.setDescription(description);
 
-        Mono<UserGroup> deleteGroupMono = userGroupService.update(createdGroup.getId(), update)
+        Mono<UserGroup> deleteGroupMono = userGroupService.updateGroup(createdGroup.getId(), update)
                 .then(userGroupService.findById(createdGroup.getId(), READ_USER_GROUPS));
 
         String finalName = name;
@@ -290,12 +290,12 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
 
         // Create a new group
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UserGroup update = new UserGroup();
         update.setUsers(Set.of("invalid-user-id"));
 
-        Mono<UserGroup> deleteGroupMono = userGroupService.update(createdGroup.getId(), update)
+        Mono<UserGroup> deleteGroupMono = userGroupService.updateGroup(createdGroup.getId(), update)
                 .then(userGroupService.findById(createdGroup.getId(), READ_USER_GROUPS));
 
         String finalName = name;
@@ -356,7 +356,9 @@ public class UserGroupServiceTest {
         userGroup.setDescription(description);
         // Let the users be the same as that of super admins in the group
         userGroup.setUsers(superAdminIds);
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroup createdGroup = userGroupService.createGroup(userGroup)
+                .flatMap(userGroup1 -> userGroupService.findById(userGroup1.getId(), READ_USER_GROUPS))
+                .block();
 
         // Manually set the roles of the group
         createdRole.setAssignedToGroupIds(Set.of(createdGroup.getId()));
@@ -371,6 +373,7 @@ public class UserGroupServiceTest {
                     assertEquals(createdGroup.getTenantId(), group.getTenantId());
                     assertEquals(createdGroup.getName(), group.getName());
                     assertEquals(createdGroup.getDescription(), group.getDescription());
+                    assertEquals(createdGroup.getUserPermissions(), group.getUserPermissions());
 
                     // Assert that the api_user is returned properly.
                     group.getUsers().stream().
@@ -395,19 +398,19 @@ public class UserGroupServiceTest {
                             );
 
                     // Assert that the role is returned properly.
-                    assertThat(group.getRoles())
-                            .containsExactly(
-                                    List.of(createdRole).stream()
-                                            .map(role -> {
-                                                PermissionGroupInfoDTO permissionGroupInfoDTO = new PermissionGroupInfoDTO();
-                                                permissionGroupInfoDTO.setId(role.getId());
-                                                permissionGroupInfoDTO.setName(role.getName());
-                                                permissionGroupInfoDTO.setDescription(role.getDescription());
-                                                return permissionGroupInfoDTO;
-                                            })
-                                            .collect(Collectors.toList())
-                                            .get(0)
-                            );
+                    assertThat(group.getRoles()).containsExactlyInAnyOrder(
+                            List.of(createdRole).stream()
+                                    .map(role -> {
+                                        PermissionGroupInfoDTO permissionGroupInfoDTO = new PermissionGroupInfoDTO();
+                                        permissionGroupInfoDTO.setId(role.getId());
+                                        permissionGroupInfoDTO.setName(role.getName());
+                                        permissionGroupInfoDTO.setDescription(role.getDescription());
+                                        permissionGroupInfoDTO.setUserPermissions(Set.of());
+                                        return permissionGroupInfoDTO;
+                                    })
+                                    .collect(Collectors.toList())
+                                    .get(0)
+                    );
 
                 })
                 .verifyComplete();
@@ -428,9 +431,43 @@ public class UserGroupServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void addUserToGroup_1valid_1invalidGroupId() {
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : addUsersToGroupValid";
+        String description = "Test Group Description : addUsersToGroupValid";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId(), "invalid-group-id"));
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .assertNext(groups -> {
+                    // assert that the user got added to only the allowed user group.
+                    assertThat(groups).hasSize(1);
+                    UserGroupDTO group = groups.get(0);
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group.getId());
+                    assertEquals(createdGroup.getTenantId(), group.getTenantId());
+                    assertEquals(createdGroup.getName(), group.getName());
+                    assertEquals(createdGroup.getDescription(), group.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group.getUsers().size());
+                    assertEquals(api_user.getId(), group.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group.getUsers().get(0).getUsername());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void invalidAddUserToGroup_emptyUsernames() {
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
-        inviteUsersToGroupDTO.setGroupId("groupId");
+        inviteUsersToGroupDTO.setGroupIds(Set.of("groupId"));
 
         StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -448,14 +485,16 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
-        inviteUsersToGroupDTO.setGroupId(createdGroup.getId());
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
         inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
 
         StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
-                .assertNext(group -> {
+                .assertNext(groups -> {
+                    assertThat(groups).hasSize(1);
+                    UserGroupDTO group = groups.get(0);
                     // assert that updated group did not edit the existing settings
                     assertEquals(createdGroup.getId(), group.getId());
                     assertEquals(createdGroup.getTenantId(), group.getTenantId());
@@ -469,6 +508,59 @@ public class UserGroupServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void addUsersToGroupsValid_WithoutRoles() {
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : addUsersToGroupValid";
+        String description = "Test Group Description : addUsersToGroupValid";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+
+        UserGroup userGroup2 = new UserGroup();
+        String name2 = "Test Group 2 : addUsersToGroupValid";
+        String description2 = "Test Group Description 2 : addUsersToGroupValid";
+        userGroup2.setName(name2);
+        userGroup2.setDescription(description2);
+
+        UserGroupDTO createdGroup2 = userGroupService.createGroup(userGroup2).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId(), createdGroup2.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .assertNext(groups -> {
+                    assertThat(groups).hasSize(2);
+                    UserGroupDTO group1 = groups.get(0);
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group1.getId());
+                    assertEquals(createdGroup.getTenantId(), group1.getTenantId());
+                    assertEquals(createdGroup.getName(), group1.getName());
+                    assertEquals(createdGroup.getDescription(), group1.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group1.getUsers().size());
+                    assertEquals(api_user.getId(), group1.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group1.getUsers().get(0).getUsername());
+
+                    UserGroupDTO group2 = groups.get(1);
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup2.getId(), group2.getId());
+                    assertEquals(createdGroup2.getTenantId(), group2.getTenantId());
+                    assertEquals(createdGroup2.getName(), group2.getName());
+                    assertEquals(createdGroup2.getDescription(), group2.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group2.getUsers().size());
+                    assertEquals(api_user.getId(), group2.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group2.getUsers().get(0).getUsername());
+                })
+                .verifyComplete();
     }
 
     // TODO: Add tests for groups with roles and then adding users to the group.
@@ -490,7 +582,7 @@ public class UserGroupServiceTest {
     @WithUserDetails(value = "api_user")
     public void invalidRemoveUserToGroup_emptyUsernames() {
         UsersForGroupDTO removeUsersFromGroupDTO = new UsersForGroupDTO();
-        removeUsersFromGroupDTO.setGroupId("groupId");
+        removeUsersFromGroupDTO.setGroupIds(Set.of("groupId"));
 
         StepVerifier.create(userGroupService.removeUsers(removeUsersFromGroupDTO))
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -508,10 +600,10 @@ public class UserGroupServiceTest {
         userGroup.setName(name);
         userGroup.setDescription(description);
 
-        UserGroup createdGroup = userGroupService.create(userGroup).block();
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
 
         UsersForGroupDTO usersForGroupDTO = new UsersForGroupDTO();
-        usersForGroupDTO.setGroupId(createdGroup.getId());
+        usersForGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
         usersForGroupDTO.setUsernames(Set.of("api_user"));
 
         // Add API User

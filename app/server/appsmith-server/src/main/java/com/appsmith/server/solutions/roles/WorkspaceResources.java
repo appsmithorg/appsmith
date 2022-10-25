@@ -317,6 +317,7 @@ public class WorkspaceResources {
                         ActionResourceDTO actionDTO = new ActionResourceDTO();
                         actionDTO.setId(action.getId());
                         actionDTO.setName(action.getUnpublishedAction().getName());
+                        actionDTO.setPluginId(action.getPluginId());
                         Tuple2<List<Integer>, List<Integer>> permissionsTuple =
                                 getRoleViewPermissionDTO(
                                         roleTab,
@@ -713,6 +714,7 @@ public class WorkspaceResources {
         Flux<NewAction> actionFlux = applicationIdsMono.flatMapMany(applicationIds -> {
 
             List<String> actionIncludeFields = new ArrayList<>(includeFields);
+            actionIncludeFields.add(fieldName(QNewAction.newAction.pluginId));
             actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name));
             actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId));
             actionIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource.id));

@@ -9,7 +9,8 @@ export function payloadToQueryParams(
     emails: payload.selectedEmails.map((event: DropdownOption) => event.value),
     resourceId: payload.resourceId,
     sortOrder: payload.dateSortOrder === "DESC" ? 0 : 1,
-    numberOfDays: Number(payload.days.value),
+    startDate: payload.startDate,
+    endDate: payload.endDate,
     cursor: payload.cursor || "",
   };
   const out: any = {};
@@ -25,8 +26,11 @@ export function payloadToQueryParams(
   if (temp.sortOrder > 0) {
     out.sortOrder = temp.sortOrder;
   }
-  if (temp.numberOfDays > 0) {
-    out.numberOfDays = temp.numberOfDays;
+  if (temp.startDate > 0) {
+    out.startDate = temp.startDate;
+  }
+  if (temp.endDate > 0) {
+    out.endDate = temp.endDate;
   }
   if (temp.cursor.length > 0) {
     out.cursor = temp.cursor;

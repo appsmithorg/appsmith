@@ -82,10 +82,15 @@ export function AuditLogTable() {
   }
   return (
     <Table data-testid="t--audit-logs-table" ref={containerRef}>
-      <THead>
-        <Event>Event description</Event>
-        <User>User</User>
-        <Date onClick={handleDateSortOrderClick}>
+      <THead data-testid="t--audit-logs-table-head">
+        <Event data-testid="t--audit-logs-table-head-event-col">
+          Event description
+        </Event>
+        <User data-testid="t--audit-logs-table-head-user-col">User</User>
+        <Date
+          data-testid="t--audit-logs-table-head-date-col"
+          onClick={handleDateSortOrderClick}
+        >
           <span className="column-header">Date</span>
           <Icon
             name="down-arrow-2"
@@ -105,7 +110,7 @@ export function AuditLogTable() {
         {rows}
       </div>
       <div
-        data-testid={"t--audit-logs-table-end-marker"}
+        data-testid="t--audit-logs-table-end-marker"
         id="audit-logs-table-end-marker"
         ref={endMarkerRef}
         style={{ height: "50vh", minHeight: "500px" }}

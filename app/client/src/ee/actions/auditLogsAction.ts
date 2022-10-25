@@ -2,6 +2,7 @@ import { AuditLogType } from "@appsmith/pages/AuditLogs/types";
 import {
   DATE_SORT_ORDER,
   AuditLogsFiltersReduxState,
+  AuditLogsDateFilter,
 } from "@appsmith/reducers/auditLogsReducer";
 import { DropdownOption } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -73,15 +74,17 @@ export const fetchAuditLogsEventsSuccess = (payload: any[]) => ({
 
 export const setAuditLogsOnUrlLoadFilters = (
   {
-    days,
     emails,
+    endDate,
     events,
     resourceId,
     sort,
+    startDate,
   }: {
     emails: DropdownOption[];
     events: DropdownOption[];
-    days: DropdownOption;
+    startDate: number;
+    endDate: number;
     resourceId: string;
     sort: DATE_SORT_ORDER;
   },
@@ -91,7 +94,8 @@ export const setAuditLogsOnUrlLoadFilters = (
   payload: {
     emails,
     events,
-    days,
+    startDate,
+    endDate,
     resourceId,
     sort,
     dirty,
@@ -136,7 +140,7 @@ export const replaceAuditLogsEvents = (payload: {
   payload: { events: payload.events },
 });
 
-export const setAuditLogsDateFilter = (payload: { days: DropdownOption }) => ({
+export const setAuditLogsDateFilter = (payload: AuditLogsDateFilter) => ({
   type: ReduxActionTypes.SET_AUDIT_LOGS_DATE_FILTER,
   payload,
 });

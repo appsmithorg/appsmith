@@ -11,7 +11,6 @@ import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -22,7 +21,12 @@ import {
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
-import { Action, PaginationType, RapidApiAction } from "entities/Action";
+import {
+  Action,
+  PaginationType,
+  PluginPackageName,
+  RapidApiAction,
+} from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import styled, { CSSProperties } from "styled-components";
@@ -154,7 +158,7 @@ class ApiEditor extends React.Component<Props> {
 
   getPluginUiComponentOfName = (plugins: Plugin[]): string | undefined => {
     const plugin = plugins.find(
-      (plugin) => plugin.packageName === REST_PLUGIN_PACKAGE_NAME,
+      (plugin) => plugin.packageName === PluginPackageName.REST_API,
     );
     if (!plugin) return undefined;
     return plugin.uiComponent;

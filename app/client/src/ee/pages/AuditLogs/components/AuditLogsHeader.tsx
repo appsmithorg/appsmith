@@ -28,7 +28,7 @@ export function AuditLogsHeader() {
 
   return (
     <Header data-testid="t--audit-logs-header">
-      <Heading data-testid="t--audit-logs-header-heading">Audit logs</Heading>
+      <Heading data-testid="t--audit-logs-header-heading">Audit Logs</Heading>
       <RightSide data-testid="t--audit-logs-header-right-side">
         <Button
           aria-disabled={isLoading}

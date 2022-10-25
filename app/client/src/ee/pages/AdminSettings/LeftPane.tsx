@@ -48,16 +48,14 @@ export default function LeftPane() {
           />
         </HeaderContainer>
       )}
-      {featureFlags.AUDIT_LOGS && (
-        <HeaderContainer>
-          <StyledHeader>Others</StyledHeader>
-          <Categories
-            categories={othersCategories}
-            currentCategory={category}
-            currentSubCategory={subCategory}
-          />
-        </HeaderContainer>
-      )}
+      <HeaderContainer>
+        <StyledHeader>Others</StyledHeader>
+        <Categories
+          categories={othersCategories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
+      </HeaderContainer>
     </Wrapper>
   );
 }

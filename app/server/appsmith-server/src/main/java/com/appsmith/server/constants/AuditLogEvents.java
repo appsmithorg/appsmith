@@ -70,7 +70,8 @@ public class AuditLogEvents {
             entry(AnalyticsEvents.LOGOUT.getEventName(), FieldName.LOGGED_OUT),
             entry(AnalyticsEvents.FIRST_LOGIN.getEventName(), FieldName.SIGNED_UP),
             entry(AnalyticsEvents.EXECUTE_INVITE_USERS.getEventName(), FieldName.INVITED),
-            entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.UPDATED)
+            entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.UPDATED),
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.UPDATED)
     );
 
     // Map of Appsmith resource name with their corresponding Audit Log resource name
@@ -82,6 +83,7 @@ public class AuditLogEvents {
             entry(NewAction.class.getSimpleName(), FieldName.QUERY),
             entry(User.class.getSimpleName(), FieldName.USER),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.INSTANCE_SETTING),
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING),
             entry(PermissionGroup.class.getSimpleName(), FieldName.GROUP),
             entry(Role.class.getSimpleName(), FieldName.ROLE)
     );

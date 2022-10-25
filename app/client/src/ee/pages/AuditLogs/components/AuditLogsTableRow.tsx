@@ -8,7 +8,7 @@ import {
   markAuditLogOpen as markOpen,
   setEmailJsonFilter as setEmail,
 } from "@appsmith/actions/auditLogsAction";
-import { Icon } from "design-system";
+import { Icon, IconSize } from "design-system";
 import { iconisedDescription } from "../utils/description";
 import {
   StyledDateColumnContainer as Date,
@@ -90,11 +90,13 @@ export default function AuditLogsTableRow({
           <Icon
             keepColors
             name={"right-arrow-2"}
+            size={IconSize.XL}
             style={{
               display: "inline-block",
               marginRight: "12px",
               transform: isOpen ? "rotate(90deg)" : "",
               position: "relative",
+              top: "3px",
               zIndex: -1,
             }}
           />
@@ -103,7 +105,13 @@ export default function AuditLogsTableRow({
             <Icon
               fillColor={iconFillColor}
               name={iconName}
-              style={{ display: "inline-block", marginRight: "12px" }}
+              size={IconSize.XL}
+              style={{
+                display: "inline-block",
+                marginRight: "12px",
+                position: "relative",
+                top: "3px",
+              }}
             />
           ) : null}
           {description}

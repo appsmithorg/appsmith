@@ -68,7 +68,7 @@ export default function EventFilter() {
   }
 
   return (
-    <Container>
+    <Container data-testid="t--audit-logs-event-type-filter-container">
       <Label>Events</Label>
       <Dropdown
         boundary="viewport"

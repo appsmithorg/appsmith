@@ -11,29 +11,37 @@ import {
   DATE_SORT_ORDER,
   initialAuditLogsFilterState,
 } from "@appsmith/reducers/auditLogsReducer";
-import { DropdownOption } from "design-system";
 import { StyledAuditLogsRightPaneContainer as Container } from "./styled-components/container";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import ErrorPage from "pages/common/ErrorPage";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { urlToSearchFilters } from "./utils/urlToSearchFilters";
-import { DATE_FILTER_OPTIONS } from "./utils/jsonFilter";
 import { areSearchFiltersDefault } from "./utils/searchFilters";
+import {
+  toEvent,
+  toUserEmail,
+} from "@appsmith/pages/AuditLogs/utils/toDropdownOption";
 
 export default function AuditLogsFeatureContainer() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const searchParams: Record<string, DropdownOption[]> = urlToSearchFilters(
-      window?.location?.search,
-    );
+    const searchParams = urlToSearchFilters(window?.location?.search);
+    const {
+      emails,
+      endDate,
+      events,
+      resourceId,
+      sort,
+      startDate,
+    } = searchParams;
     const filters = {
-      emails: searchParams.emails || [],
-      events: searchParams.events || [],
-      days: (searchParams.days || DATE_FILTER_OPTIONS)[0],
-      resourceId: (searchParams.resourceId || [{ value: "" }])[0].value || "",
-      sort: (searchParams.sort || [{ value: DATE_SORT_ORDER.DESC }])[0]
-        .value as DATE_SORT_ORDER,
+      emails: (emails || []).map(toUserEmail),
+      events: (events || []).map(toEvent),
+      startDate: startDate ? startDate[0] : 0,
+      endDate: endDate ? endDate[0] : 0,
+      resourceId: resourceId ? resourceId[0] : "",
+      sort: sort ? sort[0] : DATE_SORT_ORDER.DESC,
     };
 
     const logFilters = {
@@ -42,7 +50,8 @@ export default function AuditLogsFeatureContainer() {
       selectedEvents: filters.events,
       dateSortOrder: filters.sort,
       resourceId: filters.resourceId,
-      days: filters.days,
+      startDate: filters.startDate,
+      endDate: filters.endDate,
     };
     const dirty = areSearchFiltersDefault(logFilters);
     batch(() => {
