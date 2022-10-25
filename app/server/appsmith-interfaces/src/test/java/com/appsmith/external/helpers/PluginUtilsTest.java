@@ -188,7 +188,6 @@ public class PluginUtilsTest {
 
         assertThrows(ClassCastException.class, () -> {
             String result = (String) data;
-            log.info("Value of key : k as String casted from Integer is", result);
         });
     }
 
