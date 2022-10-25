@@ -78,6 +78,7 @@ import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuest
 import static com.external.utils.MySqlDatasourceUtils.MAX_CONNECTION_POOL_SIZE;
 import static com.external.utils.MySqlDatasourceUtils.addSslOptionsToBuilder;
 import static com.external.utils.MySqlDatasourceUtils.getBuilder;
+import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
 import static com.external.utils.MySqlGetStructureUtils.getKeyInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTemplates;
@@ -89,8 +90,6 @@ public class MySqlPlugin extends BasePlugin {
 
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
     private static final String IS_KEY = "is";
-
-    private static final Duration MAX_IDLE_TIME = Duration.ofMinutes(10);
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -531,19 +530,12 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<ConnectionPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration);
+            ConnectionPool pool = null;
             try {
-                ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
+                pool = getNewConnectionPool(datasourceConfiguration);
             } catch (AppsmithPluginException e) {
-                return Mono.error(e);
+                Mono.error(e);
             }
-
-            ConnectionFactory cf = ConnectionFactories.get(ob.build());
-            ConnectionPoolConfiguration configuration = ConnectionPoolConfiguration.builder(cf)
-                    .maxIdleTime(MAX_IDLE_TIME)
-                    .maxSize(MAX_CONNECTION_POOL_SIZE)
-                    .build();
-            ConnectionPool pool = new ConnectionPool(configuration);
             return Mono.just(pool);
         }
 
