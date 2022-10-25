@@ -102,4 +102,37 @@ describe("Contains all UI tests for JS libraries", () => {
       ),
     ).toBeDefined();
   });
+
+  it("Progress bar should disappear once the installation succeeds or fails", () => {
+    render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <InstallationWindow open />
+        </ThemeProvider>
+      </Provider>,
+    );
+    store.dispatch({
+      type: ReduxActionTypes.INSTALL_LIBRARY_INIT,
+      payload:
+        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.6/dayjs.min.js",
+    });
+
+    expect(
+      screen.queryByText(
+        `Installing library for ${fetchApplicationMockResponse.data.application.name}`,
+      ),
+    ).toBeDefined();
+
+    store.dispatch({
+      type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
+      payload:
+        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.6/dayjs.min.js",
+    });
+
+    expect(
+      screen.queryByText(
+        `Installing library for ${fetchApplicationMockResponse.data.application.name}`,
+      ),
+    ).toBeNull();
+  });
 });
