@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
-import { AppIcon as Icon, Size, Spinner } from "design-system";
+import { Icon, IconSize, Spinner } from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
 import {
@@ -8,16 +8,22 @@ import {
   CREATE_DATASOURCE_TOOLTIP,
 } from "ce/constants/messages";
 import InstallationWindow from "./InstallationWindow";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
   selectLibrariesForExplorer,
 } from "selectors/entitiesSelector";
+import { extraLibraries } from "utils/DynamicBindingUtils";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
-const ListItem = styled.li`
+const defaultLibraries = extraLibraries.map((lib) => lib.displayName);
+
+const Library = styled.li`
   list-style: none;
-  color: ${Colors.GREY_8};
+  color: ${Colors.GRAY_700};
+  font-weight: 400;
   height: 36px;
+  gap: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,8 +37,8 @@ const ListItem = styled.li`
       display: block;
     }
 
-    & .t--package-version {
-      display: none;
+    & .uninstall-library {
+      display: block;
     }
   }
 
@@ -42,8 +48,13 @@ const ListItem = styled.li`
     display: none;
   }
 
+  & .uninstall-library {
+    display: none;
+  }
+
   & .t--package-version {
     display: block;
+    font-size: 12px;
   }
 `;
 const Name = styled.div`
@@ -55,29 +66,59 @@ const Name = styled.div`
   line-clamp: 2;
   -webkit-box-orient: vertical;
 `;
-const Version = styled.span``;
+const Version = styled.span<{ version?: string }>`
+  display: ${(props) => (props.version ? "block" : "none")};
+`;
+
+const uninstallLibraryInit = (payload: string) => ({
+  type: ReduxActionTypes.UNINSTALL_LIBRARY_INIT,
+  payload,
+});
+
+const PrimaryCTA = function({ name }: { name: string }) {
+  const installationStatus = useSelector(selectInstallationStatus);
+  const dispatch = useDispatch();
+
+  const uninstallLibrary = useCallback(() => {
+    dispatch(uninstallLibraryInit(name));
+  }, [name]);
+
+  if (installationStatus.hasOwnProperty(name))
+    return (
+      <div className="shrink-0">
+        <Spinner />
+      </div>
+    );
+
+  if (!defaultLibraries.includes(name))
+    return (
+      <Icon
+        className="uninstall-library"
+        name="trash-outline"
+        onClick={uninstallLibrary}
+        size={IconSize.MEDIUM}
+      />
+    );
+
+  return null;
+};
 
 function JSDependencies() {
   const openDocs = (name: string, url: string) => () => window.open(url, name);
-  const installationStatus = useSelector(selectInstallationStatus);
   const libraries = useSelector(selectLibrariesForExplorer);
   const dependencyList = libraries.map((lib) => {
     return (
-      <ListItem
+      <Library
         key={lib.displayName}
         onClick={openDocs(lib.displayName, lib.docsURL)}
       >
         <Name>{lib.displayName}</Name>
-        {lib.version ? (
-          <Version className="t--package-version">{lib.version}</Version>
-        ) : null}
-        <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} />
-        {installationStatus.hasOwnProperty(lib.displayName) && (
-          <div className="shrink-0">
-            <Spinner />
-          </div>
-        )}
-      </ListItem>
+        <Version className="t--package-version" version={lib.version}>
+          {lib.version}
+        </Version>
+        {/* <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} /> */}
+        <PrimaryCTA name={lib.displayName} />
+      </Library>
     );
   });
   return (

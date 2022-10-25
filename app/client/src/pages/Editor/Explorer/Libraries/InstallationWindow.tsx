@@ -28,9 +28,8 @@ import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { AppState } from "ce/reducers";
-import { createSelector } from "reselect";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { InstallState } from "reducers/uiReducers/libraryReducer";
+import { selectInstallationStatus } from "selectors/entitiesSelector";
 
 type TInstallWindowProps = any;
 
@@ -159,34 +158,30 @@ const InstallationProgressWrapper = styled.div`
   }
 `;
 
-const selectCurrentInstallation = createSelector(
-  (state: AppState) => state.ui.libraries.installationStatus,
-  (queue: any) => {
-    return Object.keys(queue).filter(
-      (lib) => queue[lib] === InstallState.Installing,
-    )[0];
-  },
-);
-
 function InstallationProgress() {
-  const url = useSelector(selectCurrentInstallation);
+  const installStatusMap = useSelector(selectInstallationStatus);
   const application = useSelector(getCurrentApplication);
-  if (!url) return null;
+  const urls = Object.keys(installStatusMap);
+  if (urls.length === 0) return null;
   return (
-    <InstallationProgressWrapper>
-      <div className="pl-6 pr-6 pt-3 pb-3 bg-g overflow-hidden text-ellipsis fw-500 text-sm">
-        {url}
-      </div>
-      <div className="progress-container">
-        <div className="flex flex-row gap-2 items-center">
-          <Spinner />
-          <span>Installing library for {application?.name}</span>
-        </div>
-        <div className="progress-bar">
-          <div className="completed" />
-        </div>
-      </div>
-    </InstallationProgressWrapper>
+    <>
+      {urls.map((url, idx) => (
+        <InstallationProgressWrapper key={`${url}_${idx}`}>
+          <div className="pl-6 pr-6 pt-3 pb-3 bg-g overflow-hidden text-ellipsis fw-500 text-sm">
+            {url}
+          </div>
+          <div className="progress-container">
+            <div className="flex flex-row gap-2 items-center">
+              <Spinner />
+              <span>Installing library for {application?.name}</span>
+            </div>
+            <div className="progress-bar">
+              <div className="completed" />
+            </div>
+          </div>
+        </InstallationProgressWrapper>
+      ))}
+    </>
   );
 }
 
@@ -262,7 +257,10 @@ function InstallationPopoverContent(props: any) {
             <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>
               CDNJS
             </Text>{" "}
-            or NPM.
+            or{" "}
+            <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>
+              NPM
+            </Text>
           </Text>
           <Text type={TextType.P3}>
             Learn more about Custom JS Libraries here.
