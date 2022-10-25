@@ -1191,7 +1191,7 @@ export const lintingUnEvalTree = {
     theme: {
       colors: {
         primaryColor: "#553DE9",
-        backgroundColor: "#F6F6F6",
+        backgroundColor: "#F8FAFC",
       },
       borderRadius: {
         appBorderRadius: "0.375rem",

@@ -17,15 +17,16 @@ import {
 import TableDataDownload from "./TableDataDownload";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { lightenColor } from "widgets/WidgetUtils";
 
 const PageNumberInputWrapper = styled(NumericInput)<{
   borderRadius: string;
+  accentColor?: string;
 }>`
   &&& input {
     box-shadow: none;
-    border: 1px solid ${Colors.ALTO2};
-    background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
-      ${Colors.POLAR};
+    border: 1px solid var(--wds-color-border);
+    background: var(--wds-color-bg);
     box-sizing: border-box;
     width: 24px;
     height: 24px;
@@ -34,9 +35,25 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     text-align: center;
     font-size: 12px;
     border-radius: ${({ borderRadius }) => borderRadius};
+
+    &:disabled {
+      border-color: var(--wds-color-border-disabled);
+      background: var(--wds-color-bg-disabled);
+      color: var(--wds-color-text-disabled);
+    }
   }
+
   &&&.bp3-control-group > :only-child {
     border-radius: 0;
+  }
+
+  & input:hover:not(:disabled) {
+    border-color: var(--wds-color-border-hover) !important;
+  }
+
+  & input:focus {
+    box-shadow: 0 0 0 2px ${({ accentColor }) => lightenColor(accentColor)} !important;
+    border-color: ${({ accentColor }) => accentColor} !important;
   }
   margin: 0 8px;
 `;
@@ -46,12 +63,65 @@ const SearchComponentWrapper = styled.div<{
   boxShadow?: string;
   accentColor: string;
 }>`
-  margin: 3px 10px;
+  margin: 6px 8px;
+  padding: 0 8px;
   flex: 0 0 200px;
+  border: 1px solid var(--wds-color-border);
+  border-radius: ${({ borderRadius }) => borderRadius} !important;
+  overflow: hidden;
+
+  &:hover {
+    border-color: var(--wds-color-border-hover);
+  }
+
+  &:focus-within {
+    border-color: ${({ accentColor }) => accentColor} !important;
+    box-shadow: 0 0 0 2px ${({ accentColor }) => lightenColor(accentColor)} !important;
+  }
 
   & .${Classes.INPUT} {
-    border-radius: ${({ borderRadius }) => borderRadius} !important;
+    height: 100%;
+    padding-left: 20px !important;
   }
+
+  & > div {
+    height: 100%;
+  }
+
+  // search component
+  & > div > div {
+    height: 100%;
+
+    svg {
+      height: 12px;
+      width: 12px;
+
+      path {
+        fill: var(--wds-color-icon) !important;
+      }
+    }
+  }
+
+  // cross icon component
+  & > div > div + div {
+    top: 0;
+    right: -4px;
+    height: 100%;
+    align-items: center;
+    display: flex;
+
+    svg {
+      top: initial !important;
+    }
+  }
+
+  & .${Classes.ICON} {
+    margin: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
   & .${Classes.INPUT}:active, & .${Classes.INPUT}:focus {
     border-radius: ${({ borderRadius }) => borderRadius};
     border: 0px solid !important;
@@ -66,6 +136,7 @@ function PageNumberInput(props: {
   updatePageNo: (pageNo: number, event?: EventType) => void;
   disabled: boolean;
   borderRadius: string;
+  accentColor?: string;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
@@ -95,6 +166,7 @@ function PageNumberInput(props: {
   );
   return (
     <PageNumberInputWrapper
+      accentColor={props.accentColor}
       borderRadius={props.borderRadius}
       buttonPosition="none"
       clampValueOnBlur
@@ -178,6 +250,7 @@ function TableHeader(props: TableHeaderProps) {
 
           {props.isVisibleDownload && (
             <TableDataDownload
+              borderRadius={props.borderRadius}
               columns={props.tableColumns}
               data={props.tableData}
               delimiter={props.delimiter}
@@ -257,7 +330,8 @@ function TableHeader(props: TableHeaderProps) {
             onClick={() => {
               const pageNo =
                 props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
-              props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
+              !(props.currentPageIndex === 0) &&
+                props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
@@ -265,6 +339,7 @@ function TableHeader(props: TableHeaderProps) {
           <TableHeaderContentWrapper>
             Page{" "}
             <PageNumberInput
+              accentColor={props.accentColor}
               borderRadius={props.borderRadius}
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
@@ -283,7 +358,8 @@ function TableHeader(props: TableHeaderProps) {
                 props.currentPageIndex < props.pageCount - 1
                   ? props.currentPageIndex + 1
                   : 0;
-              props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
+              !(props.currentPageIndex === props.pageCount - 1) &&
+                props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >
             <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />

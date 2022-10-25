@@ -3,10 +3,10 @@ import { HelpIcons } from "icons/HelpIcons";
 import { withTheme } from "styled-components";
 import styled from "styled-components";
 import { Color } from "constants/Colors";
-import Dialog from "components/ads/DialogComponent";
 import {
   Button,
   Category,
+  DialogComponent as Dialog,
   Icon,
   IconSize,
   Size,

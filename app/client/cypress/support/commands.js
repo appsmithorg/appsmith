@@ -577,9 +577,8 @@ Cypress.Commands.add("generateUUID", () => {
 });
 
 Cypress.Commands.add("addDsl", (dsl) => {
-  let currentURL;
-  let pageid;
-  let layoutId;
+  let currentURL, pageid, layoutId, appId;
+  appId = localStorage.getItem("applicationId");
   cy.url().then((url) => {
     currentURL = url;
     pageid = currentURL
@@ -588,14 +587,21 @@ Cypress.Commands.add("addDsl", (dsl) => {
       .pop();
     cy.log(pageidcopy + "page id copy");
     cy.log(pageid + "page id");
+    appId = localStorage.getItem("applicationId");
     //Fetch the layout id
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
       const respBody = JSON.stringify(response.body);
       layoutId = JSON.parse(respBody).data.layouts[0].id;
+      cy.log("appid:" + appId);
       // Dumping the DSL to the created page
       cy.request(
         "PUT",
-        "api/v1/layouts/" + layoutId + "/pages/" + pageid,
+        "api/v1/layouts/" +
+          layoutId +
+          "/pages/" +
+          pageid +
+          "?applicationId=" +
+          appId,
         dsl,
       ).then((response) => {
         cy.log(response.body);
@@ -999,6 +1005,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
+  cy.intercept("GET", "/api/v1/app-templates").as("fetchTemplate");
+  cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
+  cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1902,4 +1911,18 @@ Cypress.Commands.add("CreatePage", () => {
     .first()
     .click({ force: true });
   cy.get("[data-cy='add-page']").click();
+});
+
+Cypress.Commands.add("GenerateCRUD", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click({ force: true });
+  cy.get("[data-cy='generate-page']").click();
+});
+
+Cypress.Commands.add("AddPageFromTemplate", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click({ force: true });
+  cy.get("[data-cy='add-page-from-template']").click();
 });

@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -15,7 +16,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -23,6 +23,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
@@ -69,6 +70,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
 
+    private final DatasourceContextService datasourceContextService;
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
@@ -83,7 +85,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    PluginExecutorHelper pluginExecutorHelper,
                                    PolicyGenerator policyGenerator,
                                    SequenceService sequenceService,
-                                   NewActionRepository newActionRepository) {
+                                   NewActionRepository newActionRepository,
+                                   DatasourceContextService datasourceContextService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -93,6 +96,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
+        this.datasourceContextService = datasourceContextService;
     }
 
     @Override
@@ -127,7 +131,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return datasourceWithPoliciesMono
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(savedDatasource ->
-                    analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
+                        analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
                 )
                 .flatMap(this::populateHintMessages); // For REST API datasource create flow.
     }
@@ -148,7 +152,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     public Mono<Datasource> populateHintMessages(Datasource datasource) {
 
-        if(datasource == null) {
+        if (datasource == null) {
             /*
              * - Not throwing an exception here because we do not throw an error in case of missing datasource.
              *   We try not to fail as much as possible during create and update actions.
@@ -156,7 +160,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             return Mono.just(new Datasource());
         }
 
-        if(datasource.getPluginId() == null) {
+        if (datasource.getPluginId() == null) {
             /*
              * - Not throwing an exception here because we try not to fail as much as possible during datasource create
              * and update events.
@@ -198,6 +202,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> update(String id, Datasource datasource) {
+        // since there was no datasource update differentiator between server invoked due to refresh token,
+        // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
+        // adding a default false value here, the value is true only when the user calls the update event from datasource controller, else it's false.
+        return update(id, datasource, Boolean.FALSE);
+    }
+
+    public Mono<Datasource> update(String id, Datasource datasource, Boolean isUserRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -207,6 +218,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         Mono<Datasource> datasourceMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+
         return datasourceMono
                 .map(dbDatasource -> {
                     copyNestedNonNullProperties(datasource, dbDatasource);
@@ -218,9 +230,15 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return dbDatasource;
                 })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
-                .flatMap(savedDatasource ->
-                        analyticsService.sendUpdateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
-                )
+                .flatMap(savedDatasource -> {
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
+                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
+                    } else {
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
+                    }
+                    return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
+                })
                 .flatMap(this::populateHintMessages);
     }
 
@@ -302,13 +320,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(unsavedDatasource -> {
-
-                    return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                        return savedDatasource;
-                    });
+                    return repository.save(unsavedDatasource)
+                            .map(savedDatasource -> {
+                                // datasource.pluginName is a transient field. It was set by validateDatasource method
+                                // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                                savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                                return savedDatasource;
+                            });
                 });
     }
 
@@ -431,8 +449,19 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     }
                     return Mono.just(objects.getT1());
                 })
-                .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(toDelete -> {
+                    return datasourceContextService.deleteDatasourceContext(toDelete.getId())
+                            .then(repository.archive(toDelete))
+                            .thenReturn(toDelete);
+                })
+                .flatMap(datasource -> {
+                    Map<String, String> eventData = Map.of(
+                            FieldName.WORKSPACE_ID, datasource.getWorkspaceId()
+                    );
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(datasource);
+                    analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+                    return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
+                });
     }
 
     @Override
@@ -456,11 +485,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
      * Sets isRecentlyCreated flag to the datasources that were created recently.
      * It finds the most recent `recentlyUsedCount` numbers of datasources based on the `createdAt` field and set
      * the flag on for them.
-     * @param datasourceList List datasources
+     *
+     * @param datasourceList    List datasources
      * @param recentlyUsedCount How many should be marked as recently created
      */
     private void markRecentlyUsed(List<Datasource> datasourceList, int recentlyUsedCount) {
-        if(CollectionUtils.isEmpty(datasourceList)) { // list is null or empty, nothing to do
+        if (CollectionUtils.isEmpty(datasourceList)) { // list is null or empty, nothing to do
             return;
         }
 
@@ -472,7 +502,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
         List<Tuple2<Integer, Instant>> indexAndCreatedDates = new ArrayList<>(datasourceList.size());
 
-        for(int i = 0; i < datasourceList.size(); i++) {
+        for (int i = 0; i < datasourceList.size(); i++) {
             Datasource datasource = datasourceList.get(i);
             indexAndCreatedDates.add(Tuples.of(i, datasource.getCreatedAt()));
         }
@@ -481,7 +511,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         indexAndCreatedDates.sort(Comparator.comparing(Tuple2::getT2, Comparator.reverseOrder()));
 
         // set the flag based on indexes from indexAndCreatedDates
-        for(int i = 0; i < recentlyUsedCount && i < indexAndCreatedDates.size(); i++) {
+        for (int i = 0; i < recentlyUsedCount && i < indexAndCreatedDates.size(); i++) {
             Tuple2<Integer, Instant> objects = indexAndCreatedDates.get(i);
             Datasource datasource = datasourceList.get(objects.getT1());
             datasource.setIsRecentlyCreated(true);

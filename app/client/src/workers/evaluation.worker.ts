@@ -239,7 +239,9 @@ ctx.addEventListener(
           callbackData,
           dataTree,
           dynamicTrigger,
+          eventType,
           globalContext,
+          triggerMeta,
         } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
@@ -256,6 +258,8 @@ ctx.addEventListener(
           callbackData,
           {
             globalContext,
+            eventType,
+            triggerMeta,
           },
         );
 

@@ -56,11 +56,12 @@ export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
 
 export const getEditorConfigs = (
   state: AppState,
-): { pageId: string; layoutId: string } | undefined => {
+): { applicationId: string; pageId: string; layoutId: string } | undefined => {
   const pageId = state.entities.pageList.currentPageId;
   const layoutId = state.ui.editor.currentLayoutId;
-  if (!pageId || !layoutId) return undefined;
-  return { pageId, layoutId };
+  const applicationId = state.ui.applications.currentApplication?.id;
+  if (!pageId || !layoutId || !applicationId) return undefined;
+  return { pageId, layoutId, applicationId };
 };
 
 export const getDefaultPageId = (state: AppState): string =>
@@ -133,7 +134,7 @@ export const getPluginIdOfPackageName = (
   name: string,
 ): string | undefined => {
   const plugins = state.entities.plugins.list;
-  const plugin = _.find(plugins, { packageName: name });
+  const plugin = plugins.find((plugin) => plugin.packageName === name);
   if (plugin) return plugin.id;
   return undefined;
 };

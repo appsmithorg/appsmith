@@ -4,9 +4,15 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const propPane = ObjectsRegistry.PropertyPane;
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing validation functionality", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 

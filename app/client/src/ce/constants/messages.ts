@@ -673,14 +673,14 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
   ${methodName} authentication method is enabled
 `;
 
-export const DISCONNECT_EXISTING_REPOSITORIES = () =>
-  "Disconnect existing repositories";
-export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+export const REVOKE_EXISTING_REPOSITORIES = () =>
+  "Revoke Existing Repositories";
+export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
   `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
-export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
 export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
@@ -691,9 +691,9 @@ export const NONE_REVERSIBLE_MESSAGE = () =>
   "This action is non-reversible. Please proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
   "Please contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
-export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
-  "Disconnecting your repository might cause the application to break.";
-export const DISCONNECT_GIT = () => "Revoke access";
+export const REVOKE_CAUSE_APPLICATION_BREAK = () =>
+  "Revoking your repository might cause the application to break.";
+export const REVOKE_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
 export const REVOKE = () => "REVOKE";
 export const REVOKE_ACCESS = () => "REVOKE ACCESS";
@@ -1022,8 +1022,29 @@ export const DISCONNECT_AUTH_ERROR = () =>
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
-export const AUDIT_LOGS = () => "Audit logs";
+export const AUDIT_LOGS = () => "Audit Logs";
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+
+// Audit logs Upgrade page begin
+export const INTRODUCING = (featureName: string) =>
+  `Introducing ${featureName}`;
+export const AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING = () =>
+  "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.";
+export const SECURITY_AND_COMPLIANCE = () => "Security & Compliance";
+export const SECURITY_AND_COMPLIANCE_DETAIL1 = () =>
+  "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.";
+export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
+  "Exports to popular compliance tools coming soon";
+export const DEBUGGING = () => "Debugging";
+export const DEBUGGING_DETAIL1 = () =>
+  "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.";
+export const INCIDENT_MANAGEMENT = () => "Incident Management";
+export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
+  "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Enterprise Plan`;
+// Audit logs Upgrade page end
 // Audit logs end
 
 //
@@ -1252,6 +1273,8 @@ export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
+export const INVALID_URL = () =>
+  "Please enter a valid URL, for example, https://example.com";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

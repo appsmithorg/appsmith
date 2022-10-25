@@ -1,13 +1,12 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
+import { Toaster, Text, TextType } from "design-system";
 import { debounce } from "lodash";
 import { TextInput, notEmptyValidator } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes } from "@blueprintjs/core";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
-import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
@@ -15,7 +14,7 @@ import {
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "@appsmith/reducers";
-import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
+import UserProfileImagePicker from "./UserProfileImagePicker";
 import {
   Wrapper,
   FieldWrapper,

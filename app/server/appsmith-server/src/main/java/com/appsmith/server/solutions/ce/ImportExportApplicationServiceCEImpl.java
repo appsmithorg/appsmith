@@ -28,7 +28,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
@@ -1066,9 +1066,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             existingActionCollections,
                             importedApplication,
                             branchName,
-                            pageNameMap, pluginMap,
+                            pageNameMap,
+                            pluginMap,
                             unpublishedCollectionIdToActionIdsMap,
-                            publishedCollectionIdToActionIdsMap
+                            publishedCollectionIdToActionIdsMap,
+                            appendToApp
                     )
                             .flatMap(tuple -> {
                                 final String importedActionCollectionId = tuple.getT1();
@@ -1473,7 +1475,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             Map<String, NewPage> pageNameMap,
             Map<String, String> pluginMap,
             Map<String, Map<String, String>> unpublishedCollectionIdToActionIdsMap,
-            Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap) {
+            Map<String, Map<String, String>> publishedCollectionIdToActionIdsMap,
+            boolean appendToApp) {
 
         final String workspaceId = importedApplication.getWorkspaceId();
         return Flux.fromIterable(importedActionCollectionList)
@@ -2019,7 +2022,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             // setting some properties to null so that target application is not updated by these properties
             applicationJson.getExportedApplication().setName(null);
             applicationJson.getExportedApplication().setSlug(null);
-            applicationJson.getExportedApplication().setApplicationVersion(null);
             applicationJson.getExportedApplication().setForkingEnabled(null);
             applicationJson.getExportedApplication().setClonedFromApplicationId(null);
         }
@@ -2043,6 +2045,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     .peek(newPage -> newPage.setGitSyncId(null))
                     .collect(Collectors.toList());
             applicationJson.setPageList(importedNewPageList);
+            // Remove the pages from the exported Application inside the json based on the pagesToImport
+            applicationJson.getExportedApplication().setPages(applicationPageList);
+            applicationJson.getExportedApplication().setPublishedPages(applicationPageList);
 //            if (!CollectionUtils.isEmpty(applicationJson.getExportedApplication().getPages())) {
 //                applicationJson.getExportedApplication().getPages().addAll(applicationPageList);
 //            } else {

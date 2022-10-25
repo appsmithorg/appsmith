@@ -6211,18 +6211,21 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.25-alpha.7":
-  version "1.0.25-alpha.7"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.25-alpha.7.tgz#8d188bea0d0dcbc1b3a009affaef4add0384ee12"
-  integrity sha512-lHUfX4cPeCWqyKAX0QDi9VJxyXeClZGdCp5P/zbI30gZA4wb9f2hIk1QVJKMfMcf9NDPm6suBZITFFw8i3weEw==
+"design-system@npm:@appsmithorg/design-system@1.0.29":
+  version "1.0.29"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.29.tgz#a6a661d43facb934fba4974c01466d64e41e5b92"
+  integrity sha512-cWVP9/HRO3BmewK4TGNxmIc4kEqemxW/FLiCTIf9vi42cSx9VIne0BCYbV6iLLYVeAFJlXcdTUdHhbp8PNma1Q==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
+    react-dnd "^9.3.4"
+    react-dnd-html5-backend "^9.3.4"
     react-redux "^7.2.4"
     react-router-dom "^6.3.0"
     react-table "^7.8.0"
     react-tabs "3.1.1"
+    react-toastify "^5.5.0"
     redux-form "8.2.6"
     remixicon-react "^1.0.0"
     tinycolor2 "^1.4.2"
@@ -7374,6 +7377,13 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
 fast-xml-parser@^3.17.5:
   version "3.17.5"
   resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-3.17.5.tgz"
+
+fastdom@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/fastdom/-/fastdom-1.0.11.tgz#f22984f9df6b9a6081e5ce2e49cfb5525daf198a"
+  integrity sha512-jl9MwXDFxhg354W4E3s1UMsLh3HWFuVMQiRUlXpHckcHRXQvUe76yzBf1Z7b+x5Ci4TUJ1KmynI9alGUXG95IQ==
+  dependencies:
+    strictdom "^1.0.1"
 
 fastq@^1.6.0:
   version "1.13.0"
@@ -14260,6 +14270,11 @@ strict-event-emitter@^0.2.0:
   resolved "https://registry.npmjs.org/strict-event-emitter/-/strict-event-emitter-0.2.0.tgz"
   dependencies:
     events "^3.3.0"
+
+strictdom@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/strictdom/-/strictdom-1.0.1.tgz#189de91649f73d44d59b8432efa68ef9d2659460"
+  integrity sha512-cEmp9QeXXRmjj/rVp9oyiqcvyocWab/HaoN4+bwFeZ7QzykJD6L3yD4v12K1x0tHpqRqVpJevN3gW7kyM39Bqg==
 
 string-argv@^0.3.1:
   version "0.3.1"

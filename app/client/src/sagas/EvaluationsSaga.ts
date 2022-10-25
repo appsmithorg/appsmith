@@ -66,7 +66,7 @@ import {
   TriggerMeta,
 } from "./ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
@@ -272,6 +272,8 @@ export function* evaluateAndExecuteDynamicTrigger(
       dynamicTrigger,
       callbackData,
       globalContext,
+      eventType,
+      triggerMeta,
     },
   );
 
@@ -352,6 +354,18 @@ export function* executeDynamicTriggerRequest(
       mainThreadRequestChannel,
     );
     log.debug({ requestData });
+    if (requestData?.logs) {
+      const { eventType, triggerMeta } = requestData;
+      yield call(
+        storeLogs,
+        requestData.logs,
+        triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
+        eventType === EventType.ON_JS_FUNCTION_EXECUTE
+          ? ENTITY_TYPE.JSACTION
+          : ENTITY_TYPE.WIDGET,
+        triggerMeta?.source?.id || "",
+      );
+    }
     if (requestData?.trigger) {
       // if we have found a trigger, we need to execute it and respond back
       log.debug({ trigger: requestData.trigger });
@@ -378,6 +392,7 @@ interface ResponsePayload {
     resolve?: unknown;
   };
   success: boolean;
+  eventType?: EventType;
 }
 
 /*
@@ -398,6 +413,7 @@ function* executeTriggerRequestSaga(
       subRequestId: requestData.subRequestId,
     },
     success: false,
+    eventType,
   };
   try {
     responsePayload.data.resolve = yield call(
@@ -447,7 +463,13 @@ export function* executeFunction(
         evaluateAndExecuteDynamicTrigger,
         functionCall,
         EventType.ON_JS_FUNCTION_EXECUTE,
-        {},
+        {
+          source: {
+            id: collectionId,
+            name: `${collectionName}.${action.name}`,
+          },
+          triggerPropertyName: `${collectionName}.${action.name}`,
+        },
       );
     } catch (e) {
       if (e instanceof UncaughtPromiseError) {
