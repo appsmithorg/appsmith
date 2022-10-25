@@ -217,18 +217,23 @@ public class PermissionGroupServiceTest {
                     assertThat(pgiDTO.get().isAutoCreated()).isTrue();
 
                     // Assert that workspace roles are returned
-                    assertThat(list.stream()
+                    Set<PermissionGroupInfoDTO> administratorPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
-                            .collect(Collectors.toSet()))
-                            .hasSize(2);
-                    assertThat(list.stream()
+                            .collect(Collectors.toSet());
+                    assertThat(administratorPgiDTOs).hasSize(2);
+                    administratorPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
+
+                    Set<PermissionGroupInfoDTO> developerPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
-                            .collect(Collectors.toSet()))
-                            .hasSize(2);
-                    assertThat(list.stream()
+                            .collect(Collectors.toSet());
+                    assertThat(developerPgiDTOs).hasSize(2);
+                    developerPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
+
+                    Set<PermissionGroupInfoDTO> viewersPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
-                            .collect(Collectors.toSet()))
-                            .hasSize(2);
+                            .collect(Collectors.toSet());
+                    assertThat(viewersPgiDTOs).hasSize(2);
+                    viewersPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
                     // Assert that user permissions is returned for all the permission groups
                     list.stream()

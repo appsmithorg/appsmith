@@ -103,21 +103,17 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAll() {
         return repository.findAll(READ_PERMISSION_GROUPS)
-                .map(permissionGroup -> {
-                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
-                    permissionGroupInfoDTO.setAutoCreated(StringUtils.hasLength(permissionGroup.getDefaultWorkspaceId()));
+                .zipWith(getAutoCreatedPermissionGroupIds().repeat())
+                .map(tuple -> {
+                    PermissionGroup permissionGroup1 = tuple.getT1();
+                    Set<String> autoCreatedPermissionGroupIds = tuple.getT2();
+                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup1, PermissionGroupInfoDTO.class);
+                    permissionGroupInfoDTO.setAutoCreated(
+                            StringUtils.hasLength(permissionGroup1.getDefaultWorkspaceId()) ||
+                                    autoCreatedPermissionGroupIds.contains(permissionGroupInfoDTO.getId()));
                     return permissionGroupInfoDTO;
                 })
-                .collectList()
-                .zipWith(getAutoCreatedPermissionGroupIds())
-                .map(tuple -> {
-                    List<PermissionGroupInfoDTO> permissionGroupInfoDTOS = tuple.getT1();
-                    Set<String> autoCreatedPermissionGroupIds = tuple.getT2();
-                    permissionGroupInfoDTOS.forEach(permissionGroupInfoDTO -> {
-                        permissionGroupInfoDTO.setAutoCreated(autoCreatedPermissionGroupIds.contains(permissionGroupInfoDTO.getId()));
-                    });
-                    return permissionGroupInfoDTOS;
-                });
+                .collectList();
 
     }
 
