@@ -115,7 +115,8 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionService,
                 newActionService,
                 analyticsService,
-                responseUtils
+                responseUtils,
+                actionCollectionRepository
         );
 
         Mockito
