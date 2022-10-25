@@ -635,10 +635,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 function* createTempDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig | Datasource>,
 ) {
-  yield call(
-    checkAndGetPluginFormConfigsSaga,
-    actionPayload.payload.pluginId,
-  );
+  yield call(checkAndGetPluginFormConfigsSaga, actionPayload.payload.pluginId);
   const formConfig: Record<string, any>[] = yield select(
     getPluginForm,
     actionPayload.payload.pluginId,
