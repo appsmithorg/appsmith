@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
   getPluginTypeFromDatasourceId,
-  getIsReconnectingDatasourcesModalOpen,
 } from "selectors/entitiesSelector";
 import {
   testDatasource,
@@ -21,12 +20,9 @@ import {
   toggleSaveActionFlag,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { redirectToNewIntegrations } from "actions/apiPaneActions";
-import { getQueryParams } from "utils/URLUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { ButtonVariantTypes } from "components/constants";
 import { AppState } from "@appsmith/reducers";
 import {
@@ -57,6 +53,7 @@ interface Props {
   shouldRender: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   triggerSave?: boolean;
+  isFormDirty?: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -108,6 +105,7 @@ function DatasourceAuth({
   pageId: pageIdProp,
   shouldRender,
   triggerSave,
+  isFormDirty,
 }: Props) {
   const authType =
     formData &&
@@ -187,11 +185,6 @@ function DatasourceAuth({
     }
   }, [triggerSave]);
 
-  // to check if saving during import flow
-  const isReconnectModelOpen: boolean = useSelector(
-    getIsReconnectingDatasourcesModalOpen,
-  );
-
   const isAuthorized =
     datasource?.datasourceConfiguration?.authentication
       ?.authenticationStatus === AuthenticationStatus.SUCCESS;
@@ -215,7 +208,6 @@ function DatasourceAuth({
   // Handles default auth datasource saving
   const handleDefaultAuthDatasourceSave = () => {
     dispatch(toggleSaveActionFlag(true));
-    const isGeneratePageInitiator = getIsGeneratePageInitiator();
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
@@ -263,6 +255,7 @@ function DatasourceAuth({
           // accent="error"
           className="t--delete-datasource"
           disabled={datasourceId === TEMP_DATASOURCE_ID}
+          key={buttonType}
           loading={isDeleting}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
@@ -280,6 +273,7 @@ function DatasourceAuth({
           buttonStyle="PRIMARY"
           buttonVariant={ButtonVariantTypes.SECONDARY}
           className="t--test-datasource"
+          key={buttonType}
           loading={isTesting}
           onClick={handleDatasourceTest}
           text="Test"
@@ -288,9 +282,10 @@ function DatasourceAuth({
       [DatasourceButtonType.SAVE]: (
         <StyledButton
           className="t--save-datasource"
-          disabled={isInvalid}
+          disabled={isInvalid || !isFormDirty}
           filled
           intent="primary"
+          key={buttonType}
           loading={isSaving}
           onClick={handleDefaultAuthDatasourceSave}
           size="small"
@@ -304,6 +299,7 @@ function DatasourceAuth({
           filled
           fluidWidth
           intent="primary"
+          key={buttonType}
           loading={isSaving}
           onClick={handleOauthDatasourceSave}
           size="small"

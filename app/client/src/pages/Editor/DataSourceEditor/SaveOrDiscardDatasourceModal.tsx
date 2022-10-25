@@ -21,22 +21,16 @@ interface SaveOrDiscardModalProps {
   onClose(): void;
 }
 
-const deleteIconConfig = {
-  name: "delete",
-  fillColor: Colors.DANGER_SOLID,
-  hoverColor: Colors.DANGER_SOLID_HOVER,
-};
-
 function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
   const { isOpen, onClose, onDiscard, onSave } = props;
 
   return (
     <Dialog
       canOutsideClickClose
-      headerIcon={deleteIconConfig}
       isOpen={isOpen}
       onClose={onClose}
       title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
+      width={"596px"}
     >
       <div className="pb-8 space-y-3 ">
         <p>{createMessage(SAVE_OR_DISCARD_DATASOURCE_WARNING)}</p>
@@ -55,7 +49,6 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
             onClick={onSave}
             size={Size.medium}
             text="SAVE"
-            variant={Variant.danger}
           />
         </div>
       </div>

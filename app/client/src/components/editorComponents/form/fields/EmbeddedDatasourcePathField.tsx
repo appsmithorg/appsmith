@@ -53,6 +53,7 @@ import {
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -507,7 +508,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<
               datasource && "id" in datasource ? datasource.id : undefined
             }
             enable
-            shouldSave={datasource && !("id" in datasource)}
+            shouldSave={
+              (datasource && !("id" in datasource)) ||
+              (datasource &&
+                !!("id" in datasource) &&
+                datasource["id"] === TEMP_DATASOURCE_ID)
+            }
           />
         )}
       </DatasourceContainer>

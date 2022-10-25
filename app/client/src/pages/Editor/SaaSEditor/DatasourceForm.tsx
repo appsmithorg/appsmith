@@ -5,7 +5,12 @@ import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import { Button as AdsButton, Category } from "design-system";
 import { Datasource } from "entities/Datasource";
-import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
+import {
+  getFormValues,
+  InjectedFormProps,
+  isDirty,
+  reduxForm,
+} from "redux-form";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
@@ -34,6 +39,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   deleteTempDSFromDraft,
   removeTempDatasource,
+  setDatsourceEditorMode,
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
 } from "actions/datasourceActions";
@@ -57,12 +63,14 @@ interface StateProps extends JSONtoFormProps {
   viewMode: boolean;
   isDatasourceBeingSaved: boolean;
   isDatasourceBeingSavedFromPopup: boolean;
+  isFormDirty: boolean;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
+  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -88,6 +96,7 @@ const EditDatasourceButton = styled(AdsButton)`
 
 type State = {
   showDialog: boolean;
+  routesBlocked: boolean;
   unblock(): void;
   navigation(): void;
 };
@@ -97,6 +106,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     super(props);
     this.state = {
       showDialog: false,
+      routesBlocked: false,
       unblock: () => {
         return undefined;
       },
@@ -109,25 +119,33 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     this.onDiscard = this.onDiscard.bind(this);
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
+    // update block state when form becomes dirty/view mode is switched on
+    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+      this.blockRoutes();
+    }
+
     // When save button is clicked in DS form, routes should be unblocked
     if (this.props.isDatasourceBeingSaved) {
       this.closeDialogAndUnblockRoutes();
     }
   }
 
+  routesBlockFormChangeCallback() {
+    if (this.props.isFormDirty) {
+      if (!this.state.routesBlocked) {
+        this.blockRoutes();
+      }
+    } else {
+      if (this.state.routesBlocked) {
+        this.closeDialogAndUnblockRoutes(true);
+      }
+    }
+  }
+
   componentDidMount() {
-    // Block all routes from this page until the data is either saved or discarded
     if (!this.props.viewMode) {
-      this.setState({
-        unblock: this.props.history.block((tx: any) => {
-          this.setState({
-            navigation: () => this.props.history.push(tx.pathname),
-            showDialog: true,
-          });
-          return false;
-        }),
-      });
+      this.blockRoutes();
     }
   }
 
@@ -145,16 +163,36 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     this.props.toggleSaveActionFromPopupFlag(true);
   }
 
+  blockRoutes() {
+    this.setState({
+      unblock: this.props.history.block((tx: any) => {
+        this.setState(
+          {
+            navigation: () => this.props.history.push(tx.pathname),
+            showDialog: true,
+            routesBlocked: true,
+          },
+          this.routesBlockFormChangeCallback.bind(this),
+        );
+        return false;
+      }),
+    });
+  }
+
   onDiscard() {
     this.closeDialogAndUnblockRoutes();
     this.state.navigation();
   }
 
-  closeDialogAndUnblockRoutes() {
+  closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
     this.closeDialog();
     this.state.unblock();
     this.props.toggleSaveActionFlag(false);
     this.props.toggleSaveActionFromPopupFlag(false);
+    this.setState({ routesBlocked: false });
+    if (isNavigateBack) {
+      this.state.navigation();
+    }
   }
 
   render() {
@@ -216,6 +254,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         },
                       }),
                     );
+                    this.props.setDatasourceEditorMode(
+                      this.props.datasourceId,
+                      false,
+                    );
                   }}
                   text="EDIT"
                 />
@@ -275,6 +317,10 @@ const mapStateToProps = (state: AppState, props: any) => {
     state,
     formData?.pluginId,
   );
+  const isFormDirty =
+    datasourceId === TEMP_DATASOURCE_ID
+      ? true
+      : isDirty(DATASOURCE_SAAS_FORM)(state);
 
   return {
     datasource,
@@ -300,18 +346,18 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
+    isFormDirty,
   };
 };
 
-const mapDispatchToProps = (
-  dispatch: any,
-  ownProps: any,
-): DatasourceFormFunctions => ({
+const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   discardTempDatasource: () => dispatch(removeTempDatasource()),
   deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
   toggleSaveActionFromPopupFlag: (flag) =>
     dispatch(toggleSaveActionFromPopupFlag(flag)),
+  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
+    dispatch(setDatsourceEditorMode({ id, viewMode })),
 });
 
 export default connect(

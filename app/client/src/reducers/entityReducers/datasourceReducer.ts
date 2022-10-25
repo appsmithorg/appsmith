@@ -9,11 +9,7 @@ import {
   DatasourceStructure,
   MockDatasource,
 } from "entities/Datasource";
-import {
-  DATASOURCE_NAME_DEFAULT_PREFIX,
-  TEMP_DATASOURCE_ID,
-} from "constants/Datasource";
-import { isNumber } from "lodash";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 export interface DatasourceDataState {
   list: Datasource[];

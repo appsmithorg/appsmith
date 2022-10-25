@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { getFormValues } from "redux-form";
+import { getFormValues, isDirty } from "redux-form";
 import { AppState } from "@appsmith/reducers";
 import _ from "lodash";
 import {
@@ -16,7 +16,10 @@ import {
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
 } from "actions/datasourceActions";
-import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
+import {
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+} from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
@@ -42,8 +45,6 @@ import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
-import { getFormData } from "selectors/formSelectors";
-import shallowEqual from "shallowequal";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -66,6 +67,7 @@ interface ReduxStateProps {
   fromImporting?: boolean;
   isDatasourceBeingSaved: boolean;
   triggerSave: boolean;
+  isFormDirty: boolean;
 }
 
 type Props = ReduxStateProps &
@@ -77,6 +79,7 @@ type Props = ReduxStateProps &
 
 type State = {
   showDialog: boolean;
+  routesBlocked: boolean;
   unblock(): void;
   navigation(): void;
 };
@@ -135,6 +138,7 @@ class DataSourceEditor extends React.Component<Props> {
       formData,
       fromImporting,
       isDeleting,
+      isFormDirty,
       isNewDatasource,
       isSaving,
       isTesting,
@@ -156,6 +160,7 @@ class DataSourceEditor extends React.Component<Props> {
         formName={DATASOURCE_DB_FORM}
         hiddenHeader={fromImporting}
         isDeleting={isDeleting}
+        isFormDirty={isFormDirty}
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}
@@ -180,6 +185,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const pluginId = _.get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const { applicationSlug, pageSlug } = selectURLSlugs(state);
+  const formName =
+    plugin?.type === "API" ? DATASOURCE_REST_API_FORM : DATASOURCE_DB_FORM;
+  const isFormDirty =
+    datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
 
   return {
     datasourceId,
@@ -204,6 +213,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pageSlug,
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
     triggerSave: datasources.isDatasourceBeingSavedFromPopup,
+    isFormDirty,
   };
 };
 
@@ -243,6 +253,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     super(props);
     this.state = {
       showDialog: false,
+      routesBlocked: false,
       unblock: () => {
         return undefined;
       },
@@ -256,19 +267,18 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    // When save button is clicked in DS form, routes should be unblocked
+    // update block state when form becomes dirty/view mode is switched on
     if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
-      console.log("ViewMode updated: ");
       this.blockRoutes();
     }
 
+    // When save button is clicked in DS form, routes should be unblocked
     if (this.props.isDatasourceBeingSaved) {
       this.closeDialogAndUnblockRoutes();
     }
   }
 
   componentDidMount() {
-    // Block all routes from this page until the data is either saved or discarded
     if (!this.props.viewMode) {
       this.blockRoutes();
     }
@@ -280,13 +290,29 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state.unblock();
   }
 
+  routesBlockFormChangeCallback() {
+    if (this.props.isFormDirty) {
+      if (!this.state.routesBlocked) {
+        this.blockRoutes();
+      }
+    } else {
+      if (this.state.routesBlocked) {
+        this.closeDialogAndUnblockRoutes(true);
+      }
+    }
+  }
+
   blockRoutes() {
     this.setState({
       unblock: this.props.history.block((tx: any) => {
-        this.setState({
-          navigation: () => this.props.history.push(tx.pathname),
-          showDialog: true,
-        });
+        this.setState(
+          {
+            navigation: () => this.props.history.push(tx.pathname),
+            showDialog: true,
+            routesBlocked: true,
+          },
+          this.routesBlockFormChangeCallback.bind(this),
+        );
         return false;
       }),
     });
@@ -305,11 +331,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state.navigation();
   }
 
-  closeDialogAndUnblockRoutes() {
+  closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
     this.closeDialog();
     this.state.unblock();
     this.props.toggleSaveActionFlag(false);
     this.props.toggleSaveActionFromPopupFlag(false);
+    this.setState({ routesBlocked: false });
+    if (isNavigateBack) {
+      this.state.navigation();
+    }
   }
 
   renderSaveDisacardModal() {
@@ -328,6 +358,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       fromImporting,
       history,
       isDeleting,
+      isFormDirty,
       isNewDatasource,
       isSaving,
       location,
@@ -354,6 +385,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasourceId={datasourceId}
             hiddenHeader={fromImporting}
             isDeleting={isDeleting}
+            isFormDirty={isFormDirty}
             isNewDatasource={isNewDatasource}
             isSaving={isSaving}
             location={location}

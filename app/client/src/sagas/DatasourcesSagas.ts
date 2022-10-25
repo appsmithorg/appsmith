@@ -381,6 +381,10 @@ function* updateDatasourceSaga(
           datasourceConfiguration: response.data.datasourceConfiguration,
         },
       });
+
+      // updating form initial values to latest data, so that next time when form is opened
+      // isDirty will use updated initial values data to compare actual values with
+      yield put(initialize(DATASOURCE_DB_FORM, response.data));
     }
   } catch (error) {
     yield put({
@@ -629,7 +633,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
 }
 
 function* createTempDatasourceFromFormSaga(
-  actionPayload: ReduxAction<CreateDatasourceConfig>,
+  actionPayload: ReduxAction<CreateDatasourceConfig | Datasource>,
 ) {
   const formConfig: Record<string, any>[] = yield select(
     getPluginForm,
@@ -640,7 +644,7 @@ function* createTempDatasourceFromFormSaga(
   const dsList: Datasource[] = yield select(getDatasources);
   const sequence = getUntitledDatasourceSequence(dsList);
 
-  const payload = {
+  const initialPayload = {
     id: TEMP_DATASOURCE_ID,
     name: DATASOURCE_NAME_DEFAULT_PREFIX + sequence,
     type: (actionPayload.payload as any).type,
@@ -651,9 +655,10 @@ function* createTempDatasourceFromFormSaga(
     },
   };
 
-  if (!!initialValues && !!(initialValues as any).datasourceConfiguration) {
-    payload.datasourceConfiguration = (initialValues as any).datasourceConfiguration;
-  }
+  const payload = merge(
+    merge(initialPayload, actionPayload.payload),
+    initialValues,
+  );
 
   yield put({
     type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
@@ -750,6 +755,10 @@ function* createDatasourceFromFormSaga(
       });
 
       yield put(removeTempDatasource());
+
+      // updating form initial values to latest data, so that next time when form is opened
+      // isDirty will use updated initial values data to compare actual values with
+      yield put(initialize(DATASOURCE_DB_FORM, response.data));
     }
   } catch (error) {
     yield put({
@@ -795,14 +804,12 @@ function* changeDatasourceSaga(
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
   const pageId: string = yield select(getCurrentPageId);
-  console.log("change: ", datasource, draft);
   let data;
   if (_.isEmpty(draft)) {
     data = datasource;
   } else {
     data = draft;
   }
-
   yield put(initialize(DATASOURCE_DB_FORM, _.omit(data, ["name"])));
   // on reconnect modal, it shouldn't be redirected to datasource edit page
   if (shouldNotRedirect) return;
@@ -855,7 +862,10 @@ function* formValueChangeSaga(
   }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
-  yield all([call(updateDraftsSaga)]);
+
+  // Assumming that we would no longer require to store ds in draft state
+  // once user moves away from create/edit ds page, their data will be lost
+  // yield all([call(updateDraftsSaga)]);
 }
 
 function* storeAsDatasourceSaga() {

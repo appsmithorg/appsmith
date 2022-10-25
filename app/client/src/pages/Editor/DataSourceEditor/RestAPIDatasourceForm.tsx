@@ -92,6 +92,7 @@ interface DatasourceRestApiEditorProps {
   ) => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   triggerSave?: boolean;
+  isFormDirty: boolean;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -290,7 +291,7 @@ class DatasourceRestAPIEditor extends React.Component<
   disableSave = (): boolean => {
     const { formData } = this.props;
     if (!formData) return true;
-    return !formData.url;
+    return !formData.url || !this.props.isFormDirty;
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {

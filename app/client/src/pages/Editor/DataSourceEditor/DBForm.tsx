@@ -47,6 +47,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   hiddenHeader?: boolean;
   datasourceName?: string;
   isDatasourceBeingSavedFromPopup: boolean;
+  isFormDirty: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -189,6 +190,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             datasourceButtonConfiguration={datasourceButtonConfiguration}
             formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
+            isFormDirty={this.props.isFormDirty}
             isInvalid={this.validate()}
             shouldRender={!viewMode}
             triggerSave={this.props.isDatasourceBeingSavedFromPopup}
