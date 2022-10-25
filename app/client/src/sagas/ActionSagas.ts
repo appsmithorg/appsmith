@@ -43,6 +43,7 @@ import {
   Action,
   ActionViewMode,
   isAPIAction,
+  PluginPackageName,
   PluginType,
   SlashCommand,
   SlashCommandPayload,
@@ -51,11 +52,11 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getDatasources,
   getEditorConfig,
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
-  getDatasources,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -72,7 +73,7 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
-import { merge, get } from "lodash";
+import { get, merge } from "lodash";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -110,8 +111,8 @@ import {
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "RouteBuilder";
-import { PLUGIN_PACKAGE_MONGO } from "constants/QueryEditorConstants";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -318,7 +319,7 @@ export function* updateActionSaga(
 
     /* NOTE: This  is fix for a missing command config */
     const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
-    if (action && plugin && plugin.packageName === PLUGIN_PACKAGE_MONGO) {
+    if (action && plugin && plugin.packageName === PluginPackageName.MONGO) {
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
@@ -637,13 +638,10 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { pageId, queryId } = action.payload;
+  yield put(setSnipingModeAction({ isActive: true, bindTo: queryId }));
   history.push(
     builderURL({
       pageId,
-      params: {
-        isSnipingMode: "true",
-        bindTo: queryId,
-      },
     }),
   );
 }

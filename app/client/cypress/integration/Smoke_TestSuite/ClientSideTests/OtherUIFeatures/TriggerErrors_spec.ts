@@ -1,5 +1,6 @@
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const dsl = require("../../../../fixtures/debuggerTableDsl.json");
-const debuggerLocators = require("../../../../locators/Debugger.json");
+const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 describe("Trigger errors in the debugger", function() {
   before(() => {
@@ -8,6 +9,7 @@ describe("Trigger errors in the debugger", function() {
   it("Trigger errors need to be shown in the errors tab", function() {
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", `[{"name": 1}, {"name": 2}]`);
+    cy.focused().blur();
     cy.get(".t--property-control-onrowselected")
       .find(".t--js-toggle")
       .click();
@@ -16,10 +18,10 @@ describe("Trigger errors in the debugger", function() {
     // Click on a row of the table widget
     cy.isSelectRow(1);
     cy.wait(5000);
-    cy.contains(debuggerLocators.errorCount, 2);
+    debuggerHelper.AssertErrorCount(2);
     // Fix code
     cy.testJsontext("onrowselected", "{{console.log('test')}}");
     cy.isSelectRow(1);
-    cy.contains(debuggerLocators.errorCount, 1);
+    debuggerHelper.AssertErrorCount(1);
   });
 });
