@@ -15,6 +15,7 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
+import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 
 export type EvalResult = {
@@ -119,6 +120,7 @@ export function setupEvaluationEnvironment() {
   });
   userLogs.overrideConsoleAPI();
   overrideTimeout();
+  interceptAndOverrideHttpRequest();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
