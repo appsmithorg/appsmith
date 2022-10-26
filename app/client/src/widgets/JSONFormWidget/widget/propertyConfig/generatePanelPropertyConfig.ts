@@ -46,6 +46,7 @@ function generatePanelPropertyConfig(
           {
             propertyName: "children",
             label: "Field Configuration",
+            helpText: "Field Configuration",
             controlType: "FIELD_CONFIGURATION",
             isBindProperty: false,
             isTriggerProperty: false,

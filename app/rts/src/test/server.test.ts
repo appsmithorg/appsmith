@@ -13,6 +13,31 @@ const multipleScripts = {
   ],
 };
 
+const entityRefactor = [
+  {
+    script: "ApiNever",
+    oldName: "ApiNever",
+    newName: "ApiForever",
+  },
+  {
+    script: "ApiNever.data",
+    oldName: "ApiNever",
+    newName: "ApiForever",
+  },
+  {
+    script:
+      "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+    oldName: "ApiNever",
+    newName: "ApiForever",
+  },
+  {
+    script:
+      "//ApiNever  \n function ApiNever(abc) {let ApiNever = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+    oldName: "ApiNever",
+    newName: "ApiForever",
+  },
+];
+
 afterAll((done) => {
   app.close();
   done();
@@ -63,5 +88,40 @@ describe("AST tests", () => {
         expect(response.body.data.length).toBeGreaterThan(1);
         expect(response.body.data).toEqual(expectedResponse);
       });
+  });
+
+  entityRefactor.forEach(async (input, index) => {
+    it(`Entity refactor test case ${index + 1}`, async () => {
+      const expectedResponse = [
+        { script: "ApiForever", count: 1 },
+        { script: "ApiForever.data", count: 1 },
+        {
+          script:
+            "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiForever.data; \n if(true) { return ApiForever }}",
+          count: 2,
+        },
+        {
+          script:
+            "//ApiNever  \n function ApiNever(abc) {let ApiNever = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+          count: 0,
+        },
+      ];
+
+      await supertest(app)
+        .post(`${RTS_BASE_API_PATH}/ast/entity-refactor`, {
+          JSON: true,
+        })
+        .send(input)
+        .expect(200)
+        .then((response) => {
+          expect(response.body.success).toEqual(true);
+          expect(response.body.data.script).toEqual(
+            expectedResponse[index].script
+          );
+          expect(response.body.data.count).toEqual(
+            expectedResponse[index].count
+          );
+        });
+    });
   });
 });

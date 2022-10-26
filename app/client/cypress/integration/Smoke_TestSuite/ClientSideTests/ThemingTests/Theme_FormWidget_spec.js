@@ -308,8 +308,8 @@ describe("Theme validation usecases", function() {
     cy.PublishtheApp();
     //Bug Form backgroud colour reset in Publish mode
     cy.get(formWidgetsPage.formD)
-            .should("have.css", "background-color")
-            .and("eq", "rgb(126, 34, 206)");
+      .should("have.css", "background-color")
+      .and("eq", "rgb(126, 34, 206)");
     cy.get(".bp3-button:contains('Sub')")
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
