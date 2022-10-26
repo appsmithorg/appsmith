@@ -8,8 +8,3 @@ export const getIsAppSettingsPaneOpen = createSelector(
   getAppSettingsPane,
   (appSettingsPane: AppSettingsPaneReduxState) => appSettingsPane.isOpen,
 );
-export const getReopenExplorerOnSettingsPaneClose = createSelector(
-  getAppSettingsPane,
-  (appSettingsPane: AppSettingsPaneReduxState) =>
-    appSettingsPane.reopenExplorerOnClose,
-);
