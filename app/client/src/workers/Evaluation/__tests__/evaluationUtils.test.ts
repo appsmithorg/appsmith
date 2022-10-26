@@ -131,17 +131,7 @@ const testDataTree: Record<string, DataTreeWidget> = {
     text: "undefined",
     __evaluation__: {
       errors: {
-        text: [
-          // {
-          //   errorType: PropertyEvaluationErrorType.LINT,
-          //   raw:
-          //     " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
-          //   severity: Severity.ERROR,
-          //   errorMessage: "'Api24' is not defined.",
-          //   // errorSegment: " const result = Api24",
-          //   // originalBinding: "Api24",
-          // },
-        ],
+        text: [],
       },
     },
   },
@@ -268,17 +258,7 @@ describe("privateWidgets", () => {
         text: "undefined",
         __evaluation__: {
           errors: {
-            text: [
-              // {
-              //   errorType: PropertyEvaluationErrorType.LINT,
-              //   raw:
-              //     " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
-              //   severity: Severity.ERROR,
-              //   errorMessage: "'Api24' is not defined.",
-              //   // errorSegment: " const result = Api24",
-              //   // originalBinding: "Api24",
-              // },
-            ],
+            text: [],
           },
         },
       },

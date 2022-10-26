@@ -61,7 +61,7 @@ interface ReduxStateProps {
   datasources: any;
   errors: EvaluationError[];
 }
-interface EvaluaedValueProps {
+interface EvaluatedValueProps {
   isFocused: boolean;
   theme: EditorTheme;
   popperPlacement?: Placement;
@@ -74,7 +74,7 @@ interface EvaluaedValueProps {
   children: JSX.Element;
 }
 
-type EvaluatedValuePopupWrapperProps = ReduxStateProps & EvaluaedValueProps;
+type EvaluatedValuePopupWrapperProps = ReduxStateProps & EvaluatedValueProps;
 
 type ColumnsType = Record<string, ColumnProperties>;
 
@@ -536,7 +536,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
 }
 const mapStateToProps = (
   state: AppState,
-  { dataTreePath }: EvaluaedValueProps,
+  { dataTreePath }: EvaluatedValueProps,
 ): ReduxStateProps => {
   return {
     dynamicData: getDataTreeForAutocomplete(state),
