@@ -96,6 +96,7 @@ import SharedUserList from "pages/common/SharedUserList";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
@@ -952,7 +953,12 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      {featureFlags.GIT_IMPORT && <GitSyncModal isImport />}
+      {featureFlags.GIT_IMPORT && (
+        <>
+          <GitSyncModal isImport />
+          <DisconnectGitModal />
+        </>
+      )}
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
