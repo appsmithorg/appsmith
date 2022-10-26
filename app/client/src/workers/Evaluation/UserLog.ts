@@ -1,6 +1,7 @@
 import { uuid4 } from "@sentry/utils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
+import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import {
@@ -134,7 +135,7 @@ class UserLog {
     return {
       method,
       id,
-      data: output,
+      data: klona(output),
       timestamp,
       severity,
     };
