@@ -39,4 +39,19 @@ export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
 
 // Audit logs begin
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+export const LOADING = () => "Loading...";
+export const RESOURCE_ID_LABEL = () => "Resource ID";
+export const RESOURCE_ID_PLACEHOLDER = () => "Type or paste resource id";
+export const EVENTS_LABEL = () => "Events";
+export const EVENTS_PLACEHOLDER = () => "Select events";
+export const USERS_LABEL = () => "Users";
+export const USERS_PLACEHOLDER = () => "Select users";
+export const DATE_RANGE_LABEL = () => "Date Range";
+export const CLEAR_ALL = () => "clear all";
+export const ON_COPY_CONTENT = (input: string) =>
+  `Audit log with id [${input}] copied to clipboard`;
+export const EVENT_DESCRIPTION_LABEL = () => "Event description";
+export const USER_LABEL = () => "User";
+export const DATE_LABEL = () => "Date";
+export const REFRESH = () => "REFRESH";
 // Audit logs end

@@ -17,6 +17,8 @@ import {
   AUDIT_LOGS_FILTER_WIDTH,
 } from "../../config/audit-logs-config";
 import { parseDateFilterInput } from "@appsmith/pages/AuditLogs/utils/dateFilter";
+import { createMessage } from "design-system/build/constants/messages";
+import { DATE_RANGE_LABEL } from "@appsmith/constants/messages";
 
 export default function DateFilter() {
   const dispatch = useDispatch();
@@ -53,7 +55,7 @@ export default function DateFilter() {
 
   return (
     <Container data-testid="t--audit-logs-date-filter-container">
-      <Label>Date Range</Label>
+      <Label>{createMessage(DATE_RANGE_LABEL)}</Label>
       <DateRangePicker
         allowSingleDayRange
         data-testid="t--audit-logs-date-filter"
