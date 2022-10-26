@@ -36,10 +36,15 @@ describe("Dynamic input autocomplete", () => {
           .click({ force: true })
           .type("{uparrow}", { parseSpecialCharSequences: true })
           .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
-          .type("{{garbage", {
-            parseSpecialCharSequences: true,
-          })
+          .type("{backspace}", { parseSpecialCharSequences: true })
+
           .then(() => {
+            cy.get(dynamicInputLocators.input)
+              .first()
+              .click({ force: true })
+              .type("{{garbage", {
+                parseSpecialCharSequences: true,
+              });
             cy.get(".CodeMirror-Tern-tooltip").should(
               "have.text",
               "No suggestions",
