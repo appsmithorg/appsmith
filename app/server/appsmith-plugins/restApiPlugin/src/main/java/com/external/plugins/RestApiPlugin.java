@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -196,12 +197,47 @@ public class RestApiPlugin extends BasePlugin {
                 if (actionConfiguration.getNext() == null) {
                     datasourceConfiguration.setUrl(null);
                 } else {
-                    datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+//                    datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
+                    datasourceConfiguration.setUrl(encodeUrl(actionConfiguration.getNext()));
                 }
             } else if (PaginationField.PREV.equals(paginationField)) {
-                datasourceConfiguration.setUrl(actionConfiguration.getPrev());
+//                datasourceConfiguration.setUrl(actionConfiguration.getPrev());
+                datasourceConfiguration.setUrl(encodeUrl(actionConfiguration.getPrev()));
             }
+
             return datasourceConfiguration;
+        }
+
+        private String encodeUrl(String inputUrl) {
+
+            String[] urlParts = inputUrl.split("\\?");
+            if (urlParts.length == 2) {
+                return urlParts[0] + "?" + encodeQueryParameters(urlParts[1]);
+            } else  {
+                return inputUrl;
+            }
+        }
+
+        private String encodeQueryParameters(String queryParams) {
+
+            StringBuilder responseBuilder = new StringBuilder();
+
+            String[] queryParamArray = queryParams.split("&");
+
+            for (String queryParam : queryParamArray) {
+
+                String[] a = queryParam.split("=");
+
+                if (a.length == 2) {
+                    if (responseBuilder.length() != 0) {
+                        responseBuilder.append("&");
+                    }
+                    responseBuilder.append(a[0]).append("=").append(URLEncoder.encode(a[1], StandardCharsets.UTF_8));
+                }
+
+            }
+
+            return responseBuilder.toString();
         }
 
         @Override
