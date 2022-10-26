@@ -222,6 +222,7 @@ function TableDataDownload(props: TableDataDownloadProps) {
           selectMenu={selectMenu}
           selected={selected}
           title="Download"
+          width={16}
         />
         <DropDownWrapper>
           {dowloadOptions.map((item: DownloadOptionProps, index: number) => {

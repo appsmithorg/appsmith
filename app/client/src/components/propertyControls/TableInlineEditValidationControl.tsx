@@ -87,7 +87,7 @@ const getBindingSuffix = (tableId: string) => {
   return `
     ))
     (
-      ${tableId}.addNewRowInProgress
+      ${tableId}.isAddRowInProgress
     )
   }}
   `;

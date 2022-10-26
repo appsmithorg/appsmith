@@ -34,7 +34,7 @@ export enum InlineEditingSaveOptions {
 }
 
 interface AddNewRowProps {
-  addNewRowInProgress: boolean;
+  isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
   onAddNewRowSave: string;
   onAddNewRowDiscard: string;
@@ -93,7 +93,7 @@ export interface TableWidgetProps
   variant?: TableVariant;
   isEditableCellsValid: Record<string, boolean>;
   selectColumnFilterText?: Record<string, string>;
-  addNewRowInProgress: boolean;
+  isAddRowInProgress: boolean;
   newRow: Record<string, unknown>;
   firstEditableColumnIdByOrder: string;
 }

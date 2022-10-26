@@ -23,11 +23,6 @@ export const TableIconWrapper = styled.div<{
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
   cursor: ${(props) => props.disabled && "pointer"};
   color: ${(props) => (props.selected ? Colors.CODE_GRAY : Colors.GRAY)};
-  .action-title {
-    margin-left: 4px;
-    white-space: nowrap;
-    color: ${(props) => props.titleColor || Colors.GRAY};
-  }
   position: relative;
   margin-left: 8px;
   padding: 0 6px;
@@ -37,12 +32,15 @@ export const TableIconWrapper = styled.div<{
     background: var(--wds-color-bg-hover);
   }`}
 
-  & > div {
-    width: 16px;
-  }
-
   span {
     font-size: 13px;
+  }
+
+  .action-title {
+    margin-left: 4px;
+    white-space: nowrap;
+    color: ${(props) => props.titleColor || Colors.GRAY};
+    margin-top: 4px;
   }
 `;
 
@@ -84,7 +82,7 @@ function ActionItem(props: ActionItemProps) {
   const item = (
     <TableIconWrapper
       borderRadius={props.borderRadius}
-      className={props.className}
+      className={`${props.className} ${props.disabled && "disabled"}`}
       disabled={props.disabled}
       onClick={handleIconClick}
       selected={props.selected}

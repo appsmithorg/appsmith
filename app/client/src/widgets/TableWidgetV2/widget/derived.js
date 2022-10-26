@@ -654,7 +654,7 @@ export default {
   //
   getEditableCellValidity: (props, moment, _) => {
     if (
-      (!props.editableCell.column && !props.addNewRowInProgress) ||
+      (!props.editableCell.column && !props.isAddRowInProgress) ||
       !props.primaryColumns
     ) {
       return {};
@@ -697,7 +697,7 @@ export default {
     let editableColumns = [];
     const validatableColumns = ["text", "number"];
 
-    if (props.addNewRowInProgress) {
+    if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)
         .filter(
           (column) =>
@@ -736,7 +736,8 @@ export default {
           (!_.isNil(validation.isColumnEditableCellValid) &&
             !validation.isColumnEditableCellValid) ||
           (validation.regex && !createRegex(validation.regex).test(value)) ||
-          (validation.isColumnEditableCellRequired && value === "")
+          (validation.isColumnEditableCellRequired &&
+            (value === "" || _.isNil(value)))
         ) {
           validationMap[editedColumn.alias] = false;
           return;

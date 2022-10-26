@@ -15,8 +15,8 @@ type RowType = {
 export function Row(props: RowType) {
   const {
     accentColor,
-    addNewRowInProgress,
     borderRadius,
+    isAddRowInProgress,
     multiRowSelection,
     prepareRow,
     primaryColumnId,
@@ -41,7 +41,7 @@ export function Row(props: RowType) {
     (primaryColumnId && (props.row.original[primaryColumnId] as Key)) ||
     props.index;
 
-  if (!addNewRowInProgress) {
+  if (!isAddRowInProgress) {
     rowProps["role"] = "button";
   }
 
@@ -49,7 +49,7 @@ export function Row(props: RowType) {
     <div
       {...rowProps}
       className={`tr ${isRowSelected ? "selected-row" : ""} ${props.className ||
-        ""} ${addNewRowInProgress && props.index === 0 ? "new-row" : ""}`}
+        ""} ${isAddRowInProgress && props.index === 0 ? "new-row" : ""}`}
       data-rowindex={props.index}
       key={key}
       onClick={(e) => {

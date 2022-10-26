@@ -123,7 +123,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       editableCell: defaultEditableCell,
       columnEditableCellValue: {},
       selectColumnFilterText: {},
-      addNewRowInProgress: false,
+      isAddRowInProgress: false,
+      newRowContent: undefined,
       newRow: undefined,
       firstEditableColumnIdByOrder: "",
     };
@@ -832,18 +833,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       componentWidth,
     } = this.getPaddingAdjustedDimensions();
 
-    if (this.props.addNewRowInProgress) {
-      transformedData.unshift(this.props.newRow);
+    if (this.props.isAddRowInProgress) {
+      transformedData.unshift(this.props.newRowContent);
     }
 
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
           accentColor={this.props.accentColor}
-          addNewRowInProgress={this.props.addNewRowInProgress}
           allowAddNewRow={this.props.allowAddNewRow}
-          allowRowSelection={!this.props.addNewRowInProgress}
-          allowSorting={!this.props.addNewRowInProgress}
+          allowRowSelection={!this.props.isAddRowInProgress}
+          allowSorting={!this.props.isAddRowInProgress}
           applyFilter={this.updateFilters}
           borderColor={this.props.borderColor}
           borderRadius={this.props.borderRadius}
@@ -861,6 +861,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
+          isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
           isLoading={this.props.isLoading}
           isSortable={this.props.isSortable ?? true}
@@ -869,7 +870,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisiblePagination={isVisiblePagination}
           isVisibleSearch={isVisibleSearch}
           multiRowSelection={
-            this.props.multiRowSelection && !this.props.addNewRowInProgress
+            this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
           nextPageClick={this.handleNextPageClick}
           onAddNewRow={this.handleAddNewRowClick}
@@ -1275,7 +1276,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      * We don't need to render cells that don't display data (button, iconButton, etc)
      */
     if (
-      this.props.addNewRowInProgress &&
+      this.props.isAddRowInProgress &&
       rowIndex === 0 &&
       ActionColumnTypes.includes(column.columnType)
     ) {
@@ -1297,7 +1298,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      * In add new row flow, a temporary row is injected at the top of the tableData, which doesn't
      * have original row index value. so we are using -1 as the value
      */
-    if (this.props.addNewRowInProgress) {
+    if (this.props.isAddRowInProgress) {
       row = filteredTableData[rowIndex - 1];
       originalIndex = rowIndex === 0 ? -1 : row[ORIGINAL_INDEX_KEY] ?? rowIndex;
     } else {
@@ -1331,7 +1332,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       column.isEditable && isColumnTypeEditable(column.columnType);
     const alias = props.cell.column.columnProperties.alias;
 
-    const isNewRow = this.props.addNewRowInProgress && rowIndex === 0;
+    const isNewRow = this.props.isAddRowInProgress && rowIndex === 0;
 
     const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
 
@@ -1348,10 +1349,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       (this.hasInvalidColumnCell() && !isNewRow);
 
     const disabledEditMessage = `Save or discard the ${
-      this.props.addNewRowInProgress ? "newly added" : "unsaved"
+      this.props.isAddRowInProgress ? "newly added" : "unsaved"
     } row to start editing here`;
 
-    if (this.props.addNewRowInProgress) {
+    if (this.props.isAddRowInProgress) {
       cellProperties.isCellDisabled = rowIndex !== 0;
 
       if (rowIndex === 0) {
@@ -1480,13 +1481,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             accentColor={this.props.accentColor}
             alias={props.cell.column.columnProperties.alias}
             allowCellWrapping={cellProperties.allowCellWrapping}
-            autoOpen={!this.props.addNewRowInProgress}
+            autoOpen={!this.props.isAddRowInProgress}
             borderRadius={cellProperties.borderRadius}
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
             compactMode={compactMode}
             disabledEditIcon={
-              shouldDisableEdit || this.props.addNewRowInProgress
+              shouldDisableEdit || this.props.isAddRowInProgress
             }
             disabledEditIconMessage={disabledEditMessage}
             filterText={
@@ -1673,7 +1674,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
             disabledCheckbox={
-              shouldDisableEdit || (this.props.addNewRowInProgress && !isNewRow)
+              shouldDisableEdit || (this.props.isAddRowInProgress && !isNewRow)
             }
             disabledCheckboxMessage={disabledEditMessage}
             hasUnSavedChanges={cellProperties.hasUnsavedChanges}
@@ -1704,7 +1705,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
             disabledSwitch={
-              shouldDisableEdit || (this.props.addNewRowInProgress && !isNewRow)
+              shouldDisableEdit || (this.props.isAddRowInProgress && !isNewRow)
             }
             disabledSwitchMessage={disabledEditMessage}
             hasUnSavedChanges={cellProperties.hasUnsavedChanges}
@@ -1748,7 +1749,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             columnType={column.columnType}
             compactMode={compactMode}
             disabledEditIcon={
-              shouldDisableEdit || this.props.addNewRowInProgress
+              shouldDisableEdit || this.props.isAddRowInProgress
             }
             disabledEditIconMessage={disabledEditMessage}
             displayText={cellProperties.displayText}
@@ -1783,11 +1784,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     inputValue: string,
     alias: string,
   ) => {
-    if (this.props.addNewRowInProgress) {
-      this.props.updateWidgetMetaProperty("newRow", {
-        ...this.props.newRow,
-        [alias]: inputValue,
-      });
+    if (this.props.isAddRowInProgress) {
+      this.updateNewRowValues(alias, inputValue, value);
     } else {
       this.props.updateWidgetMetaProperty("editableCell", {
         ...this.props.editableCell,
@@ -1812,7 +1810,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     onSubmit?: string,
     action?: EditableCellActions,
   ) => {
-    if (this.props.addNewRowInProgress) {
+    if (this.props.isAddRowInProgress) {
       return;
     }
 
@@ -1910,11 +1908,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     column: string,
     action?: string,
   ) => {
-    if (this.props.addNewRowInProgress) {
-      this.props.updateWidgetMetaProperty("newRow", {
-        ...this.props.newRow,
-        [column]: value,
-      });
+    if (this.props.isAddRowInProgress) {
+      this.updateNewRowValues(column, value, value);
     } else {
       this.updateTransientTableData({
         __original_index__: this.getRowOriginalIndex(rowIndex),
@@ -1974,11 +1969,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     originalIndex: number,
     rowIndex: number,
   ) => {
-    if (this.props.addNewRowInProgress) {
-      this.props.updateWidgetMetaProperty("newRow", {
-        ...this.props.newRow,
-        [alias]: value,
-      });
+    if (this.props.isAddRowInProgress) {
+      this.updateNewRowValues(alias, value, value);
     } else {
       this.updateTransientTableData({
         __original_index__: originalIndex,
@@ -1999,16 +1991,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleAddNewRowClick = () => {
-    this.props.updateWidgetMetaProperty("addNewRowInProgress", true);
-    this.props.updateWidgetMetaProperty(
-      "newRow",
-      this.props.defaultNewRow || {},
-    );
+    const defaultNewRow = this.props.defaultNewRow || {};
+    this.props.updateWidgetMetaProperty("isAddRowInProgress", true);
+    this.props.updateWidgetMetaProperty("newRowContent", defaultNewRow);
+    this.props.updateWidgetMetaProperty("newRow", defaultNewRow);
 
     // New row gets added at the top of page 1
     this.props.updateWidgetMetaProperty("pageNo", 1);
 
-    //Since we're adding a newRow thats not part of tableData, the index changes
+    //Since we're adding a newRowContent thats not part of tableData, the index changes
     // so we're resetting the row selection
     this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
     this.props.updateWidgetMetaProperty("selectedRowIndices", []);
@@ -2017,10 +2008,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   handleAddNewRowAction = (type: AddNewRowActions) => {
     let triggerPropertyName, action, eventType;
 
-    const newRow = this.props.newRow;
-
     const onComplete = () => {
-      this.props.updateWidgetMetaProperty("addNewRowInProgress", false);
+      this.props.updateWidgetMetaProperty("isAddRowInProgress", false);
+      this.props.updateWidgetMetaProperty("newRowContent", undefined);
       this.props.updateWidgetMetaProperty("newRow", undefined);
     };
 
@@ -2042,7 +2032,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           type: eventType,
           callback: onComplete,
         },
-        globalContext: { newRow },
       });
     } else {
       onComplete();
@@ -2059,6 +2048,26 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   hasInvalidColumnCell = () => {
     return Object.values(this.props.isEditableCellsValid).some((d) => !d);
+  };
+
+  updateNewRowValues = (
+    alias: string,
+    value: unknown,
+    parsedValue: unknown,
+  ) => {
+    /*
+     * newRowContent holds whatever the user types while newRow holds the parsed value
+     * newRowContent is being used to populate the cell while newRow is being used to
+     * for validations.
+     */
+    this.props.updateWidgetMetaProperty("newRowContent", {
+      ...this.props.newRowContent,
+      [alias]: value,
+    });
+    this.props.updateWidgetMetaProperty("newRow", {
+      ...this.props.newRow,
+      [alias]: parsedValue,
+    });
   };
 }
 

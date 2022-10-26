@@ -41,7 +41,7 @@ export const TableWrapper = styled.div<{
   borderWidth?: number;
   isResizingColumn?: boolean;
   variant?: TableVariant;
-  addNewRowInProgress: boolean;
+  isAddRowInProgress: boolean;
 }>`
   width: 100%;
   height: 100%;
@@ -108,7 +108,7 @@ export const TableWrapper = styled.div<{
       }
 
       ${(props) => {
-        if (!props.addNewRowInProgress) {
+        if (!props.isAddRowInProgress) {
           return `&:hover {
             background: var(--wds-color-bg-hover) !important;
           }`;

@@ -175,7 +175,7 @@ function Actions(props: ActionsPropsType) {
               selectMenu={props.onAddNewRow}
               selected={false}
               title="Add new row"
-              width={14}
+              width={12}
             />
           )}
         </CommonFunctionsMenuWrapper>

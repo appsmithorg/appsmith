@@ -2,11 +2,11 @@ import React from "react";
 import { AddNewRowBanner, AddNewRowBannerType } from "./AddNewRowBanner";
 
 export interface BannerPropType extends AddNewRowBannerType {
-  addNewRowInProgress: boolean;
+  isAddRowInProgress: boolean;
 }
 
 export function Banner(props: BannerPropType) {
-  return props.addNewRowInProgress ? (
+  return props.isAddRowInProgress ? (
     <AddNewRowBanner
       accentColor={props.accentColor}
       borderRadius={props.borderRadius}

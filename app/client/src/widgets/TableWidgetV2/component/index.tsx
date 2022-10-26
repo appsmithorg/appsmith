@@ -88,7 +88,7 @@ interface ReactTableComponentProps {
   variant?: TableVariant;
   isEditableCellsValid?: Record<string, boolean>;
   primaryColumnId?: string;
-  addNewRowInProgress: boolean;
+  isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   onAddNewRowAction: (type: AddNewRowActions) => void;
@@ -99,7 +99,6 @@ interface ReactTableComponentProps {
 
 function ReactTableComponent(props: ReactTableComponentProps) {
   const {
-    addNewRowInProgress,
     allowAddNewRow,
     allowRowSelection,
     allowSorting,
@@ -118,6 +117,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleReorderColumn,
     handleResizeColumn,
     height,
+    isAddRowInProgress,
     isLoading,
     isSortable,
     isVisibleDownload,
@@ -294,7 +294,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   return (
     <Table
       accentColor={props.accentColor}
-      addNewRowInProgress={addNewRowInProgress}
       allowAddNewRow={allowAddNewRow}
       applyFilter={applyFilter}
       borderColor={borderColor}
@@ -314,6 +313,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       filters={filters}
       handleResizeColumn={handleResizeColumn}
       height={height}
+      isAddRowInProgress={isAddRowInProgress}
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
@@ -397,7 +397,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.variant === next.variant &&
     prev.primaryColumnId === next.primaryColumnId &&
     equal(prev.isEditableCellsValid, next.isEditableCellsValid) &&
-    prev.addNewRowInProgress === next.addNewRowInProgress &&
+    prev.isAddRowInProgress === next.isAddRowInProgress &&
     prev.allowAddNewRow === next.allowAddNewRow &&
     prev.allowRowSelection === next.allowRowSelection &&
     prev.allowSorting === next.allowSorting &&

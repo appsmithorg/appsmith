@@ -104,6 +104,7 @@ function TableFilters(props: TableFilterProps) {
         selected={isTableFilterPaneVisible}
         title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
         titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
+        width={16}
       />
       <TableFilterPane {...props} />
     </>

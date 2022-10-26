@@ -596,16 +596,16 @@ const newBindingSuffix = (tableId: string, columnName: string) => {
   return `
     ))
     (
-      (${tableId}.addNewRowInProgress ? ${tableId}.newRow.${columnName} : ${tableId}.columnEditableCellValue.${columnName}) || "",
-      ${tableId}.addNewRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+      (${tableId}.isAddRowInProgress ? ${tableId}.newRow.${columnName} : ${tableId}.columnEditableCellValue.${columnName}) || "",
+      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
         Object.keys(${tableId}.processedTableData[0])
           .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
           .reduce((prev, curr) => {
             prev[curr] = "";
             return prev;
           }, {})),
-      ${tableId}.addNewRowInProgress ? -1 : ${tableId}.editableCell.index,
-      ${tableId}.addNewRowInProgress
+      ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
+      ${tableId}.isAddRowInProgress
     )
   }}
   `;

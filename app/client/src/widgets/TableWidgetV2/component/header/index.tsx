@@ -5,21 +5,21 @@ import { Banner, BannerPropType } from "./banner";
 function TableHeader(props: ActionsPropsType & BannerPropType) {
   const {
     accentColor,
-    addNewRowInProgress,
     borderRadius,
     boxShadow,
     disabledAddNewRowSave,
+    isAddRowInProgress,
     onAddNewRowAction,
     ...ActionProps
   } = props;
 
-  return addNewRowInProgress ? (
+  return isAddRowInProgress ? (
     <Banner
       accentColor={accentColor}
-      addNewRowInProgress={addNewRowInProgress}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       disabledAddNewRowSave={disabledAddNewRowSave}
+      isAddRowInProgress={isAddRowInProgress}
       onAddNewRowAction={onAddNewRowAction}
     />
   ) : (

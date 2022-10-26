@@ -88,7 +88,7 @@ interface TableProps {
   onBulkEditSave: () => void;
   variant?: TableVariant;
   primaryColumnId?: string;
-  addNewRowInProgress: boolean;
+  isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   onAddNewRowAction: (type: AddNewRowActions) => void;
@@ -252,7 +252,6 @@ export function Table(props: TableProps) {
   return (
     <TableWrapper
       accentColor={props.accentColor}
-      addNewRowInProgress={props.addNewRowInProgress}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
       borderColor={props.borderColor}
       borderRadius={props.borderRadius}
@@ -260,6 +259,7 @@ export function Table(props: TableProps) {
       boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}
+      isAddRowInProgress={props.isAddRowInProgress}
       isHeaderVisible={isHeaderVisible}
       isResizingColumn={isResizingColumn.current}
       tableSizes={tableSizes}
@@ -290,7 +290,6 @@ export function Table(props: TableProps) {
             >
               <TableHeader
                 accentColor={props.accentColor}
-                addNewRowInProgress={props.addNewRowInProgress}
                 allowAddNewRow={props.allowAddNewRow}
                 applyFilter={props.applyFilter}
                 borderRadius={props.borderRadius}
@@ -301,6 +300,7 @@ export function Table(props: TableProps) {
                 disableAddNewRow={!!props.editableCell.column}
                 disabledAddNewRowSave={props.disabledAddNewRowSave}
                 filters={props.filters}
+                isAddRowInProgress={props.isAddRowInProgress}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}
                 isVisiblePagination={props.isVisiblePagination}
@@ -396,11 +396,11 @@ export function Table(props: TableProps) {
             </div>
             <TableBody
               accentColor={props.accentColor}
-              addNewRowInProgress={props.addNewRowInProgress}
               borderRadius={props.borderRadius}
               columns={props.columns}
               getTableBodyProps={getTableBodyProps}
               height={props.height}
+              isAddRowInProgress={props.isAddRowInProgress}
               multiRowSelection={!!props.multiRowSelection}
               pageSize={props.pageSize}
               prepareRow={prepareRow}
