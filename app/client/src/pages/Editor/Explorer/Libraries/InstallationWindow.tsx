@@ -11,6 +11,7 @@ import {
   Text,
   TextInput,
   TextType,
+  Toaster,
   TooltipComponent as Tooltip,
 } from "design-system";
 import { EntityClassNames } from "../Entity";
@@ -28,10 +29,14 @@ import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 // import { getCurrentApplication } from "selectors/applicationSelectors";
-import { selectInstallationStatus } from "selectors/entitiesSelector";
+import {
+  selectInstallationStatus,
+  selectInstalledLibraries,
+} from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
+import { Variant } from "components/ads";
 
 type TInstallWindowProps = any;
 
@@ -219,6 +224,7 @@ function InstallationPopoverContent(props: any) {
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
   const dispatch = useDispatch();
+  const installedLibraries = useSelector(selectInstalledLibraries);
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
@@ -236,10 +242,23 @@ function InstallationPopoverContent(props: any) {
   const installLibrary = useCallback(
     (index?: number) => {
       if (!index) {
+        const libFound = installedLibraries.find(
+          (lib) => lib.displayName === URL,
+        );
+        if (libFound) {
+          Toaster.show({
+            text: createMessage(
+              customJSLibraryMessages.INSTALLED_ALREADY,
+              libFound.accessor,
+            ),
+            variant: Variant.info,
+          });
+          return;
+        }
         dispatch(installLibraryInit(URL));
       }
     },
-    [URL],
+    [URL, installedLibraries],
   );
 
   return (

@@ -3,8 +3,8 @@ import { extraLibraries, ExtraLibrary } from "utils/DynamicBindingUtils";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 export enum InstallState {
-  Installing,
   Queued,
+  Installing,
   Failed,
   Success,
 }
@@ -15,6 +15,7 @@ export type LibraryState = {
     displayName: string;
     docsURL: string;
     version?: string;
+    accessor: string;
   }[];
 };
 
@@ -35,9 +36,8 @@ const jsLibraryReducer = createReducer(initialState, {
       ...state,
       installationStatus: {
         ...state.installationStatus,
-        [action.payload]: state.installationStatus[action.payload]
-          ? state.installationStatus[action.payload]
-          : InstallState.Queued,
+        [action.payload]:
+          state.installationStatus[action.payload] || InstallState.Queued,
       },
     };
   },
