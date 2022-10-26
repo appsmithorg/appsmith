@@ -29,22 +29,4 @@ public class EnvironmentVariableController extends EnvironmentVariableController
         this.environmentVariableService = environmentVariableService;
     }
 
-
-    @GetMapping("/workspaces/{workspaceId}")
-    public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByWorkspaceId(@PathVariable String workspaceId) {
-
-        return environmentVariableService.findEnvironmentVariableByWorkspaceId(workspaceId)
-                .collectList()
-                .map(envVarList -> new ResponseDTO(HttpStatus.OK.value(), envVarList, null));
-    }
-
-    @GetMapping("/environments/{environmentId}")
-    public Mono<ResponseDTO<List<EnvironmentVariable>>> getEnvVarByEnvironmentId(@PathVariable String environmentId) {
-
-        return environmentVariableService.findEnvironmentVariableByEnvironmentId(environmentId)
-                .collectList()
-                .map(envVarList -> new ResponseDTO(HttpStatus.OK.value(), envVarList, null));
-    }
-
-
 }

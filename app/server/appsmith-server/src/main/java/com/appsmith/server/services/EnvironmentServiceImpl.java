@@ -7,13 +7,10 @@ import com.appsmith.server.domains.Environment;
 import com.appsmith.server.domains.EnvironmentVariable;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EnvironmentDTO;
-import com.appsmith.server.dtos.EnvironmentVariableDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.EnvironmentRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.EnvironmentServiceCEImpl;
-import io.sentry.protocol.App;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -28,7 +25,6 @@ import com.appsmith.external.models.Policy;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
 import javax.validation.Validator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
