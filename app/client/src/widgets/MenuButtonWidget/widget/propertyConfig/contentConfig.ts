@@ -3,6 +3,8 @@ import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MenuItemsSource, MenuButtonWidgetProps } from "../../constants";
 import { getAutocompleteProperties } from "../helper";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { arrayOfValuesWithMaxLengthTen } from "widgets/MenuButtonWidget/validations";
 
 export default [
   {
@@ -190,7 +192,17 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.ARRAY },
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: arrayOfValuesWithMaxLengthTen,
+            expected: {
+              type: "Array of values",
+              example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
+          },
+        },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
         hidden: (props: MenuButtonWidgetProps) =>
           props.menuItemsSource === MenuItemsSource.STATIC,
