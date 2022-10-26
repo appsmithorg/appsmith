@@ -165,9 +165,14 @@ const explorerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_EXPLORER_PINNED]: (
     state: ExplorerReduxState,
-    action: ReduxAction<{ pinnedState: ExplorerPinnedState }>,
+    action: ReduxAction<{ shouldPin: boolean }>,
   ): ExplorerReduxState => {
-    return { ...state, pinnedState: action.payload.pinnedState };
+    return {
+      ...state,
+      pinnedState: action.payload.shouldPin
+        ? ExplorerPinnedState.PINNED
+        : ExplorerPinnedState.UNPINNED,
+    };
   },
   [ReduxActionTypes.UPDATE_EXPLORER_WIDTH]: (
     state: ExplorerReduxState,
