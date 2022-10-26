@@ -126,7 +126,7 @@ function Pages() {
         type: "PAGES",
         toUrl: navigateToUrl,
       });
-      dispatch(storeURLOnPageChange(location.pathname));
+      dispatch(storeURLOnPageChange(location.pathname, location.search));
       dispatch(toggleInOnboardingWidgetSelection(true));
       history.push(navigateToUrl);
     },

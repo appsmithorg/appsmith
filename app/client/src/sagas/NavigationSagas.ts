@@ -32,6 +32,7 @@ let previousHash: string | undefined;
 
 let previousPageId: string;
 let previousURL: string;
+let previousParamString: string | null;
 
 function* handleRouteChange(
   action: ReduxAction<{ pathname: string; hash?: string }>,
@@ -51,15 +52,19 @@ function* handleRouteChange(
 }
 
 function* handlePageChange(
-  action: ReduxAction<{ pageId: string; currPath: string }>,
+  action: ReduxAction<{
+    pageId: string;
+    currPath: string;
+    paramString: string;
+  }>,
 ) {
-  const { currPath, pageId } = action.payload;
+  const { currPath, pageId, paramString } = action.payload;
 
   if (previousPageId) {
     yield call(storeStateOfPage, previousPageId);
   }
 
-  yield call(setStateOfPage, pageId, currPath);
+  yield call(setStateOfPage, pageId, currPath, paramString);
 
   previousPageId = pageId;
 }
@@ -152,11 +157,19 @@ function* storeStateOfPage(pageId: string) {
     state._routingURL = undefined;
   }
 
+  if (previousParamString) {
+    state._paramString = previousParamString;
+  }
+
   const entityInfo = { entity, id: pageId };
   yield put(setFocusHistory(pageId, { entityInfo, state }));
 }
 
-function* setStateOfPage(pageId: string, currPath: string) {
+function* setStateOfPage(
+  pageId: string,
+  currPath: string,
+  paramString: string,
+) {
   const focusHistory: FocusState = yield select(getCurrentFocusInfo, pageId);
 
   const entity = FocusEntity.PAGE;
@@ -169,9 +182,10 @@ function* setStateOfPage(pageId: string, currPath: string) {
     }
     if (
       focusHistory.state._routingURL &&
-      focusHistory.state._routingURL !== currPath
+      focusHistory.state._routingURL !== currPath &&
+      focusHistory.state._paramString === paramString
     ) {
-      history.push(focusHistory.state._routingURL);
+      history.push(`${focusHistory.state._routingURL}${paramString}`);
     }
   } else {
     for (const selectorInfo of selectors) {
@@ -181,8 +195,12 @@ function* setStateOfPage(pageId: string, currPath: string) {
   }
 }
 
-function* storeURLonPageChange(action: ReduxAction<string>) {
-  previousURL = action.payload;
+function* storeURLonPageChange(
+  action: ReduxAction<{ url: string; paramString: string }>,
+) {
+  const { paramString, url } = action.payload;
+  previousParamString = paramString;
+  previousURL = url;
 }
 
 function* getEntitySubType(entityInfo: FocusEntityInfo) {

@@ -65,7 +65,7 @@ function MainContainer() {
   }, [location.pathname, location.hash]);
 
   useEffect(() => {
-    dispatch(pageChanged(currentPageId, location.pathname));
+    dispatch(pageChanged(currentPageId, location.pathname, location.search));
   }, [currentPageId]);
 
   return (

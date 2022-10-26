@@ -8,10 +8,14 @@ export const routeChanged = (pathname: string, hash?: string) => {
   };
 };
 
-export const pageChanged = (pageId: string, currPath: string) => {
+export const pageChanged = (
+  pageId: string,
+  currPath: string,
+  paramString: string,
+) => {
   return {
     type: ReduxActionTypes.PAGE_CHANGED,
-    payload: { pageId, currPath },
+    payload: { pageId, currPath, paramString },
   };
 };
 
