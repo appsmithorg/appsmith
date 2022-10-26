@@ -3,7 +3,7 @@ import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants/ast";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
-
+import { jsObjectDeclaration } from "./jsObject/index";
 /*
  * Valuable links:
  *
@@ -106,6 +106,11 @@ type NodeWithLocation<NodeType> = NodeType & {
 };
 
 type AstOptions = Omit<Options, "ecmaVersion">;
+
+type EntityRefactorResponse = {
+  isSuccess: boolean;
+  body: { script: string; refactorCount: number } | { error: string };
+};
 
 /* We need these functions to typescript casts the nodes with the correct types */
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
@@ -213,7 +218,6 @@ export const extractIdentifierInfoFromCode = (
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
 ): IdentifierInfo => {
-
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
@@ -262,9 +266,12 @@ export const entityRefactorFromCode = (
   script: string,
   oldName: string,
   newName: string,
+  isJSObject: boolean,
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
-): Record<string, string | number> | string => {
+): EntityRefactorResponse => {
+  //If script is a JSObject then replace export default to decalartion.
+  if (isJSObject) script = jsObjectToCode(script);
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
   let refactorScript = script;
@@ -284,7 +291,7 @@ export const entityRefactorFromCode = (
       identifierList,
     }: NodeList = ancestorWalk(ast);
     let identifierArray = Array.from(identifierList) as Array<IdentifierNode>;
-    const referencesArr = Array.from(references).filter((reference, index) => {
+    Array.from(references).forEach((reference, index) => {
       const topLevelIdentifier = toPath(reference)[0];
       let shouldUpdateNode = !(
         functionalParams.has(topLevelIdentifier) ||
@@ -308,13 +315,17 @@ export const entityRefactorFromCode = (
         refactorOffset += nameLengthDiff;
         ++refactorCount;
       }
-      return shouldUpdateNode;
     });
-    return { script: refactorScript, count: refactorCount };
+    //If script is a JSObject then revert decalartion to export default.
+    if (isJSObject) refactorScript = jsCodeToObject(refactorScript);
+    return {
+      isSuccess: true,
+      body: { script: refactorScript, refactorCount },
+    };
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return empty list
-      return "Syntax Error";
+      return { isSuccess: false, body: { error: "Syntax Error" } };
     }
     throw e;
   }
@@ -597,4 +608,16 @@ const ancestorWalk = (ast: Node): NodeList => {
     variableDeclarations,
     identifierList,
   };
+};
+
+//Replace export default by a variable declaration.
+//This is required for acorn to parse code into AST.
+const jsObjectToCode = (script: string) => {
+  return script.replace(/export default/g, jsObjectDeclaration);
+};
+
+//Revert the string replacement from 'jsObjectToCode'.
+//variable declaration is replaced back by export default.
+const jsCodeToObject = (script: string) => {
+  return script.replace(jsObjectDeclaration, "export default");
 };

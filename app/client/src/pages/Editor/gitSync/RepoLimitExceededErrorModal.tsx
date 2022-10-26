@@ -39,6 +39,7 @@ import { get } from "lodash";
 import { Theme } from "constants/DefaultTheme";
 import {
   getCurrentApplication,
+  getWorkspaceIdForImport,
   getUserApplicationsWorkspaces,
 } from "selectors/applicationSelectors";
 import {
@@ -113,13 +114,18 @@ function RepoLimitExceededErrorModal() {
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
   const userWorkspaces = useSelector(getUserApplicationsWorkspaces);
+  const workspaceIdForImport = useSelector(getWorkspaceIdForImport);
   const docURL = useSelector(getDisconnectDocUrl);
   const [workspaceName, setWorkspaceName] = useState("");
   const applications = useMemo(() => {
     if (userWorkspaces) {
       const workspace: any = userWorkspaces.find((workspaceObject: any) => {
         const { workspace } = workspaceObject;
-        return workspace.id === application?.workspaceId;
+        if (!application && workspaceIdForImport) {
+          return workspace.id === workspaceIdForImport;
+        } else {
+          return workspace.id === application?.workspaceId;
+        }
       });
       setWorkspaceName(workspace?.workspace.name || "");
       return (
@@ -137,7 +143,7 @@ function RepoLimitExceededErrorModal() {
     } else {
       return [];
     }
-  }, [userWorkspaces]);
+  }, [userWorkspaces, workspaceIdForImport]);
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
