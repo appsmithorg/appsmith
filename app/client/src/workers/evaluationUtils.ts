@@ -9,9 +9,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import {
-  DataTree,
   DataTreeAppsmith,
-  DataTreeEntity,
   ENTITY_TYPE,
   EvalTreeEntity,
   EvalTree,
@@ -19,24 +17,18 @@ import {
   DataTreeEntityConfig,
 } from "entities/DataTree/DataTreeFactory";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import { ValidationConfig } from "constants/PropertyControlConstants";
-import { Severity } from "entities/AppsmithConsole";
 import _, { get, set } from "lodash";
-import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/DataTreeFactory";
-import {
-  JSActionEntityConfig,
-  JSActionEvalTree,
-} from "entities/DataTree/JSAction/types";
+import { JSActionEvalTree } from "entities/DataTree/JSAction/types";
 import {
   WidgetEntityConfig,
   WidgetEvalTree,
 } from "entities/DataTree/Widget/types";
-import { PrivateWidgets } from "widgets/BaseWidget";
+import { PrivateWidgets, WidgetProps } from "widgets/BaseWidget";
 import { validateWidgetProperty } from "./DataTreeEvaluator/validationUtils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
@@ -550,7 +542,7 @@ export function getSafeToRenderDataTree(
     if (!isWidget(entity)) {
       return tree;
     }
-    const safeToRenderEntity = { ...entity };
+    const safeToRenderEntity = { ...(entity as WidgetEvalTree) };
     const widgetConfig = entityConfigCollection[
       entityKey
     ] as WidgetEntityConfig;
@@ -601,7 +593,7 @@ export const addErrorToEntityProperty = (
 };
 
 export const resetValidationErrorsForEntityProperty = (
-  dataTree: DataTree,
+  dataTree: EvalTree,
   fullPropertyPath: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -622,7 +614,7 @@ export const resetValidationErrorsForEntityProperty = (
 };
 
 export const removeLintErrorsFromEntityProperty = (
-  dataTree: DataTree,
+  dataTree: EvalTree,
   fullPropertyPath: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -763,21 +755,13 @@ export const getDataTreeWithoutPrivateWidgets = (
  *  when we evaluate widget's overridingPropertyPaths for example defaultText of input widget,
  *  we override the values like text and meta.text in dataTree, these values are called as overriddenPropertyPaths
  *
- * @param {{
- *   entity: DataTreeWidget;
- *   propertyPath: string;
- *   value: unknown;
- *   currentTree: DataTree;
- *   evalMetaUpdates: EvalMetaUpdates;
- * }} params
- * @return {*}
  */
 export const overrideWidgetProperties = (params: {
   entity: EvalTree;
   widgetConfig: WidgetEntityConfig;
   propertyPath: string;
   value: unknown;
-  currentTree: DataTree;
+  currentTree: EvalTree;
   evalMetaUpdates: EvalMetaUpdates;
 }) => {
   const {
@@ -854,5 +838,8 @@ export const isATriggerPath = (
   entity: Partial<DataTreeEntityConfig>,
   propertyPath: string,
 ) => {
-  return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
+  return (
+    isWidget(entity) &&
+    isPathADynamicTrigger((entity as unknown) as WidgetProps, propertyPath)
+  );
 };

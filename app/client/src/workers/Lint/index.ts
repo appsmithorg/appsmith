@@ -1,7 +1,7 @@
 import {
-  DataTreeEntity,
   EntityConfigCollection,
   EvalTree,
+  EvalTreeEntity,
 } from "entities/DataTree/DataTreeFactory";
 import { get, union } from "lodash";
 import { EvaluationError, getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -53,6 +53,7 @@ export const lintTree = (args: LintTreeArgs) => {
       fullPropertyPath,
     );
     const entity = unEvalTree[entityName];
+    const entityConfig = entityConfigCollection[entityName];
     const unEvalPropertyValue = (get(
       unEvalTree,
       fullPropertyPath,
@@ -60,7 +61,8 @@ export const lintTree = (args: LintTreeArgs) => {
     // remove all lint errors from path
     removeLintErrorsFromEntityProperty(evalTree, fullPropertyPath);
     // We are only interested in paths that require linting
-    if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
+    if (!pathRequiresLinting(unEvalTree, entityConfig, fullPropertyPath))
+      return;
     if (isATriggerPath(entity, propertyPath))
       return triggerPaths.add(fullPropertyPath);
     if (isJSAction(entity))
@@ -132,7 +134,7 @@ export const lintTree = (args: LintTreeArgs) => {
 
 const lintBindingPath = (
   dynamicBinding: string,
-  entity: DataTreeEntity,
+  entity: EvalTreeEntity,
   fullPropertyPath: string,
   globalData: ReturnType<typeof createGlobalData>,
 ) => {
@@ -171,7 +173,7 @@ const lintBindingPath = (
 
 const lintTriggerPath = (
   userScript: string,
-  entity: DataTreeEntity,
+  entity: EvalTreeEntity,
   globalData: ReturnType<typeof createGlobalData>,
 ) => {
   const { jsSnippets } = getDynamicBindings(userScript, entity);

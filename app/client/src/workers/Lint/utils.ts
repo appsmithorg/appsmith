@@ -1,7 +1,7 @@
 import {
-  DataTree,
-  DataTreeEntity,
   DataTreeEntityConfig,
+  EvalTree,
+  EvalTreeEntity,
 } from "entities/DataTree/DataTreeFactory";
 import {
   getEntityNameAndPropertyPath,
@@ -44,7 +44,7 @@ import {
 } from "@shared/ast";
 
 export const pathRequiresLinting = (
-  dataTree: DataTree,
+  dataTree: EvalTree,
   entity: DataTreeEntityConfig,
   fullPropertyPath: string,
 ): boolean => {
@@ -69,7 +69,7 @@ export const pathRequiresLinting = (
 
 // Removes "export default" statement from js Object
 export const getJSToLint = (
-  entity: DataTreeEntity,
+  entity: EvalTreeEntity,
   snippet: string,
   propertyPath: string,
 ) => {

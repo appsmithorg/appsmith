@@ -1,4 +1,4 @@
-import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
+import { WidgetEntityConfig } from "entities/DataTree/Widget/types";
 
 /**
  * PropertyName examples
@@ -11,7 +11,7 @@ import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
  * @returns
  */
 export const isWidgetPropertyNamePath = (
-  widgetEntity: DataTreeWidget,
+  widgetEntity: WidgetEntityConfig,
   fullPath: string,
 ) => {
   switch (widgetEntity.type) {

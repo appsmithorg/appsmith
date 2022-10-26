@@ -1,9 +1,8 @@
 import CodeMirror from "codemirror";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
-  DataTreeAction,
-  DataTreeWidget,
-} from "entities/DataTree/DataTreeFactory";
+
+import { DataTreeWidget } from "entities/DataTree/Widget/types";
+
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 
 export const removeNewLineChars = (inputValue: any) => {

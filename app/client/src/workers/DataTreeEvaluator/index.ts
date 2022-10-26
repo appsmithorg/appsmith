@@ -1,5 +1,6 @@
 import {
   DependencyMap,
+  EntityConfigWithBindings,
   EvalError,
   EvalErrorTypes,
   EvaluationError,
@@ -93,6 +94,10 @@ import {
   ActionEntityConfig,
   DataTreeAction,
 } from "entities/DataTree/Action/types";
+import {
+  WidgetEntityConfig,
+  WidgetEvalTree,
+} from "entities/DataTree/Widget/types";
 
 type SortedDependencies = Array<string>;
 
@@ -425,6 +430,7 @@ export default class DataTreeEvaluator {
       dependenciesOfRemovedPaths,
       removedPaths,
       localUnEvalTree,
+      entityConfigCollection,
     );
 
     const calculateSortOrderStop = performance.now();
@@ -705,35 +711,40 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: DataTree,
+    oldUnevalTree: EvalTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
     option = { skipRevalidation: true },
   ): {
-    evaluatedTree: DataTree;
+    evaluatedTree: EvalTree;
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
-        (currentTree: DataTree, fullPropertyPath: string) => {
+        (currentTree: EvalTree, fullPropertyPath: string) => {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
-          const entity = currentTree[entityName] as
-            | DataTreeWidget
-            | DataTreeAction;
+          const entity = currentTree[entityName];
+          const entityConfig = this.entityConfigCollection[entityName];
+
           const unEvalPropertyValue = _.get(
             currentTree as any,
             fullPropertyPath,
           );
 
           const isADynamicBindingPath =
-            (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
-            isPathADynamicBinding(entity, propertyPath);
+            (isAction(entityConfig) ||
+              isWidget(entityConfig) ||
+              isJSAction(entityConfig)) &&
+            // @ts-expect-error: fix later
+            isPathADynamicBinding(entityConfig, propertyPath);
           const isATriggerPath =
-            isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
+            isWidget(entity) &&
+            // @ts-expect-error: fix later
+            isPathADynamicTrigger(entityConfig, propertyPath);
           let evalPropertyValue;
           const requiresEval =
             isADynamicBindingPath &&
@@ -744,8 +755,9 @@ export default class DataTreeEvaluator {
           }
           if (requiresEval) {
             const evaluationSubstitutionType =
-              entity.reactivePaths[propertyPath] ||
-              EvaluationSubstitutionType.TEMPLATE;
+              (entityConfig as EntityConfigWithBindings).reactivePaths[
+                propertyPath
+              ] || EvaluationSubstitutionType.TEMPLATE;
 
             const contextData: EvaluateContext = {};
             if (isAction(entity)) {
@@ -777,18 +789,21 @@ export default class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
           if (isWidget(entity) && !isATriggerPath) {
+            const widgetEntity = entity as WidgetEvalTree;
             if (propertyPath) {
               const parsedValue = validateAndParseWidgetProperty({
                 fullPropertyPath,
-                widget: entity,
+                widget: widgetEntity,
+                widgetConfig: entityConfig as WidgetEntityConfig,
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
+                entityConfigCollection: this.entityConfigCollection,
               });
 
               this.setParsedValue({
                 currentTree,
-                entity,
+                entity: widgetEntity,
                 evalMetaUpdates,
                 fullPropertyPath,
                 parsedValue,
@@ -799,7 +814,7 @@ export default class DataTreeEvaluator {
               if (!option.skipRevalidation) {
                 this.reValidateWidgetDependentProperty({
                   fullPropertyPath,
-                  widget: entity,
+                  widget: widgetEntity,
                   currentTree,
                 });
               }
@@ -810,14 +825,17 @@ export default class DataTreeEvaluator {
           } else if (isATriggerPath) {
             return currentTree;
           } else if (isAction(entity)) {
+            const actionConfig = entity as ActionEntityConfig;
             if (this.allActionValidationConfig) {
               const configProperty = propertyPath.replace(
                 "config",
                 "actionConfiguration",
               );
               const validationConfig =
-                !!this.allActionValidationConfig[entity.actionId] &&
-                this.allActionValidationConfig[entity.actionId][configProperty];
+                !!this.allActionValidationConfig[actionConfig.actionId] &&
+                this.allActionValidationConfig[actionConfig.actionId][
+                  configProperty
+                ];
               if (!!validationConfig && !_.isEmpty(validationConfig)) {
                 this.validateActionProperty(
                   fullPropertyPath,
@@ -945,7 +963,6 @@ export default class DataTreeEvaluator {
     data: EvalTree,
     resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
-    entityConfigCollection: EntityConfigCollection,
     contextData?: EvaluateContext,
     callBackData?: Array<any>,
     fullPropertyPath?: string,
@@ -959,7 +976,7 @@ export default class DataTreeEvaluator {
       const entityName = fullPropertyPath.split(".")[0];
       propertyPath = fullPropertyPath.split(".")[1];
       entity = data[entityName];
-      entityConfig = entityConfigCollection[entityName];
+      entityConfig = this.entityConfigCollection[entityName];
     }
     // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(
@@ -1146,8 +1163,8 @@ export default class DataTreeEvaluator {
     parsedValue,
     propertyPath,
   }: {
-    currentTree: DataTree;
-    entity: DataTreeWidget;
+    currentTree: EvalTree;
+    entity: WidgetEvalTree;
     evalMetaUpdates: EvalMetaUpdates;
     fullPropertyPath: string;
     parsedValue: unknown;
@@ -1177,24 +1194,27 @@ export default class DataTreeEvaluator {
     widget,
   }: {
     fullPropertyPath: string;
-    widget: DataTreeWidget;
-    currentTree: DataTree;
+    widget: WidgetEvalTree;
+    currentTree: EvalTree;
   }) {
     if (this.inverseValidationDependencyMap[fullPropertyPath]) {
       const pathsToRevalidate = this.inverseValidationDependencyMap[
         fullPropertyPath
       ];
       pathsToRevalidate.forEach((fullPath) => {
+        const { entityName } = getEntityNameAndPropertyPath(fullPath);
         validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
           widget,
           currentTree,
+          widgetConfig: this.entityConfigCollection[en],
           // we supply non-transformed evaluated value
           evalPropertyValue: get(this.getUnParsedEvalTree(), fullPath),
           unEvalPropertyValue: (get(
             this.oldUnEvalTree,
             fullPath,
           ) as unknown) as string,
+          entityConfigCollection: this.entityConfigCollection,
         });
       });
     }
@@ -1223,7 +1243,7 @@ export default class DataTreeEvaluator {
   validateActionProperty(
     fullPropertyPath: string,
     action: DataTreeAction,
-    currentTree: DataTree,
+    currentTree: EvalTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     validationConfig: ValidationConfig,
@@ -1269,13 +1289,20 @@ export default class DataTreeEvaluator {
     dependenciesOfRemovedPaths: Array<string>,
     removedPaths: Array<string>,
     unEvalTree: DataTree,
+    entityConfigCollection: EntityConfigCollection,
   ) {
     const changePaths: Set<string> = new Set(dependenciesOfRemovedPaths);
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       changePaths.add(convertPathToString(d.path));
       // If this is a property path change, simply add for evaluation and move on
-      if (!isDynamicLeaf(unEvalTree, convertPathToString(d.path))) {
+      if (
+        !isDynamicLeaf(
+          unEvalTree,
+          entityConfigCollection,
+          convertPathToString(d.path),
+        )
+      ) {
         // A parent level property has been added or deleted
         /**
          * We want to add all pre-existing dynamic and static bindings in dynamic paths of this entity to get evaluated and validated.
@@ -1287,16 +1314,22 @@ export default class DataTreeEvaluator {
          */
         const entityName = d.path[0];
         const entity = unEvalTree[entityName];
+
         if (!entity) {
           continue;
         }
         if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity)) {
           continue;
         }
+
+        const entityConfig = entityConfigCollection[
+          entityName
+        ] as EntityConfigWithBindings;
+
         let entityDynamicBindingPaths: string[] = [];
         if (isAction(entity)) {
           const entityDynamicBindingPathList = getEntityDynamicBindingPathList(
-            entity,
+            entityConfig,
           );
           entityDynamicBindingPaths = entityDynamicBindingPathList.map(
             (path) => {
@@ -1305,7 +1338,7 @@ export default class DataTreeEvaluator {
           );
         }
         const parentPropertyPath = convertPathToString(d.path);
-        Object.keys(entity.reactivePaths).forEach((relativePath) => {
+        Object.keys(entityConfig.reactivePaths).forEach((relativePath) => {
           const childPropertyPath = `${entityName}.${relativePath}`;
           // Check if relative path has dynamic binding
           if (

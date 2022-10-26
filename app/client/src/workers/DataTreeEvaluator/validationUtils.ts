@@ -1,7 +1,6 @@
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import {
-  DataTree,
   EntityConfigCollection,
   EvalTree,
 } from "entities/DataTree/DataTreeFactory";
@@ -17,6 +16,7 @@ import {
   isPathADynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 import {
   addErrorToEntityProperty,
   getEntityNameAndPropertyPath,
@@ -38,13 +38,18 @@ export function validateAndParseWidgetProperty({
   fullPropertyPath: string;
   widget: WidgetEvalTree;
   widgetConfig: WidgetEntityConfig;
-  currentTree: DataTree;
+  currentTree: EvalTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
   entityConfigCollection: EntityConfigCollection;
 }): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-  if (isPathADynamicTrigger(widgetConfig, propertyPath)) {
+  if (
+    isPathADynamicTrigger(
+      (widgetConfig as unknown) as WidgetProps,
+      propertyPath,
+    )
+  ) {
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
   }

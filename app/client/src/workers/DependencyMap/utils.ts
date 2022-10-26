@@ -9,12 +9,15 @@ import {
 } from "utils/DynamicBindingUtils";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
 import { convertPathToString, isWidget } from "../evaluationUtils";
-import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import {
+  WidgetEntityConfig,
+  WidgetEvalTree,
+} from "entities/DataTree/Widget/types";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
  * @param script
@@ -129,16 +132,17 @@ export const extractInfoFromBindings = (
 };
 
 export function listTriggerFieldDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEvalTree,
+  entityConfig: WidgetEntityConfig,
   entityName: string,
 ): DependencyMap {
   const triggerFieldDependency: DependencyMap = {};
   if (isWidget(entity)) {
-    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    const dynamicTriggerPathlist = entityConfig.dynamicTriggerPathList;
     if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
       dynamicTriggerPathlist.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
-        const unevalPropValue = get(entity, propertyPath);
+        const unevalPropValue = get(entity, propertyPath) as string;
         const { jsSnippets } = getDynamicBindings(unevalPropValue);
         const existingDeps =
           triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
@@ -152,7 +156,7 @@ export function listTriggerFieldDependencies(
 }
 
 export function listValidationDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEntityConfig,
   entityName: string,
 ): DependencyMap {
   const validationDependency: DependencyMap = {};

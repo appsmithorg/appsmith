@@ -14,11 +14,11 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
 import { AppState } from "@appsmith/reducers";
-import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { DSLWidget } from "widgets/constants";
+import { DataTreeWidget } from "entities/DataTree/Widget/types";
 
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
   const dispatch = useDispatch();
@@ -98,9 +98,13 @@ const getChildWidgets = (
 
   if (parentWidget.children) {
     return parentWidget.children.map((childWidgetId) => {
-      const childWidget = { ...canvasWidgets[childWidgetId] } as DataTreeWidget;
+      const childWidget = ({
+        ...canvasWidgets[childWidgetId],
+      } as unknown) as DataTreeWidget;
 
+      // @ts-expect-error: fix this
       if (childWidget?.children?.length > 0) {
+        // @ts-expect-error: fix this
         childWidget.children = getChildWidgets(canvasWidgets, childWidgetId);
       }
 
@@ -127,6 +131,7 @@ export const mockGetWidgetEvalValues = (
   state: AppState,
   widgetName: string,
 ) => {
+  // @ts-expect-error: fix this
   return Object.values(state.entities.canvasWidgets).find(
     (widget) => widget.widgetName === widgetName,
   ) as DataTreeWidget;

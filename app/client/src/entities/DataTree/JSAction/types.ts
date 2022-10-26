@@ -28,4 +28,4 @@ export interface JSActionEvalTree {
   [propName: string]: unknown;
 }
 
-export type DataTreeJSAction = JSActionEntityConfig;
+export type DataTreeJSAction = JSActionEntityConfig | JSActionEvalTree;

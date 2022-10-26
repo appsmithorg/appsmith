@@ -51,9 +51,9 @@ import {
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import { DataTreeWidget } from "entities/DataTree/DataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { WidgetEvalTree } from "entities/DataTree/Widget/types";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -302,7 +302,7 @@ export function getWidgetChildrenIds(
   return childrenIds;
 }
 
-export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
+export type ChildrenWidgetMap = { id: string; evaluatedWidget: WidgetEvalTree };
 /**
  * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
  *

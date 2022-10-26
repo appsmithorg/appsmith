@@ -3,7 +3,6 @@ import {
   PrivateWidgets,
   WidgetConfig,
   WidgetEvalProps,
-  WidgetProps,
 } from "widgets/BaseWidget";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 
@@ -46,7 +45,7 @@ export interface WidgetEntityConfig extends WidgetConfig {
   type: string;
 }
 
-export type DataTreeWidget = WidgetProps | WidgetConfig;
+export type DataTreeWidget = WidgetEvalTree | WidgetEntityConfig;
 
 export interface WidgetEvalTree extends WidgetEvalProps {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;

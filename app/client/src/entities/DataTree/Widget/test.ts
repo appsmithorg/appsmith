@@ -8,9 +8,6 @@ import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DataTreeWidget } from "./types";
-
-// const WidgetTypes = WidgetFactory.widgetTypes;
 
 describe("generateDataTreeWidget", () => {
   beforeEach(() => {
