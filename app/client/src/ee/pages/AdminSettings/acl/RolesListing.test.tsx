@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { MenuItemProps } from "design-system";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import { RoleProps } from "./types";
 
 let container: any = null;
 
@@ -70,16 +71,16 @@ describe("<RoleListing />", () => {
       `/settings/roles/${rolesTableData[0].id}`,
     );
   });
-  /*it("should render appsmith badge for appsmith provided role", () => {
+  it("should render appsmith badge for appsmith provided role", () => {
     renderComponent();
     const role = screen.getAllByTestId("t--roles-cell");
     const appsmithBadge = screen.getAllByTestId("t--appsmith-badge");
     const appsmithProvided = rolesTableData.filter(
-      (role: RoleProps) => role.isAppsmithProvided,
+      (role: RoleProps) => role.autoCreated,
     );
     expect(appsmithBadge.length).toEqual(appsmithProvided.length);
     rolesTableData.forEach((group: RoleProps, index: number) => {
-      if (!group.isAppsmithProvided) {
+      if (!group.autoCreated) {
         expect(
           role[index].querySelectorAll("[data-testid='t--appsmith-badge']"),
         ).toHaveLength(0);
@@ -89,7 +90,7 @@ describe("<RoleListing />", () => {
         ).not.toHaveLength(0);
       }
     });
-  });*/
+  });
   it("should test new group gets created on Add group button click", () => {
     renderComponent();
     const button = screen.getAllByTestId("t--acl-page-header-input");

@@ -100,7 +100,7 @@ export function RolesListing() {
                 highlight={searchValue}
                 text={cellProps.cell.row.original.name}
               />
-              {cellProps.cell.row.original.isAppsmithProvided && (
+              {cellProps.cell.row.original.autoCreated && (
                 <AppsmithIcon data-testid="t--appsmith-badge">A</AppsmithIcon>
               )}
             </CellContainer>

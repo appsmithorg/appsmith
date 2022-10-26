@@ -4,7 +4,7 @@ import { DebouncedFunc } from "lodash";
 export type BaseAclProps = { id: string; name: string };
 
 export type RoleProps = BaseAclProps & {
-  /* isAppsmithProvided: boolean; */
+  autoCreated?: boolean;
   description?: string;
   tabs?: any;
   userPermissions?: string[];
