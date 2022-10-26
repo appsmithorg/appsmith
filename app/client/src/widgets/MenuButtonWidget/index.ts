@@ -49,7 +49,7 @@ export const CONFIG = {
       id: "config",
       config: {
         id: "config",
-        label: `{{MenuButton1.sourceData.map((currentItem, currentIndex) => ( currentItem.task))}}`,
+        label: "",
         isVisible: true,
         isDisabled: false,
       },
