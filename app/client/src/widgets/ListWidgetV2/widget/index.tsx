@@ -123,8 +123,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {
       pageNo: 1,
       currentViewItems: "{{[]}}",
-      selectedItemIndex: undefined,
-      selectedViewItemIndex: undefined,
+      selectedItemIndex: -1,
+      selectedViewItemIndex: -1,
     };
   }
 
@@ -594,8 +594,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   resetSelectedItemMeta = () => {
-    this.props.updateWidgetMetaProperty("selectedViewItemIndex", undefined);
-    this.props.updateWidgetMetaProperty("selectedItemIndex", undefined);
+    this.props.updateWidgetMetaProperty("selectedViewItemIndex", -1);
+    this.props.updateWidgetMetaProperty("selectedItemIndex", -1);
   };
 
   getGridGap = () =>
@@ -858,8 +858,8 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   pageNo: number;
   pageSize: number;
   currentViewItems: Array<Record<string, unknown>>;
-  selectedItemIndex?: number;
-  selectedViewItemIndex?: number;
+  selectedItemIndex: number;
+  selectedViewItemIndex: number;
 }
 
 export default ListWidget;

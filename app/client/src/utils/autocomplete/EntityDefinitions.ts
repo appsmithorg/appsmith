@@ -428,6 +428,8 @@ export const entityDefinitions = {
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
     currentViewItems: generateTypeDef(widget.currentViewItems),
+    selectedViewItemIndex: "number",
+    selectedItemIndex: "number",
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",
