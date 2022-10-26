@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   getCanvasWidth,
@@ -106,7 +106,7 @@ function CanvasContainer() {
   }
   const appLayout = useSelector(getCurrentApplicationLayout);
   useEffect(() => {
-    if (appLayout?.type === "FLUID") {
+    if (!isPreviewMode && appLayout?.type === "FLUID") {
       const smallestWidth = layoutConfigurations.MOBILE.minWidth;
       // Query the element
       const ele: any = document.getElementById("main-canvas-container");
@@ -170,10 +170,8 @@ function CanvasContainer() {
       const ele: any = document.getElementById("main-canvas-container");
       ele.style.width = "inherit";
     }
-  }, [appLayout]);
+  }, [appLayout, isPreviewMode]);
 
-  const leftResizer = useRef<HTMLElement | null>(null);
-  // const resizer = useHorizontalResize(leftResizer, noop, noop);
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
   const heightWithTopMargin = `calc(100vh - 2.25rem - ${theme.smallHeaderHeight} - ${theme.bottomBarHeight})`;
@@ -197,12 +195,15 @@ function CanvasContainer() {
         fontFamily: fontFamily,
       }}
     >
-      {appLayout?.type === "FLUID" && (
+      {appLayout?.type === "FLUID" && !isPreviewMode && (
         <>
           <span
             className="resizer-left"
-            draggable={false}
-            ref={leftResizer as any}
+            draggable
+            onDragStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
             style={{
               zIndex: 100,
               position: "sticky",
@@ -217,7 +218,11 @@ function CanvasContainer() {
           </span>
           <span
             className="resizer-right"
-            draggable={false}
+            draggable
+            onDragStart={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
             style={{
               zIndex: 100,
               position: "sticky",

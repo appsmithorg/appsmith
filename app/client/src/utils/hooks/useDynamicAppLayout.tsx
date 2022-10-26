@@ -2,6 +2,7 @@ import { debounce, get } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { updateLayoutForMobileBreakpoint } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import {
   DefaultLayoutType,
@@ -23,7 +24,6 @@ import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
-import { updateLayoutForMobileBreakpoint } from "actions/autoLayoutActions";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -156,6 +156,8 @@ export const useDynamicAppLayout = () => {
   const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
     mainCanvasProps,
     screenWidth,
+    appMode,
+    appLayout,
   ]);
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
