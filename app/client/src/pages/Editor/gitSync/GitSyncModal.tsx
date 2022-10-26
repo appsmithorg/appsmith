@@ -20,6 +20,7 @@ import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useGitConnect } from "./hooks";
 
 const Container = styled.div`
   height: 600px;
@@ -71,8 +72,10 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const activeTabIndex = useSelector(getActiveGitSyncModalTab);
+  const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
   const handleClose = useCallback(() => {
+    resetGitConnectStatus();
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);

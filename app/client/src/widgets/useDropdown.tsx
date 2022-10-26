@@ -11,6 +11,7 @@ const BackDropContainer = styled.div`
   background: transparent;
   top: 0;
   left: 0;
+  display: none;
 `;
 
 type useDropdownProps = {

@@ -8,7 +8,7 @@ import { CopyToClipboard } from "design-system";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import WorkspaceInviteUsersForm, {
   InviteButtonWidth,
 } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
