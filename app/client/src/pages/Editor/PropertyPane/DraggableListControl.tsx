@@ -9,6 +9,7 @@ import React, { useRef } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyPanelIndex } from "selectors/editorContextSelectors";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export type DraggableListControlProps<
   TItem extends BaseItemProps
@@ -21,6 +22,7 @@ export const DraggableListControl = <TItem extends BaseItemProps>(
 ) => {
   const dispatch = useDispatch();
   const currentIndex = useRef<number>(-1);
+  const featureFlags = useSelector(selectFeatureFlags);
   const defaultPanelIndex = useSelector(
     (state: AppState) =>
       getSelectedPropertyPanelIndex(state, props.propertyName),
@@ -35,7 +37,10 @@ export const DraggableListControl = <TItem extends BaseItemProps>(
   const { onEdit, propertyName } = props;
 
   useEffect(() => {
-    onEdit && defaultPanelIndex !== undefined && onEdit(defaultPanelIndex);
+    featureFlags.CONTEXT_SWITCHING &&
+      onEdit &&
+      defaultPanelIndex !== undefined &&
+      onEdit(defaultPanelIndex);
   }, [defaultPanelIndex]);
 
   const onPanelEdit = (index: number) => {

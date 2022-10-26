@@ -104,7 +104,7 @@ import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefC
 import { setCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
-import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
+import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1026,7 +1026,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  editorIsFocused: getshouldFocusPropertyPath(state, props.dataTreePath || ""),
+  editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
