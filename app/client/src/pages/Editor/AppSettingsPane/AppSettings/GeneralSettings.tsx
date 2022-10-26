@@ -6,6 +6,7 @@ import {
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
+import classNames from "classnames";
 import {
   AppIconName,
   TextInput,
@@ -81,7 +82,12 @@ function GeneralSettings() {
   return (
     <>
       <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_NAME_LABEL()}</Text>
-      <div className="pt-1 pb-2 relative">
+      <div
+        className={classNames({
+          "pt-1 pb-2 relative": true,
+          "pb-3": !isAppNameValid,
+        })}
+      >
         {isSavingAppName && <TextLoaderIcon />}
         <TextInput
           defaultValue={applicationName}

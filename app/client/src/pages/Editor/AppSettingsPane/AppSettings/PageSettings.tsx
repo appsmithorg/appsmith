@@ -166,7 +166,12 @@ function PageSettings(props: { page: Page }) {
   return (
     <>
       <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_NAME_LABEL()}</Text>
-      <div className="pt-1 pb-2 relative">
+      <div
+        className={classNames({
+          "pt-1 pb-2 relative": true,
+          "pb-3": !isPageNameValid,
+        })}
+      >
         {isPageNameSaving && <TextLoaderIcon />}
         <TextInput
           defaultValue={pageName}
@@ -212,6 +217,7 @@ function PageSettings(props: { page: Page }) {
         className={classNames({
           "py-1 relative": true,
           "pb-2": appNeedsUpdate,
+          "pb-5": !appNeedsUpdate && !isCustomSlugValid,
         })}
       >
         {isCustomSlugSaving && <TextLoaderIcon />}
