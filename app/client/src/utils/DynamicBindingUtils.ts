@@ -15,6 +15,9 @@ import forge from "node-forge";
 import { EvalTreeEntity } from "entities/DataTree/DataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
+import { WidgetEntityConfig } from "entities/DataTree/Widget/types";
+import { JSActionEntityConfig } from "entities/DataTree/JSAction/types";
+import { ActionEntityConfig } from "entities/DataTree/Action/types";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -214,8 +217,13 @@ export interface EntityWithBindings {
   dynamicBindingPathList?: DynamicPath[];
 }
 
+export type EntityConfigWithBindings =
+  | WidgetEntityConfig
+  | JSActionEntityConfig
+  | ActionEntityConfig;
+
 export const getEntityDynamicBindingPathList = (
-  entity: EntityWithBindings,
+  entity: EntityConfigWithBindings,
 ): DynamicPath[] => {
   if (
     entity &&
@@ -228,7 +236,7 @@ export const getEntityDynamicBindingPathList = (
 };
 
 export const isPathADynamicBinding = (
-  entity: EntityWithBindings,
+  entity: EntityConfigWithBindings,
   path: string,
 ): boolean => {
   if (

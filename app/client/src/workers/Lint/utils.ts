@@ -1,4 +1,8 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/DataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  DataTreeEntityConfig,
+} from "entities/DataTree/DataTreeFactory";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -8,6 +12,7 @@ import {
 } from "workers/evaluationUtils";
 import { Position } from "codemirror";
 import {
+  EntityConfigWithBindings,
   EvaluationError,
   extraLibraries,
   isDynamicValue,
@@ -40,7 +45,7 @@ import {
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
-  entity: DataTreeEntity,
+  entity: DataTreeEntityConfig,
   fullPropertyPath: string,
 ): boolean => {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
@@ -52,9 +57,10 @@ export const pathRequiresLinting = (
   if (isATriggerPath(entity, propertyPath)) {
     return isDynamicValue(unEvalPropertyValue);
   }
+
   const isADynamicBindingPath =
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
-    isPathADynamicBinding(entity, propertyPath);
+    isPathADynamicBinding(entity as EntityConfigWithBindings, propertyPath);
   const requiresLinting =
     (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
     isJSAction(entity);

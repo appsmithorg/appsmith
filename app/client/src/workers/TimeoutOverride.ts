@@ -17,6 +17,7 @@ export default function overrideTimeout() {
         dataTree: dataTreeEvaluator?.evalTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,
+        entityConfigCollection: dataTreeEvaluator?.entityConfigCollection || {},
       });
       return _internalSetTimeout(
         function(...args: any) {

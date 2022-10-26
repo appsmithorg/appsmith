@@ -11,7 +11,7 @@ import ButtonWidget, {
 import SelectWidget, {
   CONFIG as SELECT_WIDGET_CONFIG,
 } from "widgets/SelectWidget";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/DataTreeFactory";
 
 const widgetConfigMap = {};
 
@@ -66,6 +66,7 @@ describe("test updateDependencyMap", () => {
       dataTreeEvalRef: dataTreeEvaluator,
       translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
       unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
+      entityConfigCollection: dataTreeEvaluator.entityConfigCollection,
     });
 
     expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
@@ -89,6 +90,7 @@ describe("test updateDependencyMap", () => {
       dataTreeEvalRef: dataTreeEvaluator,
       translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
       unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
+      entityConfigCollection: dataTreeEvaluator.entityConfigCollection,
     });
 
     expect(dataTreeEvaluator.dependencyMap).toStrictEqual({

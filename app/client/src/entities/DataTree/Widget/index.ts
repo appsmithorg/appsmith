@@ -42,6 +42,7 @@ const generateDataTreeWidgetWithoutMeta = (
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
   );
+
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   // Ensure all dynamic bindings are strings as they will be evaluated
   dynamicBindingPathList.forEach((dynamicPath) => {
@@ -138,7 +139,6 @@ const generateDataTreeWidgetWithoutMeta = (
       widget,
       unInitializedDefaultProps,
       derivedProps,
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       isLoading: widget.isLoading,
     },
   );
@@ -148,6 +148,7 @@ const generateDataTreeWidgetWithoutMeta = (
     dataTreeWidgetWithoutMetaProps,
     overridingMetaPropsMap,
     defaultMetaProps,
+    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     // @ts-expect-error: fix types
     entityConfig: {
       logBlackList: {

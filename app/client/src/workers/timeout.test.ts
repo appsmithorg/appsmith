@@ -1,5 +1,10 @@
 import { PluginType } from "entities/Action";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EntityConfigCollection,
+  ENTITY_TYPE,
+  EvalTree,
+} from "entities/DataTree/DataTreeFactory";
 import { createGlobalData } from "./evaluate";
 import "./TimeoutOverride";
 import overrideTimeout from "./TimeoutOverride";
@@ -85,7 +90,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
     expect(cb.mock.calls.length).toBe(0);
   });
   it("Access to appsmith functions inside setTimeout", async () => {
-    const dataTree: DataTree = {
+    const dataTree: EvalTree = {
       action1: {
         actionId: "123",
         pluginId: "",
@@ -112,6 +117,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
       resolvedFunctions: {},
       isTriggerBased: true,
       context: {},
+      entityConfigCollection: dataTree as EntityConfigCollection,
     });
     setTimeout(() => dataTreeWithFunctions.action1.run(), 1000);
     jest.runAllTimers();

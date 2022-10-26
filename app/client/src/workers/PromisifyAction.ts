@@ -74,6 +74,7 @@ export const promisifyAction = (
               requestId: workerRequestId,
               eventType,
             },
+            entityConfigCollection: dataTreeEvaluator.entityConfigCollection,
           });
           for (const entity in globalData) {
             // @ts-expect-error: Types are not available
