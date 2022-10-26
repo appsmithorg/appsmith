@@ -70,12 +70,11 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     overflow: auto;
-    height: 400px;
+    height: 405px;
     .search-CTA {
       display: flex;
       flex-direction: column;
-      margin-top: 16px;
-      margin-left: 24px;
+      margin: 16px 24px 0;
     }
     .search-results {
       .library-card {
@@ -317,10 +316,8 @@ function InstallationPopoverContent(props: any) {
             </Text>{" "}
             or{" "}
             <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>
-              UNPKG
+              UNPKG.
             </Text>
-          </Text>
-          <Text type={TextType.P3}>
             Learn more about Custom JS Libraries here.
           </Text>
         </div>

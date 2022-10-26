@@ -35,7 +35,6 @@ export function* installLibrary(url: string) {
     return;
   }
   TernServer.updateDef(defs["!name"], defs);
-  yield delay(1000);
   yield put({
     type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
     payload: { url, libraryAccessor },
