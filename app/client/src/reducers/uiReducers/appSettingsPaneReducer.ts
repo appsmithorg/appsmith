@@ -7,7 +7,6 @@ import { createReducer } from "utils/ReducerUtils";
 
 const initialState: AppSettingsPaneReduxState = {
   isOpen: false,
-  reopenExplorerOnClose: false,
 };
 
 const appSettingsPaneReducer = createReducer(initialState, {
@@ -30,15 +29,6 @@ const appSettingsPaneReducer = createReducer(initialState, {
       context: undefined,
     };
   },
-  [ReduxActionTypes.REOPEN_EXPLORER_ON_SETTINGS_PANE_CLOSE]: (
-    state: AppSettingsPaneReduxState,
-    action: ReduxAction<boolean>,
-  ): AppSettingsPaneReduxState => {
-    return {
-      ...state,
-      reopenExplorerOnClose: action.payload,
-    };
-  },
 });
 
 export interface AppSettingsPaneContext {
@@ -49,7 +39,6 @@ export interface AppSettingsPaneContext {
 export interface AppSettingsPaneReduxState {
   isOpen: boolean;
   context?: AppSettingsPaneContext;
-  reopenExplorerOnClose: boolean;
 }
 
 export default appSettingsPaneReducer;

@@ -41,7 +41,6 @@ import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import NavigationSagas from "sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
-import AppSettingsPaneSagas from "sagas/AppSettingsPaneSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
 
 export const sagas = [
@@ -88,6 +87,5 @@ export const sagas = [
   NavigationSagas,
   editorContextSagas,
   PageVisibilitySaga,
-  AppSettingsPaneSagas,
   tenantSagas,
 ];
