@@ -38,7 +38,10 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 // import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
+import {
+  migrateMenuButtonDynamicItems,
+  migrateMenuButtonWidgetButtonProperties,
+} from "./migrations/MenuButtonWidget";
 import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
@@ -1127,6 +1130,11 @@ export const transformDSL = (
 
   if (currentDSL.version === 64) {
     currentDSL = migrateRateWidgetDisabledState(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 65) {
+    currentDSL = migrateMenuButtonDynamicItems(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
