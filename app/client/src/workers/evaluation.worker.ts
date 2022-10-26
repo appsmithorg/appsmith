@@ -29,7 +29,7 @@ import { EvalTreePayload } from "../sagas/EvaluationsSaga";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { validateWidgetProperty } from "./DataTreeEvaluator/validationUtils";
 import difference from "lodash/difference";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { ternDefinitionGenerator } from "./ternDefinitionGenerator";
 
 const CANVAS = "canvas";
 
@@ -343,26 +343,29 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.INSTALL_LIBRARY:
         const url = requestData;
         const existingKeys = Object.keys(self);
-        let keysPostInstallation = [];
         const defs: any = {};
-        keysPostInstallation = Object.keys(self);
         try {
           //@ts-expect-error test
           self.importScripts(url);
         } catch (e) {
           return { status: false, defs };
         }
+        const keysPostInstallation = Object.keys(self);
         const libraryAccessor = difference(
-          existingKeys,
           keysPostInstallation,
+          existingKeys,
         ).pop();
         if (!libraryAccessor) return { status: true, defs };
         //@ts-expect-error test
         const library = self[libraryAccessor];
-        defs["!name"] = libraryAccessor;
-        for (const prop of Object.keys(library)) {
-          defs[prop] = generateTypeDef(library[prop]);
-        }
+        extraLibraries.push({
+          accessor: libraryAccessor,
+          lib: library,
+          displayName: url,
+          docsURL: url,
+        });
+        defs["!name"] = `LIB/${libraryAccessor}`;
+        defs[libraryAccessor] = ternDefinitionGenerator(library);
         return { status: true, defs, libraryAccessor };
       default: {
         console.error("Action not registered on worker", method);
