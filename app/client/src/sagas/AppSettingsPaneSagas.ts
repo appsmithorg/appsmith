@@ -3,14 +3,7 @@ import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
-import {
-  SelectMultipleWidgetsActionPayload,
-  SelectWidgetActionPayload,
-} from "actions/widgetSelectionActions";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { getReopenExplorerOnSettingsPaneClose } from "selectors/appSettingsPaneSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
@@ -24,29 +17,7 @@ export function* openAppSettingsPaneSaga() {
   }
 }
 
-export function* closeSettingsPaneSaga(
-  action?:
-    | ReduxAction<SelectMultipleWidgetsActionPayload> // SELECT_MULTIPLE_WIDGETS
-    | ReduxAction<SelectWidgetActionPayload> // SELECT_WIDGET
-    | ReduxAction<undefined>, // CLOSE_APP_SETTINGS_PANE
-) {
-  // select multiple widgets is triggered also on canvas click
-  // checking widgets length to ensure widgets were selected
-  if (
-    action?.type === ReduxActionTypes.SELECT_MULTIPLE_WIDGETS &&
-    (action as ReduxAction<SelectMultipleWidgetsActionPayload>)?.payload
-      ?.widgetIds?.length === 0
-  )
-    return;
-
-  // select widget is also triggered on route change
-  // checking widget id to ensure a widget was selected
-  if (
-    action?.type === ReduxActionTypes.SELECT_WIDGET &&
-    !(action as ReduxAction<SelectWidgetActionPayload>)?.payload?.widgetId
-  )
-    return;
-
+export function* closeSettingsPaneSaga() {
   const reopenExplorer: boolean = yield select(
     getReopenExplorerOnSettingsPaneClose,
   );
@@ -63,7 +34,5 @@ export default function* root() {
       openAppSettingsPaneSaga,
     ),
     takeLatest(ReduxActionTypes.CLOSE_APP_SETTINGS_PANE, closeSettingsPaneSaga),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET, closeSettingsPaneSaga),
-    takeLatest(ReduxActionTypes.SELECT_MULTIPLE_WIDGETS, closeSettingsPaneSaga),
   ]);
 }
