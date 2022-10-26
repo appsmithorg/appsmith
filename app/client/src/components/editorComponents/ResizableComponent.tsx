@@ -49,6 +49,7 @@ import {
   isMultiSelectedWidget,
 } from "selectors/widgetSelectors";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import { DRAG_MARGIN } from "widgets/constants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -284,14 +285,14 @@ export const ResizableComponent = memo(function ResizableComponent(
       updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
-  const multiplier = props.parentId === "0" ? 0.99 : 0.95;
+
   return (
     <Resizable
       allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
       componentWidth={
         isCurrentCanvasDragging && props.isFlexChild
-          ? dimensions.width * multiplier
+          ? dimensions.width - DRAG_MARGIN * 2
           : dimensions.width
       }
       direction={props.direction}

@@ -44,10 +44,7 @@ const FlexWidget = styled.div<{
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
 
-  width: ${({ componentWidth, isCurrentCanvasDragging, isFillWidget }) =>
-    isFillWidget || isCurrentCanvasDragging
-      ? "auto"
-      : `${Math.floor(componentWidth)}px`};
+  width: ${({ componentWidth }) => `${Math.floor(componentWidth)}px`};
   height: ${({ componentHeight, isMobile }) =>
     isMobile ? "100%" : Math.floor(componentHeight) + "px"};
   min-width: ${({ minWidth }) => minWidth};
@@ -61,7 +58,7 @@ const FlexWidget = styled.div<{
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
   margin: ${({ isCurrentCanvasDragging }) =>
-    isCurrentCanvasDragging ? `${DRAG_MARGIN}px` : 0};
+    isCurrentCanvasDragging ? `${DRAG_MARGIN}px` : "0px"};
 `;
 
 // TODO: update min width logic.
@@ -78,7 +75,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     (state: AppState) => state.ui.widgetDragResize,
   );
 
-  const isCurrentCanvasDragging = dragDetails?.draggedOn !== undefined;
+  const isCurrentCanvasDragging = dragDetails?.draggedOn === props.parentId;
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -112,7 +109,11 @@ export function FlexComponent(props: AutoLayoutProps) {
     <FlexWidget
       className={className}
       componentHeight={props.componentHeight}
-      componentWidth={props.componentWidth}
+      componentWidth={
+        isCurrentCanvasDragging
+          ? props.componentWidth - DRAG_MARGIN * 2
+          : props.componentWidth
+      }
       id={props.widgetId}
       isCurrentCanvasDragging={isCurrentCanvasDragging}
       isFillWidget={isFillWidget}
