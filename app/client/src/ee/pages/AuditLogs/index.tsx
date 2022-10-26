@@ -12,7 +12,7 @@ import {
   initialAuditLogsFilterState,
 } from "@appsmith/reducers/auditLogsReducer";
 import { StyledAuditLogsRightPaneContainer as Container } from "./styled-components/container";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import ErrorPage from "pages/common/ErrorPage";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { urlToSearchFilters } from "./utils/urlToSearchFilters";
@@ -66,12 +66,8 @@ export default function AuditLogsFeatureContainer() {
   }, []);
 
   const user = useSelector(getCurrentUser);
-  const features = useSelector(selectFeatureFlags);
   if (!user?.isSuperUser) {
     return <ErrorPage code={ERROR_CODES.REQUEST_NOT_AUTHORISED} />;
-  }
-  if (!features.AUDIT_LOGS) {
-    return <ErrorPage code={ERROR_CODES.PAGE_NOT_FOUND} />;
   }
 
   return (
