@@ -10,6 +10,7 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
 import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -266,6 +267,21 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
+  postWindowMessage: function(
+    message: unknown,
+    source: string,
+    targetOrigin: string,
+  ) {
+    return {
+      type: ActionTriggerType.POST_MESSAGE,
+      payload: {
+        message,
+        source,
+        targetOrigin,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
 };
 
 export const enhanceDataTreeWithFunctions = (
@@ -273,6 +289,7 @@ export const enhanceDataTreeWithFunctions = (
   requestId = "",
   // Whether not to add functions like "run", "clear" to entity
   skipEntityFunctions = false,
+  eventType?: EventType,
 ): DataTree => {
   const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
@@ -294,6 +311,7 @@ export const enhanceDataTreeWithFunctions = (
                 {
                   TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
                   REQUEST_ID: requestId,
+                  EVENT_TYPE: eventType,
                 },
                 func,
               ),
@@ -333,7 +351,11 @@ export const enhanceDataTreeWithFunctions = (
  *
  * **/
 export const pusher = function(
-  this: { TRIGGER_COLLECTOR: ActionDescription[]; REQUEST_ID: string },
+  this: {
+    TRIGGER_COLLECTOR: ActionDescription[];
+    REQUEST_ID: string;
+    EVENT_TYPE?: EventType;
+  },
   action: ActionDispatcherWithExecutionType,
   ...args: any[]
 ) {
@@ -347,6 +369,6 @@ export const pusher = function(
   if (executionType && executionType === ExecutionType.TRIGGER) {
     this.TRIGGER_COLLECTOR.push(actionPayload);
   } else {
-    return promisifyAction(this.REQUEST_ID, actionPayload);
+    return promisifyAction(this.REQUEST_ID, actionPayload, this.EVENT_TYPE);
   }
 };

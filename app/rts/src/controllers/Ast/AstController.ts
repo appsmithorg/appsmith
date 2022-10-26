@@ -9,6 +9,14 @@ type ScriptToIdentifiersType = {
   evalVersion?: number;
 };
 
+type entityRefactorType = {
+  script: string;
+  oldName: string;
+  newName: string;
+  isJSObject: boolean;
+  evalVersion?: number;
+};
+
 type MultipleScriptToIdentifiersType = {
   scripts: string[];
   evalVersion?: number;
@@ -18,11 +26,11 @@ export default class AstController extends BaseController {
     super();
   }
 
-  async getDependentIdentifiers(req: Request, res: Response) {
+  async getIdentifierDataFromScript(req: Request, res: Response) {
     try {
       // By default the application eval version is set to be 2
       const { script, evalVersion = 2 }: ScriptToIdentifiersType = req.body;
-      const data = await AstService.getIdentifiersFromScript(
+      const data = await AstService.extractIdentifierDataFromScript(
         script,
         evalVersion
       );
@@ -37,7 +45,7 @@ export default class AstController extends BaseController {
     }
   }
 
-  async getMultipleDependentIdentifiers(req: Request, res: Response) {
+  async getIdentifierDataFromMultipleScripts(req: Request, res: Response) {
     try {
       // By default the application eval version is set to be 2
       const { scripts, evalVersion = 2 }: MultipleScriptToIdentifiersType =
@@ -46,11 +54,37 @@ export default class AstController extends BaseController {
       Promise.all(
         scripts.map(
           async (script) =>
-            await AstService.getIdentifiersFromScript(script, evalVersion)
+            await AstService.extractIdentifierDataFromScript(
+              script,
+              evalVersion
+            )
         )
       ).then((data) => {
         return super.sendResponse(res, data);
       });
+    } catch (err) {
+      return super.sendError(
+        res,
+        super.serverErrorMessaage,
+        [err.message],
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async entityRefactorController(req: Request, res: Response) {
+    try {
+      // By default the application eval version is set to be 2
+      const { script, oldName, newName, isJSObject, evalVersion }: entityRefactorType =
+        req.body;
+      const data = await AstService.entityRefactor(
+        script,
+        oldName,
+        newName,
+        isJSObject,
+        evalVersion
+      );
+      return super.sendEntityResponse(res, data.body, data.isSuccess);
     } catch (err) {
       return super.sendError(
         res,

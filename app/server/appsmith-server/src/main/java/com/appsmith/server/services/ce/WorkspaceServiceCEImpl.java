@@ -31,7 +31,6 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -45,23 +44,27 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.EMAIL;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WEBSITE;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
+import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
+import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -297,7 +300,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
         // All the default permission groups should be readable by all the members of the workspace
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUP_MEMBERS))
                 .collect(Collectors.toSet());
         Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
@@ -398,6 +401,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> update(String id, Workspace resource) {
+
+        this.validateIncomingWorkspace(resource);
+        // Ensure the resource has the same ID as from the parameter.
+        resource.setId(id);
+
         Mono<Workspace> findWorkspaceMono = repository.findById(id, MANAGE_WORKSPACES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
@@ -491,7 +499,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Mono<List<PermissionGroupInfoDTO>> permissionGroupInfoDTOListMono = permissionGroupInfoFlux.collectList()
                 .map(list -> {
                     PermissionGroupInfoDTO[] permissionGroupInfoDTOArray = new PermissionGroupInfoDTO[3];
-                    
+
                     // populate array with admin at index 0, developer at index 1 and viewer at index 2
                     list.forEach(item -> {
                         if(item.getName().startsWith(FieldName.ADMINISTRATOR)) {
@@ -578,6 +586,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
         });
+    }
+
+    private void validateIncomingWorkspace(Workspace workspace){
+        if (StringUtils.hasLength(workspace.getEmail()) && ! Pattern.matches(EMAIL_PATTERN, workspace.getEmail())) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL);
+        }
+        if (StringUtils.hasLength(workspace.getWebsite()) && ! Pattern.matches(WEBSITE_PATTERN, workspace.getWebsite())) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE);
+        }
     }
 
     @Override

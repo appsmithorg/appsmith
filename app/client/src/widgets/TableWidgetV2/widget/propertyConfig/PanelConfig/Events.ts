@@ -1,23 +1,15 @@
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
-import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
+import {
+  getBasePropertyPath,
+  showByColumnType,
+  hideByColumnType,
+} from "../../propertyUtils";
 
 export default {
   sectionName: "Events",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    if (
-      !hideByColumnType(
-        props,
-        propertyPath,
-        [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
-          ColumnTypes.IMAGE,
-          ColumnTypes.EDIT_ACTIONS,
-        ],
-        true,
-      )
-    ) {
+    if (showByColumnType(props, propertyPath, [ColumnTypes.IMAGE], true)) {
       return false;
     } else {
       const columnType = get(props, `${propertyPath}.columnType`, "");
@@ -27,41 +19,18 @@ export default {
           columnType === ColumnTypes.TEXT ||
           columnType === ColumnTypes.NUMBER ||
           columnType === ColumnTypes.CHECKBOX ||
-          columnType === ColumnTypes.SWITCH
+          columnType === ColumnTypes.SWITCH ||
+          columnType === ColumnTypes.SELECT
         ) || !isEditable
       );
     }
   },
   children: [
-    // Button, iconButton onClick
-    {
-      helpText: "Triggers an action when the button is clicked",
-      propertyName: "onClick",
-      label: "onClick",
-      controlType: "ACTION_SELECTOR",
-      additionalAutoComplete: (props: TableWidgetProps) => ({
-        currentRow: Object.assign(
-          {},
-          ...Object.keys(props.primaryColumns).map((key) => ({
-            [key]: "",
-          })),
-        ),
-      }),
-      isJSConvertible: true,
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      isTriggerProperty: true,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.BUTTON,
-          ColumnTypes.ICON_BUTTON,
-        ]);
-      },
-    },
     // Image onClick
     {
       propertyName: "onClick",
       label: "onClick",
+      helpText: "Triggers an action when user clicks on an image",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -76,6 +45,8 @@ export default {
     {
       propertyName: "onSubmit",
       label: "onSubmit",
+      helpText:
+        "Triggers an action when the user presses enter or clicks outside the input box",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -95,6 +66,7 @@ export default {
     {
       propertyName: "onOptionChange",
       label: "onOptionChange",
+      helpText: "Triggers an action when user changes an option",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -114,6 +86,7 @@ export default {
         const columnType = get(props, `${basePropertyPath}.columnType`);
         return columnType === ColumnTypes.SWITCH ? "onChange" : "onCheckChange";
       },
+      helpText: "Triggers an action when the check state is changed",
       controlType: "ACTION_SELECTOR",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
@@ -127,32 +100,32 @@ export default {
       isTriggerProperty: true,
     },
     {
-      propertyName: "onSave",
-      label: "onSave",
-      controlType: "ACTION_SELECTOR",
+      propertyName: "onFilterUpdate",
+      helpText: "Trigger an action on change of filterText",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.EDIT_ACTIONS;
+        const isEditable = get(props, `${baseProperty}.isEditable`, "");
+        const serverSideFiltering = get(
+          props,
+          `${baseProperty}.serverSideFiltering`,
+          false,
+        );
+        return (
+          columnType !== ColumnTypes.SELECT ||
+          !isEditable ||
+          !serverSideFiltering
+        );
       },
       dependencies: ["primaryColumns"],
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
-    },
-    {
-      propertyName: "onDiscard",
-      label: "onDiscard",
+      label: "onFilterUpdate",
       controlType: "ACTION_SELECTOR",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== ColumnTypes.EDIT_ACTIONS;
-      },
-      dependencies: ["primaryColumns"],
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: true,
+      additionalAutoComplete: () => ({
+        filterText: "",
+      }),
     },
   ],
 };

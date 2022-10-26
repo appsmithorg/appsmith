@@ -5,11 +5,15 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.constants.EnvVariables;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -21,7 +25,12 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -43,10 +52,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +69,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
@@ -100,13 +112,17 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final UserUtils userUtils;
 
+    private final TenantService tenantService;
+
+    private final ObjectMapper objectMapper;
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
      * respectively.
      */
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile(
-            "^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<quote>[\"']?)(?<value>.*?)\\k<quote>$"
+            "^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<value>.*)$"
     );
 
     private static final Set<String> VARIABLE_WHITELIST = Stream.of(EnvVariables.values())
@@ -126,7 +142,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             FileUtils fileUtils,
                             PermissionGroupService permissionGroupService,
                             ConfigService configService,
-                            UserUtils userUtils) {
+                            UserUtils userUtils,
+                            TenantService tenantService,
+                            ObjectMapper objectMapper) {
 
         this.sessionUserService = sessionUserService;
         this.userService = userService;
@@ -142,6 +160,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.permissionGroupService = permissionGroupService;
         this.configService = configService;
         this.userUtils = userUtils;
+        this.tenantService = tenantService;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -156,7 +176,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     public List<String> transformEnvContent(String envContent, Map<String, String> changes) {
         final Set<String> variablesNotInWhitelist = new HashSet<>(changes.keySet());
+        final Set<String> tenantConfigWhitelist = allowedTenantConfiguration();
+
+        // We remove all the variables that aren't defined in our env variable whitelist or in the TenantConfiguration
+        // class. This is because the configuration can be saved either in the .env file or the tenant collection
         variablesNotInWhitelist.removeAll(VARIABLE_WHITELIST);
+        variablesNotInWhitelist.removeAll(tenantConfigWhitelist);
 
         if (!variablesNotInWhitelist.isEmpty()) {
             throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
@@ -185,23 +210,63 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return line;
                     }
                     final String name = matcher.group("name");
-                    if (!changes.containsKey(name)) {
-                        return line;
-                    }
-                    remainingChangedNames.remove(name);
-                    String safeValue = changes.get(name);
-                    if (safeValue.contains(" ") || safeValue.contains("?") || safeValue.contains("*") || safeValue.contains("#")) {
-                        safeValue = "'" + safeValue.replace("'", "'\"'\"'") + "'";
-                    }
-                    return String.format("%s=%s", name, safeValue);
+                    return remainingChangedNames.remove(name)
+                            ? String.format("%s=%s", name, escapeForShell(changes.get(name)))
+                            : line;
                 })
                 .collect(Collectors.toList());
 
         for (final String name : remainingChangedNames) {
-            outLines.add(name + "=" + changes.get(name));
+            outLines.add(name + "=" + escapeForShell(changes.get(name)));
         }
 
         return outLines;
+    }
+
+    private String escapeForShell(String input) {
+        if (org.apache.commons.lang3.StringUtils.containsAny(input, " ?*#'")) {
+            return ("'" + input.replace("'", "'\"'\"'") + "'")
+                    .replaceAll("^''", "")
+                    .replaceAll("''$", "");
+        }
+
+        return input;
+    }
+
+    private String unescapeFromShell(String input) {
+        final int len = input.length();
+        final StringBuilder valueBuilder = new StringBuilder();
+        Character inQuote = null;
+
+        for (int i = 0; i < len; ++i) {
+            final char c = input.charAt(i);
+
+            if (inQuote != null && inQuote == '\'') {
+                if (c == '\'') {
+                    inQuote = null;
+                } else {
+                    valueBuilder.append(c);
+                }
+
+            } else if (inQuote != null) {
+                // If `inQuote` is not null here, then it can only be the double-quote character.
+                // We don't do variable interpolation here, since we don't expect it to be present in the env file.
+                if (c == '"') {
+                    inQuote = null;
+                } else {
+                    valueBuilder.append(c);
+                }
+
+            } else if (c == '\'' || c == '"') {
+                inQuote = c;
+
+            } else {
+                valueBuilder.append(c);
+
+            }
+        }
+
+        return valueBuilder.toString();
     }
 
     private Mono<Void> validateChanges(User user, Map<String, String> changes) {
@@ -223,10 +288,64 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Mono.empty();
     }
 
+    /**
+     * This function returns a set of String based on the JsonProperty annotations in the TenantConfiguration class
+     *
+     * @return
+     */
+    private Set<String> allowedTenantConfiguration() {
+        Field[] fields = TenantConfiguration.class.getDeclaredFields();
+        return Arrays.stream(fields)
+                .map(field -> {
+                    JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
+                    return jsonProperty.value();
+                }).collect(Collectors.toSet());
+    }
+
+    /**
+     * This function sets the value in the TenantConfiguration object based on the JsonProperty annotation of the field
+     * The key must be exactly equal to the json annotation
+     *
+     * @param tenantConfiguration
+     * @param key
+     * @param value
+     */
+    private void setConfigurationByKey(TenantConfiguration tenantConfiguration, String key, String value) {
+        Field[] fields = tenantConfiguration.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
+            if (jsonProperty != null && jsonProperty.value().equals(key)) {
+                try {
+                    field.setAccessible(true);
+                    field.set(tenantConfiguration, value);
+                } catch (IllegalAccessException e) {
+                    // Catch the error, log it and then do nothing.
+                    log.error("Got error while parsing the JSON annotations from TenantConfiguration class. Cause: ", e);
+                }
+            }
+        }
+    }
+
+
+    private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
+        TenantConfiguration tenantConfiguration = new TenantConfiguration();
+        // Write the changes to the tenant collection in configuration field
+        return Flux.fromStream(changes.entrySet().stream())
+                .map(map -> {
+                    String key = map.getKey();
+                    String value = map.getValue();
+                    setConfigurationByKey(tenantConfiguration, key, value);
+                    return map;
+                })
+                .then(Mono.just(tenantConfiguration))
+                .flatMap(updatedTenantConfig -> tenantService.updateTenantConfiguration(tenantId, tenantConfiguration));
+    }
+
     @Override
     public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
-        return verifyCurrentUserIsSuper()
-                .flatMap(user -> validateChanges(user, changes).thenReturn(user))
+        // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant configuration
+        return verifyCurrentUserIsSuper().
+                flatMap(user -> validateChanges(user, changes).thenReturn(user))
                 .flatMap(user -> {
                     // Write the changes to the env file.
                     final String originalContent;
@@ -248,7 +367,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return Mono.error(e);
                     }
 
-                    return sendAnalyticsEvent(user, originalVariables, changes).thenReturn(originalVariables);
+                    // For configuration variables, save the variables to the config collection instead of .env file
+                    // We ideally want to migrate all variables from .env file to the config collection for better scalability
+                    // Write the changes to the tenant collection in configuration field
+                    return updateTenantConfiguration(user.getTenantId(), changes)
+                            .then(sendAnalyticsEvent(user, originalVariables, changes))
+                            .thenReturn(originalVariables);
                 })
                 .flatMap(originalValues -> {
                     Mono<Void> dependentTasks = Mono.empty();
@@ -323,7 +447,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     /**
-     * Sends analytics events after a new authentication method is added or removed.
+     * Sends analytics events after an admin setting update.
      *
      * @param user              The user who triggered the event.
      * @param originalVariables Already existing env variables
@@ -338,7 +462,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         if (!analyticsEvents.isEmpty()) {
             return analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0)).then();
         }
-        return Mono.empty();
+        // We cannot send sensitive information present as values in env to the analytics
+        // Values are filtered and only variable names are sent
+        Map<String, Object> analyticsProperties = Map.of(FieldName.UPDATED_INSTANCE_SETTINGS, changes.keySet());
+        // A general INSTANCE_SETTING_UPDATED event is also sent for all admin settings changes other than Authentication method added/removed event
+        return analyticsService.sendObjectEvent(AnalyticsEvents.INSTANCE_SETTING_UPDATED, user, analyticsProperties).then();
     }
 
     /**
@@ -381,7 +509,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      */
     public void setAnalyticsEventAction(Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
         // Authentication configuration added
-        if (!newVariable.isEmpty() && originalVariable.isEmpty()) {
+        if (!newVariable.isEmpty() && (originalVariable == null || originalVariable.isEmpty())) {
             properties.put("action", "Added");
         }
         // Authentication configuration removed
@@ -429,18 +557,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     if (matcher.matches()) {
                         final String name = matcher.group("name");
                         if (VARIABLE_WHITELIST.contains(name)) {
-                            String actualValue = matcher.group("value");
-                            final String quote = matcher.group("quote");
-                            if ("'".equals(quote)) {
-                                // Undo two common methods of escaping single quotes:
-                                actualValue = actualValue
-                                        .replace("'\"'\"'", "'")
-                                        .replace("'\\''", "'");
-                            } else if ("\"".equals(quote)) {
-                                // Undo escaped double quotes:
-                                actualValue = actualValue.replace("\\\"", "\"");
-                            }
-                            data.put(name, actualValue);
+                            data.put(name, unescapeFromShell(matcher.group("value")));
                         }
                     }
                 });
@@ -464,12 +581,28 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     // set the default values to response
                     Map<String, String> envKeyValueMap = parseToMap(originalContent);
+
                     if (!envKeyValueMap.containsKey(APPSMITH_INSTANCE_NAME.name())) {
                         // no APPSMITH_INSTANCE_NAME set in env file, set the default value
                         envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
                     }
 
-                    return Mono.justOrEmpty(envKeyValueMap);
+                    // Add the variables from the tenant configuration to be returned to the client
+                    Mono<Tenant> tenantMono = tenantService.findById(user.getTenantId(), MANAGE_TENANT);
+
+                    return Mono.zip(Mono.justOrEmpty(envKeyValueMap), tenantMono)
+                            .map(tuple -> {
+                                Map<String, String> envFileMap = tuple.getT1();
+                                Tenant tenant = tuple.getT2();
+                                Map<String, String> configMap = objectMapper.convertValue(tenant.getTenantConfiguration(), new TypeReference<>() {
+                                });
+                                Map<String, String> envMap = new HashMap<>();
+                                envMap.putAll(envFileMap);
+                                if (!CollectionUtils.isNullOrEmpty(configMap)) {
+                                    envMap.putAll(configMap);
+                                }
+                                return envMap;
+                            });
                 });
     }
 
@@ -478,7 +611,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
         return userUtils.isCurrentUserSuperUser()
                 .flatMap(isSuperUser -> {
-                    if(isSuperUser) {
+                    if (isSuperUser) {
                         return sessionUserService.getCurrentUser();
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));

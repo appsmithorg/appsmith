@@ -122,6 +122,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -142,6 +143,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -165,6 +167,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -183,6 +186,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -202,6 +206,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -227,6 +232,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -249,6 +255,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -270,6 +277,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -289,6 +297,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -317,6 +326,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -342,6 +352,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -363,6 +374,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -387,6 +399,7 @@ describe("Add functions", () => {
     expect(workerEventMock).lastCalledWith({
       type: "PROCESS_TRIGGER",
       requestId: "EVAL_TRIGGER",
+      promisified: true,
       responseData: {
         errors: [],
         subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
@@ -437,5 +450,171 @@ describe("Add functions", () => {
         }),
       ]),
     );
+  });
+
+  describe("Post window message works", () => {
+    const targetOrigin = "https://dev.appsmith.com/";
+    const source = "window";
+
+    it("Post message with first argument (message) as a string", () => {
+      const message = "Hello world!";
+
+      expect(
+        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: "Hello world!",
+              source: "window",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as undefined", () => {
+      const message = undefined;
+
+      expect(
+        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: undefined,
+              source: "window",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as null", () => {
+      const message = null;
+
+      expect(
+        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: null,
+              source: "window",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as a number", () => {
+      const message = 1826;
+
+      expect(
+        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: 1826,
+              source: "window",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as a boolean", () => {
+      const message = true;
+
+      expect(
+        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: true,
+              source: "window",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as an array", () => {
+      const message = [1, 2, 3, [1, 2, 3, [1, 2, 3]]];
+
+      expect(
+        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: [1, 2, 3, [1, 2, 3, [1, 2, 3]]],
+              source: "window",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
+
+    it("Post message with first argument (message) as an object", () => {
+      const message = {
+        key: 1,
+        status: "active",
+        person: {
+          name: "timothee chalamet",
+        },
+        randomArr: [1, 2, 3],
+      };
+
+      expect(
+        dataTreeWithFunctions.postWindowMessage(message, source, targetOrigin),
+      ).toBe(undefined);
+
+      expect(self.TRIGGER_COLLECTOR).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            payload: {
+              message: {
+                key: 1,
+                status: "active",
+                person: {
+                  name: "timothee chalamet",
+                },
+                randomArr: [1, 2, 3],
+              },
+              source: "window",
+              targetOrigin: "https://dev.appsmith.com/",
+            },
+            type: "POST_MESSAGE",
+          }),
+        ]),
+      );
+    });
   });
 });

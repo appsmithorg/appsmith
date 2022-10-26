@@ -7,7 +7,7 @@ import {
   getDynamicBindings,
   extraLibrariesNames,
 } from "utils/DynamicBindingUtils";
-import { extractInfoFromCode } from "@shared/ast";
+import { extractIdentifierInfoFromCode } from "@shared/ast";
 import { convertPathToString, isWidget } from "../evaluationUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import {
@@ -31,7 +31,7 @@ export const extractInfoFromBinding = (
   script: string,
   allPaths: Record<string, true>,
 ): { validReferences: string[]; invalidReferences: string[] } => {
-  const { references } = extractInfoFromCode(
+  const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
     invalidEntityIdentifiers,
@@ -149,6 +149,30 @@ export function listTriggerFieldDependencies(
     }
   }
   return triggerFieldDependency;
+}
+
+export function listValidationDependencies(
+  entity: DataTreeWidget,
+  entityName: string,
+): DependencyMap {
+  const validationDependency: DependencyMap = {};
+  if (isWidget(entity)) {
+    const { validationPaths } = entity;
+
+    Object.entries(validationPaths).forEach(
+      ([propertyPath, validationConfig]) => {
+        if (validationConfig.dependentPaths) {
+          const dependencyArray = validationConfig.dependentPaths.map(
+            (path) => `${entityName}.${path}`,
+          );
+          validationDependency[
+            `${entityName}.${propertyPath}`
+          ] = dependencyArray;
+        }
+      },
+    );
+  }
+  return validationDependency;
 }
 
 /**This function returns a unique array containing a merge of both arrays

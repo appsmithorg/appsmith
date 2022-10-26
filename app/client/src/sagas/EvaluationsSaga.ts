@@ -66,7 +66,7 @@ import {
   TriggerMeta,
 } from "./ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
@@ -78,7 +78,11 @@ import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  LogObject,
+  UserLogObject,
+} from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   logActionExecutionError,
@@ -98,7 +102,6 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { LogObject, UserLogObject } from "workers/UserLog";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
@@ -251,6 +254,7 @@ export function* evaluateActionBindings(
  * worker. Worker will evaluate a block of code and ask the main thread to execute it. The result of this
  * execution is returned to the worker where it can resolve/reject the current promise.
  */
+
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -260,17 +264,25 @@ export function* evaluateAndExecuteDynamicTrigger(
 ) {
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
-
-  const { requestChannel, responseChannel } = yield call(
+  const { isFinishedChannel } = yield call(
     worker.duplexRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-    { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
+    {
+      dataTree: unEvalTree,
+      dynamicTrigger,
+      callbackData,
+      globalContext,
+      eventType,
+      triggerMeta,
+    },
   );
+
   let keepAlive = true;
 
   while (keepAlive) {
-    const { requestData } = yield take(requestChannel);
+    const { requestData } = yield take(isFinishedChannel);
     log.debug({ requestData, eventType, triggerMeta, dynamicTrigger });
+
     if (requestData.finished) {
       keepAlive = false;
 
@@ -326,19 +338,49 @@ export function* evaluateAndExecuteDynamicTrigger(
         );
       }
       // Return value of a promise is returned
+      isFinishedChannel.close();
       return result;
     }
     yield call(evalErrorHandler, requestData.errors);
-    if (requestData.trigger) {
+    isFinishedChannel.close();
+  }
+}
+
+export function* executeDynamicTriggerRequest(
+  mainThreadRequestChannel: Channel<any>,
+) {
+  while (true) {
+    const { mainThreadResponseChannel, requestData, requestId } = yield take(
+      mainThreadRequestChannel,
+    );
+    log.debug({ requestData });
+    if (requestData?.logs) {
+      const { eventType, triggerMeta } = requestData;
+      yield call(
+        storeLogs,
+        requestData.logs,
+        triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
+        eventType === EventType.ON_JS_FUNCTION_EXECUTE
+          ? ENTITY_TYPE.JSACTION
+          : ENTITY_TYPE.WIDGET,
+        triggerMeta?.source?.id || "",
+      );
+    }
+    if (requestData?.trigger) {
       // if we have found a trigger, we need to execute it and respond back
       log.debug({ trigger: requestData.trigger });
       yield spawn(
         executeTriggerRequestSaga,
+        requestId,
         requestData,
-        eventType,
-        responseChannel,
-        triggerMeta,
+        requestData.eventType,
+        mainThreadResponseChannel,
+        requestData.triggerMeta,
       );
+    }
+
+    if (requestData?.errors) {
+      yield call(evalErrorHandler, requestData.errors);
     }
   }
 }
@@ -350,6 +392,7 @@ interface ResponsePayload {
     resolve?: unknown;
   };
   success: boolean;
+  eventType?: EventType;
 }
 
 /*
@@ -357,9 +400,10 @@ interface ResponsePayload {
  * resolve or reject it with the data the execution has provided
  */
 function* executeTriggerRequestSaga(
+  requestId: string,
   requestData: { trigger: ActionDescription; subRequestId: string },
   eventType: EventType,
-  responseChannel: Channel<unknown>,
+  responseFromExecutionChannel: Channel<unknown>,
   triggerMeta: TriggerMeta,
 ) {
   const responsePayload: ResponsePayload = {
@@ -369,6 +413,7 @@ function* executeTriggerRequestSaga(
       subRequestId: requestData.subRequestId,
     },
     success: false,
+    eventType,
   };
   try {
     responsePayload.data.resolve = yield call(
@@ -386,8 +431,9 @@ function* executeTriggerRequestSaga(
     responsePayload.data.reason = { message: error.message };
     responsePayload.success = false;
   }
-  responseChannel.put({
+  responseFromExecutionChannel.put({
     method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+    requestId: requestId,
     ...responsePayload,
   });
 }
@@ -417,7 +463,13 @@ export function* executeFunction(
         evaluateAndExecuteDynamicTrigger,
         functionCall,
         EventType.ON_JS_FUNCTION_EXECUTE,
-        {},
+        {
+          source: {
+            id: collectionId,
+            name: `${collectionName}.${action.name}`,
+          },
+          triggerPropertyName: `${collectionName}.${action.name}`,
+        },
       );
     } catch (e) {
       if (e instanceof UncaughtPromiseError) {
@@ -548,8 +600,11 @@ function getPostEvalActions(
 function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(worker.shutdown);
-  yield call(worker.start);
+  const { mainThreadRequestChannel } = yield call(worker.start);
+
   yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
+  yield spawn(executeDynamicTriggerRequest, mainThreadRequestChannel);
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction: {
     postEvalActions: Array<ReduxAction<unknown>>;

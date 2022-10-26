@@ -8,7 +8,7 @@ import { CopyToClipboard } from "design-system";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import WorkspaceInviteUsersForm, {
   InviteButtonWidth,
 } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
@@ -63,7 +63,6 @@ function AppInviteUsersForm(props: any) {
     fetchCurrentWorkspace,
     isChangingViewAccess,
     isFetchingApplication,
-    links,
   } = props;
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
@@ -125,7 +124,6 @@ function AppInviteUsersForm(props: any) {
       {canInviteToWorkspace && (
         <WorkspaceInviteUsersForm
           isApplicationInvite
-          links={links}
           workspaceId={props.workspaceId}
         />
       )}

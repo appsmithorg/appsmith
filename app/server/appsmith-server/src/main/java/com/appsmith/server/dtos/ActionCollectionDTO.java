@@ -1,10 +1,11 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -96,6 +97,10 @@ public class ActionCollectionDTO {
     @JsonIgnore
     DefaultResources defaultResources;
 
+    // Instead of storing the entire action object, we only populate this field while interacting with the client side
+    @Transient
+    Set<String> userPermissions = Set.of();
+
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
         if (this.workspaceId == null) {
@@ -120,6 +125,7 @@ public class ActionCollectionDTO {
         this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
+        this.setUserPermissions(actionCollection.userPermissions);
         copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 

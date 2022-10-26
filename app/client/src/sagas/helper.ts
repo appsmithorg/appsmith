@@ -1,4 +1,4 @@
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import { createMessage } from "ce/constants/messages";
 import { Variant } from "components/ads";
 import { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";

@@ -9,6 +9,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -113,10 +114,13 @@ public enum AclPermission {
 
     // Permission Group Permissions
     MANAGE_PERMISSION_GROUPS("manage:permissionGroups", PermissionGroup.class),
-    READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
+    // This permission should only be used to read the members of a permission group
+    READ_PERMISSION_GROUP_MEMBERS("read:permissionGroupMembers", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
 
+    // Manage tenant permissions
+    MANAGE_TENANT("manage:tenants", Tenant.class),
     ;
 
 

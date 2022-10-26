@@ -38,7 +38,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Toaster } from "components/ads/Toast";
+import { Toaster } from "design-system";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
@@ -301,7 +301,10 @@ function* evaluateActionParams(
         );
         tempArr.push(newVal);
       }
-      executeActionRequest.paramProperties[`k${i}`] = "array";
+      //Adding array datatype along with the datatype of first element of the array
+      executeActionRequest.paramProperties[`k${i}`] = {
+        array: [arrDatatype[0]],
+      };
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
@@ -763,7 +766,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     let payload = EMPTY_RESPONSE;
     let isError = true;
-    const error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
+    let error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,
@@ -773,6 +776,10 @@ function* executePageLoadAction(pageAction: PageAction) {
       isError = executePluginActionResponse.isError;
     } catch (e) {
       log.error(e);
+
+      if (e instanceof UserCancelledActionExecutionError) {
+        error = createMessage(ACTION_EXECUTION_CANCELLED, pageAction.name);
+      }
     }
 
     if (isError) {

@@ -6,9 +6,8 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
-import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize, Toaster } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -168,7 +167,7 @@ export function EditableText(props: EditableTextProps) {
         });
       }
     },
-    [isInvalid],
+    [isInvalid, onTextChanged],
   );
 
   const onInputchange = useCallback(

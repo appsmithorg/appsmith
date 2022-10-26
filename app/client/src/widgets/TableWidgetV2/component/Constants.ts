@@ -7,6 +7,7 @@ import {
   ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
+import { DropdownOption } from "widgets/SelectWidget/constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -15,6 +16,7 @@ export type TableSizes = {
   ROW_FONT_SIZE: number;
   VERTICAL_PADDING: number;
   EDIT_ICON_TOP: number;
+  ROW_VIRTUAL_OFFSET: number;
 };
 
 export enum CompactModeTypes {
@@ -35,6 +37,12 @@ export enum VerticalAlignmentTypes {
   CENTER = "CENTER",
 }
 
+export enum ImageSizes {
+  DEFAULT = "32px",
+  MEDIUM = "64px",
+  LARGE = "128px",
+}
+
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -43,6 +51,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
     EDIT_ICON_TOP: 10,
+    ROW_VIRTUAL_OFFSET: 3,
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -51,6 +60,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
     EDIT_ICON_TOP: 5,
+    ROW_VIRTUAL_OFFSET: 1,
   },
   [CompactModeTypes.TALL]: {
     COLUMN_HEADER_HEIGHT: 32,
@@ -59,6 +69,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
     EDIT_ICON_TOP: 21,
+    ROW_VIRTUAL_OFFSET: 3,
   },
 };
 
@@ -86,6 +97,7 @@ export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
 export type CellAlignment = keyof typeof CellAlignmentTypes;
 export type VerticalAlignment = keyof typeof VerticalAlignmentTypes;
+export type ImageSize = keyof typeof ImageSizes;
 
 export interface ReactTableFilter {
   column: string;
@@ -94,51 +106,91 @@ export interface ReactTableFilter {
   value: any;
 }
 
-export interface CellLayoutProperties {
+export interface EditActionCellProperties {
+  discardActionIconName?: IconName;
+  discardActionLabel?: string;
+  discardButtonColor: string;
+  discardButtonVariant: ButtonVariant;
+  discardBorderRadius: ButtonBorderRadius;
+  discardIconAlign: Alignment;
+  isDiscardDisabled?: boolean;
+  isDiscardVisible?: boolean;
+  isSaveDisabled?: boolean;
+  isSaveVisible?: boolean;
+  saveActionIconName?: IconName;
+  saveActionLabel?: string;
+  saveButtonColor: string;
+  saveButtonVariant: ButtonVariant;
+  saveBorderRadius: ButtonBorderRadius;
+  saveIconAlign: Alignment;
+}
+
+export interface InlineEditingCellProperties {
+  isCellEditable: boolean;
+  hasUnsavedChanges?: boolean;
+}
+
+export interface CellWrappingProperties {
+  allowCellWrapping: boolean;
+}
+
+export interface ButtonCellProperties {
+  buttonVariant: ButtonVariant;
+  buttonColor?: string;
+  buttonLabel?: string;
+  isCompact?: boolean;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+}
+
+export interface MenuButtonCellProperties {
+  menuButtonLabel?: string;
+  menuItems: MenuItems;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  menuButtoniconName?: IconName;
+  onItemClicked?: (onClick: string | undefined) => void;
+}
+
+export interface URLCellProperties {
+  displayText?: string;
+}
+
+export interface SelectCellProperties {
+  isFilterable?: boolean;
+  serverSideFiltering?: boolean;
+  placeholderText?: string;
+  resetFilterTextOnClose?: boolean;
+}
+
+export interface ImageCellProperties {
+  imageSize?: ImageSize;
+}
+
+export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  buttonColor?: string;
-  buttonLabel?: string;
-  menuButtonLabel?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
-  displayText?: string;
-  buttonVariant: ButtonVariant;
   borderRadius: string;
   boxShadow: string;
   isCellVisible: boolean;
-  isCompact?: boolean;
-  menuItems: MenuItems;
-  menuVariant?: ButtonVariant;
-  menuColor?: string;
-  iconName?: IconName;
-  menuButtoniconName?: IconName;
-  iconAlign?: Alignment;
-  onItemClicked?: (onClick: string | undefined) => void;
-  isCellEditable: boolean;
-  allowCellWrapping: boolean;
-  hasUnsavedChanged?: boolean;
-  saveButtonVariant: ButtonVariant;
-  saveButtonColor: string;
-  saveIconAlign: Alignment;
-  saveBorderRadius: ButtonBorderRadius;
-  saveActionIconName?: IconName;
-  saveActionLabel?: string;
-  isSaveVisible?: boolean;
-  isSaveDisabled?: boolean;
-  discardButtonVariant: ButtonVariant;
-  discardButtonColor: string;
-  discardIconAlign: Alignment;
-  discardBorderRadius: ButtonBorderRadius;
-  discardActionLabel?: string;
-  discardActionIconName?: IconName;
-  isDiscardVisible?: boolean;
-  isDiscardDisabled?: boolean;
 }
+
+export interface CellLayoutProperties
+  extends EditActionCellProperties,
+    InlineEditingCellProperties,
+    CellWrappingProperties,
+    ButtonCellProperties,
+    URLCellProperties,
+    MenuButtonCellProperties,
+    SelectCellProperties,
+    ImageCellProperties,
+    BaseCellProperties {}
 
 export type MenuItems = Record<
   string,
@@ -246,6 +298,11 @@ export interface EditActionColumnProperties {
   discardActionIconName?: string;
   isDiscardVisible?: boolean;
   isDiscardDisabled?: boolean;
+  isFilterable?: boolean;
+  serverSideFiltering?: boolean;
+  placeholderText?: string;
+  resetFilterTextOnClose?: boolean;
+  selectOptions?: DropdownOption[];
 }
 
 export interface ColumnProperties
@@ -274,6 +331,7 @@ export interface ColumnProperties
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
+  imageSize?: ImageSize;
 }
 
 export const ConditionFunctions: {
@@ -371,15 +429,15 @@ export enum ALIGN_ITEMS {
 }
 
 export enum IMAGE_HORIZONTAL_ALIGN {
-  LEFT = "left",
+  LEFT = "flex-start",
   CENTER = "center",
-  RIGHT = "right",
+  RIGHT = "flex-end",
 }
 
 export enum IMAGE_VERTICAL_ALIGN {
-  TOP = "top",
+  TOP = "flex-start",
   CENTER = "center",
-  BOTTOM = "bottom",
+  BOTTOM = "flex-end",
 }
 
 export type BaseCellComponentProps = {
@@ -423,3 +481,5 @@ export const scrollbarOnHoverCSS = `
     }
   }
 `;
+
+export const MULTISELECT_CHECKBOX_WIDTH = 40;

@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
+import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
@@ -30,11 +32,15 @@ public class LayoutControllerCE {
     private final LayoutService service;
     private final LayoutActionService layoutActionService;
 
+    private final RefactoringSolution refactoringSolution;
+
     @Autowired
     public LayoutControllerCE(LayoutService layoutService,
-                            LayoutActionService layoutActionService) {
+                              LayoutActionService layoutActionService,
+                              RefactoringSolution refactoringSolution) {
         this.service = layoutService;
         this.layoutActionService = layoutActionService;
+        this.refactoringSolution = refactoringSolution;
     }
 
     @PostMapping("/pages/{defaultPageId}")
@@ -55,11 +61,12 @@ public class LayoutControllerCE {
 
     @PutMapping("/{layoutId}/pages/{pageId}")
     public Mono<ResponseDTO<LayoutDTO>> updateLayout(@PathVariable String pageId,
+                                                     @RequestParam String applicationId,
                                                      @PathVariable String layoutId,
                                                      @RequestBody Layout layout,
                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("update layout received for page {}", pageId);
-        return layoutActionService.updateLayout(pageId, layoutId, layout, branchName)
+        return layoutActionService.updateLayout(pageId, applicationId, layoutId, layout, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
@@ -74,7 +81,7 @@ public class LayoutControllerCE {
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorWidgetName(@RequestBody RefactorNameDTO refactorNameDTO,
                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return layoutActionService.refactorWidgetName(refactorNameDTO, branchName)
+        return refactoringSolution.refactorWidgetName(refactorNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

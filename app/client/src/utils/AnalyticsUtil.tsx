@@ -225,6 +225,7 @@ export type EventName =
   | "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD"
   | "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
   | "ADMIN_SETTINGS_ENABLE_AUTH_METHOD"
+  | "ADMIN_SETTINGS_UPGRADE_HOOK"
   | "REFLOW_BETA_FLAG"
   | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
@@ -261,7 +262,19 @@ export type EventName =
   | "PRETTIFY_CODE_KEYBOARD_SHORTCUT"
   | "JS_OBJECT_CREATED"
   | "JS_OBJECT_FUNCTION_ADDED"
-  | "JS_OBJECT_FUNCTION_RUN";
+  | "JS_OBJECT_FUNCTION_RUN"
+  | "SHOW_BINDINGS_TRIGGERED"
+  | "BINDING_COPIED"
+  | AUDIT_LOGS_EVENT_NAMES;
+
+export type AUDIT_LOGS_EVENT_NAMES =
+  | "AUDIT_LOGS_CLEAR_FILTERS"
+  | "AUDIT_LOGS_FILTER_BY_RESOURCE_ID"
+  | "AUDIT_LOGS_FILTER_BY_EMAIL"
+  | "AUDIT_LOGS_FILTER_BY_EVENT"
+  | "AUDIT_LOGS_FILTER_BY_DATE"
+  | "AUDIT_LOGS_COLLAPSIBLE_ROW_OPENED"
+  | "AUDIT_LOGS_COLLAPSIBLE_ROW_CLOSED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -277,6 +290,7 @@ class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
+
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
@@ -325,9 +339,7 @@ class AnalyticsUtil {
           n.type = "text/javascript";
           n.async = !0;
           n.src =
-            "https://cdn.segment.com/analytics.js/v1/" +
-            t +
-            "/analytics.min.js";
+            "https://a.appsmith.com/analytics.js/v1/" + t + "/analytics.min.js";
           const a: any = document.getElementsByTagName("script")[0];
           a.parentNode.insertBefore(n, a);
           analytics._loadOptions = e;

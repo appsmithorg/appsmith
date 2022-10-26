@@ -36,15 +36,10 @@ import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import Dialog from "components/ads/DialogComponent";
 import { User } from "constants/userConstants";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
-import {
-  CREATE_WORKSPACE_FORM_NAME,
-  inviteModalLinks,
-} from "@appsmith/constants/forms";
+import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -53,11 +48,16 @@ import {
   AppIconCollection,
   Button,
   Category,
+  EditableText,
+  EditInteractionKind,
+  DialogComponent as Dialog,
   Icon,
   IconName,
   IconSize,
   Menu,
   MenuItem,
+  notEmptyValidator,
+  SavingState,
   Size,
   Text,
   TextType,
@@ -74,11 +74,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
-import { notEmptyValidator } from "design-system";
 import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -88,11 +83,11 @@ import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers"
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
   createMessage,
-  NO_APPS_FOUND,
-  WORKSPACES_HEADING,
-  SEARCH_APPS,
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
+  NO_APPS_FOUND,
+  SEARCH_APPS,
+  WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
@@ -101,12 +96,17 @@ import SharedUserList from "pages/common/SharedUserList";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -300,6 +300,8 @@ function Item(props: {
 const LeftPaneDataSection = styled.div`
   position: relative;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
+  display: flex;
+  flex-direction: column;
 `;
 
 function LeftPaneSection(props: {
@@ -327,7 +329,6 @@ const StyledAnchor = styled.a`
 
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
   ${thinScrollbar};
   /* padding-bottom: 160px; */
 `;
@@ -708,7 +709,6 @@ function ApplicationsSection(props: any) {
                   title={`Invite Users to ${workspace.name}`}
                 >
                   <Form
-                    links={inviteModalLinks}
                     message={createMessage(INVITE_USERS_MESSAGE)}
                     workspaceId={workspace.id}
                   />
@@ -734,7 +734,6 @@ function ApplicationsSection(props: any) {
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
                         canOutsideClickClose
-                        links={inviteModalLinks}
                         message={createMessage(INVITE_USERS_MESSAGE)}
                         placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                         title={`Invite Users to ${workspace.name}`}
@@ -954,7 +953,12 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      {featureFlags.GIT_IMPORT && <GitSyncModal isImport />}
+      {featureFlags.GIT_IMPORT && (
+        <>
+          <GitSyncModal isImport />
+          <DisconnectGitModal />
+        </>
+      )}
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );

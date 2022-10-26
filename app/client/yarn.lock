@@ -6211,18 +6211,21 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.24":
-  version "1.0.24"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.24.tgz#e83f33ba12917c31f130d20f7eab68e62a0fb86f"
-  integrity sha512-efcOCNX+h4EjDG2Tr09484PAMv7bR0olVQiTq+rwIF+TI9oajNfVGy8aRKVWeDg7kKdatULJ5avZ+IyM3aUJKg==
+"design-system@npm:@appsmithorg/design-system@1.0.29":
+  version "1.0.29"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.29.tgz#a6a661d43facb934fba4974c01466d64e41e5b92"
+  integrity sha512-cWVP9/HRO3BmewK4TGNxmIc4kEqemxW/FLiCTIf9vi42cSx9VIne0BCYbV6iLLYVeAFJlXcdTUdHhbp8PNma1Q==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
+    react-dnd "^9.3.4"
+    react-dnd-html5-backend "^9.3.4"
     react-redux "^7.2.4"
     react-router-dom "^6.3.0"
     react-table "^7.8.0"
     react-tabs "3.1.1"
+    react-toastify "^5.5.0"
     redux-form "8.2.6"
     remixicon-react "^1.0.0"
     tinycolor2 "^1.4.2"
@@ -7374,6 +7377,13 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
 fast-xml-parser@^3.17.5:
   version "3.17.5"
   resolved "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-3.17.5.tgz"
+
+fastdom@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/fastdom/-/fastdom-1.0.11.tgz#f22984f9df6b9a6081e5ce2e49cfb5525daf198a"
+  integrity sha512-jl9MwXDFxhg354W4E3s1UMsLh3HWFuVMQiRUlXpHckcHRXQvUe76yzBf1Z7b+x5Ci4TUJ1KmynI9alGUXG95IQ==
+  dependencies:
+    strictdom "^1.0.1"
 
 fastq@^1.6.0:
   version "1.13.0"
@@ -12126,6 +12136,11 @@ prettier@^1.18.2:
   version "1.19.1"
   resolved "https://registry.npmjs.org/prettier/-/prettier-1.19.1.tgz"
 
+prettier@^2.6.2:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.1.tgz#e235806850d057f97bb08368a4f7d899f7760c64"
+  integrity sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==
+
 pretty-bytes@^5.3.0:
   version "5.4.1"
   resolved "https://registry.npmjs.org/pretty-bytes/-/pretty-bytes-5.4.1.tgz"
@@ -14256,6 +14271,11 @@ strict-event-emitter@^0.2.0:
   dependencies:
     events "^3.3.0"
 
+strictdom@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/strictdom/-/strictdom-1.0.1.tgz#189de91649f73d44d59b8432efa68ef9d2659460"
+  integrity sha512-cEmp9QeXXRmjj/rVp9oyiqcvyocWab/HaoN4+bwFeZ7QzykJD6L3yD4v12K1x0tHpqRqVpJevN3gW7kyM39Bqg==
+
 string-argv@^0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/string-argv/-/string-argv-0.3.1.tgz#95e2fbec0427ae19184935f816d74aaa4c5c19da"
@@ -15464,6 +15484,13 @@ webpack-merge@^5.8.0:
   dependencies:
     clone-deep "^4.0.1"
     wildcard "^2.0.0"
+
+webpack-retry-chunk-load-plugin@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/webpack-retry-chunk-load-plugin/-/webpack-retry-chunk-load-plugin-3.1.1.tgz#44aefc21abd01769ecd07f9a200a58a78caf930c"
+  integrity sha512-BKq/7EcelyWUUI6SeBaUKB1G+fSZP0rlxIwRQ+aO6mK5tffljaHdpJ4I2q54rpaaKjSbwbZRQlaITXe93SL9nA==
+  dependencies:
+    prettier "^2.6.2"
 
 webpack-sources@^1.4.3:
   version "1.4.3"

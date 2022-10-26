@@ -396,9 +396,10 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
+export const GET_GEO_LOCATION = () => `Get Geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const POST_MESSAGE = () => `Post message`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
@@ -407,8 +408,6 @@ export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying ${actionName}`;
 export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
   `${actionName} deleted successfully`;
-export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} created successfully`;
 export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} moved to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
@@ -456,7 +455,8 @@ export const IMPORT_APPLICATION_MODAL_LABEL = () =>
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
-export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
+export const IMPORT_APP_FROM_GIT_TITLE = () =>
+  "Import from Git repository (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
@@ -641,7 +641,7 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
-  "git@example.com:user/repo.git";
+  "git@example.com:user/repository.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
 export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
@@ -674,14 +674,14 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
   ${methodName} authentication method is enabled
 `;
 
-export const DISCONNECT_EXISTING_REPOSITORIES = () =>
-  "Disconnect existing repositories";
-export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
+export const REVOKE_EXISTING_REPOSITORIES = () =>
+  "Revoke Existing Repositories";
+export const REVOKE_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories, you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
   `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
-export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
+export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
 export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
@@ -692,9 +692,9 @@ export const NONE_REVERSIBLE_MESSAGE = () =>
   "This action is non-reversible. Please proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
   "Please contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
-export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
-  "Disconnecting your repository might cause the application to break.";
-export const DISCONNECT_GIT = () => "Revoke access";
+export const REVOKE_CAUSE_APPLICATION_BREAK = () =>
+  "Revoking your repository might cause the application to break.";
+export const REVOKE_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
 export const REVOKE = () => "REVOKE";
 export const REVOKE_ACCESS = () => "REVOKE ACCESS";
@@ -705,8 +705,8 @@ export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
-export const OPEN_REPO = () => "OPEN REPO";
-export const CONNECTING_REPO = () => "Connecting to Git repo";
+export const OPEN_REPO = () => "OPEN REPOSITORY";
+export const CONNECTING_REPO = () => "Connecting to Git repository";
 export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
@@ -776,9 +776,9 @@ export const DELETE_BRANCH_WARNING_DEFAULT = (defaultBranchName: string) =>
 
 // GIT ERRORS begin
 export const ERROR_GIT_AUTH_FAIL = () =>
-  "Please make sure that regenerated SSH key is added and has write access to the repo.";
+  "Please make sure that regenerated SSH key is added and has write access to the repository.";
 export const ERROR_GIT_INVALID_REMOTE = () =>
-  "Remote repo doesn't exist or is unreachable.";
+  "Either the remote repository doesn't exist or is unreachable.";
 // GIT ERRORS end
 
 // JS Snippets
@@ -828,7 +828,8 @@ export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
 export const ONBOARDING_CHECKLIST_BANNER_BODY = () =>
   "You can carry on here, or explore the homepage to see how your projects are stored.";
 export const ONBOARDING_CHECKLIST_BANNER_BUTTON = () => "Explore homepage";
-
+export const ONBOARDING_SKIPPED_FIRST_TIME_USER = () =>
+  "Skipped onboarding tour";
 export const ONBOARDING_CHECKLIST_HEADER = () => "👋 Welcome to Appsmith!";
 export const ONBOARDING_CHECKLIST_BODY = () =>
   "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
@@ -1020,6 +1021,33 @@ export const TEST_EMAIL_FAILURE = () => "Sending Test Email Failed";
 export const DISCONNECT_AUTH_ERROR = () =>
   "Cannot disconnect the only connected authentication method.";
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
+
+// Audit logs begin
+export const AUDIT_LOGS = () => "Audit Logs";
+export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+
+// Audit logs Upgrade page begin
+export const INTRODUCING = (featureName: string) =>
+  `Introducing ${featureName}`;
+export const AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING = () =>
+  "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.";
+export const SECURITY_AND_COMPLIANCE = () => "Security & Compliance";
+export const SECURITY_AND_COMPLIANCE_DETAIL1 = () =>
+  "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.";
+export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
+  "Exports to popular compliance tools coming soon";
+export const DEBUGGING = () => "Debugging";
+export const DEBUGGING_DETAIL1 = () =>
+  "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.";
+export const INCIDENT_MANAGEMENT = () => "Incident Management";
+export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
+  "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Enterprise Plan`;
+// Audit logs Upgrade page end
+// Audit logs end
+
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";
@@ -1059,6 +1087,8 @@ export const DELETE_WORKSPACE_SUCCESSFUL = () =>
   "Workspace deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
+export const SET_DEFAULT_SELECTED_THEME = (name: string) =>
+  `Applied the ${name} theme, since custom theme was not found`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
 export const DELETE_APP_THEME = (name: string) => `Theme ${name} Deleted`;
 export const DELETE_APP_THEME_WARNING = () =>
@@ -1244,6 +1274,8 @@ export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
+export const INVALID_URL = () =>
+  "Please enter a valid URL, for example, https://example.com";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

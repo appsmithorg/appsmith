@@ -1,7 +1,7 @@
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsWorkspaces } from "./applicationSelectors";
