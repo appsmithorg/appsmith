@@ -172,6 +172,10 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @return Logged event as an Audit Log
      */
     public Mono<AuditLog> logEvent(AnalyticsEvents event, Object resource, Map<String, Object> properties) {
+        // Layout updates on page are considered as page.updated
+        if(AnalyticsEvents.UPDATE_LAYOUT.equals(event)) {
+            event = AnalyticsEvents.UPDATE;
+        }
         boolean isInstanceSettingEvent = AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.equals(event) || AnalyticsEvents.INSTANCE_SETTING_UPDATED.equals(event) ;
         String resourceClassName = isInstanceSettingEvent ? AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName() : resource.getClass().getSimpleName();
         boolean isLogEvent = !commonConfig.isCloudHosting() && AuditLogEvents.eventMap.containsKey(event.getEventName()) && AuditLogEvents.resourceMap.containsKey(resourceClassName);

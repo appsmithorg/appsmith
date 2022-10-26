@@ -7,8 +7,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Role;
 import com.appsmith.server.domains.ApplicationMode;
 
 import java.util.Map;
@@ -83,9 +81,7 @@ public class AuditLogEvents {
             entry(NewAction.class.getSimpleName(), FieldName.QUERY),
             entry(User.class.getSimpleName(), FieldName.USER),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.INSTANCE_SETTING),
-            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING),
-            entry(PermissionGroup.class.getSimpleName(), FieldName.GROUP),
-            entry(Role.class.getSimpleName(), FieldName.ROLE)
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING)
     );
 
     public final static Map<String, String> authenticationMethodsMap = Map.ofEntries(
