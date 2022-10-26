@@ -126,7 +126,6 @@ export function InlineCellEditor({
   verticalAlignment,
   validationErrorMessage,
   widgetId,
-  paddedInput,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [hasFocus, setHasFocus] = useState(false);
