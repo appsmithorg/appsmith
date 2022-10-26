@@ -3,17 +3,18 @@ export const checkRegex = (
   errorMessage: string,
   checkEmpty = true,
   callback?: (isValid: boolean) => void,
+  emptyMessage = "Cannot be empty",
 ) => {
   return (value: string) => {
     const isEmpty = value.length === 0;
-    const hasSpecialCharacters = !isEmpty && !regex.test(value);
-    const hasError = (checkEmpty && isEmpty) || hasSpecialCharacters;
+    const regexMismatch = !isEmpty && !regex.test(value);
+    const hasError = (checkEmpty && isEmpty) || regexMismatch;
 
     callback?.(!hasError);
 
     let message = "";
-    if (checkEmpty && isEmpty) message = "Cannot be empty";
-    else if (hasSpecialCharacters) message = errorMessage;
+    if (checkEmpty && isEmpty) message = emptyMessage;
+    else if (regexMismatch) message = errorMessage;
 
     return {
       isValid: !hasError,

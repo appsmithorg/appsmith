@@ -1286,6 +1286,8 @@ export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
 export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
   "App name, icon and share";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
+export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
+  "App name cannot be empty";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
@@ -1296,6 +1298,8 @@ export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
 export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
 export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
 export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
+  "Page name cannot be empty";
 export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
@@ -1307,7 +1311,7 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
   "You must set a homepage. Set another page to disable this";
 
 export const URL_FIELD_SPECIAL_CHARACTER_ERROR = () =>
-  "No special characters allowed (except -)";
+  "No special characters are allowed";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

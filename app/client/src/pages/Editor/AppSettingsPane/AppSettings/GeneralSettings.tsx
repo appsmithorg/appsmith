@@ -3,6 +3,7 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
+  GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import {
@@ -101,6 +102,7 @@ function GeneralSettings() {
             URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsAppNameValid,
+            GENERAL_SETTINGS_NAME_EMPTY_MESSAGE(),
           )}
           value={applicationName}
         />

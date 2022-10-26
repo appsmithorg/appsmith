@@ -11,6 +11,7 @@ import {
   PAGE_SETTINGS_SET_AS_HOMEPAGE,
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP,
+  PAGE_SETTINGS_NAME_EMPTY_MESSAGE,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
@@ -183,6 +184,7 @@ function PageSettings(props: { page: Page }) {
             URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsPageNameValid,
+            PAGE_SETTINGS_NAME_EMPTY_MESSAGE(),
           )}
           value={pageName}
         />
@@ -261,7 +263,7 @@ function PageSettings(props: { page: Page }) {
       )}
 
       <div className="pb-2 flex justify-between content-center">
-        <Text textAlign="center" type={TextType.P1}>
+        <Text style={{ "line-height": "1.8" }} type={TextType.P1}>
           {PAGE_SETTINGS_SHOW_PAGE_NAV()}
         </Text>
         <SwitchWrapper>
@@ -279,10 +281,12 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       <div className="flex justify-between content-center">
-        <div className={`text-[color:var(--appsmith-color-black-700)]`}>
+        <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
-            tooltip={PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP()}
+            tooltip={
+              !!isDefault ? PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP() : undefined
+            }
           />
         </div>
         <SwitchWrapper>
