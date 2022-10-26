@@ -1,4 +1,5 @@
 import { AppState } from "@appsmith/reducers";
+import { ExplorerPinnedState } from "reducers/uiReducers/explorerReducer";
 
 /**
  * returns the pinned state of explorer
@@ -7,7 +8,7 @@ import { AppState } from "@appsmith/reducers";
  * @returns
  */
 export const getExplorerPinned = (state: AppState) => {
-  return state.ui.explorer.pinned;
+  return state.ui.explorer.pinnedState === ExplorerPinnedState.PINNED;
 };
 
 /**

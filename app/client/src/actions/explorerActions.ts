@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ExplorerPinnedState } from "reducers/uiReducers/explorerReducer";
 
 export const initExplorerEntityNameEdit = (actionId: string) => {
   return {
@@ -19,7 +20,9 @@ export const setExplorerPinnedAction = (shouldPin: boolean) => {
   return {
     type: ReduxActionTypes.SET_EXPLORER_PINNED,
     payload: {
-      shouldPin,
+      pinnedState: shouldPin
+        ? ExplorerPinnedState.PINNED
+        : ExplorerPinnedState.UNPINNED,
     },
   };
 };
