@@ -150,12 +150,15 @@ export default function InstallationWindow(props: TInstallWindowProps) {
   );
 }
 
-const InstallationProgressWrapper = styled.div`
+const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
+  border-top: ${(props) =>
+    props.addBorder ? `1px solid var(--appsmith-color-black-300)` : "none"};
   display: flex;
-  margin-top: 0.75rem;
   flex-direction: column;
   background: var(--appsmith-color-black-100);
   text-overflow: ellipsis;
+  padding: 8px 12px;
+  margin: 0 24px;
   .progress-container {
     display: flex;
     flex-direction: column;
@@ -205,10 +208,14 @@ function InstallationProgress() {
     <>
       {urls.map((url, idx) => (
         <InstallationProgressWrapper
+          addBorder={idx !== 0}
           key={`${url}_${idx}_${installStatusMap[url]}`}
         >
-          <div className="flex justify-between items-center pl-6 pr-6 pt-3 pb-3 bg-g gap-2 fw-500 text-sm">
-            <div className="install-url">{url}</div>
+          {[InstallState.Queued, InstallState.Installing].includes(
+            installStatusMap[url],
+          ) && <div className="text-gray-700 text-xs">Installing...</div>}
+          <div className="flex justify-between items-center bg-g gap-2 fw-500 text-sm">
+            <div className="install-url fw-500">{url}</div>
             <div className="shrink-0">
               {getStatusIcon(installStatusMap[url])}
             </div>
@@ -302,7 +309,7 @@ function InstallationPopoverContent(props: any) {
         </div>
       </div>
       <div className="search-body">
-        <div className="search-CTA">
+        <div className="search-CTA mb-3">
           <Text type={TextType.P3}>
             Explore libraries on{" "}
             <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>

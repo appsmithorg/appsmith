@@ -863,6 +863,6 @@ export const selectLibrariesForExplorer = createSelector(
         docsURL: lib,
         version: "",
       }));
-    return [...libs, ...queuedInstalls];
+    return [...queuedInstalls, ...libs];
   },
 );

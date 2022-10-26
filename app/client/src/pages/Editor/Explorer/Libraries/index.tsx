@@ -22,7 +22,6 @@ const Library = styled.li`
   list-style: none;
   color: ${Colors.GRAY_700};
   font-weight: 400;
-  height: 36px;
   gap: 0.5rem;
   display: flex;
   align-items: center;
@@ -65,6 +64,7 @@ const Name = styled.div`
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
+  word-break: break-all;
 `;
 const Version = styled.span<{ version?: string }>`
   display: ${(props) => (props.version ? "block" : "none")};

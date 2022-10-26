@@ -59,13 +59,13 @@ const jsLibraryReducer = createReducer(initialState, {
         [url]: InstallState.Success,
       },
       installedLibraries: [
-        ...state.installedLibraries,
         {
           displayName: url,
           docsURL: url,
           version: "",
           accessor: libraryAccessor,
         },
+        ...state.installedLibraries,
       ],
     };
   },
