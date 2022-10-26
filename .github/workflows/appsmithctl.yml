@@ -97,7 +97,7 @@ jobs:
       - name: Set result as failed if there are build failures
         if: failure()
         run: |
-          echo "::set-output name=run_result::failed" > ~/run_result
+          echo "::set-output name=run_result::failed" > ~/ctl_run_result
           exit 1;
 
   
