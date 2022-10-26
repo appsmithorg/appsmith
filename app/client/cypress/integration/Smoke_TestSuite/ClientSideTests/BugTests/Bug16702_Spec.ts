@@ -9,7 +9,11 @@ const locator = ObjectsRegistry.CommonLocators,
 
 const GRAPHQL_LIMIT_QUERY = `
   query {
-    launchesPast(limit: "__limit__", offset: "__offset__") {
+    launchesPast(limit:
+      "__limit__"
+      ,offset:
+      "__offset__"
+      ) {
       mission_name
       rocket {
         rocket_name
@@ -44,10 +48,12 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       //   expect(Cypress.dom.isDetached($el)).to.false;
       // })
       //.trigger("mouseover")
-      .click()
+      .dblclick()
       .type("{{JSObject1.");
-    agHelper.GetNClickByContains(locator._hints, "offsetValue");
-    agHelper.Sleep(200);
+    agHelper.GetNAssertElementText(locator._hints, "offsetValue", "have.text", 1);
+    agHelper.Sleep();
+    agHelper.TypeText(locator._codeMirrorTextArea, "offsetValue", 1);
+    agHelper.Sleep(2000);
 
     /* Start: Block of code to remove error of detached node of codemirror for cypress reference */
 
@@ -58,10 +64,10 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__limit__")
       //.trigger("mouseover")
-      .click()
+      .dblclick()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "limitValue");
-    agHelper.Sleep();
+    agHelper.Sleep(2000);
     //Commenting this since - many runs means - API response is 'You are doing too many launches'
     // apiPage.RunAPI(false, 20, {
     //   expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
