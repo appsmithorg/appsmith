@@ -566,6 +566,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     ) {
       yield validateResponse({
         status: 403,
+        resourceType: "Page",
         resourceId: currentPage.pageId,
       });
     }
