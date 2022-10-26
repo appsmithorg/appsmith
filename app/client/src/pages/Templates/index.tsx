@@ -42,7 +42,6 @@ const PageWrapper = styled.div`
   margin-top: ${(props) => props.theme.homePage.header}px;
   display: flex;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
-  padding-left: 8vw;
 `;
 
 const SidebarWrapper = styled.div`
@@ -52,6 +51,8 @@ const SidebarWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[7]}px;
   padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
+  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
+  position: fixed;
 `;
 
 const SecondaryWrapper = styled.div`
@@ -65,15 +66,14 @@ export const TemplateListWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[11]}px;
   width: calc(100% - ${(props) => props.theme.homePage.sidebar}px);
   height: calc(100vh - ${(props) => props.theme.headerHeight});
-  overflow: auto;
-  padding-right: 8vw;
+  margin-left: ${(props) => props.theme.homePage.sidebar}px;
 `;
 
 export const ResultsCount = styled.div`
   ${(props) => getTypographyByKey(props, "h1")}
   color: ${Colors.CODE_GRAY};
   margin-top: ${(props) => props.theme.spaces[5]}px;
-  margin-left: ${(props) => props.theme.spaces[12]}px;
+  margin-left: ${(props) => props.theme.spaces[12] - 8}px;
   padding-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 

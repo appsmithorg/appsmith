@@ -15,7 +15,7 @@ import { Colors } from "constants/Colors";
 
 const FilterWrapper = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 200}px);
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 256}px);
   ${thinScrollbar}
 
   .more {
@@ -41,10 +41,12 @@ const StyledFilterCategory = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
   font-weight: bold;
+  text-transform: capitalize;
 
   &.title {
-    margin-bottom: ${(props) => props.theme.spaces[12] - 2}px;
+    margin-bottom: ${(props) => props.theme.spaces[12] - 10}px;
     display: inline-block;
+    text-transform: uppercase;
   }
 `;
 
@@ -53,7 +55,7 @@ const ListWrapper = styled.div`
 `;
 
 const FilterCategoryWrapper = styled.div`
-  padding-bottom: ${(props) => props.theme.spaces[13] - 2}px;
+  padding-bottom: ${(props) => props.theme.spaces[13] - 11}px;
 `;
 
 export type Filter = {
@@ -88,7 +90,7 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   return (
     <FilterItemWrapper selected={selected}>
       <Checkbox
-        backgroundColor={Colors.GREY_900}
+        // backgroundColor={Colors.GREY_900}
         className="filter"
         isDefaultChecked={selected}
         label={item.label}
@@ -132,7 +134,7 @@ function FilterCategory({
   return (
     <FilterCategoryWrapper>
       <StyledFilterCategory type={TextType.P4}>
-        {label.toLocaleUpperCase()}{" "}
+        {`${label} `}
         {!!selectedFilters.length && `(${selectedFilters.length})`}
       </StyledFilterCategory>
       <ListWrapper>
@@ -183,21 +185,23 @@ function Filters() {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (
-    <FilterWrapper className="filter-wrapper">
+    <div>
       <StyledFilterCategory className={"title"} type={TextType.H5}>
         {createMessage(FILTERS)}
       </StyledFilterCategory>
-      {Object.keys(filters).map((filter) => {
-        return (
-          <FilterCategory
-            filterList={filters[filter]}
-            key={filter}
-            label={filter}
-            selectedFilters={selectedFilters[filter] ?? []}
-          />
-        );
-      })}
-    </FilterWrapper>
+      <FilterWrapper className="filter-wrapper">
+        {Object.keys(filters).map((filter) => {
+          return (
+            <FilterCategory
+              filterList={filters[filter]}
+              key={filter}
+              label={filter}
+              selectedFilters={selectedFilters[filter] ?? []}
+            />
+          );
+        })}
+      </FilterWrapper>
+    </div>
   );
 }
 
