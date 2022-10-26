@@ -59,6 +59,13 @@ export function getPropertyControlFocusElement(
       if (codeEditorInputElement) {
         return codeEditorInputElement;
       }
+
+      const lazyCodeEditorInputElement = propertyInputElement.getElementsByClassName(
+        "LazyCodeEditor",
+      )[0] as HTMLElement | undefined;
+      if (lazyCodeEditorInputElement) {
+        return lazyCodeEditorInputElement;
+      }
     }
   }
 }

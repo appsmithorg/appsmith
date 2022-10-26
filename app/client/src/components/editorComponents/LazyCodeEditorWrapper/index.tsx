@@ -103,6 +103,7 @@ function CodeEditor(props: any) {
     <LazyEditorWrapper>
       <ContentWrapper containsCode={containsCode} isPlaceholder={isPlaceholder}>
         <HighlighedCodeContainer
+          className={"LazyCodeEditor"}
           containsCode={containsCode}
           containsObject={containsObject}
           isPlaceholder={isPlaceholder}

@@ -61,6 +61,7 @@ export enum FocusElement {
   JSPaneConfigTabs = "JSPaneConfigTabs",
   JSPaneResponseTabs = "JSPaneResponseTabs",
   JSPaneResponseHeight = "JSPaneResponseHeight",
+  CodeEditor = "CodeEditor",
   PropertyField = "PropertyField",
   PropertySections = "PropertySections",
   PropertyTabs = "PropertyTabs",
@@ -99,7 +100,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.JS_OBJECT]: [
     {
-      name: FocusElement.PropertyField,
+      name: FocusElement.CodeEditor,
       selector: getFocusableCodeEditorField,
       setter: setFocusableCodeEditorField,
     },
@@ -123,7 +124,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.QUERY]: [
     {
-      name: FocusElement.PropertyField,
+      name: FocusElement.CodeEditor,
       selector: getFocusableCodeEditorField,
       setter: setFocusableCodeEditorField,
     },
@@ -161,7 +162,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.API]: [
     {
-      name: FocusElement.PropertyField,
+      name: FocusElement.CodeEditor,
       selector: getFocusableCodeEditorField,
       setter: setFocusableCodeEditorField,
     },

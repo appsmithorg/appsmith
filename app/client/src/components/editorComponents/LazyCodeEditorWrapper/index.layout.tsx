@@ -17,6 +17,10 @@ export const HighlighedCodeContainer = styled("div")<{
   padding-right: 10px !important;
   padding-bottom: 6px !important;
 
+  &:focus {
+    border: 1px solid var(--appsmith-input-focus-border-color);
+  }
+
   pre {
     margin: 0 !important;
     overflow: hidden !important;
