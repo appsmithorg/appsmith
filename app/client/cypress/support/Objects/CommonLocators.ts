@@ -111,6 +111,8 @@ export class CommonLocators {
   _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span";
   _evaluatedCurrentValue =
     "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre";
+  _evaluatedErrorMessage =
+    ".t--CodeEditor-evaluatedValue .t--evaluatedPopup-error";
   _multiSelectOptions = (option: string) =>
     "div[title='" + option + "'] input[type='checkbox']";
   _divWithClass = (className: string) =>
@@ -147,6 +149,7 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _sliderThumb = '[data-cy="slider-thumb"]';
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
     "//span[@class='rc-tree-select-tree-title']/parent::span[@title='" +
