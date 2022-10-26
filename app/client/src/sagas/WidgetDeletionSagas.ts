@@ -311,7 +311,18 @@ function* deleteAllSelectedWidgetsSaga(
     );
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
-
+    console.log("#### parent id", parentId);
+    let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
+    if (parentId) {
+      for (const widgetId of selectedWidgets) {
+        widgetsAfterUpdatingFlexLayers = yield call(
+          updateFlexLayersOnDelete,
+          widgetsAfterUpdatingFlexLayers,
+          widgetId,
+          parentId,
+        );
+      }
+    }
     //Main canvas's minheight keeps varying, hence retrieving updated value
     let mainCanvasMinHeight;
     if (parentId === MAIN_CONTAINER_WIDGET_ID) {
@@ -321,16 +332,18 @@ function* deleteAllSelectedWidgetsSaga(
       mainCanvasMinHeight = mainCanvasProps?.height;
     }
 
-    if (parentId && finalWidgets[parentId]) {
-      finalWidgets[parentId].bottomRow = resizeCanvasToLowestWidget(
-        finalWidgets,
+    if (parentId && widgetsAfterUpdatingFlexLayers[parentId]) {
+      widgetsAfterUpdatingFlexLayers[
+        parentId
+      ].bottomRow = resizeCanvasToLowestWidget(
+        widgetsAfterUpdatingFlexLayers,
         parentId,
         finalWidgets[parentId].bottomRow,
         mainCanvasMinHeight,
       );
     }
 
-    yield put(updateAndSaveLayout(finalWidgets));
+    yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {

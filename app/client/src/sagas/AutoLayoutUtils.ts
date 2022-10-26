@@ -73,9 +73,10 @@ export function* updateFlexLayersOnDelete(
   let parent = widgets[parentId];
   if (!parent) return widgets;
 
-  const flexLayers = parent.flexLayers || [];
+  let flexLayers = [...(parent.flexLayers || [])];
   if (!flexLayers.length) return widgets;
   let layerIndex = -1; // Find the layer in which the deleted widget exists.
+  let updatedChildren: LayerChild[] = [];
   for (const layer of flexLayers) {
     layerIndex += 1;
     const children = layer.children || [];
@@ -84,18 +85,25 @@ export function* updateFlexLayersOnDelete(
       (each: LayerChild) => each.id === widgetId,
     );
     if (index === -1) continue;
-    children.splice(index, 1);
-    layer.children = children;
+    // children.splice(index, 1);
+    updatedChildren = children.filter(
+      (each: LayerChild) => each.id !== widgetId,
+    );
     break;
   }
-  // update hasFillChild property
-  flexLayers[layerIndex] = {
-    ...flexLayers[layerIndex],
-    hasFillChild: flexLayers[layerIndex].children.some(
-      (each: LayerChild) =>
-        widgets[each.id].responsiveBehavior === ResponsiveBehavior.Fill,
-    ),
-  };
+
+  flexLayers = [
+    ...flexLayers.slice(0, layerIndex),
+    {
+      children: updatedChildren,
+      hasFillChild: updatedChildren.some(
+        (each: LayerChild) =>
+          widgets[each.id].responsiveBehavior === ResponsiveBehavior.Fill,
+      ),
+    },
+    ...flexLayers.slice(layerIndex + 1),
+  ];
+
   parent = {
     ...parent,
     flexLayers: flexLayers.filter(
