@@ -68,6 +68,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       })();
 
       widgetProps = { ...canvasWidgetProps };
+
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
        * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
@@ -84,8 +85,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetId !== MAIN_CONTAINER_WIDGET_ID
       ) {
         widgetProps.rightColumn = props.rightColumn;
-        widgetProps.bottomRow = props.bottomRow;
-        widgetProps.minHeight = props.minHeight;
+        if (widgetProps.bottomRow === undefined)
+          widgetProps.bottomRow = props.bottomRow;
+        if (widgetProps.bottomRow === undefined)
+          widgetProps.minHeight = props.minHeight;
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
