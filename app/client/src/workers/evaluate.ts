@@ -258,7 +258,7 @@ export default function evaluateSync(args: {
   isJSCollection: boolean;
   context?: EvaluateContext;
   evalArguments?: Array<any>;
-  skipLogsOperations: boolean;
+  skipLogsOperations?: boolean;
   entityConfigCollection: EntityConfigCollection;
 }): EvalResult {
   const {

@@ -249,6 +249,7 @@ ctx.addEventListener(
           callbackData,
           dataTree,
           dynamicTrigger,
+          entityConfigCollection,
           eventType,
           globalContext,
           triggerMeta,
@@ -256,7 +257,7 @@ ctx.addEventListener(
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
-        dataTreeEvaluator.updateDataTree(dataTree);
+        dataTreeEvaluator.updateDataTree(dataTree, entityConfigCollection);
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
@@ -314,23 +315,45 @@ ctx.addEventListener(
         }
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-        const { errors, logs, result } = evaluate(
-          functionCall,
-          evalTree,
+        const entityConfigCollection = dataTreeEvaluator.entityConfigCollection;
+        const { errors, logs, result } = evaluate({
+          userScript: functionCall,
+          dataTree: evalTree,
           resolvedFunctions,
-          false,
-          undefined,
-        );
+          isJSCollection: false,
+          context: undefined,
+          entityConfigCollection,
+        });
         return { errors, logs, result };
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
         const { expression, isTrigger } = requestData;
-        const evalTree = dataTreeEvaluator?.evalTree;
-        if (!evalTree) return {};
-        // TODO find a way to do this for snippets
-        return isTrigger
-          ? evaluateAsync(expression, evalTree, "SNIPPET", {})
-          : evaluate(expression, evalTree, {}, false);
+        if (dataTreeEvaluator) {
+          const { entityConfigCollection, evalTree } = dataTreeEvaluator;
+          if (evalTree && entityConfigCollection) {
+            // TODO find a way to do this for snippets
+            if (isTrigger) {
+              evaluateAsync({
+                userScript: expression,
+                dataTree: evalTree,
+                requestId: "SNIPPET",
+                resolvedFunctions: {},
+                entityConfigCollection,
+              });
+            } else {
+              evaluate({
+                userScript: expression,
+                dataTree: evalTree,
+                resolvedFunctions: {},
+                isJSCollection: false,
+                entityConfigCollection,
+              });
+            }
+          }
+        }
+
+        return {};
+
       case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
         const { entity, entityId, entityType } = requestData;
         const replayObject = replayMap[entityId];
