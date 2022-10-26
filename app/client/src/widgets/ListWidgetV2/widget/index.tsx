@@ -37,6 +37,7 @@ import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
+import { WidgetState } from "../../BaseWidget";
 
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
@@ -79,10 +80,6 @@ export type MetaWidgetCache = {
   [key: string]: MetaWidgetRowCache | undefined;
 };
 
-type ListWidgetState = {
-  page: number;
-};
-
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
   shouldScrollContents?: boolean;
@@ -98,14 +95,7 @@ const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
   "children.0.children.0.children.0.children";
 
-class ListWidget extends BaseWidget<
-  ListWidgetProps<WidgetProps>,
-  ListWidgetState
-> {
-  state = {
-    page: 1,
-  };
-
+class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   componentRef: RefObject<HTMLDivElement>;
   metaWidgetGenerator: MetaWidgetGenerator;
   prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
@@ -122,7 +112,7 @@ class ListWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      // pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
+      pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
@@ -221,7 +211,7 @@ class ListWidget extends BaseWidget<
 
     if (this.props.serverSidePaginationEnabled) {
       if (
-        this.props.serverSidePaginationEnabled === true &&
+        this.props.serverSidePaginationEnabled &&
         prevProps.serverSidePaginationEnabled === false
       ) {
         super.executeAction({
@@ -259,13 +249,13 @@ class ListWidget extends BaseWidget<
   };
 
   metaWidgetGeneratorOptions = () => {
-    const { page } = this.state;
     const {
       dynamicPathMapList = {},
       flattenedChildCanvasWidgets = {},
       listData = [],
       mainCanvasId = "",
       mainContainerId = "",
+      pageNo,
     } = this.props;
 
     return {
@@ -282,7 +272,7 @@ class ListWidget extends BaseWidget<
       scrollElement: this.componentRef.current,
       templateBottomRow: this.getTemplateBottomRow(),
       widgetName: this.props.widgetName,
-      pageNo: page,
+      pageNo,
       pageSize: this.getPageSize(),
     };
   };
@@ -605,23 +595,6 @@ class ListWidget extends BaseWidget<
     }
   };
 
-  renderChild = (childWidgetData: WidgetProps) => {
-    const { shouldPaginate } = this.shouldPaginate();
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.canExtend = undefined;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.minHeight = componentHeight;
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.noPad = true;
-    childWidgetData.bottomRow = shouldPaginate
-      ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
-      : componentHeight;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
-  };
-
   getGridGap = () =>
     this.props.gridGap && this.props.gridGap >= -8 ? this.props.gridGap : 0;
 
@@ -683,8 +656,6 @@ class ListWidget extends BaseWidget<
       },
     );
   };
-
-  onClientPageChange = (page: number) => this.setState({ page });
 
   overrideExecuteAction = (triggerPayload: ExecuteTriggerPayload) => {
     const { id: metaWidgetId } = triggerPayload?.source || {};
@@ -848,9 +819,9 @@ class ListWidget extends BaseWidget<
               accentColor={this.props.accentColor}
               borderRadius={this.props.borderRadius}
               boxShadow={this.props.boxShadow}
-              current={this.state.page}
+              current={this.props.pageNo}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
-              onChange={this.onClientPageChange}
+              onChange={this.onPageChange}
               pageSize={pageSize}
               total={(this.props.listData || []).length}
             />
@@ -883,6 +854,8 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   mainCanvasId?: string;
   mainContainerId?: string;
   onListItemClick?: string;
+  pageNo: number;
+  currentViewItems: Array<Record<string, unknown>>;
 }
 
 export default ListWidget;
