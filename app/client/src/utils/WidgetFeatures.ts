@@ -324,6 +324,7 @@ export const PropertyPaneConfigTemplates: Record<
       isTriggerProperty: false,
       updateHook: transformToNumber,
       validation: {
+        dependentPaths: ["maxDynamicHeight"],
         type: ValidationTypes.FUNCTION,
         params: {
           fn: validateMinHeight,
