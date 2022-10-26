@@ -51,11 +51,12 @@ const jsLibraryReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (state, action) => {
-    const installationStatus = Object.assign({}, state.installationStatus);
-    delete installationStatus[action.payload];
     return {
       ...state,
-      installationStatus: installationStatus,
+      installationStatus: {
+        ...state.installationStatus,
+        [action.payload]: InstallState.Success,
+      },
       installedLibraries: [
         ...state.installedLibraries,
         {
@@ -67,11 +68,12 @@ const jsLibraryReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_FAILED]: (state, action) => {
-    const installationStatus = Object.assign({}, state.installationStatus);
-    delete installationStatus[action.payload];
     return {
       ...state,
-      installationStatus,
+      installationStatus: {
+        ...state.installationStatus,
+        [action.payload]: InstallState.Success,
+      },
     };
   },
 });

@@ -27,9 +27,10 @@ import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { AppState } from "ce/reducers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { selectInstallationStatus } from "selectors/entitiesSelector";
+import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
+import { InstallState } from "reducers/uiReducers/libraryReducer";
 
 type TInstallWindowProps = any;
 
@@ -58,24 +59,29 @@ const Wrapper = styled.div`
     .search-bar {
       margin-bottom: 8px;
     }
+  }
+  .search-body {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    height: 400px;
     .search-CTA {
       display: flex;
       flex-direction: column;
       margin-top: 16px;
+      margin-left: 24px;
     }
-  }
-  .search-results {
-    height: 300px;
-    overflow: auto;
-    .library-card {
-      padding: 12px 24px;
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-      gap: 8px;
-      border-bottom: 1px solid var(--appsmith-color-black-100);
-      &:hover {
-        background-color: var(--appsmith-color-black-100);
+    .search-results {
+      .library-card {
+        padding: 12px 24px;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 8px;
+        border-bottom: 1px solid var(--appsmith-color-black-100);
+        &:hover {
+          background-color: var(--appsmith-color-black-100);
+        }
       }
     }
   }
@@ -166,19 +172,30 @@ function InstallationProgress() {
   return (
     <>
       {urls.map((url, idx) => (
-        <InstallationProgressWrapper key={`${url}_${idx}`}>
-          <div className="pl-6 pr-6 pt-3 pb-3 bg-g overflow-hidden text-ellipsis fw-500 text-sm">
-            {url}
+        <InstallationProgressWrapper
+          key={`${url}_${idx}_${installStatusMap[url]}`}
+        >
+          <div className="flex justify-between items-center pl-6 pr-6 pt-3 pb-3 bg-g fw-500 text-sm">
+            <span className="overflow-hidden text-ellipsis">{url}</span>
+            {installStatusMap[url] === InstallState.Success && (
+              <SaveSuccessIcon
+                className="shrink-0"
+                color={Colors.GREEN}
+                size={18}
+              />
+            )}
           </div>
-          <div className="progress-container">
-            <div className="flex flex-row gap-2 items-center">
-              <Spinner />
-              <span>Installing library for {application?.name}</span>
-            </div>
-            <div className="progress-bar">
+          {installStatusMap[url] !== InstallState.Success && (
+            <div className="progress-container">
+              <div className="flex flex-row gap-2 items-center">
+                <Spinner />
+                <span>Installing library for {application?.name}</span>
+              </div>
+              {/* <div className="progress-bar">
               <div className="completed" />
+            </div> */}
             </div>
-          </div>
+          )}
         </InstallationProgressWrapper>
       ))}
     </>
@@ -251,61 +268,63 @@ function InstallationPopoverContent(props: any) {
             />
           )}
         </div>
+      </div>
+      <div className="search-body">
         <div className="search-CTA">
           <Text type={TextType.P3}>
             Explore libraries on{" "}
             <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>
-              CDNJS
+              jsDelivr
             </Text>{" "}
             or{" "}
             <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>
-              NPM
+              UNPKG
             </Text>
           </Text>
           <Text type={TextType.P3}>
             Learn more about Custom JS Libraries here.
           </Text>
         </div>
-      </div>
-      <InstallationProgress />
-      <div className="ml-6 mb-3 mt-4">
-        <Text type={TextType.P1} weight={"bold"}>
-          {createMessage(customJSLibraryMessages.REC_LIBRARY)}
-        </Text>
-      </div>
-      <div className="search-results">
-        {new Array(20).fill(0).map((_, idx) => (
-          <div className="library-card" key={idx}>
-            <div className="flex flex-row justify-between">
-              <div className="flex flex-row gap-2">
-                <Text type={TextType.P0} weight="bold">
-                  angular-aria
-                </Text>
+        <InstallationProgress />
+        <div className="pl-6 pb-3 pt-4 sticky top-0 z-2 bg-white">
+          <Text type={TextType.P1} weight={"bold"}>
+            {createMessage(customJSLibraryMessages.REC_LIBRARY)}
+          </Text>
+        </div>
+        <div className="search-results">
+          {new Array(20).fill(0).map((_, idx) => (
+            <div className="library-card" key={idx}>
+              <div className="flex flex-row justify-between">
+                <div className="flex flex-row gap-2">
+                  <Text type={TextType.P0} weight="bold">
+                    angular-aria
+                  </Text>
+                  <Icon
+                    fillColor={Colors.GRAY}
+                    name="open-new-tab"
+                    size={IconSize.MEDIUM}
+                  />
+                </div>
                 <Icon
                   fillColor={Colors.GRAY}
-                  name="open-new-tab"
+                  name="download"
                   size={IconSize.MEDIUM}
                 />
               </div>
-              <Icon
-                fillColor={Colors.GRAY}
-                name="download"
-                size={IconSize.MEDIUM}
-              />
+              <div className="flex flex-row">
+                <Text type={TextType.P2}>
+                  AngularJS module for common ARIA attributes that convey state
+                  or semantic information about the application for users of
+                  assistive technologies.
+                </Text>
+              </div>
+              <div className="flex flex-row items-center gap-1">
+                <ProfileImage size={20} />
+                <Text type={TextType.P3}>Arun</Text>
+              </div>
             </div>
-            <div className="flex flex-row">
-              <Text type={TextType.P2}>
-                AngularJS module for common ARIA attributes that convey state or
-                semantic information about the application for users of
-                assistive technologies.
-              </Text>
-            </div>
-            <div className="flex flex-row items-center gap-1">
-              <ProfileImage size={20} />
-              <Text type={TextType.P3}>Arun</Text>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </Wrapper>
   );
