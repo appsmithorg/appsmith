@@ -25,9 +25,6 @@ function Settings() {
     dispatch({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
     });
-    dispatch({
-      type: ReduxActionTypes.FETCH_RELEASES,
-    });
   }, []);
 
   useEffect(() => {
