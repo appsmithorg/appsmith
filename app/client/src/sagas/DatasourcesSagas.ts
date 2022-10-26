@@ -7,7 +7,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { change, getFormValues, initialize } from "redux-form";
+import { change, initialize } from "redux-form";
 import _, { merge, isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import {
@@ -769,31 +769,31 @@ function* createDatasourceFromFormSaga(
   }
 }
 
-function* updateDraftsSaga() {
-  const values: Record<string, unknown> = yield select(
-    getFormValues(DATASOURCE_DB_FORM),
-  );
+// function* updateDraftsSaga() {
+//   const values: Record<string, unknown> = yield select(
+//     getFormValues(DATASOURCE_DB_FORM),
+//   );
 
-  if (!values.id) return;
-  const datasource: Datasource | undefined = yield select(
-    getDatasource,
-    // @ts-expect-error: values is of type unknown
-    values.id,
-  );
-  if (equal(values, datasource)) {
-    yield put({
-      type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
-      payload: { id: values.id },
-    });
-  } else {
-    yield put({
-      type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
-      payload: { id: values.id, draft: values },
-    });
-    // @ts-expect-error: values is of type unknown
-    yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
-  }
-}
+//   if (!values.id) return;
+//   const datasource: Datasource | undefined = yield select(
+//     getDatasource,
+//     // @ts-expect-error: values is of type unknown
+//     values.id,
+//   );
+//   if (equal(values, datasource)) {
+//     yield put({
+//       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
+//       payload: { id: values.id },
+//     });
+//   } else {
+//     yield put({
+//       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
+//       payload: { id: values.id, draft: values },
+//     });
+//     // @ts-expect-error: values is of type unknown
+//     yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
+//   }
+// }
 
 function* changeDatasourceSaga(
   actionPayload: ReduxAction<{
