@@ -193,7 +193,8 @@ function PageSettings(props: { page: Page }) {
       <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_URL_LABEL()}</Text>
       {appNeedsUpdate && (
         <div
-          className={`pt-1 text-[color:var(--appsmith-color-black-700)] text-[13px] leading-extra-tight`}
+          className={`pt-1 text-[color:var(--appsmith-color-black-700)] text-[13px]`}
+          style={{ lineHeight: "1.31" }}
         >
           {PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1()}{" "}
           <ManualUpgrades inline>
@@ -240,7 +241,8 @@ function PageSettings(props: { page: Page }) {
           className={`mb-2 bg-[color:var(--appsmith-color-black-100)]`}
         >
           <UrlPreviewScroll
-            className={`py-1 pl-2 mr-0.5 text-[color:var(--appsmith-color-black-700)] text-xs leading-extra-tight break-all`}
+            className={`py-1 pl-2 mr-0.5 text-[color:var(--appsmith-color-black-700)] text-xs break-all`}
+            style={{ lineHeight: "1.17" }}
           >
             {location.protocol}
             {"//"}
