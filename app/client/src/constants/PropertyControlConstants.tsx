@@ -134,5 +134,5 @@ export type PropertyPaneConfig =
   | PropertyPaneControlConfig;
 
 export interface ActionValidationConfigMap {
-  [configPropety: string]: ValidationConfig;
+  [configProperty: string]: ValidationConfig;
 }

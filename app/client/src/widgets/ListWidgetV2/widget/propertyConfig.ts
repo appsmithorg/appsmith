@@ -6,8 +6,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
-const PropertyPaneConfig = [
+const ListWidgetPropertyPaneConfig = [
   {
     sectionName: "General",
     children: [
@@ -96,6 +97,7 @@ const PropertyPaneConfig = [
                 [key]: "",
               })),
             ),
+            currentIndex: 0,
           };
         },
         dependencies: ["listData"],
@@ -200,6 +202,6 @@ const PropertyPaneConfig = [
       },
     ],
   },
-];
+] as PropertyPaneConfig[];
 
-export { PropertyPaneConfig as default };
+export { ListWidgetPropertyPaneConfig as default };

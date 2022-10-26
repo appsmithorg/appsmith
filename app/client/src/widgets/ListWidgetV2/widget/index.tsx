@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import React, { createRef, RefObject } from "react";
 import { Virtualizer } from "@tanstack/virtual-core";
-import { get, isNumber, range, omit, isEmpty, floor } from "lodash";
+import { get, range, omit, isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
 import derivedProperties from "./parseDerivedProperties";
@@ -11,11 +11,7 @@ import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import propertyPaneConfig from "./propertyConfig";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import {
-  CanvasWidgetStructure,
-  DSLWidget,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
@@ -127,6 +123,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {
       pageNo: 1,
       currentViewItems: "{{[]}}",
+      selectedItemIndex: undefined,
+      selectedViewItemIndex: undefined,
     };
   }
 
@@ -543,6 +541,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const currentPage = this.props.pageNo;
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
+    this.resetSelectedItemMeta();
     this.props.updateWidgetMetaProperty("pageNo", page, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
@@ -552,27 +551,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
   };
 
-  /**
-   * on click item action
-   *
-   * @param rowIndex
-   * @param action
-   * @param onComplete
-   */
   onItemClick = (rowIndex: number, action: string | undefined) => {
-    // setting selectedItemIndex on click of container
-    const selectedItemIndex = isNumber(this.props.selectedItemIndex)
-      ? this.props.selectedItemIndex
-      : -1;
-
-    if (selectedItemIndex !== rowIndex) {
-      this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex, {
-        dynamicString: this.props.onRowSelected,
-        event: {
-          type: EventType.ON_ROW_SELECTED,
-        },
-      });
-    }
+    this.updateSelectedItemMeta(rowIndex);
 
     if (!action) return;
 
@@ -583,32 +563,43 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         return prev + `{{${next}}} `;
       }, "");
 
+      const globalContext = {
+        currentIndex: rowIndex,
+        currentItem: rowData,
+      };
+
       super.executeAction({
         dynamicString: modifiedAction,
         event: {
           type: EventType.ON_CLICK,
         },
-        globalContext: { currentItem: rowData },
+        globalContext,
       });
     } catch (error) {
       log.debug("Error parsing row action", error);
     }
   };
 
+  updateSelectedItemMeta = (rowIndex: number) => {
+    const { pageNo, pageSize, selectedViewItemIndex } = this.props;
+    const selectedItemIndex = pageSize * (pageNo - 1) + rowIndex;
+
+    if (rowIndex === selectedViewItemIndex) {
+      this.resetSelectedItemMeta();
+      return;
+    }
+
+    this.props.updateWidgetMetaProperty("selectedViewItemIndex", rowIndex);
+    this.props.updateWidgetMetaProperty("selectedItemIndex", selectedItemIndex);
+  };
+
+  resetSelectedItemMeta = () => {
+    this.props.updateWidgetMetaProperty("selectedViewItemIndex", undefined);
+    this.props.updateWidgetMetaProperty("selectedItemIndex", undefined);
+  };
+
   getGridGap = () =>
     this.props.gridGap && this.props.gridGap >= -8 ? this.props.gridGap : 0;
-
-  updateActions = (children: DSLWidget[]) => {
-    return children.map((child: DSLWidget, index) => {
-      return {
-        ...child,
-        onClickCapture: () =>
-          this.onItemClick(index, this.props.onListItemClick),
-        selected: this.props.selectedItemIndex === index,
-        focused: index === 0 && this.props.renderMode === RenderModes.CANVAS,
-      };
-    });
-  };
 
   /**
    * 400
@@ -642,6 +633,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   renderChildren = () => {
     const { componentWidth } = this.getComponentDimensions();
+    const { selectedViewItemIndex } = this.props;
     return (this.props.metaWidgetChildrenStructure || []).map(
       (childWidgetStructure) => {
         const child: ExtendedCanvasWidgetStructure = {
@@ -651,7 +643,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         child.rightColumn = componentWidth;
         // child.shouldScrollContents = true;
         child.canExtend = true;
-
+        child.children = child.children?.map((container, index) => {
+          return {
+            ...container,
+            selected: selectedViewItemIndex === index,
+            onClick: (e: React.MouseEvent<HTMLElement>) => {
+              e.stopPropagation();
+              this.onItemClick(index, this.props.onListItemClick);
+            },
+          };
+        });
         return WidgetFactory.createWidget(child, this.props.renderMode);
       },
     );
@@ -855,7 +856,10 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   mainContainerId?: string;
   onListItemClick?: string;
   pageNo: number;
+  pageSize: number;
   currentViewItems: Array<Record<string, unknown>>;
+  selectedItemIndex?: number;
+  selectedViewItemIndex?: number;
 }
 
 export default ListWidget;
