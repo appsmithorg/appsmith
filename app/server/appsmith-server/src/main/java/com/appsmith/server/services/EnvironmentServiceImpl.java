@@ -137,7 +137,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                                         environment.setId(env.getId());
                                         environment.setPolicies(env.getPolicies());
                                         environment.setName(env.getName());
-                                        environment.setPolicies(env.getPolicies());
+                                        environment.setWorkspaceId(env.getWorkspaceId());
                                         return environmentDTO1;
                                     });
                 })

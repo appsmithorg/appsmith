@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 
+import com.appsmith.server.domains.EnvironmentVariable;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.EnvironmentVariableRepository;
@@ -20,6 +21,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.List;
 
 
 @ExtendWith(SpringExtension.class)
@@ -49,32 +52,80 @@ public class EnvironmentServiceTest {
 
     private Workspace workspace;
     private static final String environmentName = "Staging";
+    private Mono<EnvironmentDTO> responseEnvironmentDTOMono;
 
     @BeforeEach
     public void setup() {
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
-        workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user)).switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!"))).block();
+        workspace = userMono
+                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!"))).block();
+
+        Mockito.when(workspaceService.findById(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.just(workspace));
+
+        EnvironmentDTO environmentDTO = new EnvironmentDTO();
+        environmentDTO.setName(environmentName);
+        environmentDTO.setWorkspaceId(workspace.getId());
+
+        responseEnvironmentDTOMono = environmentService.createNewEnvironment(environmentDTO);
     }
 
 
     @Test
     @WithUserDetails(value = "api_user")
     public void createEnvironment() {
-
-        Mockito.when(workspaceService.findById(Mockito.any(), Mockito.any())).thenReturn(Mono.just(workspace));
-
-        EnvironmentDTO environmentDTO = new EnvironmentDTO();
-        environmentDTO.setName(environmentName);
-        environmentDTO.setWorkspaceId(workspace.getId());
-
-        Mono<EnvironmentDTO> environmentDTOMono = environmentService.createNewEnvironment(environmentDTO);
-
-        StepVerifier.create(environmentDTOMono).assertNext(envDTO -> {
+        StepVerifier.create(responseEnvironmentDTOMono).assertNext(envDTO -> {
             assert (envDTO instanceof EnvironmentDTO);
             assert (envDTO.getName().equals(environmentName));
         }).verifyComplete();
+    }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getEnvironmentDTO() {
 
+        EnvironmentDTO responseEnvironmentDTO = responseEnvironmentDTOMono.block();
+        Mono<EnvironmentDTO> environmentDTOMono = environmentService.findEnvironmentByEnvironmentId(responseEnvironmentDTO.getId());
+
+        StepVerifier.create(environmentDTOMono)
+                .assertNext(environmentDTO1 -> {
+                    assert (environmentDTO1 instanceof EnvironmentDTO);
+                    assert (environmentDTO1.getName().equals(environmentName));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateEnvironment() {
+        EnvironmentDTO environmentDTO = responseEnvironmentDTOMono.block();
+
+        EnvironmentVariable envVar1 = new EnvironmentVariable();
+        envVar1.setName("envVar1");
+        envVar1.setValue("someCredential");
+
+        EnvironmentVariable envVar2 = new EnvironmentVariable();
+        envVar1.setName("envVar2");
+        envVar1.setValue("credential");
+
+        environmentDTO.setEnvironmentVariableList(List.of(envVar1, envVar2));
+
+        Mono<List<EnvironmentDTO>> environmentDTOListMono = environmentService.updateEnvironment(List.of(environmentDTO))
+                .collectList();
+
+        StepVerifier.create(environmentDTOListMono)
+                .assertNext(environmentDTOList -> {
+                    assert(environmentDTOList != null);
+                    assert(environmentDTOList.size() == 1);
+                    assert(environmentDTOList.get(0).getEnvironmentVariableList() != null);
+                    assert(environmentDTOList.get(0).getEnvironmentVariableList().size() == 2);
+                    for(EnvironmentVariable envVar: environmentDTOList.get(0).getEnvironmentVariableList()) {
+                        assert(envVar != null);
+                        assert(envVar instanceof  EnvironmentVariable);
+                    }
+                })
+                .verifyComplete();
     }
 
 }
