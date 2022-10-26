@@ -300,6 +300,29 @@
       "img": "http://www.serebii.net/pokemongo/pokemon/006.png"
     }
   ],
+  "MenuButtonSourceData": [
+    {
+      "id": 1,
+      "email": "michael.lawson@reqres.in",
+      "first_name": "Michael",
+      "last_name": "Lawson",
+      "avatar": "https://reqres.in/img/faces/7-image.jpg"
+    },
+    {
+      "id": 2,
+      "email": "lindsay.ferguson@reqres.in",
+      "first_name": "Lindsay",
+      "last_name": "Ferguson",
+      "avatar": "https://reqres.in/img/faces/8-image.jpg"
+    },
+   {
+      "id": 3,
+      "email": "brock.lesnar@reqres.in",
+      "first_name": "Brock",
+      "last_name": "Lesnar",
+      "avatar": "https://reqres.in/img/faces/8-image.jpg"
+    }
+  ],
   "TableURLColumnType": [
     {
       "image": "https://wallpaperaccess.com/full/1376499.jpg",

@@ -189,5 +189,8 @@
   "textWidgetContainer": ".t--text-widget-container",
   "propertyStyle": "li:contains('STYLE')",
   "propertyContent": "li:contains('CONTENT')",
-  "cancelActionExecution": ".t--cancel-action-button"
+  "cancelActionExecution": ".t--cancel-action-button",
+  "menuButtonMenuItemsSource": ".t--property-control-menuitemssource .bp3-popover-target",
+  "menuButtonSourceData": ".t--property-control-sourcedata",
+  "menuButtonConfigureArrayItems": ".t--property-control-configuremenuitems button"
 }
