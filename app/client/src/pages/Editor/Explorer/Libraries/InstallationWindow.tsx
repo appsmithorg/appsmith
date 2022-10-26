@@ -27,9 +27,10 @@ import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+// import { getCurrentApplication } from "selectors/applicationSelectors";
 import { selectInstallationStatus } from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
+import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 
 type TInstallWindowProps = any;
@@ -97,6 +98,7 @@ function installLibraryInit(payload: string) {
 export default function InstallationWindow(props: TInstallWindowProps) {
   const { className, open } = props;
   const [show, setShow] = useState(open);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setShow(open);
@@ -104,6 +106,13 @@ export default function InstallationWindow(props: TInstallWindowProps) {
 
   const closeWindow = useCallback(() => {
     setShow(false);
+    clearProcessedInstalls();
+  }, []);
+
+  const clearProcessedInstalls = useCallback(() => {
+    dispatch({
+      type: ReduxActionTypes.CLEAR_PROCESSED_INSTALLS,
+    });
   }, []);
 
   return (
@@ -113,6 +122,7 @@ export default function InstallationWindow(props: TInstallWindowProps) {
       isOpen={show}
       minimal
       onClose={() => {
+        clearProcessedInstalls();
         setShow(false);
       }}
       placement="right-start"
@@ -164,9 +174,17 @@ const InstallationProgressWrapper = styled.div`
   }
 `;
 
+function getStatusIcon(status: InstallState) {
+  if (status === InstallState.Success)
+    return <SaveSuccessIcon color={Colors.GREEN} size={18} />;
+  if (status === InstallState.Failed)
+    return <SaveFailureIcon color={Colors.WARNING_SOLID} size={18} />;
+  return <Spinner />;
+}
+
 function InstallationProgress() {
   const installStatusMap = useSelector(selectInstallationStatus);
-  const application = useSelector(getCurrentApplication);
+  // const application = useSelector(getCurrentApplication);
   const urls = Object.keys(installStatusMap);
   if (urls.length === 0) return null;
   return (
@@ -177,25 +195,10 @@ function InstallationProgress() {
         >
           <div className="flex justify-between items-center pl-6 pr-6 pt-3 pb-3 bg-g fw-500 text-sm">
             <span className="overflow-hidden text-ellipsis">{url}</span>
-            {installStatusMap[url] === InstallState.Success && (
-              <SaveSuccessIcon
-                className="shrink-0"
-                color={Colors.GREEN}
-                size={18}
-              />
-            )}
-          </div>
-          {installStatusMap[url] !== InstallState.Success && (
-            <div className="progress-container">
-              <div className="flex flex-row gap-2 items-center">
-                <Spinner />
-                <span>Installing library for {application?.name}</span>
-              </div>
-              {/* <div className="progress-bar">
-              <div className="completed" />
-            </div> */}
+            <div className="shrink-0">
+              {getStatusIcon(installStatusMap[url])}
             </div>
-          )}
+          </div>
         </InstallationProgressWrapper>
       ))}
     </>
@@ -248,10 +251,11 @@ function InstallationPopoverContent(props: any) {
           <TextInput
             $padding="12px"
             data-testid="library-url"
+            height="30px"
             leftIcon="link-2"
             onChange={updateURL}
             padding="12px"
-            placeholder="Enter a URL"
+            placeholder="Paste a library URL"
             validator={validate}
             width="100%"
           />
@@ -261,7 +265,7 @@ function InstallationPopoverContent(props: any) {
               data-testid="install-library-btn"
               icon="download"
               onClick={() => installLibrary()}
-              size={Size.small}
+              size={Size.medium}
               tag="button"
               text="INSTALL"
               type="button"

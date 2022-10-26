@@ -38,7 +38,7 @@ export function* installLibrary(url: string) {
   yield delay(1000);
   yield put({
     type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
-    payload: url,
+    payload: { url, libraryAccessor },
   });
   Toaster.show({
     text: createMessage(

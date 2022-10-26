@@ -51,18 +51,20 @@ const jsLibraryReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (state, action) => {
+    const { libraryAccessor, url } = action.payload;
     return {
       ...state,
       installationStatus: {
         ...state.installationStatus,
-        [action.payload]: InstallState.Success,
+        [url]: InstallState.Success,
       },
       installedLibraries: [
         ...state.installedLibraries,
         {
-          displayName: action.payload,
-          docsURL: action.payload,
+          displayName: url,
+          docsURL: url,
           version: "",
+          accessor: libraryAccessor,
         },
       ],
     };
@@ -74,6 +76,24 @@ const jsLibraryReducer = createReducer(initialState, {
         ...state.installationStatus,
         [action.payload]: InstallState.Success,
       },
+    };
+  },
+  [ReduxActionTypes.CLEAR_PROCESSED_INSTALLS]: (state) => {
+    const installationStatus = Object.keys(state.installationStatus).reduce(
+      (acc, key) => {
+        if (
+          [InstallState.Queued, InstallState.Installing].includes(
+            state.installationStatus[key],
+          )
+        )
+          acc[key] = state.installationStatus[key];
+        return acc;
+      },
+      {} as any,
+    );
+    return {
+      ...state,
+      installationStatus,
     };
   },
 });
