@@ -217,7 +217,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 110px);
+  height: calc(100% - 135px);
   position: relative;
 `;
 export interface CommonFormProps {
