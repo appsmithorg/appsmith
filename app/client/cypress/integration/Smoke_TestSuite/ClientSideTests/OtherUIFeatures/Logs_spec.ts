@@ -373,11 +373,32 @@ describe("Debugger logs", function() {
     debuggerHelper.Assert_Consecutive_Console_Log_Count(5);
   });
 
-  // it("Api headers need to be shown as headers in logs", function() {
-  //   // TODO
-  // });
-
-  // it("Api body needs to be shown as JSON when possible", function() {
-  //   // TODO
-  // });
+  it("18. Console log should not mutate the passed object", function() {
+    ee.NavigateToSwitcher("explorer");
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: () => {
+  	      let data = [];
+          console.log("start:", data);
+          for(let i=0; i<5; i++)
+            data.push(i);
+          console.log("end:", JSON.stringify(data));
+          return data;
+        },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: true,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+    agHelper.GetNClick(jsEditor._logsTab);
+    debuggerHelper.DoesConsoleLogExist("start: []");
+    debuggerHelper.DoesConsoleLogExist("end: [0,1,2,3,4]");
+  });
 });
