@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
@@ -12,15 +12,8 @@ import {
   getIsInitialized,
   getAppViewHeaderHeight,
 } from "selectors/appViewSelectors";
-import { executeTrigger } from "actions/widgetActions";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
-import {
-  resetChildrenMetaProperty,
-  syncUpdateWidgetMetaProperty,
-  triggerEvalOnMetaUpdate,
-} from "actions/metaActions";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
@@ -30,10 +23,6 @@ import { getSearchQuery } from "utils/helpers";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
-import {
-  BatchPropertyUpdatePayload,
-  batchUpdateWidgetProperty,
-} from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
@@ -182,62 +171,9 @@ function AppViewer(props: Props) {
     };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
-  /**
-   * callback for executing an action
-   */
-  const executeActionCallback = useCallback(
-    (actionPayload: ExecuteTriggerPayload) =>
-      dispatch(executeTrigger(actionPayload)),
-    [executeTrigger, dispatch],
-  );
-
-  /**
-   * callback for initializing app
-   */
-  const resetChildrenMetaPropertyCallback = useCallback(
-    (widgetId: string) => dispatch(resetChildrenMetaProperty(widgetId)),
-    [resetChildrenMetaProperty, dispatch],
-  );
-
-  /**
-   * callback for updating widget meta property in batch
-   */
-  const batchUpdateWidgetPropertyCallback = useCallback(
-    (widgetId: string, updates: BatchPropertyUpdatePayload) =>
-      dispatch(batchUpdateWidgetProperty(widgetId, updates)),
-    [batchUpdateWidgetProperty, dispatch],
-  );
-
-  /**
-   * callback for updating widget meta property
-   */
-  const syncUpdateWidgetMetaPropertyCallback = useCallback(
-    (widgetId: string, propertyName: string, propertyValue: unknown) =>
-      dispatch(
-        syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
-      ),
-    [syncUpdateWidgetMetaProperty, dispatch],
-  );
-
-  /**
-   * callback for triggering evaluation
-   */
-  const triggerEvalOnMetaUpdateCallback = useCallback(
-    () => dispatch(triggerEvalOnMetaUpdate()),
-    [triggerEvalOnMetaUpdate, dispatch],
-  );
-
   return (
     <ThemeProvider theme={lightTheme}>
-      <EditorContext.Provider
-        value={{
-          executeAction: executeActionCallback,
-          resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
-          batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
-          syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
-          triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
-        }}
-      >
+      <EditorContextProvider renderMode="PAGE">
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}
@@ -264,7 +200,7 @@ function AppViewer(props: Props) {
             </a>
           )}
         </AppViewerBodyContainer>
-      </EditorContext.Provider>
+      </EditorContextProvider>
     </ThemeProvider>
   );
 }
