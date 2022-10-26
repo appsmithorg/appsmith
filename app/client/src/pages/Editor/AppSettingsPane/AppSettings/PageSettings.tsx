@@ -169,6 +169,7 @@ function PageSettings(props: { page: Page }) {
       <div className="pt-1 pb-2 relative">
         {isPageNameSaving && <TextLoaderIcon />}
         <TextInput
+          defaultValue={pageName}
           fill
           onBlur={savePageName}
           onChange={setPageName}
@@ -215,6 +216,7 @@ function PageSettings(props: { page: Page }) {
       >
         {isCustomSlugSaving && <TextLoaderIcon />}
         <TextInput
+          defaultValue={customSlug}
           fill
           onBlur={saveCustomSlug}
           onChange={setCustomSlug}

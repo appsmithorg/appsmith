@@ -84,6 +84,7 @@ function GeneralSettings() {
       <div className="pt-1 pb-2 relative">
         {isSavingAppName && <TextLoaderIcon />}
         <TextInput
+          defaultValue={applicationName}
           fill
           // undefined sent implicitly - parameter "icon"
           onBlur={() => updateAppSettings()}
@@ -92,6 +93,7 @@ function GeneralSettings() {
           }
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
+              // undefined sent implicitly - parameter "icon"
               updateAppSettings();
             }
           }}
