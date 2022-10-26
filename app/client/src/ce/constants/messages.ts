@@ -28,7 +28,7 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
 export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
-  `Default text length must be less than ${max} characters`;
+  `Default text length must be less than or equal to ${max} characters`;
 export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
   `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
