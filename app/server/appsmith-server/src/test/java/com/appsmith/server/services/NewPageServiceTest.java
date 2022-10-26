@@ -1,11 +1,16 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +20,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +38,30 @@ public class NewPageServiceTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
+    @Test
+    @WithUserDetails("api_user")
+    public void testCreateDefault() {
+        Set<String> permissionGroupIds = permissionGroupRepository.findAll().collectList().block().stream()
+                .map(PermissionGroup::getId).collect(Collectors.toSet());
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setApplicationId("test-application-id");
+        DefaultResources testDefaultResources = new DefaultResources();
+        pageDTO.setDefaultResources(testDefaultResources);
+        Policy testPolicy = Policy.builder()
+                .permissionGroups(permissionGroupIds)
+                .build();
+        pageDTO.setPolicies(Set.of(testPolicy));
+        StepVerifier.create(newPageService.createDefault(pageDTO))
+                .assertNext(pageDTO1 -> {
+                    assertThat(pageDTO1.getId()).isNotNull();
+                    assertThat(pageDTO1.getUserPermissions()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
 
     @Test
     @WithUserDetails("api_user")

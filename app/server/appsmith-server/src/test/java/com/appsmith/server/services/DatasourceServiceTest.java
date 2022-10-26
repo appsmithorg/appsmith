@@ -149,8 +149,10 @@ public class DatasourceServiceTest {
                 .assertNext(datasource -> {
                     assertThat(datasource.getT1().getName()).isEqualTo("Untitled Datasource");
                     assertThat(datasource.getT1().getWorkspaceId()).isEqualTo("random-org-id-1");
+                    assertThat(datasource.getT1().getUserPermissions()).isNotEmpty();
                     assertThat(datasource.getT2().getName()).isEqualTo("Untitled Datasource");
                     assertThat(datasource.getT2().getWorkspaceId()).isEqualTo("random-org-id-2");
+                    assertThat(datasource.getT2().getUserPermissions()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -176,6 +178,7 @@ public class DatasourceServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
                     assertThat(createdDatasource.getIsValid()).isFalse();
                     assertThat(createdDatasource.getInvalids()).containsExactlyInAnyOrder("Missing plugin id. Please enter one.");
                 })
@@ -244,6 +247,7 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
+                    assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
                     assertThat(createdDatasource.getIsValid()).isFalse();
                     assertThat(createdDatasource.getInvalids()).contains("Plugin " + datasource.getPluginId() + " not installed");
                 })
@@ -303,6 +307,7 @@ public class DatasourceServiceTest {
                 .create(datasourceMono)
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
+                    assertThat(createdDatasource.getUserPermissions()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
