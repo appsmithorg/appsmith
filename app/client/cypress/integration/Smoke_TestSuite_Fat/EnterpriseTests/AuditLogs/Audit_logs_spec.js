@@ -361,7 +361,7 @@ describe("Audit logs", () => {
             .eq(0)
             .children()
             .eq(0)
-            .should("contain.text", `Page1 viewed in Untitled application...`);
+            .should("contain.text", `Page1 updated in Untitled application...`);
 
           cy.get(locators.RowsContainer)
             .children()
@@ -379,10 +379,7 @@ describe("Audit logs", () => {
             .eq(0)
             .children()
             .eq(0)
-            .should(
-              "contain.text",
-              `Untitled application... deployed in ${defaultWorkspaceName}`,
-            );
+            .should("contain.text", `Page1 viewed in Untitled application...`);
 
           cy.get(locators.RowsContainer)
             .children()
@@ -391,7 +388,10 @@ describe("Audit logs", () => {
             .eq(0)
             .children()
             .eq(0)
-            .should("contain.text", `Page1 updated in Untitled application...`);
+            .should(
+              "contain.text",
+              `Untitled application... deployed in ${defaultWorkspaceName}`,
+            );
 
           cy.get(locators.RowsContainer)
             .children()
