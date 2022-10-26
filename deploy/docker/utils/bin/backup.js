@@ -94,7 +94,6 @@ async function exportDockerEnvFile(destFolder) {
   const cleaned_content = removeEncryptionEnvData(content)
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
-  // test string
   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! Important !!!!!!!!!!!!!!!!!!!!!!!!!!');
   console.log('!!! Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
