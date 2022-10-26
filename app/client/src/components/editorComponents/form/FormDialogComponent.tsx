@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from "react";
-import { isPermitted } from "pages/Applications/permissionHelpers";
+import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 import {
@@ -80,6 +80,8 @@ const getTabs = (
                   }
                 : {})}
               applicationId={applicationId}
+              dropdownMaxHeight={tab.dropdownMaxHeight}
+              dropdownPlaceholder={tab.dropdownPlaceholder}
               formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
               onCancel={() => setIsOpen(false)}
               options={tab.options}
