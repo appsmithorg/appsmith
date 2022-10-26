@@ -6,6 +6,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
   overflow-x: ${(props) => (props.isOverflow ? "hidden" : "unset")};
+  padding-right: 4px;
 `;
 
 interface DynamicHeightContainerProps {
