@@ -31,4 +31,7 @@ public interface EnvironmentService extends EnvironmentServiceCE {
 
     EnvironmentDTO createEnvironmentDTO(Environment environment);
 
+    Mono<EnvironmentDTO> createNewEnvironment(EnvironmentDTO environmentDTO);
+
+
 }

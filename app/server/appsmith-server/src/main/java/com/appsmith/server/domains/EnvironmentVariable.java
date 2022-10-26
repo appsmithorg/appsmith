@@ -5,6 +5,7 @@ import com.appsmith.external.models.BaseDomain;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @NoArgsConstructor
 @Document
+@ToString
 public class EnvironmentVariable extends BaseDomain {
 
 

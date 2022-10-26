@@ -94,18 +94,6 @@ public class EnvironmentVariableDTO {
         envVar.setApplicationId(this.getApplicationId());
         envVar.setWorkspaceId(this.getWorkspaceId());
         envVar.setDeletedAt(this.getDeletedAt());
-
-        Set<String> userPermissions = new HashSet<>();
-        envVar.setUserPermissions(userPermissions);
-        if (this.getUserPermissions() != null) {
-            userPermissions.addAll(this.getUserPermissions());
-        }
-
-        Set<Policy> policies = new HashSet<>();
-        if (this.getPolicies() != null) {
-            policies.addAll(this.getPolicies());
-        }
-
         return envVar;
     }
 
