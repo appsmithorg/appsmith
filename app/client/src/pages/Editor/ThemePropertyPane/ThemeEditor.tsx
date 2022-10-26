@@ -130,7 +130,12 @@ function ThemeEditor() {
             <BetaCard />
           </div>
           <div>
-            <DropdownV2 position="bottom-right">
+            <DropdownV2
+              portalContainer={
+                document.getElementById("app-settings-portal") || undefined
+              }
+              position="bottom-right"
+            >
               <DropdownTrigger>
                 <button className="p-1 hover:bg-gray-100 active:bg-gray-100">
                   <MoreIcon className="w-5 h-5" />
