@@ -77,7 +77,7 @@ public class PermissionGroupController {
     }
 
     @PutMapping("/configure/{permissionGroupId}")
-    public Mono<ResponseDTO<RoleViewDTO>> getPermissionGroupConfiguration(@PathVariable String permissionGroupId,
+    public Mono<ResponseDTO<RoleViewDTO>> updatePermissionGroupConfiguration(@PathVariable String permissionGroupId,
                                                                           @RequestBody UpdateRoleConfigDTO updateRoleConfigDTO) {
         return roleConfigurationSolution.updateRoles(permissionGroupId, updateRoleConfigDTO)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));

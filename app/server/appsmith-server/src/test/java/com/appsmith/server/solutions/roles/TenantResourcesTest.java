@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.AUDIT_LOGS;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -216,7 +217,9 @@ public class TenantResourcesTest {
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing");
-        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup)
+                .flatMap(permissionGroup1 -> permissionGroupService.findById(permissionGroup1.getId(), READ_PERMISSION_GROUPS))
+                .block();
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
 
@@ -243,6 +246,8 @@ public class TenantResourcesTest {
         StepVerifier.create(roleConfigChangeMono)
                 .assertNext(roleViewDTO -> {
                     Assertions.assertThat(roleViewDTO).isNotNull();
+                    assertThat(roleViewDTO.getId()).isEqualTo(createdPermissionGroup.getId());
+                    assertThat(roleViewDTO.getUserPermissions()).isEqualTo(createdPermissionGroup.getUserPermissions());
                     BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.OTHERS.getName())
                             .getData()
                             .getEntities()

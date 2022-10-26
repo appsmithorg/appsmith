@@ -1,9 +1,11 @@
 package com.appsmith.server.solutions.roles;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
@@ -23,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 
 @Component
@@ -31,14 +34,16 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final WorkspaceResources workspaceResources;
     private final TenantResources tenantResources;
     private final GenericDatabaseOperation genericDatabaseOperation;
+    private final PermissionGroupRepository permissionGroupRepository;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
-                                         GenericDatabaseOperation genericDatabaseOperation) {
+                                         GenericDatabaseOperation genericDatabaseOperation, PermissionGroupRepository permissionGroupRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
         this.genericDatabaseOperation = genericDatabaseOperation;
+        this.permissionGroupRepository = permissionGroupRepository;
     }
 
     @Override
@@ -79,6 +84,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
          *
          * 2. Also, if an application(s) are shared in application resources, also give read workspace permission
          */
+        Mono<PermissionGroup> permissionGroupMono = permissionGroupRepository.findById(permissionGroupId, MANAGE_PERMISSION_GROUPS);
 
         String tabName = updateRoleConfigDTO.getTabName();
         RoleTab tab = RoleTab.getTabByValue(tabName);
@@ -158,9 +164,21 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     return genericDatabaseOperation.updatePolicies(id, permissionGroupId, added, removed, aClass);
                 });
 
-
-        return updateEntityPoliciesFlux
-                .then(getAllTabViews(permissionGroupId));
+        return permissionGroupMono
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update roles")))
+                .thenReturn(updateEntityPoliciesFlux)
+                .zipWith(permissionGroupMono)
+                .flatMap(tuple -> {
+                    Flux<Long> uepFlux = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
+                    return uepFlux.then(getAllTabViews(permissionGroup.getId())
+                            .map(roleViewDTO -> {
+                                roleViewDTO.setId(permissionGroup.getId());
+                                roleViewDTO.setName(permissionGroup.getName());
+                                roleViewDTO.setUserPermissions(permissionGroup.getUserPermissions());
+                                return roleViewDTO;
+                            }));
+                });
     }
 
 }
