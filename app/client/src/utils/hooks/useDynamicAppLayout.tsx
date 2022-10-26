@@ -104,9 +104,13 @@ export const useDynamicAppLayout = () => {
       calculatedWidth -= explorerWidth;
     }
     const ele: any = document.getElementById("main-canvas-container");
-    const mainCanvasWidth = ele.clientWidth;
-    if (appLayout?.type === "FLUID" && calculatedWidth > mainCanvasWidth) {
-      calculatedWidth = mainCanvasWidth;
+    if (
+      appMode === "EDIT" &&
+      appLayout?.type === "FLUID" &&
+      ele &&
+      calculatedWidth > ele.clientWidth
+    ) {
+      calculatedWidth = ele.clientWidth;
     }
     switch (true) {
       case maxWidth < 0:
@@ -157,13 +161,15 @@ export const useDynamicAppLayout = () => {
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
   useEffect(() => {
     const ele: any = document.getElementById("main-canvas-container");
-    if (ele && appLayout?.type === "FLUID") {
-      resizeObserver.observe(ele);
-    } else {
-      resizeObserver.unobserve(ele);
+    if (ele) {
+      if (appLayout?.type === "FLUID") {
+        resizeObserver.observe(ele);
+      } else {
+        resizeObserver.unobserve(ele);
+      }
     }
     return () => {
-      resizeObserver.unobserve(ele);
+      ele && resizeObserver.unobserve(ele);
     };
   }, [appLayout]);
 
