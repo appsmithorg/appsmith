@@ -126,7 +126,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isAddRowInProgress: false,
       newRowContent: undefined,
       newRow: undefined,
-      firstEditableColumnIdByOrder: "",
     };
   }
 
@@ -2057,7 +2056,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     /*
      * newRowContent holds whatever the user types while newRow holds the parsed value
-     * newRowContent is being used to populate the cell while newRow is being used to
+     * newRowContent is being used to populate the cell while newRow is being used
      * for validations.
      */
     this.props.updateWidgetMetaProperty("newRowContent", {
