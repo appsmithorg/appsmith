@@ -39,7 +39,7 @@ export const migrateMenuButtonDynamicItems = (currentDSL: DSLWidget) => {
         child.sourceDataKeys = [];
       }
     } else if (child.children && child.children.length > 0) {
-      child = migrateMenuButtonWidgetButtonProperties(child);
+      child = migrateMenuButtonDynamicItems(child);
     }
 
     return child;
