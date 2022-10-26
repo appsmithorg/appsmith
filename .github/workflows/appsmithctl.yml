@@ -57,8 +57,6 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
