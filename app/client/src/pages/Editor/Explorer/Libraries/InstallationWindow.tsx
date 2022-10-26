@@ -172,6 +172,15 @@ const InstallationProgressWrapper = styled.div`
       }
     }
   }
+  .install-url {
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+  }
 `;
 
 function getStatusIcon(status: InstallState) {
@@ -193,8 +202,8 @@ function InstallationProgress() {
         <InstallationProgressWrapper
           key={`${url}_${idx}_${installStatusMap[url]}`}
         >
-          <div className="flex justify-between items-center pl-6 pr-6 pt-3 pb-3 bg-g fw-500 text-sm">
-            <span className="overflow-hidden text-ellipsis">{url}</span>
+          <div className="flex justify-between items-center pl-6 pr-6 pt-3 pb-3 bg-g gap-2 fw-500 text-sm">
+            <div className="install-url">{url}</div>
             <div className="shrink-0">
               {getStatusIcon(installStatusMap[url])}
             </div>
@@ -261,7 +270,7 @@ function InstallationPopoverContent(props: any) {
           />
           {URL && isValid && (
             <Button
-              category={Category.tertiary}
+              category={Category.primary}
               data-testid="install-library-btn"
               icon="download"
               onClick={() => installLibrary()}
