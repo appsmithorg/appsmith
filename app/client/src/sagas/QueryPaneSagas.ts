@@ -247,10 +247,6 @@ function* formValueChangeSaga(
     yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
   } catch (error) {
     yield put({
-      type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
-      payload: { error },
-    });
-    yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {
         error,

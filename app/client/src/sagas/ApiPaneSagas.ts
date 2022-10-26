@@ -524,10 +524,6 @@ function* formValueChangeSaga(
     );
   } catch (error) {
     yield put({
-      type: ReduxFormActionTypes.UPDATE_FIELD_ERROR,
-      payload: { error },
-    });
-    yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
       payload: {
         error,
