@@ -77,7 +77,6 @@ import { klona as clone } from "klona";
 import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
-import { MinimumPopupRows } from "widgets/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1255,11 +1254,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex,
       selectedRowIndices,
       compactMode = CompactModeTypes.DEFAULT,
-      componentWidth,
-      parentColumnSpace,
     } = this.props;
-
-    const menuDropDownWidth = MinimumPopupRows * parentColumnSpace;
 
     const rowIndex: number = props.cell.row.index;
     const row = filteredTableData[rowIndex];
@@ -1498,7 +1493,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             boxShadow={cellProperties.boxShadow}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
-            configureMenuItems={cellProperties.configureMenuItems}
             fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconAlign={cellProperties.iconAlign}
@@ -1512,9 +1506,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             menuColor={
               cellProperties.menuColor || this.props.accentColor || Colors.GREEN
             }
-            menuDropDownWidth={menuDropDownWidth}
             menuItems={cellProperties.menuItems}
-            menuItemsSource={cellProperties.menuItemsSource}
             menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
             onCommandClick={(action: string, onComplete?: () => void) =>
               this.onColumnEvent({
@@ -1526,11 +1518,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               })
             }
             rowIndex={originalIndex}
-            sourceData={cellProperties.sourceData}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
-            width={componentWidth}
           />
         );
 

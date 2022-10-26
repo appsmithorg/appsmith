@@ -330,13 +330,6 @@ export const getCellProperties = (
       isCompact: getPropertyValue(columnProperties.isCompact, rowIndex),
       menuColor: getPropertyValue(columnProperties.menuColor, rowIndex, true),
       menuItems: getPropertyValue(columnProperties.menuItems, rowIndex),
-      menuItemsSource: getPropertyValue(
-        columnProperties.menuItemsSource,
-        rowIndex,
-        true,
-      ),
-      configureMenuItems: columnProperties.configureMenuItems,
-      sourceData: columnProperties.sourceData,
       menuVariant: getPropertyValue(
         columnProperties.menuVariant,
         rowIndex,
