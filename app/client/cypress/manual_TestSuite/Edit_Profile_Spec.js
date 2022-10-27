@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/profileDsl.json");
-
 describe("Page functionality ", function() {
   it("Profile Page", function() {
     // Click on Name

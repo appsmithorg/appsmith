@@ -1,5 +1,4 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 
 let datasourceName;

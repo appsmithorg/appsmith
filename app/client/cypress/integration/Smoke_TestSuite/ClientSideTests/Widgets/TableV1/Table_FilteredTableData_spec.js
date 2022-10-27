@@ -43,7 +43,7 @@ describe("Table Widget Filtered Table Data in autocomplete", function() {
   });
 
   it("Table Widget Functionality to validate filtered table data with actual table data", function() {
-    cy.readTabledata("0", "1").then((tabData) => {
+    cy.readTabledata("0", "1").then(() => {
       const tableData = JSON.parse(dsl.dsl.children[0].tableData);
       cy.get(commonlocators.labelTextStyle).should(
         "have.text",

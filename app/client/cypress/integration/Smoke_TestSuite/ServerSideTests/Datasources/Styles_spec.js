@@ -2,7 +2,6 @@ import HomePage from "../../../../locators/HomePage";
 const pages = require("../../../../locators/Pages.json");
 
 describe("Validate Datasource Panel Styles", function() {
-  const backgroundColorGray900 = "rgb(25, 25, 25)";
   const backgroundColorGray700 = "rgb(87, 87, 87)";
   const backgroundColorGray1 = "rgb(250, 250, 250)";
   const backgroundColorGray2 = "rgb(240, 240, 240)";

@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/ModalWidgetDsl.json");
-
 describe("Modal Functionality ", function() {
   it("Collapse the tabs of Property pane", function() {
     // Add a modal widget from teh entity explorer

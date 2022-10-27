@@ -3,9 +3,7 @@
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const commonlocators = require("../../../../locators/commonlocators.json");
-let HomePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Create new workspace and share with a user", function() {
   let workspaceId;

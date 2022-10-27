@@ -3,7 +3,6 @@ const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
 
 describe("Reconnect Datasource Modal validation while importing application", function() {
   let workspaceId;
-  let appid;
   let newWorkspaceName;
   let appName;
   it("Import application from json with one postgres and success modal", function() {

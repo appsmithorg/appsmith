@@ -43,7 +43,7 @@ describe("Table Widget V2 Filtered Table Data in autocomplete", function() {
   });
 
   it("4. Table Widget V2 Functionality to validate filtered table data with actual table data", function() {
-    cy.readTableV2data("0", "1").then((tabData) => {
+    cy.readTableV2data("0", "1").then(() => {
       const tableData = JSON.parse(dsl.dsl.children[0].tableData);
       cy.get(commonlocators.labelTextStyle).should(
         "have.text",

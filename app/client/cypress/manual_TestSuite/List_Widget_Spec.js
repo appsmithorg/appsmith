@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/ListWidgetDsl.json");
-
 describe("List Widget test ideas ", function() {
   it("List widget background colour and deploy ", function() {
     // Drag and drop a List widget

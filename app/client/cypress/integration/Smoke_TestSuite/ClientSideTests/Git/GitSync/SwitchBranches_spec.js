@@ -201,7 +201,6 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
     const tempBranchRegex = new RegExp(`^${tempBranch}$`);
-    const tempBranchRenamedRegex = new RegExp(`^${tempBranchRenamed}$`);
     const remoteTempBranchRenamedRegex = new RegExp(
       `^origin/${tempBranchRenamed}$`,
     );

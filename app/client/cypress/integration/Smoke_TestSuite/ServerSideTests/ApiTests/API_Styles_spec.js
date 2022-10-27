@@ -1,8 +1,6 @@
 import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
-const pages = require("../../../../locators/Pages.json");
-const datasourcesEditor = require("../../../../locators/DatasourcesEditor.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 
 describe("Validate API Panel CSS Styles", function() {

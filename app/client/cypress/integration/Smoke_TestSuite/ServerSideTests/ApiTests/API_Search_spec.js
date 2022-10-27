@@ -1,4 +1,3 @@
-const testdata = require("../../../../fixtures/testdata.json");
 import ApiEditor from "../../../../locators/ApiEditor";
 let APIName;
 const testUrl1 =

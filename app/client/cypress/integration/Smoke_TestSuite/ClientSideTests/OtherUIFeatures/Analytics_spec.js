@@ -1,5 +1,3 @@
-import User from "../../../../fixtures/user.json";
-
 let appId;
 
 describe("Checks for analytics initialization", function() {

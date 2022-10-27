@@ -1,8 +1,7 @@
 /// <reference types="Cypress" />
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import homePage from "../../../../locators/HomePage";
-let HomePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Delete workspace test spec", function() {
   let newWorkspaceName;

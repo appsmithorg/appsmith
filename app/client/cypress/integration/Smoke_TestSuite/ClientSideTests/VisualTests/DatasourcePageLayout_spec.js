@@ -1,9 +1,3 @@
-import homePage from "../../../../locators/HomePage";
-import explorer from "../../../../locators/explorerlocators.json";
-const datasource = require("../../../../locators/DatasourcesEditor.json");
-const postgres = "PostgreSQL";
-const mongo = "MongoDB";
-const mySQL = "MysQL";
 describe("Visual tests for datasources", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.

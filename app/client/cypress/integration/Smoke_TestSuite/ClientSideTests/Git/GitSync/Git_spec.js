@@ -22,7 +22,6 @@ const inputNameTempBranch31 = "inputNameTempBranch31";
 const cleanUrlBranch = "feat/clean_url";
 
 let applicationId = null;
-let applicationName = null;
 
 let repoName;
 describe("Git sync:", function() {

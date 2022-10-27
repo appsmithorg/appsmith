@@ -1,5 +1,4 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 

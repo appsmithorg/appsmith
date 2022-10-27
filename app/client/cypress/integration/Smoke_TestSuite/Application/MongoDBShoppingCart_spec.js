@@ -4,9 +4,7 @@ const queryLocators = require("../../../locators/QueryEditor.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 const formControls = require("../../../locators/FormControl.json");
 
-let repoName;
 describe("Shopping cart App", function() {
-  let datasourceName;
 
   before(() => {
     cy.addDsl(dsl);

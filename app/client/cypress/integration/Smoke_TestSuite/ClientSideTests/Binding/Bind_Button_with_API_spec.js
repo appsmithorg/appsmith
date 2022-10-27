@@ -6,7 +6,6 @@ const testdata = require("../../../../fixtures/testdata.json");
 import apiPage from "../../../../locators/ApiEditor";
 
 describe("Bind a button and Api usecase", function() {
-  let apiData;
   let valueToTest;
   before(() => {
     cy.addDsl(dsl);

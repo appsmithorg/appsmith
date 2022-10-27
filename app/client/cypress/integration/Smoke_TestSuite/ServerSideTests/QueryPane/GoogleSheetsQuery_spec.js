@@ -3,7 +3,6 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 
 let dataSources = ObjectsRegistry.DataSources;
-let queryName;
 let datasourceName;
 let pluginName = "Google Sheets";
 let placeholderText =
