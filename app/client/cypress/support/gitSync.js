@@ -34,7 +34,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
 });
 Cypress.Commands.add(
   "connectToGitRepo",
-  (repo, shouldCommit = true, assertConnectFailure) => {
+  (repo, assertConnectFailure) => {
     const testEmail = "test@test.com";
     const testUsername = "testusername";
     const owner = Cypress.env("TEST_GITHUB_USER_NAME");
@@ -253,7 +253,7 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
 // todo rishabh s: refactor
 Cypress.Commands.add(
   "createAppAndConnectGit",
-  (appname, shouldConnect = true, assertConnectFailure) => {
+  (appname, assertConnectFailure) => {
     cy.get(homePage.homeIcon).click({ force: true });
     cy.get(homePage.createNew)
       .first()

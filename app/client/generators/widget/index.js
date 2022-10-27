@@ -23,7 +23,7 @@ module.exports = {
       },
     },
   ],
-  actions: (data) => {
+  actions: () => {
     // Generate index.ts and index.test.ts
     const actions = [
       {

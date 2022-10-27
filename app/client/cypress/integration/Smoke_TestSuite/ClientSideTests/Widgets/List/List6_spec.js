@@ -2,8 +2,7 @@ const dsl = require("../../../../../fixtures/listRegressionDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-let propPane = ObjectsRegistry.PropertyPane,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let propPane = ObjectsRegistry.PropertyPane;
 
 describe("Binding the list widget with text widget", function() {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

@@ -143,7 +143,7 @@ exports.handler = async (event, context, callback) => {
 
           getAllPages(Object.keys(pages)).then(updatedPages => {
             // console.log("fetched all pages ", Object.keys(pages));
-            updatedPages.forEach((page, index) => {
+            updatedPages.forEach((page) => {
               // console.log("update page fullpath", page.id);
               page.path = pages[page.id].path;
               delete page.pages;

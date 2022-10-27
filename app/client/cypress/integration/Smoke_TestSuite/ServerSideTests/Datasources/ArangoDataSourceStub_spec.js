@@ -6,7 +6,6 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
 
-let datasourceName;
 
 describe("Arango datasource test cases", function() {
   beforeEach(() => {

@@ -28,7 +28,7 @@ const {
 /**
  * @type {Cypress.PluginConfig}
  */
-module.exports = (on, config) => {
+module.exports = (on) => {
   // Todo: maybe raise a PR instead of overwriting `on("before:browser:launch", ...)` twice.
   cypressLogToOutput.install(on, (type, event) => {
     if (event.level === "error" || event.type === "error") {

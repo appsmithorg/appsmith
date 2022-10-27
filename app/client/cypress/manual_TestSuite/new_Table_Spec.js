@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/tableWidgetDsl.json");
-
 describe("Table functionality ", function() {
   it("Adding background Colour to table", function() {
     // Add a table

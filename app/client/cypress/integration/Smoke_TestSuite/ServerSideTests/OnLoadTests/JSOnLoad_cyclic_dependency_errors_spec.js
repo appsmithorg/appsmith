@@ -1,17 +1,12 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const dsl = require("../../../../fixtures/inputdsl.json");
-const buttonDsl = require("../../../../fixtures/buttondsl.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-import jsActions from "../../../../locators/jsActionLocators.json";
-import { Entity } from "draft-js";
 const jsEditor = ObjectsRegistry.JSEditor;
 const ee = ObjectsRegistry.EntityExplorer;
-const explorer = require("../../../../locators/explorerlocators.json");
 const agHelper = ObjectsRegistry.AggregateHelper;
-const pageid = "MyPage";
 let queryName;
 
 /*

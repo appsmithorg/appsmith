@@ -2,7 +2,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
-const generatePage = require("../../../../locators/GeneratePage.json");
 
 describe("Widget Copy paste", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
