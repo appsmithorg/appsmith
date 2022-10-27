@@ -1130,7 +1130,7 @@ export const transformDSL = (
 
   if (currentDSL.version === 64) {
     currentDSL = migrateRateWidgetDisabledState(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 65;
   }
 
   if (currentDSL.version === 65) {
