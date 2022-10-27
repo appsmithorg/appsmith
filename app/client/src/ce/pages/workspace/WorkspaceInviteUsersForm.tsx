@@ -494,6 +494,7 @@ function WorkspaceInviteUsersForm(props: any) {
               allowDeselection={isMultiSelectDropdown}
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
+              dropdownMaxHeight={props.dropdownMaxHeight}
               isMultiSelect={isMultiSelectDropdown}
               labelRenderer={(selected: Partial<DropdownOption>[]) =>
                 getLabel(selected)
