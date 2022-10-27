@@ -256,13 +256,13 @@ public class TenantResourcesTest {
                             .findFirst().get();
 
                     // First assert that the parent permissions haven't changed (for ALL workspaces)
-                    AssertionsForClassTypes.assertThat(workspaceView.getEnabled()).isEqualTo(List.of(0,-1, -1, -1));
+                    assertThat(workspaceView.getEnabled()).isEqualTo(List.of(0,-1, -1, -1));
 
                     BaseView createdWorkspaceView = workspaceView.getChildren().stream().findFirst().get()
                             .getEntities().stream()
                             .filter(baseView -> baseView.getId().equals(createdWorkspace.getId()))
                             .findFirst().get();
-                    AssertionsForClassTypes.assertThat(createdWorkspaceView.getEnabled()).isEqualTo(List.of(-1, 1, 0, -1));
+                    assertThat(createdWorkspaceView.getEnabled()).isEqualTo(List.of(-1, 1, 0, -1));
 
                     BaseView auditLogView = roleViewDTO.getTabs().get(RoleTab.OTHERS.getName())
                             .getData()
