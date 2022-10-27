@@ -1,6 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
+import { IconName, IconNames } from "@blueprintjs/icons";
 import {
   ButtonBorderRadius,
   ButtonVariant,
@@ -161,3 +161,7 @@ export interface PopoverContentProps {
   sourceData?: Array<Record<string, unknown>>;
   sourceDataKeys?: Array<string>;
 }
+
+export const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);

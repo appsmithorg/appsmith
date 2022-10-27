@@ -1,7 +1,11 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { MenuItemsSource, MenuButtonWidgetProps } from "../../constants";
+import {
+  MenuItemsSource,
+  MenuButtonWidgetProps,
+  ICON_NAMES,
+} from "../../constants";
 import { getAutocompleteProperties } from "../helper";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { arrayOfValuesWithMaxLengthTen } from "widgets/MenuButtonWidget/validations";
@@ -316,10 +320,18 @@ export default [
                   label: "Icon",
                   helpText: "Sets the icon to be used for a menu item",
                   controlType: "ICON_SELECT",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
-                  validation: { type: ValidationTypes.TEXT },
+                  validation: {
+                    type: ValidationTypes.MENU_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ICON_NAMES,
+                      },
+                    },
+                  },
                   customJSControl: "MENU_COMPUTE_VALUE",
                   dependencies: ["sourceDataKeys"],
                 },
@@ -338,10 +350,18 @@ export default [
                       value: "right",
                     },
                   ],
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
-                  validation: { type: ValidationTypes.TEXT },
+                  validation: {
+                    type: ValidationTypes.MENU_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      params: {
+                        allowedValues: ["center", "left", "right"],
+                      },
+                    },
+                  },
                   customJSControl: "MENU_COMPUTE_VALUE",
                   dependencies: ["sourceDataKeys"],
                 },
@@ -355,33 +375,54 @@ export default [
                   helpText: "Sets the icon color of a menu item",
                   label: "Icon color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   customJSControl: "MENU_COMPUTE_VALUE",
                   dependencies: ["sourceDataKeys"],
+                  validation: {
+                    type: ValidationTypes.MENU_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
                 {
                   propertyName: "backgroundColor",
                   helpText: "Sets the background color of a menu item",
                   label: "Background color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   customJSControl: "MENU_COMPUTE_VALUE",
                   dependencies: ["sourceDataKeys"],
+                  validation: {
+                    type: ValidationTypes.MENU_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
                 {
                   propertyName: "textColor",
                   helpText: "Sets the text color of a menu item",
                   label: "Text color",
                   controlType: "COLOR_PICKER",
-                  isBindProperty: false,
+                  isBindProperty: true,
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   customJSControl: "MENU_COMPUTE_VALUE",
                   dependencies: ["sourceDataKeys"],
+                  validation: {
+                    type: ValidationTypes.MENU_PROPERTY,
+                    params: {
+                      type: ValidationTypes.TEXT,
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
                 },
               ],
             },

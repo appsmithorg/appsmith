@@ -278,7 +278,9 @@ function PopoverContent(props: PopoverContentProps) {
           return configureMenuItems.config[propertyName][index];
         }
 
-        return configureMenuItems.config[propertyName];
+        return configureMenuItems.config[propertyName]
+          ? configureMenuItems.config[propertyName]
+          : null;
       };
 
       const visibleItems = sourceData
