@@ -159,7 +159,11 @@ export function SignUp(props: SignUpFormProps) {
       </AuthCardHeader>
       <SignUpLinkSection>
         {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
-        <Link style={{ marginLeft: props.theme.spaces[3] }} to={AUTH_LOGIN_URL}>
+        <Link
+          isPrimary
+          style={{ marginLeft: props.theme.spaces[3] }}
+          to={AUTH_LOGIN_URL}
+        >
           {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
         </Link>
       </SignUpLinkSection>
