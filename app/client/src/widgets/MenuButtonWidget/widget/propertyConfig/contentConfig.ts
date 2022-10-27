@@ -28,7 +28,8 @@ export default [
         propertyName: "menuItemsSource",
         helpText: "Sets the source for the menu items",
         label: "Menu Items Source",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         options: [
           {
             label: "Static",
