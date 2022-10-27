@@ -685,12 +685,8 @@ function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(evalWorker.shutdown);
   const { mainThreadRequestChannel } = yield call(evalWorker.start);
-  const appMode: APP_MODE = yield select(getAppMode);
-  // Shut lint worker, and only start it in Edit mode
   yield call(lintWorker.shutdown);
-  if (appMode === APP_MODE.EDIT) {
-    yield call(lintWorker.start);
-  }
+  yield call(lintWorker.start);
 
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
   yield spawn(executeDynamicTriggerRequest, mainThreadRequestChannel);
