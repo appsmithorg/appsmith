@@ -102,6 +102,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   prevMetaContainerNames: string[];
   prevMetaMainCanvasWidget?: MetaWidget;
   virtualizer?: VirtualizerInstance;
+  pageSize: number;
 
   /**
    * returns the property pane config of the widget
@@ -154,6 +155,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
+    this.pageSize = this.getPageSize();
   }
 
   componentDidMount() {
@@ -177,7 +179,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     this.prevFlattenedChildCanvasWidgets =
       prevProps.flattenedChildCanvasWidgets;
 
-    if (this.shouldUpdatePageSize(prevProps)) {
+    this.pageSize = this.getPageSize();
+
+    if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
     }
     // TODO
@@ -256,8 +260,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       mainCanvasId = "",
       mainContainerId = "",
       pageNo,
-      pageSize,
     } = this.props;
+    const pageSize = this.pageSize;
 
     return {
       containerParentId: mainCanvasId,
@@ -439,24 +443,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updatePageSize = () => {
-    const pageSize = this.getPageSize();
-    if (pageSize !== this.props.pageSize) {
-      this.props.updateWidgetMetaProperty("pageSize", pageSize);
-    }
+    this.props.updateWidgetMetaProperty("pageSize", this.pageSize);
   };
 
-  shouldUpdatePageSize = (prevProps: ListWidgetProps<WidgetProps>) => {
-    const hasListComponentHeightChanged =
-      this.props.bottomRow - this.props.topRow !==
-      prevProps.bottomRow - prevProps.topRow;
-    const isInfiniteScrollToggled =
-      this.props.infiniteScroll !== prevProps.infiniteScroll;
-
-    return (
-      hasListComponentHeightChanged ||
-      this.hasTemplateBottomRowChanged() ||
-      isInfiniteScrollToggled
-    );
+  shouldUpdatePageSize = () => {
+    return this.props.pageSize !== this.pageSize;
   };
 
   mainMetaCanvasWidget = () => {
@@ -638,9 +629,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const {
       infiniteScroll = false,
       listData,
-      pageSize,
       serverSidePaginationEnabled,
     } = this.props;
+    const pageSize = this.pageSize;
 
     if (infiniteScroll) {
       return { shouldPaginate: false, pageSize: (listData || []).length };
@@ -656,7 +647,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     const shouldPaginate = pageSize < listData.length;
 
-    return { shouldPaginate, pageSize: pageSize };
+    return { shouldPaginate, pageSize };
   };
 
   renderChildren = () => {
