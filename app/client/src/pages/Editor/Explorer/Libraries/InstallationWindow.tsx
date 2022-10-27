@@ -28,7 +28,6 @@ import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-// import { getCurrentApplication } from "selectors/applicationSelectors";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
@@ -236,6 +235,12 @@ function InstallationPopoverContent(props: any) {
     setURL(value);
   }, []);
 
+  const openDoc = useCallback((e, repo: string) => {
+    e.preventDefault();
+    if (repo === "UNPKG") return window.open("https://unpkg.com");
+    window.open("https://www.jsdelivr.com/");
+  }, []);
+
   const validate = useCallback((text) => {
     const isValid = !text || isValidURL(text);
     setIsValid(isValid);
@@ -308,18 +313,24 @@ function InstallationPopoverContent(props: any) {
         </div>
       </div>
       <div className="search-body">
-        <div className="search-CTA mb-3">
-          <Text type={TextType.P3}>
+        <div className="search-CTA mb-3 text-xs">
+          <span>
             Explore libraries on{" "}
-            <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>
+            <a
+              className="text-primary-500"
+              onClick={(e) => openDoc(e, "JSDELIVR")}
+            >
               jsDelivr
-            </Text>{" "}
+            </a>{" "}
             or{" "}
-            <Text color="var(--appsmith-color-orange-500)" type={TextType.P3}>
+            <a
+              className="text-primary-500"
+              onClick={(e) => openDoc(e, "UNPKG")}
+            >
               UNPKG.
-            </Text>
-            Learn more about Custom JS Libraries here.
-          </Text>
+            </a>
+          </span>
+          <span>Learn more about Custom JS Libraries here.</span>
         </div>
         <InstallationProgress />
         <div className="pl-6 pb-3 pt-4 sticky top-0 z-2 bg-white">
