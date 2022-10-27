@@ -36,3 +36,7 @@ export const ACL_INVITE_MODAL_MESSAGE = () =>
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address or group`;
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid Email address(es) or user group(s) found`;*/
+
+// Audit logs begin
+export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+// Audit logs end
