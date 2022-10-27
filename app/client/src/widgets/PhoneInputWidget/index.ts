@@ -1,8 +1,8 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultISDCode } from "./component/ISDCodeDropdown";
-import { ResponsiveBehavior } from "components/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -14,6 +14,8 @@ export const CONFIG = {
     ...BaseConfig.defaults,
     widgetName: "PhoneInput",
     version: 1,
+    rows: 7,
+    labelPosition: LabelPosition.Top,
     defaultDialCode: getDefaultISDCode().dial_code,
     allowDialCodeChange: false,
     allowFormatting: true,

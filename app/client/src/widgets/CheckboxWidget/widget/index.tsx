@@ -29,7 +29,8 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               { label: "Left", value: LabelPosition.Left },
               { label: "Right", value: LabelPosition.Right },
@@ -146,6 +147,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           {
             propertyName: "labelTextColor",
             label: "Font Color",
+            helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -160,6 +162,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           {
             propertyName: "labelTextSize",
             label: "Font Size",
+            helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -202,6 +205,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           {
             propertyName: "labelStyle",
             label: "Emphasis",
+            helpText: "Control if the label should be bold or italics",
             controlType: "BUTTON_TABS",
             options: [
               {

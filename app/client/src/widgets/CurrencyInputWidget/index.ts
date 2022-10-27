@@ -1,8 +1,8 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultCurrency } from "./component/CurrencyCodeDropdown";
-import { ResponsiveBehavior } from "components/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -14,6 +14,8 @@ export const CONFIG = {
     ...BaseConfig.defaults,
     widgetName: "CurrencyInput",
     version: 1,
+    rows: 7,
+    labelPosition: LabelPosition.Top,
     allowCurrencyChange: false,
     defaultCurrencyCode: getDefaultCurrency().currency,
     decimals: 0,

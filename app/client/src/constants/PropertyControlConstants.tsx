@@ -133,6 +133,7 @@ type ValidationConfigParams = {
 export type ValidationConfig = {
   type: ValidationTypes;
   params?: ValidationConfigParams;
+  dependentPaths?: string[];
 };
 
 export type PropertyPaneConfig =

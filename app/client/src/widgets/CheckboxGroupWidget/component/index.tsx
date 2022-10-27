@@ -22,6 +22,7 @@ import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "design-system";
+import { AlignWidgetTypes } from "widgets/constants";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -112,9 +113,9 @@ function SelectAll(props: SelectAllProps) {
       inline={inline}
       labelElement={
         <CheckboxLabel
+          alignment={AlignWidgetTypes.LEFT}
           className="t--checkbox-widget-label"
           disabled={isDisabled}
-          labelPosition={LabelPosition.Left}
           labelTextColor={disabled ? Colors.GREY_8 : "inherit"}
         >
           Select all
@@ -239,9 +240,9 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
               key={generateReactKey()}
               labelElement={
                 <CheckboxLabel
+                  alignment={AlignWidgetTypes.LEFT}
                   className="t--checkbox-widget-label"
                   disabled={isDisabled}
-                  labelPosition={LabelPosition.Left}
                 >
                   {option.label}
                 </CheckboxLabel>

@@ -9,7 +9,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 4,
+    rows: 6,
     columns: 23,
     animateLoading: true,
     labelTextSize: "0.875rem",
@@ -24,7 +24,7 @@ export const CONFIG = {
     isRequired: false,
     isVisible: true,
     labelText: "Label",
-    labelPosition: LabelPosition.Left,
+    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     widgetName: "CheckboxGroup",

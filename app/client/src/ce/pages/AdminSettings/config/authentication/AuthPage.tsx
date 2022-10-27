@@ -23,7 +23,6 @@ const { intercomAppID } = getAppsmithConfigs();
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin-left: 112px;
   padding-top: 40px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;

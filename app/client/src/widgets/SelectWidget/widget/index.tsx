@@ -207,7 +207,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
@@ -384,6 +385,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             propertyName: "labelTextColor",
             label: "Font Color",
+            helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -393,6 +395,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             propertyName: "labelTextSize",
             label: "Font Size",
+            helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -435,6 +438,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             propertyName: "labelStyle",
             label: "Emphasis",
+            helpText: "Control if the label should be bold or italics",
             controlType: "BUTTON_TABS",
             options: [
               {

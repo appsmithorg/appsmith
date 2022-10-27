@@ -20,8 +20,8 @@ import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
@@ -65,10 +65,10 @@ import com.google.gson.Gson;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
 import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
@@ -91,9 +91,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -107,7 +107,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATIO
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
-import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
@@ -1589,7 +1589,7 @@ public class DatabaseChangelog2 {
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUP_MEMBERS))
                 .collect(Collectors.toSet());
         Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
@@ -2117,7 +2117,7 @@ public class DatabaseChangelog2 {
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
-        Policy readPermissionGroupPolicy = Policy.builder().permission(READ_PERMISSION_GROUPS.getValue())
+        Policy readPermissionGroupPolicy = Policy.builder().permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
@@ -2128,7 +2128,7 @@ public class DatabaseChangelog2 {
                 Set.of(
                         new Permission(savedPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS),
                         new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
-                        new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUPS)
+                        new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUP_MEMBERS)
                 )
         );
         savedPermissionGroup.setPermissions(permissions);
@@ -2296,7 +2296,14 @@ public class DatabaseChangelog2 {
         );
     }
 
-    @ChangeSet(order = "033", id = "update-super-users", author = "", runAlways = true)
+    /**
+     * Changing the order of this function to 10000 so that it always gets executed at the end.
+     * This ensures that any permission changes for super users happen once all other migrations are completed
+     *
+     * @param mongockTemplate
+     * @param cacheableRepositoryHelper
+     */
+    @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
         // Read the admin emails from the environment and update the super users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
@@ -2310,7 +2317,9 @@ public class DatabaseChangelog2 {
         String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
         Query permissionGroupQuery = new Query();
-        permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+        permissionGroupQuery
+                .addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId))
+                .fields().include(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds));
         PermissionGroup instanceAdminPG = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
         Query tenantQuery = new Query();
@@ -2337,8 +2346,9 @@ public class DatabaseChangelog2 {
         Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
         evictPermissionCacheForUsers(updatedUserIds, mongockTemplate, cacheableRepositoryHelper);
-        instanceAdminPG.setAssignedToUserIds(userIds);
-        mongockTemplate.save(instanceAdminPG);
+
+        Update update = new Update().set(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), userIds);
+        mongockTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
     }
 
     private User createNewUser(String email, String tenantId, MongockTemplate mongockTemplate) {
@@ -2634,9 +2644,9 @@ public class DatabaseChangelog2 {
 
         // Give read permission to instanceAdminPg to all the users who have been assigned this permission group
         Map<String, Policy> readPermissionGroupPolicyMap = Map.of(
-                READ_PERMISSION_GROUPS.getValue(),
+                READ_PERMISSION_GROUP_MEMBERS.getValue(),
                 Policy.builder()
-                        .permission(READ_PERMISSION_GROUPS.getValue())
+                        .permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
                         .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
                         .build()
         );
@@ -2654,6 +2664,21 @@ public class DatabaseChangelog2 {
         Map<String, Policy> tenantPolicy = policyUtils.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
         Tenant updatedTenant = policyUtils.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
         mongockTemplate.save(updatedTenant);
+    }
+
+    @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
+    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
+
+        Query query = new Query(Criteria.where("policies.permission").is("read:permissionGroups"));
+        Update update = new Update().set("policies.$.permission", "read:permissionGroupMembers");
+        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
+    }
+
+    @ChangeSet(order = "040", id = "delete-permissions-in-permissionGroups", author = "")
+    public void deletePermissionsInPermissionGroups(MongockTemplate mongockTemplate) {
+        Query query = new Query();
+        Update update = new Update().set("permissions", List.of());
+        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
     private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
@@ -2741,4 +2766,17 @@ public class DatabaseChangelog2 {
         final T domainObject = mongockTemplate.findOne(query(where(fieldName(path)).is(id)), type);
         return domainObject;
     }
+
+    @ChangeSet(order = "037", id = "indices-recommended-by-mongodb-cloud", author = "")
+    public void addTenantAdminPermissionsToInstanceAdmin(MongockTemplate mongockTemplate) {
+        dropIndexIfExists(mongockTemplate, NewPage.class, "deleted");
+        ensureIndexes(mongockTemplate, NewPage.class, makeIndex("deleted"));
+
+        dropIndexIfExists(mongockTemplate, Application.class, "deleted");
+        ensureIndexes(mongockTemplate, Application.class, makeIndex("deleted"));
+
+        dropIndexIfExists(mongockTemplate, Workspace.class, "tenantId_deleted");
+        ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
+    }
+
 }

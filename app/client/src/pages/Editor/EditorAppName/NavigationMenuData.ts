@@ -15,7 +15,7 @@ import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../../Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";

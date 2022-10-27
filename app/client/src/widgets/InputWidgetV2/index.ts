@@ -1,7 +1,7 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
-import { ResponsiveBehavior } from "components/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -11,6 +11,8 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
+    rows: 7,
+    labelPosition: LabelPosition.Top,
     inputType: "TEXT",
     widgetName: "Input",
     version: 2,
