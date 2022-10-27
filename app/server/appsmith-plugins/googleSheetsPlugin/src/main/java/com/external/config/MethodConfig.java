@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getTrimmedStringDataValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormDataAsString;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static com.appsmith.external.helpers.PluginUtils.validDataConfigurationPresentInFormData;
 import static com.external.constants.FieldName.SHEET_NAME;
@@ -107,13 +107,13 @@ public class MethodConfig {
         switch (parameters.size()) {
             case 3:
             case 2:
-                this.tableHeaderIndex = (String) getValueSafelyFromFormData(parameters, TABLE_HEADER_INDEX);
+                this.tableHeaderIndex = getValueSafelyFromFormDataAsString(parameters, TABLE_HEADER_INDEX);
                 if (!StringUtils.hasLength(this.tableHeaderIndex)) {
                     this.tableHeaderIndex = "1";
                 }
-                this.sheetName = (String) getValueSafelyFromFormData(parameters, SHEET_NAME);
+                this.sheetName = getValueSafelyFromFormDataAsString(parameters, SHEET_NAME);
             case 1:
-                this.spreadsheetUrl = (String) getValueSafelyFromFormData(parameters, SHEET_URL);
+                this.spreadsheetUrl = getValueSafelyFromFormDataAsString(parameters, SHEET_URL);
                 setSpreadsheetUrlFromSpreadsheetId();
         }
     }

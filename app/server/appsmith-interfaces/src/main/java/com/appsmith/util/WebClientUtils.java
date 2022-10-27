@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -35,8 +36,19 @@ public class WebClientUtils {
                 .build();
     }
 
+    public static WebClient create(ConnectionProvider provider) {
+        return builder(provider)
+                .build();
+    }
+
     public static WebClient create(String baseUrl) {
         return builder()
+                .baseUrl(baseUrl)
+                .build();
+    }
+
+    public static WebClient create(String baseUrl, ConnectionProvider provider) {
+        return builder(provider)
                 .baseUrl(baseUrl)
                 .build();
     }
@@ -48,6 +60,10 @@ public class WebClientUtils {
 
     public static WebClient.Builder builder() {
         return builder(HttpClient.create());
+    }
+
+    public static WebClient.Builder builder(ConnectionProvider provider) {
+        return builder(HttpClient.create(provider));
     }
 
     public static WebClient.Builder builder(HttpClient httpClient) {

@@ -197,6 +197,28 @@ public class ActionCollectionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testCreateActionCollection() {
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollection");
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        StepVerifier.create(layoutCollectionService.createCollection(actionCollectionDTO))
+                .assertNext(actionCollectionDTO1 -> {
+                    assertThat(actionCollectionDTO1.getApplicationId()).isEqualTo(testApp.getId());
+                    assertThat(actionCollectionDTO1.getWorkspaceId()).isEqualTo(testApp.getWorkspaceId());
+                    assertThat(actionCollectionDTO1.getPageId()).isEqualTo(testPage.getId());
+                    assertThat(actionCollectionDTO1.getPluginId()).isEqualTo(datasource.getPluginId());
+                    assertThat(actionCollectionDTO1.getUserPermissions()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -279,6 +301,7 @@ public class ActionCollectionServiceTest {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
+        actionCollectionDTO1.setBody("export default { x: 1 }");
 
         final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
@@ -294,7 +317,7 @@ public class ActionCollectionServiceTest {
         action2.getActionConfiguration().setBody("testCollection1.testAction1()");
         actionCollectionDTO2.setActions(List.of(action2));
         actionCollectionDTO2.setPluginType(PluginType.JS);
-        actionCollectionDTO2.setBody("testCollection1.testAction1()");
+        actionCollectionDTO2.setBody("export default { x: testCollection1.testAction1() }");
 
         final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
@@ -315,7 +338,7 @@ public class ActionCollectionServiceTest {
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
                     assertEquals(
-                            "testCollection1.newTestAction1()",
+                            "export default { x: testCollection1.newTestAction1() }",
                             actionCollection.getUnpublishedCollection().getBody()
                     );
                 })
@@ -357,6 +380,7 @@ public class ActionCollectionServiceTest {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
+        actionCollectionDTO1.setBody("export default { x: 1 }");
 
         final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
@@ -372,7 +396,7 @@ public class ActionCollectionServiceTest {
         action2.getActionConfiguration().setBody("Api1.run()");
         actionCollectionDTO2.setActions(List.of(action2));
         actionCollectionDTO2.setPluginType(PluginType.JS);
-        actionCollectionDTO2.setBody("Api1.run()");
+        actionCollectionDTO2.setBody("export default { x: Api1.run() }");
 
         final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
@@ -393,7 +417,7 @@ public class ActionCollectionServiceTest {
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
                     assertEquals(
-                            "Api1.run()",
+                            "export default { x: Api1.run() }",
                             actionCollection.getUnpublishedCollection().getBody()
                     );
                 })
