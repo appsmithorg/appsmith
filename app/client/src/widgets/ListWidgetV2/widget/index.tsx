@@ -125,7 +125,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       pageSize: 0,
       currentViewItems: "{{[]}}",
       selectedItemIndex: -1,
-      selectedViewItemIndex: -1,
     };
   }
 
@@ -577,20 +576,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updateSelectedItemMeta = (rowIndex: number) => {
-    const { pageNo, pageSize, selectedViewItemIndex } = this.props;
-    const selectedItemIndex = pageSize * (pageNo - 1) + rowIndex;
+    const { pageNo, selectedItemIndex } = this.props;
+    const newSelectedItemIndex = this.pageSize * (pageNo - 1) + rowIndex;
 
-    if (rowIndex === selectedViewItemIndex) {
+    if (newSelectedItemIndex === selectedItemIndex) {
       this.resetSelectedItemMeta();
       return;
     }
 
-    this.props.updateWidgetMetaProperty("selectedViewItemIndex", rowIndex);
     this.props.updateWidgetMetaProperty("selectedItemIndex", selectedItemIndex);
   };
 
   resetSelectedItemMeta = () => {
-    this.props.updateWidgetMetaProperty("selectedViewItemIndex", -1);
     this.props.updateWidgetMetaProperty("selectedItemIndex", -1);
   };
 
@@ -611,11 +608,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const pageSize = this.pageSize;
 
     if (infiniteScroll) {
-      return { shouldPaginate: false, pageSize: (listData || []).length };
+      return { shouldPaginate: false, pageSize };
     }
 
     if (serverSidePaginationEnabled) {
-      return { shouldPaginate: true, pageSize: pageSize };
+      return { shouldPaginate: true, pageSize };
     }
 
     if (!listData?.length) {
@@ -629,7 +626,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   renderChildren = () => {
     const { componentWidth } = this.getComponentDimensions();
-    const { selectedViewItemIndex } = this.props;
+    const { pageNo, selectedItemIndex } = this.props;
+
     return (this.props.metaWidgetChildrenStructure || []).map(
       (childWidgetStructure) => {
         const child: ExtendedCanvasWidgetStructure = {
@@ -640,9 +638,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         // child.shouldScrollContents = true;
         child.canExtend = true;
         child.children = child.children?.map((container, index) => {
+          const calculatedSelectedItemIndex =
+            this.pageSize * (pageNo - 1) + index;
+
           return {
             ...container,
-            selected: selectedViewItemIndex === index,
+            selected: selectedItemIndex === calculatedSelectedItemIndex,
             onClick: (e: React.MouseEvent<HTMLElement>) => {
               e.stopPropagation();
               this.onItemClick(index, this.props.onListItemClick);
@@ -856,7 +857,6 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   pageSize: number;
   currentViewItems: Array<Record<string, unknown>>;
   selectedItemIndex: number;
-  selectedViewItemIndex: number;
 }
 
 export default ListWidget;

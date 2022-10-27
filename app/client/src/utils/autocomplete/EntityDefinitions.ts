@@ -428,7 +428,6 @@ export const entityDefinitions = {
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
     currentViewItems: generateTypeDef(widget.currentViewItems),
-    selectedViewItemIndex: "number",
     selectedItemIndex: "number",
   }),
   RATE_WIDGET: {
