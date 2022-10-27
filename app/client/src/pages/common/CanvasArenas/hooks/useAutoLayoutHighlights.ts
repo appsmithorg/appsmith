@@ -412,7 +412,8 @@ export const useAutoLayoutHighlights = ({
           : alignment === FlexLayerAlignment.Center
           ? containerDimensions.width / 2
           : containerDimensions?.width - DRAG_MARGIN * 2,
-      posY: rect.y - containerDimensions?.top,
+      posY:
+        rect.y - containerDimensions?.top + (verticalFlex ? 0 : DRAG_MARGIN),
       width: verticalFlex ? rect?.width : OFFSET_WIDTH,
       height: verticalFlex ? OFFSET_WIDTH : rect.height - DRAG_MARGIN * 2,
       isVertical: !verticalFlex,
@@ -627,9 +628,9 @@ export const useAutoLayoutHighlights = ({
     let distY: number = !a.isVertical && !isVerticalDrag ? 0 : a.posY - b.y;
 
     if (moveDirection === ReflowDirection.LEFT && distX > 20) distX += 2000;
-    if (moveDirection === ReflowDirection.RIGHT && distX < 20) distX -= 2000;
+    if (moveDirection === ReflowDirection.RIGHT && distX < -20) distX -= 2000;
     if (moveDirection === ReflowDirection.TOP && distY > 20) distY += 2000;
-    if (moveDirection === ReflowDirection.BOTTOM && distY < 20) distY -= 2000;
+    if (moveDirection === ReflowDirection.BOTTOM && distY < -20) distY -= 2000;
 
     return Math.abs(Math.sqrt(distX * distX + distY * distY));
   };

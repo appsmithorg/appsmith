@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 
 import { FlexDirection, LayoutDirection } from "components/constants";
+import { DRAG_MARGIN } from "widgets/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -30,6 +31,7 @@ const LayoutLayerContainer = styled.div<{
 
   width: 100%;
   height: auto;
+  margin-top: ${DRAG_MARGIN}px;
 `;
 
 const SubWrapper = styled.div<{

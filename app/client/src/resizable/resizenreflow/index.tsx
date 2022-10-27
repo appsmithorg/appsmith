@@ -159,6 +159,7 @@ type ResizableProps = {
   isFlexChild?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
   direction?: LayoutDirection;
+  paddingOffset: number;
 };
 
 export function ReflowResizable(props: ResizableProps) {
@@ -303,7 +304,7 @@ export function ReflowResizable(props: ResizableProps) {
         ...prevDimensions,
         width: props.componentWidth,
         height: props.componentHeight,
-        x: 0,
+        x: props.isFlexChild ? props.paddingOffset : 0,
         y: 0,
         reset: true,
       };

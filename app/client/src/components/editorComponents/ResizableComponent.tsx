@@ -304,6 +304,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}
+      paddingOffset={props.paddingOffset}
       parentId={props.parentId}
       responsiveBehavior={props.responsiveBehavior}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
