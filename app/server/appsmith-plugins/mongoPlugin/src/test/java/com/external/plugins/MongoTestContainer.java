@@ -30,6 +30,9 @@ public class MongoTestContainer extends GenericContainer {
                 addExposedPorts(27017);
         }
 
+        /*
+         * this is overriden to prepare mongo with sample dataset after the test container is started
+         */
         @Override
         protected void containerIsStarted(InspectContainerResponse containerInfo) {
 
