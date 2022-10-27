@@ -8,6 +8,9 @@ describe("Dynamic input autocomplete", () => {
   });
   it("opens autocomplete for bindings", () => {
     cy.openPropertyPane("buttonwidget");
+    cy.testJsontext("label", "", {
+      parseSpecialCharSequences: true,
+    });
     cy.get(dynamicInputLocators.input)
       .first()
       .click({ force: true })
@@ -24,12 +27,18 @@ describe("Dynamic input autocomplete", () => {
 
         // Tests if autocomplete will open
         cy.get(dynamicInputLocators.hints).should("exist");
-
         // Tests if data tree entities are sorted
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
           .should("have.text", "Button1.text");
-
+        /*  
+        cy.testJsontext("label", "{{garbage", {
+          parseSpecialCharSequences: true,
+        });
+        */
+        cy.testJsontext("label", "", {
+          parseSpecialCharSequences: true,
+        });
         // Tests if "No suggestions" message will pop if you type any garbage
         cy.get(dynamicInputLocators.input)
           .first()
