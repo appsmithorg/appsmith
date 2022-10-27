@@ -185,7 +185,8 @@ class ButtonGroupWidget extends BaseWidget<
                                 helpText:
                                   "Sets the icon to be used for a menu item",
                                 controlType: "ICON_SELECT",
-                                isBindProperty: false,
+                                isJSConvertible: true,
+                                isBindProperty: true,
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
                               },

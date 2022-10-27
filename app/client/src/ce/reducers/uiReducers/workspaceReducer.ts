@@ -10,7 +10,7 @@ import {
   WorkspaceUser,
 } from "constants/workspaceConstants";
 
-const initialState: WorkspaceReduxState = {
+export const initialState: WorkspaceReduxState = {
   loadingStates: {
     fetchingRoles: false,
     isFetchAllRoles: false,
@@ -25,7 +25,7 @@ const initialState: WorkspaceReduxState = {
   },
 };
 
-const workspaceReducer = createImmerReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT]: (
     draftState: WorkspaceReduxState,
   ) => {
@@ -158,7 +158,9 @@ const workspaceReducer = createImmerReducer(initialState, {
   ) => {
     draftState.loadingStates.isFetchingWorkspace = false;
   },
-});
+};
+
+const workspaceReducer = createImmerReducer(initialState, handlers);
 
 export interface WorkspaceReduxState {
   list?: Workspace[];
