@@ -49,8 +49,7 @@ const FlexWidget = styled.div<{
     isMobile ? "100%" : Math.floor(componentHeight) + "px"};
   min-width: ${({ minWidth }) => minWidth};
   min-height: 30px;
-  padding: ${({ isMobile, padding }) =>
-    isMobile ? `${padding}px 1px 0` : padding + "px"};
+  padding: ${({ padding }) => padding + "px"};
 
   flex-grow: ${({ isFillWidget }) => (isFillWidget ? "1" : "0")};
 
