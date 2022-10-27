@@ -1,4 +1,4 @@
-name: Appsmith Performance Tests Test Workflow
+name: Appsmith Performance Tests Workflow
 
 on:
   # This workflow is only triggered by the ok to test command dispatch
