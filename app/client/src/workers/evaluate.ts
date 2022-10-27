@@ -15,8 +15,8 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
-import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 
 export type EvalResult = {
   result: any;
