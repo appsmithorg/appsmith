@@ -131,7 +131,7 @@ public class ThemeServiceTest {
         // Remove api_user from the workspace
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setNewPermissionGroupId(null);
-        updatePermissionGroupDTO.setId(apiUserId);
+        updatePermissionGroupDTO.setUserId(apiUserId);
         userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin).block();
     }
 
