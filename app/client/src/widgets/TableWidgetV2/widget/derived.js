@@ -150,7 +150,7 @@ export default {
     return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
-  getPageSize: (props, moment, _) => {
+  getPageSize: (props) => {
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
@@ -623,7 +623,7 @@ export default {
     }
   },
   //
-  getUpdatedRowIndices: (props, moment, _) => {
+  getUpdatedRowIndices: (props) => {
     /* should return the keys of the transientTableData */
     if (props.transientTableData) {
       return Object.keys(props.transientTableData).map((index) =>
@@ -634,7 +634,7 @@ export default {
     }
   },
   //
-  getPageOffset: (props, moment, _) => {
+  getPageOffset: (props) => {
     const pageSize =
       props.serverSidePaginationEnabled && props.tableData
         ? props.tableData?.length

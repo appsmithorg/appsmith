@@ -1,6 +1,5 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
-const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Fork a template to the current app from new page popover", () => {
   it("1. Fork template from page section", () => {

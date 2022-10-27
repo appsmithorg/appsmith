@@ -12,10 +12,8 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 
-let pageidcopy = " ";
 
 const ee = ObjectsRegistry.EntityExplorer;
 
@@ -520,7 +518,7 @@ Cypress.Commands.add("testJsontextclear", (endp) => {
   });
 });
 
-Cypress.Commands.add("getCodeInput", ($selector, value) => {
+Cypress.Commands.add("getCodeInput", ($selector) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
     .first()
@@ -978,7 +976,7 @@ Cypress.Commands.add("DeleteModal", () => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
+Cypress.Commands.add("Createpage", (pageName) => {
   let pageId;
   cy.CreatePage();
   cy.wait("@createPage").then((xhr) => {

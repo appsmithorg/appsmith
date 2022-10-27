@@ -1,4 +1,3 @@
-const pages = require("../../../../locators/Pages.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";

@@ -5,7 +5,6 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
-const generatePage = require("../locators/GeneratePage.json");
 import explorer from "../locators/explorerlocators";
 export const initLocalstorage = () => {
   cy.window().then((window) => {

@@ -4,7 +4,6 @@ import widgetLocators from "../../../../locators/Widgets.json";
 let repoName;
 let appId;
 const branchName = "test/template";
-const mainBranch = "master";
 const jsObject = "Utils";
 const homePage = require("../../../../locators/HomePage");
 

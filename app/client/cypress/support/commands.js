@@ -22,7 +22,6 @@ const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
@@ -845,7 +844,7 @@ Cypress.Commands.add("setDate", (date, dateFormate) => {
   cy.get(sel).click();
 });
 
-Cypress.Commands.add("pageNo", (index) => {
+Cypress.Commands.add("pageNo", () => {
   cy.get(".page-item")
     .first()
     .click({ force: true });
@@ -1331,7 +1330,7 @@ Cypress.Commands.add("startInterceptRoutesForS3", () => {
 
 Cypress.Commands.add("replaceApplicationIdForInterceptPages", (fixtureFile) => {
   let currentAppId, currentURL;
-  cy.readFile(fixtureFile, (err, data) => {
+  cy.readFile(fixtureFile, (err) => {
     if (err) {
       return console.error(err);
     }
@@ -1663,7 +1662,6 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const labelSelector = `${widgetSelector} label`;
   const labelContainer = `${widgetSelector} .label-container`;
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
-  const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
     ".t--property-control-alignment .t--button-tab-right";
   const labelWidth = options.labelWidth;

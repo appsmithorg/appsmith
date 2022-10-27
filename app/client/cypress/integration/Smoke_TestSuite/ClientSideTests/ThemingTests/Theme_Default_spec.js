@@ -1,14 +1,10 @@
-const testdata = require("../../../../fixtures/testdata.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 
 let themeBackgroudColor;
-let themeFont;
 
 describe("Theme validation for default data", function() {
   it("Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function() {

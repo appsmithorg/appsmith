@@ -185,7 +185,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
       formControls.mongoAggregateArrayOfPipelines,
     );
     cy.onlyQueryRun();
-    cy.wait("@postExecute").then(({ request, response }) => {
+    cy.wait("@postExecute").then(({ response }) => {
       // cy.log(request.method + ": is req.method")
       //expect(request.method).to.equal('POST')
       expect(response.body.data.body[0].count).to.be.above(

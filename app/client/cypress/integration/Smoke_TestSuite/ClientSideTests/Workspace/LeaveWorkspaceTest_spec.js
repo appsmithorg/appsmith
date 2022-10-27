@@ -1,11 +1,8 @@
 /// <reference types="Cypress" />
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import homePage from "../../../../locators/HomePage";
-let HomePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Leave workspace test spec", function() {
-  let newWorkspaceId;
   let newWorkspaceName;
 
   it("leave workspace menu is visible validation", function() {
