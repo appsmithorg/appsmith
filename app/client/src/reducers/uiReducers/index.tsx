@@ -7,7 +7,7 @@ import applicationsReducer from "@appsmith/reducers/uiReducers/applicationsReduc
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
-import workspaceReducer from "./workspaceReducer";
+import workspaceReducer from "@appsmith/reducers/uiReducers/workspaceReducer";
 import templateReducer from "./templateReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";

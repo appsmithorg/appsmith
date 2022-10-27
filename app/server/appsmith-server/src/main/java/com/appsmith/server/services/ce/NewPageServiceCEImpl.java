@@ -173,6 +173,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(savedPage);
                 })
+                .flatMap(repository::setUserPermissionsInObject)
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
