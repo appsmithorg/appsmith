@@ -156,6 +156,7 @@ export const useDynamicAppLayout = () => {
   const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
     mainCanvasProps,
     screenWidth,
+    currentPageId,
     appMode,
     appLayout,
   ]);
@@ -173,7 +174,7 @@ export const useDynamicAppLayout = () => {
     return () => {
       ele && resizeObserver.unobserve(ele);
     };
-  }, [appLayout]);
+  }, [appLayout, currentPageId]);
 
   /**
    * when screen height is changed, update canvas layout
@@ -204,7 +205,6 @@ export const useDynamicAppLayout = () => {
     resizeToLayout();
   }, [
     appLayout,
-    currentPageId,
     mainCanvasProps?.width,
     isPreviewMode,
     explorerWidth,
