@@ -15,6 +15,8 @@ import com.external.plugins.commands.Find;
 import com.external.plugins.commands.Insert;
 import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.UpdateMany;
+
+import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
 import org.bson.types.Decimal128;
@@ -46,16 +48,15 @@ public class MongoPluginUtils {
     public static Document parseSafely(String fieldName, String input) {
         try {
             return Document.parse(input);
-        } catch (Exception e) {
+        } catch (JsonParseException | BsonInvalidOperationException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format.");
         }
     }
 
     public static Object parseSafelyDocumentAndArrayOfDocuments(String fieldName, String input){
         try {
-            new JSONObject(input);
             return parseSafely(fieldName, input);
-        } catch (JSONException e) {
+        } catch (AppsmithPluginException e) {
             try {
                 List<Document> parsedDocumentList = new ArrayList<>();
                 JSONArray rawInputJsonArray  = new JSONArray(input);
