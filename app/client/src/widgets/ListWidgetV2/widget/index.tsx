@@ -160,8 +160,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   componentDidMount() {
     this.pageSize = this.getPageSize();
-
     this.updatePageSizeMetaValue();
+
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
     this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
