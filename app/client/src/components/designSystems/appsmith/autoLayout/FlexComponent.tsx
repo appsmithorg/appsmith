@@ -2,11 +2,7 @@ import React, { ReactNode, useCallback } from "react";
 import styled from "styled-components";
 
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
-import {
-  WidgetType,
-  widgetTypeClassname,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { WidgetType, widgetTypeClassname } from "constants/WidgetConstants";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useSelector } from "store";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
@@ -36,7 +32,6 @@ const FlexWidget = styled.div<{
   isMobile: boolean;
   isFillWidget: boolean;
   minWidth?: string;
-  padding: number;
   zIndex: number;
   zIndexOnHover: number;
   isCurrentCanvasDragging: boolean;
@@ -49,8 +44,6 @@ const FlexWidget = styled.div<{
     isMobile ? "100%" : Math.floor(componentHeight) + "px"};
   min-width: ${({ minWidth }) => minWidth};
   min-height: 30px;
-  padding: ${({ isMobile, padding }) =>
-    isMobile ? `${padding}px 1px 0` : padding + "px"};
 
   flex-grow: ${({ isFillWidget }) => (isFillWidget ? "1" : "0")};
 
@@ -58,7 +51,7 @@ const FlexWidget = styled.div<{
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
   margin: ${({ isCurrentCanvasDragging }) =>
-    isCurrentCanvasDragging ? `${DRAG_MARGIN}px` : "0px"};
+    isCurrentCanvasDragging ? `${DRAG_MARGIN * 2}px` : `${DRAG_MARGIN}px`};
 `;
 
 // TODO: update min width logic.
@@ -121,7 +114,6 @@ export function FlexComponent(props: AutoLayoutProps) {
       minWidth={minWidth}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
-      padding={WIDGET_PADDING}
       zIndex={zIndex}
       zIndexOnHover={onHoverZIndex}
     >

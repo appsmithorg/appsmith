@@ -411,10 +411,10 @@ export const useAutoLayoutHighlights = ({
           ? 0
           : alignment === FlexLayerAlignment.Center
           ? containerDimensions.width / 2
-          : containerDimensions?.width - DRAG_MARGIN * 2,
+          : containerDimensions?.width - DRAG_MARGIN * 4,
       posY: rect.y - containerDimensions?.top,
       width: verticalFlex ? rect?.width : OFFSET_WIDTH,
-      height: verticalFlex ? OFFSET_WIDTH : rect.height - DRAG_MARGIN * 2,
+      height: verticalFlex ? OFFSET_WIDTH : rect.height - DRAG_MARGIN * 4,
       isVertical: !verticalFlex,
       rowIndex: 0,
     };
