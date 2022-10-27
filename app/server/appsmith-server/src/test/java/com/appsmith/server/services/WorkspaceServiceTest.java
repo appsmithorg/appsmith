@@ -15,7 +15,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -751,7 +751,7 @@ public class WorkspaceServiceTest {
         inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
-        Mono<List<UserAndPermissionGroupDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
+        Mono<List<WorkspaceMemberInfoDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
 
         StepVerifier
                 .create(usersMono)
@@ -759,7 +759,7 @@ public class WorkspaceServiceTest {
                     assertThat(users).isNotNull();
                     assertThat(users.size()).isEqualTo(6);
                     // Assert that the members are sorted by the permission group and then email
-                    UserAndPermissionGroupDTO userAndGroupDTO = users.get(0);
+                    WorkspaceMemberInfoDTO userAndGroupDTO = users.get(0);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("api_user");
                     assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(ADMINISTRATOR);
                     userAndGroupDTO = users.get(1);
