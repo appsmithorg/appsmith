@@ -51,6 +51,8 @@ export const WidgetFeaturePropertyEnhancements: Record<
     if (config.isCanvas) {
       newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
       newProperties.shouldScrollContents = true;
+      newProperties.originalTopRow = config.defaults.topRow;
+      newProperties.originalBottomRow = config.defaults.bottomRow;
     }
     if (config.defaults.overflow) newProperties.overflow = "NONE";
     return newProperties;
@@ -229,27 +231,44 @@ function updateMinMaxDynamicHeight(
     );
   }
 
-  // The following are updates which apply to specific widgets.
-  if (
-    (propertyValue === DynamicHeight.AUTO_HEIGHT ||
-      propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
-    props.shouldScrollContents === false
-  ) {
+  if (propertyValue === DynamicHeight.FIXED) {
     updates.push({
-      propertyPath: "shouldScrollContents",
-      propertyValue: true,
+      propertyPath: "originalBottomRow",
+      propertyValue: undefined,
+    });
+    updates.push({
+      propertyPath: "originalTopRow",
+      propertyValue: undefined,
     });
   }
 
+  // The following are updates which apply to specific widgets.
   if (
-    (propertyValue === DynamicHeight.AUTO_HEIGHT ||
-      propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
-    props.overflow !== undefined
+    propertyValue === DynamicHeight.AUTO_HEIGHT ||
+    propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
   ) {
-    updates.push({
-      propertyPath: "overflow",
-      propertyValue: "NONE",
-    });
+    if (props.dynamicHeight === DynamicHeight.FIXED) {
+      updates.push({
+        propertyPath: "originalBottomRow",
+        propertyValue: props.bottomRow,
+      });
+      updates.push({
+        propertyPath: "originalTopRow",
+        propertyValue: props.topRow,
+      });
+    }
+    if (props.shouldScrollContents === false) {
+      updates.push({
+        propertyPath: "shouldScrollContents",
+        propertyValue: true,
+      });
+    }
+    if (props.overflow !== undefined) {
+      updates.push({
+        propertyPath: "overflow",
+        propertyValue: "NONE",
+      });
+    }
   }
 
   return updates;

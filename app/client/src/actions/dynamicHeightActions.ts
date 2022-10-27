@@ -12,10 +12,14 @@ export function storeDynamicHeightLayoutTreeAction(
 
 export function generateDynamicHeightComputationTree(
   shouldCheckContainersForDynamicHeightUpdates: boolean,
+  layoutUpdated?: boolean,
 ) {
   return {
     type: ReduxActionTypes.GENERATE_DYNAMIC_HEIGHT_COMPUTATION_TREE,
-    payload: { shouldCheckContainersForDynamicHeightUpdates },
+    payload: {
+      shouldCheckContainersForDynamicHeightUpdates,
+      layoutUpdated: !!layoutUpdated,
+    },
   };
 }
 

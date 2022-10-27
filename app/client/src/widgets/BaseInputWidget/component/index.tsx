@@ -58,6 +58,7 @@ const InputComponentWrapper = styled((props) => (
       "borderRadius",
       "boxShadow",
       "accentColor",
+      "isDynamicHeightEnabled",
     ])}
   />
 ))<{

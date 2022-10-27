@@ -2,7 +2,10 @@ import equal from "fast-deep-equal/es6";
 import React from "react";
 
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
 import {
   getWidgetEvalValues,
   getIsWidgetLoading,
@@ -14,12 +17,13 @@ import {
   getRenderMode,
 } from "selectors/editorSelectors";
 import { AppState } from "@appsmith/reducers";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -43,6 +47,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
 
+    const dispatch = useDispatch();
+
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
       return getChildWidgets(state, widgetId);
@@ -62,6 +68,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       })();
 
       widgetProps = { ...canvasWidgetProps };
+
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
        * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
@@ -78,8 +85,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetId !== MAIN_CONTAINER_WIDGET_ID
       ) {
         widgetProps.rightColumn = props.rightColumn;
-        widgetProps.bottomRow = props.bottomRow;
-        widgetProps.minHeight = props.minHeight;
+        if (widgetProps.bottomRow === undefined)
+          widgetProps.bottomRow = props.bottomRow;
+        if (widgetProps.bottomRow === undefined)
+          widgetProps.minHeight = props.minHeight;
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
@@ -104,6 +113,20 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // isVisible prop defines whether to render a detached widget
     if (widgetProps.detachFromLayout && !widgetProps.isVisible) {
+      return null;
+    }
+
+    if (
+      !widgetProps.isVisible &&
+      (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW)
+    ) {
+      dispatch({
+        type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
+        payload: {
+          widgetId: props.widgetId,
+          height: 0,
+        },
+      });
       return null;
     }
 

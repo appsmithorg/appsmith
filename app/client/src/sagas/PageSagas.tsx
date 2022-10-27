@@ -263,7 +263,7 @@ export function* handleFetchedPage({
 
     // Since new page has new layout, we need to generate a data structure
     // to compute dynamic height based on the new layout.
-    yield put(generateDynamicHeightComputationTree(true));
+    yield put(generateDynamicHeightComputationTree(true, true));
 
     if (willPageBeMigrated) {
       yield put(saveLayout());
@@ -353,6 +353,10 @@ export function* fetchPublishedPageSaga(
 
       // dispatch fetch page success
       yield put(fetchPublishedPageSuccess());
+
+      // Since new page has new layout, we need to generate a data structure
+      // to compute dynamic height based on the new layout.
+      yield put(generateDynamicHeightComputationTree(true, true));
 
       /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
        */

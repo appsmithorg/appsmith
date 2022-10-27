@@ -366,7 +366,7 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [addChildAction.payload.newWidgetId],
     });
-    yield put(generateDynamicHeightComputationTree(true));
+    yield put(generateDynamicHeightComputationTree(true, true));
 
     log.debug("add child computations took", performance.now() - start, "ms");
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,

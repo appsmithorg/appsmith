@@ -230,7 +230,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         yield put(updateAndSaveLayout(finalWidgets));
-        yield put(generateDynamicHeightComputationTree(true));
+        yield put(generateDynamicHeightComputationTree(true, true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";
@@ -315,7 +315,7 @@ function* deleteAllSelectedWidgetsSaga(
     }
 
     yield put(updateAndSaveLayout(finalWidgets));
-    yield put(generateDynamicHeightComputationTree(true));
+    yield put(generateDynamicHeightComputationTree(true, true));
 
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");

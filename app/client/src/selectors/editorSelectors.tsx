@@ -469,12 +469,16 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
     widgets: CanvasWidgetsReduxState,
   ): {
     occupiedSpaces: {
-      [parentCanvasWidgetId: string]: OccupiedSpace[];
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
     };
     canvasLevelMap: Record<string, number>;
   } => {
     const occupiedSpaces: {
-      [parentCanvasWidgetId: string]: OccupiedSpace[];
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
     } = {};
     // Get all widgets with type "CANVAS_WIDGET" and has children
     // What we're really doing is getting all widgets inside a drop target
@@ -523,6 +527,8 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
                 top: widget.topRow,
                 bottom: widget.bottomRow,
                 right: widget.rightColumn,
+                originalTop: widget.originalTopRow,
+                originalBottom: widget.originalBottomRow,
               });
             }
           });
