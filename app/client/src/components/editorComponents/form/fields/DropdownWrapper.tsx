@@ -23,6 +23,7 @@ type DropdownWrapperProps = {
   disabled?: boolean;
   renderOption?: RenderOption;
   dropdownMaxHeight?: string;
+  enableSearch?: boolean;
 };
 
 function DropdownWrapper(props: DropdownWrapperProps) {
@@ -68,6 +69,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
       allowDeselection={props.allowDeselection}
       disabled={props.disabled}
       dropdownMaxHeight={props.dropdownMaxHeight}
+      enableSearch={props.enableSearch}
       fillOptions={props.fillOptions}
       isMultiSelect={props.isMultiSelect}
       labelRenderer={props.labelRenderer}
