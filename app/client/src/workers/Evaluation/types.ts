@@ -1,3 +1,4 @@
+import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { AppTheme } from "entities/AppTheming";
@@ -36,6 +37,7 @@ export interface UpdateDependencyResponseData {
   unEvalUpdates: DataTreeDiff[];
   uncaughtError: unknown;
   nonDynamicFieldValidationOrder: string[];
+  isCreateFirstTree: boolean;
 }
 
 export interface EvalTreeRequestData {
@@ -44,6 +46,7 @@ export interface EvalTreeRequestData {
   unEvalUpdates: DataTreeDiff[];
   uncaughtError: unknown;
   nonDynamicFieldValidationOrder: string[];
+  isCreateFirstTree: boolean;
 }
 
 export interface EvalTreeResponseData {
@@ -53,6 +56,19 @@ export interface EvalTreeResponseData {
   logs: any;
   userLogs: UserLogObject[];
   evalMetaUpdates: EvalMetaUpdates;
-  isCreateFirstTree: boolean;
   hasUncaughtError: boolean;
+}
+
+export interface EvalTreeSagaRequestData {
+  postEvalActions?: Array<AnyReduxAction>;
+  shouldReplay?: boolean;
+  evalOrder: string[];
+  jsUpdates: Record<string, JSUpdate>;
+  unEvalUpdates: DataTreeDiff[];
+  unevalTree: DataTree;
+  theme: AppTheme;
+  widgets: CanvasWidgetsReduxState;
+  uncaughtError: unknown;
+  nonDynamicFieldValidationOrder: string[];
+  isCreateFirstTree: boolean;
 }

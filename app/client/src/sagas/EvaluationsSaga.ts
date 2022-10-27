@@ -107,6 +107,7 @@ import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 import {
   EvalTreeRequestData,
   EvalTreeResponseData,
+  EvalTreeSagaRequestData,
   UpdateDependencyRequestData,
   UpdateDependencyResponseData,
 } from "workers/Evaluation/types";
@@ -161,6 +162,7 @@ function* startEvaluationProcess(
   log.debug({ unevalTree });
   const {
     evalOrder,
+    isCreateFirstTree,
     jsUpdates,
     lintOrder,
     nonDynamicFieldValidationOrder,
@@ -185,6 +187,7 @@ function* startEvaluationProcess(
       unevalTree,
       uncaughtError,
       nonDynamicFieldValidationOrder,
+      isCreateFirstTree,
     }),
     // Linting
     call(lintTreeSaga, {
@@ -195,20 +198,10 @@ function* startEvaluationProcess(
   ]);
 }
 
-function* evaluateTreeSaga(arg: {
-  postEvalActions?: Array<AnyReduxAction>;
-  shouldReplay?: boolean;
-  evalOrder: string[];
-  jsUpdates: Record<string, JSUpdate>;
-  unEvalUpdates: DataTreeDiff[];
-  unevalTree: DataTree;
-  theme: AppTheme;
-  widgets: CanvasWidgetsReduxState;
-  uncaughtError: unknown;
-  nonDynamicFieldValidationOrder: string[];
-}) {
+function* evaluateTreeSaga(arg: EvalTreeSagaRequestData) {
   const {
     evalOrder,
+    isCreateFirstTree,
     jsUpdates,
     nonDynamicFieldValidationOrder,
     postEvalActions,
@@ -224,6 +217,7 @@ function* evaluateTreeSaga(arg: {
     uncaughtError,
     unEvalUpdates,
     nonDynamicFieldValidationOrder,
+    isCreateFirstTree,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -238,7 +232,6 @@ function* evaluateTreeSaga(arg: {
     evalMetaUpdates = [],
     logs,
     userLogs,
-    isCreateFirstTree = false,
     hasUncaughtError,
   } = workerResponse;
   let { dataTree } = workerResponse;

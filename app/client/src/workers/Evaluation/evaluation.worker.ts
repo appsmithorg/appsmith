@@ -39,7 +39,6 @@ import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validat
 const CANVAS = "canvas";
 
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
-let isFirstTree = false;
 
 let replayMap: Record<string, ReplayEntity<any>>;
 
@@ -95,6 +94,7 @@ function eventRequestHandler({
     case EVAL_WORKER_ACTIONS.EVAL_TREE: {
       const {
         evalOrder,
+        isCreateFirstTree,
         nonDynamicFieldValidationOrder,
         shouldReplay,
         uncaughtError,
@@ -121,7 +121,7 @@ function eventRequestHandler({
         }
       } else {
         try {
-          if (isFirstTree) {
+          if (isCreateFirstTree) {
             dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
             const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
             dataTree = dataTreeResponse.evalTree;
@@ -180,7 +180,6 @@ function eventRequestHandler({
         logs,
         userLogs,
         evalMetaUpdates,
-        isCreateFirstTree: isFirstTree,
         hasUncaughtError,
       } as EvalTreeResponseData;
     }
@@ -319,6 +318,7 @@ function eventRequestHandler({
       let unEvalUpdates: DataTreeDiff[] = [];
       let uncaughtError: unknown = false;
       let nonDynamicFieldValidationOrder: string[] = [];
+      let isCreateFirstTree = false;
 
       const {
         allActionValidationConfig,
@@ -330,7 +330,7 @@ function eventRequestHandler({
       } = requestData as UpdateDependencyRequestData;
       try {
         if (!dataTreeEvaluator) {
-          isFirstTree = true;
+          isCreateFirstTree = true;
           replayMap = replayMap || {};
           replayMap[CANVAS] = new ReplayCanvas({ widgets, theme });
           dataTreeEvaluator = new DataTreeEvaluator(
@@ -365,7 +365,7 @@ function eventRequestHandler({
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
           );
-          isFirstTree = true;
+          isCreateFirstTree = true;
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
@@ -375,7 +375,8 @@ function eventRequestHandler({
               allActionValidationConfig,
             );
           }
-          isFirstTree = false;
+
+          isCreateFirstTree = false;
           if (shouldReplay) {
             replayMap[CANVAS]?.update({ widgets, theme });
           }
@@ -404,6 +405,7 @@ function eventRequestHandler({
         unEvalUpdates,
         uncaughtError,
         nonDynamicFieldValidationOrder,
+        isCreateFirstTree,
       } as UpdateDependencyResponseData;
     }
     default: {
