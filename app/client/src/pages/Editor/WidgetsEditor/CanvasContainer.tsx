@@ -170,7 +170,7 @@ function CanvasContainer() {
       const ele: any = document.getElementById("main-canvas-container");
       ele.style.width = "inherit";
     }
-  }, [appLayout, isPreviewMode]);
+  }, [appLayout, isPreviewMode, currentPageId]);
 
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
