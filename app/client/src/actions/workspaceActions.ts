@@ -1,5 +1,8 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { SaveWorkspaceLogo, SaveWorkspaceRequest } from "api/WorkspaceApi";
+import {
+  SaveWorkspaceLogo,
+  SaveWorkspaceRequest,
+} from "@appsmith/api/WorkspaceApi";
 
 export const fetchWorkspace = (
   workspaceId: string,

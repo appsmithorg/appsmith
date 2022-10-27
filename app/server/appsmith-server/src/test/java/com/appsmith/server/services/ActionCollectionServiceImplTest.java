@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -115,7 +116,8 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionService,
                 newActionService,
                 analyticsService,
-                responseUtils
+                responseUtils,
+                actionCollectionRepository
         );
 
         Mockito
@@ -266,12 +268,21 @@ public class ActionCollectionServiceImplTest {
                     argument.setId("testActionCollectionId");
                     return Mono.just(argument);
                 });
+        Mockito
+                .when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final ActionCollection argument = (ActionCollection) invocation.getArguments()[0];
+                    argument.setId("testActionCollectionId");
+                    argument.setUserPermissions(Set.of("test-user-permission1", "test-user-permission2"));
+                    return Mono.just(argument);
+                });
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.createCollection(actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
                     assertTrue(actionCollectionDTO1.getActions().isEmpty());
+                    assertThat(actionCollectionDTO1.getUserPermissions()).hasSize(2);
                 })
                 .verifyComplete();
     }
@@ -336,11 +347,21 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
+        Mockito
+                .when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final ActionCollection argument = (ActionCollection) invocation.getArguments()[0];
+                    argument.setId("testActionCollectionId");
+                    argument.setUserPermissions(Set.of("test-user-permission1", "test-user-permission2"));
+                    return Mono.just(argument);
+                });
+
         final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.createCollection(actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
                     assertEquals(1, actionCollectionDTO1.getActions().size());
+                    assertThat(actionCollectionDTO1.getUserPermissions()).hasSize(2);
                     final ActionDTO actionDTO = actionCollectionDTO1.getActions().get(0);
                     assertEquals("testAction", actionDTO.getName());
                     assertEquals("testActionId", actionDTO.getId());
