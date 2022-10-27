@@ -37,6 +37,7 @@ import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
+  createTempDatasourceFromForm,
   deleteTempDSFromDraft,
   removeTempDatasource,
   setDatsourceEditorMode,
@@ -71,6 +72,7 @@ interface DatasourceFormFunctions {
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  createTempDatasource: (data: any) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -144,6 +146,18 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidMount() {
+    // Create Temp Datasource on component mount,
+    // if user hasnt saved datasource for the first time and refreshed the page
+    if (
+      !this.props.datasource &&
+      this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
+    ) {
+      const urlObject = new URL(window.location.href);
+      const pluginId = urlObject?.searchParams.get("pluginId");
+      this.props.createTempDatasource({
+        pluginId,
+      });
+    }
     if (!this.props.viewMode) {
       this.blockRoutes();
     }
@@ -358,6 +372,8 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
     dispatch(toggleSaveActionFromPopupFlag(flag)),
   setDatasourceEditorMode: (id: string, viewMode: boolean) =>
     dispatch(setDatsourceEditorMode({ id, viewMode })),
+  createTempDatasource: (data: any) =>
+    dispatch(createTempDatasourceFromForm(data)),
 });
 
 export default connect(

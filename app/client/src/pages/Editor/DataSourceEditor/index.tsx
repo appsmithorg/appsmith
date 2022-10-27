@@ -15,6 +15,7 @@ import {
   deleteTempDSFromDraft,
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
+  createTempDatasourceFromForm,
 } from "actions/datasourceActions";
 import {
   DATASOURCE_DB_FORM,
@@ -68,6 +69,7 @@ interface ReduxStateProps {
   isDatasourceBeingSaved: boolean;
   triggerSave: boolean;
   isFormDirty: boolean;
+  datasource: Datasource | undefined;
 }
 
 type Props = ReduxStateProps &
@@ -214,6 +216,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
     triggerSave: datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
+    datasource,
   };
 };
 
@@ -236,6 +239,8 @@ const mapDispatchToProps = (
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
   toggleSaveActionFromPopupFlag: (flag) =>
     dispatch(toggleSaveActionFromPopupFlag(flag)),
+  createTempDatasource: (data: any) =>
+    dispatch(createTempDatasourceFromForm(data)),
 });
 
 export interface DatasourcePaneFunctions {
@@ -246,6 +251,7 @@ export interface DatasourcePaneFunctions {
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
+  createTempDatasource: (data: any) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -279,6 +285,18 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    // Create Temp Datasource on component mount,
+    // if user hasnt saved datasource for the first time and refreshed the page
+    if (
+      !this.props.datasource &&
+      this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
+    ) {
+      const urlObject = new URL(window.location.href);
+      const pluginId = urlObject?.searchParams.get("pluginId");
+      this.props.createTempDatasource({
+        pluginId,
+      });
+    }
     if (!this.props.viewMode) {
       this.blockRoutes();
     }

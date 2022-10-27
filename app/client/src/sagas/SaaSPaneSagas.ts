@@ -26,7 +26,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
       pageId,
       pluginPackageName: plugin.packageName,
       datasourceId: actionPayload.payload.id,
-      params: { from: "datasources" },
+      params: { from: "datasources", pluginId: plugin?.id },
     }),
   );
 }

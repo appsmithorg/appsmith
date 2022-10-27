@@ -547,6 +547,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
       params: {
         from: "datasources",
         ...getQueryParams(),
+        pluginId: plugin?.id,
       },
     }),
   );
