@@ -67,9 +67,6 @@ public class ThemeServiceTest {
     UserService userService;
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
     private ThemeService themeService;
 
     @Autowired
@@ -120,8 +117,6 @@ public class ThemeServiceTest {
                 .block()
                 .get(0);
 
-        String apiUserId = userRepository.findByEmail("api_user").block().getId();
-
         // invite usertest to the workspace
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
@@ -131,7 +126,7 @@ public class ThemeServiceTest {
         // Remove api_user from the workspace
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setNewPermissionGroupId(null);
-        updatePermissionGroupDTO.setUserId(apiUserId);
+        updatePermissionGroupDTO.setUsername("api_user");
         userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin).block();
     }
 

@@ -65,19 +65,6 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         return mongoOperations.findOne(query, User.class);
     }
 
-    @Override
-    public Mono<User> findByIdAndTenantId(String id, String tenantId) {
-        Criteria idCriteria = where(fieldName(QUser.user.id)).is(id);
-        Criteria tenantIdCriteria = where(fieldName(QUser.user.tenantId)).is(tenantId);
-
-        Criteria andCriteria = new Criteria();
-        andCriteria.andOperator(idCriteria, tenantIdCriteria);
-
-        Query query = new Query();
-        query.addCriteria(andCriteria);
-        return mongoOperations.findOne(query, User.class);
-    }
-
     /**
      * Fetch minmal information from *a* user document in the database, limit to two documents, filter anonymousUser
      * If no documents left return true otherwise return false.

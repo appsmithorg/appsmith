@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatePermissionGroupCE_DTO {
-    private String userId;
+    private String username;
     private String newPermissionGroupId;
 }
