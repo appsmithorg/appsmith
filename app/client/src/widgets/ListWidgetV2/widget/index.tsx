@@ -155,11 +155,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
-    this.pageSize = this.getPageSize();
+    this.pageSize = 0;
   }
 
   componentDidMount() {
-    this.updatePageSize();
+    this.pageSize = this.getPageSize();
+
+    this.updatePageSizeMetaValue();
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
     this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
@@ -181,9 +183,20 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     this.pageSize = this.getPageSize();
 
-    if (this.shouldUpdatePageSize()) {
-      this.updatePageSize();
+    if (this.shouldUpdatePageSizeMetaValue()) {
+      this.updatePageSizeMetaValue();
+      if (this.shouldFireOnPageSizeChange()) {
+        // run onPageSizeChange if user resize widgets
+        super.executeAction({
+          triggerPropertyName: "onPageSizeChange",
+          dynamicString: this.props.onPageSizeChange as string,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        });
+      }
     }
+
     // TODO
     if (this.hasTemplateBottomRowChanged()) {
       if (this.virtualizer) {
@@ -194,39 +207,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     this.setupMetaWidgets(prevProps);
-
-    if (this.props.serverSidePaginationEnabled) {
-      if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
-      // run onPageSizeChange if user resize widgets
-      if (
-        this.props.onPageSizeChange &&
-        this.props.pageSize !== prevProps.pageSize
-      ) {
-        super.executeAction({
-          triggerPropertyName: "onPageSizeChange",
-          dynamicString: this.props.onPageSizeChange,
-          event: {
-            type: EventType.ON_PAGE_SIZE_CHANGE,
-          },
-        });
-      }
-    }
-
-    // Should this be triggered?
-    if (this.props.serverSidePaginationEnabled && this.props.onPageSizeChange) {
-      if (
-        this.props.serverSidePaginationEnabled &&
-        prevProps.serverSidePaginationEnabled === false
-      ) {
-        super.executeAction({
-          triggerPropertyName: "onPageSizeChange",
-          dynamicString: this.props.onPageSizeChange,
-          event: {
-            type: EventType.ON_PAGE_SIZE_CHANGE,
-          },
-        });
-      }
-    }
   }
 
   componentWillUnmount() {
@@ -442,12 +422,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return isNaN(pageSize) ? 0 : floor(pageSize);
   };
 
-  updatePageSize = () => {
+  updatePageSizeMetaValue = () => {
     this.props.updateWidgetMetaProperty("pageSize", this.pageSize);
   };
 
-  shouldUpdatePageSize = () => {
+  shouldUpdatePageSizeMetaValue = () => {
     return this.props.pageSize !== this.pageSize;
+  };
+
+  shouldFireOnPageSizeChange = () => {
+    return (
+      this.props.serverSidePaginationEnabled && this.props.onPageSizeChange
+    );
   };
 
   mainMetaCanvasWidget = () => {
