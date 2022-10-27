@@ -9,9 +9,15 @@ describe("Tests fetch and xhr calls", () => {
               myVar1: [],
               myVar2: {},
               myFun1: async (x = "default") => {
-                  fetch("/api/v1/users/me", { credentials: 'include' }).then(res => res.json()).then(function(data) {
-                    showAlert(data.username);
+                  fetch("/api/v1/users/me", { credentials: 'include' }).then(res => res.json()).then(function(res) {
+                    showAlert(res.data.username);
                   })
+              },
+              myFun2: async function() {
+                const req = new Request("/api/v1/users/me", { credentials: 'include' });
+                const res = await fetch(req);
+                const jsonRes = await res.json();
+                showAlert(jsonRes.data.username);
               }
           }`,
       {
@@ -25,5 +31,10 @@ describe("Tests fetch and xhr calls", () => {
     agHelper.Sleep(2000);
     jsEditor.RunJSObj();
     agHelper.AssertContains("anonymousUser", "exist");
+
+    jsEditor.SelectFunctionDropdown("myFun2");
+    jsEditor.RunJSObj();
+    agHelper.AssertContains("anonymousUser", "exist");
+
   });
 });
