@@ -20,6 +20,7 @@ import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -128,6 +129,25 @@ public class DatabaseChangelogEE {
         tenantConfiguration.setWhiteLabelFavicon("https://assets.appsmith.com/appsmith-favicon-orange.ico");
         defaultTenant.setTenantConfiguration(tenantConfiguration);
         mongockTemplate.save(defaultTenant);
+    }
+
+    @ChangeSet(order = "005", id = "add-read-pg-to-instance-admins", author = "")
+    public void addReadPermissionGroupForInstanceAdmin(MongockTemplate mongockTemplate) {
+        Query instanceConfigurationQuery = new Query();
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+
+        // Get the default Instance Admin permission group Id from the DB
+        String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
+
+        // Update all the permission groups with `read:permissionGroups` policy for the above permissionGroupId
+        Policy policy = Policy.builder()
+                .permission(READ_PERMISSION_GROUPS.getValue())
+                .permissionGroups(Set.of(instanceAdminPermissionGroupId))
+                .build();
+        Query query = new Query(where("policies.permission").ne(READ_PERMISSION_GROUPS));
+        Update update = new Update().addToSet("policies", policy);
+        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
 }
