@@ -240,7 +240,7 @@ abstract class BaseWidget<
     return (
       <ResizableComponent
         {...this.props}
-        paddingOffset={this.props.isFlexChild ? 0 : PositionedContainer.padding}
+        paddingOffset={PositionedContainer.padding}
       >
         {content}
       </ResizableComponent>
