@@ -26,6 +26,7 @@ const MAX_BOX_SIZE = 20000;
 export function generateTree(
   spaces: NodeSpace[],
   layoutUpdated: boolean,
+  previousTree: Record<string, TreeNode>,
 ): Record<string, TreeNode> {
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
   spaces.sort((a, b) => a.top - b.top); // Sort based on position, top to bottom
@@ -60,14 +61,14 @@ export function generateTree(
     const space = spaces[i];
     const bottomRow = Math.floor(space.bottom);
     const topRow = Math.floor(space.top);
-    const originalTopRow =
-      space.originalTop === undefined || layoutUpdated
-        ? topRow
-        : space.originalTop;
-    const originalBottomRow =
-      space.originalBottom === undefined || layoutUpdated
-        ? bottomRow
-        : space.originalBottom;
+    let originalTopRow = previousTree[space.id]?.originalTopRow;
+    let originalBottomRow = previousTree[space.id]?.originalBottomRow;
+    if (originalTopRow === undefined || layoutUpdated) {
+      originalTopRow = topRow;
+    }
+    if (originalBottomRow === undefined || layoutUpdated) {
+      originalBottomRow = bottomRow;
+    }
 
     tree[space.id] = {
       aboves: aboveMap[space.id] || [],

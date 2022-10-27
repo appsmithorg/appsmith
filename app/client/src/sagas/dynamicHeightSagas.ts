@@ -602,6 +602,9 @@ export function* updateWidgetDynamicHeightSaga() {
       const hasScroll = Object.values(expectedUpdates).find(
         (entry) => entry.widgetId === changedWidgetId,
       )?.hasScroll;
+      const { originalBottomRow, originalTopRow } = dynamicHeightLayoutTree[
+        changedWidgetId
+      ];
 
       widgetsToUpdate[changedWidgetId] = [
         {
@@ -611,6 +614,14 @@ export function* updateWidgetDynamicHeightSaga() {
         {
           propertyPath: "topRow",
           propertyValue: changesSoFar[changedWidgetId].topRow,
+        },
+        {
+          propertyPath: "originalTopRow",
+          propertyValue: originalTopRow,
+        },
+        {
+          propertyPath: "originalBottomRow",
+          propertyValue: originalBottomRow,
         },
       ];
       if (hasScroll) {
@@ -663,7 +674,7 @@ export function* updateWidgetDynamicHeightSaga() {
     // as we don't need to trigger an eval
     yield put(updateMultipleWidgetProperties(widgetsToUpdate));
     dynamicHeightUpdateWidgets = {};
-    yield put(generateDynamicHeightComputationTree(false));
+    yield put(generateDynamicHeightComputationTree(false, false));
   }
 
   log.debug(
@@ -705,11 +716,15 @@ function* generateTreeForDynamicHeightComputations(
   // TODO PERF:(abhinav): Memoize this or something, in case the `UPDATE_LAYOUT` did not cause a change in
   // widget positions and sizes
   let tree: Record<string, TreeNode> = {};
+  const previousTree: Record<string, TreeNode> = yield select(
+    getDynamicHeightLayoutTree,
+  );
   for (const canvasWidgetId in occupiedSpaces) {
     if (occupiedSpaces[canvasWidgetId].length > 0) {
       const treeForThisCanvas = generateTree(
         occupiedSpaces[canvasWidgetId],
         !shouldCollapse && action.payload.layoutUpdated,
+        previousTree,
       );
       tree = Object.assign({}, tree, treeForThisCanvas);
     }
@@ -867,7 +882,7 @@ export default function* widgetOperationSagas() {
       batchCallsToUpdateWidgetDynamicHeightSaga,
     ),
     debounce(
-      200,
+      100,
       ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
       updateWidgetDynamicHeightSaga,
     ),
