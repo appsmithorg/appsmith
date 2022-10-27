@@ -522,7 +522,7 @@ public class MySqlPlugin extends BasePlugin {
             try {
                 pool = getNewConnectionPool(datasourceConfiguration);
             } catch (AppsmithPluginException e) {
-                Mono.error(e);
+                return Mono.error(e);
             }
             return Mono.just(pool);
         }
