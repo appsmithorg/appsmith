@@ -31,7 +31,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import FormGroup from "components/ads/formFields/FormGroup";
-import { Button, FormMessage, Link, Size } from "design-system";
+import { Button, FormMessage, Link, Size, TextType } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
@@ -210,7 +210,10 @@ export function Login(props: LoginFormProps) {
               />
             </FormActions>
           </SpacedSubmitForm>
-          <ForgotPasswordLink to={forgotPasswordURL}>
+          <ForgotPasswordLink
+            textType={TextType.CARD_SUBHEADER}
+            to={forgotPasswordURL}
+          >
             {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
           </ForgotPasswordLink>
         </>
