@@ -274,7 +274,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       templateBottomRow: this.getTemplateBottomRow(),
       widgetName: this.props.widgetName,
       pageNo,
-      pageSize: pageSize,
+      pageSize,
     };
   };
 

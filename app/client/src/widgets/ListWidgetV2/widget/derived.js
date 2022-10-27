@@ -35,8 +35,4 @@ export default {
     return { currentItem: structure, currentIndex: "" };
   },
   //
-  getPageSize: (props, moment, _) => {
-    return props.currentViewItems ? props.currentViewItems.length : 0;
-  },
-  //
 };
