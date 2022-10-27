@@ -70,6 +70,7 @@ type ResizableHandleProps = {
     x: number;
     y: number;
   };
+  direction?: ReflowDirection;
 };
 
 function ResizableHandle(props: ResizableHandleProps) {
@@ -117,7 +118,12 @@ function ResizableHandle(props: ResizableHandleProps) {
     disableDot: props.disableDot,
   };
 
-  return <props.component {...propsToPass} />;
+  return (
+    <props.component
+      data-cy={`t--resizable-handle-${props.direction}`}
+      {...propsToPass}
+    />
+  );
 }
 
 type ResizableProps = {
@@ -473,6 +479,7 @@ export function ReflowResizable(props: ResizableProps) {
         {...handle}
         allowResize={props.allowResize}
         checkForCollision={checkForCollision}
+        direction={handle.handleDirection}
         disableDot={disableDot}
         key={index}
         onStart={() => {
