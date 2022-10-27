@@ -1,16 +1,14 @@
 import {
+  createMessage,
+  SELECT_ALL_WIDGETS_MSG,
+} from "@appsmith/constants/messages";
+import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
-import {
-  getWidgetImmediateChildren,
-  getWidgetMetaProps,
-  getWidgets,
-} from "./selectors";
-import log from "loglevel";
+import { AppState } from "@appsmith/reducers";
+import { showModal } from "actions/widgetActions";
 import {
   deselectMultipleWidgetsAction,
   selectMultipleWidgetsAction,
@@ -18,27 +16,29 @@ import {
   selectWidgetInitAction,
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
-import { Toaster } from "design-system";
-import {
-  createMessage,
-  SELECT_ALL_WIDGETS_MSG,
-} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
-import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { Toaster } from "design-system";
+import log from "loglevel";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgetChildrenIds } from "./WidgetOperationUtils";
-import { AppState } from "@appsmith/reducers";
-import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
-import WidgetFactory from "utils/WidgetFactory";
-import { showModal } from "actions/widgetActions";
-import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { builderURL } from "RouteBuilder";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
+import { builderURL } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import history from "utils/history";
+import WidgetFactory from "utils/WidgetFactory";
+import {
+  getWidgetImmediateChildren,
+  getWidgetMetaProps,
+  getWidgets,
+} from "./selectors";
+import { getWidgetChildrenIds } from "./WidgetOperationUtils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -114,14 +114,16 @@ function* getLastSelectedCanvas() {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgetLastSelected =
     lastSelectedWidget && canvasWidgets[lastSelectedWidget];
-  if (widgetLastSelected) {
+  if (widgetLastSelected && !widgetLastSelected.flexLayers) {
     const canvasToSelect: string = yield call(
       getDroppingCanvasOfWidget,
       widgetLastSelected,
     );
     return canvasToSelect ? canvasToSelect : MAIN_CONTAINER_WIDGET_ID;
   }
-  return MAIN_CONTAINER_WIDGET_ID;
+  if (!canvasWidgets[MAIN_CONTAINER_WIDGET_ID].flexLayers) {
+    return MAIN_CONTAINER_WIDGET_ID;
+  }
 }
 
 // used for List widget cases

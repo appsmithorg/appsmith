@@ -1,25 +1,25 @@
-import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import styled from "styled-components";
-import store, { useSelector } from "store";
-import { CanvasWidgetStructure } from "widgets/constants";
-import WidgetFactory from "utils/WidgetFactory";
+import log from "loglevel";
 import React, { memo, useCallback, useEffect } from "react";
+import store, { useSelector } from "store";
+import styled from "styled-components";
+import WidgetFactory from "utils/WidgetFactory";
+import { CanvasWidgetStructure } from "widgets/constants";
 
+import { collabShareUserPointerEvent } from "actions/appCollabActions";
+import { initPageLevelSocketConnection } from "actions/websocketActions";
+import { RenderModes } from "constants/WidgetConstants";
+import { throttle } from "lodash";
 import CanvasMultiPointerArena, {
   POINTERS_CANVAS_ID,
 } from "pages/common/CanvasArenas/CanvasMultiPointerArena";
-import { throttle } from "lodash";
-import { RenderModes } from "constants/WidgetConstants";
-import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 import { useDispatch } from "react-redux";
-import { initPageLevelSocketConnection } from "actions/websocketActions";
-import { collabShareUserPointerEvent } from "actions/appCollabActions";
-import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;

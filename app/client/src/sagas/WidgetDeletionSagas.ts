@@ -1,16 +1,17 @@
 import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import {
   MultipleWidgetDeletePayload,
   updateAndSaveLayout,
   WidgetDelete,
 } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import {
-  ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-  WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -19,11 +20,20 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { getMainCanvasProps } from "selectors/editorSelectors";
+import {
+  inGuidedTour,
+  isExploringSelector,
+} from "selectors/onboardingSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { showUndoRedoToast } from "utils/replayHelpers";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetProps } from "widgets/BaseWidget";
+import { updateFlexLayersOnDelete } from "./AutoLayoutUtils";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import {
   getAllWidgetsInTree,
@@ -31,16 +41,6 @@ import {
   updateListWidgetPropertiesOnChildDelete,
   WidgetsInTree,
 } from "./WidgetOperationUtils";
-import { showUndoRedoToast } from "utils/replayHelpers";
-import WidgetFactory from "utils/WidgetFactory";
-import {
-  inGuidedTour,
-  isExploringSelector,
-} from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import { getMainCanvasProps } from "selectors/editorSelectors";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { updateFlexLayersOnDelete } from "./AutoLayoutUtils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -311,7 +311,6 @@ function* deleteAllSelectedWidgetsSaga(
     );
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
-    console.log("#### parent id", parentId);
     let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
     if (parentId) {
       for (const widgetId of selectedWidgets) {

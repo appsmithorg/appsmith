@@ -1,28 +1,26 @@
-import React from "react";
 import { map } from "lodash";
+import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import VerticalLayoutComponent from "../component";
-import { ContainerStyle } from "widgets/ContainerWidget/component";
 import {
   AlignItems,
   JustifyContent,
   LayoutDirection,
 } from "components/constants";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { AutoLayoutContext } from "utils/autoLayoutContext";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { ContainerStyle } from "widgets/ContainerWidget/component";
+import VerticalLayoutComponent from "../component";
 
 class VerticalLayoutWidget extends BaseWidget<
   VerticalLayoutWidgetProps<WidgetProps>,
@@ -164,22 +162,24 @@ class VerticalLayoutWidget extends BaseWidget<
                 useAutoLayout
                 widgetId={this.props.widgetId}
               />
-              <CanvasSelectionArena
+              {/*
+            // Removing Canvas Selection and grouping in the POC
+               <CanvasSelectionArena
                 {...this.getSnapSpaces()}
                 canExtend={this.props.canExtend}
                 dropDisabled={!!this.props.dropDisabled}
                 parentId={this.props.parentId}
                 snapRows={snapRows}
                 widgetId={this.props.widgetId}
-              />
+              /> */}
             </>
           )}
-          <WidgetsMultiSelectBox
+          {/* <WidgetsMultiSelectBox
             {...this.getSnapSpaces()}
             noContainerOffset={!!this.props.noContainerOffset}
             widgetId={this.props.widgetId}
             widgetType={this.props.type}
-          />
+          /> */}
           {/* without the wrapping div onClick events are triggered twice */}
           <>{this.renderChildren()}</>
         </VerticalLayoutComponent>
