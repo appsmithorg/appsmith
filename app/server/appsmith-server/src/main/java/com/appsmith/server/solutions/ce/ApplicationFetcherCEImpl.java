@@ -9,7 +9,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -144,7 +144,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .collectList()
                             .cache();
 
-                    Mono<Map<String, List<UserAndPermissionGroupDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
+                    Mono<Map<String, List<WorkspaceMemberInfoDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
                             .map(Workspace::getId)
                             .collect(Collectors.toSet())
                             .flatMap(workspaceIds -> userWorkspaceService.getWorkspaceMembers(workspaceIds));
@@ -155,7 +155,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                                 Map<String, Collection<Application>> applicationsCollectionByWorkspaceId = tuple.getT2();
 
-                                Map<String, List<UserAndPermissionGroupDTO>> userAndPermissionGroupMapDTOByWorkspaceId = tuple.getT3();
+                                Map<String, List<WorkspaceMemberInfoDTO>> userAndPermissionGroupMapDTOByWorkspaceId = tuple.getT3();
 
                                 List<WorkspaceApplicationsDTO> workspaceApplicationsDTOS = new ArrayList<>();
 
