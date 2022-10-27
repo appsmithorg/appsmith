@@ -213,7 +213,8 @@ export default [
         dependencies: ["menuItemsSource"],
       },
       {
-        helpText: "Configure Menu Items",
+        helpText:
+          "Configure each menu item using {{currentItem}} binding. You can change properties like label, visibilty, disabled state, background color etc. for each menu item using this.",
         propertyName: "configureMenuItems",
         controlType: "CONFIGURE_MENU_ITEMS",
         label: "Configure Menu Items",
