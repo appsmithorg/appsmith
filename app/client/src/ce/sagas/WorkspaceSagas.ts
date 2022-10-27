@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -23,7 +23,7 @@ import WorkspaceApi, {
   ChangeUserRoleRequest,
   FetchAllRolesRequest,
   SaveWorkspaceLogo,
-} from "api/WorkspaceApi";
+} from "@appsmith/api/WorkspaceApi";
 import { ApiResponse } from "api/ApiResponses";
 import { Toaster } from "design-system";
 import { Variant } from "components/ads/common";
@@ -366,26 +366,4 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
   } catch (error) {
     log.error("Error occured while removing the logo", error);
   }
-}
-
-export default function* workspaceSagas() {
-  yield all([
-    takeLatest(ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT, fetchRolesSaga),
-    takeLatest(ReduxActionTypes.FETCH_CURRENT_WORKSPACE, fetchWorkspaceSaga),
-    takeLatest(ReduxActionTypes.SAVE_WORKSPACE_INIT, saveWorkspaceSaga),
-    takeLatest(ReduxActionTypes.CREATE_WORKSPACE_INIT, createWorkspaceSaga),
-    takeLatest(ReduxActionTypes.FETCH_ALL_USERS_INIT, fetchAllUsersSaga),
-    takeLatest(ReduxActionTypes.FETCH_ALL_ROLES_INIT, fetchAllRolesSaga),
-    takeLatest(
-      ReduxActionTypes.DELETE_WORKSPACE_USER_INIT,
-      deleteWorkspaceUserSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.CHANGE_WORKSPACE_USER_ROLE_INIT,
-      changeWorkspaceUserRoleSaga,
-    ),
-    takeLatest(ReduxActionTypes.DELETE_WORKSPACE_INIT, deleteWorkspaceSaga),
-    takeLatest(ReduxActionTypes.UPLOAD_WORKSPACE_LOGO, uploadWorkspaceLogoSaga),
-    takeLatest(ReduxActionTypes.REMOVE_WORKSPACE_LOGO, deleteWorkspaceLogoSaga),
-  ]);
 }
