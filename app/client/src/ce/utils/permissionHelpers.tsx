@@ -8,6 +8,7 @@ export enum PERMISSION_TYPE {
   CREATE_APPLICATION = "manage:workspaceApplications",
   MANAGE_APPLICATION = "manage:applications",
   EXPORT_APPLICATION = "export:applications",
+  DELETE_APPLICATION = "delete:applications",
   DELETE_WORKSPACE_APPLICATIONS = "delete:workspaceApplications",
   READ_WORKSPACE_APPLICATIONS = "read:workspaceApplications",
   // EXPORT_APPLICATION = "export:workspaceApplications",

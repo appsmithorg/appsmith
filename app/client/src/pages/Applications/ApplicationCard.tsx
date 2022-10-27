@@ -512,6 +512,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
+  const hasDeletePermission = isPermitted(
+    props.application?.userPermissions ?? [],
+    PERMISSION_TYPE.DELETE_APPLICATION,
+  );
   const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&
@@ -574,7 +578,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     setMoreActionItems(updatedActionItems);
   };
   const addDeleteOption = () => {
-    if (props.delete && hasEditPermission) {
+    if (props.delete && hasDeletePermission) {
       const index = moreActionItems.findIndex(
         (el) => el.icon === "delete-blank",
       );
