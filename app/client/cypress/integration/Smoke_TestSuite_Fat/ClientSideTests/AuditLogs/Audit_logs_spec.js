@@ -10,8 +10,8 @@ const Header = {
 };
 
 const Carousel = {
-  Left: "[data-testid='t--carousel-left']",
-  Right: "[data-testid='t--carousel-right']",
+  Left: "[data-testid='t--carousel-triggers']",
+  Right: "[data-testid='t--carousel-targets']",
 };
 
 const UpgradePage = {

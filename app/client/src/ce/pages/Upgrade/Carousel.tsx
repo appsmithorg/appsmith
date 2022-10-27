@@ -12,14 +12,14 @@ const CarouselContainer = styled.div`
   align-items: center;
   height: 542px;
 
-  & .carousel-left {
+  & .carousel-triggers {
     display: flex;
     flex-grow: 1;
     flex-direction: column;
     gap: 20px;
     justify-content: center;
     align-items: center;
-    width: 50%;
+    width: calc(50% - 40px);
 
     & .carousel-trigger {
       padding: 16px;
@@ -64,9 +64,14 @@ const CarouselContainer = styled.div`
         }
       }
     }
+
+    & .carousel-targets {
+      width: auto;
+      height: auto;
+    }
   }
 
-  & .carousel-right {
+  & .carousel-targets {
     width: 680px;
     height: 472px;
     display: flex;
@@ -82,39 +87,46 @@ const CarouselContainer = styled.div`
 
 export function CarouselComponent(props: CarouselProps) {
   const [active, setActive] = useState(0);
-  const [rightContent, setRightContent] = useState(null);
-  const { targets, triggers } = props;
+  const [targetContent, setTargetContent] = useState(null);
+  const { design, targets, triggers } = props;
   useEffect(() => {
-    setRightContent(targets[active]);
+    setTargetContent(targets[active]);
   }, [active]);
 
   const isActive = (i: number) => i === active;
-
-  return (
-    <CarouselContainer
-      className="upgrade-page-carousel-container"
-      data-testid="t--upgrade-page-carousel-container"
+  const targetsComponent = (
+    <div
+      className={`carousel-targets ${design}`}
+      data-testid="t--carousel-targets"
     >
-      <div className="carousel-left" data-testid="t--carousel-left">
-        {triggers.map((d, i) => {
-          return (
-            <div
-              className={`carousel-item-container carousel-trigger ${
-                isActive(i) ? "active" : ""
-              }`}
-              key={`carousel-item-${i}`}
-              onClick={() => setActive(i)}
-              role="button"
-            >
-              <div className={"trigger"}>
-                <div className="icon-container">
-                  <Icon name={d.icon} size={IconSize.XXXXL} />
+      {targetContent}
+    </div>
+  );
+  const triggersComponent = (
+    <div
+      className={`carousel-triggers ${design}`}
+      data-testid="t--carousel-triggers"
+    >
+      {triggers.map((d, i) => {
+        return (
+          <div
+            className={`carousel-item-container carousel-trigger ${
+              isActive(i) ? "active" : ""
+            }`}
+            key={`carousel-item-${i}`}
+            onClick={() => setActive(i)}
+            role="button"
+          >
+            <div className={"trigger"}>
+              <div className="icon-container">
+                <Icon name={d.icon} size={IconSize.XXXXL} />
+              </div>
+              <div className="trigger-content">
+                <div className="trigger-heading">
+                  <Text type={TextType.H1}>{d.heading}</Text>
                 </div>
-                <div className="trigger-content">
-                  <div className="trigger-heading">
-                    <Text type={TextType.H1}>{d.heading}</Text>
-                  </div>
-                  {isActive(i) && (
+                {isActive(i) && (
+                  <>
                     <div className="trigger-details-container">
                       {d.details.map((detail, di) => {
                         return (
@@ -127,16 +139,48 @@ export function CarouselComponent(props: CarouselProps) {
                         );
                       })}
                     </div>
-                  )}
-                </div>
+                    {design === "trigger-contains-target" && (
+                      <div>{targetsComponent}</div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
-          );
-        })}
-      </div>
-      <div className="carousel-right" data-testid="t--carousel-right">
-        {rightContent}
-      </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  let display = (
+    <>
+      {triggersComponent}
+      {targetsComponent}
+    </>
+  );
+  switch (design) {
+    case "no-target":
+      display = triggersComponent;
+      break;
+    case "trigger-contains-target":
+      display = triggersComponent;
+      break;
+    case "split-right-trigger":
+      display = (
+        <>
+          {targetsComponent}
+          {triggersComponent}
+        </>
+      );
+      break;
+  }
+
+  return (
+    <CarouselContainer
+      className="upgrade-page-carousel-container"
+      data-testid="t--upgrade-page-carousel-container"
+    >
+      {display}
     </CarouselContainer>
   );
 }

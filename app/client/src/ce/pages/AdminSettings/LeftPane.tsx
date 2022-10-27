@@ -6,6 +6,8 @@ import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system";
+import { createMessage } from "design-system/build/constants/messages";
+import { USAGE_AND_BILLING } from "../../constants/messages";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -148,6 +150,18 @@ export default function LeftPane() {
                 <Icon name="lock-2-line" size={IconSize.XL} />
               </div>
               <div>Audit logs</div>
+            </StyledLink>
+          </CategoryItem>
+          <CategoryItem>
+            <StyledLink
+              $active={category === "usage"}
+              data-testid="t--enterprise-settings-category-item-usage"
+              to="/settings/usage"
+            >
+              <div>
+                <Icon name="lock-2-line" size={IconSize.XL} />
+              </div>
+              <div>{createMessage(USAGE_AND_BILLING.usage)}</div>
             </StyledLink>
           </CategoryItem>
         </CategoryList>

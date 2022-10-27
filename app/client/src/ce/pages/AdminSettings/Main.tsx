@@ -6,6 +6,7 @@ import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import SettingsForm from "pages/Settings/SettingsForm";
 import { AuditLogsUpgradePage } from "../Upgrade/AuditLogsUpgradePage";
 import { AccessControlUpgradePage } from "../Upgrade/AccessControlUpgradePage";
+import { UsageUpgradePage } from "../Upgrade/UsageUpgradePage";
 
 const Main = () => {
   const params = useParams() as any;
@@ -21,6 +22,9 @@ const Main = () => {
   }
   if (category === "audit-logs") {
     return <AuditLogsUpgradePage />;
+  }
+  if (category === "usage") {
+    return <UsageUpgradePage />;
   }
 
   /* Old, still working flow; config, factory based */
