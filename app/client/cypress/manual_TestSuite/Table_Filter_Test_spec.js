@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/tableWidgetDsl.json");
-
 describe("Test for Table Filter ", function() {
   it("Table Filter", function() {
     //Add a table

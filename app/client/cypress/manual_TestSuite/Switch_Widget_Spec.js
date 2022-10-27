@@ -1,5 +1,3 @@
-const dsl = require("../../../fixtures/switchWidgetDsl.json");
-
 describe("Test to add switch widget in canvas", function() {
   it(" Add a switch widget and bind it to action", function() {
     // Add a switch widget

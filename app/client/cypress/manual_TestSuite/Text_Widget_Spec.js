@@ -1,5 +1,3 @@
-const homePage = require("../../../locators/Textwidget.json");
-
 describe("Test Ideas to test different feature of text widget ", function() {
   it("Add New Text widget along with BG and text colour ", function() {
     // Navigate to application
