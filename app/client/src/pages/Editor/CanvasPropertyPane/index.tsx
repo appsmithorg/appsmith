@@ -41,6 +41,7 @@ export function CanvasPropertyPane() {
             <Button
               category={Category.tertiary}
               fill
+              id="t--app-settings-cta"
               onClick={openAppSettingsPane}
               size={Size.medium}
               text="App Settings"

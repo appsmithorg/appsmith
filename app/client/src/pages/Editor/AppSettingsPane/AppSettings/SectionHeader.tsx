@@ -4,6 +4,7 @@ import React from "react";
 import styled from "styled-components";
 
 export interface SectionHeaderProps {
+  id: string;
   name: string;
   icon: IconName;
   subText: string;
@@ -26,6 +27,7 @@ class SectionHeader extends React.Component<SectionHeaderProps> {
           [hoverBgColor]: true,
           [bgColor]: this.props.isSelected,
         })}
+        id={this.props.id}
         onClick={this.props.onClick}
       >
         <div className="basis-[7.5%]" />

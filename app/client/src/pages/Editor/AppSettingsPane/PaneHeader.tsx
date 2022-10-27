@@ -31,6 +31,7 @@ function PaneHeader() {
         <Icon
           className="pr-2"
           fillColor={Colors.GREY_10}
+          id="t--close-app-settings-pane"
           name="double-arrow-right"
           onClick={() => dispatch(closeAppSettingsPaneAction())}
           size={IconSize.SMALL}

@@ -198,6 +198,7 @@ const explorerReducer = createReducer(initialState, {
         state.pinnedState === ExplorerPinnedState.PINNED
           ? ExplorerPinnedState.HIDDEN
           : state.pinnedState,
+      active: false,
     };
   },
   [ReduxActionTypes.CLOSE_APP_SETTINGS_PANE]: (

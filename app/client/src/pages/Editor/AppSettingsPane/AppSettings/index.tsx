@@ -70,6 +70,7 @@ function AppSettings() {
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
     {
+      id: "t--general-settings-header",
       icon: "settings-2-line",
       isSelected: selectedTab.type === AppSettingsTabs.General,
       name: GENERAL_SETTINGS_SECTION_HEADER(),
@@ -79,6 +80,7 @@ function AppSettings() {
       subText: GENERAL_SETTINGS_SECTION_HEADER_DESC(),
     },
     {
+      id: "t--theme-settings-header",
       icon: "edit-line",
       isSelected: selectedTab.type === AppSettingsTabs.Theme,
       name: THEME_SETTINGS_SECTION_HEADER(),

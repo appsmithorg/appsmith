@@ -26,6 +26,7 @@ function PageListHeader(props: {
         "bg-[color:var(--appsmith-color-black-200)]":
           props.selectedPage === props.page.pageId,
       })}
+      id={`t--page-settings-${props.page.pageName}`}
       onClick={() => {
         props.onPageSelect(props.page.pageId);
       }}
