@@ -70,7 +70,7 @@ export default {
     return selectedRows;
   },
   //
-  getPageSize: (props, moment, _) => {
+  getPageSize: (props) => {
     const TABLE_SIZES = {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,

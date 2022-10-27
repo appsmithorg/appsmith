@@ -27,7 +27,7 @@ export default {
     return label;
   },
   //
-  getFlattenedOptions: (props, moment, _) => {
+  getFlattenedOptions: (props) => {
     const flat = (array) => {
       let result = [];
       array.forEach((a) => {

@@ -7,7 +7,7 @@ export default {
       : true;
   },
   //
-  getSelectedOptionValues: (props, moment, _) => {
+  getSelectedOptionValues: (props) => {
     const options = props.options ?? [];
     const selectedOptions = props.selectedOptions ?? [];
 

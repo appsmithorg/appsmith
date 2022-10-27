@@ -7,7 +7,7 @@ export default {
       : true;
   },
   //
-  getSelectedOptionValues: (props, moment, _) => {
+  getSelectedOptionValues: (props) => {
     const options = props.flattenedOptions ?? [];
     const values = props.selectedOptionValueArr ?? [];
 
@@ -32,7 +32,7 @@ export default {
       .filter((val) => !_.isNil(val));
   },
   //
-  getFlattenedOptions: (props, moment, _) => {
+  getFlattenedOptions: (props) => {
     const flat = (array) => {
       let result = [];
       array.forEach((a) => {

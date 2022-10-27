@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  isValid: (props, moment, _) => {
+  isValid: (props) => {
     let hasValidValue, value;
     try {
       value = Number(props.value);
