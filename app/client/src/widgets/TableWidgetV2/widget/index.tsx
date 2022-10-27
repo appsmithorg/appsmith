@@ -1198,22 +1198,22 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   updateTransientTableData = (data: TransientDataPayload) => {
-    const { __original_index__, ...transientData } = data;
+    const { __originalIndex__, ...transientData } = data;
 
     this.props.updateWidgetMetaProperty("transientTableData", {
       ...this.props.transientTableData,
-      [__original_index__]: {
-        ...this.props.transientTableData[__original_index__],
+      [__originalIndex__]: {
+        ...this.props.transientTableData[__originalIndex__],
         ...transientData,
       },
     });
   };
 
-  removeRowFromTransientTableData = (__original_index__: number) => {
+  removeRowFromTransientTableData = (__originalIndex__: number) => {
     const newTransientTableData = clone(this.props.transientTableData);
 
     if (newTransientTableData) {
-      delete newTransientTableData[__original_index__];
+      delete newTransientTableData[__originalIndex__];
 
       this.props.updateWidgetMetaProperty(
         "transientTableData",
@@ -1850,7 +1850,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         value !== this.props.editableCell?.initialValue
       ) {
         this.updateTransientTableData({
-          __original_index__: this.getRowOriginalIndex(rowIndex),
+          __originalIndex__: this.getRowOriginalIndex(rowIndex),
           [alias]: this.props.editableCell?.value,
         });
 
@@ -1911,7 +1911,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateNewRowValues(column, value, value);
     } else {
       this.updateTransientTableData({
-        __original_index__: this.getRowOriginalIndex(rowIndex),
+        __originalIndex__: this.getRowOriginalIndex(rowIndex),
         [column]: value,
       });
 
@@ -1972,7 +1972,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateNewRowValues(alias, value, value);
     } else {
       this.updateTransientTableData({
-        __original_index__: originalIndex,
+        __originalIndex__: originalIndex,
         [alias]: value,
       });
 

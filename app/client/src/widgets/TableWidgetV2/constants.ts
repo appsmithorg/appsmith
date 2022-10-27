@@ -159,7 +159,7 @@ export const DEFAULT_MENU_BUTTON_LABEL = "Open menu";
 
 export type TransientDataPayload = {
   [key: string]: string | number | boolean;
-  __original_index__: number;
+  __originalIndex__: number;
 };
 
 export type OnColumnEventArgs = {

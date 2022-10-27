@@ -1,14 +1,16 @@
 import React from "react";
 import SelectComponent from "widgets/SelectWidget/component";
 import { DropdownOption } from "widgets/SelectWidget/constants";
-import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
+import {
+  BaseCellComponentProps,
+  EDITABLE_CELL_PADDING_OFFSET,
+  TABLE_SIZES,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import styled from "constants/DefaultTheme";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
-
-const PADDING_OFFSET = 8;
 
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
@@ -17,12 +19,14 @@ const StyledSelectComponent = styled(SelectComponent)<{
 }>`
   &&& {
     width: ${(props) =>
-      props.isNewRow ? `calc(100% - ${PADDING_OFFSET}px)` : "100%"};
+      props.isNewRow
+        ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
+        : "100%"};
 
     .bp3-control-group {
       height: ${(props) => {
         return props.isNewRow
-          ? `${props.height - PADDING_OFFSET}px`
+          ? `${props.height - EDITABLE_CELL_PADDING_OFFSET}px`
           : `${props.height}px`;
       }};
 
@@ -35,7 +39,7 @@ const StyledSelectComponent = styled(SelectComponent)<{
         padding: 0 9px;
         min-height: ${(props) => {
           return props.isNewRow
-            ? `${props.height - PADDING_OFFSET}px`
+            ? `${props.height - EDITABLE_CELL_PADDING_OFFSET}px`
             : `${props.height}px`;
         }};
         border-radius: 3px;

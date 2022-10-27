@@ -106,16 +106,20 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
       value = propertyValue;
     }
 
-    const stringValue = JSToString(value);
-
-    return stringValue;
+    return JSToString(value);
   };
 
   getComputedValue = (value: string, tableId: string) => {
+    if (!isDynamicValue(value)) {
+      return value;
+    }
+
     const stringToEvaluate = stringToJS(value);
+
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
+
     return `${bindingPrefix}${stringToEvaluate}${getBindingSuffix(
       tableId,
       this.getColumnName(),
@@ -123,12 +127,8 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
-    let value = "";
-    if (typeof event !== "string") {
-      value = event.target?.value;
-    } else {
-      value = event;
-    }
+    const value = typeof event !== "string" ? event.target?.value : event;
+
     if (isString(value)) {
       const output = this.getComputedValue(
         value,
@@ -142,6 +142,9 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
   };
 
   getColumnName = () => {
+    /*
+     * Regex to extract the column name from the property path
+     */
     const matchedColumnName = this.props.parentPropertyName.match(
       /primaryColumns\.([^.]+)\.[^.]+\.[^.]+/,
     );

@@ -20,6 +20,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -622,7 +623,10 @@ export const migrateTableWidgetV2ValidationBinding = (
         if (
           primaryColumns.hasOwnProperty(column) &&
           primaryColumns[column].validation &&
-          primaryColumns[column].validation.isColumnEditableCellValid
+          primaryColumns[column].validation.isColumnEditableCellValid &&
+          isDynamicValue(
+            primaryColumns[column].validation.isColumnEditableCellValid,
+          )
         ) {
           const propertyValue =
             primaryColumns[column].validation.isColumnEditableCellValid;

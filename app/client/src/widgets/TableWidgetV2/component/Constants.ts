@@ -490,3 +490,5 @@ export enum AddNewRowActions {
   SAVE = "SAVE",
   DISCARD = "DISCARD",
 }
+
+export const EDITABLE_CELL_PADDING_OFFSET = 8;

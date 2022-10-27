@@ -152,7 +152,12 @@ class TableInlineEditValidationControl extends BaseControl<
   };
 
   getComputedValue = (value: string, tableId: string) => {
+    if (!isDynamicValue(value)) {
+      return value;
+    }
+
     const stringToEvaluate = stringToJS(value);
+
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }

@@ -5,10 +5,13 @@ import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { EditableCell } from "widgets/TableWidgetV2/constants";
-import { TABLE_SIZES, VerticalAlignment } from "../Constants";
+import {
+  EDITABLE_CELL_PADDING_OFFSET,
+  TABLE_SIZES,
+  VerticalAlignment,
+} from "../Constants";
 
 const FOCUS_CLASS = "has-focus";
-const PADDING_OFFSET = 8;
 
 const Wrapper = styled.div<{
   accentColor: string;
@@ -25,17 +28,22 @@ const Wrapper = styled.div<{
   background: #fff;
   position: absolute;
   width: ${(props) =>
-    props.paddedInput ? `calc(100% - ${PADDING_OFFSET}px)` : "100%"};
+    props.paddedInput
+      ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
+      : "100%"};
   left: 50%;
   transform: translate(-50%, 0);
   overflow: hidden;
   border-radius: 3px;
   height: ${(props) => {
     if (props.allowCellWrapping) {
-      return props.paddedInput ? `calc(100% - ${PADDING_OFFSET}px)` : "100%";
+      return props.paddedInput
+        ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
+        : "100%";
     } else {
       return props.paddedInput
-        ? `${TABLE_SIZES[props.compactMode].ROW_HEIGHT - PADDING_OFFSET}px`
+        ? `${TABLE_SIZES[props.compactMode].ROW_HEIGHT -
+            EDITABLE_CELL_PADDING_OFFSET}px`
         : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
     }
   }};

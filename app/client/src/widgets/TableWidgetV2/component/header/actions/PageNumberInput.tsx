@@ -43,6 +43,8 @@ const PageNumberInputWrapper = styled(NumericInput)<{
   margin: 0 8px;
 `;
 
+const MIN_PAGE_COUNT = 1;
+
 export function PageNumberInput(props: {
   pageNo: number;
   pageCount: number;
@@ -52,31 +54,38 @@ export function PageNumberInput(props: {
   accentColor?: string;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
+
   useEffect(() => {
     setPageNumber(props.pageNo || 0);
   }, [props.pageNo]);
+
   const handleUpdatePageNo = useCallback(
     (e) => {
-      const oldPageNo = Number(props.pageNo || 0);
+      const oldPageNo = props.pageNo || 0;
       let page = Number(e.target.value);
+
       // check page is less then min page count
-      if (isNaN(page) || page < 1) {
-        page = 1;
+      if (isNaN(page) || page < MIN_PAGE_COUNT) {
+        page = MIN_PAGE_COUNT;
       }
+
       // check page is greater then max page count
       if (page > props.pageCount) {
         page = props.pageCount;
       }
+
       // fire Event based on new page number
       if (oldPageNo < page) {
         props.updatePageNo(page, EventType.ON_NEXT_PAGE);
       } else if (oldPageNo > page) {
         props.updatePageNo(page, EventType.ON_PREV_PAGE);
       }
+
       setPageNumber(page);
     },
-    [props.pageNo, props.pageCount],
+    [props.pageNo, props.pageCount, props.updatePageNo],
   );
+
   return (
     <PageNumberInputWrapper
       accentColor={props.accentColor}
