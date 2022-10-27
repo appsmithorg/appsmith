@@ -15,4 +15,6 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
 
+    Mono<User> findByIdAndTenantId(String id, String tenantId);
+
 }

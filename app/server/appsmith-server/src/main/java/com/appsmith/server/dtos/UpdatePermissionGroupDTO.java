@@ -13,7 +13,7 @@ import lombok.NonNull;
 public class UpdatePermissionGroupDTO {
     
     @NonNull
-    private String username;
+    private String id;
 
     private String newPermissionGroupId;
     

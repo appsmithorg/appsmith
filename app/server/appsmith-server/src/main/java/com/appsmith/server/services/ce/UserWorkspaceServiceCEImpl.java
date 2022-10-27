@@ -124,7 +124,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Transactional
     @Override
     public Mono<WorkspaceMemberInfoDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
-        if (changeUserGroupDTO.getUsername() == null) {
+        if (changeUserGroupDTO.getId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }
 
@@ -135,8 +135,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Get the user
         Mono<User> userMono = tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(changeUserGroupDTO.getUsername(), tenantId))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
+                .flatMap(tenantId -> userRepository.findByIdAndTenantId(changeUserGroupDTO.getId(), tenantId))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getId())))
                 .cache();
 
         Mono<PermissionGroup> oldDefaultPermissionGroupMono = Mono.zip(workspaceMono, userMono)

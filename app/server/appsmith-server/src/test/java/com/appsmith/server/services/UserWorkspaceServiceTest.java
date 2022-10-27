@@ -241,7 +241,7 @@ public class UserWorkspaceServiceTest {
         permissionGroupRepository.save(developerPermissionGroup).block();
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
-        updatePermissionGroupDTO.setUsername("api_user");
+        updatePermissionGroupDTO.setId(api_user.getId());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
@@ -281,7 +281,7 @@ public class UserWorkspaceServiceTest {
 
         // Make usertest a developer to simulate the test case scenario
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
-        updatePermissionGroupDTO.setUsername("usertest@usertest.com");
+        updatePermissionGroupDTO.setId(usertest.getId());
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
