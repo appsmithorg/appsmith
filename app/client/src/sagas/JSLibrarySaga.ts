@@ -11,7 +11,6 @@ import {
   call,
   put,
   take,
-  delay,
 } from "redux-saga/effects";
 import TernServer from "utils/autocomplete/TernServer";
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
