@@ -5,7 +5,6 @@ import {
   forgotPasswordSaga,
   resetPasswordSaga,
   verifyResetPasswordTokenSaga,
-  inviteUsers,
   logoutSaga,
   verifyUserInviteSaga,
   invitedUserSignupSaga,
@@ -16,8 +15,77 @@ import {
   fetchFeatureFlags,
   updateFirstTimeUserOnboardingSage,
 } from "ce/sagas/userSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { takeLatest, all } from "redux-saga/effects";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  ReduxActionWithPromise,
+} from "@appsmith/constants/ReduxActionConstants";
+import { takeLatest, all, call, put } from "redux-saga/effects";
+import { ApiResponse } from "api/ApiResponses";
+import {
+  callAPI,
+  getResponseErrorMessage,
+  validateResponse,
+} from "sagas/ErrorSagas";
+import UserApi from "@appsmith/api/UserApi";
+import { reset } from "redux-form";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+
+export function* inviteUsers(
+  action: ReduxActionWithPromise<{
+    data: {
+      usernames: string[];
+      groups: string[];
+      workspaceId: string;
+      permissionGroupId: string;
+    };
+  }>,
+) {
+  const { data, reject, resolve } = action.payload;
+  try {
+    const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
+      usernames: data.usernames,
+      groups: data.groups,
+      permissionGroupId: data.permissionGroupId,
+    });
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (!isValidResponse) {
+      let errorMessage = `${data.usernames}:  `;
+      errorMessage += getResponseErrorMessage(response);
+      yield call(reject, { _error: errorMessage });
+    }
+    yield put({
+      type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
+      payload: {
+        workspaceId: data.workspaceId,
+      },
+    });
+    yield put({
+      type: ReduxActionTypes.INVITED_USERS_TO_WORKSPACE,
+      payload: {
+        workspaceId: data.workspaceId,
+        users: data.usernames.map((name: string) => ({
+          username: name,
+          permissionGroupId: data.permissionGroupId,
+        })),
+        groups: data.groups.map((name: string) => ({
+          username: name,
+          permissionGroupId: data.permissionGroupId,
+        })),
+      },
+    });
+    yield call(resolve);
+    yield put(reset(INVITE_USERS_TO_WORKSPACE_FORM));
+  } catch (error) {
+    yield call(reject, { _error: (error as Error).message });
+    yield put({
+      type: ReduxActionErrorTypes.INVITE_USERS_TO_WORKSPACE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
 
 export default function* userSagas() {
   yield all([

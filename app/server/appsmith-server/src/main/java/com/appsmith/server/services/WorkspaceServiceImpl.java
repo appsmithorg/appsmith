@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -14,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
@@ -45,4 +47,10 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 assetRepository, assetService, applicationRepository, permissionGroupService,
                 policyUtils, modelMapper);
     }
+
+    @Override
+    public Mono<Workspace> retrieveById(String workspaceId) {
+        return repository.retrieveById(workspaceId);
+    }
+
 }

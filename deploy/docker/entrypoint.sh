@@ -50,6 +50,7 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
+
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
 
@@ -94,6 +95,11 @@ unset_unused_variables() {
   if [[ -z "${APPSMITH_OAUTH2_GOOGLE_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET}" ]]; then
     unset APPSMITH_OAUTH2_GOOGLE_CLIENT_ID # If this field is empty is might cause application crash
     unset APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET
+  fi
+
+  if [[ -z "${APPSMITH_OAUTH2_OIDC_CLIENT_ID}" ]] || [[ -z "${APPSMITH_OAUTH2_OIDC_CLIENT_SECRET}" ]]; then
+    unset APPSMITH_OAUTH2_OIDC_CLIENT_ID # If this field is empty is might cause application crash
+    unset APPSMITH_OAUTH2_OIDC_CLIENT_SECRET
   fi
 
   if [[ -z "${APPSMITH_GOOGLE_MAPS_API_KEY}" ]]; then
@@ -188,6 +194,45 @@ use-mongodb-key() {
   chmod 600 /mongodb-key
 }
 
+init_keycloak() {
+  if [[ -z ${KEYCLOAK_ADMIN_USERNAME-} ]]; then
+    export KEYCLOAK_ADMIN_USERNAME=admin
+    echo $'\nKEYCLOAK_ADMIN_USERNAME='"$KEYCLOAK_ADMIN_USERNAME" >> "$stacks_path/configuration/docker.env"
+  fi
+
+  if [[ -z ${KEYCLOAK_ADMIN_PASSWORD-} ]]; then
+    KEYCLOAK_ADMIN_PASSWORD="$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ""
+    )"
+    export KEYCLOAK_ADMIN_USERNAME
+    echo "KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD" >> "$stacks_path/configuration/docker.env"
+  fi
+
+  echo "Initializing keycloak"
+  if ! out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
+    if [[ $out != "User with username 'admin' already added to '/opt/keycloak/standalone/configuration/keycloak-add-user.json'" ]]; then # Ignore failure
+    echo "$out" >&2
+    exit 1
+    fi
+  fi
+  echo "$out"
+
+  # Make keycloak persistent across reboots
+  ln --verbose --force --symbolic --no-target-directory /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data
+
+  # Change proxy config in Keycloak's standalone configuration.
+  cp -v /opt/appsmith/templates/keycloak-standalone.xml /opt/keycloak/standalone/configuration/standalone.xml
+
+	# Following is to remove any duplicate Keycloak credentials added to the `docker.env` file, preserving only the first
+	# (earliest in the file) set. This is needed due to a bug that added duplicate invalid credentials to `docker.env`.
+  out="$(
+  	awk -F= '$1 != "KEYCLOAK_ADMIN_USERNAME" || u != 1 {print} $1 == "KEYCLOAK_ADMIN_USERNAME" {u=1}' /appsmith-stacks/configuration/docker.env \
+  		| awk -F= '$1 != "KEYCLOAK_ADMIN_PASSWORD" || p != 1 {print} $1 == "KEYCLOAK_ADMIN_PASSWORD" {p=1}'
+	)"
+	echo "$out" > /appsmith-stacks/configuration/docker.env
+}
+
 # Keep Let's Encrypt directory persistent
 mount_letsencrypt_directory() {
   echo "Mounting Let's encrypt directory"
@@ -254,6 +299,9 @@ configure_supervisord() {
       cp "$SUPERVISORD_CONF_PATH/cron.conf" /etc/supervisor/conf.d/
     fi
   fi
+
+  # copy keycloak configuration without any conditions.
+  cp "$SUPERVISORD_CONF_PATH/keycloak.conf" /etc/supervisor/conf.d/
 }
 
 # This is a workaround to get Redis working on diffent memory pagesize
@@ -294,6 +342,8 @@ else
   export HOSTNAME="heroku_dyno"
 fi
 
+init_keycloak
+
 check_setup_custom_ca_certificates
 mount_letsencrypt_directory
 
@@ -307,10 +357,10 @@ if ! [[ -e "$CREDENTIAL_PATH" ]]; then
   printf "$APPSMITH_SUPERVISOR_USER:$(openssl passwd -apr1 $APPSMITH_SUPERVISOR_PASSWORD)" > "$CREDENTIAL_PATH"
 fi
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
-mkdir -p /appsmith-stacks/data/{backup,restore}
+mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,keycloak}
 
 # Handle CMD command
 exec "$@"

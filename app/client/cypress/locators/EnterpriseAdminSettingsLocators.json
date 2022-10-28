@@ -1,5 +1,14 @@
 {
   "upgradeSamlButton": ".t--settings-sub-category-upgrade-saml",
   "upgradeOidcButton": ".t--settings-sub-category-upgrade-oidc",
+  "oidcButton": ".t--settings-sub-category-oidc-auth",
+  "samlButton": ".t--settings-sub-category-saml-auth",
+  "loginWithOIDC": "[data-testid='login-with-OIDC']",
+  "loginWithSAML": "[data-testid='login-with-SAML']",
+  "samlUrlTab": "[data-cy='t--tab-METADATA_URL']",
+  "samlXmlTab": "[data-cy='t--tab-XML']",
+  "samlIdpTab": "[data-cy='t--tab-IDP_DATA']",
+  "disconnectBtn": "[data-testid='disconnect-service-button']",
   "hideAppsmithWatermarkSetting": ".admin-settings-group-APPSMITH_HIDE_WATERMARK"
 }
+

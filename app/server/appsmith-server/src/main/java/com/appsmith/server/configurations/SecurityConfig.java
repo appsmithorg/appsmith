@@ -11,14 +11,20 @@ import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.client.oidc.authentication.ReactiveOidcIdTokenDecoderFactory;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoderFactory;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
@@ -38,6 +44,7 @@ import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
+import static com.appsmith.server.constants.Url.PLUGIN_URL;
 import static com.appsmith.server.constants.Url.TENANT_URL;
 import static com.appsmith.server.constants.Url.THEME_URL;
 import static com.appsmith.server.constants.Url.USER_URL;
@@ -77,6 +84,9 @@ public class SecurityConfig {
     @Autowired
     private RedirectHelper redirectHelper;
 
+    @Value("${appsmith.oidc.jwt-signing-algo}")
+    private String oidcJwtSigningAlgorithm;
+
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
      * This is to allow static resources to be served by the server. Couldn't find an easier way to do this,
@@ -102,7 +112,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ApiKeyAuthenticationManager apiKeyAuthenticationManager) {
         return http
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .csrf().disable()
@@ -115,6 +125,9 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .authorizeExchange()
+                // Allow cloud-services to install a remote plugin
+                .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, PLUGIN_URL + "/remote/install"))
+                .access(apiKeyAuthenticationManager)
                 .matchers(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
@@ -173,6 +186,27 @@ public class SecurityConfig {
         resolver.addCookieInitializer((builder) -> builder.sameSite("Lax"));
         return resolver;
     }
+
+    @Bean
+    public ReactiveJwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
+        ReactiveOidcIdTokenDecoderFactory idTokenDecoderFactory = new ReactiveOidcIdTokenDecoderFactory();
+        idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> {
+            String clientName = clientRegistration.getClientName();
+            if (clientName.equals("oidc")) {
+                if (!StringUtils.isEmpty(oidcJwtSigningAlgorithm)) {
+                    SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.from(oidcJwtSigningAlgorithm);
+                    if (signatureAlgorithm != null) {
+                        return signatureAlgorithm;
+                    }
+                }
+            }
+
+            // Default to RS256 for all other client registrations.
+            return SignatureAlgorithm.RS256;
+        });
+        return idTokenDecoderFactory;
+    }
+
 
     private User createAnonymousUser() {
         User user = new User();

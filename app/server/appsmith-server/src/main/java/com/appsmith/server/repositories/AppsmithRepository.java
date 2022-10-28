@@ -22,6 +22,17 @@ public interface AppsmithRepository<T> {
 
     Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
 
+    /**
+     * DO NOT USE THIS FUNCTION UNLESS YOU KNOW WHAT YOU ARE DOING
+     * This is an unsafe function that fetches data without persmissions. This should only be used very sparingly
+     * @param criterias
+     * @param includeFields
+     * @param sort
+     * @param limit
+     * @return
+     */
+    Flux<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields, Sort sort, int limit);
+
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
     Mono<T> setUserPermissionsInObject(T obj);

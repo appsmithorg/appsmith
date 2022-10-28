@@ -34,6 +34,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }
 
+
     @Override
     public Mono<String> getDefaultTenantId() {
 

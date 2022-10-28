@@ -258,7 +258,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const initialRender = useRef(true);
 
   const toolbarConfig =
-    "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
+    "insertfile undo redo | formatselect | bold italic backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' |help";
 
   const handleEditorChange = useCallback(
     (newValue: string, editor: any) => {

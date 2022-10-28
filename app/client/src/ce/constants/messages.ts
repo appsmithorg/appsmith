@@ -1003,6 +1003,7 @@ export const HIDDEN_TOOLTIP = () => "Hidden";
 export const CLONE_TOOLTIP = () => "Clone";
 export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
+
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () =>
@@ -1024,7 +1025,6 @@ export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit Logs";
-export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
 export const INTRODUCING = (featureName: string) =>

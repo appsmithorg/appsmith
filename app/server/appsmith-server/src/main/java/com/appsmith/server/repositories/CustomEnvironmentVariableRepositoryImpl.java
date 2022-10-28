@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class CustomEnvironmentVariableRepositoryImpl extends CustomEnvironmentVariableRepositoryCEImpl
-                                                            implements CustomEnvironmentVariableRepository {
+        implements CustomEnvironmentVariableRepository {
 
     @Autowired
     public CustomEnvironmentVariableRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
