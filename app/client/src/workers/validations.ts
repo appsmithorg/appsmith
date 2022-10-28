@@ -1005,67 +1005,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
   /**
    *
-   * TABLE_PROPERTY can be used in scenarios where we wanted to validate
+   * ARRAY_AND_ANY_PROPERTY can be used in scenarios where we wanted to validate
    * using ValidationTypes.ARRAY or ValidationTypes.* at the same time.
-   * This is needed in case of properties inside Table widget where we use COMPUTE_VALUE
-   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
    *
+   * This is needed in case of properties inside
+   * 1. Table widget where we use COMPUTE_VALUE
+   * 2. Menu button widget where we use MENU_BUTTON_DYNAMIC_ITEMS
+   *
+   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
    */
-  [ValidationTypes.TABLE_PROPERTY]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-    propertyPath: string,
-  ): ValidationResponse => {
-    if (!config.params?.type)
-      return {
-        isValid: false,
-        parsed: undefined,
-        messages: ["Invalid validation"],
-      };
-
-    // Validate when JS mode is disabled
-    const result = VALIDATORS[config.params.type as ValidationTypes](
-      config.params as ValidationConfig,
-      value,
-      props,
-      propertyPath,
-    );
-    if (result.isValid) return result;
-
-    // Validate when JS mode is enabled
-    const resultValue = [];
-    if (_.isArray(value)) {
-      for (const item of value) {
-        const result = VALIDATORS[config.params.type](
-          config.params as ValidationConfig,
-          item,
-          props,
-          propertyPath,
-        );
-        if (!result.isValid) return result;
-        resultValue.push(result.parsed);
-      }
-    } else {
-      return {
-        isValid: false,
-        parsed: config.params?.params?.default,
-        messages: result.messages,
-      };
-    }
-
-    return {
-      isValid: true,
-      parsed: resultValue,
-    };
-  },
-
-  /**
-   * TODO -
-   * We should have a common function for all COMPUTE_VALUE validations
-   * Right now, this code for ValidationTypes.MENU_PROPERTY is same as ValidationTypes.TABLE_PROPERTY
-   */
-  [ValidationTypes.MENU_PROPERTY]: (
+  [ValidationTypes.ARRAY_AND_ANY_PROPERTY]: (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,

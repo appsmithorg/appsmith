@@ -257,7 +257,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
                     },
@@ -273,7 +273,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.BOOLEAN,
                     },
@@ -290,7 +290,7 @@ export default [
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.BOOLEAN,
                     },
@@ -330,7 +330,7 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -360,7 +360,7 @@ export default [
                   isTriggerProperty: false,
                   isJSConvertible: true,
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
                       params: {
@@ -387,7 +387,7 @@ export default [
                   customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
                   dependencies: ["sourceDataKeys"],
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
                       regex: /^(?![<|{{]).+/,
@@ -405,7 +405,7 @@ export default [
                   customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
                   dependencies: ["sourceDataKeys"],
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
                       regex: /^(?![<|{{]).+/,
@@ -423,7 +423,7 @@ export default [
                   customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
                   dependencies: ["sourceDataKeys"],
                   validation: {
-                    type: ValidationTypes.MENU_PROPERTY,
+                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
                     params: {
                       type: ValidationTypes.TEXT,
                       regex: /^(?![<|{{]).+/,

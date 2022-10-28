@@ -159,9 +159,7 @@ export function getExpectedValue(
         example: `https://www.example.com`,
         autocompleteDataType: AutocompleteDataType.STRING,
       };
-    case ValidationTypes.TABLE_PROPERTY:
-      return getExpectedValue(config.params as ValidationConfig);
-    case ValidationTypes.MENU_PROPERTY:
+    case ValidationTypes.ARRAY_AND_ANY_PROPERTY:
       return getExpectedValue(config.params as ValidationConfig);
   }
 }

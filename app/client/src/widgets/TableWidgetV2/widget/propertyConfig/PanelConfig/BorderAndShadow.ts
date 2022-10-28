@@ -26,7 +26,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
         params: {
           type: ValidationTypes.TEXT,
         },
@@ -52,7 +52,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
         params: {
           type: ValidationTypes.TEXT,
         },

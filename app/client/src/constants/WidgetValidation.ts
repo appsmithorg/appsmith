@@ -15,8 +15,7 @@ export enum ValidationTypes {
   IMAGE_URL = "IMAGE_URL",
   FUNCTION = "FUNCTION",
   SAFE_URL = "SAFE_URL",
-  TABLE_PROPERTY = "TABLE_PROPERTY",
-  MENU_PROPERTY = "MENU_PROPERTY",
+  ARRAY_AND_ANY_PROPERTY = "ARRAY_AND_ANY_PROPERTY",
 }
 
 export type ValidationResponse = {

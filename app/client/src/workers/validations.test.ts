@@ -1329,7 +1329,7 @@ describe("Validate Validators", () => {
       ["a", "b", "x", "y"],
     ];
     const config = {
-      type: ValidationTypes.TABLE_PROPERTY,
+      type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
       params: {
         type: ValidationTypes.TEXT,
         params: {
