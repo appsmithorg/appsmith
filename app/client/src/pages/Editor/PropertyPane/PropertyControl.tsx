@@ -125,7 +125,7 @@ const PropertyControl = memo((props: Props) => {
         );
         focusableElement?.scrollIntoView({ block: "center" });
         focusableElement?.focus();
-      }, 200);
+      }, 500);
     }
   }, [shouldFocusPropertyPath]);
   /**
