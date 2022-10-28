@@ -190,5 +190,6 @@
   "textWidgetContainer": ".t--text-widget-container",
   "propertyStyle": "li:contains('STYLE')",
   "propertyContent": "li:contains('CONTENT')",
-  "cancelActionExecution": ".t--cancel-action-button"
+  "cancelActionExecution": ".t--cancel-action-button",
+  "listPaginateNextButton":".t--widget-listwidgetv2 .rc-pagination-next .rc-pagination-item-link"
 }
