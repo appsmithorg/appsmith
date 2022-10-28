@@ -104,6 +104,7 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
 import {
+  hasCreateNewAppPermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -680,10 +681,7 @@ function ApplicationsSection(props: any) {
           PERMISSION_TYPE.MANAGE_WORKSPACE,
         );
         const hasCreateNewApplicationPermission =
-          isPermitted(
-            workspace.userPermissions,
-            PERMISSION_TYPE.CREATE_APPLICATION,
-          ) && !isMobile;
+          hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
         const onClickAddNewButton = (workspaceId: string) => {
           if (
@@ -735,14 +733,14 @@ function ApplicationsSection(props: any) {
                   workspaceId={selectedWorkspaceIdForImportApplication}
                 />
               )}
-              {isPermitted(
-                workspace.userPermissions,
-                PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
-              ) &&
-                !isFetchingApplications && (
-                  <WorkspaceShareUsers>
-                    <SharedUserList workspaceId={workspace.id} />
-                    {!isMobile && (
+              {!isFetchingApplications && (
+                <WorkspaceShareUsers>
+                  <SharedUserList workspaceId={workspace.id} />
+                  {isPermitted(
+                    workspace.userPermissions,
+                    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+                  ) &&
+                    !isMobile && (
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
                         canOutsideClickClose
@@ -761,159 +759,157 @@ function ApplicationsSection(props: any) {
                         workspaceId={workspace.id}
                       />
                     )}
-                    {hasCreateNewApplicationPermission &&
-                      !isFetchingApplications &&
-                      applications.length !== 0 && (
-                        <Button
-                          className="t--new-button createnew"
-                          icon={"plus"}
-                          isLoading={
-                            creatingApplicationMap &&
-                            creatingApplicationMap[workspace.id]
-                          }
-                          onClick={() => onClickAddNewButton(workspace.id)}
-                          size={Size.medium}
-                          tag="button"
-                          text={"New"}
-                        />
-                      )}
-                    {(currentUser || isFetchingApplications) && !isMobile && (
-                      <Menu
-                        autoFocus={false}
-                        className="t--workspace-name"
-                        closeOnItemClick
-                        cypressSelector="t--workspace-name"
-                        disabled={isFetchingApplications}
-                        isOpen={workspace.id === workspaceToOpenMenu}
-                        onClose={() => {
-                          setWorkspaceToOpenMenu(null);
-                        }}
-                        onClosing={() => {
-                          setWarnLeavingWorkspace(false);
-                          setWarnDeleteWorkspace(false);
-                        }}
-                        position={Position.BOTTOM_RIGHT}
-                        target={
-                          <Icon
-                            className="t--options-icon"
-                            name="context-menu"
-                            onClick={() => {
-                              setWorkspaceToOpenMenu(workspace.id);
-                            }}
-                            size={IconSize.XXXL}
-                          />
+                  {hasCreateNewApplicationPermission &&
+                    !isFetchingApplications &&
+                    applications.length !== 0 && (
+                      <Button
+                        className="t--new-button createnew"
+                        icon={"plus"}
+                        isLoading={
+                          creatingApplicationMap &&
+                          creatingApplicationMap[workspace.id]
                         }
-                      >
-                        {hasManageWorkspacePermissions && (
-                          <>
-                            <div className="px-3 py-2">
-                              <WorkspaceRename
-                                cypressSelector="t--workspace-rename-input"
-                                defaultValue={workspace.name}
-                                editInteractionKind={EditInteractionKind.SINGLE}
-                                fill
-                                hideEditIcon={false}
-                                isEditingDefault={false}
-                                isInvalid={(value: string) => {
-                                  return notEmptyValidator(value).message;
-                                }}
-                                onBlur={(value: string) => {
-                                  WorkspaceNameChange(value, workspace.id);
-                                }}
-                                placeholder="Workspace name"
-                                savingState={
-                                  isSavingWorkspaceInfo
-                                    ? SavingState.STARTED
-                                    : SavingState.NOT_STARTED
-                                }
-                                underline
-                              />
-                            </div>
-                            <MenuItem
-                              cypressSelector="t--workspace-setting"
-                              icon="settings-2-line"
-                              onSelect={() =>
-                                getOnSelectAction(
-                                  DropdownOnSelectActions.REDIRECT,
-                                  {
-                                    path: `/workspace/${workspace.id}/settings/general`,
-                                  },
-                                )
-                              }
-                              text="Settings"
-                            />
-                            {enableImportExport && (
-                              <MenuItem
-                                cypressSelector="t--workspace-import-app"
-                                icon="download"
-                                onSelect={() =>
-                                  setSelectedWorkspaceIdForImportApplication(
-                                    workspace.id,
-                                  )
-                                }
-                                text="Import"
-                              />
-                            )}
-                            <MenuItem
-                              icon="share-line"
-                              onSelect={() =>
-                                setSelectedWorkspaceId(workspace.id)
-                              }
-                              text="Share"
-                            />
-                            <MenuItem
-                              icon="member"
-                              onSelect={() =>
-                                getOnSelectAction(
-                                  DropdownOnSelectActions.REDIRECT,
-                                  {
-                                    path: `/workspace/${workspace.id}/settings/members`,
-                                  },
-                                )
-                              }
-                              text="Members"
-                            />
-                          </>
-                        )}
-                        <MenuItem
-                          icon="logout"
-                          onSelect={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            !warnLeavingWorkspace
-                              ? setWarnLeavingWorkspace(true)
-                              : leaveWS(workspace.id);
+                        onClick={() => onClickAddNewButton(workspace.id)}
+                        size={Size.medium}
+                        tag="button"
+                        text={"New"}
+                      />
+                    )}
+                  {(currentUser || isFetchingApplications) && !isMobile && (
+                    <Menu
+                      autoFocus={false}
+                      className="t--workspace-name"
+                      closeOnItemClick
+                      cypressSelector="t--workspace-name"
+                      disabled={isFetchingApplications}
+                      isOpen={workspace.id === workspaceToOpenMenu}
+                      onClose={() => {
+                        setWorkspaceToOpenMenu(null);
+                      }}
+                      onClosing={() => {
+                        setWarnLeavingWorkspace(false);
+                        setWarnDeleteWorkspace(false);
+                      }}
+                      position={Position.BOTTOM_RIGHT}
+                      target={
+                        <Icon
+                          className="t--options-icon"
+                          name="context-menu"
+                          onClick={() => {
+                            setWorkspaceToOpenMenu(workspace.id);
                           }}
-                          text={
-                            !warnLeavingWorkspace
-                              ? "Leave Workspace"
-                              : "Are you sure?"
-                          }
-                          type={!warnLeavingWorkspace ? undefined : "warning"}
+                          size={IconSize.XXXL}
                         />
-                        {applications.length === 0 &&
-                          hasManageWorkspacePermissions && (
-                            <MenuItem
-                              icon="trash"
-                              onSelect={(e: React.MouseEvent) => {
-                                e.stopPropagation();
-                                warnDeleteWorkspace
-                                  ? handleDeleteWorkspace(workspace.id)
-                                  : setWarnDeleteWorkspace(true);
+                      }
+                    >
+                      {hasManageWorkspacePermissions && (
+                        <>
+                          <div className="px-3 py-2">
+                            <WorkspaceRename
+                              cypressSelector="t--workspace-rename-input"
+                              defaultValue={workspace.name}
+                              editInteractionKind={EditInteractionKind.SINGLE}
+                              fill
+                              hideEditIcon={false}
+                              isEditingDefault={false}
+                              isInvalid={(value: string) => {
+                                return notEmptyValidator(value).message;
                               }}
-                              text={
-                                !warnDeleteWorkspace
-                                  ? "Delete Workspace"
-                                  : "Are you sure?"
+                              onBlur={(value: string) => {
+                                WorkspaceNameChange(value, workspace.id);
+                              }}
+                              placeholder="Workspace name"
+                              savingState={
+                                isSavingWorkspaceInfo
+                                  ? SavingState.STARTED
+                                  : SavingState.NOT_STARTED
                               }
-                              type={
-                                !warnDeleteWorkspace ? undefined : "warning"
+                              underline
+                            />
+                          </div>
+                          <MenuItem
+                            cypressSelector="t--workspace-setting"
+                            icon="settings-2-line"
+                            onSelect={() =>
+                              getOnSelectAction(
+                                DropdownOnSelectActions.REDIRECT,
+                                {
+                                  path: `/workspace/${workspace.id}/settings/general`,
+                                },
+                              )
+                            }
+                            text="Settings"
+                          />
+                          {enableImportExport && (
+                            <MenuItem
+                              cypressSelector="t--workspace-import-app"
+                              icon="download"
+                              onSelect={() =>
+                                setSelectedWorkspaceIdForImportApplication(
+                                  workspace.id,
+                                )
                               }
+                              text="Import"
                             />
                           )}
-                      </Menu>
-                    )}
-                  </WorkspaceShareUsers>
-                )}
+                          <MenuItem
+                            icon="share-line"
+                            onSelect={() =>
+                              setSelectedWorkspaceId(workspace.id)
+                            }
+                            text="Share"
+                          />
+                          <MenuItem
+                            icon="member"
+                            onSelect={() =>
+                              getOnSelectAction(
+                                DropdownOnSelectActions.REDIRECT,
+                                {
+                                  path: `/workspace/${workspace.id}/settings/members`,
+                                },
+                              )
+                            }
+                            text="Members"
+                          />
+                        </>
+                      )}
+                      <MenuItem
+                        icon="logout"
+                        onSelect={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          !warnLeavingWorkspace
+                            ? setWarnLeavingWorkspace(true)
+                            : leaveWS(workspace.id);
+                        }}
+                        text={
+                          !warnLeavingWorkspace
+                            ? "Leave Workspace"
+                            : "Are you sure?"
+                        }
+                        type={!warnLeavingWorkspace ? undefined : "warning"}
+                      />
+                      {applications.length === 0 &&
+                        hasManageWorkspacePermissions && (
+                          <MenuItem
+                            icon="trash"
+                            onSelect={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              warnDeleteWorkspace
+                                ? handleDeleteWorkspace(workspace.id)
+                                : setWarnDeleteWorkspace(true);
+                            }}
+                            text={
+                              !warnDeleteWorkspace
+                                ? "Delete Workspace"
+                                : "Are you sure?"
+                            }
+                            type={!warnDeleteWorkspace ? undefined : "warning"}
+                          />
+                        )}
+                    </Menu>
+                  )}
+                </WorkspaceShareUsers>
+              )}
             </WorkspaceDropDown>
             <ApplicationCardsWrapper isMobile={isMobile} key={workspace.id}>
               {applications.map((application: any) => {

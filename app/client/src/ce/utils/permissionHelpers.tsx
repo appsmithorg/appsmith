@@ -5,7 +5,7 @@ export enum PERMISSION_TYPE {
   READ_WORKSPACE = "read:workspaces",
   INVITE_USER_TO_WORKSPACE = "inviteUsers:workspace",
   /* Application permissions */
-  CREATE_APPLICATION = "manage:workspaceApplications",
+  MANAGE_WORKSPACE_APPLICATION = "manage:workspaceApplications",
   MANAGE_APPLICATION = "manage:applications",
   EXPORT_APPLICATION = "export:applications",
   DELETE_WORKSPACE_APPLICATIONS = "delete:workspaceApplications",

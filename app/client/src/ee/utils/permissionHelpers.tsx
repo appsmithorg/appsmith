@@ -11,3 +11,7 @@ export const PERMISSION_TYPE = {
 export const hasDeleteApplicationPermission = (permissions: string[] = []) => {
   return isPermitted(permissions, PERMISSION_TYPE.MANAGE_APPLICATION);
 };
+
+export const hasCreateNewAppPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_WORKSPACE_APPLICATION);
+};
