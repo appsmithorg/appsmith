@@ -234,7 +234,7 @@ export const quickScrollToWidget = (widgetId?: string) => {
     if (el) {
       el.scrollIntoView({ block: "center" });
     }
-  }, 0);
+  }, 200);
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
