@@ -23,7 +23,6 @@ Fixes # (issue)
 
 
 ## How Has This Been Tested?
-
 > Please describe the tests that you ran to verify your changes. Provide instructions, so we can reproduce.
 > Please also list any relevant details for your test configuration.
 > Delete anything that is not important
@@ -39,7 +38,7 @@ Fixes # (issue)
 > Link issues raised during DP testing for better visiblity and tracking
 
 
-## Checklist:
+## Dev checklist:
 
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
@@ -48,3 +47,12 @@ Fixes # (issue)
 - [ ] My changes generate no new warnings
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
+
+
+## QA checklist:
+- [ ] Test plan has been approved by relevant developers
+- [ ] Test plan has been peer reviewed by QA
+- [ ] Cypress test cases have been added and approved by either SDET or manual QA
+- [ ] Organized project war room with relevant stakeholders
+- [ ] Added Test Plan Approved label after reveiwing all Cypress test
+
