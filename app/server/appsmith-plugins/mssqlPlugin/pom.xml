@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
+            <version>5.0.1</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
