@@ -37,11 +37,11 @@ const DisabledContainer = styled.div<{
   }
 `;
 
-const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.lng };
+const DefaultCenter = { ...DEFAULT_CENTER, lng: DEFAULT_CENTER.lng };
 
 type Center = {
   lat: number;
-  long: number;
+  lng: number;
   [x: string]: any;
 };
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
@@ -53,8 +53,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           {
             propertyName: "mapCenter",
             label: "Initial location",
-            helpText:
-              "Default location for the map. Search for a location directly in the field.",
             isJSConvertible: true,
             controlType: "LOCATION_SEARCH",
             isBindProperty: true,
@@ -74,7 +72,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                     },
                   },
                   {
-                    name: "long",
+                    name: "lng",
                     type: ValidationTypes.NUMBER,
                     params: {
                       min: -180,
@@ -93,7 +91,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             inputType: "ARRAY",
             helpText: "Sets the default markers on the map",
-            placeholderText: '[{ "lat": "val1", "long": "val2" }]',
+            placeholderText: '[{ "lat": "val1", "lng": "val2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -115,7 +113,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                         },
                       },
                       {
-                        name: "long",
+                        name: "lng",
                         type: ValidationTypes.NUMBER,
                         params: {
                           min: -180,
@@ -216,8 +214,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           {
             propertyName: "onCreateMarker",
             label: "onCreateMarker",
-            helpText:
-              "When create new marker is enabled, this event triggers upon successful marker creation",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -235,7 +231,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           {
             propertyName: "onMarkerClick",
             label: "onMarkerClick",
-            helpText: "Triggers an action when the user clicks on the marker",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -296,15 +291,15 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return {};
   }
 
-  updateCenter = (lat: number, long: number, title?: string) => {
-    this.props.updateWidgetMetaProperty("center", { lat, long, title });
+  updateCenter = (lat: number, lng: number, title?: string) => {
+    this.props.updateWidgetMetaProperty("center", { lat, lng, title });
   };
 
-  updateMarker = (lat: number, long: number, index: number) => {
+  updateMarker = (lat: number, lng: number, index: number) => {
     const markers: Array<MarkerProps> = [...(this.props.markers || [])].map(
       (marker, i) => {
         if (index === i) {
-          marker = { lat, long };
+          marker = { lat, lng };
         }
         return marker;
       },
@@ -313,9 +308,9 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("markers", markers);
   };
 
-  onCreateMarker = (lat: number, long: number) => {
+  onCreateMarker = (lat: number, lng: number) => {
     this.disableDrag(true);
-    const marker = { lat, long, title: "" };
+    const marker = { lat, lng, title: "" };
 
     const markers = [];
     (this.props.markers || []).forEach((m) => {
@@ -336,11 +331,11 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("selectedMarker", undefined);
   };
 
-  onMarkerClick = (lat: number, long: number, title: string) => {
+  onMarkerClick = (lat: number, lng: number, title: string) => {
     this.disableDrag(true);
     const selectedMarker = {
       lat: lat,
-      long: long,
+      lng: lng,
       title: title,
     };
     this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker, {
@@ -457,18 +452,18 @@ export interface MapWidgetProps extends WidgetProps {
   enablePickLocation: boolean;
   mapCenter: {
     lat: number;
-    long: number;
+    lng: number;
     title?: string;
   };
   center?: {
     lat: number;
-    long: number;
+    lng: number;
   };
   defaultMarkers?: Array<MarkerProps>;
   markers?: Array<MarkerProps>;
   selectedMarker?: {
     lat: number;
-    long: number;
+    lng: number;
     title?: string;
     color?: string;
   };

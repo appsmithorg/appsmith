@@ -1,12 +1,170 @@
-import React, { useEffect, useMemo } from "react";
-import { withGoogleMap, GoogleMap, Marker } from "react-google-maps";
-import SearchBox from "react-google-maps/lib/components/places/SearchBox";
+import React, { useEffect, useRef, useState } from "react";
 import { MarkerProps } from "../constants";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
-import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { Colors } from "constants/Colors";
+import { Wrapper, Status } from "@googlemaps/react-wrapper";
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
+const locations = [
+  { lat: -31.56391, lng: 147.154312 },
+  { lat: -33.718234, lng: 150.363181 },
+  { lat: -33.727111, lng: 150.371124 },
+  { lat: -33.848588, lng: 151.209834 },
+  { lat: -33.851702, lng: 151.216968 },
+  { lat: -34.671264, lng: 150.863657 },
+  { lat: -35.304724, lng: 148.662905 },
+  { lat: -36.817685, lng: 175.699196 },
+  { lat: -36.828611, lng: 175.790222 },
+  { lat: -37.75, lng: 145.116667 },
+  { lat: -37.759859, lng: 145.128708 },
+  { lat: -37.765015, lng: 145.133858 },
+  { lat: -37.770104, lng: 145.143299 },
+  { lat: -37.7737, lng: 145.145187 },
+  { lat: -37.774785, lng: 145.137978 },
+  { lat: -37.819616, lng: 144.968119 },
+  { lat: -38.330766, lng: 144.695692 },
+  { lat: -39.927193, lng: 175.053218 },
+  { lat: -41.330162, lng: 174.865694 },
+  { lat: -42.734358, lng: 147.439506 },
+  { lat: -42.734358, lng: 147.501315 },
+  { lat: -42.735258, lng: 147.438 },
+  { lat: -43.999792, lng: 170.463352 },
+];
+
+const render = (status: any) => {
+  switch (status) {
+    case Status.LOADING:
+      return "Loading...";
+    case Status.FAILURE:
+      return "Error in the component";
+  }
+};
+function Map({
+  center,
+  enableSearch,
+  updateCenter,
+  zoom,
+}: {
+  center: google.maps.LatLngLiteral;
+  zoom: number;
+  updateCenter?: any;
+  enableSearch: boolean;
+}) {
+  const ref = useRef();
+  const searchBoxRef = useRef();
+  const [markerPos, setMarkerPos] = useState<google.maps.LatLng>();
+  useEffect(() => {
+    const map = new window.google.maps.Map(ref?.current, {
+      center: center ?? { lat: 29.7604, lng: 95.3698 },
+      streetViewControl: false,
+      mapTypeControl: false,
+      fullscreenControl: false,
+      zoom,
+    });
+
+    // clustering functionality:
+    const infoWindow = new google.maps.InfoWindow({
+      content: "",
+      disableAutoPan: true,
+    });
+    // Create an array of alphabetical characters used to label the markers.
+    const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    // Add some markers to the map.
+    const markers = locations.map((position, i) => {
+      const label = labels[i % labels.length];
+      const marker = new google.maps.Marker({
+        position,
+        label,
+      });
+
+      // markers can only be keyboard focusable when they have click listeners
+      // open info window when marker is clicked
+      marker.addListener("click", () => {
+        infoWindow.setContent(label);
+        infoWindow.open(map, marker);
+      });
+
+      return marker;
+    });
+    new MarkerClusterer({ markers, map });
+
+    // Add search box functionality:
+    const searchBox = new google.maps.places.SearchBox(searchBoxRef.current);
+    searchBox.addListener("places_changed", () => {
+      const places = searchBox.getPlaces();
+      const location = places[0].geometry.location;
+      if (location) {
+        const lat = location.lat();
+        const lng = location.lng();
+        updateCenter(lat, lng);
+        setMarkerPos({ lat, lng });
+      }
+    });
+    google.maps.event.clearListeners(map, "click");
+    map.addListener("click", (e: google.maps.MapMouseEvent) => {
+      setMarkerPos(e.latLng);
+    });
+
+    new window.google.maps.Marker({
+      position: markerPos ?? center,
+      map: map,
+    });
+    // google.maps.event.clearListeners(marker, "click");
+    // marker.addListener("click", () => {
+    // });
+  }, [center, markerPos, zoom]);
+
+  return (
+    <>
+      <div id="map" ref={ref} />
+      {enableSearch && (
+        <StyledInput
+          placeholder="Enter location to search"
+          ref={searchBoxRef}
+          type="text"
+        />
+      )}
+    </>
+  );
+}
+const WrapperComp = ({
+  apiKey,
+  center,
+  enablePickLocation,
+  enableSearch,
+  updateCenter,
+  zoomLevel,
+}: {
+  center?: {
+    lat: number;
+    lng: number;
+  };
+  updateCenter: (lat: number, lng: number) => void;
+  zoomLevel: number;
+  apiKey: string;
+  enablePickLocation: boolean;
+  enableSearch: boolean;
+}) => (
+  <Wrapper
+    apiKey={apiKey}
+    libraries={["geometry", "drawing", "places"]}
+    render={render}
+  >
+    <Map
+      center={center}
+      enableSearch={enableSearch}
+      updateCenter={updateCenter}
+      zoom={zoomLevel}
+    />
+    {enablePickLocation && (
+      <PickMyLocationWrapper allowZoom title="Pick My Location">
+        <PickMyLocation updateCenter={updateCenter} />
+      </PickMyLocationWrapper>
+    )}
+  </Wrapper>
+);
 interface MapComponentProps {
   apiKey: string;
   widgetId: string;
@@ -18,53 +176,52 @@ interface MapComponentProps {
   allowZoom: boolean;
   center: {
     lat: number;
-    long: number;
+    lng: number;
   };
   markers?: Array<MarkerProps>;
   selectedMarker?: {
     lat: number;
-    long: number;
+    lng: number;
     title?: string;
   };
   enableCreateMarker: boolean;
   clickedMarkerCentered?: boolean;
-  updateCenter: (lat: number, long: number) => void;
-  updateMarker: (lat: number, long: number, index: number) => void;
-  saveMarker: (lat: number, long: number) => void;
-  selectMarker: (lat: number, long: number, title: string) => void;
+  updateCenter: (lat: number, lng: number) => void;
+  updateMarker: (lat: number, lng: number, index: number) => void;
+  saveMarker: (lat: number, lng: number) => void;
+  selectMarker: (lat: number, lng: number, title: string) => void;
   enableDrag: (e: any) => void;
   unselectMarker: () => void;
   borderRadius: string;
   boxShadow?: string;
 }
-
-const MapContainerWrapper = styled.div`
-  width: 100%;
-  height: 100%;
-`;
-
-const MapWrapper = styled.div<{
-  borderRadius: string;
-  boxShadow?: string;
-}>`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: ${({ borderRadius }) => borderRadius};
-  border: ${({ boxShadow }) =>
-    boxShadow === "none" ? `1px solid` : `0px solid`};
-  border-color: ${Colors.GREY_3};
-  overflow: hidden;
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-
-  ${({ borderRadius }) =>
-    borderRadius >= "1.5rem"
-      ? `& div.gmnoprint:not([data-control-width]) {
-    margin-right: 10px !important;`
-      : ""}
-`;
-
+// const MapContainerWrapper = styled.div`
+//   width: 100%;
+//   height: 100%;
+// `;
+// const MapWrapper = styled.div<{
+//   borderRadius: string;
+//   boxShadow?: string;
+// }>`
+//   position: relative;
+//   width: 100%;
+//   height: 100%;
+//   border-radius: ${({ borderRadius }) => borderRadius};
+//   border: ${({ boxShadow }) =>
+//     boxShadow === "none" ? `1px solid` : `0px solid`};
+//   border-color: ${Colors.GREY_3};
+//   overflow: hidden;
+//   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
+//   ${({ borderRadius }) =>
+//     borderRadius >= "1.5rem"
+//       ? `& div.gmnoprint:not([data-control-width]) {
+//     margin-right: 10px !important;`
+//       : ""}
+// `;
 const StyledInput = styled.input`
+  position: absolute;
+  top: 0%;
+  left: 34%;
   box-sizing: border-box;
   border: 1px solid transparent;
   width: 240px;
@@ -80,158 +237,23 @@ const StyledInput = styled.input`
 type PickMyLocationProps = {
   allowZoom: boolean;
 };
-
 const PickMyLocationWrapper = styled.div<PickMyLocationProps>`
   position: absolute;
   bottom: ${(props) => (props.allowZoom ? 110 : 20)}px;
   right: -90px;
-  width: 140px;
+  width: 140px !important;
+  height: 40px !important;
 `;
-
-const MyMapComponent = withGoogleMap((props: any) => {
-  const [mapCenter, setMapCenter] = React.useState<
-    | {
-        lat: number;
-        lng: number;
-        title?: string;
-        description?: string;
-      }
-    | undefined
-  >({
-    ...props.center,
-    lng: props.center.long,
-  });
-  const searchBox = React.createRef<SearchBox>();
-  const onPlacesChanged = () => {
-    const node: any = searchBox.current;
-    if (node) {
-      const places: any = node.getPlaces();
-      if (
-        places &&
-        places.length &&
-        places[0].geometry &&
-        places[0].geometry.location
-      ) {
-        const location = places[0].geometry.location;
-        const lat = location.lat();
-        const long = location.lng();
-        setMapCenter({ lat, lng: long });
-        props.updateCenter(lat, long, places[0].formatted_address);
-        props.unselectMarker();
-      }
-    }
-  };
-  useEffect(() => {
-    if (!props.selectedMarker) {
-      setMapCenter({
-        ...props.center,
-        lng: props.center.long,
-      });
-    }
-  }, [props.center, props.selectedMarker]);
-  return (
-    <GoogleMap
-      center={mapCenter}
-      onClick={(e) => {
-        if (props.enableCreateMarker) {
-          props.saveMarker(e.latLng.lat(), e.latLng.lng());
-        }
-      }}
-      options={{
-        zoomControl: props.allowZoom,
-        fullscreenControl: false,
-        mapTypeControl: false,
-        scrollwheel: false,
-        rotateControl: false,
-        streetViewControl: false,
-      }}
-      zoom={props.zoom}
-    >
-      {props.enableSearch && (
-        <SearchBox
-          controlPosition={2}
-          onPlacesChanged={onPlacesChanged}
-          ref={searchBox}
-        >
-          <StyledInput placeholder="Enter location to search" type="text" />
-        </SearchBox>
-      )}
-      {Array.isArray(props.markers) &&
-        props.markers.map((marker: MarkerProps, index: number) => (
-          <Marker
-            clickable
-            draggable={
-              props.selectedMarker &&
-              props.selectedMarker.lat === marker.lat &&
-              props.selectedMarker.long === marker.long
-            }
-            icon={{
-              path:
-                "M12 23.728L5.636 17.364C4.37734 16.1054 3.52019 14.5017 3.17293 12.7559C2.82567 11.0101 3.00391 9.20047 3.6851 7.55595C4.36629 5.91142 5.51984 4.50582 6.99988 3.51689C8.47992 2.52796 10.22 2.00012 12 2.00012C13.78 2.00012 15.5201 2.52796 17.0001 3.51689C18.4802 4.50582 19.6337 5.91142 20.3149 7.55595C20.9961 9.20047 21.1743 11.0101 20.8271 12.7559C20.4798 14.5017 19.6227 16.1054 18.364 17.364L12 23.728ZM10.5858 12.4143C10.9609 12.7893 11.4696 13 12 13C12.5304 13 13.0391 12.7893 13.4142 12.4143C13.7893 12.0392 14 11.5305 14 11C14 10.4696 13.7893 9.9609 13.4142 9.58583C13.0391 9.21076 12.5304 9.00004 12 9.00004C11.4696 9.00004 10.9609 9.21076 10.5858 9.58583C10.2107 9.9609 10 10.4696 10 11C10 11.5305 10.2107 12.0392 10.5858 12.4143Z",
-              fillColor: marker.color || "#ea4335",
-              fillOpacity: 1,
-              strokeWeight: 0,
-              scale: 1,
-              anchor: new google.maps.Point(12, 24),
-            }}
-            key={index}
-            onClick={() => {
-              if (props.clickedMarkerCentered) {
-                setMapCenter({
-                  ...marker,
-                  lng: marker.long,
-                });
-              }
-
-              props.selectMarker(marker.lat, marker.long, marker.title);
-            }}
-            onDragEnd={(de) => {
-              props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
-            }}
-            position={{ lat: Number(marker.lat), lng: Number(marker.long) }}
-            title={marker.title}
-          />
-        ))}
-      {props.enablePickLocation && (
-        <PickMyLocationWrapper
-          allowZoom={props.allowZoom}
-          title="Pick My Location"
-        >
-          <PickMyLocation updateCenter={props.updateCenter} />
-        </PickMyLocationWrapper>
-      )}
-    </GoogleMap>
-  );
-});
-
 function MapComponent(props: MapComponentProps) {
-  const zoom = Math.floor(props.zoomLevel / 5);
-  const status = useScript(
-    `https://maps.googleapis.com/maps/api/js?key=${props.apiKey}&v=3.exp&libraries=geometry,drawing,places`,
-    AddScriptTo.HEAD,
-  );
-  const MapContainerWrapperMemoized = useMemo(() => <MapContainerWrapper />, [
-    props.borderRadius,
-    props.boxShadow,
-  ]);
-
   return (
-    <MapWrapper
-      borderRadius={props.borderRadius}
-      boxShadow={props.boxShadow}
-      onMouseLeave={props.enableDrag}
-    >
-      {status === ScriptStatus.READY && (
-        <MyMapComponent
-          containerElement={MapContainerWrapperMemoized}
-          loadingElement={MapContainerWrapperMemoized}
-          mapElement={MapContainerWrapperMemoized}
-          {...props}
-          zoom={zoom}
-        />
-      )}
-    </MapWrapper>
+    <WrapperComp
+      apiKey={props.apiKey}
+      center={props.center}
+      enablePickLocation={props.enablePickLocation}
+      enableSearch={props.enableSearch}
+      updateCenter={props.updateCenter}
+      zoomLevel={Math.floor(props.zoomLevel / 5)}
+    />
   );
 }
-
 export default MapComponent;
