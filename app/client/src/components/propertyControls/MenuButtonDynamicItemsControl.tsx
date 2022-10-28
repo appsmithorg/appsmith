@@ -24,7 +24,7 @@ const PromptMessage = styled.span`
 `;
 const CurlyBraces = styled.span`
   color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  background-color: #575757;
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
