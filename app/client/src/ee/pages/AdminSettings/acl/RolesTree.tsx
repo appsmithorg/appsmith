@@ -211,6 +211,7 @@ const IconTypes: any = {
 function Table({
   columns,
   data,
+  filteredData,
   isLoading,
   loaderComponent,
   noDataComponent,
@@ -220,6 +221,7 @@ function Table({
 }: {
   columns: any;
   data: any;
+  filteredData: any;
   isLoading?: boolean;
   loaderComponent?: JSX.Element;
   noDataComponent?: JSX.Element;
@@ -257,6 +259,14 @@ function Table({
     }
   }, [flatRows, searchValue]);
 
+  const getRowVisibility = (row: any): string => {
+    let shouldHide = true;
+    if (JSON.stringify(filteredData).indexOf(row.original.id) > -1) {
+      shouldHide = false;
+    }
+    return shouldHide ? "hidden" : "shown";
+  };
+
   return (
     <StyledTable {...getTableProps()} data-testid="t--role-table">
       <thead className="table-header">
@@ -287,7 +297,11 @@ function Table({
           rows.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()} key={row.id}>
+              <tr
+                {...row.getRowProps()}
+                className={searchValue ? getRowVisibility(row) : "shown"}
+                key={row.id}
+              >
                 {row.cells.map((cell, index) => {
                   return (
                     <td {...cell.getCellProps()} key={index}>
@@ -375,6 +389,35 @@ export function traverseSubRows(subrows: any[], map: any): any {
   });
 }
 
+export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
+  const replaceDataIndex = dataToBeSent.findIndex((a: any) => a.id === row.id);
+  if (replaceDataIndex > -1) {
+    dataToBeSent[replaceDataIndex] = {
+      id: row.id,
+      permissions:
+        mapPIndex !== -1
+          ? row?.permissions?.map((r: number, rI: number) => {
+              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+            })
+          : row?.permissions,
+      type: row.type,
+      name: row.name,
+    };
+  } else {
+    dataToBeSent.push({
+      id: row.id,
+      permissions:
+        mapPIndex !== -1
+          ? row?.permissions?.map((r: number, rI: number) => {
+              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+            })
+          : row?.permissions,
+      type: row.type,
+      name: row.name,
+    });
+  }
+}
+
 export function updateSubRows(
   map: any,
   rows: any[],
@@ -384,24 +427,7 @@ export function updateSubRows(
   const returnData = rows.map((subRow: any) => {
     if (map.id === subRow.id) {
       if (subRow.type !== "Header") {
-        const replaceDataIndex = dataToBeSent.findIndex(
-          (a: any) => a.id === subRow.id,
-        );
-        if (replaceDataIndex > -1) {
-          dataToBeSent[replaceDataIndex] = {
-            ...subRow,
-            permissions: subRow?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
-            }),
-          };
-        } else {
-          dataToBeSent.push({
-            ...subRow,
-            permissions: subRow?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
-            }),
-          });
-        }
+        updateDataToBeSent(subRow, mapPIndex, value);
       }
       return {
         ...subRow,
@@ -415,12 +441,7 @@ export function updateSubRows(
         !dataToBeSent.some((a) => a.id === subRow.id) &&
         subRow.type !== "Header"
       ) {
-        dataToBeSent.push({
-          ...subRow,
-          permissions: subRow?.permissions?.map((r: number, rI: number) => {
-            return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
-          }),
-        });
+        updateDataToBeSent(subRow, mapPIndex, value);
       }
       return subRow.subRows
         ? {
@@ -466,12 +487,7 @@ export function updateCheckbox(
     };
   }
   if (updatedRow.type !== "Header") {
-    dataToBeSent.push({
-      id: updatedRow.id,
-      permissions: updatedRow.permissions,
-      type: updatedRow.type,
-      name: updatedRow.name,
-    });
+    updateDataToBeSent(updatedRow, -1, value);
   }
   return updatedRow;
 }
@@ -547,7 +563,7 @@ export default function RolesTree(props: RoleTreeProps) {
     } else {
       setFilteredData([]);
     }
-  }, [searchValue, isSaving]);
+  }, [searchValue]);
 
   useEffect(() => {
     if (JSON.stringify(data) === JSON.stringify(dataFromProps)) {
@@ -611,7 +627,7 @@ export default function RolesTree(props: RoleTreeProps) {
           updateMyData,
           value,
         } = cellProps;
-        const row = cellProps.cell.row.original;
+        const rowData = cellProps.cell.row.original;
         const [isChecked, setIsChecked] = React.useState(
           value === 1 ? true : false,
         );
@@ -652,20 +668,20 @@ export default function RolesTree(props: RoleTreeProps) {
           updateMyData(e, cellId, rowId);
         };
 
-        return row.permissions && row.permissions[i] !== -1 ? (
+        return rowData.permissions && rowData.permissions[i] !== -1 ? (
           <CheckboxWrapper
-            data-cellid={`${row.id}_${column}`}
+            data-cellid={`${rowData.id}_${column}`}
             data-rowid={parseInt(rowId.split(".")[0])}
-            data-testid={`${row.id}_${column}`}
+            data-testid={`${rowData.id}_${column}`}
             onMouseOut={() =>
               removeHoverClass(
-                `${row.id}_${column}`,
+                `${rowData.id}_${column}`,
                 parseInt(rowId.split(".")[0]),
               )
             }
             onMouseOver={() =>
               addHoverClass(
-                `${row.id}_${column}`,
+                `${rowData.id}_${column}`,
                 parseInt(rowId.split(".")[0]),
               )
             }
@@ -674,14 +690,14 @@ export default function RolesTree(props: RoleTreeProps) {
               className="design-system-checkbox"
               isDefaultChecked={isChecked}
               onCheckChange={(value: boolean) =>
-                onChangeHandler(value, `${row.id}_${column}`)
+                onChangeHandler(value, `${rowData.id}_${column}`)
               }
-              value={`${row.id}_${column}`}
+              value={`${rowData.id}_${column}`}
             />
           </CheckboxWrapper>
         ) : (
           <CheckboxWrapper
-            data-cellid={`${row.id}_${column}`}
+            data-cellid={`${rowData.id}_${column}`}
             data-rowid={parseInt(rowId.split(".")[0])}
           >
             &nbsp;
@@ -721,7 +737,8 @@ export default function RolesTree(props: RoleTreeProps) {
       <TableWrapper isSaving={isSaving}>
         <Table
           columns={columns}
-          data={searchValue !== "" ? filteredData : data}
+          data={data}
+          filteredData={filteredData}
           searchValue={props.searchValue}
           updateMyData={updateMyData}
           updateTabCount={props.updateTabCount}
