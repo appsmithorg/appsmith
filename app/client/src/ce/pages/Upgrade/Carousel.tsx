@@ -4,13 +4,14 @@ import { Icon, IconSize, Text, TextType } from "design-system";
 import { CarouselProps } from "./types";
 
 const CarouselContainer = styled.div`
-  flex-grow: 1;
+  display: flex;
+  flex: 1 1;
   gap: 64px;
   margin-bottom: 86px;
-  display: flex;
   justify-content: center;
   align-items: center;
-  height: 542px;
+  max-height: 542px;
+  border: thin red solid;
 
   & .carousel-triggers {
     display: flex;

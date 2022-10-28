@@ -8,6 +8,8 @@ import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system";
 import { createMessage } from "design-system/build/constants/messages";
 import { USAGE_AND_BILLING } from "../../constants/messages";
+import { useSelector } from "react-redux";
+import { selectFeatureFlags } from "../../../selectors/usersSelectors";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -123,6 +125,7 @@ export function Categories({
 }
 
 export default function LeftPane() {
+  const features = useSelector(selectFeatureFlags);
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
   return (
@@ -152,18 +155,20 @@ export default function LeftPane() {
               <div>Audit logs</div>
             </StyledLink>
           </CategoryItem>
-          <CategoryItem>
-            <StyledLink
-              $active={category === "usage"}
-              data-testid="t--enterprise-settings-category-item-usage"
-              to="/settings/usage"
-            >
-              <div>
-                <Icon name="lock-2-line" size={IconSize.XL} />
-              </div>
-              <div>{createMessage(USAGE_AND_BILLING.usage)}</div>
-            </StyledLink>
-          </CategoryItem>
+          {features.USAGE && (
+            <CategoryItem>
+              <StyledLink
+                $active={category === "usage"}
+                data-testid="t--enterprise-settings-category-item-usage"
+                to="/settings/usage"
+              >
+                <div>
+                  <Icon name="lock-2-line" size={IconSize.XL} />
+                </div>
+                <div>{createMessage(USAGE_AND_BILLING.usage)}</div>
+              </StyledLink>
+            </CategoryItem>
+          )}
         </CategoryList>
       </>
     </Wrapper>

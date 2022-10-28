@@ -11,7 +11,7 @@ export const ExternalContainer = styled.div`
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 50px);
-  max-height: 100vh;
+  //max-height: 100vh;
   border-left: thin solid var(--appsmith-color-black-50);
   background-color: var(--ads-color-black-50);
 `;
@@ -19,7 +19,7 @@ export const ExternalContainer = styled.div`
 export const InternalContainer = styled.div`
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  flex: 1 1;
   gap: 32px;
   justify-content: center;
   align-items: center;

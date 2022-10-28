@@ -10,7 +10,6 @@ export const HeaderContainer = styled.div`
   gap: 4px;
   align-items: center;
   width: 496px;
-
   text-align: center;
 
   & .header-heading-container {
