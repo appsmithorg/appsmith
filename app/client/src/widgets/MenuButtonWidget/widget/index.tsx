@@ -3,7 +3,7 @@ import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import MenuButtonComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
-import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
+import { MenuButtonWidgetProps } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 
