@@ -36,7 +36,6 @@ public interface Url {
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
 
 
-    String ENVIRONMENT_URL = BASE_URL + VERSION + "/environments";
 
     // EE specific endpoints.
     String AUDIT_LOGS_URL = BASE_URL + VERSION + "/audit-logs";

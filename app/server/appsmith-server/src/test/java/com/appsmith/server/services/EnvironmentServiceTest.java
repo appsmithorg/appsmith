@@ -57,8 +57,10 @@ public class EnvironmentServiceTest {
     @BeforeEach
     public void setup() {
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
-        workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
-                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!"))).block();
+        workspace = userMono
+                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
 
         Mockito.when(workspaceService.findById(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(workspace));
@@ -78,7 +80,8 @@ public class EnvironmentServiceTest {
                 .assertNext(envDTO -> {
                     assert (envDTO instanceof EnvironmentDTO);
                     assert (envDTO.getName().equals(environmentName));
-                }).verifyComplete();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -93,7 +96,8 @@ public class EnvironmentServiceTest {
                 .assertNext(environmentDTO1 -> {
                     assert (environmentDTO1 instanceof EnvironmentDTO);
                     assert (environmentDTO1.getName().equals(environmentName));
-                }).verifyComplete();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -124,7 +128,8 @@ public class EnvironmentServiceTest {
                         assert (envVar != null);
                         assert (envVar instanceof EnvironmentVariable);
                     }
-                }).verifyComplete();
+                })
+                .verifyComplete();
     }
 
 }
