@@ -100,7 +100,6 @@ public class PolicyGeneratorCE {
         createCommentPolicyGraph();
         createThemePolicyGraph();
         createPermissionGroupPolicyGraph();
-        createEnvironmentPolicyGraph();
     }
 
     protected void createInstancePolicyGraph() {
@@ -194,20 +193,6 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(AclPermission.ASSIGN_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);
     }
 
-    protected void createEnvironmentPolicyGraph() {
-        hierarchyGraph.addEdge(MANAGE_WORKSPACES, AclPermission.MANAGE_ENVIRONMENTS);
-        hierarchyGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
-
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.READ_ENVIRONMENTS);
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.CREATE_ENVIRONMENTS);
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
-        lateralGraph.addEdge(AclPermission.READ_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
-
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENT_VARIABLES, AclPermission.READ_ENVIRONMENT_VARIABLES);
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENT_VARIABLES, AclPermission.CREATE_ENVIRONMENT_VARIABLES);
-        lateralGraph.addEdge(AclPermission.CREATE_ENVIRONMENT_VARIABLES, AclPermission.READ_ENVIRONMENT_VARIABLES );
-
-    }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> permissionGroups, Class<? extends BaseDomain> destinationEntity) {
         Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);

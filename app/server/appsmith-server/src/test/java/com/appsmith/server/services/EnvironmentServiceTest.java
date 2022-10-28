@@ -51,14 +51,13 @@ public class EnvironmentServiceTest {
 
 
     private Workspace workspace;
-    private static final String environmentName = "Staging";
+    private static final String environmentName = "Staging-Test";
     private Mono<EnvironmentDTO> responseEnvironmentDTOMono;
 
     @BeforeEach
     public void setup() {
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
-        workspace = userMono
-                .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+        workspace = userMono.flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                 .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!"))).block();
 
         Mockito.when(workspaceService.findById(Mockito.any(), Mockito.any()))
@@ -75,10 +74,11 @@ public class EnvironmentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createEnvironment() {
-        StepVerifier.create(responseEnvironmentDTOMono).assertNext(envDTO -> {
-            assert (envDTO instanceof EnvironmentDTO);
-            assert (envDTO.getName().equals(environmentName));
-        }).verifyComplete();
+        StepVerifier.create(responseEnvironmentDTOMono)
+                .assertNext(envDTO -> {
+                    assert (envDTO instanceof EnvironmentDTO);
+                    assert (envDTO.getName().equals(environmentName));
+                }).verifyComplete();
     }
 
     @Test
@@ -86,14 +86,14 @@ public class EnvironmentServiceTest {
     public void getEnvironmentDTO() {
 
         EnvironmentDTO responseEnvironmentDTO = responseEnvironmentDTOMono.block();
-        Mono<EnvironmentDTO> environmentDTOMono = environmentService.findEnvironmentByEnvironmentId(responseEnvironmentDTO.getId());
+        Mono<EnvironmentDTO> environmentDTOMono = environmentService
+                .findEnvironmentByEnvironmentId(responseEnvironmentDTO.getId());
 
         StepVerifier.create(environmentDTOMono)
                 .assertNext(environmentDTO1 -> {
                     assert (environmentDTO1 instanceof EnvironmentDTO);
                     assert (environmentDTO1.getName().equals(environmentName));
-                })
-                .verifyComplete();
+                }).verifyComplete();
     }
 
     @Test
@@ -111,21 +111,20 @@ public class EnvironmentServiceTest {
 
         environmentDTO.setEnvironmentVariableList(List.of(envVar1, envVar2));
 
-        Mono<List<EnvironmentDTO>> environmentDTOListMono = environmentService.updateEnvironment(List.of(environmentDTO))
-                .collectList();
+        Mono<List<EnvironmentDTO>> environmentDTOListMono = environmentService
+                .updateEnvironment(List.of(environmentDTO)).collectList();
 
         StepVerifier.create(environmentDTOListMono)
                 .assertNext(environmentDTOList -> {
-                    assert(environmentDTOList != null);
-                    assert(environmentDTOList.size() == 1);
-                    assert(environmentDTOList.get(0).getEnvironmentVariableList() != null);
-                    assert(environmentDTOList.get(0).getEnvironmentVariableList().size() == 2);
-                    for(EnvironmentVariable envVar: environmentDTOList.get(0).getEnvironmentVariableList()) {
-                        assert(envVar != null);
-                        assert(envVar instanceof  EnvironmentVariable);
+                    assert (environmentDTOList != null);
+                    assert (environmentDTOList.size() == 1);
+                    assert (environmentDTOList.get(0).getEnvironmentVariableList() != null);
+                    assert (environmentDTOList.get(0).getEnvironmentVariableList().size() == 2);
+                    for (EnvironmentVariable envVar : environmentDTOList.get(0).getEnvironmentVariableList()) {
+                        assert (envVar != null);
+                        assert (envVar instanceof EnvironmentVariable);
                     }
-                })
-                .verifyComplete();
+                }).verifyComplete();
     }
 
 }

@@ -5,6 +5,8 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.EnvironmentControllerCE;
 import com.appsmith.server.dtos.EnvironmentDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -47,7 +49,7 @@ public class EnvironmentController extends EnvironmentControllerCE {
                     if (truth) {
                         return environmentService.findEnvironmentByEnvironmentId(envId);
                     }
-                    return Mono.empty();
+                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                 })
                 .map(environmentDTO -> {
                     return new ResponseDTO<>(HttpStatus.OK.value(), environmentDTO, null);
@@ -65,7 +67,7 @@ public class EnvironmentController extends EnvironmentControllerCE {
                         return environmentService.findEnvironmentByWorkspaceId(workspaceId)
                                 .collectList();
                     }
-                    return Mono.empty();
+                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                 })
                 .map(environmentDTOList -> {
                     return new ResponseDTO<>(HttpStatus.OK.value(), environmentDTOList, null);
@@ -73,7 +75,7 @@ public class EnvironmentController extends EnvironmentControllerCE {
     }
 
     @PostMapping("/update")
-    public Mono<ResponseDTO<List<EnvironmentDTO>>> saveEnvrionmentChanges(@RequestBody @Valid List<EnvironmentDTO> environmentDTOList) {
+    public Mono<ResponseDTO<List<EnvironmentDTO>>> saveEnvironmentChanges(@RequestBody @Valid List<EnvironmentDTO> environmentDTOList) {
 
         return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
                 .flatMap(truth -> {
@@ -81,23 +83,10 @@ public class EnvironmentController extends EnvironmentControllerCE {
                         return environmentService.updateEnvironment(environmentDTOList)
                                 .collectList();
                     }
-                    return Mono.empty();
+                    return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                 })
                 .map(environmentDTOList1 -> {
                     return new ResponseDTO<>(HttpStatus.OK.value(), environmentDTOList1, null);
                 });
     }
-
-    @PostMapping("/create")
-    public Mono<ResponseDTO<EnvironmentDTO>> createEnvironment(@RequestBody @Valid EnvironmentDTO environmentDTO) {
-        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
-                .flatMap(truth -> {
-                    if (truth) {
-                        return environmentService.createNewEnvironment(environmentDTO);
-                    }
-                    return Mono.empty();
-                })
-                .map(environmentDTO1 -> new ResponseDTO<>(HttpStatus.CREATED.value(), environmentDTO1, null));
-    }
-
 }
