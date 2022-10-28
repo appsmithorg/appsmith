@@ -57,7 +57,7 @@ jobs:
           PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
           -U aforce_admin -d perf-infra -c \
           "INSERT INTO public.run_meta (gh_run_id, gh_run_attempt, pull_request_id, is_active) 
-          VALUES ('${{env.GITHUB_RUN_ID}}', '${{env.GITHUB_RUN_ATTEMPT}}', '${{ inputs.pr }}', FALSE)"
+          VALUES ('${{github.run_id}}', '${{github.run_attempt}}', '${{ inputs.pr }}', FALSE)"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
