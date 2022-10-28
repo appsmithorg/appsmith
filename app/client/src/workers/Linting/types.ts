@@ -21,3 +21,9 @@ export type LintWorkerRequest = WorkerRequest<
   LintTreeRequest,
   LINT_WORKER_ACTIONS
 >;
+
+export type LintTreeSagaRequestData = {
+  pathsToLint: string[];
+  jsUpdates: Record<string, JSUpdate>;
+  unevalTree: DataTree;
+};

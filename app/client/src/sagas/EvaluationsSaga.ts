@@ -682,11 +682,12 @@ function getPostEvalActions(
 }
 
 function* evaluationChangeListenerSaga() {
-  // Explicitly shutdown old worker if present
-  yield call(evalWorker.shutdown);
-  const { mainThreadRequestChannel } = yield call(evalWorker.start);
-  yield call(lintWorker.shutdown);
-  yield call(lintWorker.start);
+  // Explicitly shutdown all old workers if present
+  yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
+  const [{ mainThreadRequestChannel }] = yield all([
+    call(evalWorker.start),
+    call(lintWorker.start),
+  ]);
 
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP);
   yield spawn(executeDynamicTriggerRequest, mainThreadRequestChannel);

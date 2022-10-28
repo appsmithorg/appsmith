@@ -1,14 +1,13 @@
 import { setLintingErrors } from "actions/lintingActions";
 import { APP_MODE } from "entities/App";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { call, put, select } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
-import { JSUpdate } from "utils/JSPaneUtils";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
 import {
   LintTreeRequest,
   LintTreeResponse,
+  LintTreeSagaRequestData,
   LINT_WORKER_ACTIONS,
 } from "workers/Linting/types";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
@@ -24,14 +23,11 @@ export function* lintTreeSaga({
   jsUpdates,
   pathsToLint,
   unevalTree,
-}: {
-  pathsToLint: string[];
-  jsUpdates: Record<string, JSUpdate>;
-  unevalTree: DataTree;
-}) {
+}: LintTreeSagaRequestData) {
   // only perform lint operations in edit mode
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
+
   const updatedUnevalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
     jsUpdates,
     unevalTree,
