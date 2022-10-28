@@ -1,6 +1,6 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -26,10 +26,7 @@ import {
   MenuItem,
 } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
-import {
-  getGenerateCRUDEnabledPluginMap,
-  getIsDeletingDatasource,
-} from "selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
@@ -199,9 +196,9 @@ function DatasourceCard(props: DatasourceCardProps) {
       action.config.datasource.id === datasource.id,
   ).length;
 
-  const isDeletingDatasource = useSelector(getIsDeletingDatasource);
-
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const isDeletingDatasource = !!datasource.isDeleting;
 
   useEffect(() => {
     if (confirmDelete && !isDeletingDatasource) {
@@ -425,4 +422,4 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
 }
 
-export default DatasourceCard;
+export default memo(DatasourceCard);

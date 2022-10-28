@@ -51,10 +51,6 @@ export const getMockDatasources = (state: AppState): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
 };
 
-export const getIsDeletingDatasource = (state: AppState): boolean => {
-  return state.entities.datasources.isDeleting;
-};
-
 export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
   state.entities.plugins.defaultPluginList;
 

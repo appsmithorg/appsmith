@@ -1,6 +1,7 @@
 import {
   all,
   call,
+  delay,
   put,
   select,
   take,
@@ -212,6 +213,7 @@ export function* deleteDatasourceSaga(
   actionPayload: ReduxActionWithCallbacks<{ id: string }, unknown, unknown>,
 ) {
   try {
+    yield delay(5000);
     const id = actionPayload.payload.id;
     const response: ApiResponse<Datasource> = yield DatasourcesApi.deleteDatasource(
       id,
