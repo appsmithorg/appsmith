@@ -38,6 +38,7 @@ public class AstServiceCEImpl implements AstServiceCE {
             .maxIdleTime(Duration.ofSeconds(5))
             .maxLifeTime(Duration.ofSeconds(10))
             .pendingAcquireTimeout(Duration.ofSeconds(10))
+            .pendingAcquireMaxCount(-1)
             .evictInBackground(Duration.ofSeconds(20)).build());
 
     private final static long MAX_API_RESPONSE_TIME = 50;
