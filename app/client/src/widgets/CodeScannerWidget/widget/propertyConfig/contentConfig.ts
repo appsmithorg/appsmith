@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ScannerVariant } from "widgets/CodeScannerWidget/constants";
 
 export default [
   {
@@ -21,6 +22,26 @@ export default [
   {
     sectionName: "General",
     children: [
+      {
+        propertyName: "scannerVariant",
+        label: "Scanner Variant",
+        controlType: "ICON_TABS",
+        fullWidth: true,
+        helpText: "Sets the variant of the code scanner",
+        options: [
+          {
+            label: "Click to Scan",
+            value: ScannerVariant.CLICK_TO_SCAN,
+          },
+          {
+            label: "Always On",
+            value: ScannerVariant.ALWAYS_ON,
+          },
+        ],
+        isJSConvertible: false,
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
       {
         propertyName: "isVisible",
         label: "Visible",

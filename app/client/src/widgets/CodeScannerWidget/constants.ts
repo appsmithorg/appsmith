@@ -14,4 +14,10 @@ export interface CodeScannerWidgetProps extends WidgetProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
+  scannerVariant: ScannerVariant;
+}
+
+export enum ScannerVariant {
+  ALWAYS_ON = "ALWAYS_ON",
+  CLICK_TO_SCAN = "CLICK_TO_SCAN",
 }

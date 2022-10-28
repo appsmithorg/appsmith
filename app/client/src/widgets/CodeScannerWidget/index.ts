@@ -1,6 +1,7 @@
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ButtonPlacementTypes } from "components/constants";
+import { ScannerVariant } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -19,6 +20,7 @@ export const CONFIG = {
     columns: 16,
     widgetName: "CodeScanner",
     isDefaultClickDisabled: true,
+    scannerVariant: ScannerVariant.CLICK_TO_SCAN,
     version: 1,
     isRequired: false,
     isDisabled: false,
