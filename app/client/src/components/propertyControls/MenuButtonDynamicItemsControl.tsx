@@ -82,8 +82,8 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class ComputeMenuPropertyControl extends BaseControl<
-  ComputeMenuPropertyControlProps
+class MenuButtonDynamicItemsControl extends BaseControl<
+  MenuButtonDynamicItemsControlProps
 > {
   render() {
     const {
@@ -97,7 +97,7 @@ class ComputeMenuPropertyControl extends BaseControl<
     const menuButtonId = this.props.widgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? ComputeMenuPropertyControl.getInputComputedValue(
+        ? MenuButtonDynamicItemsControl.getInputComputedValue(
             propertyValue,
             menuButtonId,
           )
@@ -133,13 +133,20 @@ class ComputeMenuPropertyControl extends BaseControl<
     );
   }
 
+  static getPrefix = (menuButtonId: string) => {
+    return `{{${menuButtonId}.sourceData.map((currentItem, currentIndex) => ( `;
+  };
+
+  static getSuffix = () => {
+    return `))}}`;
+  };
+
   static getInputComputedValue = (
     propertyValue: string,
     menuButtonId: string,
   ) => {
     const value = `${propertyValue.substring(
-      `{{${menuButtonId}.sourceData.map((currentItem, currentIndex) => ( `
-        .length,
+      this.getPrefix(menuButtonId).length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -152,7 +159,9 @@ class ComputeMenuPropertyControl extends BaseControl<
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `{{${menuButtonId}.sourceData.map((currentItem, currentIndex) => ( ${stringToEvaluate}))}}`;
+    return `${MenuButtonDynamicItemsControl.getPrefix(
+      menuButtonId,
+    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.getSuffix()}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -175,12 +184,12 @@ class ComputeMenuPropertyControl extends BaseControl<
   };
 
   static getControlType() {
-    return "MENU_COMPUTE_VALUE";
+    return "MENU_BUTTON_DYNAMIC_ITEMS";
   }
 }
 
-export interface ComputeMenuPropertyControlProps extends ControlProps {
+export interface MenuButtonDynamicItemsControlProps extends ControlProps {
   defaultValue?: string;
 }
 
-export default ComputeMenuPropertyControl;
+export default MenuButtonDynamicItemsControl;

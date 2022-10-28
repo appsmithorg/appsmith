@@ -72,9 +72,9 @@ import PrimaryColumnColorPickerControlV2, {
 import TableInlineEditValidationControlProperty, {
   TableInlineEditValidationControlProps,
 } from "./TableInlineEditValidation";
-import ComputeMenuPropertyControl, {
-  ComputeMenuPropertyControlProps,
-} from "components/propertyControls/MenuComputeValue";
+import MenuButtonDynamicItemsControl, {
+  MenuButtonDynamicItemsControlProps,
+} from "components/propertyControls/MenuButtonDynamicItemsControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -99,7 +99,7 @@ export const PropertyControls = {
   ComputeTablePropertyControl,
   ComputeTablePropertyControlV2,
   MenuItemsControl,
-  ComputeMenuPropertyControl,
+  MenuButtonDynamicItemsControl,
   OpenNextPanelWithButtonControl,
   ButtonListControl,
   IconSelectControl,
@@ -133,7 +133,7 @@ export type PropertyControlPropsType =
   | NumericInputControlProps
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
-  | ComputeMenuPropertyControlProps
+  | MenuButtonDynamicItemsControlProps
   | PrimaryColumnDropdownControlProps
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
