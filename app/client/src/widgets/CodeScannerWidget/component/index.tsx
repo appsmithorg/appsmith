@@ -16,8 +16,16 @@ import { Popover2 } from "@blueprintjs/popover2";
 import Interweave from "interweave";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { ButtonPlacement } from "components/constants";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonPlacement,
+  ButtonVariant,
+  ButtonVariantTypes,
+} from "components/constants";
 import { ScannerVariant } from "../constants";
+import { ThemeProp } from "components/ads/common";
+import { ReactComponent as FlipImageIcon } from "assets/icons/widget/codeScanner/flip.svg";
 
 const CodeScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -102,6 +110,12 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
       z-index: 1;
       border-radius: ${({ borderRadius }) => borderRadius};
     }
+
+    &.mirror-video {
+      video {
+        transform: scaleX(-1);
+      }
+    }
   }
 
   .code-scanner-camera-container video {
@@ -173,7 +187,7 @@ const ControlPanelOverlayer = styled.div<ControlPanelOverlayerProps>`
 const MediaInputsContainer = styled.div`
   display: flex;
   flex: 1;
-  justify-content: flex-end;
+  justify-content: space-between;
 
   & .bp3-minimal {
     height: 30px;
@@ -219,6 +233,34 @@ const ErrorMessageWrapper = styled.div<{
   background-color: black;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => boxShadow};
+`;
+
+export interface StyledButtonProps {
+  variant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+}
+
+const StyledButton = styled(Button)<ThemeProp & StyledButtonProps>`
+  z-index: 1;
+  height: 32px;
+  width: 32px;
+  margin: 0 1%;
+  box-shadow: none !important;
+  ${({ borderRadius }) =>
+    borderRadius === ButtonBorderRadiusTypes.CIRCLE &&
+    `
+    border-radius: 50%;
+  `}
+  border: ${({ variant }) =>
+    variant === ButtonVariantTypes.SECONDARY ? `1px solid white` : `none`};
+  background: ${({ theme, variant }) =>
+    variant === ButtonVariantTypes.PRIMARY
+      ? theme.colors.button.primary.primary.bgColor
+      : `none`} !important;
+
+  &:hover {
+    background: rgba(167, 182, 194, 0.3) !important;
+  }
 `;
 
 // Device menus (microphone, camera)
@@ -285,6 +327,7 @@ export interface ControlPanelProps {
   appLayoutType?: SupportedLayouts;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
   updateDeviceInputs: () => void;
+  handleImageMirror: () => void;
 }
 
 function ControlPanel(props: ControlPanelProps) {
@@ -341,6 +384,12 @@ function ControlPanel(props: ControlPanelProps) {
     <ControlPanelContainer>
       <ControlPanelOverlayer appLayoutType={appLayoutType}>
         <MediaInputsContainer>
+          <StyledButton
+            borderRadius={ButtonBorderRadiusTypes.SHARP}
+            icon={<Icon color="white" icon={<FlipImageIcon />} iconSize={20} />}
+            onClick={props.handleImageMirror}
+            variant={ButtonVariantTypes.TERTIARY}
+          />
           {renderMediaDeviceSelectors()}
         </MediaInputsContainer>
       </ControlPanelOverlayer>
@@ -352,6 +401,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
   const [error, setError] = useState<string>("");
+  const [isImageMirrored, setIsImageMirrored] = useState(false);
   const [videoConstraints, setVideoConstraints] = useState<
     MediaTrackConstraints
   >({
@@ -407,6 +457,10 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
     setError((error as DOMException).message);
   }, []);
 
+  const handleImageMirror = () => {
+    setIsImageMirrored(!isImageMirrored);
+  };
+
   const renderComponent = () => {
     const handleOnResult = (err: any, result: any) => {
       if (!!result) {
@@ -441,7 +495,11 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
     );
 
     const codeScannerCameraContainer = (
-      <div className="code-scanner-camera-container">
+      <div
+        className={`code-scanner-camera-container ${
+          isImageMirrored ? "mirror-video" : ""
+        }`}
+      >
         <DisabledOverlayer disabled={props.isDisabled}>
           <CameraOfflineIcon />
         </DisabledOverlayer>
@@ -456,6 +514,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
             />
             <ControlPanel
               appLayoutType={appLayout?.type}
+              handleImageMirror={handleImageMirror}
               onMediaInputChange={handleMediaDeviceChange}
               updateDeviceInputs={updateDeviceInputs}
               videoInputs={videoInputs}
