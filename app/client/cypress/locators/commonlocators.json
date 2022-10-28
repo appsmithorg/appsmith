@@ -190,7 +190,7 @@
   "propertyStyle": "li:contains('STYLE')",
   "propertyContent": "li:contains('CONTENT')",
   "cancelActionExecution": ".t--cancel-action-button",
-  "menuButtonMenuItemsSource": ".t--property-control-menuitemssource .bp3-popover-target",
+  "menuButtonMenuItemsSource": ".t--property-control-menuitemssource",
   "menuButtonSourceData": ".t--property-control-sourcedata",
   "menuButtonConfigureArrayItems": ".t--property-control-configuremenuitems button"
 }

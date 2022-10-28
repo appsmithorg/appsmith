@@ -110,13 +110,13 @@ describe("Menu Button Widget Functionality", () => {
     cy.moveToContentTab();
 
     // Select menu items source as Dynamic
-    cy.get(commonlocators.menuButtonMenuItemsSource)
+    cy.get(`${commonlocators.menuButtonMenuItemsSource} .t--button-tab-DYNAMIC`)
       .last()
-      .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Dynamic")
-      .click();
+      .click({
+        force: true,
+      });
+
+    cy.wait(200);
 
     // Add sample source data
     cy.testJsontext(
