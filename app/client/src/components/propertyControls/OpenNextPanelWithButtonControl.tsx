@@ -17,18 +17,21 @@ const MenuItemsWrapper = styled.div`
   flex-direction: column;
 `;
 
-const ConfigureMenuItemButton = styled(StyledPropertyPaneButton)`
+const OpenNextPannelButton = styled(StyledPropertyPaneButton)`
   justify-content: center;
   flex-grow: 1;
 `;
 
-class ConfigureMenuItemsControl extends BaseControl<ControlProps> {
-  constructor(props: ControlProps) {
+class OpenNextPanelWithButtonControl extends BaseControl<
+  OpenNextPanelWithButtonControlProps
+> {
+  constructor(props: OpenNextPanelWithButtonControlProps) {
     super(props);
   }
 
   openConfigPanel = () => {
     const targetMenuItem = this.props.propertyValue;
+
     this.props.openNextPanel({
       index: 0,
       ...targetMenuItem,
@@ -37,18 +40,22 @@ class ConfigureMenuItemsControl extends BaseControl<ControlProps> {
   };
 
   render() {
+    const { buttonConfig, widgetProperties } = this.props;
+    const { icon, label } = buttonConfig;
+    const { widgetName } = widgetProperties;
+
     return (
       <MenuItemsWrapper>
         <StyledPropertyPaneButtonWrapper>
-          <ConfigureMenuItemButton
+          <OpenNextPannelButton
             category={Category.tertiary}
-            className="t--add-menu-item-btn"
-            icon="settings-2-line"
+            className={`t--${widgetName}-open-next-panel-button`}
+            icon={icon}
             iconPosition="right"
             onClick={this.openConfigPanel}
             size={Size.medium}
             tag="button"
-            text="Array Item"
+            text={label}
             type="button"
           />
         </StyledPropertyPaneButtonWrapper>
@@ -57,8 +64,15 @@ class ConfigureMenuItemsControl extends BaseControl<ControlProps> {
   }
 
   static getControlType() {
-    return "CONFIGURE_MENU_ITEMS";
+    return "OPEN_NEXT_PANEL_WITH_BUTTON";
   }
 }
 
-export default ConfigureMenuItemsControl;
+export interface OpenNextPanelWithButtonControlProps extends ControlProps {
+  buttonConfig: {
+    icon: string;
+    label: string;
+  };
+}
+
+export default OpenNextPanelWithButtonControl;

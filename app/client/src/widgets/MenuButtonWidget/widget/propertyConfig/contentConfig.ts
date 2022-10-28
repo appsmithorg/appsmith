@@ -217,7 +217,11 @@ export default [
         helpText:
           "Configure each menu item using {{currentItem}} binding. You can change properties like label, visibilty, disabled state, background color etc. for each menu item using this.",
         propertyName: "configureMenuItems",
-        controlType: "CONFIGURE_MENU_ITEMS",
+        controlType: "OPEN_NEXT_PANEL_WITH_BUTTON",
+        buttonConfig: {
+          label: "Item Configuration",
+          icon: "settings-2-line",
+        },
         label: "Configure Menu Items",
         isBindProperty: false,
         isTriggerProperty: false,

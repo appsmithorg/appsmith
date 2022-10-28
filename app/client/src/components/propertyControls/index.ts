@@ -46,7 +46,7 @@ import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
 import MenuItemsControl from "./MenuItemsControl";
-import ConfigureMenuItemsControl from "./ConfigureMenuItemsControl";
+import OpenNextPanelWithButtonControl from "./OpenNextPanelWithButtonControl";
 import ButtonListControl from "./ButtonListControl";
 import IconSelectControl from "./IconSelectControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
@@ -100,7 +100,7 @@ export const PropertyControls = {
   ComputeTablePropertyControlV2,
   MenuItemsControl,
   ComputeMenuPropertyControl,
-  ConfigureMenuItemsControl,
+  OpenNextPanelWithButtonControl,
   ButtonListControl,
   IconSelectControl,
   BoxShadowOptionsControl,
