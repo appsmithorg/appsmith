@@ -20,6 +20,8 @@ import { StyledFilterContainer as Container } from "@appsmith/pages/AuditLogs/st
 import { useGoToTop } from "@appsmith/pages/AuditLogs/hooks/useGoToTop";
 import { StyledLabel as Label } from "@appsmith/pages/AuditLogs/styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { createMessage } from "design-system/build/constants/messages";
+import { USERS_LABEL, USERS_PLACEHOLDER } from "@appsmith/constants/messages";
 
 /**
  * EmailFilter generates a label, dropdown component that is connected to redux store.
@@ -81,7 +83,7 @@ export default function EmailFilter(): JSX.Element {
 
   return (
     <Container data-testid="t--audit-logs-email-filter-container">
-      <Label>Users</Label>
+      <Label>{createMessage(USERS_LABEL)}</Label>
       <Dropdown
         boundary="viewport"
         className="audit-logs-filter audit-logs-filter-dropdown audit-logs-email-filter-dropdown"
@@ -95,7 +97,7 @@ export default function EmailFilter(): JSX.Element {
         onSelect={handleSelection}
         optionWidth={AUDIT_LOGS_FILTER_WIDTH}
         options={emails}
-        placeholder="Select users"
+        placeholder={createMessage(USERS_PLACEHOLDER)}
         removeSelectedOption={removeSelectedOption}
         searchAutoFocus
         selected={selectedEmails}

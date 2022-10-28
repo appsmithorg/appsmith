@@ -13,6 +13,11 @@ import {
 import { useGoToTop } from "../../hooks/useGoToTop";
 import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { createMessage } from "design-system/build/constants/messages";
+import {
+  RESOURCE_ID_LABEL,
+  RESOURCE_ID_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 export default function ResourceIdFilter() {
   const searchFilters = useSelector(selectAuditLogsSearchFilters);
@@ -36,14 +41,14 @@ export default function ResourceIdFilter() {
 
   return (
     <div data-testid="t--audit-logs-resource-id-filter-container">
-      <Label>Resource ID</Label>
+      <Label>{createMessage(RESOURCE_ID_LABEL)}</Label>
       <TextInput
         className="audit-logs-filter audit-logs-resource-id-filter"
         data-testid="t--audit-logs-resource-id-filter"
         height={AUDIT_LOGS_FILTER_HEIGHT}
         onBlur={handleBlur}
         onChange={handleChange}
-        placeholder={"Type or paste resource id"}
+        placeholder={createMessage(RESOURCE_ID_PLACEHOLDER)}
         value={resourceId}
         width={AUDIT_LOGS_FILTER_WIDTH}
       />

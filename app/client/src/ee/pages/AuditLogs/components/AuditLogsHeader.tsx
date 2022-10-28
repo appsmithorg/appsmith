@@ -11,6 +11,8 @@ import {
   selectAuditLogsIsLoading,
 } from "@appsmith/selectors/auditLogsSelectors";
 import { StyledHeaderRightContainer as RightSide } from "../styled-components/container";
+import { createMessage } from "design-system/build/constants/messages";
+import { AUDIT_LOGS, REFRESH } from "@appsmith/constants/messages";
 
 /**
  * AuditLogsHeader contains the heading, refresh button and more menu for AuditLogs feature
@@ -28,7 +30,9 @@ export function AuditLogsHeader() {
 
   return (
     <Header data-testid="t--audit-logs-header">
-      <Heading data-testid="t--audit-logs-header-heading">Audit Logs</Heading>
+      <Heading data-testid="t--audit-logs-header-heading">
+        {createMessage(AUDIT_LOGS)}
+      </Heading>
       <RightSide data-testid="t--audit-logs-header-right-side">
         <Button
           aria-disabled={isLoading}
@@ -38,7 +42,7 @@ export function AuditLogsHeader() {
           icon={"refresh"}
           iconPosition={"left"}
           onClick={handleRefreshButtonClick}
-          text={"REFRESH"}
+          text={createMessage(REFRESH)}
           type={"reset"}
         />
       </RightSide>
