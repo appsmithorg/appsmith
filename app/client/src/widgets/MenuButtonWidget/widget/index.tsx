@@ -3,7 +3,7 @@ import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import MenuButtonComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
-import { MenuButtonWidgetProps } from "../constants";
+import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 
@@ -45,6 +45,26 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     return [...new Set(allKeys)];
   };
 
+  createInitialDynamicMenuItemsProperties = () => {
+    if (!("sourceData" in this.props)) {
+      super.updateWidgetProperty("sourceData", []);
+      super.updateWidgetProperty("sourceDataKeys", this.getSourceDataKeys());
+    }
+
+    if (!("configureMenuItems" in this.props)) {
+      super.updateWidgetProperty("configureMenuItems", {
+        label: "Configure Menu Items",
+        id: "config",
+        config: {
+          id: "config",
+          label: "",
+          isVisible: true,
+          isDisabled: false,
+        },
+      });
+    }
+  };
+
   componentDidMount = () => {
     super.updateWidgetProperty("sourceDataKeys", this.getSourceDataKeys());
   };
@@ -56,6 +76,13 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
     if (isSourceDataModified) {
       super.updateWidgetProperty("sourceDataKeys", this.getSourceDataKeys());
+    }
+
+    const hasMenuItemsSourceChanged =
+      prevProps.menuItemsSource !== this.props.menuItemsSource;
+
+    if (hasMenuItemsSourceChanged) {
+      this.createInitialDynamicMenuItemsProperties();
     }
   };
 

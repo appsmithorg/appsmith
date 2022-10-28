@@ -25,18 +25,6 @@ export const migrateMenuButtonDynamicItems = (currentDSL: DSLWidget) => {
     if (child.type === "MENU_BUTTON_WIDGET") {
       if (!("menuItemsSource" in child)) {
         child.menuItemsSource = MenuItemsSource.STATIC;
-        child.configureMenuItems = {
-          label: "Configure Menu Items",
-          id: "config",
-          config: {
-            id: "config",
-            label: "",
-            isVisible: true,
-            isDisabled: false,
-          },
-        };
-        child.sourceData = "";
-        child.sourceDataKeys = [];
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateMenuButtonDynamicItems(child);

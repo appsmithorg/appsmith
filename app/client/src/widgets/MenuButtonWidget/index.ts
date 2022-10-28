@@ -42,18 +42,6 @@ export const CONFIG = {
         index: 2,
       },
     },
-    sourceData: "",
-    sourceDataKeys: [],
-    configureMenuItems: {
-      label: "Configure Menu Items",
-      id: "config",
-      config: {
-        id: "config",
-        label: "",
-        isVisible: true,
-        isDisabled: false,
-      },
-    },
     rows: 4,
     columns: 16,
     widgetName: "MenuButton",
