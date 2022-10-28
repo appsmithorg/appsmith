@@ -47,7 +47,7 @@ spec:
       {{- if .Values.redis.enabled }}
       - name: redis-init-container
         image: alpine
-        command: ['sh', '-c', "apk add redis; until redis-cli -h appsmith-redis-master.{{.Release.Namespace}}.svc.cluster.local ping; do echo waiting for redis; sleep 2; done"]
+        command: ['sh', '-c', "apk add redis; until redis-cli -h {{ include "appsmith.fullname" . }}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping; do echo waiting for redis; sleep 2; done"]
       {{- end }}
       {{- if .Values.mongodb.enabled }}
       - name: mongo-init-container
