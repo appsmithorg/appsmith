@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Column, useTable, useExpanded } from "react-table";
-import { Checkbox, Icon, IconSize, Spinner, Toaster } from "design-system";
+import { Checkbox, Icon, IconSize, Spinner } from "design-system";
 import { HighlightText } from "design-system";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
@@ -11,11 +11,6 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { RoleTreeProps } from "./types";
 import { EmptyDataState, EmptySearchResult, SaveButtonBar } from "./components";
-import {
-  createMessage,
-  SUCCESSFULLY_SAVED,
-} from "@appsmith/constants/messages";
-import { Variant } from "components/ads";
 import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { getIconLocations } from "@appsmith/selectors/aclSelectors";
@@ -698,10 +693,6 @@ export default function RolesTree(props: RoleTreeProps) {
 
   const onSaveChanges = () => {
     dispatch(updateRoleById(props.currentTabName, dataToBeSent, roleId));
-    Toaster.show({
-      text: createMessage(SUCCESSFULLY_SAVED),
-      variant: Variant.success,
-    });
     setIsSaving(false);
     dataToBeSent = [];
   };
