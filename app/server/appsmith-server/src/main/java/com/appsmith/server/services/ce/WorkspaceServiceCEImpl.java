@@ -580,6 +580,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))
+                        .flatMap(workspace -> {
+
+                            // Delete permission groups associated with this workspace before deleting the workspace
+
+                            Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
+                            return Flux.fromIterable(defaultPermissionGroups)
+                                    .flatMap(permissionGroupService::delete)
+                                    .then(Mono.just(workspace));
+                        })
                         .flatMap(repository::archive)
                         .flatMap(analyticsService::sendDeleteEvent);
             } else {
