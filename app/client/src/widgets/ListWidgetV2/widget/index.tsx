@@ -584,7 +584,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return;
     }
 
-    this.props.updateWidgetMetaProperty("selectedItemIndex", selectedItemIndex);
+    this.props.updateWidgetMetaProperty(
+      "selectedItemIndex",
+      newSelectedItemIndex,
+    );
   };
 
   resetSelectedItemMeta = () => {
