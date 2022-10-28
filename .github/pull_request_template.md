@@ -38,8 +38,8 @@ Fixes # (issue)
 > Link issues raised during DP testing for better visiblity and tracking
 
 
-## Dev checklist:
-
+## Checklist:
+### Dev activity
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -49,7 +49,7 @@ Fixes # (issue)
 - [ ] New and existing unit tests pass locally with my changes
 
 
-## QA checklist:
+### QA activity:
 - [ ] Test plan has been approved by relevant developers
 - [ ] Test plan has been peer reviewed by QA
 - [ ] Cypress test cases have been added and approved by either SDET or manual QA
