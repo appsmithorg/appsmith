@@ -1,33 +1,21 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ScannerVariant } from "widgets/CodeScannerWidget/constants";
+import {
+  CodeScannerWidgetProps,
+  ScannerVariant,
+} from "widgets/CodeScannerWidget/constants";
 
 export default [
   {
-    sectionName: "Label",
-    children: [
-      {
-        propertyName: "label",
-        label: "Text",
-        controlType: "INPUT_TEXT",
-        helpText: "Sets the label of the button",
-        placeholderText: "Scan a QR/Barcode",
-        inputType: "TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-    ],
-  },
-  {
-    sectionName: "General",
+    sectionName: "Basic",
     children: [
       {
         propertyName: "scannerVariant",
         label: "Scanner Variant",
         controlType: "ICON_TABS",
         fullWidth: true,
-        helpText: "Sets the variant of the code scanner",
+        helpText:
+          'Sets how the code scanner will look and behave. If set to "Always on", the scanner will be visible and scanning all the time. If set to "Click to Scan", the scanner will pop up inside a modal and start scanning when the user clicks on the button.',
         options: [
           {
             label: "Click to Scan",
@@ -42,6 +30,25 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        propertyName: "label",
+        label: "Text",
+        controlType: "INPUT_TEXT",
+        helpText: "Sets the label of the button",
+        placeholderText: "Scan a QR/Barcode",
+        inputType: "TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: (props: CodeScannerWidgetProps) =>
+          props.scannerVariant === ScannerVariant.ALWAYS_ON,
+        dependencies: ["scannerVariant"],
+      },
+    ],
+  },
+  {
+    sectionName: "General",
+    children: [
       {
         propertyName: "isVisible",
         label: "Visible",
@@ -82,6 +89,9 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (props: CodeScannerWidgetProps) =>
+          props.scannerVariant === ScannerVariant.ALWAYS_ON,
+        dependencies: ["scannerVariant"],
       },
     ],
   },
