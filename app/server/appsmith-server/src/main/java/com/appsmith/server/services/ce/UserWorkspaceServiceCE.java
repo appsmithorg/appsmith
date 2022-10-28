@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.domains.User;
 import reactor.core.publisher.Mono;
 
@@ -13,9 +13,9 @@ public interface UserWorkspaceServiceCE {
 
     Mono<User> leaveWorkspace(String workspaceId);
 
-    Mono<UserAndPermissionGroupDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader);
+    Mono<WorkspaceMemberInfoDTO> updatePermissionGroupForMember(String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader);
 
-    Mono<List<UserAndPermissionGroupDTO>> getWorkspaceMembers(String workspaceId);
+    Mono<List<WorkspaceMemberInfoDTO>> getWorkspaceMembers(String workspaceId);
 
-    Mono<Map<String, List<UserAndPermissionGroupDTO>>> getWorkspaceMembers(Set<String> workspaceIds);
+    Mono<Map<String, List<WorkspaceMemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds);
 }
