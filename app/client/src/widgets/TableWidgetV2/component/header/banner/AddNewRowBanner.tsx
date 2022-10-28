@@ -1,6 +1,6 @@
 import { ButtonVariantTypes } from "components/constants";
 import styled from "constants/DefaultTheme";
-import React from "react";
+import React, { useState } from "react";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { AddNewRowActions } from "../../Constants";
 
@@ -30,11 +30,17 @@ export interface AddNewRowBannerType {
   accentColor: string;
   borderRadius: string;
   boxShadow: string;
-  onAddNewRowAction: (type: AddNewRowActions) => void;
+  onAddNewRowAction: (
+    type: AddNewRowActions,
+    onActionComplete: () => void,
+  ) => void;
   disabledAddNewRowSave: boolean;
 }
 
 export function AddNewRowBanner(props: AddNewRowBannerType) {
+  const [isDiscardLoading, setIsDiscardLoading] = useState(false);
+  const [isSaveLoading, setIsSaveLoading] = useState(false);
+
   return (
     <Container>
       <Title>Add New Row</Title>
@@ -45,7 +51,13 @@ export function AddNewRowBanner(props: AddNewRowBannerType) {
           buttonColor={props.accentColor}
           buttonVariant={ButtonVariantTypes.SECONDARY}
           className="t--discard-new-row"
-          onClick={() => props.onAddNewRowAction(AddNewRowActions.DISCARD)}
+          loading={isDiscardLoading}
+          onClick={() => {
+            setIsDiscardLoading(true);
+            props.onAddNewRowAction(AddNewRowActions.DISCARD, () =>
+              setIsDiscardLoading(false),
+            );
+          }}
           text="Discard"
         />
         <BaseButton
@@ -55,7 +67,13 @@ export function AddNewRowBanner(props: AddNewRowBannerType) {
           buttonVariant={ButtonVariantTypes.PRIMARY}
           className="t--save-new-row"
           disabled={props.disabledAddNewRowSave}
-          onClick={() => props.onAddNewRowAction(AddNewRowActions.SAVE)}
+          loading={isSaveLoading}
+          onClick={() => {
+            setIsSaveLoading(true);
+            props.onAddNewRowAction(AddNewRowActions.SAVE, () =>
+              setIsSaveLoading(false),
+            );
+          }}
           text="Save row"
         />
       </ActionContainer>

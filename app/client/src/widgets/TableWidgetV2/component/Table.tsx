@@ -91,7 +91,10 @@ interface TableProps {
   isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
-  onAddNewRowAction: (type: AddNewRowActions) => void;
+  onAddNewRowAction: (
+    type: AddNewRowActions,
+    onActionComplete: () => void,
+  ) => void;
   disabledAddNewRowSave: boolean;
 }
 

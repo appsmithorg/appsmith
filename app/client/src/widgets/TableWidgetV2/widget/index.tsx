@@ -2004,13 +2004,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("selectedRowIndices", []);
   };
 
-  handleAddNewRowAction = (type: AddNewRowActions) => {
+  handleAddNewRowAction = (
+    type: AddNewRowActions,
+    onActionComplete: () => void,
+  ) => {
     let triggerPropertyName, action, eventType;
 
     const onComplete = () => {
       this.props.updateWidgetMetaProperty("isAddRowInProgress", false);
       this.props.updateWidgetMetaProperty("newRowContent", undefined);
       this.props.updateWidgetMetaProperty("newRow", undefined);
+      onActionComplete();
     };
 
     if (type === AddNewRowActions.SAVE) {

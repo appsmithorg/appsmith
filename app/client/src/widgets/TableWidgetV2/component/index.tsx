@@ -91,7 +91,10 @@ interface ReactTableComponentProps {
   isAddRowInProgress: boolean;
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
-  onAddNewRowAction: (type: AddNewRowActions) => void;
+  onAddNewRowAction: (
+    type: AddNewRowActions,
+    onActionComplete: () => void,
+  ) => void;
   allowRowSelection: boolean;
   allowSorting: boolean;
   disabledAddNewRowSave: boolean;
