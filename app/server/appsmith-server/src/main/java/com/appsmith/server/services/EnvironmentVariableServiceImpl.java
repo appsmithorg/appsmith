@@ -87,20 +87,22 @@ public class EnvironmentVariableServiceImpl extends EnvironmentVariableServiceCE
 
 
     @Override
-    public Mono<EnvironmentVariable> archiveById(String id) {
-        Mono<EnvironmentVariable> environmentVariableMono = repository.findById(id)
+    public Mono<EnvironmentVariable> archiveById(String id, AclPermission aclPermission) {
+        Mono<EnvironmentVariable> environmentVariableMono = repository.findById(id, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ENVIRONMENT_VARIABLE, id)));
 
         // scope for analytics event to be added.
-        return environmentVariableMono.map(environmentVariable -> {
-            repository.archive(environmentVariable);
-            return environmentVariable;
-        });
+        return environmentVariableMono.flatMap(repository::archive);
     }
 
     // Update
     @Override
     public Mono<EnvironmentVariable> update(String id, EnvironmentVariable envVariable) {
         return super.update(id, envVariable);
+    }
+
+    @Override
+    public  Mono<EnvironmentVariable> updateById(String id, EnvironmentVariable environmentVariable, AclPermission aclPermission) {
+        return repository.updateById(id, environmentVariable, aclPermission);
     }
 }

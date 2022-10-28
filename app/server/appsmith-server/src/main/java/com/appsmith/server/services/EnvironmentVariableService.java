@@ -33,10 +33,11 @@ public interface EnvironmentVariableService extends EnvironmentVariableServiceCE
 
     Mono<EnvironmentVariable> archive(EnvironmentVariable envVariable);
 
-    Mono<EnvironmentVariable> archiveById(String id);
+    Mono<EnvironmentVariable> archiveById(String id, AclPermission aclPermission);
 
     // Update
     Mono<EnvironmentVariable> update(String id, EnvironmentVariable envVariable);
 
+    Mono<EnvironmentVariable> updateById(String id, EnvironmentVariable environmentVariable, AclPermission aclPermission);
 
 }

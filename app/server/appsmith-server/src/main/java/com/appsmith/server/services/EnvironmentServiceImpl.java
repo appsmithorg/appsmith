@@ -71,11 +71,11 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     @Override
     public Mono<EnvironmentDTO> findEnvironmentByEnvironmentId(String envId) {
 
-        return findById(envId, AclPermission.MANAGE_ENVIRONMENTS)
+        return findById(envId, AclPermission.READ_ENVIRONMENTS)
                 .map(this::createEnvironmentDTO)
                 .flatMap(environmentDTO -> {
                     return Mono.zip(Mono.justOrEmpty(environmentDTO),
-                                    environmentVariableService.findByEnvironmentId(envId, AclPermission.MANAGE_ENVIRONMENT_VARIABLES)
+                                    environmentVariableService.findByEnvironmentId(envId, AclPermission.READ_ENVIRONMENT_VARIABLES)
                                             .collectList().defaultIfEmpty(List.of()))
                             .map(tuple -> {
                                 EnvironmentDTO environmentDTO1 = tuple.getT1();
@@ -90,12 +90,12 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     @Override
     public Flux<EnvironmentDTO> findEnvironmentByWorkspaceId(String workspaceId) {
 
-        return findByWorkspaceId(workspaceId, AclPermission.MANAGE_ENVIRONMENTS)
+        return findByWorkspaceId(workspaceId, AclPermission.READ_ENVIRONMENTS)
                 .map(this::createEnvironmentDTO)
                 .flatMap(environmentDTO -> {
                     return Mono.zip(Mono.justOrEmpty(environmentDTO),
                                     environmentVariableService
-                                            .findByEnvironmentId(environmentDTO.getId(), AclPermission.MANAGE_ENVIRONMENT_VARIABLES)
+                                            .findByEnvironmentId(environmentDTO.getId(), AclPermission.READ_ENVIRONMENT_VARIABLES)
                                             .collectList().defaultIfEmpty(List.of()))
                             .map(tuple -> {
                                 EnvironmentDTO environmentDTO1 = tuple.getT1();
@@ -128,7 +128,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
         return Flux.fromIterable(environmentDTOList)
                 .flatMap(environmentDTO -> {
                     return Mono.just(environmentDTO)
-                            .zipWith(findById(environmentDTO.getId(), AclPermission.MANAGE_ENVIRONMENTS),
+                            .zipWith(findById(environmentDTO.getId(), AclPermission.READ_ENVIRONMENTS),
                                     (environmentDTO1, env) -> {
                                         environment.setId(env.getId());
                                         environment.setPolicies(env.getPolicies());
@@ -164,11 +164,11 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                                                         copyNewFieldValuesIntoOldObject(envVar, dbEnvVar);
                                                         return dbEnvVar;
                                                     })
-                                                    .flatMap(dbEnvVar -> environmentVariableService
-                                                            .update(dbEnvVar.getId(), dbEnvVar));
+                                                    .flatMap(dbEnvVar -> environmentVariableService.save(dbEnvVar));
                                         } else {
                                             // archive logic
-                                            return environmentVariableService.archiveById(envVar.getId());
+                                            return environmentVariableService
+                                                    .archiveById(envVar.getId(), AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
                                         }
 
                                     })
@@ -178,8 +178,6 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                                 return environmentDTO2;
                             });
                 });
-
-
     }
 
     @Override
@@ -191,7 +189,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
         }
 
-        Mono<List<Environment>> environmentListMono = repository.findByWorkspaceId(environmentDTO.getWorkspaceId(), AclPermission.MANAGE_ENVIRONMENTS)
+        Mono<List<Environment>> environmentListMono = repository.findByWorkspaceId(environmentDTO.getWorkspaceId(), AclPermission.CREATE_ENVIRONMENTS)
                 .filter(environment -> environmentDTO.getName().equals(environment.getName()))
                 .collectList();
 
@@ -213,7 +211,6 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                 })
                 .flatMap(environment -> super.create(environment))
                 .map(this::createEnvironmentDTO);
-
 
     }
 
