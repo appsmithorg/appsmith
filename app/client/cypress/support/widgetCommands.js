@@ -1525,12 +1525,14 @@ Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
   cy.wait(500);
   cy.get(selector)
     .eq(index)
+    .scrollIntoView()
     .trigger("mouseover", { force: true })
     .wait(500);
   cy.get(
     `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
   )
     .eq(index)
+    .scrollIntoView()
     .click({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
