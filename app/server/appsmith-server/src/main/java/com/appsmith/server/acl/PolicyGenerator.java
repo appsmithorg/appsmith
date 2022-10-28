@@ -48,7 +48,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     }
 
     protected void createEnvironmentPolicyGraph() {
-        hierarchyGraph.addEdge(MANAGE_WORKSPACES, AclPermission.MANAGE_ENVIRONMENTS);
+        hierarchyGraph.addEdge(MANAGE_WORKSPACES, AclPermission.CREATE_ENVIRONMENTS);
         hierarchyGraph.addEdge(AclPermission.READ_WORKSPACES, AclPermission.READ_ENVIRONMENTS);
         hierarchyGraph.addEdge(AclPermission.WORKSPACE_EXECUTE_DATASOURCES, AclPermission.EXECUTE_ENVIRONMENTS);
         hierarchyGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
@@ -57,15 +57,13 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(AclPermission.DELETE_ENVIRONMENTS, AclPermission.DELETE_ENVIRONMENT_VARIABLES);
 
         lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.READ_ENVIRONMENTS);
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.CREATE_ENVIRONMENTS);
+        lateralGraph.addEdge(AclPermission.CREATE_ENVIRONMENTS, AclPermission.MANAGE_ENVIRONMENTS);
         lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
-        lateralGraph.addEdge(AclPermission.CREATE_ENVIRONMENTS, AclPermission.READ_ENVIRONMENTS);
         lateralGraph.addEdge(AclPermission.READ_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
         lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.DELETE_ENVIRONMENTS);
 
         lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENT_VARIABLES, AclPermission.READ_ENVIRONMENT_VARIABLES);
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENT_VARIABLES, AclPermission.CREATE_ENVIRONMENT_VARIABLES);
-        lateralGraph.addEdge(AclPermission.CREATE_ENVIRONMENT_VARIABLES, AclPermission.READ_ENVIRONMENT_VARIABLES );
+        lateralGraph.addEdge(AclPermission.CREATE_ENVIRONMENT_VARIABLES, AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
         lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENT_VARIABLES, AclPermission.DELETE_ENVIRONMENT_VARIABLES);
     }
 
