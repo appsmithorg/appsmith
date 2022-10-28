@@ -80,9 +80,11 @@ public class DataTypeServiceUtils {
      * @return         the corresponding AppsmithType from the clientDataType and the evaluated value
      */
     public static AppsmithType getAppsmithType(ClientDataType clientDataType, String value, Map<ClientDataType, List<AppsmithType>> pluginSpecificTypes) {
-        for (AppsmithType currentType : pluginSpecificTypes.get(clientDataType)) {
-            if (currentType.test(value)) {
-                return currentType;
+        if (pluginSpecificTypes.get(clientDataType) != null) {
+            for (AppsmithType currentType : pluginSpecificTypes.get(clientDataType)) {
+                if (currentType.test(value)) {
+                    return currentType;
+                }
             }
         }
         //TODO: Send analytics event to Mixpanel

@@ -11,7 +11,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -162,7 +162,7 @@ public class UserWorkspaceServiceTest {
 
         Set<String> uniqueUsersInWorkspaceBefore = userWorkspaceService.getWorkspaceMembers(workspace.getId())
                 .flatMapMany(workspaceMembers -> Flux.fromIterable(workspaceMembers))
-                .map(UserAndPermissionGroupDTO::getUserId)
+                .map(WorkspaceMemberInfoDTO::getUserId)
                 .collect(Collectors.toSet())
                 .block();
 
@@ -245,7 +245,7 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<UserAndPermissionGroupDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier.create(updateUserRoleMono).expectErrorMessage(
                 AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
@@ -285,7 +285,7 @@ public class UserWorkspaceServiceTest {
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
-        Mono<UserAndPermissionGroupDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+        Mono<WorkspaceMemberInfoDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
 
         StepVerifier.create(updateUserRoleMono)
                 .assertNext(userRole1 -> {

@@ -15,7 +15,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -24,6 +24,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +65,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
@@ -115,6 +116,9 @@ public class WorkspaceServiceTest {
 
     @Autowired
     private PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
 
     Workspace workspace;
 
@@ -305,7 +309,7 @@ public class WorkspaceServiceTest {
                     adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).contains(adminPermissionGroup.getId()));
 
-                    adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
 
                     adminPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
@@ -316,7 +320,7 @@ public class WorkspaceServiceTest {
                     developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
 
-                    developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
 
                     developerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
@@ -326,7 +330,7 @@ public class WorkspaceServiceTest {
                     // Assert viewer permission group policies
                     viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(ASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
-                    viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUPS.getValue()))
+                    viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(READ_PERMISSION_GROUP_MEMBERS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId())));
                     viewerPermissionGroup.getPolicies().stream().filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst().ifPresent(policy -> assertThat(policy.getPermissionGroups()).containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
@@ -729,7 +733,7 @@ public class WorkspaceServiceTest {
         invitedUsers.add("b@usertest.com");
         inviteUsersDTO.setUsernames(invitedUsers);
         inviteUsersDTO.setPermissionGroupId(adminPermissionGroupId);
-        userService.inviteUsers(inviteUsersDTO, origin).block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
         // Invite developers
         invitedUsers = new ArrayList<>();
@@ -737,7 +741,7 @@ public class WorkspaceServiceTest {
         invitedUsers.add("d@usertest.com");
         inviteUsersDTO.setUsernames(invitedUsers);
         inviteUsersDTO.setPermissionGroupId(developerPermissionGroupId);
-        userService.inviteUsers(inviteUsersDTO, origin).block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
         // Invite viewers
         invitedUsers = new ArrayList<>();
@@ -745,9 +749,9 @@ public class WorkspaceServiceTest {
         invitedUsers.add("d1@usertest.com");
         inviteUsersDTO.setUsernames(invitedUsers);
         inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
-        userService.inviteUsers(inviteUsersDTO, origin).block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
-        Mono<List<UserAndPermissionGroupDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
+        Mono<List<WorkspaceMemberInfoDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
 
         StepVerifier
                 .create(usersMono)
@@ -755,7 +759,7 @@ public class WorkspaceServiceTest {
                     assertThat(users).isNotNull();
                     assertThat(users.size()).isEqualTo(6);
                     // Assert that the members are sorted by the permission group and then email
-                    UserAndPermissionGroupDTO userAndGroupDTO = users.get(0);
+                    WorkspaceMemberInfoDTO userAndGroupDTO = users.get(0);
                     assertThat(userAndGroupDTO.getUsername()).isEqualTo("api_user");
                     assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(ADMINISTRATOR);
                     userAndGroupDTO = users.get(1);
@@ -808,7 +812,7 @@ public class WorkspaceServiceTest {
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(adminPermissionGroupId);
 
-        List<User> createdUsers = userService.inviteUsers(inviteUsersDTO, origin).block();
+        List<User> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
         List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
                 .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
@@ -884,7 +888,7 @@ public class WorkspaceServiceTest {
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
 
-        List<User> createdUsers = userService.inviteUsers(inviteUsersDTO, origin).block();
+        List<User> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
         List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
                 .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
@@ -984,7 +988,7 @@ public class WorkspaceServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
 
-                    return userService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
                 })
                 .flatMap(tuple -> {
                     Workspace t2 = tuple.getT2();
@@ -1118,7 +1122,7 @@ public class WorkspaceServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(viewerPermissionGroup.getId());
 
-                    return userService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
                 })
                 .flatMap(tuple -> {
                     Workspace t2 = tuple.getT2();
@@ -1213,7 +1217,7 @@ public class WorkspaceServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
 
-                    return userService.inviteUsers(inviteUsersDTO, origin);
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
                 })
                 .cache();
 
@@ -1438,16 +1442,25 @@ public class WorkspaceServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("Test org to test delete org");
 
-        Mono<Workspace> deleteWorkspaceMono = workspaceService.create(workspace)
-                .flatMap(savedWorkspace ->
-                        workspaceService.archiveById(savedWorkspace.getId())
-                                .then(workspaceRepository.findById(savedWorkspace.getId()))
-                );
+        Workspace savedWorkspace = workspaceService.create(workspace).block();
+
+        Mono<Workspace> deleteWorkspaceMono = workspaceService.archiveById(savedWorkspace.getId())
+                                .then(workspaceRepository.findById(savedWorkspace.getId()));
 
         // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
         // as it doesn't expect an onNext signal at this point.
         StepVerifier
                 .create(deleteWorkspaceMono)
+                .verifyComplete();
+
+        // verify that all the default permision groups are also deleted
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                permissionGroupRepository.findAllById(savedWorkspace.getDefaultPermissionGroups()).collectList();
+
+        StepVerifier.create(defaultPermissionGroupsMono)
+                .assertNext(permissionGroups -> {
+                    assertThat(permissionGroups).isEmpty();
+                })
                 .verifyComplete();
     }
 

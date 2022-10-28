@@ -269,7 +269,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         if (applicationMode == ApplicationMode.EDIT) {
                             return applicationRepository.setAppTheme(
                                     application.getId(), theme.getId(), null, MANAGE_APPLICATIONS
-                            ).then(analyticsService.sendUpdateEvent(theme)).thenReturn(theme);
+                            ).then(analyticsService.sendUpdateEvent(theme))
+                                    .then(analyticsService.sendUpdateEvent(application))
+                                    .thenReturn(theme);
                         } else {
                             return applicationRepository.setAppTheme(
                                     application.getId(), null, theme.getId(), MANAGE_APPLICATIONS
