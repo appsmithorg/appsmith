@@ -639,7 +639,7 @@ const migrations: Migration[] = [
     functionLookup: [
       {
         moduleObj: codeScannerWidgetMigrations,
-        functionName: "migrateCodeScannerVariant",
+        functionName: "migrateCodeScannerLayout",
       },
     ],
     version: 65,

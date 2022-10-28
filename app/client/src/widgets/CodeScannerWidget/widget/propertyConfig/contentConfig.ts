@@ -2,7 +2,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import {
   CodeScannerWidgetProps,
-  ScannerVariant,
+  ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
 
 export default [
@@ -10,20 +10,20 @@ export default [
     sectionName: "Basic",
     children: [
       {
-        propertyName: "scannerVariant",
-        label: "Scanner Variant",
+        propertyName: "scannerLayout",
+        label: "Scanner Layout",
         controlType: "ICON_TABS",
         fullWidth: true,
         helpText:
           'Sets how the code scanner will look and behave. If set to "Always on", the scanner will be visible and scanning all the time. If set to "Click to Scan", the scanner will pop up inside a modal and start scanning when the user clicks on the button.',
         options: [
           {
-            label: "Click to Scan",
-            value: ScannerVariant.CLICK_TO_SCAN,
+            label: "Always On",
+            value: ScannerLayout.ALWAYS_ON,
           },
           {
-            label: "Always On",
-            value: ScannerVariant.ALWAYS_ON,
+            label: "Click to Scan",
+            value: ScannerLayout.CLICK_TO_SCAN,
           },
         ],
         isJSConvertible: false,
@@ -41,8 +41,8 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
         hidden: (props: CodeScannerWidgetProps) =>
-          props.scannerVariant === ScannerVariant.ALWAYS_ON,
-        dependencies: ["scannerVariant"],
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
     ],
   },
@@ -90,8 +90,8 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
         hidden: (props: CodeScannerWidgetProps) =>
-          props.scannerVariant === ScannerVariant.ALWAYS_ON,
-        dependencies: ["scannerVariant"],
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
     ],
   },

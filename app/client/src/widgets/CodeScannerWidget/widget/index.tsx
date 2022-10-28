@@ -47,7 +47,7 @@ class CodeScannerWidget extends BaseWidget<
         label={this.props.label}
         onCodeDetected={this.onCodeDetected}
         placement={this.props.placement}
-        scannerVariant={this.props.scannerVariant}
+        scannerLayout={this.props.scannerLayout}
         tooltip={this.props.tooltip}
         widgetId={this.props.widgetId}
       />

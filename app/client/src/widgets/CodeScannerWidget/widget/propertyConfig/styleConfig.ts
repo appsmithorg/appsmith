@@ -3,7 +3,7 @@ import { ButtonPlacementTypes } from "components/constants";
 import { updateStyles } from "../propertyUtils";
 import {
   CodeScannerWidgetProps,
-  ScannerVariant,
+  ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
 
 export default [
@@ -18,12 +18,12 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         updateHook: updateStyles,
-        dependencies: ["iconAlign", "scannerVariant"],
+        dependencies: ["iconAlign", "scannerLayout"],
         validation: {
           type: ValidationTypes.TEXT,
         },
         hidden: (props: CodeScannerWidgetProps) =>
-          props.scannerVariant === ScannerVariant.ALWAYS_ON,
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
       },
       {
         propertyName: "iconAlign",
@@ -50,8 +50,8 @@ export default [
           },
         },
         hidden: (props: CodeScannerWidgetProps) =>
-          props.scannerVariant === ScannerVariant.ALWAYS_ON,
-        dependencies: ["scannerVariant"],
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
       {
         propertyName: "placement",
@@ -89,8 +89,8 @@ export default [
           },
         },
         hidden: (props: CodeScannerWidgetProps) =>
-          props.scannerVariant === ScannerVariant.ALWAYS_ON,
-        dependencies: ["scannerVariant"],
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
     ],
   },
@@ -112,8 +112,8 @@ export default [
           },
         },
         hidden: (props: CodeScannerWidgetProps) =>
-          props.scannerVariant === ScannerVariant.ALWAYS_ON,
-        dependencies: ["scannerVariant"],
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
     ],
   },

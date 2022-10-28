@@ -1,15 +1,15 @@
 import { WidgetProps } from "widgets/BaseWidget";
-import { ScannerVariant } from "widgets/CodeScannerWidget/constants";
+import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
 import { DSLWidget } from "widgets/constants";
 
-export const migrateCodeScannerVariant = (currentDSL: DSLWidget) => {
+export const migrateCodeScannerLayout = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "CODE_SCANNER_WIDGET") {
       if (!("isClickedMarkerCentered" in child)) {
-        child.scannerVariant = ScannerVariant.CLICK_TO_SCAN;
+        child.scannerLayout = ScannerLayout.CLICK_TO_SCAN;
       }
     } else if (child.children && child.children.length > 0) {
-      child = migrateCodeScannerVariant(child);
+      child = migrateCodeScannerLayout(child);
     }
 
     return child;

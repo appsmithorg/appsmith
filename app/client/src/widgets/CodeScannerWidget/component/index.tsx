@@ -23,7 +23,7 @@ import {
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-import { ScannerVariant } from "../constants";
+import { ScannerLayout } from "../constants";
 import { ThemeProp } from "components/ads/common";
 import { ReactComponent as FlipImageIcon } from "assets/icons/widget/codeScanner/flip.svg";
 
@@ -31,7 +31,7 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
   boxShadow?: string;
   disabled: boolean;
-  scannerVariant: ScannerVariant;
+  scannerLayout: ScannerLayout;
 }>`
   .code-scanner-content {
     position: fixed;
@@ -88,8 +88,8 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
     background: ${({ disabled }) =>
       disabled ? "var(--wds-color-bg-disabled)" : "#000"};
     border-radius: ${({ borderRadius }) => borderRadius};
-    box-shadow: ${({ boxShadow, scannerVariant }) =>
-      scannerVariant === ScannerVariant.ALWAYS_ON ? boxShadow : "none"};
+    box-shadow: ${({ boxShadow, scannerLayout }) =>
+      scannerLayout === ScannerLayout.ALWAYS_ON ? boxShadow : "none"};
     overflow: hidden;
     height: 100%;
     position: relative;
@@ -543,7 +543,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
     );
 
     const renderVariant = () => {
-      if (props.scannerVariant === ScannerVariant.ALWAYS_ON) {
+      if (props.scannerLayout === ScannerLayout.ALWAYS_ON) {
         return alwaysOn;
       }
 
@@ -556,7 +556,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
           disabled={props.isDisabled}
-          scannerVariant={props.scannerVariant}
+          scannerLayout={props.scannerLayout}
         />
 
         {renderVariant()}
@@ -580,7 +580,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
 
   return (
     <>
-      {props.scannerVariant !== ScannerVariant.ALWAYS_ON &&
+      {props.scannerLayout !== ScannerLayout.ALWAYS_ON &&
         (!props.tooltip ? (
           baseButtonWrapper
         ) : (
@@ -614,7 +614,7 @@ export interface CodeScannerComponentProps extends ComponentProps {
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
   onCodeDetected: (value: string) => void;
-  scannerVariant: ScannerVariant;
+  scannerLayout: ScannerLayout;
 }
 
 export default CodeScannerComponent;

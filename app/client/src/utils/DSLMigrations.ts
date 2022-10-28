@@ -63,7 +63,7 @@ import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskin
 import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
-import { migrateCodeScannerVariant } from "./migrations/CodeScannerWidgetMigrations";
+import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1132,7 +1132,7 @@ export const transformDSL = (
   }
 
   if (currentDSL.version === 65) {
-    currentDSL = migrateCodeScannerVariant(currentDSL);
+    currentDSL = migrateCodeScannerLayout(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

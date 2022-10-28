@@ -1,7 +1,7 @@
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ButtonPlacementTypes } from "components/constants";
-import { ScannerVariant } from "./constants";
+import { ScannerLayout } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -15,12 +15,12 @@ export const CONFIG = {
     "barcode reader",
   ],
   defaults: {
-    rows: 4,
+    rows: 33,
     label: "Scan a QR/Barcode",
-    columns: 16,
+    columns: 25,
     widgetName: "CodeScanner",
     isDefaultClickDisabled: true,
-    scannerVariant: ScannerVariant.CLICK_TO_SCAN,
+    scannerLayout: ScannerLayout.ALWAYS_ON,
     version: 1,
     isRequired: false,
     isDisabled: false,
