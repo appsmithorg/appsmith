@@ -1,6 +1,5 @@
 import { isNil } from "lodash";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
 
 /*
  * Function to parse text as number based on InputType
@@ -15,16 +14,7 @@ export function getParsedText(value: string, inputType: InputTypes) {
       if (isNil(value) || value === "") {
         text = null;
       } else {
-        const decimalSeperator = getLocaleDecimalSeperator();
-        const typeCastValue = String(value);
-        text = typeCastValue.includes(decimalSeperator)
-          ? Number(
-              typeCastValue.replace(
-                new RegExp("\\" + decimalSeperator, "g"),
-                ".",
-              ),
-            )
-          : Number(typeCastValue);
+        text = Number(value);
 
         if (isNaN(text)) {
           text = null;

@@ -25,7 +25,6 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
-import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -33,21 +32,8 @@ export function defaultValueValidation(
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = "This value must be string";
-  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
-    "Please use . as the decimal separator for default values.";
   const NUMBER_ERROR_MESSAGE = "This value must be number";
   const EMPTY_ERROR_MESSAGE = "";
-  const localeLang = navigator.languages?.[0] || "en-US";
-
-  function getLocaleDecimalSeperator() {
-    return Intl.NumberFormat(localeLang)
-      .format(1.1)
-      .replace(/\p{Number}/gu, "");
-  }
-
-  const decimalSeperator = getLocaleDecimalSeperator();
-  const defaultDecimalSeperator = ".";
-
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -79,18 +65,7 @@ export function defaultValueValidation(
          *  When parsed value is not a finite numer
          */
         isValid = false;
-        /**
-         * Check whether value contains the locale decimal separator apart from "."
-         * We only allow "." as a decimal separator inside default value
-         */
-        if (
-          String(value).indexOf(defaultDecimalSeperator) === -1 &&
-          String(value).indexOf(decimalSeperator) > 0
-        ) {
-          messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
-        } else {
-          messages = [NUMBER_ERROR_MESSAGE];
-        }
+        messages = [NUMBER_ERROR_MESSAGE];
         parsed = null;
       } else {
         /*
@@ -136,18 +111,6 @@ export function defaultValueValidation(
 
 export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   const max = props.maxNum;
-  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
-    "Please use . as the decimal separator for default values.";
-  const localeLang = navigator.languages?.[0] || "en-US";
-
-  function getLocaleDecimalSeperator() {
-    return Intl.NumberFormat(localeLang)
-      .format(1.1)
-      .replace(/\p{Number}/gu, "");
-  }
-
-  const defaultDecimalSeparator = ".";
-  const decimalSeperator = getLocaleDecimalSeperator();
   const value = min;
   min = Number(min);
 
@@ -158,23 +121,10 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
       messages: [""],
     };
   } else if (!Number.isFinite(min)) {
-    /**
-     * Check whether value contains the locale decimal separator apart from "."
-     * We only allow "." as a decimal separator inside default value
-     */
-    let messages = [""];
-    if (
-      String(value).indexOf(defaultDecimalSeparator) === -1 &&
-      String(value).indexOf(decimalSeperator) > 0
-    ) {
-      messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
-    } else {
-      messages = ["This value must be number"];
-    }
     return {
       isValid: false,
       parsed: undefined,
-      messages,
+      messages: ["This value must be number"],
     };
   } else if (max !== undefined && min >= max) {
     return {
@@ -193,18 +143,6 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
 
 export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   const min = props.minNum;
-  const DECIMAL_SEPARATOR_ERROR_MESSAGE =
-    "Please use . as the decimal separator for default values.";
-  const localeLang = navigator.languages?.[0] || "en-US";
-
-  function getLocaleDecimalSeperator() {
-    return Intl.NumberFormat(localeLang)
-      .format(1.1)
-      .replace(/\p{Number}/gu, "");
-  }
-
-  const defaultDecimalSeparator = ".";
-  const decimalSeperator = getLocaleDecimalSeperator();
   const value = max;
   max = Number(max);
 
@@ -215,23 +153,10 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
       messages: [""],
     };
   } else if (!Number.isFinite(max)) {
-    /**
-     * Check whether value contains the locale decimal separator apart from "."
-     * We only allow "." as a decimal separator inside default value
-     */
-    let messages = [""];
-    if (
-      String(value).indexOf(defaultDecimalSeparator) === -1 &&
-      String(value).indexOf(decimalSeperator) > 0
-    ) {
-      messages = [DECIMAL_SEPARATOR_ERROR_MESSAGE];
-    } else {
-      messages = ["This value must be number"];
-    }
     return {
       isValid: false,
       parsed: undefined,
-      messages,
+      messages: ["This value must be number"],
     };
   } else if (min !== undefined && max <= min) {
     return {
@@ -475,16 +400,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super.handleKeyDown(e);
   };
 
-  componentDidMount = () => {
-    this.formatText();
-  };
-
   componentDidUpdate = (prevProps: InputWidgetProps) => {
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)
     ) {
-      this.formatText();
+      this.props.updateWidgetMetaProperty(
+        "text",
+        getParsedText(this.props.inputText, this.props.inputType),
+      );
     }
 
     if (prevProps.inputType !== this.props.inputType) {
@@ -500,26 +424,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
-  };
-
-  formatText = () => {
-    let value = this.props.inputText || "";
-
-    /*
-     * When the local language is different like de-DE, etc.
-     * We need to convert the value to a local(",") decimal value (45.25 => 45,25)
-     * This is unformatted Text
-     */
-    if (value && this.props.inputType === InputTypes.NUMBER) {
-      const decimalSeperator = getLocaleDecimalSeperator();
-      value = String(value).replace(new RegExp("\\.", "g"), decimalSeperator);
-      this.props.updateWidgetMetaProperty("inputText", value);
-    }
-
-    this.props.updateWidgetMetaProperty(
-      "text",
-      getParsedText(value, this.props.inputType),
-    );
   };
 
   onValueChange = (value: string) => {
