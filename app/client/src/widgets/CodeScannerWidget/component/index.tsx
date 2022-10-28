@@ -121,7 +121,7 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
   .code-scanner-camera-container video {
     height: 100%;
     position: relative;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: ${({ borderRadius }) => borderRadius};
   }
 `;
@@ -500,9 +500,11 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
           isImageMirrored ? "mirror-video" : ""
         }`}
       >
-        <DisabledOverlayer disabled={props.isDisabled}>
-          <CameraOfflineIcon />
-        </DisabledOverlayer>
+        {props.isDisabled && (
+          <DisabledOverlayer disabled={props.isDisabled}>
+            <CameraOfflineIcon />
+          </DisabledOverlayer>
+        )}
 
         {!props.isDisabled && (
           <>
@@ -512,6 +514,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
               onUpdate={handleOnResult}
               videoConstraints={videoConstraints}
             />
+
             <ControlPanel
               appLayoutType={appLayout?.type}
               handleImageMirror={handleImageMirror}
