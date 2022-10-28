@@ -1209,11 +1209,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     });
   };
 
-  removeRowFromTransientTableData = (__originalIndex__: number) => {
+  removeRowFromTransientTableData = (index: number) => {
     const newTransientTableData = clone(this.props.transientTableData);
 
     if (newTransientTableData) {
-      delete newTransientTableData[__originalIndex__];
+      delete newTransientTableData[index];
 
       this.props.updateWidgetMetaProperty(
         "transientTableData",
@@ -1850,7 +1850,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         value !== this.props.editableCell?.initialValue
       ) {
         this.updateTransientTableData({
-          __originalIndex__: this.getRowOriginalIndex(rowIndex),
+          [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
           [alias]: this.props.editableCell?.value,
         });
 
@@ -1911,7 +1911,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateNewRowValues(column, value, value);
     } else {
       this.updateTransientTableData({
-        __originalIndex__: this.getRowOriginalIndex(rowIndex),
+        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
         [column]: value,
       });
 
@@ -1972,7 +1972,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.updateNewRowValues(alias, value, value);
     } else {
       this.updateTransientTableData({
-        __originalIndex__: originalIndex,
+        [ORIGINAL_INDEX_KEY]: originalIndex,
         [alias]: value,
       });
 
