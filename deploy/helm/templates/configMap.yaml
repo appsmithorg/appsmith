@@ -1,4 +1,5 @@
 {{- $nameSpace := include "appsmith.namespace" . -}}
+{{- $name := include "appsmith.fullname" . -}}
 {{- $mongoUser := .Values.mongodb.auth.rootUser -}}
 {{- $mongoPassword := .Values.mongodb.auth.rootPassword -}}
 {{- $mongoServicename := .Values.mongodb.service.nameOverride -}}
@@ -18,7 +19,7 @@ data:
   {{- end }}
   {{- if and (eq "APPSMITH_REDIS_URL" $key) ( not $value) }}
   {{- if $.Values.redis.enabled }}
-  {{ $key }}: redis://appsmith-redis-master.{{ $nameSpace }}.svc.cluster.local:6379
+  {{ $key }}: redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379
   {{- end }}
   {{- end }}
   {{- if $value }}
