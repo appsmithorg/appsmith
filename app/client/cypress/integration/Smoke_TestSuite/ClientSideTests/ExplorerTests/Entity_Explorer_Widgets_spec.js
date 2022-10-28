@@ -1,23 +1,9 @@
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import { WIDGET } from "../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const ee = ObjectsRegistry.EntityExplorer,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators;
 
 describe("Entity explorer tests related to widgets and validation", function() {
   before(() => {
     cy.addDsl(dsl);
-  });
-
-  it("Widgets visibility in widget pane", function() {
-    ee.NavigateToSwitcher("widgets");
-    agHelper.ScrollTo(locator._widgetPane, "bottom");
-    agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
-    ee.PinUnpinEntityExplorer(true);
-    agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
   });
 
   it("Widget edit/delete/copy to clipboard validation", function() {
