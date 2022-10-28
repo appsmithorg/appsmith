@@ -49,6 +49,7 @@ export type DynamicPathMap = Record<string, DynamicPathType[]>;
 export type DynamicPathMapList = Record<string, DynamicPathMap>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
+
 export type MetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentRow: string;
