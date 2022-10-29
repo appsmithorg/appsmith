@@ -26,6 +26,7 @@ import {
 import { ScannerLayout } from "../constants";
 import { ThemeProp } from "components/ads/common";
 import { ReactComponent as FlipImageIcon } from "assets/icons/widget/codeScanner/flip.svg";
+import { usePageVisibility } from "react-page-visibility";
 
 const CodeScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -408,6 +409,12 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
     facingMode: "environment",
   });
 
+  /**
+   * Check if the tab is active.
+   * If not, stop scanning and detecting codes in background.
+   */
+  const isTabActive = usePageVisibility();
+
   const openModal = () => {
     setIsOpen(true);
   };
@@ -508,12 +515,14 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
 
         {!props.isDisabled && (
           <>
-            <BarcodeScannerComponent
-              key={JSON.stringify(videoConstraints)}
-              onError={handleCameraErrors}
-              onUpdate={handleOnResult}
-              videoConstraints={videoConstraints}
-            />
+            {isTabActive && (
+              <BarcodeScannerComponent
+                key={JSON.stringify(videoConstraints)}
+                onError={handleCameraErrors}
+                onUpdate={handleOnResult}
+                videoConstraints={videoConstraints}
+              />
+            )}
 
             <ControlPanel
               appLayoutType={appLayout?.type}
