@@ -205,20 +205,14 @@ abstract class BaseWidget<
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
       log.debug(
-        "updateDynamicHeight",
+        "updateDynamicHeight: computing debounced:",
         this.props.widgetId,
         this.props.widgetName,
         height,
         shouldUpdate,
       );
-      let paddedHeight = height + WIDGET_PADDING * 2;
-      if (
-        (this.props.renderMode === RenderModes.PAGE ||
-          this.props.renderMode === RenderModes.PREVIEW) &&
-        height === 0
-      ) {
-        paddedHeight = 0;
-      }
+      const paddedHeight = height + WIDGET_PADDING * 2;
+
       shouldUpdate && updateWidgetDynamicHeight(widgetId, paddedHeight);
     }
   }
@@ -231,9 +225,7 @@ abstract class BaseWidget<
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
-    const canWidgetCollapse =
-      this.props.renderMode === RenderModes.PAGE ||
-      this.props.renderMode === RenderModes.PREVIEW;
+    const canWidgetCollapse = false;
 
     // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
     // then we need to compute.
