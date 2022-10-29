@@ -650,7 +650,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     Properties props = mailSender.getJavaMailProperties();
                     props.put("mail.transport.protocol", "smtp");
-                    props.put("mail.smtp.starttls.enable", "true");
+
+                    final String isTlsEnabled = requestDTO.getTlsEnabled().toString();
+                    props.put("mail.smtp.starttls.enable", isTlsEnabled);
+                    props.put("mail.smtp.ssl.enable", isTlsEnabled);
+
                     props.put("mail.smtp.timeout", 7000); // 7 seconds
 
                     if (StringUtils.hasLength(requestDTO.getUsername())) {
