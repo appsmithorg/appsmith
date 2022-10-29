@@ -149,6 +149,7 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _widgetPane = "[data-cy='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-cy="slider-thumb"]';
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>
