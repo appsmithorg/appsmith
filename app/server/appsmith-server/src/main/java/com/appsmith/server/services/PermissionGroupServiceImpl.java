@@ -35,7 +35,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +46,6 @@ import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
-import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -214,20 +212,43 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .cache();
 
+        // TODO : Untested : Please test.
         return permissionGroupMono
                 .flatMap(permissionGroup -> {
-                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
-                    Set<String> assignedToGroupIds = permissionGroup.getAssignedToGroupIds();
 
-                    List<String> allUsersAffected = new ArrayList<>();
-                    allUsersAffected.addAll(assignedToUserIds);
-                    // TODO : handle for groups by adding all the users from the groups to allUsersAffected
-
-                    // Evict the cache entries for all affected users before archiving
-                    return cleanPermissionGroupCacheForUsers(allUsersAffected)
+                    return Mono.zip(
+                                    bulkUnassignUsersFromPermissionGroupsWithoutPermission(permissionGroup.getAssignedToUserIds(), Set.of(id)),
+                                    bulkUnassignFromUserGroupsWithoutPermission(permissionGroup, permissionGroup.getAssignedToGroupIds())
+                            )
                             .then(repository.archiveById(id));
                 })
                 .then(permissionGroupMono);
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(PermissionGroup permissionGroup, Set<String> userGroupIds) {
+
+        return userGroupRepository.findAllById(userGroupIds)
+                .collect(Collectors.toSet())
+                .flatMap(userGroups -> {
+                    Set<String> assignedToGroupIds = permissionGroup.getAssignedToGroupIds();
+                    assignedToGroupIds.removeAll(userGroupIds);
+
+                    // Get the userIds from all the user groups that we are unassigning
+                    List<String> userIds = userGroups.stream()
+                            .map(ug -> ug.getUsers())
+                            .flatMap(Collection::stream)
+                            .collect(Collectors.toList());
+
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+
+                    updateObj.set(path, assignedToGroupIds);
+                    return Mono.zip(
+                            repository.updateById(permissionGroup.getId(), updateObj),
+                            cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
+                    ).then(repository.findById(permissionGroup.getId()));
+                });
     }
 
     @Override
@@ -287,16 +308,32 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds) {
         return repository.findAllById(permissionGroupIds)
-                        .flatMap(pg -> {
-                            Set<String> assignedToUserIds = pg.getAssignedToUserIds();
-                            assignedToUserIds.remove(userId);
+                .flatMap(pg -> {
+                    Set<String> assignedToUserIds = pg.getAssignedToUserIds();
+                    assignedToUserIds.remove(userId);
 
-                            Update updateObj = new Update();
-                            String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                            updateObj.set(path, assignedToUserIds);
-                            return repository.updateById(pg.getId(), updateObj);
-                        })
+                    updateObj.set(path, assignedToUserIds);
+                    return repository.updateById(pg.getId(), updateObj);
+                })
+                .then(Mono.just(TRUE));
+    }
+
+    @Override
+    public Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(Set<String> userIds, Set<String> permissionGroupIds) {
+        return repository.findAllById(permissionGroupIds)
+                .flatMap(pg -> {
+                    Set<String> assignedToUserIds = pg.getAssignedToUserIds();
+                    assignedToUserIds.removeAll(userIds);
+
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+
+                    updateObj.set(path, assignedToUserIds);
+                    return repository.updateById(pg.getId(), updateObj);
+                })
                 .then(Mono.just(TRUE));
     }
 
