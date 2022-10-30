@@ -6,7 +6,11 @@ export default function interceptAndOverrideHttpRequest() {
   self.XMLHttpRequest = function(args) {
     //@ts-expect-error allow override
     const obj = new XHRPrototype.constructor(args);
-    obj.withCredentials = false;
+    Object.defineProperty(obj, "withCredentials", {
+      configurable: false,
+      writable: false,
+      value: false,
+    });
     return obj;
   };
   self.XMLHttpRequest.prototype = XHRPrototype;
