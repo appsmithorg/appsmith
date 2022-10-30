@@ -127,16 +127,17 @@ export function validateMinHeight(value: unknown, props: WidgetProps) {
   const _maxHeight: number = parseInt(props.maxDynamicHeight as string, 10);
 
   if (isNaN(_value) || _value < 4) {
+    // 4 is the WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
     return {
       isValid: false,
       messages: [`Value should be a positive integer greater than 4`],
-      parsed: 4,
+      parsed: 4, // 4 is the WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
     };
   } else if (_value > _maxHeight) {
     return {
       isValid: false,
       messages: [`Value should be less than or equal Max. Height`],
-      parsed: _maxHeight || 4,
+      parsed: _maxHeight || 4, // 4 is the WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
     };
   }
 
@@ -161,7 +162,7 @@ export function validateMaxHeight(value: unknown, props: WidgetProps) {
     return {
       isValid: false,
       messages: [`Value should be greater than or equal Min. Height`],
-      parsed: _minHeight || 4,
+      parsed: _minHeight || 4, // 4 is the WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
     };
   }
   return {
