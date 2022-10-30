@@ -34,7 +34,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 import {
   GridProps,
   PrevReflowState,

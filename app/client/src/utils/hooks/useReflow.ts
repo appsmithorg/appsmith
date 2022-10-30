@@ -24,7 +24,7 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { AppState } from "@appsmith/reducers";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 
 type WidgetCollidingSpace = CollidingSpace & {
   type: string;

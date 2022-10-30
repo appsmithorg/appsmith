@@ -1,6 +1,6 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { cloneDeep, isUndefined } from "lodash";
-import { Rect } from "utils/WidgetPropsUtils";
+import { Rect } from "utils/boxHelpers";
 import {
   CollidingSpace,
   CollidingSpaceMap,
