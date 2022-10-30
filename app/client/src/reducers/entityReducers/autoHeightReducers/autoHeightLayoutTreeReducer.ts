@@ -6,20 +6,20 @@ import {
 import { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
 
-export type DynamicHeightLayoutTreePayload = {
+export type AutoHeightLayoutTreePayload = {
   tree: Record<string, TreeNode>;
   canvasLevelMap: Record<string, number>;
 };
 
-export type DynamicHeightLayoutTreeReduxState = {
+export type AutoHeightLayoutTreeReduxState = {
   [widgetId: string]: TreeNode & { level?: number };
 };
-const initialState: DynamicHeightLayoutTreeReduxState = {};
+const initialState: AutoHeightLayoutTreeReduxState = {};
 
-const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
+const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_AUTO_HEIGHT_LAYOUT_TREE]: (
-    state: DynamicHeightLayoutTreeReduxState,
-    action: ReduxAction<DynamicHeightLayoutTreePayload>,
+    state: AutoHeightLayoutTreeReduxState,
+    action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { tree } = action.payload;
     const diff = xor(Object.keys(state), ...Object.keys(tree));
@@ -53,4 +53,4 @@ const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
   },
 });
 
-export default dynamicHeightLayoutTreeReducer;
+export default autoHeightLayoutTreeReducer;
