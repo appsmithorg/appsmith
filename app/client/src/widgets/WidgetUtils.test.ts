@@ -21,9 +21,9 @@ import {
   lightenColor,
   composePropertyUpdateHook,
   sanitizeKey,
-  isDynamicHeightEnabledForWidget,
-  getWidgetMaxDynamicHeight,
-  getWidgetMinDynamicHeight,
+  isAutoHeightEnabledForWidget,
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
 } from "./WidgetUtils";
 import {
   getCustomTextColor,
@@ -491,14 +491,14 @@ const DUMMY_WIDGET: WidgetProps = {
   widgetId: "",
   widgetName: "",
 };
-describe("Dynamic Height Utils", () => {
+describe("Auto Height Utils", () => {
   it("should return true if withLimits is true and widget has AUTO_HEIGHT_WITH_LIMITS", () => {
     const props = {
       ...DUMMY_WIDGET,
       dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
     };
 
-    const result = isDynamicHeightEnabledForWidget(props, true);
+    const result = isAutoHeightEnabledForWidget(props, true);
     expect(result).toBe(true);
   });
   it("should return false if withLimits is true and widget has AUTO_HEIGHT", () => {
@@ -507,7 +507,7 @@ describe("Dynamic Height Utils", () => {
       dynamicHeight: "AUTO_HEIGHT",
     };
 
-    const result = isDynamicHeightEnabledForWidget(props, true);
+    const result = isAutoHeightEnabledForWidget(props, true);
     expect(result).toBe(false);
   });
   it("should return true if withLimits is false and widget has AUTO_HEIGHT", () => {
@@ -516,7 +516,7 @@ describe("Dynamic Height Utils", () => {
       dynamicHeight: "AUTO_HEIGHT",
     };
 
-    const result = isDynamicHeightEnabledForWidget(props, false);
+    const result = isAutoHeightEnabledForWidget(props, false);
     expect(result).toBe(true);
   });
 
@@ -526,7 +526,7 @@ describe("Dynamic Height Utils", () => {
       dynamicHeight: "FIXED",
     };
 
-    const result = isDynamicHeightEnabledForWidget(props, false);
+    const result = isAutoHeightEnabledForWidget(props, false);
     expect(result).toBe(false);
   });
   it("should return false withLimits is true and widget has FIXED", () => {
@@ -535,7 +535,7 @@ describe("Dynamic Height Utils", () => {
       dynamicHeight: "FIXED",
     };
 
-    const result = isDynamicHeightEnabledForWidget(props, true);
+    const result = isAutoHeightEnabledForWidget(props, true);
     expect(result).toBe(false);
   });
   it("should return 9000 if widget has AUTO_HEIGHT", () => {
@@ -545,7 +545,7 @@ describe("Dynamic Height Utils", () => {
       maxDynamicHeight: 20,
     };
 
-    const result = getWidgetMaxDynamicHeight(props);
+    const result = getWidgetMaxAutoHeight(props);
     expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
   });
   it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
@@ -555,7 +555,7 @@ describe("Dynamic Height Utils", () => {
       maxDynamicHeight: 20,
     };
 
-    const result = getWidgetMaxDynamicHeight(props);
+    const result = getWidgetMaxAutoHeight(props);
     expect(result).toBe(20);
   });
   it("should return 9000 if widget has AUTO_HEIGHT_WITH_LIMITS and maxDynamicHeight is undefined", () => {
@@ -565,7 +565,7 @@ describe("Dynamic Height Utils", () => {
       maxDynamicHeight: undefined,
     };
 
-    const result = getWidgetMaxDynamicHeight(props);
+    const result = getWidgetMaxAutoHeight(props);
     expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
   });
 
@@ -576,7 +576,7 @@ describe("Dynamic Height Utils", () => {
       maxDynamicHeight: undefined,
     };
 
-    const result = getWidgetMaxDynamicHeight(props);
+    const result = getWidgetMaxAutoHeight(props);
     expect(result).toBeUndefined();
   });
 
@@ -587,7 +587,7 @@ describe("Dynamic Height Utils", () => {
       minDynamicHeight: 20,
     };
 
-    const result = getWidgetMinDynamicHeight(props);
+    const result = getWidgetMinAutoHeight(props);
     expect(result).toBe(WidgetHeightLimits.MIN_HEIGHT_IN_ROWS);
   });
   it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
@@ -597,7 +597,7 @@ describe("Dynamic Height Utils", () => {
       minDynamicHeight: 20,
     };
 
-    const result = getWidgetMinDynamicHeight(props);
+    const result = getWidgetMinAutoHeight(props);
     expect(result).toBe(20);
   });
   it("should return 4 if widget has AUTO_HEIGHT_WITH_LIMITS and minDynamicHeight is undefined", () => {
@@ -607,7 +607,7 @@ describe("Dynamic Height Utils", () => {
       minDynamicHeight: undefined,
     };
 
-    const result = getWidgetMinDynamicHeight(props);
+    const result = getWidgetMinAutoHeight(props);
     expect(result).toBe(WidgetHeightLimits.MIN_HEIGHT_IN_ROWS);
   });
 
@@ -618,7 +618,7 @@ describe("Dynamic Height Utils", () => {
       minDynamicHeight: undefined,
     };
 
-    const result = getWidgetMinDynamicHeight(props);
+    const result = getWidgetMinAutoHeight(props);
     expect(result).toBeUndefined();
   });
 });
