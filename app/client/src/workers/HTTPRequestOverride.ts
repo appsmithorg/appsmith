@@ -1,19 +1,12 @@
 import * as fetchIntercept from "fetch-intercept";
 
+const xhrSend = XMLHttpRequest.prototype.send;
+
 export default function interceptAndOverrideHttpRequest() {
-  const XHRPrototype = XMLHttpRequest.prototype;
-  //@ts-expect-error allow override
-  self.XMLHttpRequest = function(args) {
-    //@ts-expect-error allow override
-    const obj = new XHRPrototype.constructor(args);
-    Object.defineProperty(obj, "withCredentials", {
-      configurable: false,
-      writable: false,
-      value: false,
-    });
-    return obj;
+  XMLHttpRequest.prototype.send = function(...args) {
+    this.withCredentials = false;
+    return xhrSend.apply(this, args);
   };
-  self.XMLHttpRequest.prototype = XHRPrototype;
 
   return fetchIntercept.register({
     request: function(...args) {
