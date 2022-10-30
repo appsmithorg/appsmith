@@ -45,6 +45,11 @@ import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
+
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
@@ -227,6 +232,13 @@ function AppViewer(props: Props) {
     [triggerEvalOnMetaUpdate, dispatch],
   );
 
+  const updateWidgetAutoHeightCallback = useCallback(
+    (widgetId: string, height: number) => {
+      dispatch(updateWidgetAutoHeightAction(widgetId, height));
+    },
+    [updateWidgetAutoHeightAction, dispatch],
+  );
+
   return (
     <ThemeProvider theme={lightTheme}>
       <EditorContext.Provider
@@ -236,6 +248,8 @@ function AppViewer(props: Props) {
           batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
           syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
           triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
+          updateWidgetAutoHeight: updateWidgetAutoHeightCallback,
+          checkContainersForAutoHeight: checkContainersForAutoHeightAction,
         }}
       >
         <WidgetGlobaStyles
