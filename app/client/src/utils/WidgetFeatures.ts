@@ -122,7 +122,7 @@ export function hideDynamicHeightPropertyControl(props: WidgetProps) {
   return props.dynamicHeight !== DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
 }
 
-function validateMinHeight(value: unknown, props: WidgetProps) {
+export function validateMinHeight(value: unknown, props: WidgetProps) {
   const _value: number = parseInt(value as string, 10);
   const _maxHeight: number = parseInt(props.maxDynamicHeight as string, 10);
 
@@ -147,7 +147,7 @@ function validateMinHeight(value: unknown, props: WidgetProps) {
   };
 }
 
-function validateMaxHeight(value: unknown, props: WidgetProps) {
+export function validateMaxHeight(value: unknown, props: WidgetProps) {
   const _value: number = parseInt(value as string, 10);
   const _minHeight: number = parseInt(props.minDynamicHeight as string, 10);
 
@@ -171,7 +171,7 @@ function validateMaxHeight(value: unknown, props: WidgetProps) {
   };
 }
 // TODO (abhinav): ADD_UNIT_TESTS
-function updateMinMaxDynamicHeight(
+export function updateMinMaxDynamicHeight(
   props: WidgetProps,
   propertyName: string,
   propertyValue: unknown,
@@ -253,7 +253,7 @@ function updateMinMaxDynamicHeight(
   return updates;
 }
 
-function transformToNumber(
+export function transformToNumber(
   props: WidgetProps,
   propertyName: string,
   propertyValue: string,

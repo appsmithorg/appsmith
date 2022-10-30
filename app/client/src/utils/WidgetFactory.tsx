@@ -79,7 +79,6 @@ class WidgetFactory {
       if (propertyPaneConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneConfig,
-          features,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -99,7 +98,6 @@ class WidgetFactory {
       if (propertyPaneContentConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneContentConfig,
-          features,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -119,7 +117,6 @@ class WidgetFactory {
       if (propertyPaneStyleConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneStyleConfig,
-          features,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
