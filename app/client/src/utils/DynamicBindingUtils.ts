@@ -314,6 +314,7 @@ export const isThemeBoundProperty = (
 };
 
 export const unsafeFunctionForEval = [
+  "XMLHttpRequest",
   "setInterval",
   "clearInterval",
   "setImmediate",
