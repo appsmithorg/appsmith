@@ -80,7 +80,6 @@ class WidgetFactory {
       if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneConfig,
-          features,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
