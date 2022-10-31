@@ -6,7 +6,7 @@ import "jest-styled-components";
 import renderer from "react-test-renderer";
 
 describe("<AutoHeightContainer />", () => {
-  it("should wrap the children in a div whose height is auto", async () => {
+  it("should wrap the children in a div whose height is auto.", async () => {
     const tree = renderer
       .create(
         <AutoHeightContainer
