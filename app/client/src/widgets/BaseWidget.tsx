@@ -398,8 +398,8 @@ abstract class BaseWidget<
         <AutoHeightOverlay
           {...this.props}
           batchUpdate={onBatchUpdate}
-          maxDynamicHeight={getWidgetMaxAutoHeight(this.props)}
-          minDynamicHeight={getWidgetMinAutoHeight(this.props)}
+          maxAutoHeight={getWidgetMaxAutoHeight(this.props)}
+          minAutoHeight={getWidgetMinAutoHeight(this.props)}
           onMaxHeightSet={onMaxHeightSet}
           onMinHeightSet={onMinHeightSet}
           style={style}

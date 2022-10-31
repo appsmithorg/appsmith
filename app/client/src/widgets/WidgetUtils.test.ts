@@ -24,6 +24,7 @@ import {
   isAutoHeightEnabledForWidget,
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
+  shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import {
   getCustomTextColor,
@@ -620,5 +621,78 @@ describe("Auto Height Utils", () => {
 
     const result = getWidgetMinAutoHeight(props);
     expect(result).toBeUndefined();
+  });
+});
+
+describe("Should Update Widget Height Automatically?", () => {
+  it("Multiple scenario tests", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 19,
+      maxDynamicHeight: 40,
+      topRow: 20,
+      bottomRow: 40,
+    };
+
+    const inputs = [
+      600, // Is beyond max height of 40 rows
+      560, // Is beyond max height of 40 rows
+      220, // Is within 20 and 40 rows limits
+      180, // Is below the min of 20 rows
+      200, // Is the same as current height
+      190, // Is exactly min value
+      400, // Is exactly max value
+      0, // Is below the min possible value
+      100, // Is below the min possible value
+    ];
+    const expected = [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = shouldUpdateWidgetHeightAutomatically(input, props);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("When height is below min rows, should update, no matter the expectations", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 19,
+      maxDynamicHeight: 40,
+      topRow: 20,
+      bottomRow: 25,
+    };
+
+    const input = 0;
+    const expected = true;
+
+    const result = shouldUpdateWidgetHeightAutomatically(input, props);
+    expect(result).toStrictEqual(expected);
+  });
+  it("When height is above max rows, should update, no matter the expectations", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 19,
+      maxDynamicHeight: 40,
+      topRow: 20,
+      bottomRow: 65,
+    };
+
+    const input = 0;
+    const expected = true;
+
+    const result = shouldUpdateWidgetHeightAutomatically(input, props);
+    expect(result).toStrictEqual(expected);
   });
 });
