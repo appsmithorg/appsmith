@@ -14,6 +14,7 @@ import org.jgrapht.traverse.DepthFirstIterator;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -93,7 +94,6 @@ public class PolicyGeneratorCE {
 
         addLateralEdgesForAllIndirectRelationships();
 
-        Set<DefaultEdge> defaultEdges = lateralGraph.edgeSet();
     }
 
     protected void addVertices() {
@@ -280,6 +280,13 @@ public class PolicyGeneratorCE {
      * @return
      */
     public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+
+        // In case the calling function could not translate the string value to AclPermission, return an empty set to handle
+        // erroneous cases
+        if (aclPermission == null) {
+            return Collections.emptySet();
+        }
+
         if (policy.getPermissionGroups() == null) {
             policy.setPermissionGroups(new HashSet<>());
         }
