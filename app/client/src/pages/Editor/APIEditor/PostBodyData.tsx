@@ -18,11 +18,10 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { MultiSwitch } from "design-system";
+import { Classes, MultiSwitch } from "design-system";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { Classes } from "components/ads/common";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 
 const PostBodyContainer = styled.div`

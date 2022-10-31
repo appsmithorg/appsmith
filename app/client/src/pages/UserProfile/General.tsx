@@ -1,13 +1,18 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { Toaster, Text, TextType } from "design-system";
 import { debounce } from "lodash";
-import { TextInput, notEmptyValidator } from "design-system";
+import {
+  notEmptyValidator,
+  Text,
+  TextInput,
+  TextType,
+  Toaster,
+  Variant,
+} from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes } from "@blueprintjs/core";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
-import { Variant } from "components/ads/common";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   createMessage,

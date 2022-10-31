@@ -4,7 +4,6 @@ import { Button, Position } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
-import { ThemeProp } from "components/ads/common";
 import {
   RenderMode,
   RenderModes,
@@ -25,6 +24,7 @@ import {
 import { createGlobalStyle } from "constants/DefaultTheme";
 import Interweave from "interweave";
 import { Popover2 } from "@blueprintjs/popover2";
+import { ThemeProp } from "widgets/constants";
 
 const ToolTipWrapper = styled.div`
   height: 100%;

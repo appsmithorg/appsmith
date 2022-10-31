@@ -18,12 +18,11 @@ import {
   selectWidgetInitAction,
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import {
   createMessage,
   SELECT_ALL_WIDGETS_MSG,
 } from "@appsmith/constants/messages";
-import { Variant } from "components/ads/common";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import {
   CanvasWidgetsReduxState,
