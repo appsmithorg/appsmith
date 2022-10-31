@@ -3,11 +3,8 @@ import {
   FUNC_ARGS_REGEX,
   IS_URL_OR_MODAL,
 } from "./regex";
-import {
-  getDynamicBindings,
-  isDynamicValue,
-} from "../../../utils/DynamicBindingUtils";
-import { isValidURL } from "../../../utils/URLUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
+import { isValidURL } from "utils/URLUtils";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -145,6 +142,10 @@ export const enumTypeGetter = (
   }
 };
 
+/*
+ * This function extracts the 1st string argument from value
+ * and determines if the string is a valid url
+ */
 export const isValueValidURL = (value: string) => {
   if (value) {
     const indices = [];
