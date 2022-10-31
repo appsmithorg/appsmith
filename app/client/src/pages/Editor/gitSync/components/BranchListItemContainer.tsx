@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { Classes } from "components/ads";
+import { Classes } from "design-system";
 
 export const BranchListItemContainer = styled.div<{
   selected?: boolean;

@@ -2,8 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { noop } from "lodash";
 
-import { Toaster } from "design-system";
-import { ThemeProp, Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -32,6 +31,7 @@ import { redoShortCut, undoShortCut } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
