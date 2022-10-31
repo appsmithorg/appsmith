@@ -17,6 +17,7 @@ import {
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
 import {
+  Classes as AppClass,
   Dropdown,
   HighlightText,
   Icon,
@@ -27,7 +28,6 @@ import {
   TextType,
 } from "design-system";
 import styled from "styled-components";
-import { Classes as AppClass } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";

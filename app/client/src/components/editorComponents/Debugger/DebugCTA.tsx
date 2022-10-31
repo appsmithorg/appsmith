@@ -5,11 +5,10 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { Classes, Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Button, Icon, IconSize } from "design-system";
+import { Button, Classes, Icon, IconSize, Variant } from "design-system";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
