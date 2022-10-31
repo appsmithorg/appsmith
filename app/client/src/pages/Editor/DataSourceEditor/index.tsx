@@ -72,8 +72,13 @@ interface ReduxStateProps {
   datasource: Datasource | undefined;
 }
 
+interface DatasourcEditorProps {
+  datasourceDeleteTrigger: () => void;
+}
+
 type Props = ReduxStateProps &
   DatasourcePaneFunctions &
+  DatasourcEditorProps &
   RouteComponentProps<{
     datasourceId: string;
     pageId: string;
@@ -135,6 +140,7 @@ class DataSourceEditor extends React.Component<Props> {
 
   render() {
     const {
+      datasourceDeleteTrigger,
       datasourceId,
       formConfig,
       formData,
@@ -156,6 +162,7 @@ class DataSourceEditor extends React.Component<Props> {
     return (
       <DataSourceEditorForm
         applicationId={this.props.applicationId}
+        datasourceDeleteTrigger={datasourceDeleteTrigger}
         datasourceId={datasourceId}
         formConfig={formConfig}
         formData={formData}
@@ -270,6 +277,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.closeDialog = this.closeDialog.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onDiscard = this.onDiscard.bind(this);
+    this.datasourceDeleteTrigger = this.datasourceDeleteTrigger.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -346,6 +354,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   onDiscard() {
     this.closeDialogAndUnblockRoutes();
+    this.props.discardTempDatasource();
+    this.props.deleteTempDSFromDraft();
     this.state.navigation();
   }
 
@@ -358,6 +368,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     if (isNavigateBack) {
       this.state.navigation();
     }
+  }
+
+  datasourceDeleteTrigger() {
+    this.state.unblock();
   }
 
   renderSaveDisacardModal() {
@@ -400,6 +414,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         <>
           <RestAPIDatasourceForm
             applicationId={this.props.applicationId}
+            datasourceDeleteTrigger={this.datasourceDeleteTrigger}
             datasourceId={datasourceId}
             hiddenHeader={fromImporting}
             isDeleting={isDeleting}
@@ -444,6 +459,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditor
           {...this.props}
+          datasourceDeleteTrigger={this.datasourceDeleteTrigger}
           datasourceId={datasourceId}
           pageId={pageId}
         />

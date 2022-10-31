@@ -48,6 +48,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   datasourceName?: string;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
+  datasourceDeleteTrigger: () => void;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -114,6 +115,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     const {
       datasource,
       datasourceButtonConfiguration,
+      datasourceDeleteTrigger,
       datasourceId,
       formData,
       messages,
@@ -188,6 +190,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           <DatasourceAuth
             datasource={datasource}
             datasourceButtonConfiguration={datasourceButtonConfiguration}
+            datasourceDeleteTrigger={datasourceDeleteTrigger}
             formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isFormDirty={this.props.isFormDirty}

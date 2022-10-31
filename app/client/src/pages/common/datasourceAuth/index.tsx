@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import {
-  ActionButton,
-  SaveButtonContainer,
-} from "pages/Editor/DataSourceEditor/JSONtoForm";
-import EditButton from "components/editorComponents/Button";
+import { SaveButtonContainer } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
@@ -23,7 +19,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { ButtonVariantTypes } from "components/constants";
 import { AppState } from "@appsmith/reducers";
 import {
   AuthType,
@@ -34,7 +29,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Toaster } from "design-system";
+import { Button, Category, Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import {
   CONTEXT_DELETE,
@@ -54,6 +49,7 @@ interface Props {
   datasourceButtonConfiguration: string[] | undefined;
   triggerSave?: boolean;
   isFormDirty?: boolean;
+  datasourceDeleteTrigger: () => void;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -80,7 +76,20 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const StyledButton = styled(EditButton)<{ fluidWidth?: boolean }>`
+const ActionButton = styled(Button)`
+  &&& {
+    width: auto;
+    min-width: 74px;
+    margin-right: 9px;
+    min-height: 32px;
+
+    & > span {
+      max-width: 100%;
+    }
+  }
+`;
+
+const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
   &&&& {
     height: 32px;
     width: ${(props) => (props.fluidWidth ? "" : "87px")};
@@ -99,6 +108,7 @@ const StyledAuthMessage = styled.div`
 function DatasourceAuth({
   datasource,
   datasourceButtonConfiguration = ["DELETE", "SAVE"],
+  datasourceDeleteTrigger,
   formData,
   getSanitizedFormData,
   isInvalid,
@@ -194,6 +204,7 @@ function DatasourceAuth({
   // Handles datasource deletion
   const handleDatasourceDelete = () => {
     dispatch(deleteDatasource({ id: datasourceId }));
+    datasourceDeleteTrigger();
   };
 
   // Handles datasource testing
@@ -250,60 +261,60 @@ function DatasourceAuth({
     return {
       [DatasourceButtonType.DELETE]: (
         <ActionButton
-          buttonStyle="DANGER"
-          buttonVariant={ButtonVariantTypes.PRIMARY}
-          // accent="error"
+          category={Category.primary}
           className="t--delete-datasource"
           disabled={datasourceId === TEMP_DATASOURCE_ID}
+          isLoading={isDeleting}
           key={buttonType}
-          loading={isDeleting}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
+          size="medium"
           text={
             confirmDelete && !isDeleting
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }
+          variant={Variant.danger}
         />
       ),
       [DatasourceButtonType.TEST]: (
         <ActionButton
-          // accent="secondary"
-          buttonStyle="PRIMARY"
-          buttonVariant={ButtonVariantTypes.SECONDARY}
+          category={Category.secondary}
           className="t--test-datasource"
+          isLoading={isTesting}
           key={buttonType}
-          loading={isTesting}
           onClick={handleDatasourceTest}
+          size="medium"
           text="Test"
+          variant={Variant.success}
         />
       ),
       [DatasourceButtonType.SAVE]: (
-        <StyledButton
+        <ActionButton
+          category={Category.primary}
           className="t--save-datasource"
           disabled={isInvalid || !isFormDirty}
-          filled
-          intent="primary"
+          isLoading={isSaving}
           key={buttonType}
-          loading={isSaving}
           onClick={handleDefaultAuthDatasourceSave}
-          size="small"
+          size="medium"
           text="Save"
+          variant={Variant.success}
         />
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
         <StyledButton
+          category={Category.primary}
           className="t--save-datasource"
           disabled={isInvalid}
-          filled
           fluidWidth
-          intent="primary"
+          isLoading={isSaving}
           key={buttonType}
-          loading={isSaving}
           onClick={handleOauthDatasourceSave}
-          size="small"
+          size="medium"
           text={isAuthorized ? "Save and Re-authorize" : "Save and Authorize"}
+          variant={Variant.success}
         />
       ),
     }[buttonType];

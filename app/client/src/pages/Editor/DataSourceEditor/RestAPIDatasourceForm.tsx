@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
-import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import {
   getFormMeta,
@@ -19,7 +18,7 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Toaster } from "design-system";
+import { Button, Category, Toaster } from "design-system";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
@@ -52,10 +51,8 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { Callout } from "design-system";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -93,6 +90,7 @@ interface DatasourceRestApiEditorProps {
   toggleSaveActionFlag: (flag: boolean) => void;
   triggerSave?: boolean;
   isFormDirty: boolean;
+  datasourceDeleteTrigger: () => void;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -147,7 +145,7 @@ const SaveButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
   &&& {
     width: auto;
     min-width: 74px;
@@ -409,44 +407,50 @@ class DatasourceRestAPIEditor extends React.Component<
 
   renderSave = () => {
     const {
+      datasourceDeleteTrigger,
       datasourceId,
       deleteDatasource,
       hiddenHeader,
       isDeleting,
       isSaving,
     } = this.props;
+
+    const handleDeleteDatasource = (datasourceId: string) => {
+      deleteDatasource(datasourceId);
+      datasourceDeleteTrigger();
+    };
+
     return (
       <SaveButtonContainer>
         {!hiddenHeader && (
           <ActionButton
-            // accent="error"
-            buttonStyle="DANGER"
-            buttonVariant={ButtonVariantTypes.PRIMARY}
+            category={Category.primary}
             className="t--delete-datasource"
             disabled={datasourceId === TEMP_DATASOURCE_ID}
-            loading={isDeleting}
+            isLoading={isDeleting}
             onClick={() => {
               this.state.confirmDelete
-                ? deleteDatasource(datasourceId)
+                ? handleDeleteDatasource(datasourceId)
                 : this.setState({ confirmDelete: true });
             }}
+            size="medium"
             text={
               this.state.confirmDelete
                 ? createMessage(CONFIRM_CONTEXT_DELETE)
                 : createMessage(CONTEXT_DELETE)
             }
+            variant={Variant.danger}
           />
         )}
-
         <StyledButton
+          category={Category.primary}
           className="t--save-datasource"
           disabled={this.disableSave()}
-          filled
-          intent="primary"
-          loading={isSaving}
+          isLoading={isSaving}
           onClick={() => this.save()}
-          size="small"
+          size="medium"
           text="Save"
+          variant={Variant.success}
         />
       </SaveButtonContainer>
     );
@@ -576,10 +580,9 @@ class DatasourceRestAPIEditor extends React.Component<
             GrantType.AuthorizationCode && (
             <FormInputContainer>
               <AuthorizeButton
+                category={Category.primary}
                 disabled={this.disableSave()}
-                filled
-                intent="primary"
-                loading={isSaving}
+                isLoading={isSaving}
                 onClick={() =>
                   this.save(
                     redirectAuthorizationCode(
@@ -589,10 +592,10 @@ class DatasourceRestAPIEditor extends React.Component<
                     ),
                   )
                 }
-                size="small"
                 text={
                   isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
                 }
+                variant={Variant.success}
               />
             </FormInputContainer>
           )}

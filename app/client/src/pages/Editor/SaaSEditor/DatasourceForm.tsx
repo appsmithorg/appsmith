@@ -119,6 +119,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     this.closeDialog = this.closeDialog.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onDiscard = this.onDiscard.bind(this);
+    this.datasourceDeleteTrigger = this.datasourceDeleteTrigger.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -209,6 +210,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     }
   }
 
+  datasourceDeleteTrigger() {
+    this.state.unblock();
+  }
+
   render() {
     const { formConfig, pluginId } = this.props;
     if (!pluginId) {
@@ -292,6 +297,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             <DatasourceAuth
               datasource={datasource}
               datasourceButtonConfiguration={datasourceButtonConfiguration}
+              datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
               isInvalid={this.validate()}
