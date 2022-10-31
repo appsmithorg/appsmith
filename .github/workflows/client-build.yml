@@ -48,7 +48,14 @@ jobs:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0
 
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
       # Create a run record exactly at the time of merge to release to  
       # ensure we compare run details with code at this point
       - name: Create Perf Meta
@@ -59,13 +66,6 @@ jobs:
           "INSERT INTO public.run_meta (gh_run_id, gh_run_attempt, pull_request_id, is_active) 
           VALUES ('${{github.run_id}}', '${{github.run_attempt}}', '${{ inputs.pr }}', FALSE)"
 
-      # Checkout the code in the current branch in case the workflow is called because of a branch push event
-      - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
-
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
