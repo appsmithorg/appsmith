@@ -121,7 +121,10 @@ const PropertyControl = memo((props: Props) => {
           const focusableElement = getPropertyControlFocusElement(
             controlRef.current,
           );
-          focusableElement?.scrollIntoView({ block: "center" });
+          focusableElement?.scrollIntoView({
+            block: "start",
+            behavior: "smooth",
+          });
           focusableElement?.focus();
         }
       }, 500);

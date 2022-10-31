@@ -232,7 +232,7 @@ export const quickScrollToWidget = (widgetId?: string) => {
   setTimeout(() => {
     const el = document.getElementById(widgetId);
     if (el) {
-      el.scrollIntoView({ block: "center" });
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
     }
   }, 200);
 };
