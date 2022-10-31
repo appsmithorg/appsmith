@@ -99,4 +99,4 @@ jobs:
 
   
       # Set status = success
-      - run: echo "::set-output name=appsmithctl_run_result::success" > ~/run_result
+      - run: echo "::set-output name=appsmithctl_run_result::success" > ~/appsmithctl_run_result
