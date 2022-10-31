@@ -115,7 +115,7 @@ public class PolicyGeneratorCE {
     }
 
     protected void createWorkspacePolicyGraph() {
-        lateralGraph.addEdge(WORKSPACE_CREATE_APPLICATION, MANAGE_WORKSPACES);
+        lateralGraph.addEdge(WORKSPACE_CREATE_APPLICATION, WORKSPACE_MANAGE_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_WORKSPACES, READ_WORKSPACES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_DATASOURCES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_DATASOURCES);
