@@ -3,8 +3,8 @@ import React from "react";
 import styled from "styled-components";
 import { noop } from "lodash";
 
-import { CommonComponentProps } from "components/ads/common";
 import {
+  CommonComponentProps,
   EditableTextSubComponent,
   EditInteractionKind,
   SavingState,
