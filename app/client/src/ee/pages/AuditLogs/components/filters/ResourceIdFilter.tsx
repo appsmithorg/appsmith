@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { TextInput } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@appsmith/constants/messages";
 
 export default function ResourceIdFilter() {
+  const ref = useRef<HTMLFormElement>(null);
   const searchFilters = useSelector(selectAuditLogsSearchFilters);
   const { resourceId } = searchFilters;
   const dispatch = useDispatch();
@@ -39,6 +40,22 @@ export default function ResourceIdFilter() {
     });
   }
 
+  function keyDownHandler(e: any) {
+    const enter = e.keyCode === 13 || e.key === "Enter" || e.code === "Enter";
+    if (ref.current && enter) {
+      handleChange(ref.current.value);
+      searchFilters.resourceId = ref.current.value;
+      handleBlur();
+    }
+  }
+
+  useEffect(() => {
+    if (ref.current) {
+      document.addEventListener("keydown", keyDownHandler);
+    }
+    return () => document.removeEventListener("keydown", keyDownHandler);
+  }, []);
+
   return (
     <div data-testid="t--audit-logs-resource-id-filter-container">
       <Label>{createMessage(RESOURCE_ID_LABEL)}</Label>
@@ -49,6 +66,7 @@ export default function ResourceIdFilter() {
         onBlur={handleBlur}
         onChange={handleChange}
         placeholder={createMessage(RESOURCE_ID_PLACEHOLDER)}
+        ref={ref}
         value={resourceId}
         width={AUDIT_LOGS_FILTER_WIDTH}
       />

@@ -15,6 +15,10 @@ export const StyledAuditLogsTableHead = styled.div`
    * With z-index on collapsible component, the code becomes non-interactive.
   */
   z-index: 100;
+
+  & div {
+    cursor: default;
+  }
 `;
 
 export const StyledEventDescriptionColumnContainer = styled.div`
@@ -45,7 +49,8 @@ export const StyledDateColumnContainer = styled.div`
   display: flex;
   gap: 4px;
 
-  & .column-header {
+  & .column-header,
+  .audit-logs-table-head & {
     cursor: pointer;
   }
 `;
