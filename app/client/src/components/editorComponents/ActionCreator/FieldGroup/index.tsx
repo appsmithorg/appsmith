@@ -66,6 +66,9 @@ function FieldGroup(props: FieldGroupProps) {
                   <FieldGroup
                     activeNavigateToTab={props.activeNavigateToTab}
                     additionalAutoComplete={props.additionalAutoComplete}
+                    apisQueriesAndJsObjectsOption={
+                      props.apisQueriesAndJsObjectsOption
+                    }
                     depth={props.depth + 1}
                     fields={field}
                     key={selectorField.label + index}
@@ -88,7 +91,6 @@ function FieldGroup(props: FieldGroupProps) {
                       );
                     }}
                     pageDropdownOptions={props.pageDropdownOptions}
-                    queriesAndJsObjectsOption={props.queriesAndJsObjectsOption}
                     value={selectorField.value}
                     widgetOptionTree={props.widgetOptionTree}
                   />
@@ -119,6 +121,7 @@ function FieldGroup(props: FieldGroupProps) {
         return (
           <FieldGroup
             activeNavigateToTab={props.activeNavigateToTab}
+            apisQueriesAndJsObjectsOption={props.apisQueriesAndJsObjectsOption}
             depth={props.depth + 1}
             fields={field}
             key={index}
@@ -133,7 +136,6 @@ function FieldGroup(props: FieldGroupProps) {
               props.onValueChange(parentValue, isUpdatedViaKeyboard);
             }}
             pageDropdownOptions={props.pageDropdownOptions}
-            queriesAndJsObjectsOption={props.queriesAndJsObjectsOption}
             value={selectorField.value}
             widgetOptionTree={props.widgetOptionTree}
           />

@@ -207,7 +207,7 @@ function getJsFunctionExecutionFields(
 ) {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length === 0) {
-    //when format doesn't match but it is function from js object
+    //when format doesn't match, it is function from js object
     fields.push({
       field: FieldType.ACTION_SELECTOR_FIELD,
       getParentValue,
@@ -227,13 +227,13 @@ function getJsFunctionExecutionFields(
       args: argsProps ? argsProps : [],
     });
     if (argsProps && argsProps.length > 0) {
-      for (let i = 0; i < argsProps.length; i++) {
+      for (const index of argsProps) {
         fields.push({
           field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
           getParentValue,
           value,
-          label: argsProps[i].name,
-          index: i,
+          label: argsProps[index].name,
+          index: index,
         });
       }
     }
@@ -316,7 +316,7 @@ function useModalDropdownList() {
   return finalList;
 }
 
-function getQueriesAndJsActionOptionsWithChildren(
+function getApiQueriesAndJsActionOptionsWithChildren(
   pageId: string,
   applicationId: string,
   plugins: any,
@@ -325,7 +325,14 @@ function getQueriesAndJsActionOptionsWithChildren(
   dispatch: any,
 ) {
   // this function gets a list of all the queries/apis and attaches it to actionList
-  getQueryOptions(pageId, applicationId, plugins, actions, jsActions, dispatch);
+  getApiAndQueryOptions(
+    pageId,
+    applicationId,
+    plugins,
+    actions,
+    jsActions,
+    dispatch,
+  );
 
   // this function gets a list of all the JS objects and attaches it to actionList
   getJSOptions(pageId, applicationId, plugins, actions, jsActions, dispatch);
@@ -333,7 +340,7 @@ function getQueriesAndJsActionOptionsWithChildren(
   return actionList;
 }
 
-function getQueryOptions(
+function getApiAndQueryOptions(
   pageId: string,
   applicationId: string,
   plugins: any,
@@ -367,18 +374,19 @@ function getQueryOptions(
       action.config.pluginType === PluginType.REMOTE,
   );
 
-  const queriesOption = actionList.find(
+  const queryAndApiOptions = actionList.find(
     (action) => action.value === AppsmithFunction.integration,
   );
-  if (queriesOption) {
-    queriesOption.children = [createQueryObject];
+
+  if (queryAndApiOptions) {
+    queryAndApiOptions.children = [createQueryObject];
 
     apis.forEach((api) => {
-      (queriesOption.children as TreeDropdownOption[]).push({
+      (queryAndApiOptions.children as TreeDropdownOption[]).push({
         label: api.config.name,
         id: api.config.id,
         value: api.config.name,
-        type: queriesOption.value,
+        type: queryAndApiOptions.value,
         icon: getActionConfig(api.config.pluginType)?.getIcon(
           api.config,
           plugins[(api as any).config.datasource.pluginId],
@@ -388,11 +396,11 @@ function getQueryOptions(
     });
 
     queries.forEach((query) => {
-      (queriesOption.children as TreeDropdownOption[]).push({
+      (queryAndApiOptions.children as TreeDropdownOption[]).push({
         label: query.config.name,
         id: query.config.id,
         value: query.config.name,
-        type: queriesOption.value,
+        type: queryAndApiOptions.value,
         icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
@@ -485,7 +493,7 @@ function getJSOptions(
   }
 }
 
-function useQueriesAndJsActionOptions() {
+function useApisQueriesAndJsActionOptions() {
   const pageId = useSelector(getCurrentPageId) || "";
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const dispatch = useDispatch();
@@ -497,7 +505,7 @@ function useQueriesAndJsActionOptions() {
   const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
   // this function gets all the Queries/API's/JS objects and attaches it to actionList
-  return getQueriesAndJsActionOptionsWithChildren(
+  return getApiQueriesAndJsActionOptionsWithChildren(
     pageId,
     applicationId,
     pluginGroups,
@@ -530,7 +538,7 @@ const ActionCreator = React.forwardRef(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
     const dataTree = useSelector(getDataTreeForActionCreator);
-    const queriesAndJsObjectsOption = useQueriesAndJsActionOptions();
+    const apisQueriesAndJsObjectsOption = useApisQueriesAndJsActionOptions();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const pageDropdownOptions = useSelector(getPageListAsOptions);
@@ -546,6 +554,7 @@ const ActionCreator = React.forwardRef(
         <FieldGroup
           activeNavigateToTab={activeTabNavigateTo}
           additionalAutoComplete={props.additionalAutoComplete}
+          apisQueriesAndJsObjectsOption={apisQueriesAndJsObjectsOption}
           depth={1}
           fields={fields}
           maxDepth={1}
@@ -556,8 +565,11 @@ const ActionCreator = React.forwardRef(
           pageDropdownOptions={pageDropdownOptions}
 =======
           pageDropdownOptions={props.pageDropdownOptions}
+<<<<<<< HEAD
           queriesAndJsObjectsOption={queriesAndJsObjectsOption}
 >>>>>>> 3eaddbdfa4 (Rename integrationOptionTree -> queriesAndJsObjectsOption)
+=======
+>>>>>>> d9293dd1c8 (Code review changes)
           value={props.value}
           widgetOptionTree={widgetOptionTree}
         />
