@@ -36,8 +36,7 @@ import {
   SNIPPET_INSERT,
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";

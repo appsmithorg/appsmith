@@ -37,8 +37,7 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 
 export function* fetchProviderTemplatesSaga(
   action: ReduxActionWithPromise<FetchProviderTemplatesRequest>,
