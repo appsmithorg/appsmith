@@ -39,7 +39,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.4.5</version>
+            <version>5.0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
