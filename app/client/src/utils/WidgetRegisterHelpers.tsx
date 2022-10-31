@@ -10,7 +10,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
-import { WidgetFeatureProps } from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
 import withWidgetProps from "widgets/withWidgetProps";
 
@@ -50,12 +49,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
 };
 
 export const configureWidget = (config: WidgetConfiguration) => {
-  let features = {};
-  if (config.features && config.features.dynamicHeight) {
-    features = Object.assign({}, WidgetFeatureProps.DYNAMIC_HEIGHT);
-  }
   const _config = {
-    ...features,
     ...config.defaults,
     searchTags: config.searchTags,
     type: config.type,
