@@ -7,20 +7,17 @@ const CarouselContainer = styled.div`
   display: flex;
   flex: 1 1;
   gap: 64px;
-  margin-bottom: 86px;
   justify-content: center;
   align-items: center;
-  max-height: 542px;
-  border: thin red solid;
+  padding: 16px;
 
   & .carousel-triggers {
     display: flex;
-    flex-grow: 1;
     flex-direction: column;
     gap: 20px;
     justify-content: center;
     align-items: center;
-    width: calc(50% - 40px);
+    width: 50%;
 
     & .carousel-trigger {
       padding: 16px;
@@ -30,7 +27,7 @@ const CarouselContainer = styled.div`
 
       &.active {
         height: max-content;
-        min-height: 152px;
+        min-height: 156px;
         box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
           0 4px 8px -2px rgba(0, 0, 0, 0.1);
 
