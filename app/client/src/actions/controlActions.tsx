@@ -75,7 +75,7 @@ export const setWidgetDynamicProperty = (
   };
 };
 
-export const updateMultipleWidgetProperties = (
+export const updateMultipleWidgetPropertiesAction = (
   widgetsToUpdate: UpdateWidgetsPayload,
 ) => {
   return {
