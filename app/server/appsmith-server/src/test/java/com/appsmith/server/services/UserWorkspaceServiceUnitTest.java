@@ -16,6 +16,8 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.ce.UserWorkspaceServiceCE;
+import com.appsmith.server.services.ce.UserWorkspaceServiceCEImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,14 +89,15 @@ public class UserWorkspaceServiceUnitTest {
     @MockBean
     TenantService tenantService;
 
-    UserWorkspaceService userWorkspaceService;
+    // TODO: Change this to UserWorkspaceService again.
+    UserWorkspaceServiceCE userWorkspaceService;
 
     ModelMapper modelMapper;
 
     @BeforeEach
     public void setUp() {
         modelMapper = new ModelMapper();
-        userWorkspaceService = new UserWorkspaceServiceImpl(sessionUserService, workspaceRepository, userRepository,
+        userWorkspaceService = new UserWorkspaceServiceCEImpl(sessionUserService, workspaceRepository, userRepository,
                 userDataRepository, policyUtils, emailSender, userDataService, permissionGroupService, tenantService);
     }
 
