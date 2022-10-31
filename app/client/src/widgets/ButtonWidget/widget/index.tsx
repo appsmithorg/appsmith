@@ -224,7 +224,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "Select Icon",
             helpText: "Sets the icon to be used for the button",
             controlType: "ICON_SELECT",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             updateHook: (
               props: ButtonWidgetProps,

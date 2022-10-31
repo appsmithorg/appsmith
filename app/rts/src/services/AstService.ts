@@ -25,6 +25,7 @@ export default class AstService {
     script,
     oldName,
     newName,
+    isJSObject,
     evalVersion
   ): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -33,6 +34,7 @@ export default class AstService {
           script,
           oldName,
           newName,
+          isJSObject,
           evalVersion
         );
 
