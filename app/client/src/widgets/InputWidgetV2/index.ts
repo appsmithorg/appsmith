@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
+import { LabelPosition } from "components/constants";
 
 export const CONFIG = {
   features: {
@@ -13,6 +14,8 @@ export const CONFIG = {
   searchTags: ["form", "text input", "number", "textarea"],
   defaults: {
     ...BaseConfig.defaults,
+    rows: 7,
+    labelPosition: LabelPosition.Top,
     inputType: "TEXT",
     widgetName: "Input",
     version: 2,

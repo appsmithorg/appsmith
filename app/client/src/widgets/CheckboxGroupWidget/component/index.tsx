@@ -4,7 +4,6 @@ import { Alignment } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
-import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -21,7 +20,7 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
-import { AlignWidgetTypes } from "widgets/constants";
+import { ThemeProp, AlignWidgetTypes } from "widgets/constants";
 
 export interface InputContainerProps {
   inline?: boolean;

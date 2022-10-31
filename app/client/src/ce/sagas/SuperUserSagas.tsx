@@ -1,7 +1,6 @@
 import React from "react";
 import UserApi, { SendTestEmailPayload } from "@appsmith/api/UserApi";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
