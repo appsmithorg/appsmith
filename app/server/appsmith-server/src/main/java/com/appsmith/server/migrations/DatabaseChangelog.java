@@ -756,7 +756,7 @@ public class DatabaseChangelog {
     }
 
         // Examples organization is no longer getting used. Commenting out the migrations which add/update the same.
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    // @SuppressWarnings({"unchecked", "rawtypes"})
 //    @ChangeSet(order = "022", id = "examples-organization", author = "")
 //    public void examplesOrganization(MongockTemplate mongoTemplate, EncryptionService encryptionService) throws IOException {
 //
