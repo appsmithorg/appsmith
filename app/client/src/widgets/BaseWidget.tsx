@@ -5,12 +5,14 @@
  */
 import {
   CSSUnit,
+  GridDefaults,
   PositionType,
   RenderMode,
   RenderModes,
   WidgetType,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import React, { Component, ReactNode } from "react";
+import React, { Component, CSSProperties, ReactNode } from "react";
 import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -37,6 +39,17 @@ import PreviewModeComponent from "components/editorComponents/PreviewModeCompone
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+
+import {
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
+  isAutoHeightEnabledForWidget,
+  shouldUpdateWidgetHeightAutomatically,
+} from "./WidgetUtils";
+import AutoHeightOverlay from "components/editorComponents/AutoHeightOverlay";
+import log from "loglevel";
+import AutoHeightContainer from "./AutoHeightContainer";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 /***
  * BaseWidget
@@ -173,6 +186,35 @@ abstract class BaseWidget<
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
     if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
+  }
+
+  /*
+    This method calls the action to update widget height
+    We're not using `updateWidgetProperty`, because, the workflow differs
+    We will be computing properties of all widgets which are effected by
+    this change.
+    @param height number: Height of the widget's contents in pixels 
+    @return void
+  */
+  updateHeightAutomatically(height: number): void {
+    const shouldUpdate = shouldUpdateWidgetHeightAutomatically(
+      height,
+      this.props,
+    );
+    const { updateWidgetAutoHeight } = {
+      updateWidgetAutoHeight: (widgetId: string, height: number) => {
+        log.debug("Updating widget height:", widgetId, height);
+      },
+    };
+    if (updateWidgetAutoHeight) {
+      const { widgetId } = this.props;
+      // The widget's contents have to be padded such that the widget height is computed
+      // with considering the padding.
+      // TODO(abhinav): Maybe this can be done in the sagas?
+      const paddedHeight = height + WIDGET_PADDING * 2;
+
+      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
+    }
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
@@ -328,6 +370,67 @@ abstract class BaseWidget<
     );
   }
 
+  addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
+    const onBatchUpdate = (height: number, propertiesToUpdate?: string[]) => {
+      if (propertiesToUpdate === undefined) {
+        propertiesToUpdate = ["minDynamicHeight", "maxDynamicHeight"];
+      }
+      const modifyObj: Record<string, unknown> = {};
+      propertiesToUpdate.forEach((propertyName) => {
+        modifyObj[propertyName] = Math.ceil(
+          height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      });
+      this.batchUpdateWidgetProperty({
+        modify: modifyObj,
+        // postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+      });
+    };
+
+    const onMaxHeightSet = (height: number) =>
+      onBatchUpdate(height, ["maxDynamicHeight"]);
+
+    const onMinHeightSet = (height: number) =>
+      onBatchUpdate(height, ["minDynamicHeight"]);
+
+    return (
+      <>
+        <AutoHeightOverlay
+          {...this.props}
+          batchUpdate={onBatchUpdate}
+          maxDynamicHeight={getWidgetMaxAutoHeight(this.props)}
+          minDynamicHeight={getWidgetMinAutoHeight(this.props)}
+          onMaxHeightSet={onMaxHeightSet}
+          onMinHeightSet={onMinHeightSet}
+          style={style}
+        />
+        {content}
+      </>
+    );
+  }
+
+  addAutoHeightContainer = (content: ReactNode) => {
+    const onHeightUpdate = (height: number) => {
+      requestAnimationFrame(() => {
+        this.updateHeightAutomatically(height);
+      });
+    };
+
+    const maxAutoHeight = getWidgetMaxAutoHeight(this.props);
+    const minAutoHeight = getWidgetMinAutoHeight(this.props);
+
+    return (
+      <AutoHeightContainer
+        autoHeight={this.props.dynamicHeight as DynamicHeight}
+        maxAutoHeight={maxAutoHeight}
+        minAutoHeight={minAutoHeight}
+        onHeightUpdate={onHeightUpdate}
+      >
+        {content}
+      </AutoHeightContainer>
+    );
+  };
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -344,9 +447,15 @@ abstract class BaseWidget<
       return <Skeleton />;
     }
 
-    return renderMode === RenderModes.CANVAS
-      ? this.getCanvasView()
-      : this.getPageView();
+    const content =
+      renderMode === RenderModes.CANVAS
+        ? this.getCanvasView()
+        : this.getPageView();
+
+    if (isAutoHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
+      return this.addAutoHeightContainer(this.getPageView());
+    }
+    return this.addErrorBoundary(content);
   };
 
   private getWidgetView(): ReactNode {
@@ -362,6 +471,9 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
+          if (isAutoHeightEnabledForWidget(this.props, true)) {
+            content = this.addAutoHeightOverlay(content);
+          }
         }
         return content;
 
@@ -369,7 +481,6 @@ abstract class BaseWidget<
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
         if (this.props.isVisible) {
-          content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
@@ -384,8 +495,7 @@ abstract class BaseWidget<
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {
-    const content = this.getPageView();
-    return this.addErrorBoundary(content);
+    return this.getPageView();
   }
 
   // TODO(abhinav): Maybe make this a pure component to bailout from updating altogether.
