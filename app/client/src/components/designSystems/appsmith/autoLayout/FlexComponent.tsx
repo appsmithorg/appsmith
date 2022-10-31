@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import {
+  MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
   widgetTypeClassname,
   WIDGET_PADDING,
@@ -28,6 +29,7 @@ export type AutoLayoutProps = {
   selected?: boolean;
   widgetId: string;
   widgetType: WidgetType;
+  parentColumnSpace: number;
 };
 
 const FlexWidget = styled.div<{
@@ -39,7 +41,8 @@ const FlexWidget = styled.div<{
   padding: number;
   zIndex: number;
   zIndexOnHover: number;
-  isCurrentCanvasDragging: boolean;
+  dragMargin: number;
+  isAffectedByDrag: boolean;
 }>`
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
@@ -56,8 +59,8 @@ const FlexWidget = styled.div<{
   &:hover {
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
-  margin: ${({ isCurrentCanvasDragging }) =>
-    isCurrentCanvasDragging ? `${DRAG_MARGIN}px` : "0px"};
+  margin: ${({ dragMargin, isAffectedByDrag }) =>
+    isAffectedByDrag ? `${DRAG_MARGIN}px ${dragMargin}px` : "0px"};
 `;
 
 // TODO: update min width logic.
@@ -73,8 +76,9 @@ export function FlexComponent(props: AutoLayoutProps) {
   const { dragDetails } = useSelector(
     (state: AppState) => state.ui.widgetDragResize,
   );
-
-  const isCurrentCanvasDragging = dragDetails?.draggedOn === props.parentId;
+  const isDragging: boolean = dragDetails?.draggedOn !== undefined;
+  const isCurrentCanvasDragging: boolean =
+    dragDetails?.draggedOn === props.parentId;
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -104,17 +108,26 @@ export function FlexComponent(props: AutoLayoutProps) {
       ? "100%"
       : props.minWidth + "px";
 
+  const dragMargin = Math.max(props.parentColumnSpace, DRAG_MARGIN);
+  const isAffectedByDrag: boolean =
+    isCurrentCanvasDragging ||
+    (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
+  const resizedWidth: number = isAffectedByDrag
+    ? props.componentWidth - props.parentColumnSpace
+    : props.componentWidth;
+
   return (
     <FlexWidget
       className={className}
       componentHeight={props.componentHeight}
-      componentWidth={
-        isCurrentCanvasDragging
-          ? props.componentWidth - DRAG_MARGIN * 2
-          : props.componentWidth
+      componentWidth={resizedWidth}
+      dragMargin={
+        props.parentId === MAIN_CONTAINER_WIDGET_ID
+          ? dragMargin / 2
+          : dragMargin
       }
       id={props.widgetId}
-      isCurrentCanvasDragging={isCurrentCanvasDragging}
+      isAffectedByDrag={isAffectedByDrag}
       isFillWidget={isFillWidget}
       isMobile={isMobile}
       minWidth={minWidth}

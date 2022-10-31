@@ -339,6 +339,7 @@ abstract class BaseWidget<
         componentWidth={componentWidth}
         direction={this.props.direction}
         focused={this.props.focused}
+        parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
