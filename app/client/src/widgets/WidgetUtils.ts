@@ -721,13 +721,13 @@ export const flat = (array: DropdownOption[]) => {
 /**
  * A utility function to check whether a widget has dynamic height enabled?
  * @param props: Widget properties
- * @param withLimits: Should we check specifically for auto height with limits.
+ * @param shouldCheckIfEnabledWithLimits: Should we check specifically for auto height with limits.
  */
 export const isAutoHeightEnabledForWidget = (
   props: WidgetProps,
-  withLimits = false,
+  shouldCheckIfEnabledWithLimits = false,
 ) => {
-  if (withLimits) {
+  if (shouldCheckIfEnabledWithLimits) {
     return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
   }
   return (
