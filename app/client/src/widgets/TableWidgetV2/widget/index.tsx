@@ -1995,8 +1995,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("newRowContent", defaultNewRow);
     this.props.updateWidgetMetaProperty("newRow", defaultNewRow);
 
-    // New row gets added at the top of page 1
-    this.props.updateWidgetMetaProperty("pageNo", 1);
+    // New row gets added at the top of page 1 when client side pagination enabled
+    if (!this.props.serverSidePaginationEnabled) {
+      this.props.updateWidgetMetaProperty("pageNo", 1);
+    }
 
     //Since we're adding a newRowContent thats not part of tableData, the index changes
     // so we're resetting the row selection

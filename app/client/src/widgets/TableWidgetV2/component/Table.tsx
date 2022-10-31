@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { pick, reduce } from "lodash";
 import {
   useTable,
@@ -251,6 +251,12 @@ export function Table(props: TableProps) {
     !props.columns.some(
       (column) => !!column.columnProperties.allowCellWrapping,
     );
+
+  useEffect(() => {
+    if (props.isAddRowInProgress && tableBodyRef) {
+      tableBodyRef.current?.scrollTo({ top: 0 });
+    }
+  }, [props.isAddRowInProgress]);
 
   return (
     <TableWrapper

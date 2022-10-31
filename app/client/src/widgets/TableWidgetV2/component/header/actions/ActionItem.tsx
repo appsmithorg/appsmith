@@ -40,7 +40,7 @@ export const TableIconWrapper = styled.div<{
     margin-left: 4px;
     white-space: nowrap;
     color: ${(props) => props.titleColor || Colors.GRAY};
-    margin-top: 4px;
+    margin-top: 3px;
   }
 `;
 
@@ -65,7 +65,7 @@ function ActionItem(props: ActionItemProps) {
         e.stopPropagation();
       }
     },
-    [props.selected],
+    [props.selected, props.disabled],
   );
 
   const getIcon = () => {
@@ -106,7 +106,7 @@ function ActionItem(props: ActionItemProps) {
         content={
           <TooltipContentWrapper>{props.disabledMessage}</TooltipContentWrapper>
         }
-        hoverOpenDelay={1000}
+        hoverOpenDelay={200}
         position="auto"
       >
         {item}

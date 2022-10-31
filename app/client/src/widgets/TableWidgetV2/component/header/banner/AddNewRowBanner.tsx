@@ -51,6 +51,7 @@ export function AddNewRowBanner(props: AddNewRowBannerType) {
           buttonColor={props.accentColor}
           buttonVariant={ButtonVariantTypes.SECONDARY}
           className="t--discard-new-row"
+          disabled={isSaveLoading}
           loading={isDiscardLoading}
           onClick={() => {
             setIsDiscardLoading(true);
@@ -66,7 +67,7 @@ export function AddNewRowBanner(props: AddNewRowBannerType) {
           buttonColor={props.accentColor}
           buttonVariant={ButtonVariantTypes.PRIMARY}
           className="t--save-new-row"
-          disabled={props.disabledAddNewRowSave}
+          disabled={props.disabledAddNewRowSave || isDiscardLoading}
           loading={isSaveLoading}
           onClick={() => {
             setIsSaveLoading(true);
