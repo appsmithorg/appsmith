@@ -74,7 +74,7 @@ Widget code resides in the `src/widgets` folder of the Appsmith codebase. Each w
 
 - This file contains the configuration for a widget. 
 
-`constants.ts` 
+`constants.tsx` 
 
 - This file contains the constants which will be used in the widget and its components. 
 
