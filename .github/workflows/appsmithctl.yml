@@ -62,41 +62,41 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/run_result
+            ~/appsmithctl_run_result
           key: ${{ github.run_id }}-${{ github.job }}-appsmithctl-util
 
       # Fetch prior run result
       - name: Get the previous run result
-        id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
+        id: appsmithctl_run_result
+        run: cat ~/appsmithctl_run_result 2>/dev/null || echo 'default'
 
       # Incase of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'
+      - if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js 16.14.0
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
         uses: actions/setup-node@v1
         with:
           node-version: "16.14.0"
 
       # Install all the dependencies
       - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
         run: yarn install --frozen-lockfile
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
         run: yarn run test
 
       # Set status = failure
       - name: Set result as failed if there are build failures
         if: failure()
         run: |
-          echo "::set-output name=run_result::failed" > ~/ctl_run_result
+          echo "::set-output name=appsmithctl_run_result::failed" > ~/appsmithctl_run_result
           exit 1;
 
   
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::set-output name=appsmithctl_run_result::success" > ~/run_result
