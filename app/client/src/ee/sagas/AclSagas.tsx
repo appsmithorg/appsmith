@@ -19,9 +19,8 @@ import { RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
 import history from "utils/history";
 import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/acl/components";
 import log from "loglevel";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import { createMessage } from "design-system/build/constants/messages";
-import { Variant } from "components/ads";
 import {
   ACL_DELETED_SUCCESS,
   SUCCESSFULLY_SAVED,

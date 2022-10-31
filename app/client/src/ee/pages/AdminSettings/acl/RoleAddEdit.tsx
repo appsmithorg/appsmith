@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useHistory, useParams } from "react-router";
 import { MenuItemProps, TabComponent, TabProp } from "design-system";
+import { useHistory, useParams } from "react-router";
 import { PageHeader } from "./PageHeader";
 import { TabsWrapper } from "./components";
 import { debounce } from "lodash";

@@ -59,18 +59,18 @@ import {
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  Button,
   Callout,
   CalloutV2,
-  Button,
+  DropdownOption,
+  Icon,
+  IconSize,
   ScrollIndicator,
   Size,
   Text,
   TextType,
-  Icon,
-  IconSize,
-  DropdownOption,
+  Variant,
 } from "design-system";
-import { Variant } from "components/ads/common";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
