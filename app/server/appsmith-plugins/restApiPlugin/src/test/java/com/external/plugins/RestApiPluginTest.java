@@ -212,7 +212,6 @@ public class RestApiPluginTest {
         dsConfig.setUrl("https://api.github.com");
 
         final List<Property> headers = List.of(
-                new Property("Authorization","Basic TmlraGlsLU5hbmRhZ29wYWw6ODJjY2ZlMDljN2M4MDU5M2VkOTRjZTI1OTA0OTEyYmQ1OTA0NWJmNA=="),
                 new Property("Accept","application/vnd.github+json"));
 
         final List<Property> queryParameters = List.of(
