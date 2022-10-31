@@ -130,7 +130,7 @@ export type EvalTreePayload = {
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
-  shouldReplay?: boolean,
+  shouldReplay = true,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
