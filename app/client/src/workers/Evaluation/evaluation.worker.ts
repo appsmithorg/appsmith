@@ -91,98 +91,98 @@ function eventRequestHandler({
       setupEvaluationEnvironment();
       return true;
     }
-    case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-      const {
-        evalOrder,
-        isCreateFirstTree,
-        nonDynamicFieldValidationOrder,
-        shouldReplay,
-        uncaughtError,
-      } = requestData as EvalTreeRequestData;
-      let dataTree: DataTree = {};
-      let errors: EvalError[] = [];
-      let logs: any[] = [];
-      let userLogs: UserLogObject[] = [];
-      let dependencies: DependencyMap = {};
-      let evalMetaUpdates: EvalMetaUpdates = [];
-      let hasUncaughtError = !!uncaughtError;
+    // case EVAL_WORKER_ACTIONS.EVAL_TREE: {
+    //   const {
+    //     evalOrder,
+    //     isCreateFirstTree,
+    //     nonDynamicFieldValidationOrder,
+    //     shouldReplay,
+    //     uncaughtError,
+    //   } = requestData as EvalTreeRequestData;
+    //   let dataTree: DataTree = {};
+    //   let errors: EvalError[] = [];
+    //   let logs: any[] = [];
+    //   let userLogs: UserLogObject[] = [];
+    //   let dependencies: DependencyMap = {};
+    //   let evalMetaUpdates: EvalMetaUpdates = [];
+    //   let hasUncaughtError = !!uncaughtError;
 
-      if (hasUncaughtError) {
-        if (dataTreeEvaluator !== undefined) {
-          errors = dataTreeEvaluator.errors;
-          logs = dataTreeEvaluator.logs;
-          userLogs = dataTreeEvaluator.userLogs;
-        }
-        if (!(uncaughtError instanceof CrashingError)) {
-          errors.push({
-            type: EvalErrorTypes.UNKNOWN_ERROR,
-            message: (uncaughtError as Error).message,
-          });
-        }
-      } else {
-        try {
-          if (isCreateFirstTree) {
-            dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-            const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-            dataTree = dataTreeResponse.evalTree;
-            // We need to clean it to remove any possible functions inside the tree.
-            // If functions exist, it will crash the web worker
-            dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
-          } else {
-            dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-            dataTree = {};
-            const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
-              evalOrder,
-              nonDynamicFieldValidationOrder,
-            );
-            dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
-            // evalMetaUpdates can have moment object as value which will cause DataCloneError
-            // hence, stringify and parse to avoid such errors
-            evalMetaUpdates = JSON.parse(
-              JSON.stringify(updateResponse.evalMetaUpdates),
-            );
-          }
-          dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
-          dependencies = dataTreeEvaluator.inverseDependencyMap;
-          errors = dataTreeEvaluator.errors;
-          dataTreeEvaluator.clearErrors();
-          logs = dataTreeEvaluator.logs;
-          userLogs = dataTreeEvaluator.userLogs;
-          if (shouldReplay) {
-            if (replayMap[CANVAS]?.logs)
-              logs = logs.concat(replayMap[CANVAS]?.logs);
-            replayMap[CANVAS]?.clearLogs();
-          }
+    //   if (hasUncaughtError) {
+    //     if (dataTreeEvaluator !== undefined) {
+    //       errors = dataTreeEvaluator.errors;
+    //       logs = dataTreeEvaluator.logs;
+    //       userLogs = dataTreeEvaluator.userLogs;
+    //     }
+    //     if (!(uncaughtError instanceof CrashingError)) {
+    //       errors.push({
+    //         type: EvalErrorTypes.UNKNOWN_ERROR,
+    //         message: (uncaughtError as Error).message,
+    //       });
+    //     }
+    //   } else {
+    //     try {
+    //       if (isCreateFirstTree) {
+    //         dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
+    //         const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+    //         dataTree = dataTreeResponse.evalTree;
+    //         // We need to clean it to remove any possible functions inside the tree.
+    //         // If functions exist, it will crash the web worker
+    //         dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+    //       } else {
+    //         dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
+    //         dataTree = {};
+    //         const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
+    //           evalOrder,
+    //           nonDynamicFieldValidationOrder,
+    //         );
+    //         dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
+    //         // evalMetaUpdates can have moment object as value which will cause DataCloneError
+    //         // hence, stringify and parse to avoid such errors
+    //         evalMetaUpdates = JSON.parse(
+    //           JSON.stringify(updateResponse.evalMetaUpdates),
+    //         );
+    //       }
+    //       dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
+    //       dependencies = dataTreeEvaluator.inverseDependencyMap;
+    //       errors = dataTreeEvaluator.errors;
+    //       dataTreeEvaluator.clearErrors();
+    //       logs = dataTreeEvaluator.logs;
+    //       userLogs = dataTreeEvaluator.userLogs;
+    //       if (shouldReplay) {
+    //         if (replayMap[CANVAS]?.logs)
+    //           logs = logs.concat(replayMap[CANVAS]?.logs);
+    //         replayMap[CANVAS]?.clearLogs();
+    //       }
 
-          dataTreeEvaluator.clearLogs();
-        } catch (error) {
-          hasUncaughtError = true;
-          console.error("ERROR IN EVAL_TREE", error);
-          if (dataTreeEvaluator !== undefined) {
-            errors = dataTreeEvaluator.errors;
-            logs = dataTreeEvaluator.logs;
-            userLogs = dataTreeEvaluator.userLogs;
-          }
-          if (!(error instanceof CrashingError)) {
-            errors.push({
-              type: EvalErrorTypes.UNKNOWN_ERROR,
-              message: (error as Error).message,
-            });
-            console.error(error);
-          }
-        }
-      }
+    //       dataTreeEvaluator.clearLogs();
+    //     } catch (error) {
+    //       hasUncaughtError = true;
+    //       console.error("ERROR IN EVAL_TREE", error);
+    //       if (dataTreeEvaluator !== undefined) {
+    //         errors = dataTreeEvaluator.errors;
+    //         logs = dataTreeEvaluator.logs;
+    //         userLogs = dataTreeEvaluator.userLogs;
+    //       }
+    //       if (!(error instanceof CrashingError)) {
+    //         errors.push({
+    //           type: EvalErrorTypes.UNKNOWN_ERROR,
+    //           message: (error as Error).message,
+    //         });
+    //         console.error(error);
+    //       }
+    //     }
+    //   }
 
-      return {
-        dataTree,
-        dependencies,
-        errors,
-        logs,
-        userLogs,
-        evalMetaUpdates,
-        hasUncaughtError,
-      } as EvalTreeResponseData;
-    }
+    //   return {
+    //     dataTree,
+    //     dependencies,
+    //     errors,
+    //     logs,
+    //     userLogs,
+    //     evalMetaUpdates,
+    //     hasUncaughtError,
+    //   } as EvalTreeResponseData;
+    // }
     case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
       const { bindings, executionParams } = requestData;
       if (!dataTreeEvaluator) {
@@ -310,15 +310,19 @@ function eventRequestHandler({
       const { currentEvalState, payload, type } = requestData;
       const response = setFormEvaluationSaga(type, payload, currentEvalState);
       return response;
-
-    case EVAL_WORKER_ACTIONS.UPDATE_DEPENDENCY: {
+    case EVAL_WORKER_ACTIONS.EVAL_TREE: {
       let evalOrder: string[] = [];
       let lintOrder: string[] = [];
       let jsUpdates: Record<string, JSUpdate> = {};
       let unEvalUpdates: DataTreeDiff[] = [];
-      let uncaughtError: unknown = false;
       let nonDynamicFieldValidationOrder: string[] = [];
       let isCreateFirstTree = false;
+      let dataTree: DataTree = {};
+      let errors: EvalError[] = [];
+      let logs: any[] = [];
+      let userLogs: UserLogObject[] = [];
+      let dependencies: DependencyMap = {};
+      let evalMetaUpdates: EvalMetaUpdates = [];
 
       const {
         allActionValidationConfig,
@@ -342,7 +346,21 @@ function eventRequestHandler({
           );
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
+
+          postMessage({
+            promisified: true,
+            responseData: {
+              lintOrder,
+              jsUpdates,
+              unevalTree: dataTreeEvaluator.oldUnEvalTree,
+              type: "LINT_TREE",
+            },
+          });
+
           jsUpdates = setupFirstTreeResponse.jsUpdates;
+          const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+          dataTree = dataTreeResponse.evalTree;
+          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -375,7 +393,6 @@ function eventRequestHandler({
               allActionValidationConfig,
             );
           }
-
           isCreateFirstTree = false;
           if (shouldReplay) {
             replayMap[CANVAS]?.update({ widgets, theme });
@@ -385,28 +402,69 @@ function eventRequestHandler({
           );
           evalOrder = setupUpdateTreeResponse.evalOrder;
           lintOrder = setupUpdateTreeResponse.lintOrder;
-          unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
           jsUpdates = setupUpdateTreeResponse.jsUpdates;
+          unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
+          self.postMessage({
+            promisified: true,
+            responseData: {
+              lintOrder,
+              jsUpdates,
+              unevalTree: dataTreeEvaluator.oldUnEvalTree,
+              type: "LINT_TREE",
+            },
+          });
           nonDynamicFieldValidationOrder =
             setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
+          const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
+            evalOrder,
+            nonDynamicFieldValidationOrder,
+          );
+          dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
+          evalMetaUpdates = JSON.parse(
+            JSON.stringify(updateResponse.evalMetaUpdates),
+          );
         }
+        dataTreeEvaluator = dataTreeEvaluator as DataTreeEvaluator;
+        dependencies = dataTreeEvaluator.inverseDependencyMap;
+        errors = dataTreeEvaluator.errors;
+        dataTreeEvaluator.clearErrors();
+        logs = dataTreeEvaluator.logs;
+        userLogs = dataTreeEvaluator.userLogs;
+        if (shouldReplay) {
+          if (replayMap[CANVAS]?.logs)
+            logs = logs.concat(replayMap[CANVAS]?.logs);
+          replayMap[CANVAS]?.clearLogs();
+        }
+
+        dataTreeEvaluator.clearLogs();
       } catch (error) {
-        console.error("ERROR IN UPDATING DEPENDENCY", error);
-        unEvalUpdates = [];
-        evalOrder = [];
-        lintOrder = [];
-        uncaughtError = error;
+        console.error("ERROR IN EVAL_TREE", error);
+        if (dataTreeEvaluator !== undefined) {
+          errors = dataTreeEvaluator.errors;
+          logs = dataTreeEvaluator.logs;
+          userLogs = dataTreeEvaluator.userLogs;
+        }
+        if (!(error instanceof CrashingError)) {
+          errors.push({
+            type: EvalErrorTypes.UNKNOWN_ERROR,
+            message: (error as Error).message,
+          });
+          console.error(error);
+        }
       }
 
       return {
-        evalOrder,
-        lintOrder,
+        dataTree,
+        dependencies,
+        errors,
+        evalMetaUpdates,
+        evaluationOrder: evalOrder,
         jsUpdates,
+        logs,
+        userLogs,
         unEvalUpdates,
-        uncaughtError,
-        nonDynamicFieldValidationOrder,
         isCreateFirstTree,
-      } as UpdateDependencyResponseData;
+      };
     }
     default: {
       console.error("Action not registered on evalWorker", method);
