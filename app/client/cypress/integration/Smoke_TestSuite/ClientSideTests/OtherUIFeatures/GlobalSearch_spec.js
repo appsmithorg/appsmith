@@ -87,7 +87,7 @@ describe("GlobalSearch", function() {
 
   it("4. navigatesToDatasourceHavingAQuery", () => {
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       const expectedDatasource = httpResponse.response.body.data;
 
       cy.NavigateToActiveDSQueryPane(expectedDatasource.name);
@@ -147,7 +147,7 @@ describe("GlobalSearch", function() {
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(globalSearchLocators.blankDatasource).click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
-    cy.wait("@createDatasource").should(
+    cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,

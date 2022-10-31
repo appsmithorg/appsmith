@@ -30,7 +30,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
     cy.testSaveDatasource();
 
-    // cy.get("@createDatasource").then((httpResponse) => {
+    // cy.get("@saveDatasource").then((httpResponse) => {
     //   datasourceName = httpResponse.response.body.data.name;
     // });
   });

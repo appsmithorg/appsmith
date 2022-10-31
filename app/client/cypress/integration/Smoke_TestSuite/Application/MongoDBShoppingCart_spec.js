@@ -20,7 +20,7 @@ describe("Shopping cart App", function() {
     cy.get(datasource.MongoDB).click();
     cy.fillMongoDatasourceForm();
     cy.testSaveDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.NavigateToQueryEditor();

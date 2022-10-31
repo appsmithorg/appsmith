@@ -108,7 +108,7 @@ export class DataSources {
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
 
   public StartDataSourceRoutes() {
-    cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
+    cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
     cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
   }
 
@@ -131,12 +131,6 @@ export class DataSources {
         cy.writeFile(fixtureFile, JSON.stringify(data));
       });
     });
-  }
-
-  public startRoutesForDatasource() {
-    cy.server();
-    cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
-    cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   }
 
   public StartInterceptRoutesForMySQL() {
@@ -323,8 +317,8 @@ export class DataSources {
 
   public SaveDatasource() {
     cy.get(this._saveDs).click();
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
-    this.agHelper.AssertContains("datasource updated successfully");
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.agHelper.AssertContains("datasource created");
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -586,7 +580,7 @@ export class DataSources {
     //Click on Authenticated Graphql API
     cy.get(this._createGraphQLDatasource).click({ force: true });
     //Verify weather Authenticated Graphql Datasource is successfully created.
-    cy.wait("@createDatasource").should(
+    cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       201,
@@ -599,7 +593,7 @@ export class DataSources {
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
   }
 

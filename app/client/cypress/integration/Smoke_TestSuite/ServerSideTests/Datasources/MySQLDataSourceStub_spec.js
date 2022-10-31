@@ -18,7 +18,7 @@ describe("MySQL datasource test cases", function() {
       cy.renameDatasource(datasourceName);
     });
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {
@@ -31,7 +31,7 @@ describe("MySQL datasource test cases", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MySQL).click();
     cy.fillMySQLDatasourceForm(true);
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {

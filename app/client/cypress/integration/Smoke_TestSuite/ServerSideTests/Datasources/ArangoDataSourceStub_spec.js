@@ -18,7 +18,7 @@ describe("Arango datasource test cases", function() {
     dataSources.CreatePlugIn("ArangoDB");
     agHelper.RenameWithInPane("ArangoWithnoTrailing", false);
     cy.fillArangoDBDatasourceForm();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
     cy.intercept("POST", "/api/v1/datasources/test", {

@@ -12,7 +12,7 @@ describe("Create a query with a empty datasource, run, save the query", function
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.testSaveDatasource(false);
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });

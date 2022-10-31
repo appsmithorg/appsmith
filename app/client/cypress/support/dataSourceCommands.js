@@ -410,7 +410,7 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
   //Click on Authenticated API
   cy.get(apiWidgetslocator.createAuthApiDatasource).click();
   //Verify weather Authenticated API is successfully created.
-  cy.wait("@createDatasource").should(
+  cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     201,
@@ -461,7 +461,7 @@ Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {
   //Click on Authenticated Graphql API
   cy.get(apiEditorLocators.createGraphQLDatasource).click({ force: true });
   //Verify weather Authenticated Graphql Datasource is successfully created.
-  cy.wait("@createDatasource").should(
+  cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     201,

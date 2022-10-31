@@ -16,7 +16,7 @@ describe("Google Sheets datasource row objects placeholder", function() {
     dataSources.CreatePlugIn(pluginName);
 
     // navigate to create query tab and create a new query
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
       // clicking on new query to write a query
       cy.NavigateToQueryEditor();
