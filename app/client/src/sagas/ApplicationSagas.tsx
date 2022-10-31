@@ -52,10 +52,9 @@ import {
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import { APP_MODE } from "entities/App";
 import { Workspace, Workspaces } from "constants/workspaceConstants";
-import { Variant } from "components/ads/common";
 import { AppIconName } from "design-system";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
