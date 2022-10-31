@@ -1,12 +1,15 @@
 import React, { useEffect } from "react";
 import { Field, InjectedFormProps, reduxForm } from "redux-form";
 import { HelpIcons } from "icons/HelpIcons";
-import { UneditableField } from "design-system";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import { Variant } from "components/ads/common";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Toaster, TooltipComponent } from "design-system";
+import {
+  Toaster,
+  TooltipComponent,
+  UneditableField,
+  Variant,
+} from "design-system";
 import { Colors } from "constants/Colors";
 
 const HelpIcon = HelpIcons.HELP_ICON;
