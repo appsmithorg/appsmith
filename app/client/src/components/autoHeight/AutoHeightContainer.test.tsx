@@ -1,22 +1,22 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
-import DynamicHeightContainer from "./DynamicHeightContainer";
+import AutoHeightContainer from "./AutoHeightContainer";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
 
-describe("<DynamicHeightContainer />", () => {
+describe("<AutoHeightContainer />", () => {
   it("should wrap the children in a div whose height is auto", async () => {
     const tree = renderer
       .create(
-        <DynamicHeightContainer
+        <AutoHeightContainer
           maxDynamicHeight={0}
           minDynamicHeight={0}
           isAutoHeightWithLimits={false}
           onHeightUpdate={() => {}}
         >
           <div data-testid="test" />
-        </DynamicHeightContainer>,
+        </AutoHeightContainer>,
       )
       .toJSON();
     expect(tree).toHaveStyleRule("height", "auto");
@@ -25,14 +25,14 @@ describe("<DynamicHeightContainer />", () => {
   describe("when isAutoHeightWithLimits is false", () => {
     it("should wrap the children in a simple div with class auto-height-container", async () => {
       const getTestComponent = () => (
-        <DynamicHeightContainer
+        <AutoHeightContainer
           maxDynamicHeight={0}
           minDynamicHeight={0}
           isAutoHeightWithLimits={false}
           onHeightUpdate={() => {}}
         >
           <div data-testid="test" />
-        </DynamicHeightContainer>
+        </AutoHeightContainer>
       );
       const component = getTestComponent();
       const renderResult = render(component);
@@ -46,14 +46,14 @@ describe("<DynamicHeightContainer />", () => {
   describe("when isAutoHeightWithLimits is true", () => {
     it("should wrap the children in a div of class auto-height-container and then a div with class auto-height-scroll-container", async () => {
       const getTestComponent = () => (
-        <DynamicHeightContainer
+        <AutoHeightContainer
           maxDynamicHeight={0}
           minDynamicHeight={0}
           isAutoHeightWithLimits={true}
           onHeightUpdate={() => {}}
         >
           <div data-testid="test" />
-        </DynamicHeightContainer>
+        </AutoHeightContainer>
       );
       const component = getTestComponent();
       const renderResult = render(component);

@@ -2,12 +2,12 @@ import React, { PropsWithChildren, useRef, useEffect, useState } from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import styled from "styled-components";
 
-const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
+const StyledAutoHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
   overflow-x: ${(props) => (props.isOverflow ? "hidden" : "unset")};
 `;
 
-interface DynamicHeightContainerProps {
+interface AutoHeightContainerProps {
   maxDynamicHeight: number;
   minDynamicHeight: number;
   isAutoHeightWithLimits: boolean;
@@ -18,13 +18,13 @@ const SimpleContainer = styled.div`
   height: auto;
 `;
 
-export default function DynamicHeightContainer({
+export default function AutoHeightContainer({
   children,
   isAutoHeightWithLimits,
   maxDynamicHeight,
   minDynamicHeight,
   onHeightUpdate,
-}: PropsWithChildren<DynamicHeightContainerProps>) {
+}: PropsWithChildren<AutoHeightContainerProps>) {
   const [expectedHeight, setExpectedHeight] = useState(0);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -47,7 +47,7 @@ export default function DynamicHeightContainer({
         observer.current.unobserve(ref.current);
       }
     };
-  }, [observer]);
+  }, []);
 
   useEffect(() => {
     onHeightUpdate(expectedHeight);
@@ -59,14 +59,14 @@ export default function DynamicHeightContainer({
     );
 
     return (
-      <StyledDynamicHeightContainer
+      <StyledAutoHeightContainer
         className="auto-height-scroll-container"
         isOverflow={maxDynamicHeight < expectedHeightInRows}
       >
         <SimpleContainer className="auto-height-container" ref={ref}>
           {children}
         </SimpleContainer>
-      </StyledDynamicHeightContainer>
+      </StyledAutoHeightContainer>
     );
   }
 
