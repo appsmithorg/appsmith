@@ -31,7 +31,7 @@ describe("Canvas context Property Pane", function() {
         cy.focusCodeInput(propertyControlSelector);
       },
       () => {
-        cy.assertCursorOnCodeInput(propertyControlSelector);
+        cy.assertSoftFocusOnPropertyPane(propertyControlSelector);
       },
     );
   });

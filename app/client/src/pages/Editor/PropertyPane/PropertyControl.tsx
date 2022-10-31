@@ -113,18 +113,17 @@ const PropertyControl = memo((props: Props) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
 
   useEffect(() => {
-    if (
-      shouldFocusPropertyPath &&
-      shouldFocusOnPropertyControl(controlRef.current)
-    ) {
+    if (shouldFocusPropertyPath) {
       // We can get a code editor element as well, which will take time to load
       // for that we setTimeout to 200 ms
       setTimeout(() => {
-        const focusableElement = getPropertyControlFocusElement(
-          controlRef.current,
-        );
-        focusableElement?.scrollIntoView({ block: "center" });
-        focusableElement?.focus();
+        if (shouldFocusOnPropertyControl(controlRef.current)) {
+          const focusableElement = getPropertyControlFocusElement(
+            controlRef.current,
+          );
+          focusableElement?.scrollIntoView({ block: "center" });
+          focusableElement?.focus();
+        }
       }, 500);
     }
   }, [shouldFocusPropertyPath]);
