@@ -277,9 +277,9 @@ export const ResizableComponent = memo(function ResizableComponent(
     [props.parentColumnSpace, props.parentRowSpace],
   );
 
-  const isVerticalResizeEnabled = useMemo(() => {
-    return isEnabled;
-  }, [isEnabled]);
+  // Doing this like this for now. When auto height PRs come in
+  // This will cause a smaller diff in the merge conflicts.
+  const isVerticalResizeEnabled = isEnabled;
 
   return (
     <Resizable
