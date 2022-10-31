@@ -19,7 +19,6 @@ import {
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-import { ThemeProp } from "components/ads/common";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -40,6 +39,7 @@ import {
   MenuItemsSource,
   PopoverContentProps,
 } from "../constants";
+import { ThemeProp } from "widgets/constants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -139,7 +139,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
           : "transparent"
       } !important;
       color: var(--wds-color-text-disabled) !important;
-      
+
       span {
         color: var(--wds-color-text-disabled) !important;
       }

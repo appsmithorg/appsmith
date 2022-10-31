@@ -29,12 +29,11 @@ import { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import { Button, Category, Size } from "design-system";
+import { Button, Category, Classes as CsClasses, Size } from "design-system";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
-import { Classes as CsClasses } from "components/ads/common";
 import { Colors } from "constants/Colors";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
