@@ -501,8 +501,7 @@ class BaseInputComponent extends React.Component<
 
   private numericInputComponent = () => {
     // Get current locale only for the currency widget.
-    const locale =
-      this.props.inputType === InputTypes.CURRENCY ? getLocale() : undefined;
+    const locale = this.props.shouldUseLocale ? getLocale() : undefined;
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
 
@@ -765,6 +764,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   boxShadow?: string;
   accentColor?: string;
   errorTooltipBoundary?: string;
+  shouldUseLocale?: boolean;
 }
 
 export default BaseInputComponent;
