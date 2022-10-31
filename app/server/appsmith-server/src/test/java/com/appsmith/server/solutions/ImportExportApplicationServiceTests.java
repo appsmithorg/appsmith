@@ -2980,6 +2980,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3055,6 +3056,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3149,6 +3151,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3242,6 +3245,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3334,6 +3338,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application3.getPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3395,6 +3400,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3456,6 +3462,7 @@ public class ImportExportApplicationServiceTests {
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size()).isLessThan(application1.getPages().size());
+                    assertThat(finalApplication.getPages().size()).isEqualTo(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {

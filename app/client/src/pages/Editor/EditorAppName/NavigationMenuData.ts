@@ -2,8 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
-import { Toaster } from "design-system";
-import { ThemeProp, Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -15,7 +14,7 @@ import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../../Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -33,6 +32,7 @@ import { redoShortCut, undoShortCut } from "utils/helpers";
 import { pageListEditorURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;

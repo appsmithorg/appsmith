@@ -4,7 +4,6 @@ import { Alignment } from "@blueprintjs/core";
 
 import { Classes } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
-import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
@@ -22,6 +21,7 @@ import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "design-system";
+import { ThemeProp, AlignWidgetTypes } from "widgets/constants";
 
 export interface InputContainerProps {
   inline?: boolean;
@@ -112,9 +112,9 @@ function SelectAll(props: SelectAllProps) {
       inline={inline}
       labelElement={
         <CheckboxLabel
+          alignment={AlignWidgetTypes.LEFT}
           className="t--checkbox-widget-label"
           disabled={isDisabled}
-          labelPosition={LabelPosition.Left}
           labelTextColor={disabled ? Colors.GREY_8 : "inherit"}
         >
           Select all
@@ -239,9 +239,9 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
               key={generateReactKey()}
               labelElement={
                 <CheckboxLabel
+                  alignment={AlignWidgetTypes.LEFT}
                   className="t--checkbox-widget-label"
                   disabled={isDisabled}
-                  labelPosition={LabelPosition.Left}
                 >
                   {option.label}
                 </CheckboxLabel>

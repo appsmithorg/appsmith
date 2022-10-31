@@ -189,8 +189,8 @@ public class PolicyGeneratorCE {
     protected void createPermissionGroupPolicyGraph() {
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.ASSIGN_PERMISSION_GROUPS);
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.UNASSIGN_PERMISSION_GROUPS);
-        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);
-        lateralGraph.addEdge(AclPermission.ASSIGN_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);
+        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUP_MEMBERS);
+        lateralGraph.addEdge(AclPermission.ASSIGN_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUP_MEMBERS);
     }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> permissionGroups, Class<? extends BaseDomain> destinationEntity) {

@@ -36,7 +36,6 @@ import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
@@ -49,6 +48,7 @@ import {
   AppIconCollection,
   Button,
   Category,
+  Classes,
   EditableText,
   EditInteractionKind,
   DialogComponent as Dialog,
@@ -67,7 +67,6 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
-import { Classes } from "components/ads/common";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
@@ -97,12 +96,17 @@ import SharedUserList from "pages/common/SharedUserList";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
@@ -296,6 +300,8 @@ function Item(props: {
 const LeftPaneDataSection = styled.div`
   position: relative;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
+  display: flex;
+  flex-direction: column;
 `;
 
 function LeftPaneSection(props: {
@@ -323,7 +329,6 @@ const StyledAnchor = styled.a`
 
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
   ${thinScrollbar};
   /* padding-bottom: 160px; */
 `;
@@ -948,7 +953,12 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      {featureFlags.GIT_IMPORT && <GitSyncModal isImport />}
+      {featureFlags.GIT_IMPORT && (
+        <>
+          <GitSyncModal isImport />
+          <DisconnectGitModal />
+        </>
+      )}
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );

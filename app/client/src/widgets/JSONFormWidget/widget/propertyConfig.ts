@@ -298,7 +298,8 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       {
         propertyName: `${prefix}.buttonVariant`,
         label: "Button Variant",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         helpText: "Sets the variant of the icon button",
         options: [
           {
@@ -389,6 +390,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
+        fullWidth: true,
         options: [
           {
             icon: "VERTICAL_LEFT",
@@ -412,7 +414,8 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       {
         propertyName: `${prefix}.placement`,
         label: "Placement",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         helpText: "Sets the space between items",
         options: [
           {
