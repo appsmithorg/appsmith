@@ -53,4 +53,5 @@ Fixes # (issue)
 - [ ] Test plan has been approved by relevant developers
 - [ ] Test plan has been peer reviewed by QA
 - [ ] Cypress test cases have been added and approved by either SDET or manual QA
-- [ ] Organized project war room with relevant stakeholders
+- [ ] Organized project review call with relevant stakeholders after Round 1/2 of QA
+- [ ] Added Test Plan Approved label after reveiwing all Cypress test
