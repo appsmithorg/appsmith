@@ -41,7 +41,7 @@ Media
 > Add Testsmith test cases links that relate to this PR
 
 ### Issues raised during DP testing
-> Link issues raised during DP testing for better visiblity and tracking (copy link from )
+> Link issues raised during DP testing for better visiblity and tracking (copy link from comments dropped on this PR)
 
 
 ## Checklist:
