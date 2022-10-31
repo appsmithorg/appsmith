@@ -4,7 +4,6 @@ import {
   minValueValidation,
   maxValueValidation,
 } from "./index";
-import { INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR } from "./../../../ce/constants/messages";
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {
@@ -211,14 +210,5 @@ describe("maxValueValidation - ", () => {
       maxValueValidation("18", { minNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeTruthy();
-  });
-});
-
-describe("defaultTextMaxCharValidation", () => {
-  const values = { maxNum: 5 } as InputWidgetProps;
-  it("checks for INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR string", () => {
-    expect(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR(Number(values.maxNum))).toBe(
-      `Default text length must be less than or equal to ${values.maxNum} characters`,
-    );
   });
 });
