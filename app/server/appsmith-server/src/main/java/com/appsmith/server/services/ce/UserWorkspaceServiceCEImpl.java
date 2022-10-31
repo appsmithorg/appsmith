@@ -333,7 +333,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return permissionGroupSortOrder;
                 }
 
-                return o1.getName().compareTo(o2.getName());
+                if (o1.getUsername() == null || o2.getUsername() == null)
+                    return o1.getName().compareTo(o2.getName());
+                return o1.getUsername().compareTo(o2.getUsername());
             }
 
             private int getOrder(String name) {
