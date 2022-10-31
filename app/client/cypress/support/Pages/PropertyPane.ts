@@ -121,6 +121,8 @@ export class PropertyPane {
     cy.get("@fieldNames").each(($filedName: any) => {
       field = $filedName;
       this.agHelper.GetNClick(this._fieldConfig(field as string));
+      this.agHelper.Sleep(200);
+      this.RemoveText("Default Value", false);
       this.agHelper
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
@@ -128,7 +130,7 @@ export class PropertyPane {
           this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
       cy.focused().blur();
-      this.RemoveText("Default Value", false);
+      //this.RemoveText("Default Value", false);
       //this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
