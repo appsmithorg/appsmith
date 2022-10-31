@@ -24,6 +24,7 @@ import {
 } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 import {
   EvalError,
   EVAL_WORKER_ACTIONS,
@@ -95,26 +96,12 @@ import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { JSUpdate } from "utils/JSPaneUtils";
-import {
-  DataTreeDiff,
-  getSafeToRenderDataTree,
-} from "workers/Evaluation/evaluationUtils";
+import { DataTreeDiff } from "workers/Evaluation/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
-import {
-  EvalTreeRequestData,
-  EvalTreeResponseData,
-  EvalTreeSagaRequestData,
-  UpdateDependencyRequestData,
-  UpdateDependencyResponseData,
-} from "workers/Evaluation/types";
 import { lintTreeSaga, lintWorker } from "./LintingSagas";
-import { GracefulWorkerService } from "utils/WorkerUtil";
-import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
-
-let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -125,6 +112,8 @@ const evalWorker = new GracefulWorkerService(
     },
   ),
 );
+
+let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 export type EvalTreePayload = {
   dataTree: DataTree;
@@ -139,7 +128,7 @@ export type EvalTreePayload = {
   isCreateFirstTree: boolean;
 };
 
-function* startEvaluationProcess(
+function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay = true,
 ) {
@@ -149,99 +138,38 @@ function* startEvaluationProcess(
   const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
-  // Update dependency
-  const updateDependencyRequestData: UpdateDependencyRequestData = {
-    allActionValidationConfig,
-    shouldReplay,
-    theme,
-    widgets,
-    unevalTree,
-    widgetTypeConfigMap,
-  };
+
   log.debug({ unevalTree });
-  const {
-    evalOrder,
-    isCreateFirstTree,
-    jsUpdates,
-    lintOrder,
-    nonDynamicFieldValidationOrder,
-    uncaughtError,
-    unEvalUpdates,
-  }: UpdateDependencyResponseData = yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.UPDATE_DEPENDENCY,
-    updateDependencyRequestData,
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
 
-  yield all([
-    // Evaluation
-    call(evaluateTreeSaga, {
-      postEvalActions,
-      shouldReplay,
-      evalOrder,
-      jsUpdates,
-      theme,
-      widgets,
-      unEvalUpdates,
-      unevalTree,
-      uncaughtError,
-      nonDynamicFieldValidationOrder,
-      isCreateFirstTree,
-    }),
-    // Linting
-    call(lintTreeSaga, {
-      pathsToLint: lintOrder,
-      jsUpdates,
-      unevalTree,
-    }),
-  ]);
-}
-
-function* evaluateTreeSaga(arg: EvalTreeSagaRequestData) {
-  const {
-    evalOrder,
-    isCreateFirstTree,
-    jsUpdates,
-    nonDynamicFieldValidationOrder,
-    postEvalActions,
-    shouldReplay = true,
-    uncaughtError,
-    unevalTree,
-  } = arg;
-  let { unEvalUpdates } = arg;
-
-  const evalTreeRequestData: EvalTreeRequestData = {
-    evalOrder,
-    shouldReplay,
-    uncaughtError,
-    unEvalUpdates,
-    nonDynamicFieldValidationOrder,
-    isCreateFirstTree,
-  };
-
-  const workerResponse: EvalTreeResponseData = yield call(
+  // @ts-expect-error: Worker Response is unknown
+  const workerResponse = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
-    evalTreeRequestData,
+    {
+      unevalTree,
+      widgetTypeConfigMap,
+      widgets,
+      theme,
+      shouldReplay,
+      allActionValidationConfig,
+    },
   );
 
   const {
+    dataTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
+    evaluationOrder,
+    jsUpdates,
     logs,
     userLogs,
-    hasUncaughtError,
-  } = workerResponse;
-  let { dataTree } = workerResponse;
-
-  if (hasUncaughtError) {
-    dataTree = getSafeToRenderDataTree(
-      getUpdatedLocalUnEvalTreeAfterJSUpdates(jsUpdates, unevalTree),
-      widgetTypeConfigMap,
-    );
-    unEvalUpdates = [];
-  }
+    unEvalUpdates,
+    isCreateFirstTree = false,
+  }: EvalTreePayload = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
@@ -284,7 +212,7 @@ function* evaluateTreeSaga(arg: EvalTreeSagaRequestData) {
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
-  yield call(evalErrorHandler as any, errors, updatedDataTree, evalOrder);
+  yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
@@ -293,7 +221,7 @@ function* evaluateTreeSaga(arg: EvalTreeSagaRequestData) {
       logSuccessfulBindings,
       unevalTree,
       updatedDataTree,
-      evalOrder,
+      evaluationOrder,
       isCreateFirstTree,
     );
 
@@ -457,7 +385,13 @@ export function* executeDynamicTriggerRequest(
         requestData.triggerMeta,
       );
     }
-
+    if (requestData.type === "LINT_TREE") {
+      yield call(lintTreeSaga, {
+        pathsToLint: requestData.lintOrder,
+        jsUpdates: requestData.jsUpdates,
+        unevalTree: requestData.unevalTree,
+      });
+    }
     if (requestData?.errors) {
       yield call(evalErrorHandler, requestData.errors);
     }
@@ -681,7 +615,7 @@ function getPostEvalActions(
 }
 
 function* evaluationChangeListenerSaga() {
-  // Explicitly shutdown all old workers if present
+  // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
   const [{ mainThreadRequestChannel }] = yield all([
     call(evalWorker.start),
@@ -695,7 +629,7 @@ function* evaluationChangeListenerSaga() {
   const initAction: {
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(startEvaluationProcess, initAction.postEvalActions);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -708,7 +642,7 @@ function* evaluationChangeListenerSaga() {
     if (shouldProcessBatchedAction(action)) {
       const postEvalActions = getPostEvalActions(action);
       yield call(
-        startEvaluationProcess,
+        evaluateTreeSaga,
         postEvalActions,
         get(action, "payload.shouldReplay"),
       );
