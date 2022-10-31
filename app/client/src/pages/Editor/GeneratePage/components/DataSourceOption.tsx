@@ -3,16 +3,16 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
-import { Classes } from "components/ads/common";
 import {
+  Classes,
   DropdownOption,
   RenderDropdownOptionType,
   Text,
   TextType,
+  TooltipComponent,
 } from "design-system";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
-import { TooltipComponent } from "design-system";
 
 // ---------- Helpers and constants ----------
 

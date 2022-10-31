@@ -76,6 +76,18 @@ import {
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
   USE_DEFAULT_CONFIGURATION,
+  AUDIT_LOGS,
+  INTRODUCING,
+  AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING,
+  SECURITY_AND_COMPLIANCE,
+  SECURITY_AND_COMPLIANCE_DETAIL1,
+  SECURITY_AND_COMPLIANCE_DETAIL2,
+  DEBUGGING,
+  DEBUGGING_DETAIL1,
+  INCIDENT_MANAGEMENT,
+  INCIDENT_MANAGEMENT_DETAIL1,
+  AVAILABLE_ON_BUSINESS,
+  EXCLUSIVE_TO_BUSINESS,
 } from "./messages";
 
 describe("messages", () => {
@@ -416,5 +428,45 @@ describe("messages with input values", () => {
     expect(createMessage(REGENERATE_SSH_KEY, "ECDSA", 256)).toEqual(
       "Regenerate ECDSA 256 key",
     );
+  });
+});
+
+describe("Audit logs messages", () => {
+  it("without input strings match successfully", () => {
+    const input = [
+      AUDIT_LOGS,
+      AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING,
+      SECURITY_AND_COMPLIANCE,
+      SECURITY_AND_COMPLIANCE_DETAIL1,
+      SECURITY_AND_COMPLIANCE_DETAIL2,
+      DEBUGGING,
+      DEBUGGING_DETAIL1,
+      INCIDENT_MANAGEMENT,
+      INCIDENT_MANAGEMENT_DETAIL1,
+      AVAILABLE_ON_BUSINESS,
+    ];
+    const expected = [
+      "Audit Logs",
+      "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.",
+      "Security & Compliance",
+      "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.",
+      "Exports to popular compliance tools coming soon",
+      "Debugging",
+      "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.",
+      "Incident Management",
+      "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.",
+      "Available on a business plan only",
+    ];
+    const actual = input.map((f) => createMessage(f));
+    expect(actual).toEqual(expected);
+  });
+  it("with input strings match successfully", () => {
+    const input = [INTRODUCING, EXCLUSIVE_TO_BUSINESS];
+    const expected = [
+      `Introducing XYZ`,
+      `The XYZ feature is exclusive to workspaces on the Enterprise Plan`,
+    ];
+    const actual = input.map((f) => createMessage(f, "XYZ"));
+    expect(actual).toEqual(expected);
   });
 });

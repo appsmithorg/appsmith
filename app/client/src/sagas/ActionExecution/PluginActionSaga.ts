@@ -38,7 +38,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
@@ -47,7 +47,6 @@ import {
   ACTION_EXECUTION_CANCELLED,
   ACTION_EXECUTION_FAILED,
 } from "@appsmith/constants/messages";
-import { Variant } from "components/ads/common";
 import {
   EventType,
   LayoutOnLoadActionErrors,

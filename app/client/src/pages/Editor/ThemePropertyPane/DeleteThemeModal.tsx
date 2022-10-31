@@ -1,6 +1,5 @@
 import React from "react";
 
-import { Variant } from "components/ads/common";
 import {
   createMessage,
   DELETE_APP_THEME_WARNING,
@@ -12,6 +11,7 @@ import {
   Category,
   DialogComponent as Dialog,
   Size,
+  Variant,
 } from "design-system";
 
 interface DeleteThemeModalProps {

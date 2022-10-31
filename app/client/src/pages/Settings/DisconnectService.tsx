@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Variant } from "components/ads/common";
-import { Button, CalloutV2 } from "design-system";
+import { Button, CalloutV2, Variant } from "design-system";
 import {
   createMessage,
   DANGER_ZONE,

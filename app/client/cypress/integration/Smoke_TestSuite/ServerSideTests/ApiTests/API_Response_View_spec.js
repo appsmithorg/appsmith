@@ -13,7 +13,7 @@ describe("Bug 14666: Api Response Test Functionality ", function() {
     apiPage.CreateAndFillApi(testUrl1, "TableTestAPI");
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
-    cy.get(apiEditor.tableResponseTab).should('exist');
+    cy.get(apiEditor.tableResponseTab).should("exist");
     cy.DeleteAPI();
   });
 
@@ -21,10 +21,13 @@ describe("Bug 14666: Api Response Test Functionality ", function() {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
-    apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods, "TableTestAPI");
+    apiPage.CreateAndFillApi(
+      testdata.baseUrl + testdata.methods,
+      "TableTestAPI",
+    );
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
-    cy.get(apiEditor.tableResponseTab).should('not.exist');
+    cy.get(apiEditor.tableResponseTab).should("not.exist");
     cy.DeleteAPI();
   });
 });
