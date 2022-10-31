@@ -702,7 +702,7 @@ function* createDatasourceFromFormSaga(
       "new",
       "type",
     ]);
-    payload.isConfigured = false;
+    payload.isConfigured = true;
 
     const response: ApiResponse<Datasource> = yield DatasourcesApi.createDatasource(
       {
