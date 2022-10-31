@@ -98,7 +98,8 @@ export function* updateFlexLayersOnDelete(
       children: updatedChildren,
       hasFillChild: updatedChildren.some(
         (each: LayerChild) =>
-          widgets[each.id].responsiveBehavior === ResponsiveBehavior.Fill,
+          widgets[each.id] &&
+          widgets[each.id]?.responsiveBehavior === ResponsiveBehavior.Fill,
       ),
     },
     ...flexLayers.slice(layerIndex + 1),
