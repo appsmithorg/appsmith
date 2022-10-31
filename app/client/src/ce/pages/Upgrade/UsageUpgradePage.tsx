@@ -2,7 +2,7 @@ import React from "react";
 import { Carousel, Header } from "./types";
 import { createMessage } from "design-system/build/constants/messages";
 import { USAGE_AND_BILLING } from "@appsmith/constants/messages";
-import AnalyticsUtil from "../../../utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import UpgradePage from "./UpgradePage";
 import { getAppsmithConfigs } from "../../configs";
 import { FontWeight, Text, TextType } from "design-system";

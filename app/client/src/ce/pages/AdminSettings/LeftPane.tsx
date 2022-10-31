@@ -7,9 +7,9 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system";
 import { createMessage } from "design-system/build/constants/messages";
-import { USAGE_AND_BILLING } from "../../constants/messages";
+import { USAGE_AND_BILLING } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
-import { selectFeatureFlags } from "../../../selectors/usersSelectors";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
