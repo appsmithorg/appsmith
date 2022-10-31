@@ -8,10 +8,11 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   TextSizes,
+  WidgetHeightLimits,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
-import { WidgetPositionProps } from "./BaseWidget";
+import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { Theme } from "constants/DefaultTheme";
 import {
   ButtonStyleTypes,
@@ -32,6 +33,7 @@ import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const punycode = require("punycode/");
 
@@ -715,3 +717,47 @@ export const flat = (array: DropdownOption[]) => {
   });
   return result;
 };
+
+/**
+ * A utility function to check whether a widget has dynamic height enabled?
+ * @param props: Widget properties
+ * @param shouldCheckIfEnabledWithLimits: Should we check specifically for auto height with limits.
+ */
+export const isAutoHeightEnabledForWidget = (
+  props: WidgetProps,
+  shouldCheckIfEnabledWithLimits = false,
+) => {
+  if (shouldCheckIfEnabledWithLimits) {
+    return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+  }
+  return (
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
+    props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+  );
+};
+
+/**
+ * Gets the max possible height for the widget
+ * @param props: WidgetProperties
+ * @returns: The max possible height of the widget (in rows)
+ */
+export function getWidgetMaxAutoHeight(props: WidgetProps) {
+  if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT) {
+    return WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  } else if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    return props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
+  }
+}
+
+/**
+ * Gets the min possible height for the widget
+ * @param props: WidgetProperties
+ * @returns: The min possible height of the widget (in rows)
+ */
+export function getWidgetMinAutoHeight(props: WidgetProps) {
+  if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT) {
+    return WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+  } else if (props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+    return props.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+  }
+}

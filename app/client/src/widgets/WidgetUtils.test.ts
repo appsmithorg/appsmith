@@ -3,9 +3,14 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
-import { TextSizes } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  TextSizes,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import { remove } from "lodash";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
+import { WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
 import {
   borderRadiusUtility,
@@ -16,6 +21,9 @@ import {
   lightenColor,
   composePropertyUpdateHook,
   sanitizeKey,
+  isAutoHeightEnabledForWidget,
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
 } from "./WidgetUtils";
 import {
   getCustomTextColor,
@@ -466,5 +474,151 @@ describe("composePropertyUpdateHook", () => {
     const expected = undefined;
 
     expect(composePropertyUpdateHook(input)(null, "", null)).toEqual(expected);
+  });
+});
+
+const DUMMY_WIDGET: WidgetProps = {
+  bottomRow: 0,
+  isLoading: false,
+  leftColumn: 0,
+  parentColumnSpace: 0,
+  parentRowSpace: 0,
+  renderMode: RenderModes.CANVAS,
+  rightColumn: 0,
+  topRow: 0,
+  type: "SKELETON_WIDGET",
+  version: 2,
+  widgetId: "",
+  widgetName: "",
+};
+describe("Auto Height Utils", () => {
+  it("should return true if withLimits is true and widget has AUTO_HEIGHT_WITH_LIMITS", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, true);
+    expect(result).toBe(true);
+  });
+  it("should return false if withLimits is true and widget has AUTO_HEIGHT", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, true);
+    expect(result).toBe(false);
+  });
+  it("should return true if withLimits is false and widget has AUTO_HEIGHT", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, false);
+    expect(result).toBe(true);
+  });
+
+  it("should return false withLimits is false and widget has FIXED", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, false);
+    expect(result).toBe(false);
+  });
+  it("should return false withLimits is true and widget has FIXED", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+    };
+
+    const result = isAutoHeightEnabledForWidget(props, true);
+    expect(result).toBe(false);
+  });
+  it("should return 9000 if widget has AUTO_HEIGHT", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+      maxDynamicHeight: 20,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
+  });
+  it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      maxDynamicHeight: 20,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBe(20);
+  });
+  it("should return 9000 if widget has AUTO_HEIGHT_WITH_LIMITS and maxDynamicHeight is undefined", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      maxDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
+  });
+
+  it("should return undefined if widget is FIXED ", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+      maxDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMaxAutoHeight(props);
+    expect(result).toBeUndefined();
+  });
+
+  it("should return 4 if widget has AUTO_HEIGHT", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT",
+      minDynamicHeight: 20,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBe(WidgetHeightLimits.MIN_HEIGHT_IN_ROWS);
+  });
+  it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: 20,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBe(20);
+  });
+  it("should return 4 if widget has AUTO_HEIGHT_WITH_LIMITS and minDynamicHeight is undefined", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "AUTO_HEIGHT_WITH_LIMITS",
+      minDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBe(WidgetHeightLimits.MIN_HEIGHT_IN_ROWS);
+  });
+
+  it("should return undefined if widget is FIXED ", () => {
+    const props = {
+      ...DUMMY_WIDGET,
+      dynamicHeight: "FIXED",
+      minDynamicHeight: undefined,
+    };
+
+    const result = getWidgetMinAutoHeight(props);
+    expect(result).toBeUndefined();
   });
 });
