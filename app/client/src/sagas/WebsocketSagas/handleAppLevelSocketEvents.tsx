@@ -2,12 +2,11 @@ import { put } from "redux-saga/effects";
 import { APP_LEVEL_SOCKET_EVENTS } from "./socketEvents";
 
 import { collabSetAppEditors } from "actions/appCollabActions";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import {
   createMessage,
   INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
 } from "@appsmith/constants/messages";
-import { Variant } from "components/ads/common";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
 

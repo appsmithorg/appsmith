@@ -64,8 +64,7 @@ import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,

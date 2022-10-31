@@ -18,7 +18,6 @@ import {
 import log from "loglevel";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
-import { ThemeProp } from "components/ads/common";
 import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
@@ -53,6 +52,7 @@ import { ReactComponent as MicrophoneIcon } from "assets/icons/widget/camera/mic
 import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camera/microphone-muted.svg";
 import { ReactComponent as FullScreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
 import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera/exit-fullscreen.svg";
+import { ThemeProp } from "widgets/constants";
 
 const overlayerMixin = css`
   position: absolute;
