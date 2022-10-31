@@ -8,7 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import { RecaptchaType, RecaptchaTypes } from "components/constants";
 import ReCAPTCHA from "react-google-recaptcha";
-import { Variant } from "components/ads/common";
+import { Variant } from "design-system";
 
 const RecaptchaWrapper = styled.div`
   position: relative;

@@ -236,26 +236,16 @@ public class DatabaseChangelog {
     }
 
     public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
-        Query queryToFetchAllWorkspaceIds = new Query();
+
+        Query queryToFetchWorkspacesWOPlugin = new Query();
         /* Filter in only those workspaces that don't have the plugin installed */
-        queryToFetchAllWorkspaceIds.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
-        /* Only read the workspace id and leave out other fields */
-        queryToFetchAllWorkspaceIds.fields().include(fieldName(QWorkspace.workspace.id));
-        List<Workspace> workspacesWithOnlyId = mongockTemplate.find(queryToFetchAllWorkspaceIds, Workspace.class);
-        for (Workspace workspaceWithId : workspacesWithOnlyId) {
-            Workspace workspace =
-                    mongockTemplate.findOne(query(where(fieldName(QWorkspace.workspace.id)).is(workspaceWithId.getId())),
-                    Workspace.class);
+        queryToFetchWorkspacesWOPlugin.addCriteria(Criteria.where("plugins.pluginId").ne(pluginId));
 
-            if (CollectionUtils.isEmpty(workspace.getPlugins())) {
-                workspace.setPlugins(new HashSet<>());
-            }
+        /* Add plugin to the workspace */
+        Update update = new Update();
+        update.addToSet("plugins",new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
 
-            workspace.getPlugins()
-                    .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
-
-            mongockTemplate.save(workspace);
-        }
+        mongockTemplate.updateMulti(queryToFetchWorkspacesWOPlugin,update,Workspace.class);
     }
 
     @ChangeSet(order = "001", id = "initial-plugins", author = "")

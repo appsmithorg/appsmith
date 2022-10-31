@@ -22,7 +22,6 @@ import {
   ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -34,11 +33,13 @@ import {
   Button,
   Callout,
   Category,
+  Classes,
   Icon,
   Size,
   TAB_MIN_HEIGHT,
   Text,
   TextType,
+  Variant,
 } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";

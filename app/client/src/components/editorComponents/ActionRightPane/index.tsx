@@ -1,15 +1,16 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import { Classes, Variant } from "components/ads/common";
 import {
   Button,
   Category,
+  Classes,
   Icon,
   IconSize,
   Size,
   Text,
   TextType,
+  Variant,
 } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
