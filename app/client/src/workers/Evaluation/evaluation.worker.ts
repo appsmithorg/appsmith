@@ -20,12 +20,9 @@ import { isEmpty } from "lodash";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { WorkerErrorTypes } from "workers/common/types";
 import {
-  EvalTreeRequestData,
-  EvalTreeResponseData,
   EvalWorkerRequest,
   EvalWorkerResponse,
   UpdateDependencyRequestData,
-  UpdateDependencyResponseData,
 } from "./types";
 import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { setFormEvaluationSaga } from "workers/Evaluation/formEval";
