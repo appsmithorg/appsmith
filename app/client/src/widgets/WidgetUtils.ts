@@ -786,8 +786,8 @@ export function shouldUpdateWidgetHeightAutomatically(
   // Run the following pieces of code only if dynamic height is enabled
   if (!isDynamicHeightEnabled) return false;
 
-  const maxDynamicHeightInRows = getWidgetMaxAutoHeight(props);
-  const minDynamicHeightInRows = getWidgetMinAutoHeight(props);
+  const maxAutoHeightInRows = getWidgetMaxAutoHeight(props);
+  const minAutoHeightInRows = getWidgetMinAutoHeight(props);
 
   // If current height is less than the expected height
   // We're trying to see if we can increase the height
@@ -796,7 +796,7 @@ export function shouldUpdateWidgetHeightAutomatically(
     // And the difference in expected and current is atleast 1 row
     // We can safely reduce the height
     if (
-      maxDynamicHeightInRows >= expectedHeightInRows &&
+      maxAutoHeightInRows >= expectedHeightInRows &&
       expectedHeightInRows - currentHeightInRows >= 1
     ) {
       return true;
@@ -810,7 +810,7 @@ export function shouldUpdateWidgetHeightAutomatically(
     // And the difference in expected and current is atleast 1 row
     // We can safely reduce the height
     if (
-      minDynamicHeightInRows <= expectedHeightInRows &&
+      minAutoHeightInRows <= expectedHeightInRows &&
       currentHeightInRows - expectedHeightInRows >= 1
     ) {
       return true;
@@ -821,13 +821,13 @@ export function shouldUpdateWidgetHeightAutomatically(
   // Then we need to update height in any case, the call to update comes
   // at a good time. This usually happens when we change the max value from the
   // property pane.
-  if (currentHeightInRows > maxDynamicHeightInRows) {
+  if (currentHeightInRows > maxAutoHeightInRows) {
     return true;
   }
 
   // The widget height should always be at least minDynamicHeightInRows
   // Same case as above, this time if minheight goes below the current.
-  if (currentHeightInRows < minDynamicHeightInRows) {
+  if (currentHeightInRows < minAutoHeightInRows) {
     return true;
   }
 
