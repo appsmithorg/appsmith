@@ -95,6 +95,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -2777,6 +2778,48 @@ public class DatabaseChangelog2 {
 
         dropIndexIfExists(mongockTemplate, Workspace.class, "tenantId_deleted");
         ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
+    }
+
+    @ChangeSet(order = "038", id = "delete-example-workspaces-if-not-used", author = "")
+    public void deleteExampleWorkspacesIfNotAssignedToAnyone(MongockTemplate mongockTemplate) {
+        final org.springframework.data.mongodb.core.query.Query configQuery = query(where("name").is("template-organization"));
+
+        final Config config = mongockTemplate.findOne(
+                configQuery,
+                Config.class
+        );
+
+        if (config == null) {
+            // No template organization configured. Nothing to migrate.
+            return;
+        }
+
+        final String workspaceId = config.getConfig().getAsString("organizationId");
+        if (workspaceId == null) {
+            // No template organization configured. Nothing to migrate.
+            return;
+        }
+
+        final org.springframework.data.mongodb.core.query.Query workspaceQuery = query(where("id").is(workspaceId));
+        Workspace exampleWorkspace = mongockTemplate.findOne(workspaceQuery, Workspace.class);
+        Set<String> defaultPermissionGroups = exampleWorkspace.getDefaultPermissionGroups();
+        AtomicReference<Boolean> isExampleWorkspaceUsed = new AtomicReference<>(false);
+        Query defaultPermissionGroupQuery = query(where("_id").in(defaultPermissionGroups));
+        mongockTemplate.find(defaultPermissionGroupQuery, PermissionGroup.class)
+                .stream()
+                .forEach(permissionGroup -> {
+                    if (permissionGroup.getAssignedToUserIds().size() > 0) {
+                        isExampleWorkspaceUsed.set(true);
+                    }
+                });
+
+        if (!isExampleWorkspaceUsed.get()) {
+            // The example workspace can be deleted since no one is using it.
+            mongockTemplate.remove(defaultPermissionGroupQuery, PermissionGroup.class);
+            mongockTemplate.remove(workspaceQuery, Workspace.class);
+            Query applicationQuery = query(where("workspaceId").is(workspaceId));
+            mongockTemplate.remove(applicationQuery, Application.class);
+        }
     }
 
 }
