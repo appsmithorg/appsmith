@@ -46,7 +46,6 @@ function eventRequestHandler({
   method,
   requestData,
 }: LintWorkerRequest): LintTreeResponse | unknown {
-  debugger;
   switch (method) {
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
