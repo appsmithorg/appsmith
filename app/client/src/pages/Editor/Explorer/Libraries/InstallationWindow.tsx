@@ -13,6 +13,7 @@ import {
   TextType,
   Toaster,
   TooltipComponent as Tooltip,
+  Variant,
 } from "design-system";
 import { EntityClassNames } from "../Entity";
 import {
@@ -35,7 +36,6 @@ import {
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
-import { Variant } from "components/ads";
 
 type TInstallWindowProps = any;
 

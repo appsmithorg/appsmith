@@ -3,8 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
-import { Variant } from "components/ads";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import {
   actionChannel,
   ActionPattern,
