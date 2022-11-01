@@ -365,15 +365,24 @@ export const useAutoLayoutHighlights = ({
         isEmpty,
       );
       const validEndHighLights = endHighLights.filter((each) => {
-        return !arr.some((eachHighlight) => {
+        return !startHighLights.some((eachHighlight) => {
           return eachHighlight.posX > each.posX;
         });
       });
       arr.push(...validEndHighLights);
       const validCenteredHighlights = centerHighlights.filter((each) => {
-        return !arr.some((eachHighlight) => {
-          return eachHighlight.posX > each.posX;
-        });
+        return (
+          !startHighLights.length ||
+          !endHighLights.length ||
+          !(
+            startHighLights.some((eachHighlight) => {
+              return eachHighlight.posX > each.posX;
+            }) ||
+            endHighLights.some((eachHighlight) => {
+              return eachHighlight.posX < each.posX;
+            })
+          )
+        );
       });
       arr.push(...validCenteredHighlights);
     }
