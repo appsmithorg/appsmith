@@ -34,6 +34,7 @@ import evaluate, {
 } from "./evaluate";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+import { initiateLinting } from "workers/Linting/utils";
 
 const CANVAS = "canvas";
 
@@ -256,15 +257,11 @@ function eventRequestHandler({
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-          postMessage({
-            promisified: true,
-            responseData: {
-              lintOrder,
-              jsUpdates,
-              unevalTree: dataTreeEvaluator.oldUnEvalTree,
-              type: EVAL_WORKER_ACTIONS.LINT_TREE,
-            },
-          });
+          initiateLinting(
+            lintOrder,
+            jsUpdates,
+            dataTreeEvaluator.oldUnEvalTree,
+          );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
           dataTree = dataTreeResponse.evalTree;
@@ -296,15 +293,12 @@ function eventRequestHandler({
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-          postMessage({
-            promisified: true,
-            responseData: {
-              lintOrder,
-              jsUpdates,
-              unevalTree: dataTreeEvaluator.oldUnEvalTree,
-              type: EVAL_WORKER_ACTIONS.LINT_TREE,
-            },
-          });
+          initiateLinting(
+            lintOrder,
+            jsUpdates,
+            dataTreeEvaluator.oldUnEvalTree,
+          );
+
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
           dataTree = dataTreeResponse.evalTree;
           dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
@@ -325,15 +319,11 @@ function eventRequestHandler({
           lintOrder = setupUpdateTreeResponse.lintOrder;
           jsUpdates = setupUpdateTreeResponse.jsUpdates;
           unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
-          self.postMessage({
-            promisified: true,
-            responseData: {
-              lintOrder,
-              jsUpdates,
-              unevalTree: dataTreeEvaluator.oldUnEvalTree,
-              type: EVAL_WORKER_ACTIONS.LINT_TREE,
-            },
-          });
+          initiateLinting(
+            lintOrder,
+            jsUpdates,
+            dataTreeEvaluator.oldUnEvalTree,
+          );
           nonDynamicFieldValidationOrder =
             setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
           const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
