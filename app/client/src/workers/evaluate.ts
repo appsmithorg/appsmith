@@ -17,7 +17,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
-import safeEval from "./safeEval";
+import indirectEval from "./indirectEval";
 
 export type EvalResult = {
   result: any;
@@ -299,7 +299,7 @@ export default function evaluateSync(
     }
 
     try {
-      result = safeEval(script);
+      result = indirectEval(script);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
@@ -361,7 +361,7 @@ export async function evaluateAsync(
     });
 
     try {
-      result = await safeEval(script);
+      result = await indirectEval(script);
       logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
