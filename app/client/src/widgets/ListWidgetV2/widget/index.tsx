@@ -7,7 +7,7 @@ import { klona } from "klona";
 
 import derivedProperties from "./parseDerivedProperties";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
-import MetaWidgetGenerator from "../MetaWidgetGenerator";
+import MetaWidgetGenerator, { GeneratorOptions } from "../MetaWidgetGenerator";
 import propertyPaneConfig from "./propertyConfig";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -98,10 +98,7 @@ const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
   "children.0.children.0.children.0.children";
 
-class ListWidget extends BaseWidget<
-  ListWidgetProps<WidgetProps>,
-  ListWidgetState
-> {
+class ListWidget extends BaseWidget<ListWidgetProps, ListWidgetState> {
   state = {
     page: 1,
   };
@@ -140,11 +137,7 @@ class ListWidget extends BaseWidget<
     };
   }
 
-  constructor(
-    props:
-      | ListWidgetProps<WidgetProps>
-      | Readonly<ListWidgetProps<WidgetProps>>,
-  ) {
+  constructor(props: ListWidgetProps | Readonly<ListWidgetProps>) {
     super(props);
     const { referencedWidgetId, widgetId } = props;
     const isListCloned =
@@ -186,7 +179,7 @@ class ListWidget extends BaseWidget<
     this.setupMetaWidgets();
   }
 
-  componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
+  componentDidUpdate(prevProps: ListWidgetProps) {
     this.prevFlattenedChildCanvasWidgets =
       prevProps.flattenedChildCanvasWidgets;
 
@@ -239,7 +232,7 @@ class ListWidget extends BaseWidget<
     this.deleteMetaWidgets();
   }
 
-  setupMetaWidgets = (prevProps?: ListWidgetProps<WidgetProps>) => {
+  setupMetaWidgets = (prevProps?: ListWidgetProps) => {
     // TODO: (ashit) Check for type === SKELETON_WIDGET?
     // Only when infinite scroll is not toggled i.e on !-> off or off !-> on
     if (this.props.infiniteScroll && prevProps?.infiniteScroll) {
@@ -258,7 +251,7 @@ class ListWidget extends BaseWidget<
     }
   };
 
-  metaWidgetGeneratorOptions = () => {
+  metaWidgetGeneratorOptions = (): GeneratorOptions => {
     const { page } = this.state;
     const {
       dynamicPathMapList = {},
@@ -266,7 +259,27 @@ class ListWidget extends BaseWidget<
       listData = [],
       mainCanvasId = "",
       mainContainerId = "",
+      primaryKey,
     } = this.props;
+
+    const primaryKeys = (() => {
+      if (Array.isArray(primaryKey)) {
+        return primaryKey;
+      }
+
+      if (typeof primaryKey === "string") {
+        return listData.map((d) => {
+          const keyValue = d[primaryKey];
+          if (typeof keyValue === "string" || typeof keyValue === "number") {
+            return keyValue;
+          }
+
+          return;
+        });
+      }
+
+      return [];
+    })();
 
     return {
       containerParentId: mainCanvasId,
@@ -278,7 +291,7 @@ class ListWidget extends BaseWidget<
       infiniteScroll: this.props.infiniteScroll ?? false,
       levelData: this.props.levelData,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
-      primaryKey: "id",
+      primaryKeys,
       scrollElement: this.componentRef.current,
       templateBottomRow: this.getTemplateBottomRow(),
       widgetName: this.props.widgetName,
@@ -497,7 +510,7 @@ class ListWidget extends BaseWidget<
    *
    * @param props
    */
-  generateChildrenEntityDefinitions(props: ListWidgetProps<WidgetProps>) {
+  generateChildrenEntityDefinitions(props: ListWidgetProps) {
     const template = props.template;
     const childrenEntityDefinitions: Record<string, any> = {};
 
@@ -535,7 +548,7 @@ class ListWidget extends BaseWidget<
   };
 
   // updates the "privateWidgets" field of the List Widget
-  addPrivateWidgetsForChildren(props: ListWidgetProps<WidgetProps>) {
+  addPrivateWidgetsForChildren(props: ListWidgetProps) {
     const privateWidgets: PrivateWidgets = {};
     const listWidgetChildren: WidgetProps[] = get(
       props,
@@ -867,7 +880,8 @@ class ListWidget extends BaseWidget<
   }
 }
 
-export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
+export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
+  extends WidgetProps {
   accentColor: string;
   backgroundColor: string;
   borderRadius: string;
@@ -883,6 +897,7 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   mainCanvasId?: string;
   mainContainerId?: string;
   onListItemClick?: string;
+  primaryKey?: string | (string | number)[];
 }
 
 export default ListWidget;

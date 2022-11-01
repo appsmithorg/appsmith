@@ -1,11 +1,41 @@
-import { get } from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ListWidgetProps } from "../constants";
+import { get, isPlainObject } from "lodash";
 
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ListWidgetProps } from ".";
+
+const isValidListData = (
+  value: unknown,
+): value is Exclude<ListWidgetProps["listData"], undefined> => {
+  return Array.isArray(value) && value.length > 0 && isPlainObject(value[0]);
+};
+
+export const primaryColumnValidation = (
+  inputValue: unknown,
+  props: ListWidgetProps,
+  _: any,
+) => {
+  if (Array.isArray(inputValue)) {
+    const areKeysUnique = _.uniq(inputValue).length === props.listData?.length;
+
+    if (!areKeysUnique) {
+      return {
+        isValid: false,
+        parsed: [],
+        messages: ["Primary keys are not unique."],
+      };
+    }
+  }
+
+  return {
+    isValid: true,
+    parsed: inputValue,
+    messages: [""],
+  };
+};
 
 const PropertyPaneConfig = [
   {
@@ -54,6 +84,43 @@ const PropertyPaneConfig = [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        propertyName: "primaryKey",
+        helpText:
+          "Assign a unique column which improves performance and maintains values across page changes",
+        label: "Primary key",
+        controlType: "DROP_DOWN",
+        customJSControl: "LIST_COMPUTE_CONTROL",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        isJSConvertible: true,
+        dependencies: ["listData"],
+        evaluatedDependencies: ["listData"],
+        options: (props: ListWidgetProps) => {
+          const listData =
+            props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
+
+          if (isValidListData(listData)) {
+            return Object.keys(listData[0]).map((key) => ({
+              label: key,
+              value: key,
+            }));
+          } else {
+            return [];
+          }
+        },
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: primaryColumnValidation,
+            expected: {
+              type: "Array<string | number>",
+              example: `["1", "2", "3"]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
+          },
         },
       },
       {

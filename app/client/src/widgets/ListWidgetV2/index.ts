@@ -138,7 +138,7 @@ export const CONFIG = {
         },
         // TODO: (Ashit) - Remove this enhancement. Probably not required for V2
         updateDataTreePath: (
-          parentProps: ListWidgetProps<WidgetProps>,
+          parentProps: ListWidgetProps,
           dataTreePath: string,
         ) => {
           const pathChunks = dataTreePath.split(".");
@@ -153,7 +153,7 @@ export const CONFIG = {
           return `${parentProps.widgetName}.template.${templateWidget?.widgetId}.${path}`;
         },
         propertyUpdateHook: (
-          parentProps: ListWidgetProps<WidgetProps>,
+          parentProps: ListWidgetProps,
           widgetProperties: WidgetProps,
           propertyPath: string,
           propertyValue: string,

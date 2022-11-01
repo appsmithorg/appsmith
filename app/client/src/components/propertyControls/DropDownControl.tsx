@@ -46,7 +46,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       defaultSelected = [defaultSelected];
     }
 
-    const options = this.props?.options || [];
+    const options =
+      typeof this.props.options === "function"
+        ? this.props.options(this.props.widgetProperties)
+        : this.props?.options || [];
 
     if (this.props.defaultValue) {
       if (this.props.isMultiSelect) {
@@ -174,10 +177,13 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     config: DropDownControlProps,
     value: any,
   ): boolean {
+    const options =
+      typeof config?.options === "function"
+        ? config?.options(config.widgetProperties)
+        : config?.options || [];
+
     const allowedValues = new Set(
-      config?.options?.map((x: { value: string | number }) =>
-        x.value.toString(),
-      ),
+      options?.map((x: { value: string | number }) => x.value.toString()),
     );
     if (config.isMultiSelect) {
       try {
@@ -196,7 +202,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 export interface DropDownControlProps extends ControlProps {
-  options?: any[];
+  options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
   defaultValue?: string;
   placeholderText: string;
   searchPlaceholderText: string;
