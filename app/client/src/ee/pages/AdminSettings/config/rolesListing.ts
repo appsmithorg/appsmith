@@ -6,6 +6,7 @@ import {
 import { RolesListing } from "../acl/RolesListing";
 
 export const config: AdminConfigType = {
+  icon: "key-2-line",
   type: SettingCategories.ROLES_LISTING,
   controlType: SettingTypes.PAGE,
   component: RolesListing,

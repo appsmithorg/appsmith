@@ -20,7 +20,7 @@ export default function Filters() {
     }
   });
   return (
-    <StyledFiltersContainer>
+    <StyledFiltersContainer data-testid="t--audit-logs-filters-container">
       <EventFilter />
       <EmailFilter />
       <ResourceIdFilter />

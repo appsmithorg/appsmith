@@ -82,6 +82,7 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
 };
 
 export const config: AdminConfigType = {
+  icon: "settings-2-line",
   type: SettingCategories.GENERAL,
   controlType: SettingTypes.GROUP,
   title: "General",

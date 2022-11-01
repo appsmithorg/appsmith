@@ -1,7 +1,6 @@
 import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
 import { isString } from "lodash";
-import { Classes } from "components/ads/common";
 import {
   Log,
   LOG_CATEGORY,
@@ -16,14 +15,15 @@ import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import {
   AppIcon,
+  Classes,
   Icon,
   IconName,
   IconSize,
   Text,
   TextType,
+  TooltipComponent,
 } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { TooltipComponent } from "design-system";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,

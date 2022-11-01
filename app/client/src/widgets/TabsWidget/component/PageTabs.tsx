@@ -8,6 +8,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector } from "react-redux";
 
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 
 const PageTab = styled.div`
   display: flex;
@@ -34,24 +35,39 @@ const StyledBottomBorder = styled.div<{ primaryColor: string }>`
   }
 `;
 
-const StyleTabText = styled.div`
+const StyleTabText = styled.div<{
+  accentColor: string;
+  backgroundColor?: string;
+}>`
   overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   ${(props) => getTypographyByKey(props, "h6")}
-  color: ${(props) => props.theme.colors.header.tabText};
+  color: ${(props) => getComplementaryGrayscaleColor(props.backgroundColor)};
+  font-weight: normal;
   height: 32px;
-  & span {
-    height: 100%;
-    font-size: 14px;
+  max-width: 138px;
+  display: flex;
+
+  & div {
     max-width: 138px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & span {
+    font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    display: flex;
-    align-items: center;
+    width: 100%;
+
+    &.is-selected {
+      color: ${(props) => props.accentColor};
+    }
   }
   ${PageTab}.is-active & {
     color: ${(props) => props.theme.colors.header.activeTabText};
@@ -62,6 +78,7 @@ const StyleTabText = styled.div`
 `;
 
 function PageTabName({
+  backgroundColor,
   id,
   name,
   primaryColor,
@@ -70,17 +87,21 @@ function PageTabName({
   id: string;
   name: string;
   primaryColor: string;
+  backgroundColor?: string;
   selected: boolean;
 }) {
   const tabNameRef = useRef<HTMLSpanElement>(null);
   const [ellipsisActive, setEllipsisActive] = useState(false);
   const tabNameText = (
-    <StyleTabText className={`t--tab-${name} t--tabid-${id}`}>
+    <StyleTabText
+      accentColor={primaryColor}
+      backgroundColor={backgroundColor}
+      className={`t--tab-${name} t--tabid-${id}`}
+    >
       <div className="relative flex items-center justify-center flex-grow">
         <span className={selected ? "is-selected" : ""} ref={tabNameRef}>
           {name}
         </span>
-        {ellipsisActive && "..."}
       </div>
       <StyledBottomBorder primaryColor={primaryColor} />
     </StyleTabText>
@@ -90,7 +111,7 @@ function PageTabName({
     if (isEllipsisActive(tabNameRef?.current)) {
       setEllipsisActive(true);
     }
-  }, [tabNameRef]);
+  }, [tabNameRef, tabNameText]);
 
   return (
     <TooltipComponent
@@ -139,6 +160,8 @@ type Props = {
   setShowScrollArrows: () => void;
   tabChange: (tabId: string) => void;
   selectedTabWidgetId: string;
+  backgroundColor?: string;
+  accentColor?: string;
 };
 
 export function PageTabs(props: Props) {
@@ -167,13 +190,13 @@ export function PageTabs(props: Props) {
             }}
           >
             <PageTabName
+              backgroundColor={props.backgroundColor}
               id={tab.id}
               name={tab.label}
-              primaryColor={get(
-                selectedTheme,
-                "properties.colors.primaryColor",
-                "inherit",
-              )}
+              primaryColor={
+                props.accentColor ||
+                get(selectedTheme, "properties.colors.primaryColor", "inherit")
+              }
               selected={props.selectedTabWidgetId === tab.widgetId}
             />
           </PageTab>

@@ -663,7 +663,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         application,
                                         AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
                                         AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
-                                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                        true
                                 ).flatMap(ignore -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
                             });
                 })
@@ -735,7 +735,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                 application,
                                                 AppsmithError.INVALID_GIT_REPO.getErrorType(),
                                                 AppsmithError.INVALID_GIT_REPO.getMessage(),
-                                                application.getGitApplicationMetadata().getIsRepoPrivate()
+                                                isRepoPrivate
                                         )
                                                 .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_REPO)));
                                     } else {
@@ -1849,7 +1849,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         newApplication,
                                         AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
                                         AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
-                                        false
+                                        true
                                 ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
                             });
                 })

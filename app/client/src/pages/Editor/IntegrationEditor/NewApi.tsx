@@ -1,25 +1,21 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { connect } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
+import { connect, useSelector } from "react-redux";
 import styled from "styled-components";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
-import { Plugin } from "api/PluginApi";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { createNewApiAction } from "actions/apiPaneActions";
 import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/URLUtils";
-import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
-import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
-import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/GraphQLEditorConstants";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -191,8 +187,8 @@ function NewApiScreen(props: Props) {
         pageId,
         "API_PANE",
         source === API_ACTION.CREATE_NEW_GRAPHQL_API
-          ? GRAPHQL_PLUGIN_PACKAGE_NAME
-          : REST_PLUGIN_PACKAGE_NAME,
+          ? PluginPackageName.GRAPHQL
+          : PluginPackageName.REST_API,
       );
     }
   };
@@ -254,7 +250,7 @@ function NewApiScreen(props: Props) {
 
   // Api plugins with Graphql
   const API_PLUGINS = plugins.filter(
-    (p) => p.packageName === GRAPHQL_PLUGIN_PACKAGE_NAME,
+    (p) => p.packageName === PluginPackageName.GRAPHQL,
   );
 
   plugins.forEach((p) => {

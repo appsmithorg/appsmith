@@ -7,6 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { UserListing } from "./UserListing";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import { MenuItemProps } from "design-system";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -38,7 +39,7 @@ const userListingProps = {
       label: "delete",
     },
   ],
-  keyAccessor: "userId",
+  keyAccessor: "id",
   isLoading: false,
 };
 
@@ -58,6 +59,10 @@ function renderUserListing() {
       selectedGroup: null,
       selectedUser: null,
       selectedRole: null,
+      inviteOptions: {
+        groups: [],
+        roles: [],
+      },
     },
   });
   return render(
@@ -85,7 +90,7 @@ describe("<Listing />", () => {
   it("should render table with given data", () => {
     const { getAllByTestId } = renderUserListing();
     const actual = getAllByTestId("user-listing-userCell").map(
-      (cell: any) => cell.textContent,
+      (cell: HTMLElement) => cell.textContent,
     );
     const expected = userListingProps.data.map((user) => user.username);
     expect(actual).toEqual(expected);
@@ -104,7 +109,7 @@ describe("<Listing />", () => {
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
     const menuItems = userListingProps.listMenuItems
-      .map((item: any) => getAllByText(item.text))
+      .map((item: MenuItemProps) => getAllByText(item.text))
       .flat();
     expect(menuItems).toHaveLength(2);
     expect(menuItems[0]).toHaveTextContent(

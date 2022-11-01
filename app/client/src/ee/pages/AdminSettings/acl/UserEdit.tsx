@@ -3,7 +3,6 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Position, Spinner } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
-import { Toaster, Variant } from "components/ads";
 import {
   Icon,
   IconSize,
@@ -11,9 +10,12 @@ import {
   MenuItemProps,
   Menu,
   SearchVariant,
+  TabComponent,
+  TabProp,
+  Toaster,
+  Variant,
 } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
-import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import {
   TabsWrapper,
@@ -24,13 +26,24 @@ import {
 import {
   ARE_YOU_SURE,
   createMessage,
-  DELETE_USER,
+  ACL_DELETE,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
-import { BaseAclProps, UserEditProps } from "./types";
+import {
+  BaseAclProps,
+  GroupsForUser,
+  PermissionsForUser,
+  UserEditProps,
+} from "./types";
 import { getFilteredData } from "./utils/getFilteredData";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  updateGroupsInUser,
+  updateRolesInUser,
+} from "@appsmith/actions/aclActions";
 
 const Header = styled.div`
   display: flex;
@@ -97,32 +110,82 @@ export function UserEdit(props: UserEditProps) {
   const [showConfirmationText, setShowConfirmationText] = useState(false);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const history = useHistory();
-  const [userGroups, setUserGroups] = useState<BaseAclProps[]>([]);
-  const [permissionGroups, setPermissionGroups] = useState<BaseAclProps[]>([]);
+  const [userGroups, setUserGroups] = useState<GroupsForUser>({
+    groups: [],
+    allGroups: [],
+  });
+  const [permissionGroups, setPermissionGroups] = useState<PermissionsForUser>({
+    roles: [],
+    allRoles: [],
+  });
   const [searchValue, setSearchValue] = useState("");
   const [removedActiveUserGroups, setRemovedActiveUserGroups] = useState<
     BaseAclProps[]
   >([]);
+  const [addedAllUserGroups, setAddedAllUserGroups] = useState<BaseAclProps[]>(
+    [],
+  );
   const [
     removedActivePermissionGroups,
     setRemovedActivePermissionGroups,
-  ] = useState<Array<any>>([]);
-  const [isSaving, setIsSaving] = useState(false);
-  const { isLoading, searchPlaceholder, selectedUser } = props;
+  ] = useState<BaseAclProps[]>([]);
+  const [addedAllPermGroups, setAddedAllPermGroups] = useState<BaseAclProps[]>(
+    [],
+  );
+  const dispatch = useDispatch();
+  const { isLoading, isSaving, searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
-    setUserGroups(selectedUser.groups);
-    setPermissionGroups(selectedUser.roles);
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setUserGroups({
+        groups: selectedUser.groups,
+        allGroups: selectedUser.allGroups,
+      });
+      setPermissionGroups({
+        roles: selectedUser.roles,
+        allRoles: selectedUser.allRoles,
+      });
+    }
   }, [selectedUser]);
 
   useEffect(() => {
-    setIsSaving(
+    const saving =
       removedActiveUserGroups.length > 0 ||
-        removedActivePermissionGroups.length > 0,
-    );
-  }, [removedActiveUserGroups, removedActivePermissionGroups]);
+      addedAllUserGroups.length > 0 ||
+      removedActivePermissionGroups.length > 0 ||
+      addedAllPermGroups.length > 0;
+    dispatch({
+      type: ReduxActionTypes.ACL_IS_SAVING,
+      payload: {
+        isSaving: saving,
+      },
+    });
+  }, [
+    removedActiveUserGroups,
+    removedActivePermissionGroups,
+    addedAllPermGroups,
+    addedAllUserGroups,
+  ]);
 
-  const onRemoveGroup = (group: any) => {
+  const onAddGroup = (group: BaseAclProps) => {
+    if (selectedTabIndex === 0) {
+      const updateUserGroups =
+        getFilteredData(addedAllUserGroups, group, true).length > 0
+          ? getFilteredData(addedAllUserGroups, group, false)
+          : [...addedAllUserGroups, group];
+      setAddedAllUserGroups(updateUserGroups);
+    } else if (selectedTabIndex === 1) {
+      const updatePermissionGroups =
+        getFilteredData(addedAllPermGroups, group, true).length > 0
+          ? getFilteredData(addedAllPermGroups, group, false)
+          : [...addedAllPermGroups, group];
+      setAddedAllPermGroups(updatePermissionGroups);
+    }
+  };
+
+  const onRemoveGroup = (group: BaseAclProps) => {
     if (selectedTabIndex === 0) {
       const updateUserGroups =
         getFilteredData(removedActiveUserGroups, group, true).length > 0
@@ -139,21 +202,92 @@ export function UserEdit(props: UserEditProps) {
   };
 
   const onSaveChanges = () => {
-    const updatedUserGroups = selectedUser.groups.filter(
-      (group) =>
-        !(getFilteredData(removedActiveUserGroups, group, true).length > 0),
-    );
-    setUserGroups(updatedUserGroups);
-    const updatedPermissionGroups = selectedUser.roles.filter(
-      (permission) =>
-        !(
-          getFilteredData(removedActivePermissionGroups, permission, true)
-            .length > 0
+    const onlyGroupsUdated =
+      (removedActiveUserGroups.length > 0 || addedAllUserGroups.length > 0) &&
+      removedActivePermissionGroups.length === 0 &&
+      addedAllPermGroups.length === 0;
+
+    const onlyRolesUdated =
+      removedActiveUserGroups.length === 0 &&
+      addedAllUserGroups.length === 0 &&
+      (removedActivePermissionGroups.length > 0 ||
+        addedAllPermGroups.length > 0);
+
+    const bothGroupsRolesUpdated =
+      (removedActiveUserGroups.length > 0 || addedAllUserGroups.length > 0) &&
+      (removedActivePermissionGroups.length > 0 ||
+        addedAllPermGroups.length > 0);
+
+    if (onlyGroupsUdated) {
+      const groupsAdded = addedAllUserGroups.map(
+        (group: BaseAclProps) => group.id,
+      );
+      const groupsRemoved = removedActiveUserGroups.map(
+        (group: BaseAclProps) => group.id,
+      );
+      dispatch(
+        updateGroupsInUser(
+          selectedUser.id,
+          selectedUser.username,
+          groupsAdded,
+          groupsRemoved,
         ),
-    );
-    setPermissionGroups(updatedPermissionGroups);
+      );
+    } else if (onlyRolesUdated) {
+      const rolesAdded = addedAllPermGroups.map((group: BaseAclProps) => ({
+        id: group.id,
+        name: group.name,
+      }));
+      const rolesRemoved = removedActivePermissionGroups.map(
+        (role: BaseAclProps) => ({
+          id: role.id,
+          name: role.name,
+        }),
+      );
+      dispatch(
+        updateRolesInUser(
+          { id: selectedUser.id, username: selectedUser.username },
+          rolesAdded,
+          rolesRemoved,
+        ),
+      );
+    } else if (bothGroupsRolesUpdated) {
+      const rolesAdded = addedAllPermGroups.map((group: BaseAclProps) => ({
+        id: group.id,
+        name: group.name,
+      }));
+      const rolesRemoved = removedActivePermissionGroups.map(
+        (role: BaseAclProps) => ({
+          id: role.id,
+          name: role.name,
+        }),
+      );
+      const groupsAdded = addedAllUserGroups.map(
+        (group: BaseAclProps) => group.id,
+      );
+      const groupsRemoved = removedActiveUserGroups.map(
+        (group: BaseAclProps) => group.id,
+      );
+      dispatch(
+        updateGroupsInUser(
+          selectedUser.id,
+          selectedUser.username,
+          groupsAdded,
+          groupsRemoved,
+        ),
+      );
+      dispatch(
+        updateRolesInUser(
+          { id: selectedUser.id, username: selectedUser.username },
+          rolesAdded,
+          rolesRemoved,
+        ),
+      );
+    }
     setRemovedActiveUserGroups([]);
     setRemovedActivePermissionGroups([]);
+    setAddedAllUserGroups([]);
+    setAddedAllPermGroups([]);
     Toaster.show({
       text: createMessage(SUCCESSFULLY_SAVED),
       variant: Variant.success,
@@ -167,7 +301,7 @@ export function UserEdit(props: UserEditProps) {
 
   const onDeleteHandler = () => {
     if (showConfirmationText) {
-      props.onDelete(selectedUser.userId);
+      props.onDelete(selectedUser.id);
       history.push(`/settings/users`);
     } else {
       setShowOptions(true);
@@ -175,9 +309,11 @@ export function UserEdit(props: UserEditProps) {
     }
   };
 
-  const handleSearch = debounce((search: string) => {
+  const onSearch = debounce((search: string) => {
     let groupResults: BaseAclProps[] = [];
+    let allGroupResults: BaseAclProps[] = [];
     let permissionResults: BaseAclProps[];
+    let allPermissionResults: BaseAclProps[] = [];
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       groupResults =
@@ -185,7 +321,15 @@ export function UserEdit(props: UserEditProps) {
         selectedUser.groups.filter((group) =>
           group.name?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
         );
-      setUserGroups(groupResults);
+      allGroupResults =
+        selectedUser.allGroups &&
+        selectedUser.allGroups.filter((group) =>
+          group.name?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
+        );
+      setUserGroups({
+        groups: groupResults,
+        allGroups: allGroupResults,
+      });
       permissionResults =
         selectedUser.roles &&
         selectedUser.roles.filter((permission) =>
@@ -193,11 +337,27 @@ export function UserEdit(props: UserEditProps) {
             ?.toLocaleUpperCase()
             .includes(search.toLocaleUpperCase()),
         );
-      setPermissionGroups(permissionResults);
+      allPermissionResults =
+        selectedUser.allRoles &&
+        selectedUser.allRoles.filter((permission) =>
+          permission.name
+            ?.toLocaleUpperCase()
+            .includes(search.toLocaleUpperCase()),
+        );
+      setPermissionGroups({
+        roles: permissionResults,
+        allRoles: allPermissionResults,
+      });
     } else {
       setSearchValue("");
-      setUserGroups(selectedUser.groups);
-      setPermissionGroups(selectedUser.roles);
+      setUserGroups({
+        groups: selectedUser.groups,
+        allGroups: selectedUser.allGroups,
+      });
+      setPermissionGroups({
+        roles: selectedUser.roles,
+        allRoles: selectedUser.allRoles,
+      });
     }
   }, 300);
 
@@ -205,29 +365,36 @@ export function UserEdit(props: UserEditProps) {
     {
       key: "groups",
       title: "Groups",
-      count: userGroups.length,
+      count: userGroups.groups.length,
       panelComponent: (
         <ActiveAllGroupsList
-          activeGroups={userGroups}
-          activeOnly
+          activeGroups={userGroups.groups}
+          addedAllGroups={addedAllUserGroups}
+          allGroups={userGroups.allGroups}
+          entityName="group"
+          onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveUserGroups}
           searchValue={searchValue}
-          title="Active Groups"
+          title={`${selectedUser.name}'s groups`}
         />
       ),
     },
     {
       key: "roles",
       title: "Roles",
-      count: permissionGroups.length,
+      count: permissionGroups.roles.length,
       panelComponent: (
         <ActiveAllGroupsList
-          activeGroups={permissionGroups}
-          activeOnly
+          activeGroups={permissionGroups.roles}
+          addedAllGroups={addedAllPermGroups}
+          allGroups={permissionGroups.allRoles}
+          entityName="role"
+          onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActivePermissionGroups}
           searchValue={searchValue}
+          title={`${selectedUser.name}'s roles`}
         />
       ),
     },
@@ -240,7 +407,7 @@ export function UserEdit(props: UserEditProps) {
       onSelect: () => {
         onDeleteHandler();
       },
-      text: createMessage(DELETE_USER),
+      text: createMessage(ACL_DELETE),
     },
   ];
 
@@ -268,7 +435,8 @@ export function UserEdit(props: UserEditProps) {
           <StyledSearchInput
             className="acl-search-input"
             data-testid={"t--acl-search-input"}
-            onChange={handleSearch}
+            defaultValue={searchValue.toLowerCase()}
+            onChange={onSearch}
             placeholder={searchPlaceholder}
             variant={SearchVariant.BACKGROUND}
             width={"376px"}
@@ -315,7 +483,7 @@ export function UserEdit(props: UserEditProps) {
           </Menu>
         </Container>
       </Header>
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
+      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}

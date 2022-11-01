@@ -29,6 +29,7 @@ const props: GroupEditProps = {
   onDelete: jest.fn(),
   isLoading: false,
   isSaving: false,
+  isNew: false,
 };
 
 function renderComponent() {
@@ -72,6 +73,7 @@ describe("<GroupAddEdit />", () => {
       onDelete: jest.fn(),
       isLoading: false,
       isSaving: false,
+      isNew: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
@@ -114,6 +116,7 @@ describe("<GroupAddEdit />", () => {
       onDelete: jest.fn(),
       isLoading: false,
       isSaving: false,
+      isNew: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
@@ -164,26 +167,24 @@ describe("<GroupAddEdit />", () => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
-  it("should show input box on group name on double clicking title", async () => {
-    const { getAllByTestId } = renderComponent();
-    const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
-    let titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).not.toContain("input");
-    await userEvent.dblClick(titleEl[0]);
-    titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).toContainHTML("input");
+  it("should show input box on group name on clicking title", async () => {
+    renderComponent();
+    let titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+    await userEvent.click(titleEl[0]);
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
   });
   it("should show input box on group name on clicking rename menu item", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
+    let titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
     const renameOption = document.getElementsByClassName("rename-menu-item");
-    let titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).not.toContain("input");
-    await userEvent.dblClick(titleEl[0]);
-    titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).toContainHTML("input");
+    await userEvent.click(renameOption[0]);
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
   });
   /*it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId, getByText } = renderComponent();

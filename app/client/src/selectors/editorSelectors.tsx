@@ -88,7 +88,10 @@ export const getIsPageSaving = (state: AppState) => {
 };
 
 export const snipingModeSelector = (state: AppState) =>
-  state.ui.editor?.isSnipingMode;
+  state.ui.editor.isSnipingMode;
+
+export const snipingModeBindToSelector = (state: AppState) =>
+  state.ui.editor.snipModeBindTo;
 
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;
@@ -592,3 +595,13 @@ export const getIsSavingEntity = (state: AppState) =>
 
 export const selectJSCollections = (state: AppState) =>
   state.entities.jsActions;
+
+export const showCanvasTopSectionSelector = createSelector(
+  getCanvasWidgets,
+  previewModeSelector,
+  (canvasWidgets, inPreviewMode) => {
+    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
+
+    return true;
+  },
+);

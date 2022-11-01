@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, MenuItem, MenuItemProps, Menu } from "design-system";
-import { Table } from "components/ads";
+import {
+  Icon,
+  IconSize,
+  MenuItem,
+  MenuItemProps,
+  Menu,
+  Table,
+} from "design-system";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { ListingProps } from "./types";
 
 const ListingWrapper = styled.div`
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  height: calc(100vh - 148px);
   overflow: auto;
   table {
     border-collapse: separate;
+    table-layout: fixed;
     thead {
       background: var(--appsmith-color-black-0);
       tr {
@@ -25,6 +32,10 @@ const ListingWrapper = styled.div`
           letter-spacing: -0.24px;
           cursor: initial;
           padding: 32px 20px 8px;
+
+          &:last-child {
+            width: 10%;
+          }
 
           &:hover {
             color: var(--appsmith-color-black-700);
@@ -87,7 +98,14 @@ const ListingWrapper = styled.div`
 `;
 
 export function Listing(props: ListingProps) {
-  const { columns, data = [], isLoading, keyAccessor, listMenuItems } = props;
+  const {
+    columns,
+    data = [],
+    emptyState,
+    isLoading,
+    keyAccessor,
+    listMenuItems,
+  } = props;
 
   const updatedColumns = [
     ...columns,
@@ -175,6 +193,7 @@ export function Listing(props: ListingProps) {
         data-testid="listing-table"
         isLoading={isLoading}
         loaderComponent={<Loader />}
+        noDataComponent={emptyState}
       />
     </ListingWrapper>
   );

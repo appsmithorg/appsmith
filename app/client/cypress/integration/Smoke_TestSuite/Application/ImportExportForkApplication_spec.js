@@ -3,7 +3,6 @@ const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
 
 describe("Import, Export and Fork application and validate data binding", function() {
   let workspaceId;
-  let appid;
   let newWorkspaceName;
   let appName;
   it("Import application from json and validate data on pageload", function() {

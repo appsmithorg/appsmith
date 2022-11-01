@@ -19,12 +19,12 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.PluginType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -41,6 +41,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -168,6 +169,8 @@ public class GitServiceTest {
     private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
     private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
             "with git to use version control service";
+    @Autowired
+    private ApplicationRepository applicationRepository;
 
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
@@ -1037,7 +1040,7 @@ public class GitServiceTest {
 
                     return Mono.zip(
                                     layoutActionService.createSingleAction(action)
-                                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout)),
+                                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
                                     layoutCollectionService.createCollection(actionCollectionDTO)
                             )
                             .map(tuple2 -> application);
@@ -1991,7 +1994,7 @@ public class GitServiceTest {
 
                     return Mono.zip(
                                     layoutActionService.createSingleActionWithBranch(action, null)
-                                            .then(layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout)),
+                                            .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
                                     layoutCollectionService.createCollection(actionCollectionDTO, null)
                             )
                             .then(gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"));

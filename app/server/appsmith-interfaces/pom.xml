@@ -100,7 +100,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>1.8</version>
+            <version>1.10.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

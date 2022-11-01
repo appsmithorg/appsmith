@@ -27,7 +27,6 @@ describe("audit-logs/utils/payloadToQueryParams", function() {
       cursor: "whatever",
       emails: ["a@example.com", "b@example.com"],
       events: ["some.events", "other.events"],
-      numberOfDays: 8,
       resourceId: "whatever",
       sortOrder: 1,
     };

@@ -40,20 +40,21 @@ import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
+  Classes,
+  Callout,
+  DropdownOption,
   Size,
   Text,
   TextType,
   TextProps,
-  DropdownOption,
+  Variant,
 } from "design-system";
-import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -221,15 +222,6 @@ export const LabelText = styled(Text)`
   margin-bottom: 8px;
   line-height: 1.57;
   letter-spacing: -0.24px;
-`;
-
-export const LeftIconWrapper = styled.span`
-  font-size: 20px;
-  line-height: 19px;
-  margin-right: 10px;
-  height: 100%;
-  position: relative;
-  top: 1px;
 `;
 
 export const StyledText = styled(Text)`
@@ -502,6 +494,7 @@ function WorkspaceInviteUsersForm(props: any) {
               allowDeselection={isMultiSelectDropdown}
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
+              dropdownMaxHeight={props.dropdownMaxHeight}
               isMultiSelect={isMultiSelectDropdown}
               labelRenderer={(selected: Partial<DropdownOption>[]) =>
                 getLabel(selected)
@@ -512,7 +505,6 @@ function WorkspaceInviteUsersForm(props: any) {
               outline={false}
               placeholder="Select a role"
               removeSelectedOption={onRemoveOptions}
-              selected={selectedOption}
               showLabelOnly={isMultiSelectDropdown}
               size="small"
             />

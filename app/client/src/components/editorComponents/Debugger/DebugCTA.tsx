@@ -1,12 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import { setCurrentTab, showDebugger } from "actions/debuggerActions";
+import {
+  setCanvasDebuggerSelectedTab,
+  showDebugger,
+} from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
-import { Classes, Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { Button, Icon, IconSize } from "design-system";
+import { Button, Classes, Icon, IconSize, Variant } from "design-system";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
@@ -126,7 +128,7 @@ function DebugCTA(props: DebugCTAProps) {
         source: props.source,
       });
     dispatch(showDebugger(true));
-    dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   };
 
   return <DebugButton className={props.className} onClick={onClick} />;

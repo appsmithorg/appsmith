@@ -1,9 +1,12 @@
 package com.appsmith.server.acl;
 
 import com.appsmith.server.acl.ce.PolicyGeneratorCE;
+import org.jgrapht.graph.DefaultEdge;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
@@ -87,5 +90,21 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_USER_GROUPS, READ_USER_GROUPS);
         lateralGraph.addEdge(ADD_USERS_TO_USER_GROUPS, READ_USER_GROUPS);
         lateralGraph.addEdge(REMOVE_USERS_FROM_USER_GROUPS, READ_USER_GROUPS);
+    }
+
+    public Set<AclPermission> getLateralPermissions(AclPermission permission, Set<AclPermission> interestingPermissions) {
+        Set<DefaultEdge> lateralEdges = lateralGraph.outgoingEdgesOf(permission);
+        return lateralEdges.stream()
+                .map(lateralGraph::getEdgeTarget)
+                .filter(interestingPermissions::contains)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<AclPermission> getHierarchicalPermissions(AclPermission permission, Set<AclPermission> interestingPermissions) {
+        Set<DefaultEdge> hierarchicalEdges = hierarchyGraph.outgoingEdgesOf(permission);
+        return hierarchicalEdges.stream()
+                .map(hierarchyGraph::getEdgeTarget)
+                .filter(interestingPermissions::contains)
+                .collect(Collectors.toSet());
     }
 }

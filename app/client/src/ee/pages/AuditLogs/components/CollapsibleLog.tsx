@@ -7,6 +7,8 @@ import {
   StyledCollapsibleLogContainer as Container,
 } from "../styled-components/container";
 import { AuditLogType } from "../types";
+import { createMessage } from "design-system/build/constants/messages";
+import { ON_COPY_CONTENT } from "@appsmith/constants/messages";
 
 interface CollapsibleLogProps {
   log: Partial<AuditLogType>;
@@ -23,7 +25,7 @@ export function CollapsibleLog({ isOpen, log }: CollapsibleLogProps) {
           evaluatedValue={log}
           hideLabel
           key={`key-value-${log.id}`}
-          onCopyContentText={`Audit log with id [${log.id}] copied to clipboard`}
+          onCopyContentText={createMessage(ON_COPY_CONTENT, log.id)}
           theme={EditorTheme.LIGHT}
         />
       </CollapseContainer>

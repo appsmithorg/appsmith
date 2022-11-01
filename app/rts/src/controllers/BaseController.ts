@@ -24,13 +24,25 @@ export default class BaseController {
   serverErrorMessaage = "Something went wrong";
   sendResponse(
     response: Response,
-    result: unknown,
+    result?: unknown,
     message?: string,
     code: number = StatusCodes.OK
   ): Response<ResponseData> {
     return response.status(code).json({
       success: true,
       message,
+      data: result,
+    });
+  }
+
+  sendEntityResponse(
+    response: Response,
+    result?: unknown,
+    success?: boolean,
+    code: number = StatusCodes.OK
+  ): Response<ResponseData> {
+    return response.status(code).json({
+      success,
       data: result,
     });
   }

@@ -8,6 +8,6 @@
 export function ellipsis(input: string, finalLength = 24): string {
   const textOnlyLength = finalLength - 3;
   return textOnlyLength < input.length
-    ? `${input.slice(0, textOnlyLength)}...`
+    ? `${input.slice(0, textOnlyLength).trim()}...`
     : input;
 }

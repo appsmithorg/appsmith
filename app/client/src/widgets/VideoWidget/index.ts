@@ -15,6 +15,7 @@ export const CONFIG = {
     autoPlay: false,
     version: 1,
     animateLoading: true,
+    backgroundColor: "#000",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

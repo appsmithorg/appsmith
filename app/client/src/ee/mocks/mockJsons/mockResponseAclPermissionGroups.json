@@ -9,42 +9,42 @@
       "isEditing": false,
       "isDeleting": false,
       "permissionName": "HR_Appsmith",
-      "isAppsmithProvided": false
+      "autoCreated": false
     },
     {
       "id": "2",
       "isEditing": false,
       "isDeleting": false,
       "permissionName": "devops_design",
-      "isAppsmithProvided": false
+      "autoCreated": false
     },
     {
       "id": "3",
       "isEditing": false,
       "isDeleting": false,
       "permissionName": "devops_eng_nov",
-      "isAppsmithProvided": false
+      "autoCreated": false
     },
     {
       "id": "4",
       "isEditing": false,
       "isDeleting": false,
       "permissionName": "marketing_nov",
-      "isAppsmithProvided": false
+      "autoCreated": false
     },
     {
       "id": "5",
       "isEditing": false,
       "isDeleting": false,
       "permissionName": "Administrator",
-      "isAppsmithProvided": true
+      "autoCreated": true
     },
     {
       "id": "6",
       "isEditing": false,
       "isDeleting": false,
       "permissionName": "App Viewer",
-      "isAppsmithProvided": true
+      "autoCreated": true
     }
   ]
 }

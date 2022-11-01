@@ -7,7 +7,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;

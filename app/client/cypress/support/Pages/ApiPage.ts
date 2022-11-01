@@ -42,6 +42,7 @@ export class ApiPage {
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
   _saveAsDS = ".t--store-as-datasource";
   _responseStatus = ".t--response-status-code";
+  private _blankGraphqlAPI = "span:contains('New Blank GraphQL API')";
 
   CreateApi(
     apiName = "",
@@ -222,7 +223,7 @@ export class ApiPage {
       | "Response"
       | "Errors"
       | "Logs"
-      | "Inspect entity"
+      | "Inspect entity",
   ) {
     this.agHelper.PressEscape();
     this.agHelper.GetNClick(this._visibleTextSpan(tabName), 0, true);
@@ -282,5 +283,27 @@ export class ApiPage {
     cy.get(this._paginationTypeLabels)
       .eq(index)
       .click({ force: true });
+  }
+
+  CreateAndFillGraphqlApi(
+    url: string,
+    apiName = "",
+    queryTimeout = 10000
+  ) {
+    this.CreateGraphqlApi(apiName);
+    this.EnterURL(url);
+    this.agHelper.AssertAutoSave();
+    //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
+    cy.get(this._apiRunBtn).should("not.be.disabled");
+    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
+  }
+
+  CreateGraphqlApi(apiName = "") {
+    cy.get(this.locator._createNew).click({ force: true });
+    cy.get(this._blankGraphqlAPI).click({ force: true });
+    this.agHelper.ValidateNetworkStatus("@createNewApi", 201);
+
+    if (apiName) this.agHelper.RenameWithInPane(apiName);
+    cy.get(this._resourceUrl).should("be.visible");
   }
 }

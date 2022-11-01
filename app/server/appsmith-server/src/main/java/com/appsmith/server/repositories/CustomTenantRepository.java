@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.repositories.ce.CustomTenantRepositoryCE;
 
-public interface CustomTenantRepository extends AppsmithRepository<Tenant> {
-//    Mono<Tenant> findById(String id, AclPermission permission);
+public interface CustomTenantRepository extends CustomTenantRepositoryCE {
+
 }

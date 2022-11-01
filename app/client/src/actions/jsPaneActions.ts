@@ -103,3 +103,24 @@ export const setActiveJSAction = (payload: {
     payload,
   };
 };
+
+export const setJsPaneConfigSelectedTabIndex: (
+  payload: number,
+) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_JS_PANE_CONFIG_SELECTED_TAB,
+  payload: { selectedTabIndex: payload },
+});
+
+export const setJsPaneResponseSelectedTab: (
+  payload: string,
+) => ReduxAction<{ selectedTab: string }> = (payload: string) => ({
+  type: ReduxActionTypes.SET_JS_PANE_RESPONSE_SELECTED_TAB,
+  payload: { selectedTab: payload },
+});
+
+export const setJsPaneResponsePaneHeight: (
+  payload: number,
+) => ReduxAction<{ height: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_JS_PANE_RESPONSE_PANE_HEIGHT,
+  payload: { height: payload },
+});

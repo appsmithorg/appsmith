@@ -2,10 +2,8 @@ const dsl = require("../../../fixtures/CMSdsl.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
-const commonlocators = require("../../../locators/commonlocators.json");
-describe("Content Management System App", function() {
-  let repoName;
 
+describe("Content Management System App", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -13,7 +11,7 @@ describe("Content Management System App", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("1.Create Get echo Api call", function() {
+  it.only("1.Create Get echo Api call", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("get_data");
     // creating get request using echo

@@ -5,7 +5,6 @@ describe("Test Create Api and Bind to Table widget V2", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-
   it("1. Create an API and Execute the API and bind with Table", function() {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();

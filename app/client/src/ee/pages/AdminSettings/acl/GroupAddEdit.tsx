@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Table, Toaster, Variant } from "components/ads";
 import {
   Button,
   HighlightText,
@@ -8,9 +7,11 @@ import {
   Menu,
   MenuItem,
   MenuItemProps,
+  TabComponent,
+  Table,
+  TabProp,
 } from "design-system";
 import styled from "styled-components";
-import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { PageHeader } from "./PageHeader";
 import ProfileImage from "pages/common/ProfileImage";
@@ -18,26 +19,35 @@ import { HelpPopoverStyle, SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import { useHistory } from "react-router";
-import { BaseAclProps, GroupEditProps, Permissions, UserProps } from "./types";
+import { useHistory, useParams } from "react-router";
+import {
+  BaseAclProps,
+  GroupEditProps,
+  Permissions,
+  UsersInGroup,
+} from "./types";
 import { Position, Spinner } from "@blueprintjs/core";
 import {
+  ACL_INVITE_MODAL_MESSAGE,
+  ACL_INVITE_MODAL_TITLE,
   ADD_USERS,
   ARE_YOU_SURE,
   createMessage,
-  DELETE_GROUP,
-  INVITE_USERS_SUBMIT_BUTTON_TEXT,
+  ACL_DELETE,
   NO_USERS_MESSAGE,
-  RENAME_GROUP,
+  ACL_RENAME,
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
-  GROUP_UPDATED_SUCCESS,
-  RENAME_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
 import { useDispatch } from "react-redux";
-import { updateGroupName } from "@appsmith/actions/aclActions";
+import {
+  addUsersInGroup,
+  removeUsersFromGroup,
+  updateGroupName,
+  updateRolesInGroup,
+} from "@appsmith/actions/aclActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getFilteredData } from "./utils/getFilteredData";
 
@@ -116,11 +126,11 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isLoading, isSaving, selected } = props;
+  const { isLoading, isNew = false, isSaving, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [users, setUsers] = useState<UserProps[]>(selected.users || []);
+  const [users, setUsers] = useState<UsersInGroup[]>(selected.users || []);
   const [permissions, setPermissions] = useState<Permissions>({
     roles: selected.roles || [],
     allRoles: selected.allRoles || [],
@@ -133,11 +143,12 @@ export function GroupAddEdit(props: GroupEditProps) {
 
   const history = useHistory();
   const dispatch = useDispatch();
+  const params = useParams() as any;
 
   useEffect(() => {
     const saving = removedActiveGroups.length > 0 || addedAllGroups.length > 0;
     dispatch({
-      type: ReduxActionTypes.ACL_GROUP_IS_SAVING,
+      type: ReduxActionTypes.ACL_IS_SAVING,
       payload: {
         isSaving: saving,
       },
@@ -145,11 +156,15 @@ export function GroupAddEdit(props: GroupEditProps) {
   }, [removedActiveGroups, addedAllGroups]);
 
   useEffect(() => {
-    setUsers(selected.users || []);
-    setPermissions({
-      roles: selected.roles || [],
-      allRoles: selected.allRoles || [],
-    });
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setUsers(selected.users || []);
+      setPermissions({
+        roles: selected.roles || [],
+        allRoles: selected.allRoles || [],
+      });
+    }
   }, [selected]);
 
   const onButtonClick = () => {
@@ -157,21 +172,21 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSearch = debounce((search: string) => {
-    let userResults: UserProps[] = [];
+    let userResults: UsersInGroup[] = [];
     let permissionResults: Permissions;
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       userResults =
-        users &&
-        users.filter((user) =>
+        selected.users &&
+        selected.users.filter((user) =>
           user.username?.toLocaleUpperCase().includes(search),
         );
       setUsers(userResults);
       permissionResults = permissions && {
-        roles: permissions.roles.filter((permission) =>
+        roles: selected.roles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
-        allRoles: permissions.allRoles.filter((permission: any) =>
+        allRoles: selected.allRoles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
       };
@@ -205,24 +220,21 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSaveChanges = () => {
-    const updatedActiveGroups = permissions.roles.filter(
-      (role) => !(getFilteredData(removedActiveGroups, role, true).length > 0),
+    dispatch(
+      updateRolesInGroup(
+        { id: selected.id, name: selected.name },
+        addedAllGroups.map((group: BaseAclProps) => ({
+          id: group.id,
+          name: group.name,
+        })),
+        removedActiveGroups.map((group: BaseAclProps) => ({
+          id: group.id,
+          name: group.name,
+        })),
+      ),
     );
-    updatedActiveGroups.push(...addedAllGroups);
-    const updatedAllGroups = permissions.allRoles.filter(
-      (role) => !(getFilteredData(addedAllGroups, role, true).length > 0),
-    );
-    updatedAllGroups.push(...removedActiveGroups);
-    setPermissions({
-      roles: updatedActiveGroups,
-      allRoles: updatedAllGroups,
-    });
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
-    Toaster.show({
-      text: createMessage(GROUP_UPDATED_SUCCESS),
-      variant: Variant.success,
-    });
   };
 
   const onClearChanges = () => {
@@ -234,20 +246,26 @@ export function GroupAddEdit(props: GroupEditProps) {
     if (selected.name !== name) {
       dispatch(
         updateGroupName({
-          ...selected,
+          id: selected.id || params.selected,
           name,
         }),
       );
-      Toaster.show({
-        text: createMessage(RENAME_SUCCESSFUL),
-        variant: Variant.success,
-      });
     }
   };
 
   const onDeleteHandler = () => {
     props.onDelete && props.onDelete(selected.id);
     history.push(`/settings/groups`);
+  };
+
+  const onFormSubmitHandler = ({ ...values }) => {
+    dispatch(
+      addUsersInGroup(
+        values.users ? values.users.split(",") : [],
+        values?.options?.id || selected.id,
+      ),
+    );
+    setShowModal(false);
   };
 
   const columns = [
@@ -280,9 +298,10 @@ export function GroupAddEdit(props: GroupEditProps) {
         const onOptionSelect = () => {
           if (showConfirmationText) {
             const updatedData = users.filter((user) => {
-              return user.userId !== data.userId;
+              return user.username !== data.username;
             });
             setUsers(updatedData);
+            dispatch(removeUsersFromGroup([data.username], selected.id));
           } else {
             setShowOptions(true);
             setShowConfirmationText(true);
@@ -370,6 +389,7 @@ export function GroupAddEdit(props: GroupEditProps) {
           activeGroups={permissions.roles}
           addedAllGroups={addedAllGroups}
           allGroups={permissions.allRoles}
+          entityName="role"
           onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveGroups}
@@ -383,14 +403,14 @@ export function GroupAddEdit(props: GroupEditProps) {
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: createMessage(RENAME_GROUP),
+      text: createMessage(ACL_RENAME),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
-      text: createMessage(DELETE_GROUP),
+      text: createMessage(ACL_DELETE),
       label: "delete",
     },
   ];
@@ -404,16 +424,17 @@ export function GroupAddEdit(props: GroupEditProps) {
       <BackButton />
       <PageHeader
         buttonText={createMessage(ADD_USERS)}
-        isEditingTitle={selected.new}
+        isEditingTitle={isNew}
         isTitleEditable
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
-        title={selected.name}
+        searchValue={searchValue}
+        title={selected?.name || ""}
       />
-      <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
+      <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
         <TabComponent
           onSelect={setSelectedTabIndex}
           selectedIndex={selectedTabIndex}
@@ -431,12 +452,14 @@ export function GroupAddEdit(props: GroupEditProps) {
           disableEmailSetup: true,
           disableManageUsers: true,
           disableUserList: true,
-          isMultiSelectDropdown: true,
           disableDropdown: true,
+          message: createMessage(ACL_INVITE_MODAL_MESSAGE),
+          onSubmitHandler: onFormSubmitHandler,
         }}
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={createMessage(INVITE_USERS_SUBMIT_BUTTON_TEXT)}
+        selected={selected}
+        title={createMessage(ACL_INVITE_MODAL_TITLE)}
         trigger
       />
     </div>

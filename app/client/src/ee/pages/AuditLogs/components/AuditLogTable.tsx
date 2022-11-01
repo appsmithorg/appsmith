@@ -25,6 +25,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useGoToTop } from "../hooks/useGoToTop";
 import { AUDIT_LOGS_PAGE_SIZE } from "../config/audit-logs-config";
+import { createMessage } from "design-system/build/constants/messages";
+import {
+  DATE_LABEL,
+  EVENT_DESCRIPTION_LABEL,
+  USER_LABEL,
+} from "@appsmith/constants/messages";
 
 export function AuditLogTable() {
   const { hasMore, isLoading, logs } = useSelector(selectData);
@@ -82,11 +88,21 @@ export function AuditLogTable() {
   }
   return (
     <Table data-testid="t--audit-logs-table" ref={containerRef}>
-      <THead>
-        <Event>Event description</Event>
-        <User>User</User>
-        <Date onClick={handleDateSortOrderClick}>
-          <span className="column-header">Date</span>
+      <THead
+        className="audit-logs-table-head"
+        data-testid="t--audit-logs-table-head"
+      >
+        <Event data-testid="t--audit-logs-table-head-event-col">
+          {createMessage(EVENT_DESCRIPTION_LABEL)}
+        </Event>
+        <User data-testid="t--audit-logs-table-head-user-col">
+          {createMessage(USER_LABEL)}
+        </User>
+        <Date
+          data-testid="t--audit-logs-table-head-date-col"
+          onClick={handleDateSortOrderClick}
+        >
+          <span className="column-header">{createMessage(DATE_LABEL)}</span>
           <Icon
             name="down-arrow-2"
             size={IconSize.LARGE}
@@ -105,7 +121,7 @@ export function AuditLogTable() {
         {rows}
       </div>
       <div
-        data-testid={"t--audit-logs-table-end-marker"}
+        data-testid="t--audit-logs-table-end-marker"
         id="audit-logs-table-end-marker"
         ref={endMarkerRef}
         style={{ height: "50vh", minHeight: "500px" }}

@@ -344,6 +344,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Position",
               helpText: "Sets the icon alignment of input field",
               controlType: "ICON_TABS",
+              fullWidth: true,
               options: [
                 {
                   icon: "VERTICAL_LEFT",
@@ -375,7 +376,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
-      inputText: undefined,
+      inputText: "",
+      text: "",
     });
   }
 

@@ -1,12 +1,20 @@
 import { sanitiseSearchParamString } from "./sanitiseSearchParamString";
-import { DropdownOption } from "design-system";
-import { toDate, toEvent, toUserEmail } from "./toDropdownOption";
+import { DATE_SORT_ORDER } from "@appsmith/reducers/auditLogsReducer";
+
+export type SearchFilters = {
+  emails?: string[];
+  events?: string[];
+  resourceId?: string[];
+  sort?: DATE_SORT_ORDER[];
+  startDate?: number[];
+  endDate?: number[];
+};
 
 /**
  * urlToSearchFilters takes search params of an url to build searchFilters for AuditLogs
  * @param search {string} Search param string of an URL
  */
-export function urlToSearchFilters(search: string) {
+export function urlToSearchFilters(search: string): SearchFilters {
   if (!search || search.length === 0) {
     return {};
   }
@@ -22,30 +30,22 @@ export function urlToSearchFilters(search: string) {
 
       const nonEmptyValues = listedValues.filter((x) => x.length > 0);
 
-      const values = nonEmptyValues.map(
-        (value: string): DropdownOption => {
-          switch (key) {
-            case "days":
-              return toDate(value);
-            case "emails":
-              return toUserEmail(value);
-            case "events":
-              return toEvent(value);
-            default:
-              return {
-                id: value,
-                value: value,
-                label: value,
-              } as DropdownOption;
-          }
-        },
-      );
+      const values = nonEmptyValues.map((value: string): string | number => {
+        switch (key) {
+          case "startDate":
+            return parseInt(value, 10);
+          case "endDate":
+            return parseInt(value, 10);
+          default:
+            return value;
+        }
+      });
       return { key, values };
     })
     .reduce(
       (
-        a: Record<string, DropdownOption[]>,
-        c: { key: string; values: DropdownOption[] },
+        a: Record<string, (string | number)[]>,
+        c: { key: string; values: (string | number)[] },
       ) => {
         if (c.key.length > 0) {
           a[c.key] = c.values;

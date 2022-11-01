@@ -12,7 +12,6 @@ import {
   toEvent,
   toUserEmail,
 } from "../pages/AuditLogs/utils/toDropdownOption";
-import { DATE_FILTER_OPTIONS } from "@appsmith/pages/AuditLogs/utils/jsonFilter";
 
 export interface AuditLogsReduxStateBase {
   dirty: boolean;
@@ -36,11 +35,13 @@ const initialAuditLogsDateSortOrder: AuditLogsDateSortOrder = {
 };
 
 export interface AuditLogsDateFilter {
-  days: DropdownOption;
+  startDate: number;
+  endDate: number;
 }
 
-const initialAuditLogsDateFilter: AuditLogsDateFilter = {
-  days: DATE_FILTER_OPTIONS[0],
+export const initialAuditLogsDateFilter: AuditLogsDateFilter = {
+  startDate: 0,
+  endDate: 0,
 };
 
 export interface AuditLogsFiltersReduxState
@@ -322,7 +323,8 @@ const handlers = {
     action: ReduxAction<{
       emails: DropdownOption[];
       events: DropdownOption[];
-      days: DropdownOption;
+      startDate: number;
+      endDate: number;
       resourceId: string;
       sort: DATE_SORT_ORDER;
       dirty: boolean;
@@ -332,7 +334,8 @@ const handlers = {
     dirty: action.payload.dirty,
     searchFilters: {
       dateSortOrder: action.payload.sort,
-      days: action.payload.days,
+      startDate: action.payload.startDate,
+      endDate: action.payload.endDate,
       resourceId: action.payload.resourceId,
       selectedEmails: action.payload.emails,
       selectedEvents: action.payload.events,
@@ -350,7 +353,8 @@ const handlers = {
     dirty: false,
     isLoading: false,
     searchFilters: {
-      days: DATE_FILTER_OPTIONS[0],
+      startDate: initialAuditLogsDateFilter.startDate,
+      endDate: initialAuditLogsDateFilter.endDate,
       dateSortOrder: DATE_SORT_ORDER.DESC,
       selectedEmails: [],
       selectedEvents: [],
@@ -407,12 +411,12 @@ const handlers = {
   }),
   [ReduxActionTypes.SET_AUDIT_LOGS_DATE_FILTER]: (
     state: AuditLogsReduxState,
-    action: ReduxAction<{ days: DropdownOption }>,
+    action: ReduxAction<AuditLogsDateFilter>,
   ) => ({
     ...state,
     searchFilters: {
       ...state.searchFilters,
-      days: action.payload.days,
+      ...action.payload,
     },
     dirty: true,
   }),

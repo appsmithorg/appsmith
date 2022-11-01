@@ -1,7 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;
 import com.appsmith.server.dtos.ItemDTO;
 import com.appsmith.server.dtos.ResponseDTO;

@@ -1,11 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
+import { render, screen, waitFor } from "test/testUtils";
 import { UserListing } from "./UserListing";
 import { allUsers } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import { MenuItemProps } from "design-system";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -39,6 +40,10 @@ function renderComponent() {
       selectedGroup: null,
       selectedUser: null,
       selectedRole: null,
+      inviteOptions: {
+        groups: [],
+        roles: [],
+      },
     },
   });
   return render(
@@ -62,9 +67,7 @@ describe("<UserListing />", () => {
     renderComponent();
     const userEditLink = await screen.queryAllByTestId("user-listing-userCell");
     await userEvent.click(userEditLink[0]);
-    expect(window.location.pathname).toBe(
-      `/settings/users/${allUsers[0].userId}`,
-    );
+    expect(window.location.pathname).toBe(`/settings/users/${allUsers[0].id}`);
   });
   it("should expand on show more and collapse on show less", () => {
     renderComponent();
@@ -89,11 +92,13 @@ describe("<UserListing />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const options = listMenuItems.map((menuItem: any) => menuItem.text);
+    const options = listMenuItems.map(
+      (menuItem: MenuItemProps) => menuItem.text,
+    );
     const menuElements = options
-      .map((option: any) => getAllByText(option))
+      .map((option: string) => getAllByText(option))
       .flat();
-    options.forEach((option: any, index: any) => {
+    options.forEach((option: string, index: number) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
@@ -104,9 +109,28 @@ describe("<UserListing />", () => {
     const editOption = document.getElementsByClassName("edit-menu-item");
     await userEvent.click(editOption[0]);
     expect(window.location.pathname).toEqual(
-      `/settings/users/${allUsers[0].userId}`,
+      `/settings/users/${allUsers[0].id}`,
     );
   });
+  /*it("should search and filter users on search", async () => {
+    renderComponent();
+    const searchInput = screen.getAllByTestId("t--acl-search-input");
+    expect(searchInput).toHaveLength(1);
+
+    const groups = screen.queryAllByText("Ankita Kinger");
+    expect(groups).toHaveLength(1);
+
+    await userEvent.type(searchInput[0], "sivan");
+    expect(searchInput[0]).toHaveValue("sivan");
+
+    const searched = screen.queryAllByText("SS Sivan");
+    expect(searched).toHaveLength(1);
+
+    waitFor(() => {
+      const filtered = screen.queryAllByText("Ankita Kinger");
+      return expect(filtered).toHaveLength(0);
+    });
+  });*/
   it("should delete the user when Delete menu option is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();
     let user = queryByText(allUsers[0].username);
@@ -125,10 +149,10 @@ describe("<UserListing />", () => {
   });
   it("should render in custom url", async () => {
     render(<UserListing />, {
-      url: `/settings/users/${allUsers[0].userId}`,
+      url: `/settings/users/${allUsers[0].id}`,
     });
     expect(window.location.pathname).toEqual(
-      `/settings/users/${allUsers[0].userId}`,
+      `/settings/users/${allUsers[0].id}`,
     );
   });
 });

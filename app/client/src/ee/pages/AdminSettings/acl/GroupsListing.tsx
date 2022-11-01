@@ -5,12 +5,11 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { Toaster, Variant } from "components/ads";
 import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
-import { AclWrapper } from "./components";
+import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -22,9 +21,8 @@ import {
 import {
   createMessage,
   ADD_GROUP,
-  GROUP_DELETED,
-  EDIT_GROUP,
-  DELETE_GROUP,
+  ACL_EDIT,
+  ACL_DELETE,
   SEARCH_GROUPS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import {
@@ -53,12 +51,19 @@ export function GroupListing() {
 
   const [data, setData] = useState<GroupProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedUserGroup, setSelectedUserGroup] = useState<any>({});
+  const [selectedUserGroup, setSelectedUserGroup] = useState<GroupProps | null>(
+    null,
+  );
+  const [isNewGroup, setIsNewGroup] = useState(false);
 
   const selectedUserGroupId = params?.selected;
 
   useEffect(() => {
-    setData(userGroups);
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setData(userGroups);
+    }
   }, [userGroups]);
 
   useEffect(() => {
@@ -70,6 +75,7 @@ export function GroupListing() {
       dispatch(getGroupById({ id: selectedUserGroupId }));
     } else if (!selectedUserGroupId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });
+      setIsNewGroup(false);
     }
   }, [selectedUserGroupId]);
 
@@ -105,7 +111,7 @@ export function GroupListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/groups/${key}`);
       },
-      text: createMessage(EDIT_GROUP),
+      text: createMessage(ACL_EDIT),
     },
     {
       label: "delete",
@@ -114,7 +120,7 @@ export function GroupListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_GROUP),
+      text: createMessage(ACL_DELETE),
     },
   ];
 
@@ -135,6 +141,7 @@ export function GroupListing() {
         name: "Untitled Group",
       }),
     );
+    setIsNewGroup(true);
   };
 
   const onSearch = debounce((search: string) => {
@@ -153,17 +160,13 @@ export function GroupListing() {
   }, 300);
 
   const onDeleteHandler = (id: string) => {
-    dispatch(deleteGroup(id));
+    dispatch(deleteGroup({ id }));
     /* for jest tests */
     const updatedData = data.filter((userGroup) => {
       return userGroup.id !== id;
     });
     setData(updatedData);
     /* for jest tests */
-    Toaster.show({
-      text: createMessage(GROUP_DELETED),
-      variant: Variant.success,
-    });
   };
 
   return (
@@ -171,6 +174,7 @@ export function GroupListing() {
       {selectedUserGroupId && selectedUserGroup ? (
         <GroupAddEdit
           isLoading={isLoading}
+          isNew={isNewGroup}
           isSaving={isSaving}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
@@ -183,10 +187,18 @@ export function GroupListing() {
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
             searchPlaceholder={createMessage(SEARCH_GROUPS_PLACEHOLDER)}
+            searchValue={searchValue}
           />
           <Listing
             columns={columns}
             data={data}
+            emptyState={
+              searchValue ? (
+                <EmptySearchResult />
+              ) : (
+                <EmptyDataState page="groups" />
+              )
+            }
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}

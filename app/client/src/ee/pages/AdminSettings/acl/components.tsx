@@ -7,16 +7,36 @@ import {
   BOTTOM_BAR_CLEAR_BTN,
   BOTTOM_BAR_SAVE_BTN,
   BOTTOM_BAR_SAVE_MESSAGE,
+  NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
+import NoDataFound from "assets/images/empy-state.png";
+
+export enum INVITE_USERS_TAB_ID {
+  VIA_GROUPS = "via-groups",
+  VIA_ROLES = "via-roles",
+}
 
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin: 32px 0 0 ${(props) => props.theme.homePage.main.marginLeft}px;
+  margin: 32px 0 0 0;
   padding: 0 30px 0 0;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 
   .scrollable-wrapper {
     height: 100%;
+
+    &.role-edit-wrapper {
+      .react-tabs__tab-panel {
+        height: calc(100% - 120px);
+        overflow: unset;
+
+        .save-button-bar {
+          bottom: 4px;
+          flex-shrink: 0;
+          margin: auto;
+        }
+      }
+    }
   }
 `;
 
@@ -31,13 +51,11 @@ export const SaveButtonBarWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  width: calc(
-    100% - ${(props) => props.theme.homePage.leftPane.width}px -
-      ${(props) => props.theme.homePage.main.marginLeft}px - 30px
-  );
+  min-width: 800px;
+  width: calc(100% - 320px);
 `;
 
-export const TabsWrapper = styled.div`
+export const TabsWrapper = styled.div<{ isSaving?: boolean }>`
   overflow: auto;
   height: calc(100% - 80px);
   .react-tabs__tab-list {
@@ -45,7 +63,8 @@ export const TabsWrapper = styled.div`
     padding: 36px 0 0;
   }
   .react-tabs__tab-panel {
-    height: calc(100% - 128px);
+    height: ${({ isSaving }) =>
+      isSaving ? `calc(100% - 148px - 80px)` : `calc(100% - 148px)`};
   }
 `;
 
@@ -136,7 +155,7 @@ export function SaveButtonBar({
   onSave: () => void;
 }) {
   return (
-    <SaveButtonBarWrapper>
+    <SaveButtonBarWrapper className="save-button-bar">
       <SaveButtonBarText>
         {createMessage(BOTTOM_BAR_SAVE_MESSAGE)}
       </SaveButtonBarText>
@@ -189,11 +208,38 @@ export const LoaderText = styled.div`
   text-align: center;
 `;
 
+const NoResultsText = styled.div`
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--appsmith-color-black-700);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: 600;
+
+  img {
+    margin-bottom: 8px;
+  }
+`;
+
 export const Loader = ({ loaderText }: { loaderText?: string }) => {
   return (
     <LoaderContainer>
       <Spinner />
       <LoaderText>{loaderText}</LoaderText>
     </LoaderContainer>
+  );
+};
+
+export const EmptyDataState = ({ page }: { page: string }) => {
+  return <NoResultsText>{`There are no ${page} added`}</NoResultsText>;
+};
+
+export const EmptySearchResult = () => {
+  return (
+    <NoResultsText>
+      <img alt="No data" src={NoDataFound} />
+      <div>{createMessage(NO_SEARCH_DATA_TEXT)}</div>
+    </NoResultsText>
   );
 };

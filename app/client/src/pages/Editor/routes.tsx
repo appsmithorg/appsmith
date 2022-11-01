@@ -19,7 +19,6 @@ import {
   PAGE_LIST_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
-  GENERATE_TEMPLATE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   matchBuilderPath,
   BUILDER_CHECKLIST_PATH,
@@ -158,11 +157,6 @@ function EditorsRouter() {
           <SentryRoute
             component={GeneratePage}
             exact
-            path={`${path}${GENERATE_TEMPLATE_PATH}`}
-          />
-          <SentryRoute
-            component={GeneratePage}
-            exact
             path={`${path}${GENERATE_TEMPLATE_FORM_PATH}`}
           />
         </Switch>
@@ -188,9 +182,13 @@ function PaneDrawer(props: PaneDrawerProps) {
     // Close all modals
     if (props.isVisible) {
       showPropertyPane();
-      selectWidget(undefined);
-      focusWidget(undefined);
       dispatch(closeAllModals());
+      // delaying setting select and focus state,
+      // so that the focus history has time to store the selected values
+      setTimeout(() => {
+        selectWidget(undefined);
+        focusWidget(undefined);
+      }, 0);
     }
   }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;

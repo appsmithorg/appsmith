@@ -66,8 +66,7 @@ import {
   TriggerMeta,
 } from "./ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   createMessage,
   SNIPPET_EXECUTION_FAILED,
@@ -78,7 +77,11 @@ import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import { EvaluationVersion } from "api/ApplicationApi";
 import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  LogObject,
+  UserLogObject,
+} from "entities/AppsmithConsole";
 import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import {
   logActionExecutionError,
@@ -98,7 +101,6 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import { LogObject, UserLogObject } from "workers/UserLog";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
@@ -269,6 +271,8 @@ export function* evaluateAndExecuteDynamicTrigger(
       dynamicTrigger,
       callbackData,
       globalContext,
+      eventType,
+      triggerMeta,
     },
   );
 
@@ -349,6 +353,18 @@ export function* executeDynamicTriggerRequest(
       mainThreadRequestChannel,
     );
     log.debug({ requestData });
+    if (requestData?.logs) {
+      const { eventType, triggerMeta } = requestData;
+      yield call(
+        storeLogs,
+        requestData.logs,
+        triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
+        eventType === EventType.ON_JS_FUNCTION_EXECUTE
+          ? ENTITY_TYPE.JSACTION
+          : ENTITY_TYPE.WIDGET,
+        triggerMeta?.source?.id || "",
+      );
+    }
     if (requestData?.trigger) {
       // if we have found a trigger, we need to execute it and respond back
       log.debug({ trigger: requestData.trigger });
@@ -375,6 +391,7 @@ interface ResponsePayload {
     resolve?: unknown;
   };
   success: boolean;
+  eventType?: EventType;
 }
 
 /*
@@ -395,6 +412,7 @@ function* executeTriggerRequestSaga(
       subRequestId: requestData.subRequestId,
     },
     success: false,
+    eventType,
   };
   try {
     responsePayload.data.resolve = yield call(
@@ -444,7 +462,13 @@ export function* executeFunction(
         evaluateAndExecuteDynamicTrigger,
         functionCall,
         EventType.ON_JS_FUNCTION_EXECUTE,
-        {},
+        {
+          source: {
+            id: collectionId,
+            name: `${collectionName}.${action.name}`,
+          },
+          triggerPropertyName: `${collectionName}.${action.name}`,
+        },
       );
     } catch (e) {
       if (e instanceof UncaughtPromiseError) {

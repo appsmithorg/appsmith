@@ -15,10 +15,12 @@ import {
 } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { dataTreeEvaluator } from "workers/evaluation.worker";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export const promisifyAction = (
   workerRequestId: string,
   actionDescription: ActionDescription,
+  eventType?: EventType,
 ) => {
   if (!self.ALLOW_ASYNC) {
     /**
@@ -38,6 +40,7 @@ export const promisifyAction = (
       trigger: actionDescription,
       errors: [],
       subRequestId,
+      eventType,
     };
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
@@ -46,7 +49,7 @@ export const promisifyAction = (
       promisified: true,
     });
     const processResponse = function(event: MessageEvent) {
-      const { data, method, requestId, success } = event.data;
+      const { data, eventType, method, requestId, success } = event.data;
       // This listener will get all the messages that come to the worker
       // we need to find the correct one pertaining to this promise
       if (
@@ -69,6 +72,7 @@ export const promisifyAction = (
             isTriggerBased: true,
             context: {
               requestId: workerRequestId,
+              eventType,
             },
           });
           for (const entity in globalData) {

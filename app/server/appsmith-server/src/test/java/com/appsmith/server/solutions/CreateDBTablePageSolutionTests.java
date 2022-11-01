@@ -18,7 +18,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;

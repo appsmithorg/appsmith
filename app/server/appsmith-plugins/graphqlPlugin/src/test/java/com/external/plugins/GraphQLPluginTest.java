@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
@@ -356,18 +357,22 @@ public class GraphQLPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("3");
+        param1.setClientDataType(ClientDataType.NUMBER);
         params.add(param1);
         Param param2 = new Param();
         param2.setKey("Input2.text");
         param2.setValue("this is a string! Yay :D");
+        param2.setClientDataType(ClientDataType.STRING);
         params.add(param2);
         Param param3 = new Param();
         param3.setKey("Input3.text");
         param3.setValue("true");
+        param3.setClientDataType(ClientDataType.BOOLEAN);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input4.text");
         param4.setValue("id");
+        param4.setClientDataType(ClientDataType.STRING);
         params.add(param4);
         executeActionDTO.setParams(params);
 
@@ -438,6 +443,7 @@ public class GraphQLPluginTest {
                 "    }\n" +
                 "  }\n" +
                 "}");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         executeActionDTO.setParams(params);
 
@@ -508,30 +514,37 @@ public class GraphQLPluginTest {
         Param param1 = new Param();
         param1.setKey("Input1.text");
         param1.setValue("this is a string! Yay :D");
+        param1.setClientDataType(ClientDataType.STRING);
         params.add(param1);
         Param param3 = new Param();
         param3.setKey("Input2.text");
         param3.setValue("true");
+        param3.setClientDataType(ClientDataType.BOOLEAN);
         params.add(param3);
         Param param4 = new Param();
         param4.setKey("Input3.text");
         param4.setValue("0");
+        param4.setClientDataType(ClientDataType.NUMBER);
         params.add(param4);
         Param param5 = new Param();
         param5.setKey("Input4.text");
         param5.setValue("12/01/2018");
+        param5.setClientDataType(ClientDataType.STRING);
         params.add(param5);
         Param param6 = new Param();
         param6.setKey("Input5.text");
         param6.setValue("null");
+        param6.setClientDataType(ClientDataType.NULL);
         params.add(param6);
         Param param7 = new Param();
         param7.setKey("Table1.selectedRow");
         param7.setValue("{  \"id\": 2381224,  \"email\": \"michael.lawson@reqres.in\",  \"userName\": \"Michael Lawson\",  \"productName\": \"Chicken Sandwich\",  \"orderAmount\": 4.99}");
+        param7.setClientDataType(ClientDataType.OBJECT);
         params.add(param7);
         Param param8 = new Param();
         param8.setKey("Table1.tableData");
         param8.setValue("[  {    \"id\": 2381224,    \"email\": \"michael.lawson@reqres.in\",    \"userName\": \"Michael Lawson\",    \"productName\": \"Chicken Sandwich\",    \"orderAmount\": 4.99  },  {    \"id\": 2736212,    \"email\": \"lindsay.ferguson@reqres.in\",    \"userName\": \"Lindsay Ferguson\",    \"productName\": \"Tuna Salad\",    \"orderAmount\": 9.99  },  {    \"id\": 6788734,    \"email\": \"tobias.funke@reqres.in\",    \"userName\": \"Tobias Funke\",    \"productName\": \"Beef steak\",    \"orderAmount\": 19.99  }]");
+        param8.setClientDataType(ClientDataType.ARRAY);
         params.add(param8);
         executeActionDTO.setParams(params);
 
@@ -1033,7 +1046,7 @@ public class GraphQLPluginTest {
      * into a simple non paginated query.
      */
     @Test
-    public void testNextCursorKeyIsSkippedWhenValueIsNull() {
+    public void testNextCursorKeyIsSkippedWhenCursorValueIsNull() {
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setPaginationType(PaginationType.CURSOR);
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
@@ -1063,7 +1076,7 @@ public class GraphQLPluginTest {
      * into a simple non paginated query.
      */
     @Test
-    public void testPrevCursorKeyIsSkippedWhenValueIsNull() {
+    public void testPrevCursorKeyIsSkippedWhenCursorValueIsNull() {
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setPaginationType(PaginationType.CURSOR);
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
@@ -1086,4 +1099,37 @@ public class GraphQLPluginTest {
         assertEquals(expectedVariableString,
                 actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
     }
+
+    /**
+     * This method tests that when the value for pagination type is "null", then the cursor key should be skipped from
+     * being added to the query variables. This would ensure that when a user clicks on the `run` button after
+     * configuring the pagination settings then it runs without taking the pagination value otherwise every
+     * subsequent click would fetch the next `n` values instead of getting the same values. It should consider the
+     * cursor value only when the query is triggered via a paginated widget.
+     */
+    @Test
+    public void testNextCursorKeyIsSkippedWhenPaginationValueIsNull() {
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setPaginationType(PaginationType.CURSOR);
+        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
+
+        Map<String, Object> paginationDataMap = new HashMap<String, Object>();
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.name", "first");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.value", "3");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.name", "endCursor");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.value", "null");
+        Property property = new Property();
+        property.setKey("paginationData");
+        property.setValue(paginationDataMap);
+        actionConfig.getPluginSpecifiedTemplates().add(property);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+
+        updateVariablesWithPaginationValues(actionConfig, executeActionDTO);
+        String expectedVariableString = "{\"first\":3}";
+        assertEquals(expectedVariableString,
+                actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
+    }
+
 }

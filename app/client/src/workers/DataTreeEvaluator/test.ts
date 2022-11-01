@@ -2,14 +2,11 @@ import DataTreeEvaluator from "../DataTreeEvaluator";
 import {
   asyncTagUnevalTree,
   lintingUnEvalTree,
-  unEvalTree,
 } from "./mockData/mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { DataTreeDiff } from "workers/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
-import { updateDependencyMap } from "workers/DependencyMap";
 import { parseJSActions } from "workers/JSObject";
 import get from "lodash/get";
 import {
@@ -135,69 +132,6 @@ describe("DataTreeEvaluator", () => {
         "my value",
         "default value",
       ]);
-    });
-  });
-
-  describe("test updateDependencyMap", () => {
-    beforeEach(() => {
-      // @ts-expect-error: Types are not available
-      dataTreeEvaluator.createFirstTree(unEvalTree as DataTree);
-    });
-
-    it("initial dependencyMap computation", () => {
-      // @ts-expect-error: Types are not available
-      dataTreeEvaluator.updateDataTree(unEvalTree as DataTree);
-
-      expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
-        "Button2.text": ["Button1.text"],
-        Button2: ["Button2.text"],
-        Button1: ["Button1.text"],
-      });
-    });
-
-    it(`When empty binding is modified from {{Button1.text}} to {{""}}`, () => {
-      const translatedDiffs = [
-        {
-          payload: {
-            propertyPath: "Button2.text",
-            value: '{{""}}',
-          },
-          event: "EDIT",
-        },
-      ];
-      updateDependencyMap({
-        dataTreeEvalRef: dataTreeEvaluator,
-        translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
-        unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
-      });
-
-      expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
-        "Button2.text": [],
-        Button2: ["Button2.text"],
-        Button1: ["Button1.text"],
-      });
-    });
-
-    it(`When binding is removed`, () => {
-      const translatedDiffs = [
-        {
-          payload: {
-            propertyPath: "Button2.text",
-            value: "abc",
-          },
-          event: "EDIT",
-        },
-      ];
-      updateDependencyMap({
-        dataTreeEvalRef: dataTreeEvaluator,
-        translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
-        unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
-      });
-
-      expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
-        Button2: ["Button2.text"],
-        Button1: ["Button1.text"],
-      });
     });
   });
 

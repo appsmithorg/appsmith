@@ -12,7 +12,7 @@ import {
   setOnlyEventJsonFilter,
   setResourceIdJsonFilter,
 } from "@appsmith/actions/auditLogsAction";
-import { Icon } from "design-system";
+import { Icon, IconSize } from "design-system";
 import {
   selectAuditLogsLogById,
   selectAuditLogsSearchFilters,
@@ -98,18 +98,21 @@ export default function JsonFilters({ logId }: JsonFiltersProps) {
       <StyledPill
         data-testid="t--audit-logs-json-filter-pill"
         key={`jsonFilterKey-${index}`}
+        onClick={() => handleFilterClick(key, value)}
       >
         <StyledPillLabel>
           <Icon
-            clickable={false}
             name={"search"}
-            style={{ display: "inline-block" }}
+            size={IconSize.XL}
+            style={{
+              display: "inline-block",
+              position: "relative",
+              top: "4px",
+            }}
           />
           <span className="pill-key">{key}</span>
         </StyledPillLabel>
-        <StyledPillValue onClick={() => handleFilterClick(key, value)}>
-          {value}
-        </StyledPillValue>
+        <StyledPillValue>{value}</StyledPillValue>
       </StyledPill>
     );
   });

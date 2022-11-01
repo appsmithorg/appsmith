@@ -18,7 +18,7 @@ import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import {
   getInitialsAndColorCode,
   getApplicationIcon,
@@ -30,7 +30,10 @@ import {
   AppIconName,
   Button,
   Category,
+  Classes as CsClasses,
   ColorSelector,
+  EditableText,
+  EditInteractionKind,
   IconPositions,
   Icon,
   IconSelector,
@@ -39,15 +42,14 @@ import {
   MenuDivider,
   MenuItem,
   MenuItemProps,
+  SavingState,
   Size,
+  Toaster,
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
-import EditableText, {
-  EditInteractionKind,
-  SavingState,
-} from "components/ads/EditableText";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,
@@ -58,11 +60,8 @@ import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
-import { Classes as CsClasses } from "components/ads/common";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";

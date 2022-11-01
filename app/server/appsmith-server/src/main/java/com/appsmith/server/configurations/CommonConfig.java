@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -62,13 +63,16 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
+    private String rtsBaseDomain = "http://localhost:8091";
+
+    private List<String> allowedDomains;
+
     @Value("${APPSMITH_OIDC_DISABLE_NONCE:false}")
     private boolean isNonceDisabled;
 
     @Value("${APPSMITH_OAUTH2_OIDC_AUDIENCE:}")
     private String oidcAudience;
 
-    private List<String> allowedDomains;
 
     @Bean
     public Scheduler scheduler() {
@@ -85,6 +89,7 @@ public class CommonConfig {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         return objectMapper;
     }

@@ -1,12 +1,13 @@
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
+import { groupsReducers } from "./groupsReducer";
+import { rolesReducers } from "./rolesReducer";
+import { userReducers } from "./usersReducer";
 import {
   GroupProps,
   RoleProps,
   UserProps,
 } from "@appsmith/pages/AdminSettings/acl/types";
-import { createReducer } from "utils/ReducerUtils";
-import { groupsReducers } from "./groupsReducer";
-import { rolesReducers } from "./rolesReducer";
-import { userReducers } from "./usersReducer";
 
 export const initialState: AclReduxState = {
   isLoading: false,
@@ -17,6 +18,11 @@ export const initialState: AclReduxState = {
   selectedUser: null,
   selectedGroup: null,
   selectedRole: null,
+  inviteOptions: {
+    roles: [],
+    groups: [],
+  },
+  iconLocations: [],
 };
 
 export interface AclReduxState {
@@ -28,12 +34,21 @@ export interface AclReduxState {
   selectedUser: UserProps | null;
   selectedGroup: GroupProps | null;
   selectedRole: RoleProps | null;
+  inviteOptions: {
+    roles: any[];
+    groups: any[];
+  };
+  iconLocations: any[];
 }
 
 export const handlers = {
   ...userReducers,
   ...groupsReducers,
   ...rolesReducers,
+  [ReduxActionTypes.ACL_IS_SAVING]: (state: any, action: any) => ({
+    ...state,
+    isSaving: action.payload.isSaving,
+  }),
 };
 
 export default createReducer(initialState, handlers);

@@ -43,6 +43,7 @@ public enum AclPermission {
     TENANT_DELETE_USER_GROUPS("tenantDeleteUserGroups:tenant", Tenant.class),
     TENANT_ADD_USER_TO_ALL_USER_GROUPS("tenantAddUsersToGroups:tenant", Tenant.class),
     TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS("tenantRemoveUserFromGroups:tenant", Tenant.class),
+    TENANT_MANAGE_ALL_USERS("tenantManageAllUsers:tenant", Tenant.class),
 
     CREATE_USER_GROUPS("createUserGroups:tenant", Tenant.class),
     CREATE_WORKSPACES("createWorkspaces:tenant", Tenant.class),
@@ -137,6 +138,8 @@ public enum AclPermission {
 
     // Permission Group Permissions
     MANAGE_PERMISSION_GROUPS("manage:permissionGroups", PermissionGroup.class),
+    // This permission should only be used to read the members of a permission group
+    READ_PERMISSION_GROUP_MEMBERS("read:permissionGroupMembers", PermissionGroup.class),
     READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
@@ -148,6 +151,9 @@ public enum AclPermission {
     DELETE_USER_GROUPS("delete:userGroups", UserGroup.class),
     ADD_USERS_TO_USER_GROUPS("addUsers:userGroups", UserGroup.class),
     REMOVE_USERS_FROM_USER_GROUPS("removeUsers:userGroups", UserGroup.class),
+
+    // Manage tenant permissions
+    MANAGE_TENANT("manage:tenants", Tenant.class),
 
     // AuditLogs Permission
     READ_AUDIT_LOGS("read:auditLogs", AuditLog.class),

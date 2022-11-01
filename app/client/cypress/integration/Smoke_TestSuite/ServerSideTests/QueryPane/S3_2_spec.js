@@ -6,12 +6,20 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer;
 
 let datasourceName;
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function() {
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.startRoutesForDatasource();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   // afterEach(function() {
@@ -198,45 +206,35 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "assets-test.appsmith.com",
       formControls.s3BucketName,
     );
-    cy.getEntityName().then((entity) => {
-      cy.wrap(entity).as("entity");
-    });
+    // cy.getEntityName().then((entity) => {
+    //   cy.wrap(entity).as("entity");
+    // });
     cy.runQuery();
     cy.xpath(queryLocators.suggestedWidgetDropdown)
       .click()
       .wait(1000);
     cy.get(".t--draggable-selectwidget").validateWidgetExists();
 
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    ee.SelectEntityByName("Query1", "Queries/JS");
+    //cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedTableWidget)
       .click()
       .wait(1000);
     cy.get(commonlocators.TableV2Row).validateWidgetExists();
 
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+    ee.SelectEntityByName("Query1", "Queries/JS");
     cy.xpath(queryLocators.suggestedWidgetText)
       .click()
       .wait(1000);
     cy.get(commonlocators.textWidget).validateWidgetExists();
 
-    cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
-    cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+    ee.SelectEntityByName("Query1", "Queries/JS");
   });
 
   it("4. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
     cy.addDsl(dsl);
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.getEntityName().then((entity) => {
-      cy.wrap(entity).as("entity");
-    });
-    cy.ValidateAndSelectDropdownOption(
-      formControls.commandDropdown,
-      "List files in bucket",
-    );
-    cy.typeValueNValidate(
-      "assets-test.appsmith.com",
-      formControls.s3BucketName,
-    );
+    cy.wait(3000); //dsl to settle!    cy.NavigateToActiveDSQueryPane(datasourceName);
+    ee.SelectEntityByName("Query1", "Queries/JS");
     cy.runQuery();
     cy.clickButton("Select Widget");
     cy.xpath(queryLocators.snipeableTable)
@@ -244,11 +242,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(1500); //wait for table to load!
 
     cy.get(commonlocators.TableRow).validateWidgetExists();
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get("@entity").then((entityN) => {
-      cy.log(entityN);
-      cy.selectEntityByName(entityN);
-    });
+    ee.SelectEntityByName("Query1", "Queries/JS");
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.actionContextMenuByEntityName("Table1");

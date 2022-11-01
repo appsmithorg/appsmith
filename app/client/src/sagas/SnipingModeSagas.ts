@@ -1,18 +1,16 @@
-import { takeLeading, all, put, select } from "redux-saga/effects";
+import { takeLeading, all, put, select, call } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { snipingModeBindToSelector } from "selectors/editorSelectors";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import {
@@ -22,7 +20,7 @@ import {
 
 import WidgetFactory from "utils/WidgetFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { builderURL } from "RouteBuilder";
+import { setSnipingMode } from "actions/propertyPaneActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -31,10 +29,7 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const pageId: string = yield select(getCurrentPageId);
-  const currentURL = new URL(window.location.href);
-  const searchParams = currentURL.searchParams;
-  const queryId = searchParams.get("bindTo");
+  const queryId: string = yield select(snipingModeBindToSelector);
   const currentAction: ActionData | undefined = yield select((state) =>
     state.entities.actions.find(
       (action: ActionData) => action.config.id === queryId,
@@ -165,11 +160,7 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    history.replace(
-      builderURL({
-        pageId,
-      }),
-    );
+    yield call(resetSnipingModeSaga);
   } else {
     queryId &&
       Toaster.show({
@@ -180,15 +171,12 @@ export function* bindDataToWidgetSaga(
 }
 
 function* resetSnipingModeSaga() {
-  const currentURL = new URL(window.location.href);
-  const searchParams = currentURL.searchParams;
-  searchParams.delete("isSnipingMode");
-  searchParams.delete("bindTo");
-  history.replace({
-    ...window.location,
-    pathname: currentURL.pathname,
-    search: searchParams.toString(),
-  });
+  yield put(
+    setSnipingMode({
+      isActive: false,
+      bindTo: undefined,
+    }),
+  );
 }
 
 export default function* snipingModeSagas() {

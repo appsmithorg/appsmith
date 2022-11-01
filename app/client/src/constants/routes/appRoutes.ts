@@ -29,7 +29,6 @@ export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPL
 export const BUILDER_CHECKLIST_PATH = `/checklist`;
 export const ADMIN_SETTINGS_PATH = "/settings";
 export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
-export const AUDIT_LOGS_PATH = "/logs";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
 export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
@@ -53,9 +52,9 @@ export const matchViewerForkPath = (pathName: string) =>
   match(`${VIEWER_CUSTOM_PATH}${VIEWER_FORK_PATH}`)(pathName) ||
   match(`${VIEWER_PATH_DEPRECATED}${VIEWER_FORK_PATH}`)(pathName);
 export const matchGeneratePagePath = (pathName: string) =>
-  match(`${BUILDER_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
-  match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_PATH}`)(pathName) ||
-  match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_PATH}`)(pathName);
+  match(`${BUILDER_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
+  match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
+  match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);

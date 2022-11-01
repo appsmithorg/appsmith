@@ -2,8 +2,6 @@ import { GroupProps } from "../types";
 
 export const userGroupTableData: GroupProps[] = [
   {
-    isEditing: false,
-    isDeleting: false,
     name: "Eng_New",
     id: "123",
     allRoles: [
@@ -37,8 +35,6 @@ export const userGroupTableData: GroupProps[] = [
     users: [],
   },
   {
-    isEditing: false,
-    isDeleting: false,
     name: "Design",
     id: "456",
     allRoles: [
@@ -71,22 +67,12 @@ export const userGroupTableData: GroupProps[] = [
     ],
     users: [
       {
-        isChangingRole: false,
-        isDeleting: false,
-        name: "Ankita Kinger",
         username: "techak@appsmith.com",
-        userId: "123",
-        groups: [],
-        roles: [],
+        id: "123",
       },
       {
-        isChangingRole: false,
-        isDeleting: false,
-        name: "Hello",
         username: "hello123@appsmith.com",
-        userId: "456",
-        groups: [],
-        roles: [],
+        id: "456",
       },
     ],
   },
@@ -109,7 +95,7 @@ export const userGroupTableData: GroupProps[] = [
         name: "Ankita Kinger",
         allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
-        userId: "123",
+        id: "123",
         allRoles: [],
       },
       {
@@ -117,7 +103,7 @@ export const userGroupTableData: GroupProps[] = [
         isDeleting: false,
         name: "Hello",
         username: "hello123@appsmith.com",
-        userId: "456",
+        id: "456",
         allGroups: [],
         allRoles: [],
       },
@@ -137,7 +123,7 @@ export const userGroupTableData: GroupProps[] = [
         name: "Ankita Kinger",
         allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
-        userId: "123",
+        id: "123",
         allRoles: [],
       },
       {
@@ -145,7 +131,7 @@ export const userGroupTableData: GroupProps[] = [
         isDeleting: false,
         name: "Hello",
         username: "hello123@appsmith.com",
-        userId: "456",
+        id: "456",
         allGroups: [],
         allRoles: [],
       },
@@ -171,7 +157,7 @@ export const userGroupTableData: GroupProps[] = [
         name: "Ankita Kinger",
         allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
-        userId: "123",
+        id: "123",
         allRoles: [],
       },
       {
@@ -179,7 +165,7 @@ export const userGroupTableData: GroupProps[] = [
         isDeleting: false,
         name: "Hello",
         username: "hello123@appsmith.com",
-        userId: "456",
+        id: "456",
         allGroups: [],
         allRoles: [],
       },
@@ -204,7 +190,7 @@ export const userGroupTableData: GroupProps[] = [
         isDeleting: false,
         name: "Ankita Kinger",
         username: "techak@appsmith.com",
-        userId: "123",
+        id: "123",
         allGroups: [],
         allRoles: [],
       },
@@ -213,7 +199,7 @@ export const userGroupTableData: GroupProps[] = [
         isDeleting: false,
         name: "Hello",
         username: "hello123@appsmith.com",
-        userId: "456",
+        id: "456",
         allGroups: [],
         allRoles: [],
       },

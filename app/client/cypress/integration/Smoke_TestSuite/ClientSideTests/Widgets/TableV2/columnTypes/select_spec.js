@@ -188,7 +188,9 @@ describe("Table widget - Select column type functionality", () => {
         "SELECT * FROM public.astronauts {{this.params.filterText ? `WHERE name LIKE '%${this.params.filterText}%'` : ''}} LIMIT 10;",
       );
     });
-    cy.get(".t--form-control-SWITCH .slider").click();
+    cy.get(".t--form-control-SWITCH label")
+      .scrollIntoView()
+      .click({ force: true });
     cy.wait("@saveAction");
     cy.get(".t--run-query").click();
     cy.wait("@postExecute");

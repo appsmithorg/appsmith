@@ -7,8 +7,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Role;
+import com.appsmith.server.domains.ApplicationMode;
 
 import java.util.Map;
 
@@ -69,7 +68,8 @@ public class AuditLogEvents {
             entry(AnalyticsEvents.LOGOUT.getEventName(), FieldName.LOGGED_OUT),
             entry(AnalyticsEvents.FIRST_LOGIN.getEventName(), FieldName.SIGNED_UP),
             entry(AnalyticsEvents.EXECUTE_INVITE_USERS.getEventName(), FieldName.INVITED),
-            entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.UPDATED)
+            entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.UPDATED),
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.UPDATED)
     );
 
     // Map of Appsmith resource name with their corresponding Audit Log resource name
@@ -81,8 +81,7 @@ public class AuditLogEvents {
             entry(NewAction.class.getSimpleName(), FieldName.QUERY),
             entry(User.class.getSimpleName(), FieldName.USER),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.INSTANCE_SETTING),
-            entry(PermissionGroup.class.getSimpleName(), FieldName.GROUP),
-            entry(Role.class.getSimpleName(), FieldName.ROLE)
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING)
     );
 
     public final static Map<String, String> authenticationMethodsMap = Map.ofEntries(
@@ -91,6 +90,12 @@ public class AuditLogEvents {
             entry(APPSMITH_OAUTH2_OIDC_CLIENT_ID.toString(), FieldName.OIDC),
             entry(APPSMITH_SSO_SAML_ENABLED.toString(), FieldName.SAML),
             entry(User.class.getSimpleName(), FieldName.USER)
+    );
+
+    // Audit Logs use different naming than the one in ApplicationMode
+    public final static Map<String, String> appModeMap = Map.ofEntries(
+            entry(ApplicationMode.EDIT.toString(), FieldName.AUDIT_LOG_APP_MODE_EDIT),
+            entry(ApplicationMode.PUBLISHED.toString(), FieldName.AUDIT_LOG_APP_MODE_VIEW)
     );
 
 }

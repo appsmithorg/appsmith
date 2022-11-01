@@ -27,6 +27,7 @@ function renderComponent() {
       onSearch={handleChange as any}
       pageMenuItems={pageMenuItems}
       searchPlaceholder="Search users"
+      searchValue=""
     />,
   );
 }
@@ -43,6 +44,10 @@ function renderUserListing() {
       selectedGroup: null,
       selectedUser: null,
       selectedRole: null,
+      inviteOptions: {
+        groups: [],
+        roles: [],
+      },
     },
   });
   return render(
