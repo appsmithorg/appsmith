@@ -671,9 +671,9 @@ export class DataSources {
   public SaveDSFromDialog(save = true) {
     this.agHelper.GoBack();
     if (save) {
-      this.agHelper.GetNClick(this.locator._visibleTextSpan("SAVE"));
+      this.agHelper.GetNClick(this.locator._visibleTextSpan("SAVE"), 0, false, 0);
       this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
       this.agHelper.AssertContains("datasource created");
-    } else this.agHelper.GetNClick(this.locator._visibleTextSpan("DON'T SAVE"));
+    } else this.agHelper.GetNClick(this.locator._visibleTextSpan("DON'T SAVE"), 0, false, 0);
   }
 }
