@@ -370,12 +370,12 @@ export const useAutoLayoutHighlights = ({
         });
       });
       arr.push(...validEndHighLights);
-      const validCenterdHighlights = centerHighlights.filter((each) => {
+      const validCenteredHighlights = centerHighlights.filter((each) => {
         return !arr.some((eachHighlight) => {
           return eachHighlight.posX > each.posX;
         });
       });
-      arr.push(...validCenterdHighlights);
+      arr.push(...validCenteredHighlights);
     }
     return arr;
   }

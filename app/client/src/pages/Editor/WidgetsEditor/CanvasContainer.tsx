@@ -254,5 +254,8 @@ function CanvasContainer() {
     </Container>
   );
 }
+CanvasContainer.whyDidYouRender = {
+  logOnDifferentValues: true,
+};
 
 export default CanvasContainer;
