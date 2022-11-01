@@ -11,7 +11,7 @@ const StyledPropertyPaneButtonWrapper = styled.div`
   margin-top: 10px;
 `;
 
-const MenuItemsWrapper = styled.div`
+const Wrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -30,11 +30,9 @@ class OpenNextPanelWithButtonControl extends BaseControl<
   }
 
   openConfigPanel = () => {
-    const targetMenuItem = this.props.propertyValue;
-
     this.props.openNextPanel({
       index: 0,
-      ...targetMenuItem,
+      ...this.props.propertyValue,
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
@@ -45,7 +43,7 @@ class OpenNextPanelWithButtonControl extends BaseControl<
     const { widgetName } = widgetProperties;
 
     return (
-      <MenuItemsWrapper>
+      <Wrapper>
         <StyledPropertyPaneButtonWrapper>
           <OpenNextPannelButton
             category={Category.tertiary}
@@ -59,12 +57,12 @@ class OpenNextPanelWithButtonControl extends BaseControl<
             type="button"
           />
         </StyledPropertyPaneButtonWrapper>
-      </MenuItemsWrapper>
+      </Wrapper>
     );
   }
 
   static getControlType() {
-    return "OPEN_NEXT_PANEL_WITH_BUTTON";
+    return "OPEN_CONFIG_PANEL";
   }
 }
 

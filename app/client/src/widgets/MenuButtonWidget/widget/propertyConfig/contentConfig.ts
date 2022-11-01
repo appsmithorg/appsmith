@@ -82,7 +82,7 @@ export default [
       {
         helpText: "Configure how each menu item will appear.",
         propertyName: "configureMenuItems",
-        controlType: "OPEN_NEXT_PANEL_WITH_BUTTON",
+        controlType: "OPEN_CONFIG_PANEL",
         buttonConfig: {
           label: "Item Configuration",
           icon: "settings-2-line",
