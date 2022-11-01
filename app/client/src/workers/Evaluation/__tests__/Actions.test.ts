@@ -343,6 +343,44 @@ describe("Add functions", () => {
     });
   });
 
+  it("removeValue works", () => {
+    const key = "some";
+
+    expect(dataTreeWithFunctions.removeValue(key)).resolves.toBe({});
+    expect(workerEventMock).lastCalledWith({
+      type: "PROCESS_TRIGGER",
+      requestId: "EVAL_TRIGGER",
+      promisified: true,
+      responseData: {
+        errors: [],
+        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
+        trigger: {
+          type: "REMOVE_VALUE",
+          payload: {
+            key,
+          },
+        },
+      },
+    });
+  });
+
+  it("clearStore works", () => {
+    expect(dataTreeWithFunctions.clearStore()).resolves.toBe({});
+    expect(workerEventMock).lastCalledWith({
+      type: "PROCESS_TRIGGER",
+      requestId: "EVAL_TRIGGER",
+      promisified: true,
+      responseData: {
+        errors: [],
+        subRequestId: expect.stringContaining("EVAL_TRIGGER_"),
+        trigger: {
+          type: "CLEAR_STORE",
+          payload: null,
+        },
+      },
+    });
+  });
+
   it("download works", () => {
     const data = "file";
     const name = "downloadedFile.txt";
