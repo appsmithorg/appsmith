@@ -1,14 +1,11 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import {
-  MenuItemsSource,
-  MenuButtonWidgetProps,
-  ICON_NAMES,
-} from "../../constants";
-import { getAutocompleteProperties } from "../helper";
+import { MenuItemsSource, MenuButtonWidgetProps } from "../../constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { arrayOfValuesWithMaxLengthTen } from "widgets/MenuButtonWidget/validations";
+import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
+import menuItemsConfig from "./childPanels/menuItemsConfig";
 
 export default [
   {
@@ -55,145 +52,14 @@ export default [
         hidden: (props: MenuButtonWidgetProps) =>
           props.menuItemsSource === MenuItemsSource.DYNAMIC,
         dependencies: ["menuItemsSource"],
-        panelConfig: {
-          editableTitle: true,
-          titlePropertyName: "label",
-          panelIdPropertyName: "id",
-          updateHook: (
-            props: any,
-            propertyPath: string,
-            propertyValue: string,
-          ) => {
-            return [
-              {
-                propertyPath,
-                propertyValue,
-              },
-            ];
-          },
-          contentChildren: [
-            {
-              sectionName: "Basic",
-              children: [
-                {
-                  propertyName: "label",
-                  helpText: "Sets the label of a menu item",
-                  label: "Label",
-                  controlType: "INPUT_TEXT",
-                  placeholderText: "Download",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
-                },
-                {
-                  helpText: "Triggers an action when the menu item is clicked",
-                  propertyName: "onClick",
-                  label: "onClick",
-                  controlType: "ACTION_SELECTOR",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: true,
-                },
-              ],
-            },
-            {
-              sectionName: "General",
-              children: [
-                {
-                  propertyName: "isVisible",
-                  helpText: "Controls the visibility of the widget",
-                  label: "Visible",
-                  controlType: "SWITCH",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: { type: ValidationTypes.BOOLEAN },
-                },
-                {
-                  propertyName: "isDisabled",
-                  helpText: "Disables input to the widget",
-                  label: "Disabled",
-                  controlType: "SWITCH",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: { type: ValidationTypes.BOOLEAN },
-                },
-              ],
-            },
-          ],
-          styleChildren: [
-            {
-              sectionName: "Icon",
-              children: [
-                {
-                  propertyName: "iconName",
-                  label: "Icon",
-                  helpText: "Sets the icon to be used for a menu item",
-                  controlType: "ICON_SELECT",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
-                },
-                {
-                  propertyName: "iconAlign",
-                  label: "Position",
-                  helpText: "Sets the icon alignment of a menu item",
-                  controlType: "ICON_TABS",
-                  options: [
-                    {
-                      icon: "VERTICAL_LEFT",
-                      value: "left",
-                    },
-                    {
-                      icon: "VERTICAL_RIGHT",
-                      value: "right",
-                    },
-                  ],
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
-                },
-              ],
-            },
-            {
-              sectionName: "Color",
-              children: [
-                {
-                  propertyName: "iconColor",
-                  helpText: "Sets the icon color of a menu item",
-                  label: "Icon color",
-                  controlType: "COLOR_PICKER",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                },
-                {
-                  propertyName: "textColor",
-                  helpText: "Sets the text color of a menu item",
-                  label: "Text color",
-                  controlType: "COLOR_PICKER",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                },
-                {
-                  propertyName: "backgroundColor",
-                  helpText: "Sets the background color of a menu item",
-                  label: "Background color",
-                  controlType: "COLOR_PICKER",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                },
-              ],
-            },
-          ],
-        },
+        panelConfig: menuItemsConfig,
       },
       {
         helpText: "Takes in an array of items to display the menu items.",
         propertyName: "sourceData",
         label: "Source Data",
         controlType: "INPUT_TEXT",
-        placeholderText: "{{Table1.tableData}}",
+        placeholderText: "{{Query1.data}}",
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -214,8 +80,7 @@ export default [
         dependencies: ["menuItemsSource"],
       },
       {
-        helpText:
-          "Configure each menu item using {{currentItem}} binding. You can change properties like label, visibilty, disabled state, background color etc. for each menu item using this.",
+        helpText: "Configure how each menu item will appear.",
         propertyName: "configureMenuItems",
         controlType: "OPEN_NEXT_PANEL_WITH_BUTTON",
         buttonConfig: {
@@ -228,212 +93,7 @@ export default [
         hidden: (props: MenuButtonWidgetProps) =>
           props.menuItemsSource === MenuItemsSource.STATIC || !props.sourceData,
         dependencies: ["menuItemsSource", "sourceData"],
-        panelConfig: {
-          editableTitle: false,
-          titlePropertyName: "label",
-          panelIdPropertyName: "id",
-          updateHook: (
-            props: any,
-            propertyPath: string,
-            propertyValue: string,
-          ) => {
-            return [
-              {
-                propertyPath,
-                propertyValue,
-              },
-            ];
-          },
-          contentChildren: [
-            {
-              sectionName: "General",
-              children: [
-                {
-                  propertyName: "label",
-                  helpText: "Sets the label of a menu item",
-                  label: "Label",
-                  controlType: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  placeholderText: "{{currentItem.name}}",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                    },
-                  },
-                  dependencies: ["sourceDataKeys"],
-                },
-                {
-                  propertyName: "isVisible",
-                  helpText: "Controls the visibility of the widget",
-                  label: "Visible",
-                  controlType: "SWITCH",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.BOOLEAN,
-                    },
-                  },
-                  customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  dependencies: ["sourceDataKeys"],
-                },
-                {
-                  propertyName: "isDisabled",
-                  helpText: "Disables input to the widget",
-                  label: "Disabled",
-                  controlType: "SWITCH",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.BOOLEAN,
-                    },
-                  },
-                  customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  dependencies: ["sourceDataKeys"],
-                },
-              ],
-            },
-            {
-              sectionName: "Events",
-              children: [
-                {
-                  helpText: "Triggers an action when the menu item is clicked",
-                  propertyName: "onClick",
-                  label: "onClick",
-                  controlType: "ACTION_SELECTOR",
-                  isJSConvertible: true,
-                  isBindProperty: true,
-                  isTriggerProperty: true,
-                  additionalAutoComplete: getAutocompleteProperties,
-                  dependencies: ["sourceDataKeys"],
-                },
-              ],
-            },
-          ],
-          styleChildren: [
-            {
-              sectionName: "Icon",
-              children: [
-                {
-                  propertyName: "iconName",
-                  label: "Icon",
-                  helpText: "Sets the icon to be used for a menu item",
-                  controlType: "ICON_SELECT",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  isJSConvertible: true,
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        allowedValues: ICON_NAMES,
-                      },
-                    },
-                  },
-                  customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  dependencies: ["sourceDataKeys"],
-                },
-                {
-                  propertyName: "iconAlign",
-                  label: "Position",
-                  helpText: "Sets the icon alignment of a menu item",
-                  controlType: "ICON_TABS",
-                  options: [
-                    {
-                      icon: "VERTICAL_LEFT",
-                      value: "left",
-                    },
-                    {
-                      icon: "VERTICAL_RIGHT",
-                      value: "right",
-                    },
-                  ],
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  isJSConvertible: true,
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      params: {
-                        allowedValues: ["center", "left", "right"],
-                      },
-                    },
-                  },
-                  customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  dependencies: ["sourceDataKeys"],
-                },
-              ],
-            },
-            {
-              sectionName: "Color",
-              children: [
-                {
-                  propertyName: "iconColor",
-                  helpText: "Sets the icon color of a menu item",
-                  label: "Icon color",
-                  controlType: "COLOR_PICKER",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  isJSConvertible: true,
-                  customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  dependencies: ["sourceDataKeys"],
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      regex: /^(?![<|{{]).+/,
-                    },
-                  },
-                },
-                {
-                  propertyName: "backgroundColor",
-                  helpText: "Sets the background color of a menu item",
-                  label: "Background color",
-                  controlType: "COLOR_PICKER",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  isJSConvertible: true,
-                  customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  dependencies: ["sourceDataKeys"],
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      regex: /^(?![<|{{]).+/,
-                    },
-                  },
-                },
-                {
-                  propertyName: "textColor",
-                  helpText: "Sets the text color of a menu item",
-                  label: "Text color",
-                  controlType: "COLOR_PICKER",
-                  isBindProperty: true,
-                  isTriggerProperty: false,
-                  isJSConvertible: true,
-                  customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-                  dependencies: ["sourceDataKeys"],
-                  validation: {
-                    type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
-                    params: {
-                      type: ValidationTypes.TEXT,
-                      regex: /^(?![<|{{]).+/,
-                    },
-                  },
-                },
-              ],
-            },
-          ],
-        },
+        panelConfig: configureMenuItemsConfig,
       },
     ],
   },
