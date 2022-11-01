@@ -79,8 +79,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuples;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -2717,12 +2719,12 @@ public class ActionServiceCE_Test {
 
                 });
 
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data"))));
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.prev", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.prev"))));
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.next", EVALUATION_VERSION))
-                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.next"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("paginatedApi.data"), EVALUATION_VERSION))
+                .thenReturn(Flux.just(Tuples.of("paginatedApi.data", new HashSet<>(Set.of("paginatedApi.data")))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("paginatedApi.data.prev"), EVALUATION_VERSION))
+                .thenReturn(Flux.just(Tuples.of("paginatedApi.data.prev", new HashSet<>(Set.of("paginatedApi.data.prev")))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("paginatedApi.data.next"), EVALUATION_VERSION))
+                .thenReturn(Flux.just(Tuples.of("paginatedApi.data.next", new HashSet<>(Set.of("paginatedApi.data.next")))));
 
         StepVerifier
                 .create(testMono)
