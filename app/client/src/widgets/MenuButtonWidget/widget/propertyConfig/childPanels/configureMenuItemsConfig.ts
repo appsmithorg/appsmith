@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { ICON_NAMES } from "../../../constants";
-import { getAutocompleteProperties } from "../../helper";
+import { getSourceDataKeysForEventAutocomplete } from "../../helper";
 
 export default {
   editableTitle: false,
@@ -85,7 +85,7 @@ export default {
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: true,
-          additionalAutoComplete: getAutocompleteProperties,
+          additionalAutoComplete: getSourceDataKeysForEventAutocomplete,
           dependencies: ["sourceDataKeys"],
         },
       ],

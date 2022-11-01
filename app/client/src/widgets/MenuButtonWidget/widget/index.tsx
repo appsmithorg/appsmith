@@ -6,6 +6,7 @@ import { MinimumPopupRows } from "widgets/constants";
 import { MenuButtonWidgetProps } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
+import equal from "fast-deep-equal/es6";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -70,18 +71,11 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   componentDidUpdate = (prevProps: MenuButtonWidgetProps) => {
-    const isSourceDataModified =
-      JSON.stringify(prevProps.sourceData) !==
-      JSON.stringify(this.props.sourceData);
-
-    if (isSourceDataModified) {
+    if (!equal(prevProps.sourceData, this.props.sourceData)) {
       super.updateWidgetProperty("sourceDataKeys", this.getSourceDataKeys());
     }
 
-    const hasMenuItemsSourceChanged =
-      prevProps.menuItemsSource !== this.props.menuItemsSource;
-
-    if (hasMenuItemsSourceChanged) {
+    if (!equal(prevProps.menuItemsSource, this.props.menuItemsSource)) {
       this.createInitialDynamicMenuItemsProperties();
     }
   };

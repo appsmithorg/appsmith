@@ -1,6 +1,8 @@
 import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
 
-export const getAutocompleteProperties = (props: MenuButtonWidgetProps) => {
+export const getSourceDataKeysForEventAutocomplete = (
+  props: MenuButtonWidgetProps,
+) => {
   if (props.menuItemsSource === MenuItemsSource.STATIC) {
     return;
   }
@@ -10,11 +12,9 @@ export const getAutocompleteProperties = (props: MenuButtonWidgetProps) => {
   }
 
   return {
-    currentItem: Object.assign(
+    currentItem: props.sourceDataKeys.reduce(
+      (prev, cur) => ({ ...prev, [cur]: "" }),
       {},
-      ...props.sourceDataKeys.map((key) => ({
-        [key]: "",
-      })),
     ),
   };
 };
