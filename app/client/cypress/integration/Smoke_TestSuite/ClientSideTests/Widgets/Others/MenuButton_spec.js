@@ -149,5 +149,70 @@ describe("Menu Button Widget Functionality", () => {
     cy.get(".bp3-menu-item")
       .eq(2)
       .contains("Brock");
+
+    cy.closePropertyPane();
+  });
+
+  it("4. Disable one dynamic item using {{currentItem}} binding", function() {
+    cy.openPropertyPane("menubuttonwidget");
+    cy.moveToContentTab();
+
+    // Open configure array item panel
+    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+      force: true,
+    });
+
+    // Update disabled JS binding
+    cy.get(commonlocators.Disablejs)
+      .find(".t--js-toggle")
+      .first()
+      .click({ force: true });
+    cy.testJsontext("disabled", `{{currentItem.first_name === "Lindsay"}}`);
+    cy.wait(1000);
+
+    // Check if the 2nd item is disabled
+    cy.get(`${formWidgetsPage.menuButtonWidget} button`).click({
+      force: true,
+    });
+    cy.wait(500);
+    cy.get(".bp3-menu-item")
+      .eq(1)
+      .should("have.class", "bp3-disabled");
+
+    cy.closePropertyPane();
+  });
+
+  it("5. Apply background color to dynamic items using {{currentItem}} binding", function() {
+    cy.openPropertyPane("menubuttonwidget");
+    cy.moveToContentTab();
+
+    // Open configure array item panel
+    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+      force: true,
+    });
+    cy.moveToStyleTab();
+
+    // Update disabled JS binding
+    cy.get(".t--property-control-backgroundcolor .t--js-toggle").click();
+    cy.updateCodeInput(
+      ".t--property-control-backgroundcolor",
+      `{{currentItem.first_name === "Michael" ? "rgb(255, 165, 0)" : "rgb(0, 128, 0)"}}`,
+    );
+    cy.wait(1000);
+
+    cy.get(`${formWidgetsPage.menuButtonWidget} button`).click({
+      force: true,
+    });
+    cy.wait(500);
+
+    // Check if the 1st item has orange background color
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .should("have.css", "background-color", "rgb(255, 165, 0)");
+
+    // Check if the 3rd item has green background color
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.css", "background-color", "rgb(0, 128, 0)");
   });
 });
