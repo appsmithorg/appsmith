@@ -15,8 +15,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select } from "redux-saga/effects";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import {
   CHANGE_APP_THEME,
   createMessage,

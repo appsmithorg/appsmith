@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface AstServiceCE {
@@ -18,4 +19,6 @@ public interface AstServiceCE {
      * @return A mono of list of strings that represent all valid global references in the binding string
      */
     Mono<Set<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion);
+
+    Mono<Map<String, String>> refactorNameInDynamicBindings(Set<String> bindingValues, String oldName, String newName, int evalVersion);
 }

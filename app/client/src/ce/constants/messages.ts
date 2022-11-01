@@ -390,6 +390,8 @@ export const SHOW_MESSAGE = () => `Show message`;
 export const OPEN_MODAL = () => `Open modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const STORE_VALUE = () => `Store value`;
+export const REMOVE_VALUE = () => `Remove value`;
+export const CLEAR_STORE = () => `Clear store`;
 export const DOWNLOAD = () => `Download`;
 export const COPY_TO_CLIPBOARD = () => `Copy to clipboard`;
 export const RESET_WIDGET = () => `Reset widget`;
@@ -1024,7 +1026,6 @@ export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit Logs";
-export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
 export const INTRODUCING = (featureName: string) =>

@@ -14,6 +14,7 @@ import {
   ScrollIndicator,
   Toaster,
   TooltipComponent as Tooltip,
+  Variant,
 } from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -34,7 +35,6 @@ import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Indices, Layers } from "constants/Layers";
-import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "@appsmith/reducers";
