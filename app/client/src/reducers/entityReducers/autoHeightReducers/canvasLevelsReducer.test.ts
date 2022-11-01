@@ -32,7 +32,7 @@ describe("Canvas Levels Reducer", () => {
 
     const payload2 = {
       canvasLevelMap: {
-        1: 1
+        1: 1,
       },
     };
     const expected = {
