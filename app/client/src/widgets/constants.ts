@@ -4,14 +4,15 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "components/constants";
+import { Theme } from "constants/DefaultTheme";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import { omit } from "lodash";
+import moment from "moment";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
-import moment from "moment";
 
 export interface WidgetConfiguration {
   type: string;
@@ -280,3 +281,6 @@ export const dateFormatOptions = [
 ];
 
 export const DRAG_MARGIN = 4;
+export type ThemeProp = {
+  theme: Theme;
+};

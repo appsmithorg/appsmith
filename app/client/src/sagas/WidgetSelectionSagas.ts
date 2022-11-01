@@ -16,10 +16,9 @@ import {
   selectWidgetInitAction,
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
-import { Variant } from "components/ads/common";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import log from "loglevel";
 import {
   CanvasWidgetsReduxState,

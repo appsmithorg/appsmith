@@ -1,5 +1,12 @@
 import React from "react";
-import { Button, Category, Icon, IconSize, Size } from "design-system";
+import {
+  Button,
+  Category,
+  hexToRgba,
+  Icon,
+  IconSize,
+  Size,
+} from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -15,7 +22,6 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { hexToRgba } from "components/ads/common";
 import { AppIcon } from "design-system";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
