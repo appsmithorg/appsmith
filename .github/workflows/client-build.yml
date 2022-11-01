@@ -51,9 +51,21 @@ jobs:
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
+
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      
+      # Create a run record exactly at the time of merge to release to  
+      # ensure we compare run details with code at this point
+      - name: Create Perf Meta
+        continue-on-error: true
+        run: |
+          PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
+          -U aforce_admin -d perf-infra -c \
+          "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active) 
+          VALUES ('${{github.repository}}',${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
+
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
