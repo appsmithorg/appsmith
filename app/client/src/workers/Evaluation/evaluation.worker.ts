@@ -145,8 +145,9 @@ function eventRequestHandler({
       break;
     }
     case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
+    case EVAL_WORKER_ACTIONS.LINT_TREE:
       /**
-       * This action will not be processed here. This is handled in the eval trigger sub steps
+       * These actions will not be processed here. They will be handled in the eval trigger sub steps
        * @link promisifyAction
        **/
       break;
@@ -260,7 +261,7 @@ function eventRequestHandler({
               lintOrder,
               jsUpdates,
               unevalTree: dataTreeEvaluator.oldUnEvalTree,
-              type: "LINT_TREE",
+              type: EVAL_WORKER_ACTIONS.LINT_TREE,
             },
           });
 
@@ -300,7 +301,7 @@ function eventRequestHandler({
               lintOrder,
               jsUpdates,
               unevalTree: dataTreeEvaluator.oldUnEvalTree,
-              type: "LINT_TREE",
+              type: EVAL_WORKER_ACTIONS.LINT_TREE,
             },
           });
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -329,7 +330,7 @@ function eventRequestHandler({
               lintOrder,
               jsUpdates,
               unevalTree: dataTreeEvaluator.oldUnEvalTree,
-              type: "LINT_TREE",
+              type: EVAL_WORKER_ACTIONS.LINT_TREE,
             },
           });
           nonDynamicFieldValidationOrder =
