@@ -24,7 +24,7 @@ import {
   ButtonVariantTypes,
 } from "components/constants";
 import { ScannerLayout } from "../constants";
-import { ThemeProp } from "components/ads/common";
+import { ThemeProp } from "widgets/constants";
 import { ReactComponent as FlipImageIcon } from "assets/icons/widget/codeScanner/flip.svg";
 import { usePageVisibility } from "react-page-visibility";
 
@@ -536,7 +536,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
       </div>
     );
 
-    const alwaysOn = error ? errorMessage : codeScannerCameraContainer;
+    const scanAlways = error ? errorMessage : codeScannerCameraContainer;
 
     const scanInAModal = (
       <Modal
@@ -551,14 +551,6 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
       </Modal>
     );
 
-    const renderVariant = () => {
-      if (props.scannerLayout === ScannerLayout.ALWAYS_ON) {
-        return alwaysOn;
-      }
-
-      return scanInAModal;
-    };
-
     return (
       <>
         <CodeScannerGlobalStyles
@@ -568,7 +560,9 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
           scannerLayout={props.scannerLayout}
         />
 
-        {renderVariant()}
+        {props.scannerLayout === ScannerLayout.ALWAYS_ON
+          ? scanAlways
+          : scanInAModal}
       </>
     );
   };
