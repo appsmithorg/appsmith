@@ -9,13 +9,15 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+import org.jgrapht.traverse.DepthFirstIterator;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +57,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
@@ -73,24 +76,36 @@ public class PolicyGeneratorCE {
     /**
      * This graph defines the hierarchy of permissions from parent objects
      */
-    protected Graph<AclPermission, DefaultEdge> hierarchyGraph = new DirectedMultigraph<>(DefaultEdge.class);
+    protected Graph<AclPermission, DefaultEdge> hierarchyGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
 
     /**
      * This graph defines the permissions that must be given to a user given that they have another permission
      * Eg: If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION permission
      */
-    protected Graph<AclPermission, DefaultEdge> lateralGraph = new DirectedMultigraph<>(DefaultEdge.class);
+    protected Graph<AclPermission, DefaultEdge> lateralGraph = new DirectedAcyclicGraph<>(DefaultEdge.class);
 
     @PostConstruct
     public void createPolicyGraph() {
 
+        // Initialization of the hierarchical and lateral graphs by adding all the vertices
+        addVertices();
+
+        createPolicyGraphForEachType();
+
+        addLateralEdgesForAllIndirectRelationships();
+
+    }
+
+    protected void addVertices() {
         // Initialization of the hierarchical and lateral graphs by adding all the vertices
         EnumSet.allOf(AclPermission.class)
                 .forEach(permission -> {
                     hierarchyGraph.addVertex(permission);
                     lateralGraph.addVertex(permission);
                 });
+    }
 
+    protected void createPolicyGraphForEachType() {
         createInstancePolicyGraph();
         createUserPolicyGraph();
         createWorkspacePolicyGraph();
@@ -101,6 +116,31 @@ public class PolicyGeneratorCE {
         createCommentPolicyGraph();
         createThemePolicyGraph();
         createPermissionGroupPolicyGraph();
+    }
+
+    protected void addLateralEdgesForAllIndirectRelationships() {
+        Set<AclPermission> vertices = lateralGraph.vertexSet();
+
+        for (AclPermission vertex : vertices) {
+            Set<AclPermission> allDescendants = getAllDescendants(vertex, lateralGraph);
+            for (AclPermission descendant : allDescendants) {
+                lateralGraph.addEdge(vertex, descendant);
+            }
+        }
+    }
+
+    private Set<AclPermission> getAllDescendants(AclPermission vertex, Graph<AclPermission, DefaultEdge> graph) {
+        Iterator<AclPermission> iterator = new DepthFirstIterator<>(graph, vertex);
+        Set<AclPermission> descendants = new HashSet<>();
+
+        // Do not add start vertex to result.
+        if (iterator.hasNext()) {
+            iterator.next();
+        }
+
+        iterator.forEachRemaining(descendants::add);
+
+        return descendants;
     }
 
     protected void createInstancePolicyGraph() {
@@ -116,14 +156,33 @@ public class PolicyGeneratorCE {
     }
 
     protected void createWorkspacePolicyGraph() {
+
+        // Add the must-have side effects of edit on workspace
         lateralGraph.addEdge(MANAGE_WORKSPACES, READ_WORKSPACES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, DELETE_WORKSPACES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_DATASOURCES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_DATASOURCES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_PUBLISH_APPLICATIONS);
+
+        lateralGraph.addEdge(WORKSPACE_CREATE_APPLICATION, WORKSPACE_MANAGE_APPLICATIONS);
+        lateralGraph.addEdge(WORKSPACE_CREATE_APPLICATION, WORKSPACE_DELETE_APPLICATIONS);
+
+        // Add the must-have side effects of manage all applications
+        lateralGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS);
+        lateralGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_PUBLISH_APPLICATIONS);
+
+        lateralGraph.addEdge(WORKSPACE_DELETE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS);
+        lateralGraph.addEdge(WORKSPACE_EXPORT_APPLICATIONS, WORKSPACE_READ_APPLICATIONS);
+        // Add the must-have side effects of delete workspaces
         lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_APPLICATIONS);
         lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_DATASOURCES);
+        // Add the must-have side effects of datasource permissions
+        lateralGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, WORKSPACE_MANAGE_DATASOURCES);
+        lateralGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, WORKSPACE_DELETE_DATASOURCES);
+        lateralGraph.addEdge(WORKSPACE_MANAGE_DATASOURCES, WORKSPACE_READ_DATASOURCES);
+        lateralGraph.addEdge(WORKSPACE_DELETE_DATASOURCES, WORKSPACE_READ_DATASOURCES);
     }
 
     protected void createDatasourcePolicyGraph() {
@@ -227,11 +286,8 @@ public class PolicyGeneratorCE {
             return Collections.emptySet();
         }
 
-        if(policy.getPermissionGroups() == null) {
-            policy.setPermissionGroups(new HashSet<>());
-        }
+        if (policy.getPermissionGroups() == null) {
         // Check the hierarchy graph to derive child permissions that must be given to this
-        // document
         Set<Policy> childPolicySet = new HashSet<>();
         Set<DefaultEdge> edges = hierarchyGraph.outgoingEdgesOf(aclPermission);
         for (DefaultEdge edge : edges) {
