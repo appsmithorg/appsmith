@@ -2,7 +2,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const jsEditor = ObjectsRegistry.JSEditor;
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Tests fetch and xhr calls", () => {
+describe("Tests fetch calls", () => {
   it("Ensures that cookies are not passed with fetch calls", function() {
     jsEditor.CreateJSObject(
       `export default {
