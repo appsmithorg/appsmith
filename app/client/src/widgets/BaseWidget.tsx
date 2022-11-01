@@ -262,6 +262,7 @@ abstract class BaseWidget<
             errorCount={this.getErrorCount(
               get(this.props, EVAL_ERROR_PATH, {}),
             )}
+            isFlexChild={!!this.props.isFlexChild}
             parentId={this.props.parentId}
             showControls={showControls}
             topRow={this.props.detachFromLayout ? 4 : this.props.topRow}

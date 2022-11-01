@@ -1,9 +1,9 @@
-import { createSelector } from "reselect";
-import { getWidgets } from "sagas/selectors";
 import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { createSelector } from "reselect";
+import { getWidgets } from "sagas/selectors";
 
 export const getFlexLayers = (parentId: string) => {
   return createSelector(getWidgets, (widgets): FlexLayer[] => {
@@ -32,7 +32,6 @@ export const getLayerIndex = (widgetId: string, parentId: string) => {
       const selectedLayer = layers.find((layer: FlexLayer) =>
         layer.children.some((child: LayerChild) => child.id === widgetId),
       );
-      console.log("#### layers", layers, selectedLayer);
       if (!selectedLayer) return -1;
       return selectedLayer.children?.findIndex(
         (child: LayerChild) => child.id === widgetId,

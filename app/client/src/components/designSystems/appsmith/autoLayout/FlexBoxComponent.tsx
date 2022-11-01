@@ -9,8 +9,8 @@ import {
   Overflow,
 } from "components/constants";
 import { useSelector } from "react-redux";
-import AutoLayoutLayer from "./AutoLayoutLayer";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
+import AutoLayoutLayer from "./AutoLayoutLayer";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;

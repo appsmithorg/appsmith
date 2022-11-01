@@ -1,26 +1,26 @@
-import React from "react";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import SettingsControl, { Activities } from "./SettingsControl";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { bindDataToWidget } from "actions/propertyPaneActions";
 import { WidgetType } from "constants/WidgetConstants";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import WidgetFactory from "utils/WidgetFactory";
-
-const WidgetTypes = WidgetFactory.widgetTypes;
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { hideErrors } from "selectors/debuggerSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { bindDataToWidget } from "actions/propertyPaneActions";
-import { hideErrors } from "selectors/debuggerSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
+import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import WidgetFactory from "utils/WidgetFactory";
+import SettingsControl, { Activities } from "./SettingsControl";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -52,6 +52,7 @@ type WidgetNameComponentProps = {
   showControls?: boolean;
   topRow: number;
   errorCount: number;
+  isFlexChild: boolean;
 };
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
@@ -164,7 +165,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
       isSnipingMode={isSnipingMode}
-      topRow={props.topRow}
+      topRow={props.isFlexChild ? 0 : props.topRow}
     >
       <ControlGroup>
         <SettingsControl
