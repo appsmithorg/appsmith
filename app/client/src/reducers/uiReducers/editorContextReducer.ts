@@ -1,10 +1,7 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export type SelectedPropertyPanel = {
-  path: string;
-  index: number;
-};
+export type SelectedPropertyPanel = { [path: string]: number };
 
 export type EvaluatedPopupState = {
   type: boolean;
@@ -17,7 +14,6 @@ export type CodeEditorContext = {
 };
 
 export type PropertyPanelContext = {
-  focusableField?: string;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
 };
@@ -33,7 +29,7 @@ export type EditorContextState = {
   subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
   focusableField?: string;
-  selectedPropertyPanel?: SelectedPropertyPanel;
+  selectedPropertyPanel: SelectedPropertyPanel;
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
@@ -50,6 +46,7 @@ const initialState: EditorContextState = {
   entityCollapsibleFields: {},
   subEntityCollapsibleFields: {},
   explorerSwitchIndex: 0,
+  selectedPropertyPanel: {},
 };
 
 const entitySections = ["Pages", "Widgets", "Queries/JS", "Datasources"];
@@ -62,7 +59,7 @@ export const isSubEntities = (name: string): boolean => {
  * Context Reducer to store states of different components of editor
  */
 export const editorContextReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_WIDGET_FOCUSABLE_PROPERTY_FIELD]: (
+  [ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD]: (
     state: EditorContextState,
     action: {
       payload: { path: string };
@@ -75,6 +72,26 @@ export const editorContextReducer = createImmerReducer(initialState, {
     state: EditorContextState,
     action: {
       payload: { path: string; index: number };
+    },
+  ) => {
+    const { index, path } = action.payload;
+    if (path) {
+      state.selectedPropertyPanel[path] = index;
+    }
+  },
+  [ReduxActionTypes.DELETE_SELECTED_PANEL_PROPERTY]: (
+    state: EditorContextState,
+    action: {
+      payload: string | undefined;
+    },
+  ) => {
+    if (action.payload && action.payload in state.selectedPropertyPanel)
+      delete state.selectedPropertyPanel[action.payload];
+  },
+  [ReduxActionTypes.SET_SELECTED_PANELS]: (
+    state: EditorContextState,
+    action: {
+      payload: SelectedPropertyPanel;
     },
   ) => {
     state.selectedPropertyPanel = action.payload;
@@ -132,50 +149,41 @@ export const editorContextReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedDebuggerTab = action.payload;
   },
-  [ReduxActionTypes.SET_PANEL_FOCUSABLE_PROPERTY_FIELD]: (
-    state: EditorContextState,
-    action: {
-      payload: { path: string; panelName: string };
-    },
-  ) => {
-    const { panelName, path } = action.payload;
-    if (!state.propertyPanelState[panelName])
-      state.propertyPanelState[panelName] = {
-        propertySectionState: {},
-        selectedPropertyTabIndex: 0,
-      };
-
-    state.propertyPanelState[panelName].focusableField = path;
-  },
   [ReduxActionTypes.SET_PANEL_SELECTED_PROPERTY_TAB_INDEX]: (
     state: EditorContextState,
-    action: { payload: { index: number; panelName: string } },
+    action: { payload: { index: number; panelPropertyPath: string } },
   ) => {
-    const { index, panelName } = action.payload;
-    if (!state.propertyPanelState[panelName]) {
-      state.propertyPanelState[panelName] = {
+    const { index, panelPropertyPath } = action.payload;
+    if (!state.propertyPanelState[panelPropertyPath]) {
+      state.propertyPanelState[panelPropertyPath] = {
         propertySectionState: {},
         selectedPropertyTabIndex: index,
       };
     } else {
-      state.propertyPanelState[panelName].selectedPropertyTabIndex = index;
+      state.propertyPanelState[
+        panelPropertyPath
+      ].selectedPropertyTabIndex = index;
     }
   },
   [ReduxActionTypes.SET_PANEL_PROPERTY_SECTION_STATE]: (
     state: EditorContextState,
-    action: { payload: { key: string; isOpen: boolean; panelName: string } },
+    action: {
+      payload: { key: string; isOpen: boolean; panelPropertyPath: string };
+    },
   ) => {
-    const { isOpen, key, panelName } = action.payload;
+    const { isOpen, key, panelPropertyPath } = action.payload;
     if (!key) return;
 
-    if (!state.propertyPanelState[panelName]) {
-      state.propertyPanelState[panelName] = {
+    if (!state.propertyPanelState[panelPropertyPath]) {
+      state.propertyPanelState[panelPropertyPath] = {
         propertySectionState: {},
         selectedPropertyTabIndex: 0,
       };
     }
 
-    state.propertyPanelState[panelName].propertySectionState[key] = isOpen;
+    state.propertyPanelState[panelPropertyPath].propertySectionState[
+      key
+    ] = isOpen;
   },
   [ReduxActionTypes.SET_PANEL_PROPERTIES_STATE]: (
     state: EditorContextState,

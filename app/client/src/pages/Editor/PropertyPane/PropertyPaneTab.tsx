@@ -73,16 +73,17 @@ type PropertyPaneTabProps = {
   styleComponent: JSX.Element | null;
   contentComponent: JSX.Element | null;
   isPanelProperty?: boolean;
+  panelPropertyPath: string;
 };
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
   const dispatch = useDispatch();
   const selectedIndex = useSelector((state: AppState) =>
-    getSelectedPropertyTabIndex(state, !!props.isPanelProperty),
+    getSelectedPropertyTabIndex(state, props.panelPropertyPath),
   );
 
   const setSelectedIndex = (index: number) => {
-    dispatch(setSelectedPropertyTabIndex(index, !!props.isPanelProperty));
+    dispatch(setSelectedPropertyTabIndex(index, props.panelPropertyPath));
   };
 
   const tabs = useMemo(() => {

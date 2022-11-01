@@ -151,7 +151,7 @@ function* storeStateOfPage(pageId: string) {
     // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
-  if (previousURL.includes(pageId)) {
+  if (previousURL && previousURL.includes(pageId)) {
     state._routingURL = previousURL;
   } else {
     state._routingURL = undefined;

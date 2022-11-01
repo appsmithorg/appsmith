@@ -14,11 +14,29 @@ export const setFocusableField = (path: string | undefined) => {
 };
 
 export const setSelectedPropertyPanel = (
-  selectedPropertyPanel?: SelectedPropertyPanel,
+  path: string | undefined,
+  index: number,
 ) => {
   return {
     type: ReduxActionTypes.SET_SELECTED_PANEL_PROPERTY,
-    payload: selectedPropertyPanel,
+    payload: {
+      path,
+      index,
+    },
+  };
+};
+
+export const deleteSelectedPropertyPanel = (path: string | undefined) => {
+  return {
+    type: ReduxActionTypes.DELETE_SELECTED_PANEL_PROPERTY,
+    payload: path,
+  };
+};
+
+export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
+  return {
+    type: ReduxActionTypes.SET_SELECTED_PANELS,
+    payload,
   };
 };
 
@@ -66,11 +84,11 @@ export const setAllPropertySectionState = (payload: {
 
 export const setSelectedPropertyTabIndex = (
   selectedIndex: number,
-  isPanelProperty?: boolean,
+  panelPropertyPath?: string,
 ) => {
   return {
     type: ReduxActionTypes.SET_SELECTED_PROPERTY_TAB_INDEX,
-    payload: { index: selectedIndex, isPanelProperty },
+    payload: { index: selectedIndex, panelPropertyPath },
   };
 };
 
@@ -81,38 +99,24 @@ export const setCanvasDebuggerSelectedTab = (selectedTab: string) => {
   };
 };
 
-export const setPanelFocusableField = (path: string, panelName: string) => {
-  return {
-    type: ReduxActionTypes.SET_PANEL_FOCUSABLE_PROPERTY_FIELD,
-    payload: { path, panelName },
-  };
-};
-
 export const setPanelSelectedPropertyTabIndex = (
   index: number,
-  panelName: string,
+  panelPropertyPath: string,
 ) => {
   return {
     type: ReduxActionTypes.SET_PANEL_SELECTED_PROPERTY_TAB_INDEX,
-    payload: { index, panelName },
+    payload: { index, panelPropertyPath },
   };
 };
 
 export const setPanelPropertySectionState = (
   key: string,
   isOpen: boolean,
-  panelName: string,
+  panelPropertyPath: string,
 ) => {
   return {
     type: ReduxActionTypes.SET_PANEL_PROPERTY_SECTION_STATE,
-    payload: { key, isOpen, panelName },
-  };
-};
-
-export const setWidgetFocusableField = (path: string) => {
-  return {
-    type: ReduxActionTypes.SET_WIDGET_FOCUSABLE_PROPERTY_FIELD,
-    payload: { path },
+    payload: { key, isOpen, panelPropertyPath },
   };
 };
 

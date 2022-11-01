@@ -133,7 +133,7 @@ export const metaReducer = createReducer(initialState, {
     state: MetaState,
     action: ReduxAction<MetaState>,
   ) => {
-    return action.payload || {};
+    return action.payload || initialState;
   },
 });
 

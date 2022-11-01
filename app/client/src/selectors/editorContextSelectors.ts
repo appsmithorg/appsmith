@@ -42,33 +42,28 @@ export const getExplorerSwitchIndex = (state: AppState) =>
   state.ui.editorContext.explorerSwitchIndex;
 
 export const getPanelPropertyContext = createSelector(
-  getSelectedPropertyPanel,
   getPropertyPanelState,
+  (_state: AppState, panelPropertyPath: string | undefined) =>
+    panelPropertyPath,
   (
-    selectedPropertyPanel: SelectedPropertyPanel | undefined,
     propertyPanelState: PropertyPanelState,
-  ) => {
-    if (!selectedPropertyPanel || !selectedPropertyPanel.path) return;
-
-    return propertyPanelState[selectedPropertyPanel.path];
+    panelPropertyPath: string | undefined,
+  ): PropertyPanelContext | undefined => {
+    return panelPropertyPath
+      ? propertyPanelState[panelPropertyPath]
+      : undefined;
   },
 );
 
 export const getSelectedPropertyTabIndex = createSelector(
-  [
-    getWidgetSelectedPropertyTabIndex,
-    getPanelPropertyContext,
-    (_state: AppState, isPanelProperty: boolean) => isPanelProperty,
-  ],
+  [getWidgetSelectedPropertyTabIndex, getPanelPropertyContext],
   (
     selectedPropertyTabIndex: number,
     propertyPanelContext: PropertyPanelContext | undefined,
-    isPanelProperty: boolean,
   ) => {
     if (
       propertyPanelContext &&
-      propertyPanelContext.selectedPropertyTabIndex !== undefined &&
-      isPanelProperty
+      propertyPanelContext.selectedPropertyTabIndex !== undefined
     )
       return propertyPanelContext.selectedPropertyTabIndex;
     return selectedPropertyTabIndex;
@@ -78,19 +73,15 @@ export const getSelectedPropertyTabIndex = createSelector(
 export const getIsCodeEditorFocused = createSelector(
   [
     getFocusableField,
-    getPanelPropertyContext,
     selectFeatureFlags,
     (_state: AppState, key: string | undefined) => key,
   ],
   (
     focusableField: string | undefined,
-    propertyPanelContext: PropertyPanelContext | undefined,
     featureFlags: FeatureFlags,
     key: string | undefined,
   ): boolean => {
     if (featureFlags.CONTEXT_SWITCHING) {
-      if (propertyPanelContext?.focusableField)
-        return !!(key && propertyPanelContext.focusableField === key);
       return !!(key && focusableField === key);
     }
     return false;
@@ -98,18 +89,8 @@ export const getIsCodeEditorFocused = createSelector(
 );
 
 export const getshouldFocusPropertyPath = createSelector(
-  [
-    getFocusableField,
-    getPanelPropertyContext,
-    (_state: AppState, key: string | undefined) => key,
-  ],
-  (
-    focusableField: string | undefined,
-    propertyPanelContext: PropertyPanelContext | undefined,
-    key: string | undefined,
-  ): boolean => {
-    if (propertyPanelContext?.focusableField)
-      return !!(key && propertyPanelContext.focusableField === key);
+  [getFocusableField, (_state: AppState, key: string | undefined) => key],
+  (focusableField: string | undefined, key: string | undefined): boolean => {
     return !!(key && focusableField === key);
   },
 );
@@ -124,17 +105,28 @@ export const getEvaluatedPopupState = createSelector(
   },
 );
 
+const getPanelContext = (
+  _state: AppState,
+  options: { key: string; panelPropertyPath: string | undefined },
+) => {
+  return {
+    propertyPanelContext: getPanelPropertyContext(
+      _state,
+      options.panelPropertyPath,
+    ),
+    key: options.key,
+  };
+};
 export const getPropertySectionState = createSelector(
-  [
-    getAllPropertySectionState,
-    getPanelPropertyContext,
-    (_state: AppState, key: string) => key,
-  ],
+  [getAllPropertySectionState, getPanelContext],
   (
     propertySectionState: { [key: string]: boolean },
-    propertyPanelContext: PropertyPanelContext | undefined,
-    key: string,
+    options: {
+      key: string;
+      propertyPanelContext: PropertyPanelContext | undefined;
+    },
   ): boolean | undefined => {
+    const { key, propertyPanelContext } = options;
     if (propertyPanelContext?.propertySectionState)
       return propertyPanelContext.propertySectionState[key];
     return propertySectionState[key];
@@ -142,14 +134,17 @@ export const getPropertySectionState = createSelector(
 );
 
 export const getSelectedPropertyPanelIndex = createSelector(
-  [getSelectedPropertyPanel, (_state: AppState, path: string) => path],
+  [
+    getSelectedPropertyPanel,
+    (_state: AppState, path: string | undefined) => path,
+  ],
   (
-    selectedPropertyPanel: SelectedPropertyPanel | undefined,
-    path: string,
+    selectedPropertyPanel: SelectedPropertyPanel,
+    path: string | undefined,
   ): number | undefined => {
-    return selectedPropertyPanel?.path === path
-      ? selectedPropertyPanel?.index
-      : undefined;
+    if (!path || selectedPropertyPanel[path] === undefined) return;
+
+    return selectedPropertyPanel[path];
   },
 );
 

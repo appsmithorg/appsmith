@@ -3,58 +3,36 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  setPanelFocusableField,
   setPanelPropertySectionState,
   setPanelSelectedPropertyTabIndex,
-  setWidgetFocusableField,
   setWidgetPropertySectionState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-import { SelectedPropertyPanel } from "reducers/uiReducers/editorContextReducer";
-import { all, put, select, takeLatest } from "redux-saga/effects";
-import { getSelectedPropertyPanel } from "selectors/editorContextSelectors";
-
-function* setFocusablePropertyFieldSaga(action: ReduxAction<{ path: string }>) {
-  const selectedPanel: SelectedPropertyPanel | undefined = yield select(
-    getSelectedPropertyPanel,
-  );
-  const panelName = selectedPanel?.path;
-  const path = action.payload.path;
-
-  if (panelName) {
-    yield put(setPanelFocusableField(path, panelName));
-  } else {
-    yield put(setWidgetFocusableField(path));
-  }
-}
+import { all, put, takeLatest } from "redux-saga/effects";
 
 function* setPropertySectionStateSaga(
-  action: ReduxAction<{ key: string; isOpen: boolean }>,
+  action: ReduxAction<{
+    key: string;
+    isOpen: boolean;
+    panelPropertyPath?: string;
+  }>,
 ) {
-  const selectedPanel: SelectedPropertyPanel | undefined = yield select(
-    getSelectedPropertyPanel,
-  );
-  const panelName = selectedPanel?.path;
-  const { isOpen, key } = action.payload;
+  const { isOpen, key, panelPropertyPath } = action.payload;
 
-  if (panelName) {
-    yield put(setPanelPropertySectionState(key, isOpen, panelName));
+  if (panelPropertyPath) {
+    yield put(setPanelPropertySectionState(key, isOpen, panelPropertyPath));
   } else {
     yield put(setWidgetPropertySectionState(key, isOpen));
   }
 }
 
 function* setSelectedPropertyTabIndexSaga(
-  action: ReduxAction<{ index: number; isPanelProperty?: boolean }>,
+  action: ReduxAction<{ index: number; panelPropertyPath?: string }>,
 ) {
-  const selectedPanel: SelectedPropertyPanel | undefined = yield select(
-    getSelectedPropertyPanel,
-  );
-  const panelName = selectedPanel?.path;
-  const { index, isPanelProperty } = action.payload;
+  const { index, panelPropertyPath } = action.payload;
 
-  if (panelName && isPanelProperty) {
-    yield put(setPanelSelectedPropertyTabIndex(index, panelName));
+  if (panelPropertyPath) {
+    yield put(setPanelSelectedPropertyTabIndex(index, panelPropertyPath));
   } else {
     yield put(setWidgetSelectedPropertyTabIndex(index));
   }
@@ -62,10 +40,6 @@ function* setSelectedPropertyTabIndexSaga(
 
 export default function* editorContextSagas() {
   yield all([
-    takeLatest(
-      ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
-      setFocusablePropertyFieldSaga,
-    ),
     takeLatest(
       ReduxActionTypes.SET_PROPERTY_SECTION_STATE,
       setPropertySectionStateSaga,

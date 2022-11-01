@@ -100,7 +100,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           itemHeight={45}
           items={this.getMenuItems()}
           onEdit={this.onEdit}
-          propertyName={this.props.propertyName}
+          propertyPath={this.props.dataTreePath}
           renderComponent={(props: any) =>
             DraggableListCard({
               ...props,

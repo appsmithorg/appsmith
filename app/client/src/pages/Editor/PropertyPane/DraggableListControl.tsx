@@ -5,7 +5,8 @@ import {
   DroppableComponent,
   DroppableComponentProps,
 } from "components/propertyControls/DraggableListComponent";
-import React, { useRef } from "react";
+import debounce from "lodash/debounce";
+import React, { useCallback } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSelectedPropertyPanelIndex } from "selectors/editorContextSelectors";
@@ -15,41 +16,45 @@ export type DraggableListControlProps<
   TItem extends BaseItemProps
 > = DroppableComponentProps<TItem> & {
   defaultPanelIndex?: number;
-  propertyName: string;
+  propertyPath: string | undefined;
 };
 export const DraggableListControl = <TItem extends BaseItemProps>(
   props: DraggableListControlProps<TItem>,
 ) => {
   const dispatch = useDispatch();
-  const currentIndex = useRef<number>(-1);
   const featureFlags = useSelector(selectFeatureFlags);
-  const defaultPanelIndex = useSelector(
-    (state: AppState) =>
-      getSelectedPropertyPanelIndex(state, props.propertyName),
-    (left: any, right: any) => {
-      if (currentIndex.current !== left && left !== right) {
-        return false;
-      }
-      return true;
-    },
+  const defaultPanelIndex = useSelector((state: AppState) =>
+    getSelectedPropertyPanelIndex(state, props.propertyPath),
   );
 
-  const { onEdit, propertyName } = props;
+  const { onEdit, propertyPath } = props;
+
+  //leading debounce to stop opening multiple panels
+  const debouncedEditLeading = useCallback(
+    debounce(
+      (index: number) => {
+        onEdit && onEdit(index);
+      },
+      300,
+      {
+        leading: true,
+        trailing: false,
+      },
+    ),
+    [],
+  );
 
   useEffect(() => {
     featureFlags.CONTEXT_SWITCHING &&
       onEdit &&
       defaultPanelIndex !== undefined &&
-      onEdit(defaultPanelIndex);
+      debouncedEditLeading(defaultPanelIndex);
   }, [defaultPanelIndex]);
 
   const onPanelEdit = (index: number) => {
     if (onEdit) {
-      currentIndex.current = index;
-      onEdit(index);
-      setTimeout(() => {
-        dispatch(setSelectedPropertyPanel({ path: propertyName, index }));
-      }, 0);
+      debouncedEditLeading(index);
+      dispatch(setSelectedPropertyPanel(propertyPath, index));
     }
   };
 

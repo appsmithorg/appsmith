@@ -199,7 +199,7 @@ class TabControl extends BaseControl<ControlProps, State> {
           itemHeight={45}
           items={this.getTabItems()}
           onEdit={this.onEdit}
-          propertyName={this.props.propertyName}
+          propertyPath={this.props.dataTreePath}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
           updateFocus={this.updateFocus}

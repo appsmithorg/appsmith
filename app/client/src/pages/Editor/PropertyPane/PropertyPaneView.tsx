@@ -273,6 +273,7 @@ function PropertyPaneView(
                   />
                 ) : null
               }
+              panelPropertyPath={widgetProperties.widgetName}
               styleComponent={
                 isStyleConfigAvailable ? (
                   <PropertyControlsGenerator

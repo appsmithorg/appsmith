@@ -34,10 +34,14 @@ export const setPropertyPaneWidthAction = (width: number) => ({
   payload: width,
 });
 
-export const setPropertySectionState = (key: string, isOpen: boolean) => {
+export const setPropertySectionState = (
+  key: string,
+  isOpen: boolean,
+  panelPropertyPath?: string,
+) => {
   return {
     type: ReduxActionTypes.SET_PROPERTY_SECTION_STATE,
-    payload: { key, isOpen },
+    payload: { key, isOpen, panelPropertyPath },
   };
 };
 export const setAllPropertySectionState = (payload: {

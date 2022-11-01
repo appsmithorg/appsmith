@@ -29,8 +29,7 @@ import {
   setExplorerSwitchIndex,
   setFocusableField,
   setPanelPropertiesState,
-  setSelectedPropertyPanel,
-  setWidgetFocusableField,
+  setSelectedPropertyPanels,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 import { getSelectedWidgets } from "selectors/ui";
@@ -71,6 +70,7 @@ import { getWidgetsMeta } from "sagas/selectors";
 import { setAllPropertySectionState } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import { PluginPackageName } from "entities/Action";
+import { initialState as metaState } from "reducers/entityReducers/metaReducer";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -125,6 +125,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.WidgetMeta,
       selector: getWidgetsMeta,
       setter: setAllMetaProps,
+      defaultValue: metaState,
     },
     {
       name: FocusElement.EntityCollapsibleState,
@@ -149,6 +150,12 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.PropertySections,
       selector: getAllPropertySectionState,
       setter: setAllPropertySectionState,
+      defaultValue: {},
+    },
+    {
+      name: FocusElement.SelectedPropertyPanel,
+      selector: getSelectedPropertyPanel,
+      setter: setSelectedPropertyPanels,
       defaultValue: {},
     },
     {
@@ -220,12 +227,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.PROPERTY_PANE]: [
     {
-      name: FocusElement.SelectedPropertyPanel,
-      selector: getSelectedPropertyPanel,
-      setter: setSelectedPropertyPanel,
-      defaultValue: undefined,
-    },
-    {
       name: FocusElement.PropertyPanelContext,
       selector: getPropertyPanelState,
       setter: setPanelPropertiesState,
@@ -240,7 +241,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     {
       name: FocusElement.PropertyField,
       selector: getFocusableField,
-      setter: setWidgetFocusableField,
+      setter: setFocusableField,
     },
   ],
   [FocusEntity.API]: [
