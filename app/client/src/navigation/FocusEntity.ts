@@ -18,8 +18,6 @@ export enum FocusEntity {
   NONE = "NONE",
 }
 
-export enum FocusSubTypeEntity {}
-
 export type FocusEntityInfo = {
   entity: FocusEntity;
   id: string;
