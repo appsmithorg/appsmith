@@ -269,6 +269,7 @@ function DatasourceAuth({
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
           size="medium"
+          tag="button"
           text={
             confirmDelete && !isDeleting
               ? createMessage(CONFIRM_CONTEXT_DELETE)
@@ -298,6 +299,7 @@ function DatasourceAuth({
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}
           size="medium"
+          tag="button"
           text="Save"
           variant={Variant.success}
         />
@@ -312,6 +314,7 @@ function DatasourceAuth({
           key={buttonType}
           onClick={handleOauthDatasourceSave}
           size="medium"
+          tag="button"
           text={isAuthorized ? "Save and Re-authorize" : "Save and Authorize"}
           variant={Variant.success}
         />

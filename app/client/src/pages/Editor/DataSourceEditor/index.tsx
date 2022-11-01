@@ -312,7 +312,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   componentWillUnmount() {
     this.props.discardTempDatasource();
     this.props.deleteTempDSFromDraft();
-    this.state.unblock();
+    !!this.state.unblock && this.state.unblock();
   }
 
   routesBlockFormChangeCallback() {
@@ -329,7 +329,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   blockRoutes() {
     this.setState({
-      unblock: this.props.history.block((tx: any) => {
+      unblock: this.props?.history?.block((tx: any) => {
         this.setState(
           {
             navigation: () => this.props.history.push(tx.pathname),
@@ -360,7 +360,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
     this.closeDialog();
-    this.state.unblock();
+    !!this.state.unblock && this.state.unblock();
     this.props.toggleSaveActionFlag(false);
     this.props.toggleSaveActionFromPopupFlag(false);
     this.setState({ routesBlocked: false });
@@ -370,7 +370,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   datasourceDeleteTrigger() {
-    this.state.unblock();
+    !!this.state.unblock && this.state.unblock();
   }
 
   renderSaveDisacardModal() {

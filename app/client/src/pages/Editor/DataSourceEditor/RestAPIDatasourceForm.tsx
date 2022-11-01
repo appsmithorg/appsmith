@@ -433,6 +433,7 @@ class DatasourceRestAPIEditor extends React.Component<
                 : this.setState({ confirmDelete: true });
             }}
             size="medium"
+            tag="button"
             text={
               this.state.confirmDelete
                 ? createMessage(CONFIRM_CONTEXT_DELETE)
@@ -448,6 +449,7 @@ class DatasourceRestAPIEditor extends React.Component<
           isLoading={isSaving}
           onClick={() => this.save()}
           size="medium"
+          tag="button"
           text="Save"
           variant={Variant.success}
         />
@@ -591,6 +593,7 @@ class DatasourceRestAPIEditor extends React.Component<
                     ),
                   )
                 }
+                tag="button"
                 text={
                   isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
                 }
