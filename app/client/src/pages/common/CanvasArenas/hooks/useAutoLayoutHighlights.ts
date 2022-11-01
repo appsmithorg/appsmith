@@ -12,8 +12,8 @@ import {
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 // import { useDispatch } from "react-redux";
 import { ReflowDirection } from "reflow/reflowTypes";
-import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 import { DRAG_MARGIN } from "widgets/constants";
+import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 interface XYCord {
   x: number;
@@ -343,28 +343,37 @@ export const useAutoLayoutHighlights = ({
     if (!hasFillChild) {
       // process center sub wrapper.
       curr += start.length;
-      arr.push(
-        ...calculateRowHighlights(
-          center,
-          curr,
-          layerIndex,
-          FlexLayerAlignment.Center,
-          layerRect,
-          isEmpty,
-        ),
+
+      const endHighLights = calculateRowHighlights(
+        end,
+        curr,
+        layerIndex,
+        FlexLayerAlignment.End,
+        layerRect,
+        isEmpty,
       );
+      const validEndHighLights = endHighLights.filter((each) => {
+        return !arr.some((eachHighlight) => {
+          return eachHighlight.posX > each.posX;
+        });
+      });
+      arr.push(...validEndHighLights);
+      const centerHighlights = calculateRowHighlights(
+        center,
+        curr,
+        layerIndex,
+        FlexLayerAlignment.Center,
+        layerRect,
+        isEmpty,
+      );
+      const validCenterdHighlights = centerHighlights.filter((each) => {
+        return !arr.some((eachHighlight) => {
+          return eachHighlight.posX > each.posX;
+        });
+      });
+      arr.push(...validCenterdHighlights);
       // process end sub wrapper.
       curr += center.length;
-      arr.push(
-        ...calculateRowHighlights(
-          end,
-          curr,
-          layerIndex,
-          FlexLayerAlignment.End,
-          layerRect,
-          isEmpty,
-        ),
-      );
     }
     return arr;
   }
