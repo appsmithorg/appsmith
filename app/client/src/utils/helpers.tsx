@@ -239,6 +239,7 @@ function isElementVisibleInContainer(
   element: HTMLElement,
   container: HTMLElement,
 ) {
+  debugger;
   const elementRect = element.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
   return (
