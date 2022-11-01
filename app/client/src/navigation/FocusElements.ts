@@ -96,6 +96,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.CanvasDebuggerTabs,
       selector: getSelectedCanvasDebuggerTab,
       setter: setCanvasDebuggerSelectedTab,
+      defaultValue: 0,
     },
   ],
   [FocusEntity.JS_OBJECT]: [
@@ -114,6 +115,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.JSPaneResponseTabs,
       selector: getJSPaneResponseSelectedTab,
       setter: setJsPaneResponseSelectedTab,
+      defaultValue: 0,
     },
     {
       name: FocusElement.JSPaneResponseHeight,
@@ -181,6 +183,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.ApiPaneResponseTabs,
       selector: getApiPaneResponseSelectedTab,
       setter: setApiPaneResponseSelectedTab,
+      defaultValue: 0,
     },
     {
       name: FocusElement.ApiPaneResponseHeight,
