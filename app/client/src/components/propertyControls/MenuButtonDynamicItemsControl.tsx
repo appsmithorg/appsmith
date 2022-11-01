@@ -104,9 +104,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
         : propertyValue
         ? propertyValue
         : defaultValue;
-    const evaluatedProperties = this.props.widgetProperties;
-
-    const keys = evaluatedProperties.sourceDataKeys || [];
+    const keys = this.props.widgetProperties.sourceDataKeys || [];
     const currentItem: { [key: string]: any } = {};
 
     Object.values(keys).forEach((key) => {
