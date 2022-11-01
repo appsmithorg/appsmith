@@ -133,6 +133,7 @@ export type EditorStyleProps = {
   link?: string;
   showLightningMenu?: boolean;
   dataTreePath?: string;
+  focusElementName?: string;
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   borderLess?: boolean;
@@ -209,6 +210,10 @@ type State = {
   changeStarted: boolean;
   // state of lint errors in editor
   hasLintError: boolean;
+};
+
+const getEditorIdentifier = (props: EditorProps): string => {
+  return props.dataTreePath || props.focusElementName || "";
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -404,7 +409,7 @@ class CodeEditor extends Component<Props, State> {
       this.debounceEditorRefresh();
     }
     if (
-      this.props.dataTreePath !== prevProps.dataTreePath &&
+      getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps) &&
       shouldFocusOnPropertyControl()
     ) {
       setTimeout(() => {
@@ -612,7 +617,7 @@ class CodeEditor extends Component<Props, State> {
     this.handleCustomGutter(null);
     const cursor = this.editor.getCursor();
     this.props.setCodeEditorLastFocus({
-      key: this.props.dataTreePath,
+      key: getEditorIdentifier(this.props),
       cursorPosition: {
         ch: cursor.ch,
         line: cursor.line,
@@ -1058,10 +1063,10 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
+  editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
-    props.dataTreePath,
+    getEditorIdentifier(props),
   ),
 });
 
