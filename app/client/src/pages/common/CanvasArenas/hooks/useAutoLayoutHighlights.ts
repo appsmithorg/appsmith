@@ -329,21 +329,31 @@ export const useAutoLayoutHighlights = ({
     let curr: number = childCount;
     const { center, end, hasFillChild, isEmpty, start } = spreadLayer(layer);
 
-    // process start sub wrapper.
-    arr.push(
-      ...calculateRowHighlights(
-        start,
-        curr,
-        layerIndex,
-        FlexLayerAlignment.Start,
-        layerRect,
-        isEmpty,
-      ),
+    const startHighLights = calculateRowHighlights(
+      start,
+      curr,
+      layerIndex,
+      FlexLayerAlignment.Start,
+      layerRect,
+      isEmpty,
     );
+
+    // process start sub wrapper.
+    arr.push(...startHighLights);
     if (!hasFillChild) {
       // process center sub wrapper.
       curr += start.length;
+      const centerHighlights = calculateRowHighlights(
+        center,
+        curr,
+        layerIndex,
+        FlexLayerAlignment.Center,
+        layerRect,
+        isEmpty,
+      );
 
+      // process end sub wrapper.
+      curr += center.length;
       //ToDo(Ashok and Preet): we need a better way to decide how to filter out highlights
       // for now i am filtering highlights to not overlap with each other.
       const endHighLights = calculateRowHighlights(
@@ -360,22 +370,12 @@ export const useAutoLayoutHighlights = ({
         });
       });
       arr.push(...validEndHighLights);
-      const centerHighlights = calculateRowHighlights(
-        center,
-        curr,
-        layerIndex,
-        FlexLayerAlignment.Center,
-        layerRect,
-        isEmpty,
-      );
       const validCenterdHighlights = centerHighlights.filter((each) => {
         return !arr.some((eachHighlight) => {
           return eachHighlight.posX > each.posX;
         });
       });
       arr.push(...validCenterdHighlights);
-      // process end sub wrapper.
-      curr += center.length;
     }
     return arr;
   }
