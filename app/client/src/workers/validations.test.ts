@@ -284,7 +284,7 @@ describe("Validate Validators", () => {
     });
   });
 
-  it.only("Validates number with passThroughOnZero", () => {
+  it("Validates number with passThroughOnZero", () => {
     const config: any = {
       type: ValidationTypes.NUMBER,
       params: {

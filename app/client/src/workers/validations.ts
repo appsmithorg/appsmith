@@ -575,7 +575,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           parsed:
             // passThroughOnZero is introduced to resolve a bug and to not break existing apps
             // Refer: https://github.com/appsmithorg/appsmith/issues/17472#issuecomment-1281818238
-            config.params.passThroughOnZero !== undefined &&
             config.params.passThroughOnZero === false
               ? parsed || config.params.min || 0
               : parsed ?? config.params.min ?? 0,
