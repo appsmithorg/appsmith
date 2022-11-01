@@ -14,6 +14,7 @@ import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isTrueObject } from "./evaluationUtils";
+import safeEval from "./safeEval";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
@@ -273,9 +274,7 @@ function evaluateDynamicValuesConfig(
         if (isDynamicValue(value)) {
           let evaluatedValue = "";
           try {
-            /* Indirect eval to prevent local scope access.
-            Ref. - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#description */
-            evaluatedValue = (1, eval)(value);
+            evaluatedValue = safeEval(value);
           } catch (e) {
             evaluatedValue = "error";
           } finally {
@@ -297,7 +296,7 @@ function evaluateFormConfigElements(
     paths.forEach((path) => {
       const { expression } = config[path];
       try {
-        const evaluatedVal = (1, eval)(expression);
+        const evaluatedVal = safeEval(expression);
         config[path].output = evaluatedVal;
       } catch (e) {}
     });
@@ -318,7 +317,7 @@ function evaluate(
         const conditionBlock = currentEvalState[key].conditionals;
         if (!!conditionBlock) {
           Object.keys(conditionBlock).forEach((conditionType: string) => {
-            const output = (1, eval)(conditionBlock[conditionType]);
+            const output = safeEval(conditionBlock[conditionType]);
             if (conditionType === ConditionType.HIDE) {
               currentEvalState[key].visible = !output;
             } else if (conditionType === ConditionType.SHOW) {

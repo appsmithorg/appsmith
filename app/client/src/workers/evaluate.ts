@@ -17,6 +17,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
+import safeEval from "./safeEval";
 
 export type EvalResult = {
   result: any;
@@ -298,9 +299,7 @@ export default function evaluateSync(
     }
 
     try {
-      /* Indirect eval to prevent local scope access. 
-       Ref. - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#description */
-      result = (1, eval)(script);
+      result = safeEval(script);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
@@ -362,7 +361,7 @@ export async function evaluateAsync(
     });
 
     try {
-      result = await (1, eval)(script);
+      result = await safeEval(script);
       logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
