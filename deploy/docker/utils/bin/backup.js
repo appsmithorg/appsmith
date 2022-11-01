@@ -1,9 +1,7 @@
 const fsPromises = require('fs/promises');
 const path = require('path');
 const os = require('os');
-
 const shell = require('shelljs');
-
 const utils = require('./utils');
 const Constants = require('./constants');
 const logger = require('./logger');
@@ -12,8 +10,7 @@ const mailer = require('./mailer');
 const command_args = process.argv.slice(3);
 
 async function run() {
-
-  const timestamp = new Date().toISOString().replace(/:/g, '-')
+  const timestamp = getTimeStampInISO();
   let errorCode = 0;
   try {
     const check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
@@ -27,15 +24,13 @@ async function run() {
     utils.stop(['backend', 'rts']);
 
     console.log('Available free space at /appsmith-stacks');
-    const availSpaceInBytes = parseInt(shell.exec('df --output=avail -B 1 /appsmith-stacks | tail -n 1'), 10);
+    const availSpaceInBytes = getAvailableBackupSpaceInBytes();
     console.log('\n');
 
-    if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
-      throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.');
-    }
+    checkAvailableBackupSpace(availSpaceInBytes);
 
-    const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
-    const backupContentsPath = backupRootPath + '/appsmith-backup-' + timestamp;
+    const backupRootPath = await generateBackupRootPath();
+    const backupContentsPath = getBackupContentsPath(backupRootPath, timestamp);
 
     await fsPromises.mkdir(backupContentsPath);
 
@@ -50,7 +45,7 @@ async function run() {
 
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
-    console.log('Finished taking a backup at', archivePath);
+    logger.backup_info('Finished taking a backup at' + archivePath);
     await postBackupCleanup();
 
   } catch (err) {
@@ -60,7 +55,7 @@ async function run() {
     if (command_args.includes('--error-mail')) {
       const currentTS = new Date().getTime();
       const lastMailTS = await utils.getLastBackupErrorMailSentInMilliSec();
-      if ((lastMailTS + Constants.DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC) < currentTS){
+      if ((lastMailTS + Constants.DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC) < currentTS) {
         await mailer.sendBackupErrorToAdmins(err, timestamp);
         await utils.updateLastBackupErrorMailSentInMilliSec(currentTS);
       }
@@ -68,32 +63,27 @@ async function run() {
   } finally {
     utils.start(['backend', 'rts']);
     process.exit(errorCode);
-
   }
 }
 
 async function exportDatabase(destFolder) {
   console.log('Exporting database');
-  await utils.execCommand(['mongodump', `--uri=${process.env.APPSMITH_MONGODB_URI}`, `--archive=${destFolder}/mongodb-data.gz`, '--gzip']);
+  await executeMongoDumpCMD(destFolder, process.env.APPSMITH_MONGODB_URI)
   console.log('Exporting database done.');
 }
 
 async function createGitStorageArchive(destFolder) {
   console.log('Creating git-storage archive');
 
-  let gitRoot = process.env.APPSMITH_GIT_ROOT;
-  if (gitRoot == null || gitRoot === '') {
-    gitRoot = '/appsmith-stacks/git-storage';
-  }
+  const gitRoot = getGitRoot(process.env.APPSMITH_GIT_ROOT);
 
-  await utils.execCommand(['ln', '-s', gitRoot, destFolder + '/git-storage'])
+  await executeCopyCMD(gitRoot, destFolder)
 
   console.log('Created git-storage archive');
 }
 
 async function createManifestFile(path) {
-  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
-  const version = content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+  const version = await getCurrentVersion()
   const manifest_data = { "appsmithVersion": version }
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
@@ -101,18 +91,16 @@ async function createManifestFile(path) {
 async function exportDockerEnvFile(destFolder) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
-  const output_lines = []
-  content.split(/\r?\n/).forEach(line => {
-    if (!line.startsWith("APPSMITH_ENCRYPTION")) {
-      output_lines.push(line)
-    }
-  });
-  await fsPromises.writeFile(destFolder + '/docker.env', output_lines.join('\n'));
+  const cleaned_content = removeEncryptionEnvData(content)
+  await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
-
   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! Important !!!!!!!!!!!!!!!!!!!!!!!!!!');
   console.log('!!! Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file because those values are not included in the backup export.');
   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+}
+
+async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
+  return await utils.execCommand(['mongodump', `--uri=${appsmithMongoURI}`, `--archive=${destFolder}/mongodb-data.gz`, '--gzip']);// generate cmd
 }
 
 async function createFinalArchive(destFolder, timestamp) {
@@ -126,20 +114,92 @@ async function createFinalArchive(destFolder, timestamp) {
   return archive;
 }
 
-async function postBackupCleanup(){
+async function postBackupCleanup() {
   console.log('Starting the cleanup task after taking a backup.');
-  let backupArchivesLimit = process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT;
-  if(!backupArchivesLimit)
-    backupArchivesLimit = 4;
+  let backupArchivesLimit = getBackupArchiveLimit(process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT);
   const backupFiles = await utils.listLocalBackupFiles();
-  while (backupFiles.length > backupArchivesLimit){
+  while (backupFiles.length > backupArchivesLimit) {
     const fileName = backupFiles.shift();
     await fsPromises.rm(Constants.BACKUP_PATH + '/' + fileName);
   }
   console.log('Cleanup task completed.');
 
 }
+async function executeCopyCMD(srcFolder, destFolder) {
+  return await utils.execCommand(['ln', '-s', srcFolder, destFolder + '/git-storage'])
+}
+
+function getGitRoot(gitRoot) {
+  if (gitRoot == null || gitRoot === '') {
+    gitRoot = '/appsmith-stacks/git-storage';
+  }
+  return gitRoot
+}
+
+async function generateBackupRootPath() {
+  const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
+  return backupRootPath
+}
+
+function getBackupContentsPath(backupRootPath, timestamp) {
+  return backupRootPath + '/appsmith-backup-' + timestamp;
+}
+
+function removeEncryptionEnvData(content) {
+  const output_lines = []
+  content.split(/\r?\n/).forEach(line => {
+    if (!line.startsWith("APPSMITH_ENCRYPTION")) {
+      output_lines.push(line)
+    }
+  });
+  return output_lines.join('\n')
+}
+
+function getBackupArchiveLimit(backupArchivesLimit) {
+  if (!backupArchivesLimit)
+    backupArchivesLimit = 4;
+  return backupArchivesLimit
+}
+
+async function removeOldBackups(backupFiles, backupArchivesLimit) {
+  while (backupFiles.length > backupArchivesLimit) {
+    const fileName = backupFiles.shift();
+    await fsPromises.rm(Constants.BACKUP_PATH + '/' + fileName);
+  }
+  return backupFiles
+}
+
+function getTimeStampInISO() {
+  return new Date().toISOString().replace(/:/g, '-')
+}
+
+function getAvailableBackupSpaceInBytes() {
+  return parseInt(shell.exec('df --output=avail -B 1 /appsmith-stacks | tail -n 1'), 10)
+}
+
+function checkAvailableBackupSpace(availSpaceInBytes) {
+  if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
+    throw new Error('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.');
+  }
+}
+
+async function getCurrentVersion() {
+  const content = await fsPromises.readFile('/opt/appsmith/rts/version.js', { encoding: 'utf8' });
+  return content.match(/\bexports\.VERSION\s*=\s*["']([^"]+)["']/)[1];
+}
 
 module.exports = {
   run,
+  getTimeStampInISO,
+  getAvailableBackupSpaceInBytes,
+  checkAvailableBackupSpace,
+  generateBackupRootPath,
+  getBackupContentsPath,
+  executeMongoDumpCMD,
+  getGitRoot,
+  executeCopyCMD,
+  getCurrentVersion,
+  removeEncryptionEnvData,
+  getBackupArchiveLimit,
+  removeOldBackups
 };
