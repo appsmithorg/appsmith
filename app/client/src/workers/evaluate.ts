@@ -298,6 +298,8 @@ export default function evaluateSync(
     }
 
     try {
+      /* Indirect eval to prevent local scope access. 
+       Ref. - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#description */
       result = (1, eval)(script);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${

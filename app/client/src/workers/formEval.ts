@@ -273,7 +273,9 @@ function evaluateDynamicValuesConfig(
         if (isDynamicValue(value)) {
           let evaluatedValue = "";
           try {
-            evaluatedValue = eval(value);
+            /* Indirect eval to prevent local scope access.
+            Ref. - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#description */
+            evaluatedValue = (1, eval)(value);
           } catch (e) {
             evaluatedValue = "error";
           } finally {
@@ -295,7 +297,7 @@ function evaluateFormConfigElements(
     paths.forEach((path) => {
       const { expression } = config[path];
       try {
-        const evaluatedVal = eval(expression);
+        const evaluatedVal = (1, eval)(expression);
         config[path].output = evaluatedVal;
       } catch (e) {}
     });
@@ -316,7 +318,7 @@ function evaluate(
         const conditionBlock = currentEvalState[key].conditionals;
         if (!!conditionBlock) {
           Object.keys(conditionBlock).forEach((conditionType: string) => {
-            const output = eval(conditionBlock[conditionType]);
+            const output = (1, eval)(conditionBlock[conditionType]);
             if (conditionType === ConditionType.HIDE) {
               currentEvalState[key].visible = !output;
             } else if (conditionType === ConditionType.SHOW) {
