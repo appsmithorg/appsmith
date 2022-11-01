@@ -72,7 +72,7 @@ public class AstServiceCEImpl implements AstServiceCE {
                     log.debug("Time elapsed since AST get identifiers call: {} ms, for size: {}", tuple.getT1(), bindingValues.size());
                     return tuple.getT2().data;
                 })
-                .flatMapMany(Flux::fromIterable)
+                .flatMapIterable(getIdentifiersResponseDetails -> getIdentifiersResponseDetails)
                 .index()
                 .flatMap(tuple2 -> {
                         long currentIndex = tuple2.getT1();
