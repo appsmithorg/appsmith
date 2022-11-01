@@ -1160,6 +1160,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), tuple.getT2().getUsername(), data);
                                 return application;
                             });
+                })
+                .onErrorResume(throwable -> {
+                    log.error("Error while importing the application ", throwable.getMessage());
+                    return applicationPageService.deleteApplication(importedApplication.getId())
+                            .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
