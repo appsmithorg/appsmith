@@ -1,6 +1,6 @@
 import { cancelled, delay, put, spawn, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
-import _ from "lodash";
+import { uniqueId } from "lodash";
 import log from "loglevel";
 // import { executeDynamicTriggerRequest } from "sagas/EvaluationsSaga";
 /**
@@ -137,7 +137,7 @@ export class GracefulWorkerService {
     /**
      * We create a unique channel to wait for a response of this specific request.
      */
-    const requestId = `${method}__${_.uniqueId()}`;
+    const requestId = `${method}__${uniqueId()}`;
     const ch = channel();
     this._channels.set(requestId, ch);
     const mainThreadStartTime = performance.now();
@@ -191,7 +191,7 @@ export class GracefulWorkerService {
     /**
      * We create a unique channel to wait for a response of this specific request.
      */
-    const workerRequestId = `${method}__${_.uniqueId()}`;
+    const workerRequestId = `${method}__${uniqueId()}`;
     // The worker channel is the main channel
     // where the web worker messages will get posted
     const isFinishedChannel = channel();

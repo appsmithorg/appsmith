@@ -94,14 +94,15 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
-import { JSUpdate } from "utils/JSPaneUtils";
-import { DataTreeDiff } from "workers/Evaluation/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 import { lintTreeSaga, lintWorker } from "./LintingSagas";
+import {
+  EvalTreeRequestData,
+  EvalTreeResponseData,
+} from "workers/Evaluation/types";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -114,19 +115,6 @@ const evalWorker = new GracefulWorkerService(
 );
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
-
-export type EvalTreePayload = {
-  dataTree: DataTree;
-  dependencies: Record<string, string[]>;
-  errors: EvalError[];
-  evalMetaUpdates: EvalMetaUpdates;
-  evaluationOrder: string[];
-  jsUpdates: Record<string, JSUpdate>;
-  logs: any[];
-  userLogs?: UserLogObject[];
-  unEvalUpdates: DataTreeDiff[];
-  isCreateFirstTree: boolean;
-};
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
@@ -144,18 +132,19 @@ function* evaluateTreeSaga(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
 
-  // @ts-expect-error: Worker Response is unknown
-  const workerResponse = yield call(
+  const evalTreeRequestData: EvalTreeRequestData = {
+    unevalTree,
+    widgetTypeConfigMap,
+    widgets,
+    theme,
+    shouldReplay,
+    allActionValidationConfig,
+  };
+
+  const workerResponse: EvalTreeResponseData = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
-    {
-      unevalTree,
-      widgetTypeConfigMap,
-      widgets,
-      theme,
-      shouldReplay,
-      allActionValidationConfig,
-    },
+    evalTreeRequestData,
   );
 
   const {
@@ -169,7 +158,7 @@ function* evaluateTreeSaga(
     userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
-  }: EvalTreePayload = workerResponse;
+  } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
