@@ -344,6 +344,8 @@ export const useAutoLayoutHighlights = ({
       // process center sub wrapper.
       curr += start.length;
 
+      //ToDo(Ashok and Preet): we need a better way to decide how to filter out highlights
+      // for now i am filtering highlights to not overlap with each other.
       const endHighLights = calculateRowHighlights(
         end,
         curr,
