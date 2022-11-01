@@ -52,10 +52,7 @@ const FlexWidget = styled.div<{
   height: ${({ componentHeight, isMobile }) =>
     isMobile ? "100%" : Math.floor(componentHeight) + "px"};
   min-width: ${({ minWidth }) => minWidth};
-  max-width: ${({ dragMargin, isAffectedByDrag, parentId }) =>
-    isAffectedByDrag && parentId !== "0"
-      ? `calc(100% - ${dragMargin}px)`
-      : "auto"};
+
   min-height: 30px;
   padding: ${({ isAffectedByDrag, padding }) =>
     isAffectedByDrag ? 0 : padding + "px"};
@@ -66,12 +63,8 @@ const FlexWidget = styled.div<{
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
   margin: ${({ dragMargin, isAffectedByDrag }) =>
-    isAffectedByDrag
-      ? `${DRAG_MARGIN}px ${Math.floor(dragMargin / 2)}px`
-      : "0px"};
+    isAffectedByDrag ? `${DRAG_MARGIN}px ${dragMargin / 2}px` : "0px"};
 `;
-
-// TODO: update min width logic.
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isMobile = useSelector(getIsMobile);
@@ -115,7 +108,6 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.responsiveBehavior === ResponsiveBehavior.Fill && isMobile
       ? "100%"
       : props.minWidth + "px";
-
   const dragMargin = Math.max(props.parentColumnSpace, DRAG_MARGIN);
   const isAffectedByDrag: boolean =
     isCurrentCanvasDragging ||
@@ -131,7 +123,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       componentWidth={resizedWidth}
       dragMargin={dragMargin}
       id={props.widgetId}
-      isAffectedByDrag={isAffectedByDrag}
+      isAffectedByDrag={isCurrentCanvasDragging}
       isFillWidget={isFillWidget}
       isMobile={isMobile}
       minWidth={minWidth}

@@ -1,9 +1,6 @@
 import React, { ReactNode, useState, useEffect, useRef } from "react";
 import styled, { StyledComponent } from "styled-components";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
-} from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDrag } from "react-use-gesture";
 import { animated, Spring } from "react-spring";
 import PerformanceTracker, {
@@ -309,10 +306,8 @@ export function ReflowResizable(props: ResizableProps) {
         width: props.componentWidth,
         height: props.componentHeight,
         x:
-          !props.isAffectedByDrag &&
-          props.isFlexChild &&
-          props.parentId === MAIN_CONTAINER_WIDGET_ID
-            ? props.paddingOffset / 2
+          !props.isAffectedByDrag && props.isFlexChild
+            ? props.paddingOffset / 4
             : 0,
         y: 0,
         reset: true,
