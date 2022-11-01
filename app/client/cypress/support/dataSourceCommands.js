@@ -42,10 +42,8 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
         201,
       );
       // select datasource to be deleted by datasource title
-      cy.get(`${datasourceEditor.datasourceCard}`)
-        .contains(datasourceTitle)
-        .last()
-        .click();
+      cy.contains("EDIT").click();
+
       // delete datasource
       cy.get(".t--delete-datasource").click();
       cy.get(".t--delete-datasource")
