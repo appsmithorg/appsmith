@@ -1,12 +1,8 @@
-import { register } from "fetch-intercept";
-
-const _originalXMLHttpRequest = self.XMLHttpRequest;
-
 export default function interceptAndOverrideHttpRequest() {
-  return register({
-    request: function(...args) {
+  self.fetch = (function(_originalFetch) {
+    return (...args) => {
       const request = new Request(args[0], { ...args[1], credentials: "omit" });
-      return [request];
-    },
-  });
+      return _originalFetch.call(undefined, request);
+    };
+  })(self.fetch);
 }
