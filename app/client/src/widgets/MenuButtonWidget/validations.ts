@@ -1,7 +1,12 @@
 import { ValidationResponse } from "constants/WidgetValidation";
 import { MenuButtonWidgetProps } from "./constants";
 
-export function arrayOfValuesWithMaxLengthTen(
+/**
+ * Checks if the source data array
+ * - is Array
+ * - has a max length of 10
+ */
+export function sourceDataArrayValidation(
   options: unknown,
   props: MenuButtonWidgetProps,
   _: any,
@@ -9,17 +14,17 @@ export function arrayOfValuesWithMaxLengthTen(
   const validationUtil = (
     options: { label: string; value: string | number }[],
   ) => {
-    let _isValid = true;
+    let isValid = true;
     let message = "";
 
     if (options.length > 10) {
-      _isValid = false;
+      isValid = false;
       message = "Source data cannot have more than 10 items";
     }
 
     return {
-      isValid: _isValid,
-      parsed: _isValid ? options : [],
+      isValid,
+      parsed: isValid ? options : [],
       messages: [message],
     };
   };

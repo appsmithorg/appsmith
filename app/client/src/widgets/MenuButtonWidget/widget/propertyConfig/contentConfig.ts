@@ -3,7 +3,7 @@ import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MenuItemsSource, MenuButtonWidgetProps } from "../../constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { arrayOfValuesWithMaxLengthTen } from "widgets/MenuButtonWidget/validations";
+import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 import menuItemsConfig from "./childPanels/menuItemsConfig";
 
@@ -66,7 +66,7 @@ export default [
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
-            fn: arrayOfValuesWithMaxLengthTen,
+            fn: sourceDataArrayValidation,
             expected: {
               type: "Array of values",
               example: `['option1', 'option2'] | [{ "label": "label1", "value": "value1" }]`,
