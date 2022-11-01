@@ -23,7 +23,7 @@ export const migrateMenuButtonWidgetButtonProperties = (
 export const migrateMenuButtonDynamicItems = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "MENU_BUTTON_WIDGET") {
-      if (!("menuItemsSource" in child)) {
+      if (!child.menuItemsSource) {
         child.menuItemsSource = MenuItemsSource.STATIC;
       }
     } else if (child.children && child.children.length > 0) {
