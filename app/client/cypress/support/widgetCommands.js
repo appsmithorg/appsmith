@@ -721,10 +721,11 @@ Cypress.Commands.add("tableV2ColumnPopertyUpdate", (colId, newColName) => {
 Cypress.Commands.add("backFromPropertyPanel", () => {
   cy.wait(500);
   cy.get("body").then(($body) => {
-    const count = $body.find(commonlocators.editPropBackButton)?.length || 0;
+    let count = $body.find(commonlocators.editPropBackButton)?.length || 0;
     if (count > 0) {
       cy.get(commonlocators.editPropBackButton).click({ force: true });
       cy.wait(500);
+      cy.backFromPropertyPanel();
     }
   });
 });
