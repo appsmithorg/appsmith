@@ -1,6 +1,7 @@
 import React from "react";
-import { Classes, CommonComponentProps } from "components/ads/common";
 import {
+  Classes,
+  CommonComponentProps,
   Menu,
   MenuDivider,
   MenuItem,
