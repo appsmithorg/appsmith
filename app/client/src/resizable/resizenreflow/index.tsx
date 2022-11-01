@@ -163,6 +163,7 @@ type ResizableProps = {
   responsiveBehavior?: ResponsiveBehavior;
   direction?: LayoutDirection;
   paddingOffset: number;
+  isAffectedByDrag: boolean;
 };
 
 export function ReflowResizable(props: ResizableProps) {
@@ -308,14 +309,21 @@ export function ReflowResizable(props: ResizableProps) {
         width: props.componentWidth,
         height: props.componentHeight,
         x:
-          props.isFlexChild && props.parentId === MAIN_CONTAINER_WIDGET_ID
+          !props.isAffectedByDrag &&
+          props.isFlexChild &&
+          props.parentId === MAIN_CONTAINER_WIDGET_ID
             ? props.paddingOffset / 2
             : 0,
         y: 0,
         reset: true,
       };
     });
-  }, [props.componentHeight, props.componentWidth, isResizing]);
+  }, [
+    props.componentHeight,
+    props.componentWidth,
+    isResizing,
+    props.isAffectedByDrag,
+  ]);
 
   const handles = [];
 
@@ -503,7 +511,7 @@ export function ReflowResizable(props: ResizableProps) {
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
-        width: widgetWidth,
+        width: props.isAffectedByDrag ? "auto" : widgetWidth,
         height: widgetHeight,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}

@@ -288,22 +288,21 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
-  const newWidth =
+  const isAffectedByDrag =
     isCurrentCanvasDragging ||
-    (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID)
-      ? dimensions.width - props.parentColumnSpace
-      : dimensions.width;
+    (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
 
   return (
     <Resizable
       allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
-      componentWidth={newWidth}
+      componentWidth={dimensions.width}
       direction={props.direction}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
+      isAffectedByDrag={isAffectedByDrag}
       isFlexChild={props.isFlexChild}
       onStart={handleResizeStart}
       onStop={updateSize}
