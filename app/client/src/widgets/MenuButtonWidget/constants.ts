@@ -13,28 +13,44 @@ export enum MenuItemsSource {
   DYNAMIC = "DYNAMIC",
 }
 
+export interface MenuItems {
+  widgetId: string;
+  id: string;
+  index: number;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  label?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  iconName?: IconName;
+  iconColor?: string;
+  iconAlign?: Alignment;
+  onClick?: string;
+}
+
+export interface ConfigureMenuItems {
+  label: string;
+  id: string;
+  config: {
+    id: string;
+    label: any;
+    isVisible: any;
+    isDisabled: any;
+    onClick?: string;
+    backgroundColor?: string;
+    textColor?: string;
+    iconName?: IconName;
+    iconColor?: string;
+    iconAlign?: Alignment;
+  };
+}
+
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: Record<string, MenuItems>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius: ButtonBorderRadius;
@@ -43,22 +59,7 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
   menuItemsSource: MenuItemsSource;
-  configureMenuItems: {
-    label: string;
-    id: string;
-    config: {
-      id: string;
-      label: any;
-      isVisible: any;
-      isDisabled: any;
-      onClick?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-    };
-  };
+  configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
   sourceDataKeys?: Array<string>;
 }
@@ -68,23 +69,7 @@ export interface MenuButtonComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: Record<string, MenuItems>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius: string;
@@ -99,65 +84,19 @@ export interface MenuButtonComponentProps {
   menuDropDownWidth: number;
   renderMode?: RenderMode;
   menuItemsSource: MenuItemsSource;
-  configureMenuItems: {
-    label: string;
-    id: string;
-    config: {
-      id: string;
-      label: any;
-      isVisible: any;
-      isDisabled: any;
-      onClick?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-    };
-  };
+  configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
   sourceDataKeys?: Array<string>;
 }
 
 export interface PopoverContentProps {
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: Record<string, MenuItems>;
   onItemClicked: (onClick: string | undefined, index: number) => void;
   isCompact?: boolean;
   borderRadius?: string;
   backgroundColor?: string;
   menuItemsSource: MenuItemsSource;
-  configureMenuItems: {
-    label: string;
-    id: string;
-    config: {
-      id: string;
-      label: any;
-      isVisible: any;
-      isDisabled: any;
-      onClick?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-    };
-  };
+  configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
   sourceDataKeys?: Array<string>;
 }
