@@ -26,7 +26,7 @@ describe("Switch datasource", function() {
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
@@ -48,7 +48,7 @@ describe("Switch datasource", function() {
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
@@ -70,7 +70,7 @@ describe("Switch datasource", function() {
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
 
     cy.fillMongoDatasourceForm();

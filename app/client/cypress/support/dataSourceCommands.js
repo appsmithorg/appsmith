@@ -39,7 +39,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       cy.wait("@saveDatasource").should(
         "have.nested.property",
         "response.body.responseMeta.status",
-        200,
+        201,
       );
       // select datasource to be deleted by datasource title
       cy.get(`${datasourceEditor.datasourceCard}`)
@@ -92,7 +92,7 @@ Cypress.Commands.add("saveDatasource", () => {
     .then((xhr) => {
       cy.log(JSON.stringify(xhr.response.body));
     })
-    .should("have.nested.property", "response.body.responseMeta.status", 200);
+    .should("have.nested.property", "response.body.responseMeta.status", 201);
 });
 
 Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
@@ -483,7 +483,7 @@ Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {
   cy.wait("@saveDatasource").should(
     "have.nested.property",
     "response.body.responseMeta.status",
-    200,
+    201,
   );
 });
 

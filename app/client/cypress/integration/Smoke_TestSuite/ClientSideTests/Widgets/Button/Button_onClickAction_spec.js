@@ -72,7 +72,7 @@ describe("Button Widget Functionality", function() {
       cy.wait("@saveDatasource").should(
         "have.nested.property",
         "response.body.responseMeta.status",
-        200,
+        201,
       );
       cy.fillPostgresDatasourceForm();
       cy.saveDatasource();

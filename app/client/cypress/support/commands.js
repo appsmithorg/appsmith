@@ -377,7 +377,7 @@ Cypress.Commands.add(
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
   },
 );

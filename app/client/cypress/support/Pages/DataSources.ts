@@ -316,7 +316,7 @@ export class DataSources {
   }
 
   public SaveDatasource() {
-    cy.get(this._saveDs).click();
+    this.agHelper.GetNClick(this._saveDs);
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
     this.agHelper.AssertContains("datasource created");
 
@@ -581,21 +581,12 @@ export class DataSources {
     //Click on Authenticated Graphql API
     cy.get(this._createGraphQLDatasource).click({ force: true });
     //Verify weather Authenticated Graphql Datasource is successfully created.
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
     this.FillGraphQLDSForm(datasourceName);
 
     // save datasource
-    cy.get(".t--save-datasource").click({ force: true });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    this.agHelper.GetNClick(this._saveDs);
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
   }
 
   public UpdateGraphqlQueryAndVariable(options?: {

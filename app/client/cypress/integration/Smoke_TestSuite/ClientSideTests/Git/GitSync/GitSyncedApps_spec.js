@@ -60,7 +60,7 @@ describe("Git sync apps", function() {
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
 
     cy.wait("@getDatasourceStructure").should(

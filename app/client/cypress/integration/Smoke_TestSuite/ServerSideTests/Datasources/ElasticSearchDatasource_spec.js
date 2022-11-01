@@ -23,7 +23,7 @@ describe("Elastic search datasource tests", function() {
     cy.wait("@saveDatasource").should(
       "have.nested.property",
       "response.body.responseMeta.status",
-      200,
+      201,
     );
     cy.fillElasticDatasourceForm();
 
