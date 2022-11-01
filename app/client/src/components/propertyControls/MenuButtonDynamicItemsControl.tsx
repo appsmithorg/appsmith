@@ -137,9 +137,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     return `{{${menuButtonId}.sourceData.map((currentItem, currentIndex) => ( `;
   };
 
-  static getSuffix = () => {
-    return `))}}`;
-  };
+  static getSuffix = `))}}`;
 
   static getInputComputedValue = (
     propertyValue: string,
@@ -147,7 +145,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
   ) => {
     const value = `${propertyValue.substring(
       this.getPrefix(menuButtonId).length,
-      propertyValue.length - 4,
+      propertyValue.length - this.getSuffix.length,
     )}`;
     const stringValue = JSToString(value);
 
@@ -161,7 +159,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     }
     return `${MenuButtonDynamicItemsControl.getPrefix(
       menuButtonId,
-    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.getSuffix()}`;
+    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.getSuffix}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
