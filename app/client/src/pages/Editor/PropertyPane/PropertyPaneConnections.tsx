@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import {
+  Classes,
   Dropdown,
   DefaultDropDownValueNodeProps,
   DropdownOption,
@@ -15,7 +16,6 @@ import {
   TooltipComponent as Tooltip,
   RenderDropdownOptionType,
 } from "design-system";
-import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {

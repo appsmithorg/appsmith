@@ -68,7 +68,12 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 5 },
+              params: {
+                min: 1,
+                max: 100,
+                default: 5,
+                passThroughOnZero: false,
+              },
             },
           },
           {

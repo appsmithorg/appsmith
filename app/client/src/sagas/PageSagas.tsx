@@ -96,8 +96,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";

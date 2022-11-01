@@ -38,7 +38,7 @@ import ApplicationCard from "./ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
@@ -48,6 +48,7 @@ import {
   AppIconCollection,
   Button,
   Category,
+  Classes,
   EditableText,
   EditInteractionKind,
   DialogComponent as Dialog,
@@ -66,7 +67,6 @@ import {
   duplicateApplication,
   updateApplication,
 } from "actions/applicationActions";
-import { Classes } from "components/ads/common";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
@@ -540,7 +540,6 @@ function ApplicationsSection(props: any) {
   ) => {
     dispatch(updateApplication(id, data));
   };
-  const featureFlags = useSelector(selectFeatureFlags);
 
   useEffect(() => {
     // Clears URL params cache
@@ -953,12 +952,10 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      {featureFlags.GIT_IMPORT && (
-        <>
-          <GitSyncModal isImport />
-          <DisconnectGitModal />
-        </>
-      )}
+      <>
+        <GitSyncModal isImport />
+        <DisconnectGitModal />
+      </>
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
