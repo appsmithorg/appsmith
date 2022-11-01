@@ -1,19 +1,20 @@
 package com.external.plugins;
 
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.datatypes.AppsmithType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
@@ -84,6 +85,8 @@ public class MssqlPlugin extends BasePlugin {
     private static final int MAXIMUM_POOL_SIZE = 10;
 
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
+
+    private static final long MS_SQL_DEFAULT_PORT = 1433L;
 
     public MssqlPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -429,18 +432,6 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> {
-                        if (connection != null) {
-                            connection.close();
-                        }
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
-        }
-
-        @Override
         public Mono<ActionExecutionResult> execute(HikariDataSource connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
@@ -457,7 +448,9 @@ public class MssqlPlugin extends BasePlugin {
                                              Object... args) throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
-            DataType valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+            Param param = (Param) args[0];
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(param.getClientDataType(), value);
+            DataType valueType = appsmithType.type();
 
             Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
             insertedParams.add(parameter);
@@ -526,6 +519,15 @@ public class MssqlPlugin extends BasePlugin {
         }
     }
 
+    public static long getPort(Endpoint endpoint) {
+
+        if (endpoint.getPort() == null) {
+            return MS_SQL_DEFAULT_PORT;
+        }
+
+        return endpoint.getPort();
+    }
+
     /**
      * This function is blocking in nature which connects to the database and creates a connection pool
      *
@@ -561,7 +563,7 @@ public class MssqlPlugin extends BasePlugin {
             urlBuilder
                     .append(endpoint.getHost())
                     .append(":")
-                    .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                    .append(getPort(endpoint))
                     .append(";");
         }
 

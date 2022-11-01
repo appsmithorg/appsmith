@@ -29,6 +29,7 @@ function IconButton(props: {
   borderRadius: string;
   boxShadow: string;
   disabled: boolean;
+  compactMode?: string;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -55,6 +56,7 @@ function IconButton(props: {
         boxShadow={props.boxShadow}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
+        compactMode={props.compactMode}
         disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
@@ -122,6 +124,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
             boxShadow={boxShadow}
             buttonColor={buttonColor}
             buttonVariant={buttonVariant}
+            compactMode={compactMode}
             disabled={disabled}
             iconName={iconName}
             isSelected={isSelected}

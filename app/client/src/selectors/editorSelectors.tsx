@@ -88,7 +88,10 @@ export const getIsPageSaving = (state: AppState) => {
 };
 
 export const snipingModeSelector = (state: AppState) =>
-  state.ui.editor?.isSnipingMode;
+  state.ui.editor.isSnipingMode;
+
+export const snipingModeBindToSelector = (state: AppState) =>
+  state.ui.editor.snipModeBindTo;
 
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;

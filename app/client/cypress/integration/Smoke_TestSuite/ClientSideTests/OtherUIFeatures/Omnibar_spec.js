@@ -166,12 +166,17 @@ describe("Omnibar functionality test cases", () => {
       .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
-      .eq(2)
-      .should("have.text", "Omnibar2")
+      .eq(1)
+      .should("have.text", "Audio1")
       .next()
       .should("have.text", "Page1");
     cy.xpath(omnibar.recentlyopenItem)
       .eq(3)
+      .should("have.text", "Omnibar2")
+      .next()
+      .should("have.text", "Page1");
+    cy.xpath(omnibar.recentlyopenItem)
+      .eq(4)
       .should("have.text", "Omnibar1")
       .next()
       .should("have.text", "Page1");

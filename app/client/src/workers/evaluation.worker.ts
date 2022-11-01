@@ -12,7 +12,6 @@ import {
   DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
-  validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
@@ -27,6 +26,7 @@ import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { EvalTreePayload } from "../sagas/EvaluationsSaga";
 import { UserLogObject } from "entities/AppsmithConsole";
+import { validateWidgetProperty } from "./DataTreeEvaluator/validationUtils";
 
 const CANVAS = "canvas";
 
@@ -241,6 +241,7 @@ ctx.addEventListener(
           dynamicTrigger,
           eventType,
           globalContext,
+          triggerMeta,
         } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
@@ -258,6 +259,7 @@ ctx.addEventListener(
           {
             globalContext,
             eventType,
+            triggerMeta,
           },
         );
 

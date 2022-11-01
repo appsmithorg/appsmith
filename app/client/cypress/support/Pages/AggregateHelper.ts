@@ -20,11 +20,10 @@ export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
   private isMac = Cypress.platform === "darwin";
-  private selectLineNRemove = `${
-    this.isMac
-      ? "{cmd}{shift}{leftArrow}{backspace}"
-      : "{shift}{home}{backspace}"
+  private selectLine = `${
+    this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
+  private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
 
   private selectChars = (noOfChars: number) =>
@@ -75,7 +74,12 @@ export class AggregateHelper {
         // Dumping the DSL to the created page
         cy.request(
           "PUT",
-          "api/v1/layouts/" + layoutId + "/pages/" + pageid + "?applicationId=" + appId,
+          "api/v1/layouts/" +
+            layoutId +
+            "/pages/" +
+            pageid +
+            "?applicationId=" +
+            appId,
           dsl,
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
@@ -136,9 +140,10 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      locator = selector.startsWith("//") || selector.startsWith("(//")
-        ? cy.xpath(selector, { timeout: timeout })
-        : cy.get(selector, { timeout: timeout });
+      locator =
+        selector.startsWith("//") || selector.startsWith("(//")
+          ? cy.xpath(selector, { timeout: timeout })
+          : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
     return locator;
   }
@@ -309,6 +314,11 @@ export class AggregateHelper {
     this.Sleep(); //for selected value to reflect!
   }
 
+  public SelectFromMutliTree(dropdownOption: string) {
+    this.GetNClick(this.locator._dropDownMultiTreeSelect);
+    this.GetNClick(this.locator._dropDownMultiTreeValue(dropdownOption));
+  }
+
   public SelectFromDropDown(
     dropdownOption: string,
     insideParent = "",
@@ -392,6 +402,10 @@ export class AggregateHelper {
     cy.get("body").type("{esc}");
   }
 
+  public PressEnter() {
+    cy.get("body").type("{enter}");
+  }
+
   public PressDelete() {
     cy.get("body").type(`{del}`, { force: true });
   }
@@ -466,7 +480,8 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.type(this.selectLineNRemove);
+    locator.type(this.selectLine);
+    return locator.type(this.removeLine);
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
@@ -755,6 +770,12 @@ export class AggregateHelper {
       });
   }
 
+  public VerifyEvaluatedErrorMessage(errorMessage: string) {
+    cy.get(this.locator._evaluatedErrorMessage)
+      .should("be.visible")
+      .should("have.text", errorMessage);
+  }
+
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
     cy.get(this.locator._evaluatedCurrentValue)
@@ -800,17 +821,6 @@ export class AggregateHelper {
     toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 
-  public AssertDebugError(label: string, messgae: string) {
-    this.GetNClick(this.locator._debuggerIcon, 0, true, 0);
-    this.GetNClick(this.locator._errorTab, 0, true, 0);
-    this.GetText(this.locator._debuggerLabel, "text", 0).then(($text) => {
-      expect($text).to.eq(label);
-    });
-    this.GetText(this.locator._debugErrorMsg, "text", 0).then(($text) => {
-      expect($text).to.contains(messgae);
-    });
-  }
-
   public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
     return this.GetElement(selector, timeout).should("not.exist");
@@ -824,6 +834,12 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .invoke(textOrValue);
+  }
+
+  AssertHeight(selector: ElementType, height: number) {
+    return this.GetElement(selector)
+      .invoke("height")
+      .should("be.equal", height);
   }
 
   public AssertText(
@@ -870,18 +886,30 @@ export class AggregateHelper {
   public AssertContains(
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    selector?: string,
   ) {
+    if (selector) {
+      return cy.contains(selector, text).should(exists);
+    }
     return cy.contains(text).should(exists);
   }
 
   public GetNAssertContains(
     selector: ElementType,
-    text: string | RegExp,
+    text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    index?: number,
+    timeout?: number,
   ) {
-    return this.GetElement(selector)
-      .contains(text)
-      .should(exists);
+    if (index)
+      return this.GetElement(selector, timeout)
+        .eq(index)
+        .contains(text)
+        .should(exists);
+    else
+      return this.GetElement(selector, timeout)
+        .contains(text)
+        .should(exists);
   }
 
   public ScrollTo(

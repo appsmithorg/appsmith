@@ -84,6 +84,7 @@ type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
   unlisten: any;
+  prevLocation: any;
 
   public state = {
     registered: false,
@@ -108,6 +109,7 @@ class Editor extends Component<Props> {
         mode: APP_MODE.EDIT,
       });
     this.props.handlePathUpdated(window.location);
+    this.prevLocation = window.location;
     this.unlisten = history.listen(this.handleHistoryChange);
 
     if (this.props.isPageLevelSocketConnected && pageId) {
@@ -201,7 +203,13 @@ class Editor extends Component<Props> {
   }
 
   handleHistoryChange = (location: any) => {
-    this.props.handlePathUpdated(location);
+    if (
+      this.prevLocation?.pathname !== location?.pathname ||
+      this.prevLocation?.search !== location?.search
+    ) {
+      this.props.handlePathUpdated(location);
+      this.prevLocation = location;
+    }
   };
 
   public render() {

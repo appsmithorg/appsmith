@@ -27,7 +27,7 @@ describe("Image Widget Validation Image Urls", function() {
   it("Remove both images and check empty screen", function() {
     cy.openPropertyPane("imagewidget");
 
-    cy.clearPropertyValue(0);
+    cy.testJsontext("image", "");
     cy.clearPropertyValue(1);
 
     cy.get(

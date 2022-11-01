@@ -1,0 +1,135 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 490,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 64,
+    "minHeight": 1292,
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "NumberSlider1",
+        "defaultValue": 10,
+        "displayName": "Number Slider",
+        "iconSVG": "/static/media/icon.f122000eb591fcd1410a4775a54f9f0d.svg",
+        "tooltipAlwaysOn": false,
+        "labelText": "Percentage",
+        "searchTags": [
+          "range"
+        ],
+        "topRow": 11,
+        "bottomRow": 19,
+        "parentRowSpace": 10,
+        "labelWidth": 8,
+        "type": "NUMBER_SLIDER_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "min": "0",
+        "parentColumnSpace": 10.046875,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 10,
+        "dynamicBindingPathList": [
+          {
+            "key": "accentColor"
+          }
+        ],
+        "shouldTruncate": false,
+        "labelPosition": "Left",
+        "isDisabled": false,
+        "key": "uek2zpu25e",
+        "labelTextSize": "0.875rem",
+        "isDeprecated": false,
+        "rightColumn": 61,
+        "max": "100",
+        "widgetId": "f1rpukoj6a",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "isVisible": true,
+        "marks": [
+          {
+            "value": 25,
+            "label": "25%"
+          },
+          {
+            "value": 50,
+            "label": "50%"
+          },
+          {
+            "value": 75,
+            "label": "75%"
+          }
+        ],
+        "sliderSize": "l",
+        "shouldScroll": false,
+        "version": 1,
+        "parentId": "0",
+        "labelAlignment": "left",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "step": 1,
+        "showMarksLabel": true
+      },
+      {
+        "widgetName": "Text1",
+        "displayName": "Text",
+        "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+        "searchTags": [
+          "typography",
+          "paragraph",
+          "label"
+        ],
+        "topRow": 28,
+        "bottomRow": 32,
+        "parentRowSpace": 10,
+        "type": "TEXT_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "overflow": "NONE",
+        "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+        "parentColumnSpace": 10.046875,
+        "dynamicTriggerPathList": [],
+        "leftColumn": 16,
+        "dynamicBindingPathList": [
+          {
+            "key": "fontFamily"
+          },
+          {
+            "key": "borderRadius"
+          },
+          {
+            "key": "text"
+          }
+        ],
+        "shouldTruncate": false,
+        "truncateButtonColor": "#FFC13D",
+        "text": "{{NumberSlider1.value}}",
+        "key": "5xdwi352rj",
+        "isDeprecated": false,
+        "rightColumn": 32,
+        "textAlign": "LEFT",
+        "widgetId": "c4h96ty553",
+        "isVisible": true,
+        "fontStyle": "BOLD",
+        "textColor": "#231F20",
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "fontSize": "1rem"
+      }
+    ]
+  }
+}

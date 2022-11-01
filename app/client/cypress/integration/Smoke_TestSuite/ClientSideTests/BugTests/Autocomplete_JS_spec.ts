@@ -13,7 +13,7 @@ const {
 const jsObjectBody = `export default {
 	myVar1: [],
 	myVar2: {},
-	myFun1(){   
+	myFun1(){
 
 	},
 	myFun2: async () => {
@@ -41,8 +41,8 @@ describe("Autocomplete tests", () => {
     // 1. Button group widget autocomplete verification
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ButtonGroup1.");
     agHelper.GetNAssertElementText(CommonLocators._hints, "isVisible");
-    agHelper.GetNClickByContains(CommonLocators._hints, "isVisible");
     agHelper.Sleep();
+    agHelper.GetNClickByContains(CommonLocators._hints, "isVisible");
 
     // 2. Document view widget autocomplete verification
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);

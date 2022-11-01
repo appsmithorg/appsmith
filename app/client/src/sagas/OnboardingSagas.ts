@@ -29,8 +29,7 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { Workspaces } from "constants/workspaceConstants";
 import {
   enableGuidedTour,
@@ -78,6 +77,7 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { shouldBeDefined } from "utils/helpers";
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { sessionStorage } from "utils/localStorage";
+import store from "store";
 import {
   createMessage,
   ONBOARDING_SKIPPED_FIRST_TIME_USER,
@@ -216,10 +216,6 @@ function* setUpTourAppSaga() {
       },
     }),
   );
-  // Hide the explorer initialy
-  yield put(setExplorerPinnedAction(false));
-  yield put(setExplorerActiveAction(false));
-  yield put(toggleLoader(false));
   if (!query) return;
   history.push(
     queryEditorIdURL({
@@ -227,6 +223,10 @@ function* setUpTourAppSaga() {
       queryId: query.config.id,
     }),
   );
+  // Hide the explorer initialy
+  yield put(setExplorerPinnedAction(false));
+  yield put(setExplorerActiveAction(false));
+  yield put(toggleLoader(false));
 }
 
 function* addOnboardingWidget(action: ReduxAction<Partial<WidgetProps>>) {
@@ -368,7 +368,7 @@ function* selectWidgetSaga(
 
   if (widget) {
     // Navigate to the widget as well, usefull especially when we are not on the canvas
-    navigateToCanvas({ pageId, widgetId: widget.widgetId });
+    navigateToCanvas(pageId, widget.widgetId);
     yield put(selectWidgetInitAction(widget.widgetId));
     // Delay to wait for the fields to render
     yield delay(1000);
@@ -410,6 +410,7 @@ function* endFirstTimeUserOnboardingSaga() {
     hideProgressBar: false,
     variant: Variant.success,
     dispatchableAction: {
+      dispatch: store.dispatch,
       type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
       payload: firstTimeUserExperienceAppId,
     },

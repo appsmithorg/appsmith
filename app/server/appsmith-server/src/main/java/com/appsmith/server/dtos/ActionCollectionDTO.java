@@ -97,6 +97,10 @@ public class ActionCollectionDTO {
     @JsonIgnore
     DefaultResources defaultResources;
 
+    // Instead of storing the entire action object, we only populate this field while interacting with the client side
+    @Transient
+    Set<String> userPermissions = Set.of();
+
     public Set<String> validate() {
         Set<String> validationErrors = new HashSet<>();
         if (this.workspaceId == null) {
@@ -121,6 +125,7 @@ public class ActionCollectionDTO {
         this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
+        this.setUserPermissions(actionCollection.userPermissions);
         copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
     }
 
