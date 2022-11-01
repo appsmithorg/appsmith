@@ -10,11 +10,11 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["dropdown"],
   defaults: {
-    rows: 4,
+    rows: 7,
     columns: 20,
     placeholderText: "Select option",
     labelText: "Label",
-    labelPosition: LabelPosition.Left,
+    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     options: [
