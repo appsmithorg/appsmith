@@ -5,7 +5,10 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import {
+  AppLayoutConfig,
+  PageListReduxState,
+} from "reducers/entityReducers/pageListReducer";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
@@ -196,7 +199,7 @@ export const getViewModePageList = createSelector(
   },
 );
 
-const defaultLayout = {
+const defaultLayout: AppLayoutConfig = {
   type: "FLUID",
 };
 
