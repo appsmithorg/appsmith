@@ -240,7 +240,9 @@ const StyledMenu = styled(Menu)<{
 `;
 
 function PopoverContent(props: PopoverContentProps) {
-  const { backgroundColor, isCompact, onItemClicked, visibleItems } = props;
+  const { backgroundColor, getVisibleItems, isCompact, onItemClicked } = props;
+
+  const visibleItems = getVisibleItems();
 
   if (!visibleItems?.length) return <StyledMenu />;
 
@@ -344,6 +346,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     borderRadius,
     boxShadow,
     configureMenuItems,
+    getVisibleItems,
     iconAlign,
     iconName,
     isCompact,
@@ -358,7 +361,6 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     placement,
     renderMode,
     sourceData,
-    visibleItems,
     widgetId,
     width,
   } = props;
@@ -377,12 +379,12 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
             backgroundColor={menuColor}
             borderRadius={borderRadius}
             configureMenuItems={configureMenuItems}
+            getVisibleItems={getVisibleItems}
             isCompact={isCompact}
             menuItems={menuItems}
             menuItemsSource={menuItemsSource}
             onItemClicked={onItemClicked}
             sourceData={sourceData}
-            visibleItems={visibleItems}
           />
         }
         disabled={isDisabled}
