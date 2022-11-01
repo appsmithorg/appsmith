@@ -53,14 +53,12 @@ public class AstServiceCEImpl implements AstServiceCE {
         // If RTS server is not accessible for this instance, it means that this is a slim container set up
         // Proceed with assuming that all words need to be processed as possible entity references
         if (Boolean.FALSE.equals(instanceConfig.getIsRtsAccessible())) {
-            return Mono.just(bindingValues)
-                    .flatMapMany(Flux::fromIterable)
+            return Flux.fromIterable(bindingValues)
                     .flatMap(
                             bindingValue -> {
                                 return Mono.zip(Mono.just(bindingValue), Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue))));
                             }
                     );
-
         }
         return webClient
                 .post()
