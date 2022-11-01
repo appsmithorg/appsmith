@@ -225,7 +225,7 @@ export const quickScrollToWidget = (widgetId?: string) => {
 
   setTimeout(() => {
     const el = document.getElementById(widgetId);
-    const canvas = document.getElementById("art-board");
+    const canvas = document.getElementById("canvas-viewport");
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
       el.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -239,6 +239,7 @@ function isElementVisibleInContainer(
   element: HTMLElement,
   container: HTMLElement,
 ) {
+  debugger;
   const elementRect = element.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
   return (
