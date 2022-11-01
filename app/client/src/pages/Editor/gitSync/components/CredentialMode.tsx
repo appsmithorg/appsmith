@@ -1,17 +1,17 @@
 import {
+  Classes as AdsClasses,
   Icon,
   IconSize,
   Text,
   Case,
   FontWeight,
   TextType,
+  TooltipComponent,
 } from "design-system";
-import { TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { CREDENTIAL_MODE } from "../constants";
-import { Classes as AdsClasses } from "components/ads/common";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 const Container = styled.div`
