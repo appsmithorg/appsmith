@@ -147,6 +147,12 @@ function CanvasContainer() {
           // Adjust the dimension of element
           ele.style.width = `${w + dx}px`;
         }
+        if (initialWidth < w + dx) {
+          ele.style.width = `${initialWidth}px`;
+        }
+        if (smallestWidth > w + dx) {
+          ele.style.width = `${smallestWidth}px`;
+        }
         // e.stopPropagation();
       };
 
@@ -205,7 +211,6 @@ function CanvasContainer() {
               e.stopPropagation();
             }}
             style={{
-              zIndex: 100,
               position: "sticky",
               cursor: "col-resize",
               width: "16px",
@@ -224,7 +229,6 @@ function CanvasContainer() {
               e.stopPropagation();
             }}
             style={{
-              zIndex: 100,
               position: "sticky",
               cursor: "col-resize",
               width: "16px",
