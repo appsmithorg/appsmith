@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import PageUnavailableImage from "assets/images/404-image.png";
+import { Button, Size } from "design-system";
 
 const Wrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.headerHeight});
@@ -19,32 +20,28 @@ const Wrapper = styled.div`
     margin: auto;
   }
 `;
-const RetryButton = styled.button`
-  background-color: #f3672a;
-  color: white;
-  height: 40px;
-  width: 300px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 17px;
-  margin-top: 16px;
-`;
 
 function ServerUnavailable() {
   return (
-    <Wrapper>
+    <Wrapper className="space-y-6">
       <img
         alt="Page Unavailable"
         className="page-unavailable-img"
         src={PageUnavailableImage}
       />
-      <div>
+      <div className="space-y-2">
         <p className="bold-text">Appsmith server is unavailable</p>
         <p>Please try again after some time</p>
-        <RetryButton onClick={() => window.location.reload()}>
-          {"Retry"}
-        </RetryButton>
+        <Button
+          category="primary"
+          className="button-position"
+          fill="true"
+          onClick={() => window.location.reload()}
+          size={Size.large}
+          tag="button"
+          text={"Retry"}
+          variant="info"
+        />
       </div>
     </Wrapper>
   );

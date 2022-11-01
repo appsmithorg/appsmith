@@ -14,7 +14,7 @@ import { Workspace } from "constants/workspaceConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
 import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
@@ -219,6 +219,22 @@ export const flashElementsById = (
       if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
+};
+
+/**
+ * Scrolls to the widget of WidgetId without any animantion.
+ * @param widgetId
+ * @returns
+ */
+export const quickScrollToWidget = (widgetId?: string) => {
+  if (!widgetId) return;
+
+  setTimeout(() => {
+    const el = document.getElementById(widgetId);
+    if (el) {
+      el.scrollIntoView({ block: "center" });
+    }
+  }, 0);
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {

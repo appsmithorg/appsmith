@@ -33,7 +33,7 @@ export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
   panelIdPropertyName: string;
-  children: PropertyPaneConfig[];
+  children?: PropertyPaneConfig[];
   contentChildren?: PropertyPaneConfig[];
   styleChildren?: PropertyPaneConfig[];
   updateHook: (
@@ -50,7 +50,7 @@ export type PropertyPaneControlConfig = {
   // Serves in the tooltip
   helpText?: string;
   //Dynamic text serves below the property pane inputs
-  helperText?: ((props: WidgetProps) => string) | string;
+  helperText?: ((props: any) => string) | string;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;
@@ -121,12 +121,14 @@ type ValidationConfigParams = {
   ignoreCase?: boolean; //to ignore the case of key
   type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
   params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
+  passThroughOnZero?: boolean; // Used for ValidationType.NUMBER to allow 0 to be passed through. Deafults value is true
   limitLineBreaks?: boolean; // Used for ValidationType.TEXT to limit line breaks in a large json object.
 };
 
 export type ValidationConfig = {
   type: ValidationTypes;
   params?: ValidationConfigParams;
+  dependentPaths?: string[];
 };
 
 export type PropertyPaneConfig =

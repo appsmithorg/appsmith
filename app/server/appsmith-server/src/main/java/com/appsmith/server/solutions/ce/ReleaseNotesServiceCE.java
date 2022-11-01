@@ -13,6 +13,8 @@ public interface ReleaseNotesServiceCE {
 
     String getReleasedVersion();
 
+    String getRunningVersion();
+
     void refreshReleaseNotes();
 
     List<ReleaseNode> getReleaseNodesCache();

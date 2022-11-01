@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from "react";
-import Dialog from "components/ads/DialogComponent";
 import {
   getActiveGitSyncModalTab,
   getIsGitConnected,
@@ -13,7 +12,7 @@ import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
-import { Icon, IconSize } from "design-system";
+import { DialogComponent as Dialog, Icon, IconSize } from "design-system";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
@@ -21,6 +20,7 @@ import { get } from "lodash";
 import { GitSyncModalTab } from "entities/GitSync";
 import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useGitConnect } from "./hooks";
 
 const Container = styled.div`
   height: 600px;
@@ -72,8 +72,10 @@ function GitSyncModal(props: { isImport?: boolean }) {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const isGitConnected = useSelector(getIsGitConnected);
   const activeTabIndex = useSelector(getActiveGitSyncModalTab);
+  const { onGitConnectFailure: resetGitConnectStatus } = useGitConnect();
 
   const handleClose = useCallback(() => {
+    resetGitConnectStatus();
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
     dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);

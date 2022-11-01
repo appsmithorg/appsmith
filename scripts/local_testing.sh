@@ -7,11 +7,13 @@ display_help()
   echo "Use this script to run a local instance of Appsmith on port 80."
   echo "The script will build all the artefacts required for a fat Docker container to come up."
   echo "If no argument is given, the build defaults to release branch."
+  echo "If --local or -l is passed, it will build with local changes"
   echo "---------------------------------------------------------------------------------------"
   echo
-  echo "Syntax: $0 [-h] [branchName]"
+  echo "Syntax: $0 [-h] [-l] [branchName]"
   echo "options:"
   echo "h     Print this help"
+  echo "local"    Use the local codebase and not git
   echo
 }
 
@@ -28,16 +30,29 @@ if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
   display_help
   exit 0
-fi 
+fi
+
+LOCAL=false
+if [[ ($@ == "--local" || $@ == "-l")]]
+then
+  LOCAL=true
+fi
 
 BRANCH=${1:-release}
 
-pretty_print "Setting up instance to run on branch: $BRANCH"
-cd "$(dirname "$0")"/..
-git fetch origin $BRANCH
-git checkout $BRANCH
-git pull origin $BRANCH
-pretty_print "Local branch is now up to date. Starting server build ..."
+if [[ ($LOCAL == true) ]]
+then
+  pretty_print "Setting up instance with local changes"
+else
+  pretty_print "Setting up instance to run on branch: $BRANCH"
+  cd "$(dirname "$0")"/..
+  git fetch origin $BRANCH
+  git checkout $BRANCH
+  git pull origin $BRANCH
+  pretty_print "Local branch is now up to date. Starting server build ..."
+fi
+
+pretty_print "Starting server build ..."
 
 pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful. Starting client build ..."
 

@@ -30,10 +30,6 @@ class NumberSliderWidget extends BaseWidget<
   NumberSliderWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
-    return [...contentConfig, ...styleConfig];
-  }
-
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }

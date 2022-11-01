@@ -110,24 +110,24 @@ describe("evaluateSync", () => {
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", () => {
-    const js = "setTimeout(() => {}, 100)";
+    const js = "setImmediate(() => {}, 100)";
     const response = evaluate(js, dataTree, {}, false);
     expect(response).toStrictEqual({
       result: undefined,
       logs: [],
       errors: [
         {
-          errorMessage: "TypeError: setTimeout is not a function",
+          errorMessage: "ReferenceError: setImmediate is not defined",
           errorType: "PARSE",
           raw: `
   function closedFunction () {
-    const result = setTimeout(() => {}, 100)
+    const result = setImmediate(() => {}, 100)
     return result;
   }
   closedFunction.call(THIS_CONTEXT)
   `,
           severity: "error",
-          originalBinding: "setTimeout(() => {}, 100)",
+          originalBinding: "setImmediate(() => {}, 100)",
         },
       ],
     });
@@ -195,6 +195,7 @@ describe("evaluateAsync", () => {
     await evaluateAsync(js, {}, "TEST_REQUEST", {});
     expect(self.postMessage).toBeCalledWith({
       requestId: "TEST_REQUEST",
+      promisified: true,
       responseData: {
         finished: true,
         result: { errors: [], logs: [], result: 123, triggers: [] },
@@ -209,6 +210,7 @@ describe("evaluateAsync", () => {
     await evaluateAsync(js, {}, "TEST_REQUEST_1", {});
     expect(self.postMessage).toBeCalledWith({
       requestId: "TEST_REQUEST_1",
+      promisified: true,
       responseData: {
         finished: true,
         result: {

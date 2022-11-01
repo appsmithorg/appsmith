@@ -4,11 +4,14 @@ export const APPSMITH_GLOBAL_FUNCTIONS = {
   showModal: "showModal",
   closeModal: "closeModal",
   storeValue: "storeValue",
+  removeValue: "removeValue",
+  clearStore: "clearStore",
   download: "download",
   copyToClipboard: "copyToClipboard",
   resetWidget: "resetWidget",
   setInterval: "setInterval",
   clearInterval: "clearInterval",
+  postMessage: "postWindowMessage",
 };
 
 export const APPSMITH_NAMESPACED_FUNCTIONS = {
@@ -44,12 +47,12 @@ export const FILE_TYPE_OPTIONS = [
 export const NAVIGATION_TARGET_FIELD_OPTIONS = [
   {
     label: "Same window",
-    value: "SAME_WINDOW",
+    value: "'SAME_WINDOW'",
     id: "SAME_WINDOW",
   },
   {
     label: "New window",
-    value: "NEW_WINDOW",
+    value: "'NEW_WINDOW'",
     id: "NEW_WINDOW",
   },
 ];
@@ -60,6 +63,7 @@ export const ViewTypes = {
   TEXT_VIEW: "TEXT_VIEW",
   BOOL_VIEW: "BOOL_VIEW",
   TAB_VIEW: "TAB_VIEW",
+  NO_VIEW: "NO_VIEW",
 };
 
 export const NAVIGATE_TO_TAB_OPTIONS = {
@@ -69,7 +73,6 @@ export const NAVIGATE_TO_TAB_OPTIONS = {
 
 export enum FieldType {
   ACTION_SELECTOR_FIELD = "ACTION_SELECTOR_FIELD",
-  JS_ACTION_SELECTOR_FIELD = "JS_ACTION_SELECTOR_FIELD",
   ON_SUCCESS_FIELD = "ON_SUCCESS_FIELD",
   ON_ERROR_FIELD = "ON_ERROR_FIELD",
   SHOW_MODAL_FIELD = "SHOW_MODAL_FIELD",
@@ -96,5 +99,6 @@ export enum FieldType {
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
   MESSAGE_FIELD = "MESSAGE_FIELD",
   TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
+  SOURCE_FIELD = "SOURCE_FIELD",
   PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD = "PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD",
 }

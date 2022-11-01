@@ -14,7 +14,7 @@ import { GitApplicationMetadata } from "api/ApplicationApi";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name"],
@@ -166,6 +166,9 @@ export const getIsImportingApplication = (state: AppState) =>
 
 export const getWorkspaceIdForImport = (state: AppState) =>
   state.ui.applications.workspaceIdForImport;
+
+export const getPageIdForImport = (state: AppState) =>
+  state.ui.applications.pageIdForImport;
 
 export const getImportedApplication = (state: AppState) =>
   state.ui.applications.importedApplication;

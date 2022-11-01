@@ -83,6 +83,10 @@ export class JSEditor {
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
+  _dialogInDeployView =
+    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
+    "')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";
   _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
@@ -119,7 +123,10 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.AssertContains("created successfully");
+    // this.agHelper.AssertContains("created successfully"); //this check commented as toast check is removed
+    //Checking JS object was created successfully
+    this.agHelper.ValidateNetworkStatus("@createNewJSCollection", 201);
+
     this.agHelper.Sleep();
   }
 
@@ -209,7 +216,7 @@ export class JSEditor {
 
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
-    this.agHelper.Sleep();//for function to run
+    this.agHelper.Sleep(); //for function to run
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 

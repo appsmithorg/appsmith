@@ -9,7 +9,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
@@ -19,11 +19,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -53,10 +55,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
+    private final RefactoringSolution refactoringSolution;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
+    private final ActionCollectionRepository actionCollectionRepository;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -150,13 +154,13 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     // Store the default resource ids
                     // Only store defaultPageId for collectionDTO level resource
-                    DefaultResources defaultDTOResource =  new DefaultResources();
+                    DefaultResources defaultDTOResource = new DefaultResources();
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(collection.getDefaultResources(), defaultDTOResource);
 
                     defaultDTOResource.setApplicationId(null);
                     defaultDTOResource.setCollectionId(null);
                     defaultDTOResource.setBranchName(null);
-                    if(StringUtils.isEmpty(defaultDTOResource.getPageId())) {
+                    if (StringUtils.isEmpty(defaultDTOResource.getPageId())) {
                         defaultDTOResource.setPageId(collection.getPageId());
                     }
                     collection.setDefaultResources(defaultDTOResource);
@@ -165,7 +169,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     DefaultResources defaults = new DefaultResources();
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
                     defaults.setPageId(null);
-                    if(StringUtils.isEmpty(defaults.getApplicationId())) {
+                    if (StringUtils.isEmpty(defaults.getApplicationId())) {
                         defaults.setApplicationId(actionCollection.getApplicationId());
                     }
                     actionCollection.setDefaultResources(defaults);
@@ -188,6 +192,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 }
                                 return actionCollectionService.save(savedActionCollection);
                             })
+                            .flatMap(actionCollectionRepository::setUserPermissionsInObject)
                             .cache();
 
                     return actionCollectionMono
@@ -309,7 +314,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return actionUpdatesFlux
                             .then(actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection))
                             .then(branchedPageIdMono)
-                            .flatMap(branchedPageId -> layoutActionService.refactorName(branchedPageId, layoutId, oldName, newName));
+                            .flatMap(branchedPageId -> refactoringSolution.refactorName(branchedPageId, layoutId, oldName, newName));
                 })
                 .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
@@ -379,7 +384,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
                                             layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(page.getId(), layout.getId(), layout);
+                                            return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
                             })
@@ -394,7 +399,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
                                             layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(page.getId(), layout.getId(), layout);
+                                            return layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
                             })
@@ -590,20 +595,20 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
                 .zipWith(newPageService.findById(pageId, MANAGE_PAGES),
                         (branchedActionCollection, newPage) -> {
-                        //redundant check
-                    if (newPage.getUnpublishedPage().getLayouts().size() > 0 ) {
-                        // redundant check as the collection lies inside a layout. Maybe required for testcases
-                        branchedActionCollection.setErrorReports(newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActionErrors());
-                    }
+                            //redundant check
+                            if (newPage.getUnpublishedPage().getLayouts().size() > 0) {
+                                // redundant check as the collection lies inside a layout. Maybe required for testcases
+                                branchedActionCollection.setErrorReports(newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActionErrors());
+                            }
 
-                    return branchedActionCollection;
-                });
+                            return branchedActionCollection;
+                        });
     }
 
     @Override
     public Mono<LayoutDTO> refactorAction(RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO) {
         // First perform refactor of the action itself
-        final Mono<LayoutDTO> layoutDTOMono = layoutActionService
+        final Mono<LayoutDTO> layoutDTOMono = refactoringSolution
                 .refactorActionName(refactorActionNameInCollectionDTO.getRefactorAction())
                 .cache();
 
@@ -642,7 +647,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 });
 
         Mono<String> branchedCollectionIdMono = StringUtils.isEmpty(branchName)
-                ?  Mono.just(defaultActionCollection.getId())
+                ? Mono.just(defaultActionCollection.getId())
                 : actionCollectionService
                 .findByBranchNameAndDefaultCollectionId(branchName, defaultActionCollection.getId(), MANAGE_ACTIONS)
                 .map(actionCollection -> {

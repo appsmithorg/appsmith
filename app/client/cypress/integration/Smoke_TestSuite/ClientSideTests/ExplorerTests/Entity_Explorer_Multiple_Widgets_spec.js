@@ -2,13 +2,22 @@ const tdsl = require("../../../../fixtures/tableWidgetDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const testdata = require("../../../../fixtures/testdata.json");
-const pages = require("../../../../locators/Pages.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("Entity explorer tests related to widgets and validation", function() {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("Add a widget to default page and verify the properties", function() {
     cy.addDsl(dsl);
     cy.OpenBindings("Text1");

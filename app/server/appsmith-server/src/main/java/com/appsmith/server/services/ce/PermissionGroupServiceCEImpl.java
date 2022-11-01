@@ -69,7 +69,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
-        return super.create(permissionGroup)
+        return repository.save(permissionGroup)
                 .map(pg -> {
                     Set<Permission> permissions = new HashSet<>(Optional.ofNullable(pg.getPermissions()).orElse(Set.of()));
                     // Permission to unassign self is always given
@@ -98,6 +98,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return repository.findById(id, permission);
     }
 
+    @Override
     public Mono<Void> delete(String id) {
 
         return repository.findById(id)

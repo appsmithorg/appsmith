@@ -19,6 +19,7 @@ interface Props {
   showLineNumbers?: boolean;
   isReadOnly?: boolean;
   isRawView?: boolean;
+  containerHeight?: number;
 }
 
 function ReadOnlyEditor(props: Props) {
@@ -39,6 +40,7 @@ function ReadOnlyEditor(props: Props) {
     folding: props.folding,
     isReadOnly: props.isReadOnly,
     isRawView: props.isRawView,
+    containerHeight: props.containerHeight,
   };
   return <CodeEditor {...editorProps} />;
 }

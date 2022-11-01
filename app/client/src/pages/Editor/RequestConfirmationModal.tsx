@@ -7,7 +7,7 @@ import {
   cancelActionConfirmationModal,
   acceptActionConfirmationModal,
 } from "actions/pluginActionActions";
-import DialogComponent from "components/ads/DialogComponent";
+import { DialogComponent } from "design-system";
 import styled from "styled-components";
 import { Button, Category, Size } from "design-system";
 import {

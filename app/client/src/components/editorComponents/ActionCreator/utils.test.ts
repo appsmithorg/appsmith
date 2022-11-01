@@ -284,6 +284,20 @@ describe("Test enumTypeSetter", () => {
       expected: "{{showAlert(,info)}}",
       argNum: 1,
     },
+    {
+      index: 3,
+      value: "'NEW_WINDOW'",
+      input: "{{navigateTo('', {}, 'SAME_WINDOW')}}",
+      expected: "{{navigateTo('', {},'NEW_WINDOW')}}",
+      argNum: 2,
+    },
+    {
+      index: 4,
+      value: "'SAME_WINDOW'",
+      input: "{{navigateTo('', {}, 'NEW_WINDOW')}}",
+      expected: "{{navigateTo('', {},'SAME_WINDOW')}}",
+      argNum: 2,
+    },
   ];
   test.each(
     cases.map((x) => [x.index, x.input, x.expected, x.value, x.argNum]),

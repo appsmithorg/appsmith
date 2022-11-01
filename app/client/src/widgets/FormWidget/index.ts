@@ -13,6 +13,8 @@ export const CONFIG = {
   defaults: {
     rows: 40,
     columns: 24,
+    borderColor: Colors.GREY_5,
+    borderWidth: "1",
     animateLoading: true,
     widgetName: "Form",
     backgroundColor: Colors.WHITE,

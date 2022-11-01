@@ -40,10 +40,6 @@ class CategorySliderWidget extends BaseWidget<
   CategorySliderWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
-    return [...contentConfig, ...styleConfig];
-  }
-
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }

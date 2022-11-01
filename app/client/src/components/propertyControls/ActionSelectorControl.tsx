@@ -39,7 +39,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
   };
 
   handleValueUpdate = (newValue: string, isUpdatedViaKeyboard = false) => {
-    const { propertyName } = this.props;
+    const { propertyName, propertyValue } = this.props;
+    if (!propertyValue && !newValue) return;
     this.updateProperty(propertyName, newValue, isUpdatedViaKeyboard);
   };
 

@@ -119,11 +119,28 @@ jobs:
           echo ::set-output name=version::$next_version-SNAPSHOT
           echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --frozen-lockfile
+
+      # Run the Jest tests only if the workflow has been invoked in a PR
+      - name: Run the jest tests
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn run test:unit
+
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           yarn build
+
+      # Set status = failure
+      - name: Set result as failed if there are build failures
+        if: failure()
+        run: |
+          echo "::set-output name=run_result::failed" > ~/run_result
+          exit 1;
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle

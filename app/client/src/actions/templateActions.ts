@@ -46,3 +46,25 @@ export const getTemplateInformation = (payload: string) => ({
   type: ReduxActionTypes.GET_TEMPLATE_INIT,
   payload,
 });
+
+export const showTemplatesModal = (payload: boolean) => ({
+  type: ReduxActionTypes.SHOW_TEMPLATES_MODAL,
+  payload,
+});
+
+export const importTemplateIntoApplication = (
+  templateId: string,
+  templateName: string,
+  pageNames?: string[],
+) => ({
+  type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_INIT,
+  payload: {
+    templateId,
+    templateName,
+    pageNames,
+  },
+});
+
+export const getTemplateFilters = () => ({
+  type: ReduxActionTypes.GET_TEMPLATE_FILTERS_INIT,
+});

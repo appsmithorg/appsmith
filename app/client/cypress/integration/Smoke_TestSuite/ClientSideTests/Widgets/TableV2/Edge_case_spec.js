@@ -1,9 +1,16 @@
 const dsl = require("../../../../../fixtures/tableV2WithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget v2 edge case scenario testing", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 

@@ -97,6 +97,7 @@ function TableFilters(props: TableFilterProps) {
   return (
     <>
       <TableAction
+        borderRadius={props.borderRadius}
         className={className}
         icon="filter"
         selectMenu={toggleFilterPane}
