@@ -8,7 +8,9 @@ import {
   LayoutDirection,
   Overflow,
 } from "components/constants";
+import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
+import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 
@@ -37,6 +39,7 @@ export const FlexContainer = styled.div<{
   direction?: LayoutDirection;
   stretchHeight: boolean;
   overflow: Overflow;
+  leaveSpaceForWidgetName: boolean;
   isMobile?: boolean;
   isMainContainer: boolean;
 }>`
@@ -55,7 +58,9 @@ export const FlexContainer = styled.div<{
   overflow: hidden;
   overflow-y: ${({ isMainContainer, isMobile }) =>
     isMainContainer || isMobile ? "auto" : "hidden"};
-  padding: 4px;
+
+  padding: ${({ leaveSpaceForWidgetName }) =>
+    leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "4px;"};
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {
@@ -63,7 +68,8 @@ function FlexBoxComponent(props: FlexBoxProps) {
   const isMobile = useSelector(getIsMobile);
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
-
+  const appMode = useSelector(getAppMode);
+  const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
   const { autoLayoutDragDetails, dragDetails, flexHighlight } = useSelector(
     (state: AppState) => state.ui.widgetDragResize,
   );
@@ -218,6 +224,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       direction={direction}
       isMainContainer={props.widgetId === "0"}
       isMobile={isMobile}
+      leaveSpaceForWidgetName={leaveSpaceForWidgetName}
       overflow={props.overflow}
       stretchHeight={props.stretchHeight}
       useAutoLayout={props.useAutoLayout}
