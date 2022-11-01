@@ -16,6 +16,7 @@ import { checkIsDropTarget } from "../PositionedContainer";
 import { AppState } from "ce/reducers";
 import { DRAG_MARGIN } from "widgets/constants";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { getSiblingCount } from "selectors/autoLayoutSelectors";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -66,6 +67,8 @@ const FlexWidget = styled.div<{
     isAffectedByDrag ? `${DRAG_MARGIN}px ${dragMargin / 2}px` : "0px"};
 `;
 
+const DEFAULT_MARGIN = 20;
+
 export function FlexComponent(props: AutoLayoutProps) {
   const isMobile = useSelector(getIsMobile);
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -80,6 +83,9 @@ export function FlexComponent(props: AutoLayoutProps) {
   const isDragging: boolean = dragDetails?.draggedOn !== undefined;
   const isCurrentCanvasDragging: boolean =
     dragDetails?.draggedOn === props.parentId;
+  const siblingCount = useSelector(
+    getSiblingCount(props.widgetId, props.parentId || MAIN_CONTAINER_WIDGET_ID),
+  );
 
   const isDropTarget = checkIsDropTarget(props.widgetType);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
@@ -108,12 +114,19 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.responsiveBehavior === ResponsiveBehavior.Fill && isMobile
       ? "100%"
       : props.minWidth + "px";
-  const dragMargin = Math.max(props.parentColumnSpace, DRAG_MARGIN);
+  const dragMargin =
+    props.parentId === MAIN_CONTAINER_WIDGET_ID
+      ? DEFAULT_MARGIN
+      : Math.max(props.parentColumnSpace, DRAG_MARGIN);
   const isAffectedByDrag: boolean =
     isCurrentCanvasDragging ||
     (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
   const resizedWidth: number = isAffectedByDrag
-    ? props.componentWidth - dragMargin
+    ? props.componentWidth -
+      dragMargin -
+      (props.parentId !== MAIN_CONTAINER_WIDGET_ID && siblingCount > 0
+        ? DEFAULT_MARGIN / siblingCount
+        : 0)
     : props.componentWidth;
 
   return (
@@ -123,7 +136,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       componentWidth={resizedWidth}
       dragMargin={dragMargin}
       id={props.widgetId}
-      isAffectedByDrag={isCurrentCanvasDragging}
+      isAffectedByDrag={isAffectedByDrag}
       isFillWidget={isFillWidget}
       isMobile={isMobile}
       minWidth={minWidth}
