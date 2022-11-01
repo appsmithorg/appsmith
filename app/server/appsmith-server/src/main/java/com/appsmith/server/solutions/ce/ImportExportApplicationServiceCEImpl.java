@@ -729,6 +729,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Check if the destination org have all the required plugins installed
                     for (Datasource datasource : importedDatasourceList) {
                         if (StringUtils.isEmpty(pluginMap.get(datasource.getPluginId()))) {
+                            log.error("Unable to find the plugin ", datasource.getPluginId());
                             return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE, datasource.getPluginId()));
                         }
                     }
@@ -1163,8 +1164,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application ", throwable.getMessage());
-                    return applicationPageService.deleteApplication(importedApplication.getId())
-                            .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
+                    if (importedApplication.getId() != null) {
+                        return applicationPageService.deleteApplication(importedApplication.getId())
+                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
                 });
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
