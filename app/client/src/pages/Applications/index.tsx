@@ -38,7 +38,7 @@ import ApplicationCard from "./ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
@@ -540,7 +540,6 @@ function ApplicationsSection(props: any) {
   ) => {
     dispatch(updateApplication(id, data));
   };
-  const featureFlags = useSelector(selectFeatureFlags);
 
   useEffect(() => {
     // Clears URL params cache
@@ -953,12 +952,10 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      {featureFlags.GIT_IMPORT && (
-        <>
-          <GitSyncModal isImport />
-          <DisconnectGitModal />
-        </>
-      )}
+      <>
+        <GitSyncModal isImport />
+        <DisconnectGitModal />
+      </>
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
