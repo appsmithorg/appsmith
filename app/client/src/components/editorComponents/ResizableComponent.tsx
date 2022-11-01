@@ -38,7 +38,10 @@ import {
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
@@ -49,7 +52,6 @@ import {
   isMultiSelectedWidget,
 } from "selectors/widgetSelectors";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
-import { DRAG_MARGIN } from "widgets/constants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -286,20 +288,21 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
+  const isAffectedByDrag =
+    isCurrentCanvasDragging ||
+    (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
+
   return (
     <Resizable
       allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
-      componentWidth={
-        isCurrentCanvasDragging && props.isFlexChild
-          ? dimensions.width - DRAG_MARGIN * 2
-          : dimensions.width
-      }
+      componentWidth={dimensions.width}
       direction={props.direction}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
+      isAffectedByDrag={isAffectedByDrag}
       isFlexChild={props.isFlexChild}
       onStart={handleResizeStart}
       onStop={updateSize}
