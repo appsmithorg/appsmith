@@ -20,8 +20,8 @@ import {
 import { Colors } from "constants/Colors";
 import {
   DialogComponent as Dialog,
-  FileType,
   FilePickerV2,
+  FileType,
   Icon,
   IconSize,
   SetProgress,
@@ -34,7 +34,6 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -86,8 +85,8 @@ const Row = styled.div`
   }
 `;
 
-const FileImportCard = styled.div<{ gitEnabled?: boolean }>`
-  width: ${(props) => (props.gitEnabled ? "320px" : "100%")};
+const FileImportCard = styled.div`
+  width: 320px;
   height: 200px;
   border: 1px solid ${Colors.GREY_4};
   display: flex;
@@ -232,7 +231,6 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
 }
 
 type ImportApplicationModalProps = {
-  // import?: (file: any) => void;
   workspaceId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
@@ -296,9 +294,6 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
 
-  const featureFlags = useSelector(selectFeatureFlags);
-  const { GIT_IMPORT: isGitImportFeatureEnabled } = featureFlags;
-
   return (
     <StyledDialog
       canOutsideClickClose
@@ -324,10 +319,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       </TextWrapper>
       {!importingApplication && (
         <Row>
-          <FileImportCard
-            className="t--import-json-card"
-            gitEnabled={isGitImportFeatureEnabled}
-          >
+          <FileImportCard className="t--import-json-card">
             <FilePickerV2
               containerClickable
               description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
@@ -339,7 +331,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
               uploadIcon="file-line"
             />
           </FileImportCard>
-          {isGitImportFeatureEnabled && <GitImportCard handler={onGitImport} />}
+          <GitImportCard handler={onGitImport} />
         </Row>
       )}
       {importingApplication && (
