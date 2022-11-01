@@ -66,10 +66,10 @@ ff4j:
       enable: true
       description: Allow importing particular pages from templates in existing apps
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     - uid: CONTEXT_SWITCHING
       enable: true
