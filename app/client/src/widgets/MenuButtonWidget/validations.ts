@@ -11,24 +11,6 @@ export function sourceDataArrayValidation(
   props: MenuButtonWidgetProps,
   _: any,
 ): ValidationResponse {
-  const validationUtil = (
-    options: { label: string; value: string | number }[],
-  ) => {
-    let isValid = true;
-    let message = "";
-
-    if (options.length > 10) {
-      isValid = false;
-      message = "Source data cannot have more than 10 items";
-    }
-
-    return {
-      isValid,
-      parsed: isValid ? options : [],
-      messages: [message],
-    };
-  };
-
   const invalidResponse = {
     isValid: false,
     parsed: [],
@@ -41,7 +23,19 @@ export function sourceDataArrayValidation(
     }
 
     if (Array.isArray(options)) {
-      return validationUtil(options);
+      let isValid = true;
+      let message = "";
+
+      if (options.length > 10) {
+        isValid = false;
+        message = "Source data cannot have more than 10 items";
+      }
+
+      return {
+        isValid,
+        parsed: isValid ? options : [],
+        messages: [message],
+      };
     } else {
       return invalidResponse;
     }
