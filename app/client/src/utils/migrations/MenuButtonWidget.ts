@@ -1,6 +1,5 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export const migrateMenuButtonWidgetButtonProperties = (
   currentDSL: DSLWidget,
@@ -24,7 +23,7 @@ export const migrateMenuButtonDynamicItems = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === "MENU_BUTTON_WIDGET") {
       if (!child.menuItemsSource) {
-        child.menuItemsSource = MenuItemsSource.STATIC;
+        child.menuItemsSource = "STATIC";
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateMenuButtonDynamicItems(child);
