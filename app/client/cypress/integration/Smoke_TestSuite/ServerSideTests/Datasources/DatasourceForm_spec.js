@@ -31,7 +31,6 @@ describe("Datasource form related tests", function() {
 
   it("2. Check if save button is disabled", function() {
     cy.get(".t--save-datasource").should("not.be.disabled");
-    agHelper.GetNClick(locator._visibleTextSpan("Back"));
     dataSource.SaveDSFromDialog();
   });
 

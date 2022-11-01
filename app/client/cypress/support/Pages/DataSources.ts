@@ -669,6 +669,7 @@ export class DataSources {
   }
 
   public SaveDSFromDialog(save = true) {
+    this.agHelper.GoBack();
     if (save) {
       this.agHelper.GetNClick(this.locator._visibleTextSpan("SAVE"));
       this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
