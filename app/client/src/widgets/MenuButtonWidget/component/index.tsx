@@ -8,7 +8,6 @@ import {
   MenuItem,
   Classes as BClasses,
 } from "@blueprintjs/core";
-
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
@@ -29,14 +28,12 @@ import {
   WidgetContainerDiff,
   lightenColor,
 } from "widgets/WidgetUtils";
-import orderBy from "lodash/orderBy";
-import { isArray } from "lodash";
 import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import {
   MenuButtonComponentProps,
-  MenuItemsSource,
+  MenuItems,
   PopoverContentProps,
 } from "../constants";
 import { ThemeProp } from "widgets/constants";
@@ -87,7 +84,6 @@ export interface BaseStyleProps {
   backgroundColor?: string;
   borderRadius?: string;
   boxShadow?: string;
-
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
@@ -244,111 +240,47 @@ const StyledMenu = styled(Menu)<{
 `;
 
 function PopoverContent(props: PopoverContentProps) {
-  const {
-    backgroundColor,
-    configureMenuItems,
-    isCompact,
-    menuItems: itemsObj,
-    menuItemsSource,
-    onItemClicked,
-    sourceData,
-  } = props;
+  const { backgroundColor, isCompact, onItemClicked, visibleItems } = props;
 
-  if (menuItemsSource === MenuItemsSource.STATIC && !itemsObj)
-    return <StyledMenu />;
+  if (!visibleItems?.length) return <StyledMenu />;
 
-  if (menuItemsSource === MenuItemsSource.DYNAMIC && !sourceData?.length)
-    return <StyledMenu />;
+  const listItems = visibleItems.map(
+    (item: Record<string, MenuItems | any>, index: number) => {
+      const {
+        backgroundColor,
+        iconAlign,
+        iconColor,
+        iconName,
+        id,
+        isDisabled,
+        label,
+        onClick,
+        textColor,
+      } = item;
 
-  const getItems = () => {
-    if (menuItemsSource === MenuItemsSource.STATIC) {
-      const visibleItems = Object.keys(itemsObj)
-        .map((itemKey) => itemsObj[itemKey])
-        .filter((item) => item.isVisible === true);
-
-      return orderBy(visibleItems, ["index"], ["asc"]);
-    } else if (
-      menuItemsSource === MenuItemsSource.DYNAMIC &&
-      sourceData?.length
-    ) {
-      const getValue = (property: string, index: number) => {
-        const propertyName = property as keyof typeof configureMenuItems.config;
-
-        if (isArray(configureMenuItems.config[propertyName])) {
-          return configureMenuItems.config[propertyName][index];
-        }
-
-        return configureMenuItems.config[propertyName]
-          ? configureMenuItems.config[propertyName]
-          : null;
-      };
-
-      const visibleItems = sourceData
-        .map((item, index) => ({
-          ...item,
-          isVisible: getValue("isVisible", index),
-          isDisabled: getValue("isDisabled", index),
-          index: index,
-          widgetId: "",
-          label: configureMenuItems?.config?.label?.[index],
-          onClick: configureMenuItems?.config?.onClick,
-          textColor: getValue("textColor", index),
-          backgroundColor: getValue("backgroundColor", index),
-          iconAlign: getValue("iconAlign", index),
-          iconColor: getValue("iconColor", index),
-          iconName: getValue("iconName", index),
-        }))
-        .filter((item) => item.isVisible === true);
-
-      return visibleItems;
-    }
-  };
-
-  const items = getItems();
-
-  if (!items) return <StyledMenu />;
-
-  const listItems = items.map((menuItem: any, index: number) => {
-    const {
-      backgroundColor,
-      iconAlign,
-      iconColor,
-      iconName,
-      id,
-      isDisabled,
-      label,
-      onClick,
-      textColor,
-    } = menuItem;
-
-    if (iconAlign === Alignment.RIGHT) {
       return (
         <BaseMenuItem
           backgroundColor={backgroundColor}
           disabled={isDisabled}
+          icon={
+            iconAlign === Alignment.RIGHT ? null : (
+              <Icon color={iconColor} icon={iconName} />
+            )
+          }
           isCompact={isCompact}
           key={id}
-          labelElement={<Icon color={iconColor} icon={iconName} />}
+          labelElement={
+            iconAlign === Alignment.RIGHT ? (
+              <Icon color={iconColor} icon={iconName} />
+            ) : null
+          }
           onClick={() => onItemClicked(onClick, index)}
           text={label}
           textColor={textColor}
         />
       );
-    }
-
-    return (
-      <BaseMenuItem
-        backgroundColor={backgroundColor}
-        disabled={isDisabled}
-        icon={<Icon color={iconColor} icon={iconName} />}
-        isCompact={isCompact}
-        key={id}
-        onClick={() => onItemClicked(onClick, index)}
-        text={label}
-        textColor={textColor}
-      />
-    );
-  });
+    },
+  );
 
   return <StyledMenu backgroundColor={backgroundColor}>{listItems}</StyledMenu>;
 }
@@ -426,6 +358,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     placement,
     renderMode,
     sourceData,
+    visibleItems,
     widgetId,
     width,
   } = props;
@@ -449,6 +382,7 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
             menuItemsSource={menuItemsSource}
             onItemClicked={onItemClicked}
             sourceData={sourceData}
+            visibleItems={visibleItems}
           />
         }
         disabled={isDisabled}
