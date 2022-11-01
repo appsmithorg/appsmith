@@ -126,7 +126,7 @@ describe("Contains all UI tests for JS libraries", () => {
     store.dispatch({
       type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
       payload:
-        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.6/dayjs.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/dayjs.min.js",
     });
 
     expect(
