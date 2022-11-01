@@ -37,7 +37,7 @@ public class AstServiceCEImpl implements AstServiceCE {
             .maxConnections(1000)
             .maxIdleTime(Duration.ofSeconds(5))
             .maxLifeTime(Duration.ofSeconds(10))
-            .pendingAcquireTimeout(Duration.ofSeconds(5))
+            .pendingAcquireTimeout(Duration.ofSeconds(10))
             .pendingAcquireMaxCount(-1)
             .evictInBackground(Duration.ofSeconds(60))
             .build());
