@@ -44,12 +44,12 @@ describe("Audit logs", () => {
 
       cy.get(locators.Heading)
         .should("be.visible")
-        .should("have.text", "Audit Logs");
+        .should("have.text", "Introducing Audit Logs");
       cy.get(locators.SubHeadings)
         .should("be.visible")
         .should(
           "have.text",
-          "Your workspace audit log gives Workspace owners access to detailed information about security and safety-related activity.",
+          "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.",
         );
 
       cy.get(locators.Left)

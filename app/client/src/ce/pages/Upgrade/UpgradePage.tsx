@@ -14,7 +14,6 @@ export const ExternalContainer = styled.div`
   max-height: 100vh;
   border-left: thin solid var(--appsmith-color-black-50);
   background-color: var(--ads-color-black-50);
-  //width: 1180px;
 `;
 
 export const InternalContainer = styled.div`

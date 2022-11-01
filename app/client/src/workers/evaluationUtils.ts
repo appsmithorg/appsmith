@@ -2,14 +2,11 @@ import {
   DependencyMap,
   EVAL_ERROR_PATH,
   EvaluationError,
-  getEvalErrorPath,
-  getEvalValuePath,
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { validate } from "./validations";
 import { Diff } from "deep-diff";
 import {
   DataTree,
@@ -21,16 +18,15 @@ import {
   DataTreeJSAction,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import { ValidationConfig } from "constants/PropertyControlConstants";
-import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
+import { validateWidgetProperty } from "./DataTreeEvaluator/validationUtils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -488,87 +484,6 @@ export const getImmediateParentsOfPropertyPaths = (
   return Array.from(parents);
 };
 
-export function validateWidgetProperty(
-  config: ValidationConfig,
-  value: unknown,
-  props: Record<string, unknown>,
-  propertyPath: string,
-) {
-  if (!config) {
-    return {
-      isValid: true,
-      parsed: value,
-    };
-  }
-  return validate(config, value, props, propertyPath);
-}
-
-export function validateActionProperty(
-  config: ValidationConfig,
-  value: unknown,
-) {
-  if (!config) {
-    return {
-      isValid: true,
-      parsed: value,
-    };
-  }
-  return validate(config, value, {}, "");
-}
-
-export function getValidatedTree(tree: DataTree) {
-  return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey] as DataTreeWidget;
-    if (!isWidget(entity)) {
-      return tree;
-    }
-    const parsedEntity = { ...entity };
-    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
-      const value = _.get(entity, property);
-      // Pass it through parse
-      const { isValid, messages, parsed, transformed } = validateWidgetProperty(
-        validation,
-        value,
-        entity,
-        property,
-      );
-      _.set(parsedEntity, property, parsed);
-      const evaluatedValue = isValid
-        ? parsed
-        : _.isUndefined(transformed)
-        ? value
-        : transformed;
-      const safeEvaluatedValue = removeFunctions(evaluatedValue);
-      _.set(
-        parsedEntity,
-        getEvalValuePath(`${entityKey}.${property}`, {
-          isPopulated: false,
-          fullPath: false,
-        }),
-        safeEvaluatedValue,
-      );
-      if (!isValid) {
-        const evalErrors: EvaluationError[] =
-          messages?.map((message) => ({
-            errorType: PropertyEvaluationErrorType.VALIDATION,
-            errorMessage: message,
-            severity: Severity.ERROR,
-            raw: value,
-          })) ?? [];
-        addErrorToEntityProperty(
-          evalErrors,
-          tree,
-          getEvalErrorPath(`${entityKey}.${property}`, {
-            isPopulated: false,
-            fullPath: false,
-          }),
-        );
-      }
-    });
-    return { ...tree, [entityKey]: parsedEntity };
-  }, tree);
-}
-
 export const getAllPaths = (
   records: any,
   curKey = "",
@@ -655,18 +570,33 @@ export const addErrorToEntityProperty = (
   const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
     entityName
   ];
-  const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
+  const logBlackList = get(dataTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
-    const existingErrors = _.get(
+    const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
+    const existingErrors = get(dataTree, errorPath, []) as EvaluationError[];
+    set(dataTree, errorPath, existingErrors.concat(errors));
+  }
+
+  return dataTree;
+};
+
+export const resetValidationErrorsForEntityProperty = (
+  dataTree: DataTree,
+  fullPropertyPath: string,
+) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+    fullPropertyPath,
+  );
+  if (propertyPath) {
+    const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
+    const existingErrorsExceptValidation = (_.get(
       dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      errorPath,
       [],
-    ) as EvaluationError[];
-    _.set(
-      dataTree,
-      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
-      existingErrors.concat(errors),
+    ) as EvaluationError[]).filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
+    _.set(dataTree, errorPath, existingErrorsExceptValidation);
   }
   return dataTree;
 };

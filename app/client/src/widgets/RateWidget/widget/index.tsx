@@ -155,6 +155,16 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "isReadOnly",
+            helpText: "Makes the widget read only",
+            label: "Read only",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "animateLoading",
             label: "Animate Loading",
             controlType: "SWITCH",
@@ -192,7 +202,9 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "size",
             label: "Star Size",
-            controlType: "DROP_DOWN",
+            helpText: "Controls the size of the stars in the widget",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 label: "Small",
@@ -218,6 +230,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "activeColor",
             label: "Active Color",
+            helpText: "Color of the selected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -227,6 +240,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           {
             propertyName: "inactiveColor",
             label: "Inactive Color",
+            helpText: "Color of the unselected stars",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -280,7 +294,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
           onValueChanged={this.valueChangedHandler}
-          readonly={this.props.isDisabled}
+          readonly={this.props.isReadOnly}
           rightColumn={this.props.rightColumn}
           size={this.props.size}
           tooltips={this.props.tooltips}
@@ -307,6 +321,7 @@ export interface RateWidgetProps extends WidgetProps {
   isAllowHalf?: boolean;
   onRateChanged?: string;
   tooltips?: Array<string>;
+  isReadOnly?: boolean;
 }
 
 export default RateWidget;

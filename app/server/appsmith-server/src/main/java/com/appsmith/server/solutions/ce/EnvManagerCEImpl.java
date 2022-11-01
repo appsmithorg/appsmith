@@ -458,16 +458,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         // Generate analytics event properties template(s) according to the env variable changes
         List<Map<String, Object>> analyticsEvents = getAnalyticsEvents(originalVariables, changes, new ArrayList<>());
 
+        // Currently supporting only one authentication method update in one env update call
+        if (!analyticsEvents.isEmpty()) {
+            return analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0)).then();
+        }
         // We cannot send sensitive information present as values in env to the analytics
         // Values are filtered and only variable names are sent
         Map<String, Object> analyticsProperties = Map.of(FieldName.UPDATED_INSTANCE_SETTINGS, changes.keySet());
-        Mono<User> sendAnalyticsMono = Mono.empty();
-        // Currently supporting only one authentication method update in one env update call
-        if (!analyticsEvents.isEmpty()) {
-            sendAnalyticsMono = analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0));
-        }
-        // A general INSTANCE_SETTING_UPDATED event is also sent for all admin settings changes
-        return sendAnalyticsMono.then(analyticsService.sendObjectEvent(AnalyticsEvents.INSTANCE_SETTING_UPDATED, user, analyticsProperties)).then();
+        // A general INSTANCE_SETTING_UPDATED event is also sent for all admin settings changes other than Authentication method added/removed event
+        return analyticsService.sendObjectEvent(AnalyticsEvents.INSTANCE_SETTING_UPDATED, user, analyticsProperties).then();
     }
 
     /**

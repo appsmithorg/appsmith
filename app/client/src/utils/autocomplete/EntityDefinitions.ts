@@ -676,7 +676,7 @@ export const entityDefinitions = {
   },
 };
 
-/* 
+/*
   $__name__$ is just to reduce occurrences of global def showing up in auto completion for user as `$` is less commonly used as entityName/
 
   GLOBAL_DEFS are maintained to support definition for array of objects which currently aren't supported by our generateTypeDef.
@@ -727,6 +727,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Store key value data locally",
     "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
+  removeValue: {
+    "!doc": "Remove key value data locally",
+    "!type": "fn(key: string) -> +Promise[:t=[!0.<i>.:t]]",
+  },
+  clearStore: {
+    "!doc": "Clear all key value data locally",
+    "!type": "fn() -> +Promise[:t=[!0.<i>.:t]]",
+  },
   download: {
     "!doc": "Download anything as a file",
     "!type":
@@ -748,6 +756,11 @@ export const GLOBAL_FUNCTIONS = {
   clearInterval: {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
+  },
+  postWindowMessage: {
+    "!doc":
+      "Establish cross-origin communication between Window objects/page and iframes",
+    "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
 };
 

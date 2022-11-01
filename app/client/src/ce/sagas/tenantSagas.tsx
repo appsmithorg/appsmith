@@ -2,7 +2,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { PERMISSION_TYPE } from "pages/Applications/permissionHelpers";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { put } from "redux-saga/effects";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user

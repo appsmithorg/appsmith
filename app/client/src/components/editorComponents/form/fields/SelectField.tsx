@@ -34,6 +34,7 @@ type SelectFieldProps = {
   fillOptions?: boolean;
   disabled?: boolean;
   renderOption?: RenderOption;
+  dropdownMaxHeight?: string;
 };
 
 export function SelectField(props: SelectFieldProps) {
@@ -42,6 +43,7 @@ export function SelectField(props: SelectFieldProps) {
       allowDeselection={props.allowDeselection}
       component={renderComponent}
       disabled={props.disabled}
+      dropdownMaxHeight={props.dropdownMaxHeight}
       fillOptions={props.fillOptions}
       isMultiSelect={props.isMultiSelect}
       labelRenderer={props.labelRenderer}

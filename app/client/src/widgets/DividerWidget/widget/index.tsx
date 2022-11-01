@@ -46,7 +46,8 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             helpText: "Controls widget orientation",
             propertyName: "orientation",
             label: "Direction",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 label: "Horizontal",
@@ -173,6 +174,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "capSide",
             label: "Cap Position",
             controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 icon: "DIVIDER_CAP_LEFT",

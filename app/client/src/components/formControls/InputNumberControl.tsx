@@ -2,8 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import NumberField from "components/editorComponents/form/fields/NumberField";
-import { Text, TextType } from "design-system";
-import { Classes } from "components/ads/common";
+import { Classes, Text, TextType } from "design-system";
 import styled from "styled-components";
 
 const FormGroup = styled.div`

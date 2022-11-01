@@ -33,6 +33,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
+  CLEAR_STORE,
   CLOSE_MODAL,
   COPY_TO_CLIPBOARD,
   createMessage,
@@ -43,6 +44,8 @@ import {
   NAVIGATE_TO,
   NO_ACTION,
   OPEN_MODAL,
+  POST_MESSAGE,
+  REMOVE_VALUE,
   RESET_WIDGET,
   SET_INTERVAL,
   SHOW_MESSAGE,
@@ -95,6 +98,14 @@ const baseOptions: { label: string; value: string }[] = [
     value: AppsmithFunction.storeValue,
   },
   {
+    label: createMessage(REMOVE_VALUE),
+    value: AppsmithFunction.removeValue,
+  },
+  {
+    label: createMessage(CLEAR_STORE),
+    value: AppsmithFunction.clearStore,
+  },
+  {
     label: createMessage(DOWNLOAD),
     value: AppsmithFunction.download,
   },
@@ -125,6 +136,10 @@ const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
     value: AppsmithFunction.stopWatchGeolocation,
+  },
+  {
+    label: createMessage(POST_MESSAGE),
+    value: AppsmithFunction.postMessage,
   },
 ];
 
@@ -335,6 +350,11 @@ function getFieldFromValue(
       },
     );
   }
+  if (value.indexOf("removeValue") !== -1) {
+    fields.push({
+      field: FieldType.KEY_TEXT_FIELD,
+    });
+  }
   if (value.indexOf("resetWidget") !== -1) {
     fields.push(
       {
@@ -388,6 +408,21 @@ function getFieldFromValue(
       field: FieldType.CALLBACK_FUNCTION_FIELD,
     });
   }
+
+  if (value.indexOf("postWindowMessage") !== -1) {
+    fields.push(
+      {
+        field: FieldType.MESSAGE_FIELD,
+      },
+      {
+        field: FieldType.SOURCE_FIELD,
+      },
+      {
+        field: FieldType.TARGET_ORIGIN_FIELD,
+      },
+    );
+  }
+
   return fields;
 }
 

@@ -17,6 +17,7 @@ import {
   Text,
   TextInput,
   TextType,
+  Variant,
 } from "design-system";
 
 import styled, { useTheme } from "styled-components";
@@ -36,7 +37,6 @@ import {
 import Link from "./components/Link";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
-import { Variant } from "components/ads";
 
 const StyledDialog = styled(Dialog)`
   && .bp3-dialog-body {

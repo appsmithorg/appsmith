@@ -1005,6 +1005,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
+  cy.intercept("GET", "/api/v1/app-templates").as("fetchTemplate");
+  cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
+  cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1679,21 +1682,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .contains(labelText);
 
   // Set the label position: Auto
-  cy.selectDropdownValue(labelPositionSelector, "Auto");
+  cy.get(".t--button-tab-Auto").click({ force: true });
   // Assert label position: Auto
-  cy.get(containerSelector).should(
-    "have.css",
-    "flex-direction",
-    `${isCompact ? "row" : "column"}`,
-  );
+  cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.selectDropdownValue(labelPositionSelector, "Top");
+  cy.get(".t--button-tab-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.selectDropdownValue(labelPositionSelector, "Left");
+  cy.get(".t--button-tab-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 
@@ -1908,4 +1907,18 @@ Cypress.Commands.add("CreatePage", () => {
     .first()
     .click({ force: true });
   cy.get("[data-cy='add-page']").click();
+});
+
+Cypress.Commands.add("GenerateCRUD", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click({ force: true });
+  cy.get("[data-cy='generate-page']").click();
+});
+
+Cypress.Commands.add("AddPageFromTemplate", () => {
+  cy.get(pages.AddPage)
+    .first()
+    .click({ force: true });
+  cy.get("[data-cy='add-page-from-template']").click();
 });

@@ -245,4 +245,41 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     //cy.isNotInViewport("//div[text()='haiiii hello']")
     //cy.isNotInViewport("//div[text()='No data to display']")
   });
+
+  it("4. Generate CRUD page from the page menu", function() {
+    cy.GenerateCRUD();
+    cy.NavigateToDSGeneratePage(datasourceName);
+    // fetch bucket
+    cy.wait("@getDatasourceStructure").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get(generatePage.selectTableDropdown).click();
+    cy.get(generatePage.dropdownOption)
+      .contains("assets-test.appsmith.com")
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+    cy.get(generatePage.generatePageFormSubmitBtn).click();
+
+    cy.wait("@post_replaceLayoutCRUD").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    cy.wait("@get_Actions").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.wait("@post_Execute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.get("span:contains('GOT IT')").click();
+  });
 });
