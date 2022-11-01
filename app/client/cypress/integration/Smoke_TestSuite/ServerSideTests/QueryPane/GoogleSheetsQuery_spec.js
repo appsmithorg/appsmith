@@ -16,34 +16,34 @@ describe("Google Sheets datasource row objects placeholder", function() {
     dataSources.CreatePlugIn(pluginName);
 
     // navigate to create query tab and create a new query
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-      // clicking on new query to write a query
-      cy.NavigateToQueryEditor();
-      cy.get(explorer.createNew).click();
-      cy.get("div:contains('" + datasourceName + " Query')")
-        .last()
-        .click();
+    // cy.get("@saveDatasource").then((httpResponse) => {
+    //   datasourceName = httpResponse.body.data.name;
+    //   // clicking on new query to write a query
+    //   cy.NavigateToQueryEditor();
+    //   cy.get(explorer.createNew).click();
+    //   cy.get("div:contains('" + datasourceName + " Query')")
+    //     .last()
+    //     .click();
 
-      // fill the create new api google sheets form
-      // and check for rowobject placeholder text
-      cy.get(datasource.gSheetsOperationDropdown).click();
-      cy.get(datasource.gSheetsInsertOneOption).click();
+    // fill the create new api google sheets form
+    // and check for rowobject placeholder text
+    cy.get(datasource.gSheetsOperationDropdown).click();
+    cy.get(datasource.gSheetsInsertOneOption).click();
 
-      cy.get(datasource.gSheetsEntityDropdown).click();
-      cy.get(datasource.gSheetsSheetRowsOption).click();
+    cy.get(datasource.gSheetsEntityDropdown).click();
+    cy.get(datasource.gSheetsSheetRowsOption).click();
 
-      cy.get(datasource.gSheetsCodeMirrorPlaceholder).should(
-        "have.text",
-        placeholderText,
-      );
+    cy.get(datasource.gSheetsCodeMirrorPlaceholder).should(
+      "have.text",
+      placeholderText,
+    );
 
-      // delete query and datasource after test is done
-      cy.get("@createNewApi").then((httpResponse) => {
-        queryName = httpResponse.response.body.data.name;
-        cy.deleteQueryUsingContext();
-        cy.deleteDatasource(datasourceName);
-      });
-    });
+    // delete query and datasource after test is done
+    // cy.get("@createNewApi").then((httpResponse) => {
+    //   queryName = httpResponse.response.body.data.name;
+    //   cy.deleteQueryUsingContext();
+    //   cy.deleteDatasource(datasourceName);
+    // });
+    //});
   });
 });

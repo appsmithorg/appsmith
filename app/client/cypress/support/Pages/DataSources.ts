@@ -667,4 +667,12 @@ export class DataSources {
     this.agHelper.AssertAutoSave();
     this.agHelper.GetNClick(this._queryResponse("QUERY"));
   }
+
+  public SaveDSFromDialog(save = true) {
+    if (save) {
+      this.agHelper.GetNClick(this.locator._visibleTextSpan("SAVE"));
+      this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+      this.agHelper.AssertContains("datasource created");
+    } else this.agHelper.GetNClick(this.locator._visibleTextSpan("DON'T SAVE"));
+  }
 }
