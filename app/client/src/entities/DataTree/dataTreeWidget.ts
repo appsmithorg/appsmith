@@ -10,6 +10,7 @@ import {
   OverridingPropertyPaths,
   OverridingPropertyType,
   PropertyOverrideDependency,
+  WidgetEntityConfig,
 } from "./dataTreeFactory";
 import { setOverridingProperty } from "./utils";
 
@@ -22,6 +23,7 @@ const generateDataTreeWidgetWithoutMeta = (
   dataTreeWidgetWithoutMetaProps: DataTreeWidget;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
+  entityConfig: WidgetEntityConfig;
 } => {
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
@@ -134,10 +136,16 @@ const generateDataTreeWidgetWithoutMeta = (
     {},
     widget,
     unInitializedDefaultProps,
-    // defaultMetaProps,
-    // widgetMetaProps,
     derivedProps,
     {
+      meta: {}, // this will be overridden by meta value calculated in generateDataTreeWidget
+    },
+  );
+  return {
+    dataTreeWidgetWithoutMetaProps,
+    overridingMetaPropsMap,
+    defaultMetaProps,
+    entityConfig: {
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
       dynamicBindingPathList,
@@ -145,9 +153,6 @@ const generateDataTreeWidgetWithoutMeta = (
         ...widget.logBlackList,
         ...blockedDerivedProps,
       },
-      meta: {}, // this will be overridden by meta value calculated in generateDataTreeWidget
-      propertyOverrideDependency,
-      overridingPropertyPaths,
       bindingPaths,
       reactivePaths,
       triggerPaths,
@@ -156,12 +161,10 @@ const generateDataTreeWidgetWithoutMeta = (
       privateWidgets: {
         ...widget.privateWidgets,
       },
+      propertyOverrideDependency,
+      overridingPropertyPaths,
+      type: widget.type,
     },
-  );
-  return {
-    dataTreeWidgetWithoutMetaProps,
-    overridingMetaPropsMap,
-    defaultMetaProps,
   };
 };
 
@@ -191,6 +194,7 @@ export const generateDataTreeWidget = (
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
     defaultMetaProps,
+    entityConfig,
     overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
   const overridingMetaProps: Record<string, unknown> = {};
@@ -215,5 +219,5 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
-  return dataTreeWidget;
+  return { entityConfig, unEvalTree: dataTreeWidget };
 };
