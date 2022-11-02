@@ -235,6 +235,7 @@ function eventRequestHandler({
 
       const {
         allActionValidationConfig,
+        requiresLinting,
         shouldReplay,
         theme,
         unevalTree,
@@ -261,6 +262,7 @@ function eventRequestHandler({
             lintOrder,
             jsUpdates,
             dataTreeEvaluator.oldUnEvalTree,
+            requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -297,6 +299,7 @@ function eventRequestHandler({
             lintOrder,
             jsUpdates,
             dataTreeEvaluator.oldUnEvalTree,
+            requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
@@ -323,6 +326,7 @@ function eventRequestHandler({
             lintOrder,
             jsUpdates,
             dataTreeEvaluator.oldUnEvalTree,
+            requiresLinting,
           );
           nonDynamicFieldValidationOrder =
             setupUpdateTreeResponse.nonDynamicFieldValidationOrder;

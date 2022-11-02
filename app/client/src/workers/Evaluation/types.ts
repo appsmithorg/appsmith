@@ -1,3 +1,4 @@
+import { ReduxActionType } from "ce/constants/ReduxActionConstants";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { AppTheme } from "entities/AppTheming";
@@ -27,6 +28,7 @@ export interface EvalTreeRequestData {
   allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   };
+  requiresLinting: boolean;
 }
 export interface EvalTreeResponseData {
   dataTree: DataTree;

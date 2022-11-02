@@ -50,6 +50,8 @@ import {
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { LINT_REDUX_ACTIONS } from "actions/evaluationActions";
+import { ReduxActionType } from "ce/constants/ReduxActionConstants";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -439,7 +441,9 @@ export function initiateLinting(
   lintOrder: string[],
   jsUpdates: Record<string, JSUpdate>,
   unevalTree: DataTree,
+  requiresLinting: boolean,
 ) {
+  if (!requiresLinting) return;
   postMessage({
     promisified: true,
     responseData: {
