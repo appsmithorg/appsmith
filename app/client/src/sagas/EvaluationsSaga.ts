@@ -94,7 +94,11 @@ import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EntityConfigCollection,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -125,23 +129,30 @@ function* evaluateTreeSaga(
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const {
+    entityConfigCollection,
+    unEvalTree,
+  }: {
+    entityConfigCollection: EntityConfigCollection;
+    unEvalTree: EvalTree;
+  } = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
 
-  log.debug({ unevalTree });
+  log.debug({ unevalTree: unEvalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
 
   const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree,
+    unevalTree: unEvalTree,
     widgetTypeConfigMap,
     widgets,
     theme,
     shouldReplay,
     allActionValidationConfig,
     requiresLinting,
+    entityConfigCollection,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -211,7 +222,7 @@ function* evaluateTreeSaga(
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
       logSuccessfulBindings,
-      unevalTree,
+      unEvalTree,
       updatedDataTree,
       evaluationOrder,
       isCreateFirstTree,
@@ -261,12 +272,19 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
-  const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const {
+    entityConfigCollection,
+    unEvalTree,
+  }: {
+    entityConfigCollection: EntityConfigCollection;
+    unEvalTree: EvalTree;
+  } = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
   const { isFinishedChannel } = yield call(
     evalWorker.duplexRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     {
+      entityConfigCollection,
       dataTree: unEvalTree,
       dynamicTrigger,
       callbackData,
@@ -523,9 +541,14 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const {
+    unEvalTree,
+  }: {
+    entityConfigCollection: EntityConfigCollection;
+    unEvalTree: EvalTree;
+  } = yield select(getUnevaluatedDataTree);
   // @ts-expect-error: We have a typeMismatch for validationPaths
-  const validation = unevalTree[props.widgetName].validationPaths[property];
+  const validation = unEvalTree[props.widgetName].validationPaths[property];
   const response: unknown = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,

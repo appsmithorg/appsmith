@@ -1,8 +1,10 @@
-import { ReduxActionType } from "ce/constants/ReduxActionConstants";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { AppTheme } from "entities/AppTheming";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  EntityConfigCollection,
+} from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 import {
@@ -29,6 +31,7 @@ export interface EvalTreeRequestData {
     [actionId: string]: ActionValidationConfigMap;
   };
   requiresLinting: boolean;
+  entityConfigCollection: EntityConfigCollection;
 }
 export interface EvalTreeResponseData {
   dataTree: DataTree;

@@ -1,5 +1,9 @@
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import { DataTreeAction, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  ActionEntityConfig,
+  ActionEntityEvalTree,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
@@ -10,7 +14,7 @@ export const generateDataTreeAction = (
   action: ActionData,
   editorConfig: any[],
   dependencyConfig: DependencyMap = {},
-): DataTreeAction => {
+): { unEvalTree: ActionEntityEvalTree; entityConfig: ActionEntityConfig } => {
   let dynamicBindingPathList: DynamicPath[] = [];
   let datasourceUrl = "";
 
@@ -45,26 +49,31 @@ export const generateDataTreeAction = (
   );
 
   return {
-    run: {},
-    clear: {},
-    actionId: action.config.id,
-    name: action.config.name,
-    pluginId: action.config.pluginId,
-    pluginType: action.config.pluginType,
-    config: action.config.actionConfiguration,
-    dynamicBindingPathList,
-    data: action.data ? action.data.body : undefined,
-    responseMeta: {
-      statusCode: action.data?.statusCode,
-      isExecutionSuccess: action.data?.isExecutionSuccess || false,
-      headers: action.data?.headers,
+    unEvalTree: {
+      run: {},
+      clear: {},
+      data: action.data ? action.data.body : undefined,
+      isLoading: action.isLoading,
+      responseMeta: {
+        statusCode: action.data?.statusCode,
+        isExecutionSuccess: action.data?.isExecutionSuccess || false,
+        headers: action.data?.headers,
+      },
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
     },
-    ENTITY_TYPE: ENTITY_TYPE.ACTION,
-    isLoading: action.isLoading,
-    bindingPaths,
-    reactivePaths,
-    dependencyMap,
-    logBlackList: {},
-    datasourceUrl,
+    entityConfig: {
+      actionId: action.config.id,
+      name: action.config.name,
+      pluginId: action.config.pluginId,
+      pluginType: action.config.pluginType,
+      config: action.config.actionConfiguration,
+      dynamicBindingPathList,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      bindingPaths,
+      reactivePaths,
+      dependencyMap,
+      logBlackList: {},
+      datasourceUrl,
+    },
   };
 };

@@ -1,6 +1,7 @@
 import {
-  DataTreeJSAction,
   ENTITY_TYPE,
+  JSActionEntityConfig,
+  JSActionEvalTree,
   MetaArgs,
 } from "entities/DataTree/dataTreeFactory";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -11,7 +12,7 @@ const reg = /this\./g;
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
-): DataTreeJSAction => {
+): { unEvalTree: JSActionEvalTree; entityConfig: JSActionEntityConfig } => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
@@ -53,18 +54,23 @@ export const generateDataTreeJSAction = (
     }
   }
   return {
-    ...variableList,
-    name: js.config.name,
-    actionId: js.config.id,
-    pluginType: js.config.pluginType,
-    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body: removeThisReference,
-    meta: meta,
-    bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
-    reactivePaths: { ...bindingPaths },
-    dynamicBindingPathList: dynamicBindingPathList,
-    variables: listVariables,
-    dependencyMap: dependencyMap,
-    ...actionsData,
+    unEvalTree: {
+      ...variableList,
+      ...actionsData,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      body: removeThisReference,
+    },
+    entityConfig: {
+      meta: meta,
+      name: js.config.name,
+      actionId: js.config.id,
+      pluginType: js.config.pluginType,
+      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
+      reactivePaths: { ...bindingPaths },
+      dynamicBindingPathList: dynamicBindingPathList,
+      variables: listVariables,
+      dependencyMap: dependencyMap,
+    },
   };
 };
