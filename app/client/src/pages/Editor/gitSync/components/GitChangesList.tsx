@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
-import { Classes } from "components/ads/common";
-import { Icon, IconSize, Text, TextType } from "design-system";
+import { Classes, Icon, IconSize, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
@@ -15,6 +14,8 @@ import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,
 } from "@appsmith/constants/messages";
+import { getCurrentApplication } from "selectors/editorSelectors";
+import { changeInfoSinceLastCommit } from "../utils";
 
 const DummyChange = styled.div`
   width: 50%;
@@ -175,15 +176,13 @@ export function gitChangeListData(
     .filter((s) => !!s);
 }
 
-export default function GitChangesList({
-  isAutoUpdate,
-}: {
-  isAutoUpdate: boolean;
-}) {
+export default function GitChangesList() {
   const status: GitStatusData = useSelector(getGitStatus) as GitStatusData;
   const loading = useSelector(getIsFetchingGitStatus);
   const changes = gitChangeListData(status);
-  if (isAutoUpdate) {
+  const currentApplication = useSelector(getCurrentApplication);
+  const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
+  if (isAutoUpdate && !status.isClean) {
     changes.push(
       <Change
         hasValue={isAutoUpdate}

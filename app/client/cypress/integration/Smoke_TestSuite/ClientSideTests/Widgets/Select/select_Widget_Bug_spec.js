@@ -234,4 +234,45 @@ describe("Select Widget Functionality", function() {
     );
     cy.goToEditFromPublish();
   });
+  it("should check that filtering works well using numeric labels", () => {
+    cy.openPropertyPane("selectwidget");
+    cy.updateCodeInput(
+      ".t--property-control-options",
+      `[
+        {
+          "label": 1,
+          "value": "BLUE"
+        },
+        {
+          "label": 2,
+          "value": "GREEN"
+        },
+        {
+          "label": "3",
+          "value": "RED"
+        }
+      ]`,
+    );
+    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 80 });
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{typeof Select1.selectedOptionLabel}}");
+    // Filtering the option
+    cy.get(formWidgetsPage.selectWidget)
+      .find(widgetsPage.dropdownSingleSelect)
+      .click({
+        force: true,
+      });
+    cy.get(commonlocators.selectInputSearch).type("1");
+    // confirm it only has a single child
+    cy.get(".select-popover-wrapper .menu-virtual-list")
+      .children()
+      .should("have.length", 1);
+    cy.get(commonlocators.singleSelectWidgetMenuItem).contains("1");
+    cy.get(commonlocators.singleSelectWidgetMenuItem).click({
+      force: true,
+    });
+    cy.get(commonlocators.TextInside)
+      .first()
+      .should("have.text", "number");
+  });
 });

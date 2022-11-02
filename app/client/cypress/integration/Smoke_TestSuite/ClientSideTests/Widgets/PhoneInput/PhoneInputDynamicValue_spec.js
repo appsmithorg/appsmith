@@ -7,7 +7,6 @@ describe("Phone input widget - ", () => {
   before(() => {
     cy.addDsl(dynamicDSL);
   });
-
   it("1. Should show empty dropdown for a typo", () => {
     cy.openPropertyPane(widgetName);
 

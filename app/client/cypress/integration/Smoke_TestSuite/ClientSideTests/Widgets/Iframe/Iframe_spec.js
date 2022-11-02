@@ -29,7 +29,7 @@ describe("Iframe Widget functionality", function() {
     cy.wait(1000);
     cy.get(".t--draggable-textwidget .bp3-ui-text span").should(
       "contain.text",
-      `{"lastEventId":"","origin":"https://dev.appsmith.com","ports":[]}`,
+      `{"lastEventId":"","origin":"null","ports":[]}`,
     );
   });
 });

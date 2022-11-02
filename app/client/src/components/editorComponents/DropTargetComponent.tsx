@@ -142,6 +142,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         widgetBottomRow,
         props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
         occupiedSpacesByChildren,
+        props.widgetId,
       );
       if (rowRef.current < newRows) {
         rowRef.current = newRows;

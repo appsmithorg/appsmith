@@ -142,7 +142,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.toggleJsAndUpdate("tabledata", testdata.bindingTextColor);
+    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingTextColor, 4);
 
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(

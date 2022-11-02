@@ -19,7 +19,7 @@ RUN apt-get update \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove -y git python3-pip
 
-# Install MongoDB v4.0.5, Redis, NodeJS - Service Layer
+# Install MongoDB v4.4, Redis, NodeJS - Service Layer
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get remove wget -y

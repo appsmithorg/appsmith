@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
@@ -9,10 +8,18 @@ const {
 } = ObjectsRegistry;
 
 describe("Navigate To feature", () => {
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
     // create a new page
     ee.AddNewPage(); // page 2
-
     ee.SelectEntityByName("Page1");
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));

@@ -22,7 +22,7 @@
         <org.projectlombok.version>1.18.22</org.projectlombok.version>
         <org.testcontainers.junit-jupiter.version>1.17.2</org.testcontainers.junit-jupiter.version>
         <uk.co.jemos.podam.podam.version>7.2.5.RELEASE</uk.co.jemos.podam.podam.version>
-        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
+<!--        <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>-->
     </properties>
 
     <dependencies>
@@ -94,7 +94,20 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${org.testcontainers.junit-jupiter.version}</version>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>junit</artifactId>
+                    <groupId>junit</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- We need this dependency only to ensure TestContainers work with JUnit5 -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit4-mock</artifactId>
+            <version>2.11.2.Final</version>
             <scope>test</scope>
         </dependency>
 
@@ -111,16 +124,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven-surefire-plugin.version}</version>
-            </plugin>
-
-        </plugins>
-    </build>
 </project>

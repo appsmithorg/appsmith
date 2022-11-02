@@ -16,6 +16,8 @@ export const CONFIG = {
     animateLoading: true,
     widgetName: "Statbox",
     backgroundColor: "white",
+    borderWidth: "1",
+    borderColor: Colors.GREY_5,
     children: [],
     blueprint: {
       view: [

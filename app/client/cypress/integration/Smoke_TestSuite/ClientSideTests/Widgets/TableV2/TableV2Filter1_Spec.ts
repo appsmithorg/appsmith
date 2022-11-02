@@ -18,9 +18,22 @@ describe("Verify various Table_Filter combinations", function() {
   it("1. Adding Data to Table Widget", function() {
     ee.DragDropWidgetNVerify("tablewidgetv2", 250, 250);
     //propPane.EnterJSContext("Table Data", JSON.stringify(dataSet.TableInput));
-    propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(dataSet.TableInput))
+    propPane.UpdatePropertyFieldValue(
+      "Table Data",
+      JSON.stringify(dataSet.TableInput),
+    );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     cy.get("body").type("{esc}");
+    /*
+      Changing id and orderAmount to "Plain Text" column type
+      so that the tests that depend on id and orderAmount
+      being "Plain Text" type do not fail.
+      From this PR onwards columns with number data (like id and orderAmount here)
+      will be auto-assigned as "NUMBER" type column
+    */
+    table.ChangeColumnTypeV2("id", "Plain Text");
+    table.ChangeColumnTypeV2("orderAmount", "Plain Text");
+
     deployMode.DeployApp();
   });
 

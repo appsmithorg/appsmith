@@ -14,24 +14,18 @@ import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
-import { StyledToastContainer } from "components/ads/Toast";
+import { StyledToastContainer } from "design-system";
 import localStorage from "utils/localStorage";
 import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
+import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
+import AppErrorBoundary from "AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
-import AppErrorBoundary from "./AppErrorBoundry";
-import GlobalStyles from "globalStyles";
 appInitializer();
-
-if (process.env.NODE_ENV === "development") {
-  import("./mocks/browser").then(({ worker }) => {
-    worker.start();
-  });
-}
 
 function App() {
   return (

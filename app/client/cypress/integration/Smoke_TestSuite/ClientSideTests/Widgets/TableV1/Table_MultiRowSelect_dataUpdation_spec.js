@@ -1,7 +1,7 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/multiSelectedRowUpdationDsl.json");
 
-/* 
+/*
 Selected row stays selected after data updation
 if the primary column value isn't updated.
 */

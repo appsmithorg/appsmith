@@ -1,48 +1,28 @@
 package com.external.plugins;
 
-import com.appsmith.external.datatypes.*;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.ClientDataType;
+import com.appsmith.external.datatypes.DoubleType;
+import com.appsmith.external.datatypes.FallbackType;
+import com.appsmith.external.datatypes.IntegerType;
+import com.appsmith.external.datatypes.JsonObjectType;
+import com.appsmith.external.datatypes.LongType;
+import com.appsmith.external.datatypes.NullType;
+import com.appsmith.external.datatypes.StringType;
+import com.appsmith.external.datatypes.TimeType;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.external.plugins.datatypes.MySQLBooleanType;
 import com.external.plugins.datatypes.MySQLDateTimeType;
 import com.external.plugins.datatypes.MySQLDateType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.external.plugins.datatypes.MySQLSpecificDataTypes.pluginSpecificTypes;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MySQLPluginDataTypeTest {
-    private static final Map<ClientDataType, List<AppsmithType>> pluginSpecificTypes;
-
-    static {
-        pluginSpecificTypes = new HashMap<>();
-        pluginSpecificTypes.put(ClientDataType.NULL, List.of(new NullType()));
-
-        pluginSpecificTypes.put(ClientDataType.BOOLEAN, List.of(new MySQLBooleanType()));
-
-        pluginSpecificTypes.put(ClientDataType.NUMBER, List.of(
-                new IntegerType(),
-                new LongType(),
-                new DoubleType(),
-                new BigDecimalType()
-        ));
-
-        /*
-            JsonObjectType is the preferred server-side data type when the client-side data type is of type OBJECT.
-            Fallback server-side data type for client-side OBJECT type is String.
-         */
-        pluginSpecificTypes.put(ClientDataType.OBJECT, List.of(new JsonObjectType()));
-
-        pluginSpecificTypes.put(ClientDataType.STRING, List.of(
-                new TimeType(),
-                new MySQLDateType(),
-                new MySQLDateTimeType(),
-                new StringType()
-        ));
-    }
     @Test
     public void shouldBeNullType() {
         String value = "null";
@@ -59,8 +39,8 @@ public class MySQLPluginDataTypeTest {
                 "false"
         };
         Map<String, String> booleanValueMap = Map.of(
-          "true", "1",
-          "false", "0"
+                "true", "1",
+                "false", "0"
         );
 
         for (String value : values) {
@@ -185,6 +165,18 @@ public class MySQLPluginDataTypeTest {
         for (String value : values) {
             AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(ClientDataType.STRING, value, pluginSpecificTypes);
             assertTrue(appsmithType instanceof StringType);
+        }
+    }
+
+    @Test
+    public void arrayTypeShouldBeStringType() {
+        String[] values = {
+                "[3,31,12]",
+                "[]"
+        };
+        for (String value : values) {
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(ClientDataType.ARRAY, value, pluginSpecificTypes);
+            assertTrue(appsmithType instanceof StringType || appsmithType instanceof FallbackType);
         }
     }
 }

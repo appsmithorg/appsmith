@@ -3,11 +3,11 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
 
-before(() => {
-  cy.addDsl(dsl);
-});
-
 describe("Test Suite to validate copy/paste table Widget", function() {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
   it("Copy paste table widget and valdiate application status", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("tablewidget");

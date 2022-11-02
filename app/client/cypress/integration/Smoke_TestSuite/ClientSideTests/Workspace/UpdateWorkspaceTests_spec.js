@@ -80,12 +80,15 @@ describe("Update Workspace", function() {
 
   it("Open the workspace general settings and update workspace website. The update should reflect in the workspace.", function() {
     cy.get(homePage.workspaceWebsiteInput).clear();
-    cy.get(homePage.workspaceWebsiteInput).type("demowebsite");
+    cy.get(homePage.workspaceWebsiteInput).type("demowebsite.com");
     cy.wait("@updateWorkspace").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(homePage.workspaceWebsiteInput).should("have.value", "demowebsite");
+    cy.get(homePage.workspaceWebsiteInput).should(
+      "have.value",
+      "demowebsite.com",
+    );
   });
 });

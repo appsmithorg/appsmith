@@ -14,6 +14,30 @@ export enum PLATFORM_ERROR {
   JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION",
 }
 
+export type Methods =
+  | "log"
+  | "debug"
+  | "info"
+  | "warn"
+  | "error"
+  | "table"
+  | "clear"
+  | "time"
+  | "timeEnd"
+  | "count"
+  | "assert";
+
+export type UserLogObject = { logObject: LogObject[]; source: SourceEntity };
+
+// Type of the log object
+export type LogObject = {
+  method: Methods | "result";
+  data: any[];
+  timestamp: string;
+  id: string;
+  severity: Severity;
+};
+
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
 export enum Severity {

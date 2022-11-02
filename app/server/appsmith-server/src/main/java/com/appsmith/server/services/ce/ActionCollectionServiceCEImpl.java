@@ -11,7 +11,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -24,6 +24,7 @@ import com.appsmith.server.services.NewActionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -106,11 +107,19 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> save(ActionCollection collection) {
+        if(collection.getGitSyncId() == null) {
+            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
+        }
         return repository.save(collection);
     }
 
     @Override
     public Flux<ActionCollection> saveAll(List<ActionCollection> collections) {
+        collections.forEach(collection -> {
+            if(collection.getGitSyncId() == null) {
+                collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
+            }
+        });
         return repository.saveAll(collections);
     }
 
@@ -483,4 +492,13 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedActionCollection.getWorkspaceId(), ""));
         return analyticsProperties;
     }
+
+    @Override
+    public Mono<ActionCollection> create(ActionCollection collection) {
+        if(collection.getGitSyncId() == null) {
+            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
+        }
+        return super.create(collection);
+    }
+
 }

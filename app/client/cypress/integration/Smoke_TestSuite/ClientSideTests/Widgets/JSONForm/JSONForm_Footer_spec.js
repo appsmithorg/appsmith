@@ -1,7 +1,18 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSONForm Footer spec", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. sticks to the bottom when fixed footer is true and content is less", () => {
     cy.addDsl(dslWithoutSchema);
     // add small source data

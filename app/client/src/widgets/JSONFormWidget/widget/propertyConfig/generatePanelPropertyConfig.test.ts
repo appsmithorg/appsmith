@@ -16,8 +16,8 @@ describe(".generatePanelPropertyConfig", () => {
       expect(currentPropertyConfig?.titlePropertyName).toEqual("label");
       expect(currentPropertyConfig?.panelIdPropertyName).toEqual("identifier");
 
-      const fieldConfigurationProperty = (currentPropertyConfig?.children[0]
-        .children as PropertyPaneControlConfig[]).find(
+      const fieldConfigurationProperty = (currentPropertyConfig
+        ?.contentChildren?.[0].children as PropertyPaneControlConfig[]).find(
         ({ propertyName }) => propertyName === "children",
       );
 

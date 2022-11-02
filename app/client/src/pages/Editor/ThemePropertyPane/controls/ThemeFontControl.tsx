@@ -20,11 +20,15 @@ function ThemeFontControl(props: ThemeFontControlProps) {
    * @param param0
    * @returns
    */
-  const renderOption: RenderOption = ({ isSelectedNode, option }) => (
+  const renderOption: RenderOption = ({
+    isHighlighted,
+    isSelectedNode,
+    option,
+  }) => (
     <div
-      className={`flex space-x-2  w-full hover:bg-gray-200 cursor-pointer ${
-        isSelectedNode ? "px-2 py-2" : "px-2 py-2 "
-      }`}
+      className={`flex space-x-2  w-full cursor-pointer ${
+        isSelectedNode ? "px-2 py-2" : "px-2 py-2 hover:bg-gray-200"
+      } ${isHighlighted ? "bg-gray-200" : ""}`}
       onClick={() => {
         if (!isSelectedNode) {
           updateTheme({

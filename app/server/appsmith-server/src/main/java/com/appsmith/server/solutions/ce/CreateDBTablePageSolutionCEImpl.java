@@ -19,7 +19,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
@@ -342,7 +342,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     }
 
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
-                    return layoutActionService.updateLayout(savedPageId, layoutId, layout)
+                    return layoutActionService.updateLayout(savedPageId, page.getApplicationId(), layoutId, layout)
                             .then(Mono.zip(
                                     Mono.just(datasource),
                                     Mono.just(templateActionList),

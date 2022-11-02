@@ -2,8 +2,11 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
+import { TabComponent, TabProp, TabTitle } from "design-system";
 import { Tab, TabList, Tabs } from "react-tabs";
+import { useDispatch, useSelector } from "react-redux";
+import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
+import { setSelectedPropertyTabIndex } from "actions/propertyPaneActions";
 
 const StyledTabComponent = styled(TabComponent)`
   height: auto;
@@ -14,6 +17,7 @@ const StyledTabComponent = styled(TabComponent)`
 
   .react-tabs__tab-panel {
     overflow: initial;
+    padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
   }
 `;
 
@@ -67,10 +71,21 @@ const StyledTabs = styled(Tabs)`
 type PropertyPaneTabProps = {
   styleComponent: JSX.Element | null;
   contentComponent: JSX.Element | null;
+  isPanelProperty?: boolean;
 };
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const dispatch = useDispatch();
+  const globalSelectedIndex = useSelector(getSelectedPropertyTabIndex);
+  const [localSelectedIndex, setLocalSelectedIndex] = useState(0);
+
+  const setSelectedIndex = (index: number) => {
+    if (props.isPanelProperty) {
+      setLocalSelectedIndex(index);
+    } else {
+      dispatch(setSelectedPropertyTabIndex(index));
+    }
+  };
 
   const tabs = useMemo(() => {
     const arr: TabProp[] = [];
@@ -91,6 +106,9 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
     return arr;
   }, [props.styleComponent, props.contentComponent]);
 
+  const selectedIndex = props.isPanelProperty
+    ? localSelectedIndex
+    : globalSelectedIndex;
   return (
     <>
       <StyledTabs onSelect={setSelectedIndex} selectedIndex={selectedIndex}>

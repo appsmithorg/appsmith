@@ -8,7 +8,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Checkbox Functionality To Check required toggle for form", function() {
+  it("1. Checkbox Functionality To Check required toggle for form", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.togglebar(commonlocators.requiredjs + " " + "input");
     cy.PublishtheApp();
@@ -24,18 +24,50 @@ describe("Checkbox Widget Functionality", function() {
 
     cy.get(publish.backToEditor).click();
   });
-  it("Checkbox Functionality To swap label alignment of checkbox", function() {
+
+  it("2. Checkbox Functionality To swap label alignment of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
-    cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should(
-      "not.exist",
+    cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
+      "have.css",
+      "text-align",
+      "left",
     );
-    cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should("exist");
+
     // align right
     cy.get(".t--property-control-alignment .t--button-tab-RIGHT")
       .first()
       .click();
+    cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
+      "have.css",
+      "text-align",
+      "right",
+    );
     cy.wait(200);
     cy.PublishtheApp();
+    cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
+      "have.css",
+      "text-align",
+      "right",
+    );
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("3. Checkbox Functionality To swap label position of checkbox", function() {
+    cy.openPropertyPane("checkboxwidget");
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should(
+      "not.exist",
+    );
+
+    cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should("exist");
+    cy.get(commonlocators.optionposition)
+      .last()
+      .click({ force: true });
+    cy.wait(200);
+    cy.get(".t--button-tab-Left").click({ force: true });
+    cy.wait(200);
+    cy.PublishtheApp();
+
+    // When Label Position is Left, checkbox is on the right
     cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should("exist");
     cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should(
       "not.exist",
@@ -43,31 +75,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Checkbox Functionality To swap label position of checkbox", function() {
-    cy.openPropertyPane("checkboxwidget");
-    cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
-      "have.css",
-      "text-align",
-      "right",
-    );
-    cy.get(commonlocators.optionposition)
-      .last()
-      .click({ force: true });
-    cy.wait(200);
-    cy.get(commonlocators.dropdownmenu)
-      .contains("Left")
-      .click({ force: true });
-    cy.wait(200);
-    cy.PublishtheApp();
-    cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
-      "have.css",
-      "text-align",
-      "left",
-    );
-    cy.get(publish.backToEditor).click();
-  });
-
-  it("Checkbox Functionality To change label color of checkbox", function() {
+  it("4. Checkbox Functionality To change label color of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.moveToStyleTab();
     cy.get(".t--property-control-fontcolor .bp3-input").type("red");
@@ -81,7 +89,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Checkbox Functionality To change label size of checkbox", function() {
+  it("5. Checkbox Functionality To change label size of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.moveToStyleTab();
     cy.get(widgetsPage.textSizeNew)
@@ -99,7 +107,7 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Checkbox Functionality To change label style of checkbox", function() {
+  it("6. Checkbox Functionality To change label style of checkbox", function() {
     cy.openPropertyPane("checkboxwidget");
     cy.moveToStyleTab();
     cy.get(".t--property-control-emphasis .t--button-tab-BOLD").click({

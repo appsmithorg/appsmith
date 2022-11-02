@@ -60,33 +60,43 @@ export class EntityExplorer {
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
     section: "Widgets" | "Queries/JS" | "Datasources" | "Pages" | "" = "",
+    ctrlKey = false,
   ) {
     this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
-      .click({ multiple: true });
+      .click(ctrlKey ? { ctrlKey } : { multiple: true });
     this.agHelper.Sleep(500);
   }
 
   public SelectEntityInModal(
     modalNameinEE: string,
     section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
+    ctrlKey = false,
   ) {
     this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     this.ExpandCollapseEntity(modalNameinEE);
     cy.xpath(this._modalTextWidget(modalNameinEE))
       .last()
-      .click({ multiple: true });
+      .click(ctrlKey ? { ctrlKey } : { multiple: true });
     this.agHelper.Sleep(500);
   }
 
-  public AddNewPage() {
+  public AddNewPage(
+    option:
+      | "add-page"
+      | "generate-page"
+      | "add-page-from-template" = "add-page",
+  ) {
     cy.get(this.locator._newPage)
       .first()
       .click();
-    this.agHelper.ValidateNetworkStatus("@createPage", 201);
+    cy.get(`[data-cy='${option}']`).click();
+    if (option === "add-page") {
+      this.agHelper.ValidateNetworkStatus("@createPage", 201);
+    }
   }
 
   public NavigateToSwitcher(navigationTab: "explorer" | "widgets") {
@@ -161,7 +171,11 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(widgetType: string, x: number, y: number) {
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x: number = 200,
+    y: number = 200,
+  ) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))

@@ -157,9 +157,6 @@ describe("Widget Copy paste", function() {
   it("should be able to paste widget on the initial generate Page", function() {
     cy.Createpage("NewPage", false);
 
-    //verify that it is in generate page
-    cy.get(generatePage.buildFromScratchActionCard).should("have.length", 1);
-
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
 

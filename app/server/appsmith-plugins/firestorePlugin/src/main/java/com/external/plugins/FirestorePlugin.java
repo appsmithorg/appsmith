@@ -12,8 +12,8 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.Param;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -118,8 +118,9 @@ public class FirestorePlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
+            Param param = (Param) args[0];
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams,
-                    null);
+                    null, param);
         }
 
         @Override
@@ -936,13 +937,6 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             return invalids;
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .map(connection -> new DatasourceTestResult())
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
         @Override

@@ -290,6 +290,8 @@ else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap
   setup_backend_heap_arg
+  # set the hostname for heroku dyno
+  export HOSTNAME="heroku_dyno"
 fi
 
 check_setup_custom_ca_certificates

@@ -2,11 +2,15 @@ const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
@@ -295,45 +299,33 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
-  it("11. should check that save/discard column is added/removed when inline save option is changed", () => {
+  it.only("11. should check that save/discard column is added/removed when inline save option is changed", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Custom")
-      .click();
+    cy.get(".t--button-tab-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("task");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Row level")
-      .click();
+    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Custom")
-      .click();
+    cy.get(".t--button-tab-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("step");
     cy.makeColumnEditable("task");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Row level")
-      .click();
+    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
@@ -666,14 +658,9 @@ describe("Table widget inline editing functionality", () => {
         expect(text).to.equal("discarded!!");
       });
   });
-});
-
-describe("Table widget inline editing functionality with Text wrapping functionality", () => {
-  beforeEach(() => {
-    cy.addDsl(dsl);
-  });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
+    cy.addDsl(dsl);
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);

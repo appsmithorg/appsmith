@@ -2,10 +2,10 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
+import com.appsmith.server.domains.Plugin;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
