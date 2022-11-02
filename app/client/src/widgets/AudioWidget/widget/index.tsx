@@ -130,6 +130,10 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
     return {};
   }
 
+  componentDidUpdate(prevProps: AudioWidgetProps): void {
+    if (this.props.playState === "NOT_STARTED") this._player.current?.seekTo(0);
+  }
+
   getPageView() {
     const { autoPlay, onEnd, onPause, onPlay, url } = this.props;
     return (
