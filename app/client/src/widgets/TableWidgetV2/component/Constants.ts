@@ -8,6 +8,7 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import { ColumnTypes } from "../constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -215,7 +216,7 @@ export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   inputFormat?: string;
-  type: string;
+  type: ColumnTypes;
 }
 
 export interface TableColumnProps {

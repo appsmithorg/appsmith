@@ -20,6 +20,7 @@ import { ButtonVariantTypes } from "components/constants";
 
 import AddIcon from "remixicon-react/AddLineIcon";
 import { cloneDeep } from "lodash";
+import { ColumnTypes, FilterableColumnTypes } from "../constants";
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;
@@ -152,17 +153,16 @@ function TableFilterPaneContent(props: TableFilterProps) {
 
   const columns: DropdownOption[] = props.columns
     .map((column: ReactTableColumnProps) => {
-      const type = column.metaProperties?.type || "text";
+      const type = column.metaProperties?.type || ColumnTypes.TEXT;
+
       return {
         label: column.Header,
         value: column.alias,
         type: type,
       };
     })
-    .filter((column: { label: string; value: string; type: string }) => {
-      return !["video", "button", "image", "iconButton", "menuButton"].includes(
-        column.type as string,
-      );
+    .filter((column: { label: string; value: string; type: ColumnTypes }) => {
+      return FilterableColumnTypes.includes(column.type);
     });
   const hasAnyFilters = !!(
     filters.length >= 1 &&

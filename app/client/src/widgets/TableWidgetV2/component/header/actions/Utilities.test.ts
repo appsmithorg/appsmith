@@ -12,7 +12,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       draggable: true,
       metaProperties: {
         isHidden: false,
-        type: "string",
+        type: ColumnTypes.TEXT,
       },
       columnProperties: {
         id: "id",
