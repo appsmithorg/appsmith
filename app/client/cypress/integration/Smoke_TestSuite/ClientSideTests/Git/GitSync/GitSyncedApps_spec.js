@@ -198,6 +198,9 @@ describe("Git sync apps", function() {
       "response.body.responseMeta.status",
       201,
     );
+    cy.xpath("(//button[@type='button'])")
+      .eq(0)
+      .click();
     cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
     cy.wait("@getPage");
   });

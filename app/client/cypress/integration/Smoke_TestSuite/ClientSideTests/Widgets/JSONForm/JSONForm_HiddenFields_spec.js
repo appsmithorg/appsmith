@@ -62,6 +62,7 @@ function changeFieldType(fieldName, fieldType) {
 
 function addCustomField(fieldType) {
   cy.openPropertyPane("jsonformwidget");
+  cy.backFromPropertyPanel();
 
   // Add new field
   cy.get(commonlocators.jsonFormAddNewCustomFieldBtn).click({
