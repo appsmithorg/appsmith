@@ -40,7 +40,6 @@ import { Action } from "redux";
 import {
   EVALUATE_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
-  LINT_REDUX_ACTIONS,
   setDependencyMap,
   setEvaluatedTree,
   shouldLint,
