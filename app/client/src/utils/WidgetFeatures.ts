@@ -74,7 +74,7 @@ export function findAndUpdatePropertyPaneControlConfig(
         );
 
         if (
-          controlConfigIndex &&
+          controlConfigIndex !== undefined &&
           controlConfigIndex > -1 &&
           sectionConfig.children
         ) {

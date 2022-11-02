@@ -34,7 +34,7 @@ const WIDGET_WITH_AUTO_HEIGHT_WITH_LIMITS_ENABLED = {
 const DUMMY_PROPERTY_CONTROL: PropertyPaneConfig = {
   label: "Dummy",
   propertyName: "dummy",
-  controlType: "INPUT_TEXT_CONTROL",
+  controlType: "INPUT_TEXT",
   isBindProperty: false,
   isTriggerProperty: false,
 };
@@ -347,6 +347,66 @@ describe("Widget Features tests", () => {
         minDynamicHeight,
       });
       expect(parsed).toBe(value);
+    });
+  });
+
+  describe("findAndUpdatePropertyPaneControlConfig", () => {
+    it("should add a new property in the config", () => {
+      const config = [
+        {
+          sectionName: "General",
+          children: [DUMMY_PROPERTY_CONTROL],
+        },
+      ];
+
+      const updates = findAndUpdatePropertyPaneControlConfig(config, {
+        dummy: {
+          someNewProperty: "someNewPropertyValue",
+        },
+      });
+
+      const expected = [
+        {
+          sectionName: "General",
+          children: [
+            {
+              ...DUMMY_PROPERTY_CONTROL,
+              someNewProperty: "someNewPropertyValue",
+            },
+          ],
+        },
+      ];
+
+      expect(updates).toMatchObject(expected);
+    });
+
+    it("should update a new property in the config", () => {
+      const config = [
+        {
+          sectionName: "General",
+          children: [DUMMY_PROPERTY_CONTROL],
+        },
+      ];
+
+      const updates = findAndUpdatePropertyPaneControlConfig(config, {
+        dummy: {
+          controlType: "SWITCH",
+        },
+      });
+
+      const expected = [
+        {
+          sectionName: "General",
+          children: [
+            {
+              ...DUMMY_PROPERTY_CONTROL,
+              controlType: "SWITCH",
+            },
+          ],
+        },
+      ];
+
+      expect(updates).toMatchObject(expected);
     });
   });
 });
