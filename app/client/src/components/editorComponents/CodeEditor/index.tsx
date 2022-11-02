@@ -358,9 +358,6 @@ class CodeEditor extends Component<Props, State> {
           if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
             editor.focus();
           }
-          if (this.props.editorLastCursorPosition) {
-            editor.setCursor(this.props.editorLastCursorPosition);
-          }
         }, 200);
       }.bind(this);
 
@@ -415,9 +412,6 @@ class CodeEditor extends Component<Props, State> {
       setTimeout(() => {
         if (this.props.editorIsFocused) {
           this.editor.focus();
-        }
-        if (this.props.editorLastCursorPosition) {
-          this.editor.setCursor(this.props.editorLastCursorPosition);
         }
       }, 200);
     }
@@ -590,6 +584,9 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+    if (this.props.editorLastCursorPosition) {
+      cm.setCursor(this.props.editorLastCursorPosition);
+    }
 
     if (!cm.state.completionActive) {
       updateCustomDef(this.props.additionalDynamicData);
