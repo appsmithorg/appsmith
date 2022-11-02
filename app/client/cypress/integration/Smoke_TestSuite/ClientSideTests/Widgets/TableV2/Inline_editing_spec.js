@@ -299,7 +299,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
-  it.only("11. should check that save/discard column is added/removed when inline save option is changed", () => {
+  it("11. should check that save/discard column is added/removed when inline save option is changed", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");

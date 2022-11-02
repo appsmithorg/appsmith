@@ -365,6 +365,8 @@ export default [
       },
       {
         propertyName: "onAddNewRowSave",
+        helpText:
+          "Triggers an action when a add new row save button is clicked",
         label: "onSave",
         controlType: "ACTION_SELECTOR",
         hidden: (props: TableWidgetProps) => {
@@ -392,6 +394,8 @@ export default [
       },
       {
         propertyName: "onAddNewRowDiscard",
+        helpText:
+          "Triggers an action when a add new row discard button is clicked",
         label: "onDiscard",
         controlType: "ACTION_SELECTOR",
         hidden: (props: TableWidgetProps) => {
@@ -404,6 +408,7 @@ export default [
       },
       {
         propertyName: "defaultNewRow",
+        helpText: "Default new row values",
         label: "Default Values",
         controlType: "INPUT_TEXT",
         dependencies: ["allowAddNewRow"],
