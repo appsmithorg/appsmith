@@ -7,7 +7,7 @@ import { Alignment, Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
-import { typography, Typography, TypographyKeys } from "./typography";
+import { typography, Typography, TypographyKeys } from "design-system";
 
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
