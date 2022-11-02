@@ -1,5 +1,4 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dataSource = ObjectsRegistry.DataSources;
