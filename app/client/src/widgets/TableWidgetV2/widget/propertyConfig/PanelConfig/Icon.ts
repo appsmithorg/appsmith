@@ -24,7 +24,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
+        type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {

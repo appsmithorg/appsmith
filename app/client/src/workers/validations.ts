@@ -1010,7 +1010,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
   /**
    *
-   * ARRAY_AND_ANY_PROPERTY can be used in scenarios where we wanted to validate
+   * ARRAY_TYPE_OR_TYPE can be used in scenarios where we wanted to validate
    * using ValidationTypes.ARRAY or ValidationTypes.* at the same time.
    *
    * This is needed in case of properties inside
@@ -1019,7 +1019,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
    *
    * For more info: https://github.com/appsmithorg/appsmith/pull/9396
    */
-  [ValidationTypes.ARRAY_AND_ANY_PROPERTY]: (
+  [ValidationTypes.ARRAY_TYPE_OR_TYPE]: (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,

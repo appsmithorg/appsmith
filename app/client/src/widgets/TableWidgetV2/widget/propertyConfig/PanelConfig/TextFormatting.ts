@@ -45,7 +45,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
+        type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
         },
@@ -84,7 +84,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
+        type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
         },
@@ -131,7 +131,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
+        type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -177,7 +177,7 @@ export default {
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.ARRAY_AND_ANY_PROPERTY,
+        type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
