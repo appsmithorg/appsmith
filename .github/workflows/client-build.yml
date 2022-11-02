@@ -64,7 +64,7 @@ jobs:
           PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
           -U aforce_admin -d perf-infra -c \
           "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active) 
-          VALUES ('${{github.repository}}',${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
+          VALUES ('${{github.repository}}', '${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
 
 
       - name: Figure out the PR number
