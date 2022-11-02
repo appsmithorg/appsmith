@@ -207,7 +207,8 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(listMono)
                 .assertNext(list -> {
                     // 3 default roles per user (user@test, api_user created in setup) + 1 super admin role
-                    assertThat(list.size()).isEqualTo(11);
+                    // + 1 publicPermissionGroup
+                    assertThat(list.size()).isEqualTo(8);
 
                     // Assert that instance admin roles are returned
                     Optional<PermissionGroupInfoDTO> pgiDTO = list.stream()
@@ -220,19 +221,19 @@ public class PermissionGroupServiceTest {
                     Set<PermissionGroupInfoDTO> administratorPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
                             .collect(Collectors.toSet());
-                    assertThat(administratorPgiDTOs).hasSize(3);
+                    assertThat(administratorPgiDTOs).hasSize(2);
                     administratorPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
                     Set<PermissionGroupInfoDTO> developerPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
                             .collect(Collectors.toSet());
-                    assertThat(developerPgiDTOs).hasSize(3);
+                    assertThat(developerPgiDTOs).hasSize(2);
                     developerPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
                     Set<PermissionGroupInfoDTO> viewersPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
                             .collect(Collectors.toSet());
-                    assertThat(viewersPgiDTOs).hasSize(3);
+                    assertThat(viewersPgiDTOs).hasSize(2);
                     viewersPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
                     // Assert that user permissions is returned for all the permission groups
