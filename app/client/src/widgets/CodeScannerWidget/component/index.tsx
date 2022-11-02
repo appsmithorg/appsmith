@@ -517,6 +517,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
           <>
             {isTabActive && (
               <BarcodeScannerComponent
+                delay={1000}
                 key={JSON.stringify(videoConstraints)}
                 onError={handleCameraErrors}
                 onUpdate={handleOnResult}
