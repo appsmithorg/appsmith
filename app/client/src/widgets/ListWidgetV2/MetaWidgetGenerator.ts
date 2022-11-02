@@ -1,4 +1,3 @@
-import equal from "fast-deep-equal/es6";
 import hash from "object-hash";
 import { klona } from "klona";
 import { difference, omit, set, get, isEmpty, without } from "lodash";
