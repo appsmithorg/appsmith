@@ -93,6 +93,8 @@ export default {
       propertyName: "alias",
       label: "Property Name",
       controlType: "INPUT_TEXT",
+      helperText: () =>
+        "The property name will update automatically when custom column name is changed.",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const columnId = propertyPath.match(/primaryColumns\.(.*)\.alias/);
         let isDerivedProperty = false;
