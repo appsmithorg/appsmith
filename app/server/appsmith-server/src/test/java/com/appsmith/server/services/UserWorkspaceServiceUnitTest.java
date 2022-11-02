@@ -6,7 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
@@ -122,12 +122,12 @@ public class UserWorkspaceServiceUnitTest {
         // mock repository methods so that they return the objects we've created
         Mockito.when(workspaceRepository.findById("test-org-id", READ_WORKSPACES))
                 .thenReturn(Mono.just(testWorkspace));
-        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUPS)))
+        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUP_MEMBERS)))
                 .thenReturn(Flux.empty());
         Mockito.when(userRepository.findAllById(ArgumentMatchers.<Iterable<String>>any()))
                 .thenReturn(Flux.empty());
 
-        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
+        Mono<List<WorkspaceMemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
         StepVerifier
                 .create(workspaceMembers)
                 .assertNext(userAndGroupDTOs -> {
@@ -142,12 +142,12 @@ public class UserWorkspaceServiceUnitTest {
         // mock repository methods so that they return the objects we've created
         Mockito.when(workspaceRepository.findById(sampleWorkspaceId, READ_WORKSPACES))
                 .thenReturn(Mono.empty());
-        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUPS)))
+        Mockito.when(permissionGroupService.getByDefaultWorkspace(any(), eq(AclPermission.READ_PERMISSION_GROUP_MEMBERS)))
                 .thenReturn(Flux.empty());
         Mockito.when(userRepository.findAllById(ArgumentMatchers.<Iterable<String>>any()))
                 .thenReturn(Flux.empty());
 
-        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
+        Mono<List<WorkspaceMemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
         StepVerifier
                 .create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))

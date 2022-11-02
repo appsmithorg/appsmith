@@ -1,6 +1,6 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -43,7 +43,6 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { debounce } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
@@ -204,6 +203,12 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  useEffect(() => {
+    if (confirmDelete && !isDeletingDatasource) {
+      setConfirmDelete(false);
+    }
+  }, [isDeletingDatasource]);
+
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
@@ -255,15 +260,9 @@ function DatasourceCard(props: DatasourceCardProps) {
     );
   };
 
-  const delayConfirmDeleteToFalse = debounce(
-    () => setConfirmDelete(false),
-    2200,
-  );
-
   const deleteAction = () => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
-    delayConfirmDeleteToFalse();
   };
 
   return (

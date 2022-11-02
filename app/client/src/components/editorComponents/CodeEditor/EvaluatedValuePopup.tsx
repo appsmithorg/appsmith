@@ -14,6 +14,7 @@ import {
   ScrollIndicator,
   Toaster,
   TooltipComponent as Tooltip,
+  Variant,
 } from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -34,7 +35,6 @@ import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Indices, Layers } from "constants/Layers";
-import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "@appsmith/reducers";
@@ -283,6 +283,14 @@ export function CurrentValueViewer(props: {
   evaluatedValue: any;
   hideLabel?: boolean;
   preparedStatementViewer?: boolean;
+  /** @param {number} [collapseStringsAfterLength=20]
+   * This collapses the values visible in (say json) after these many characters and shows ellipsis.
+   */
+  collapseStringsAfterLength?: number;
+  /** @param {string} [onCopyContentText=`Evaluated value copied to clipboard`]
+   * This parameter contains the string that is shown when the evaluatedValue is copied.
+   */
+  onCopyContentText?: string;
 }) {
   const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
   return (

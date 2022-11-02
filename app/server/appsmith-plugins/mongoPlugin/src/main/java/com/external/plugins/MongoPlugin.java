@@ -2,10 +2,13 @@ package com.external.plugins;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
@@ -26,6 +29,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.plugins.constants.MongoSpecialDataTypes;
+import com.external.plugins.datatypes.MongoSpecificDataTypes;
 import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -930,8 +934,9 @@ public class MongoPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this);
+            Param param = (Param) args[0];
+            DataType dataType = stringToKnownMongoDBDataTypeConverter(value, param.getClientDataType());
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this, param);
         }
 
         /**
@@ -944,8 +949,9 @@ public class MongoPlugin extends BasePlugin {
          * @param replacement replacement value
          * @return identified data type of replacement value
          */
-        private DataType stringToKnownMongoDBDataTypeConverter(String replacement) {
-            DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        private DataType stringToKnownMongoDBDataTypeConverter(String replacement, ClientDataType clientDataType) {
+            AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(clientDataType, replacement, MongoSpecificDataTypes.pluginSpecificTypes);
+            DataType dataType = appsmithType.type();
             if (dataType == DataType.STRING) {
                 for (MongoSpecialDataTypes specialType : MongoSpecialDataTypes.values()) {
                     final String regex = MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE.replace("E",

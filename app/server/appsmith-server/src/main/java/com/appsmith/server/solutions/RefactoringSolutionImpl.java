@@ -1,7 +1,10 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -19,12 +22,18 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                                    NewActionService newActionService,
                                    ActionCollectionService actionCollectionService,
                                    ResponseUtils responseUtils,
-                                   LayoutActionService layoutActionService) {
+                                   LayoutActionService layoutActionService,
+                                   ApplicationService applicationService,
+                                   AstService astService,
+                                   InstanceConfig instanceConfig) {
         super(objectMapper,
                 newPageService,
                 newActionService,
                 actionCollectionService,
                 responseUtils,
-                layoutActionService);
+                layoutActionService,
+                applicationService,
+                astService,
+                instanceConfig);
     }
 }

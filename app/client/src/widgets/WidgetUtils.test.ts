@@ -12,7 +12,6 @@ import {
   replaceRgbaMigrationConstant,
   boxShadowMigration,
   boxShadowUtility,
-  escapeSpecialChars,
   fontSizeUtility,
   lightenColor,
   composePropertyUpdateHook,
@@ -155,15 +154,6 @@ describe("validate widget utils button style functions", () => {
     const expected6 = "rgba(255, 255, 255, 0.1)";
     const result6 = getCustomHoverColor(theme, ButtonVariantTypes.TERTIARY);
     expect(result6).toStrictEqual(expected6);
-  });
-
-  it("validate escaping special characters", () => {
-    const testString = `a\nb\nc
-hello! how are you?
-`;
-    const result = escapeSpecialChars(testString);
-    const expectedResult = "a\nb\nc\nhello! how are you?\n";
-    expect(result).toStrictEqual(expectedResult);
   });
 
   it("Check if the color is lightened with lightenColor utility", () => {

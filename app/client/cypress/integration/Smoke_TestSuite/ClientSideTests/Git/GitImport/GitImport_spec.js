@@ -20,7 +20,7 @@ describe("Git import flow", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
   });
-  it("Import an app from JSON with Postgres, MySQL, Mongo db", () => {
+  it("1. Import an app from JSON with Postgres, MySQL, Mongo db", () => {
     cy.NavigateToHome();
     cy.get(homePage.optionsIcon)
       .first()
@@ -69,7 +69,7 @@ describe("Git import flow", function() {
       });
     });
   });
-  it("Import an app from Git and reconnect Postgres, MySQL and Mongo db ", () => {
+  it("2. Import an app from Git and reconnect Postgres, MySQL and Mongo db ", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -114,8 +114,12 @@ describe("Git import flow", function() {
       "contain",
      "Application imported successfully",
    ); */
+    cy.wait("@gitStatus").then((interception) => {
+      cy.log(interception.response.body.data);
+      cy.wait(1000);
+    });
   });
-  it("Verfiy imported app should have all the data binding visible in deploy and edit mode", () => {
+  it("3. Verfiy imported app should have all the data binding visible in view and edit mode", () => {
     // verify postgres data binded to table
     cy.get(".tbody")
       .first()
@@ -129,7 +133,7 @@ describe("Git import flow", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
-  it("Create a new branch, clone page and validate data on that branch in deploy and edit mode", () => {
+  it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     cy.createGitBranch(newBranch);
     cy.get(".tbody")
       .first()
@@ -169,7 +173,8 @@ describe("Git import flow", function() {
     cy.get(homePage.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
-    cy.wait(8000);
+    cy.intercept("POST", "api/v1/git/commit/app/*").as("commit");
+    cy.wait(10000);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.merge(mainBranch);
@@ -197,7 +202,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it("Switch to master and verify data in edit and deploy mode", () => {
+  it("5. Switch to master and verify data in edit and view mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
     // validate data binding in edit and deploy mode
@@ -219,7 +224,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
-  it("Add widget to master, merge then checkout to child branch and verify data", () => {
+  it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });

@@ -180,7 +180,9 @@ describe("Undo/Redo functionality", function() {
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
 
-    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get("body")
+      .click({ force: true })
+      .type(`{${modifierKey}}z`);
     cy.get(widgetsPage.textColor)
       .first()
       .invoke("attr", "value")

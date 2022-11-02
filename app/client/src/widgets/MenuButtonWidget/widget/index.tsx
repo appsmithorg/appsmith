@@ -145,7 +145,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       label: "Icon",
                       helpText: "Sets the icon to be used for a menu item",
                       controlType: "ICON_SELECT",
-                      isBindProperty: false,
+                      isJSConvertible: true,
+                      isBindProperty: true,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
                     },
@@ -154,6 +155,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       label: "Position",
                       helpText: "Sets the icon alignment of a menu item",
                       controlType: "ICON_TABS",
+                      fullWidth: true,
                       options: [
                         {
                           icon: "VERTICAL_LEFT",
@@ -261,7 +263,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           {
             propertyName: "menuVariant",
             label: "Button Variant",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Sets the variant of the menu button",
             options: [
               {
@@ -328,6 +331,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Position",
             helpText: "Sets the icon alignment of the menu button",
             controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 icon: "VERTICAL_LEFT",
@@ -350,7 +354,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           {
             propertyName: "placement",
             label: "Placement",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Sets the space between items",
             options: [
               {

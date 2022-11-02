@@ -18,7 +18,7 @@ import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
-import { WorkspaceReduxState } from "reducers/uiReducers/workspaceReducer";
+import { WorkspaceReduxState } from "@appsmith/reducers/uiReducers/workspaceReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
