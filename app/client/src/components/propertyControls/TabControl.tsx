@@ -32,9 +32,7 @@ const TabsWrapper = styled.div`
 `;
 
 const SpanDisplayingNumberOfTabs = styled.span`
-  position: absolute;
-  top: 4px;
-  left: 33px;
+  margin: 1% 0;
 `;
 
 type DroppableItem = BaseItemProps;
@@ -202,7 +200,7 @@ class TabControl extends BaseControl<ControlProps, State> {
     return (
       <TabsWrapper>
         <SpanDisplayingNumberOfTabs>
-          <span>({this.getTabItems().length})</span>
+          <span>{this.getTabItems().length} tabs</span>
         </SpanDisplayingNumberOfTabs>
         <DroppableComponent
           deleteOption={this.deleteOption}
