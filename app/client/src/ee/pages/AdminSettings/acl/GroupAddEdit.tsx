@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Variant } from "components/ads";
 import {
   Button,
   HighlightText,
@@ -11,7 +10,6 @@ import {
   TabComponent,
   Table,
   TabProp,
-  Toaster,
 } from "design-system";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -40,7 +38,6 @@ import {
   ACL_RENAME,
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
-  SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
@@ -238,10 +235,6 @@ export function GroupAddEdit(props: GroupEditProps) {
     );
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
-    Toaster.show({
-      text: createMessage(SUCCESSFULLY_SAVED),
-      variant: Variant.success,
-    });
   };
 
   const onClearChanges = () => {

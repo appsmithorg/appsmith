@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { Variant } from "components/ads";
-import { HighlightText, MenuItemProps, Toaster } from "design-system";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { GroupAddEdit } from "./GroupAddEdit";
@@ -22,7 +21,6 @@ import {
 import {
   createMessage,
   ADD_GROUP,
-  ACL_DELETED_SUCCESS,
   ACL_EDIT,
   ACL_DELETE,
   SEARCH_GROUPS_PLACEHOLDER,
@@ -169,10 +167,6 @@ export function GroupListing() {
     });
     setData(updatedData);
     /* for jest tests */
-    Toaster.show({
-      text: createMessage(ACL_DELETED_SUCCESS),
-      variant: Variant.success,
-    });
   };
 
   return (

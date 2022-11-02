@@ -88,7 +88,10 @@ export function AuditLogTable() {
   }
   return (
     <Table data-testid="t--audit-logs-table" ref={containerRef}>
-      <THead data-testid="t--audit-logs-table-head">
+      <THead
+        className="audit-logs-table-head"
+        data-testid="t--audit-logs-table-head"
+      >
         <Event data-testid="t--audit-logs-table-head-event-col">
           {createMessage(EVENT_DESCRIPTION_LABEL)}
         </Event>

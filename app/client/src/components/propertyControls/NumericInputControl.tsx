@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { Classes, INumericInputProps, NumericInput } from "@blueprintjs/core";
 
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { ThemeProp } from "components/ads/common";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { ThemeProp } from "widgets/constants";
 
 const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
   &&& {

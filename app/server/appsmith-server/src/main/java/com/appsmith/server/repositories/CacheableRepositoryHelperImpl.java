@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Component
 public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelper{
@@ -33,9 +34,13 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
         Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
+        Criteria notDeletedCriteria = notDeleted();
+
+        Criteria andCriteria = new Criteria();
+        andCriteria.andOperator(assignedToUserIdsCriteria, notDeletedCriteria);
 
         Query query = new Query();
-        query.addCriteria(assignedToUserIdsCriteria);
+        query.addCriteria(andCriteria);
 
         Mono<Set<String>> userPermissionGroupIds = mongoOperations.find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())
@@ -70,8 +75,13 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCEIm
                 .collectList()
                 .flatMap(userGroups -> {
                     Criteria assignedToGroupIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds)).in(userGroups);
+                    Criteria notDeletedCriteria = notDeleted();
+
+                    Criteria andCriteria = new Criteria();
+                    andCriteria.andOperator(assignedToGroupIdsCriteria, notDeletedCriteria);
+
                     Query permissionGroupQuery = new Query();
-                    permissionGroupQuery.addCriteria(assignedToGroupIdsCriteria);
+                    permissionGroupQuery.addCriteria(andCriteria);
                     // Since we are only interested in id, don't fetch anything else
                     permissionGroupQuery.fields().include(fieldName(QPermissionGroup.permissionGroup.id));
 

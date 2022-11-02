@@ -1442,16 +1442,25 @@ public class WorkspaceServiceTest {
         Workspace workspace = new Workspace();
         workspace.setName("Test org to test delete org");
 
-        Mono<Workspace> deleteWorkspaceMono = workspaceService.create(workspace)
-                .flatMap(savedWorkspace ->
-                        workspaceService.archiveById(savedWorkspace.getId())
-                                .then(workspaceRepository.findById(savedWorkspace.getId()))
-                );
+        Workspace savedWorkspace = workspaceService.create(workspace).block();
+
+        Mono<Workspace> deleteWorkspaceMono = workspaceService.archiveById(savedWorkspace.getId())
+                                .then(workspaceRepository.findById(savedWorkspace.getId()));
 
         // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
         // as it doesn't expect an onNext signal at this point.
         StepVerifier
                 .create(deleteWorkspaceMono)
+                .verifyComplete();
+
+        // verify that all the default permision groups are also deleted
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono =
+                permissionGroupRepository.findAllById(savedWorkspace.getDefaultPermissionGroups()).collectList();
+
+        StepVerifier.create(defaultPermissionGroupsMono)
+                .assertNext(permissionGroups -> {
+                    assertThat(permissionGroups).isEmpty();
+                })
                 .verifyComplete();
     }
 

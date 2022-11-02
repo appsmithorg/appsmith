@@ -21,6 +21,8 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<PermissionGroup> archiveById(String id);
 
+    Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(PermissionGroup permissionGroup, Set<String> userGroupIds);
+
     Mono<PermissionGroup> bulkUnassignFromUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
 
     Mono<List<PermissionGroupInfoDTO>> getAllAssignableRoles();
@@ -36,4 +38,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup);
 
     Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds);
+
+    Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(Set<String> userIds, Set<String> permissionGroupIds);
 }

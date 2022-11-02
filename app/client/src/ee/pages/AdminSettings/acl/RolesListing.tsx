@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { Variant } from "components/ads";
-import { HighlightText, MenuItemProps, Toaster } from "design-system";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import {
@@ -29,7 +28,6 @@ import {
   createMessage,
   ACL_DELETE,
   ACL_EDIT,
-  ACL_DELETED_SUCCESS,
   SEARCH_ROLES_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import {
@@ -172,10 +170,6 @@ export function RolesListing() {
     });
     setData(updatedData);
     /* for jest tests */
-    Toaster.show({
-      text: createMessage(ACL_DELETED_SUCCESS),
-      variant: Variant.success,
-    });
   };
 
   return (
