@@ -4,6 +4,7 @@ export class CommonLocators {
   _runBtnSpinner = ".cs-spinner";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _emptyCanvasCta = "[data-cy='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
   _widgetName = (widgetName: string) =>
