@@ -207,8 +207,7 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(listMono)
                 .assertNext(list -> {
                     // 3 default roles per user (user@test, api_user created in setup) + 1 super admin role
-                    // + 1 publicPermissionGroup
-                    assertThat(list.size()).isEqualTo(8);
+                    assertThat(list.size()).isEqualTo(7);
 
                     // Assert that instance admin roles are returned
                     Optional<PermissionGroupInfoDTO> pgiDTO = list.stream()

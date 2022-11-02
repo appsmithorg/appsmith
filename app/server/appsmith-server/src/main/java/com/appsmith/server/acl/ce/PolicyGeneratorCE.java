@@ -281,6 +281,7 @@ public class PolicyGeneratorCE {
      * @return
      */
     public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+
         // In case the calling function could not translate the string value to AclPermission, return an empty set to handle
         // erroneous cases
         if (aclPermission == null) {
