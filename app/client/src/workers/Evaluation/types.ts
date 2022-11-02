@@ -1,4 +1,3 @@
-import { ReduxActionType } from "ce/constants/ReduxActionConstants";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { AppTheme } from "entities/AppTheming";

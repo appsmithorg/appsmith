@@ -168,10 +168,8 @@ export class GracefulWorkerService {
 
       if (timeTaken) {
         const transferTime = timeTakenOnMainThread - timeTaken;
-        log.debug(`Timetaken: Worker ${method} took ${timeTaken}ms`);
-        log.debug(
-          `Timetaken: Transfer ${method} took ${transferTime.toFixed(2)}ms`,
-        );
+        log.debug(` Worker ${method} took ${timeTaken}ms`);
+        log.debug(` Transfer ${method} took ${transferTime.toFixed(2)}ms`);
       }
       // Cleanup
       ch.close();

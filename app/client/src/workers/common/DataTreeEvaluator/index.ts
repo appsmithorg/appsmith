@@ -274,17 +274,7 @@ export default class DataTreeEvaluator {
       lintOrder: this.sortedDependencies,
     };
   }
-  /**
-   * This method takes unEvalTree as input and does following
-   * 1. parseJSActions and updates JS
-   * 2. Creates dependencyMap, sorted dependencyMap
-   * 3. Generates inverseDependencyTree
-   * 4. Finally, evaluates the unEvalTree and returns that with JSUpdates
-   *
-   * @param {DataTree} unEvalTree
-   * @return {*}
-   * @memberof DataTreeEvaluator
-   */
+
   evalAndValidateFirstTree(): {
     evalTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;

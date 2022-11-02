@@ -353,7 +353,6 @@ function eventRequestHandler({
 
         dataTreeEvaluator.clearLogs();
       } catch (error) {
-        console.error("ERROR IN EVAL_TREE", error);
         if (dataTreeEvaluator !== undefined) {
           errors = dataTreeEvaluator.errors;
           logs = dataTreeEvaluator.logs;
