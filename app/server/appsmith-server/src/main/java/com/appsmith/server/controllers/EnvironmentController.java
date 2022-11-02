@@ -57,6 +57,7 @@ public class EnvironmentController extends EnvironmentControllerCE {
 
     @PostMapping("/update")
     public Mono<ResponseDTO<List<EnvironmentDTO>>> saveEnvironmentChanges(@RequestBody @Valid List<EnvironmentDTO> environmentDTOList) {
+        log.debug("Going to update environments from environment controller");
 
         return environmentService.updateEnvironment(environmentDTOList)
                 .collectList()
