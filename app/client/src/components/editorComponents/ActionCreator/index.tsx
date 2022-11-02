@@ -33,6 +33,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import { JSAction, Variable } from "entities/JSCollection";
 import {
   CLEAR_INTERVAL,
+  CLEAR_STORE,
   CLOSE_MODAL,
   COPY_TO_CLIPBOARD,
   createMessage,
@@ -44,6 +45,7 @@ import {
   NO_ACTION,
   OPEN_MODAL,
   POST_MESSAGE,
+  REMOVE_VALUE,
   RESET_WIDGET,
   SET_INTERVAL,
   SHOW_MESSAGE,
@@ -94,6 +96,14 @@ const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(STORE_VALUE),
     value: AppsmithFunction.storeValue,
+  },
+  {
+    label: createMessage(REMOVE_VALUE),
+    value: AppsmithFunction.removeValue,
+  },
+  {
+    label: createMessage(CLEAR_STORE),
+    value: AppsmithFunction.clearStore,
   },
   {
     label: createMessage(DOWNLOAD),
@@ -339,6 +349,11 @@ function getFieldFromValue(
         field: FieldType.VALUE_TEXT_FIELD,
       },
     );
+  }
+  if (value.indexOf("removeValue") !== -1) {
+    fields.push({
+      field: FieldType.KEY_TEXT_FIELD,
+    });
   }
   if (value.indexOf("resetWidget") !== -1) {
     fields.push(

@@ -4,6 +4,8 @@ export const APPSMITH_GLOBAL_FUNCTIONS = {
   showModal: "showModal",
   closeModal: "closeModal",
   storeValue: "storeValue",
+  removeValue: "removeValue",
+  clearStore: "clearStore",
   download: "download",
   copyToClipboard: "copyToClipboard",
   resetWidget: "resetWidget",

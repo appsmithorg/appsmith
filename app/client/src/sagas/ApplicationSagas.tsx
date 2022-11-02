@@ -95,6 +95,7 @@ import { getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
+import { setCanvasCardsState } from "actions/editorActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -559,6 +560,10 @@ export function* createApplicationSaga(
             payload: application.id,
           });
         }
+        // Show cta's in empty canvas for the first page
+        yield put(
+          setCanvasCardsState(getDefaultPageId(response.data.pages) ?? ""),
+        );
         history.push(
           builderURL({
             pageId: application.defaultPageId as string,

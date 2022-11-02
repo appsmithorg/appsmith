@@ -125,6 +125,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
 import { showModal } from "actions/widgetActions";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -1128,6 +1129,28 @@ function* restoreSelectedWidgetContext() {
   quickScrollToWidget(selectedWidgets[0]);
 }
 
+function* deleteCanvasCardsStateSaga() {
+  const currentPageId: string = yield select(getCurrentPageId);
+  const state = JSON.parse(
+    localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
+  );
+  delete state[currentPageId];
+  localStorage.setItem(
+    LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE,
+    JSON.stringify(state),
+  );
+}
+
+function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
+  const state = localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE);
+  const stateObject = JSON.parse(state ?? "{}");
+  stateObject[action.payload] = true;
+  localStorage.setItem(
+    LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE,
+    JSON.stringify(stateObject),
+  );
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -1153,5 +1176,10 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
     takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
     takeEvery(ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT, setCustomSlugSaga),
+    takeEvery(ReduxActionTypes.SET_CANVAS_CARDS_STATE, setCanvasCardsStateSaga),
+    takeEvery(
+      ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
+      deleteCanvasCardsStateSaga,
+    ),
   ]);
 }
