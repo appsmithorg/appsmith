@@ -12,6 +12,7 @@ import {
   NO_ACTION,
   OPEN_MODAL,
   POST_MESSAGE,
+  REMOVE_VALUE,
   RESET_WIDGET,
   SET_INTERVAL,
   SHOW_MESSAGE,
@@ -66,6 +67,14 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.storeValue]: {
     label: createMessage(STORE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD, FieldType.VALUE_TEXT_FIELD],
+  },
+  [AppsmithFunction.removeValue]: {
+    label: createMessage(REMOVE_VALUE),
+    fields: [FieldType.KEY_TEXT_FIELD],
+  },
+  [AppsmithFunction.clearStore]: {
+    label: createMessage(REMOVE_VALUE),
+    fields: [],
   },
   [AppsmithFunction.download]: {
     label: createMessage(DOWNLOAD),
