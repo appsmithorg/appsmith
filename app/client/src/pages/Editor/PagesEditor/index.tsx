@@ -20,10 +20,7 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { builderURL } from "RouteBuilder";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreatePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -80,10 +77,7 @@ function PagesEditor() {
 
   const userAppPermissions = currentApp?.userPermissions || [];
 
-  const canCreatePages = isPermitted(
-    userAppPermissions,
-    PERMISSION_TYPE.CREATE_PAGES,
-  );
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {

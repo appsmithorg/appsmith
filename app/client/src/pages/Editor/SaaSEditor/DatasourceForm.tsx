@@ -30,10 +30,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -187,9 +184,8 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const datsourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasource = isPermitted(
+  const canManageDatasource = hasManageDatasourcePermission(
     datsourcePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   return {

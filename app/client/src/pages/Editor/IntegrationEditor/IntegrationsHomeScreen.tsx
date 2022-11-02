@@ -25,6 +25,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import {
+  hasCreateDatasourcePermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -552,9 +553,8 @@ const mapStateToProps = (state: AppState) => {
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
-  const canCreateDatasource = isPermitted(
+  const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
   return {
     dataSources: getDatasources(state),

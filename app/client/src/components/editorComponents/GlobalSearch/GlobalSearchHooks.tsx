@@ -26,8 +26,9 @@ import AddLineIcon from "remixicon-react/AddLineIcon";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasCreateActionPermission,
+  hasCreateDatasourceActionPermission,
+  hasCreateDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
@@ -55,20 +56,16 @@ export const useFilteredFileOperations = (query = "") => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.CREATE_ACTIONS,
-  );
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
 
-  const canCreateDatasource = isPermitted(
+  const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
-  const canCreateDatasourceActions = isPermitted(
-    [...userWorkspacePermissions, ...pagePermissions],
-    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTIONS],
-  );
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...userWorkspacePermissions,
+    ...pagePermissions,
+  ]);
 
   return useMemo(() => {
     let fileOperations: any =

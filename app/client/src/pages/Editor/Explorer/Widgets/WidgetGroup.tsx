@@ -20,10 +20,7 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 type ExplorerWidgetGroupProps = {
   step: number;
@@ -58,10 +55,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGES,
-  );
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
   return (
     <Entity

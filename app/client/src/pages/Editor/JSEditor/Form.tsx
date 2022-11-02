@@ -61,8 +61,9 @@ import {
 import { getJSPaneConfigSelectedTabIndex } from "selectors/jsPaneSelectors";
 import { EventLocation } from "utils/AnalyticsUtil";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
 import { executeCommandAction } from "../../../actions/apiPaneActions";
 import { SlashCommand } from "../../../entities/Action";
@@ -219,17 +220,14 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 
-  const isChangePermitted = isPermitted(
+  const isChangePermitted = hasManageActionPermission(
     currentJSCollection?.userPermissions || [],
-    PERMISSION_TYPE.MANAGE_ACTIONS,
   );
-  const isExecutePermitted = isPermitted(
+  const isExecutePermitted = hasExecuteActionPermission(
     currentJSCollection?.userPermissions || [],
-    PERMISSION_TYPE.EXECUTE_ACTIONS,
   );
-  const isDeletePermitted = isPermitted(
+  const isDeletePermitted = hasDeleteActionPermission(
     currentJSCollection?.userPermissions || [],
-    PERMISSION_TYPE.DELETE_ACTIONS,
   );
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTabIndex);

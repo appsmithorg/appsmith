@@ -14,8 +14,8 @@ import { jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeleteActionPermission,
+  hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
 
 type ExplorerJSCollectionEntityProps = {
@@ -56,15 +56,9 @@ export const ExplorerJSCollectionEntity = memo(
 
     const jsActionPermissions = jsAction.userPermissions || [];
 
-    const canDeleteJSAction = isPermitted(
-      jsActionPermissions,
-      PERMISSION_TYPE.DELETE_ACTIONS,
-    );
+    const canDeleteJSAction = hasDeleteActionPermission(jsActionPermissions);
 
-    const canManageJSAction = isPermitted(
-      jsActionPermissions,
-      PERMISSION_TYPE.MANAGE_ACTIONS,
-    );
+    const canManageJSAction = hasManageActionPermission(jsActionPermissions);
 
     const contextMenu = (
       <JSCollectionEntityContextMenu

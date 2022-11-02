@@ -79,10 +79,7 @@ import {
 } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -453,7 +450,7 @@ function* formValueChangeSaga(
     if (field === "dynamicBindingPathList" || field === "name") return;
     const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
     if (!values.id) return;
-    if (!isPermitted(values.userPermissions, PERMISSION_TYPE.MANAGE_ACTIONS)) {
+    if (!hasManageActionPermission(values.userPermissions)) {
       yield validateResponse({
         status: 403,
         resourceType: values?.pluginType,

@@ -21,10 +21,7 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -57,10 +54,7 @@ function Files() {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.CREATE_ACTIONS,
-  );
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 

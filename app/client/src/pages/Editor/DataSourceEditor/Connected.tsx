@@ -11,10 +11,7 @@ import { renderDatasourceSection } from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 
 const ConnectedText = styled.div`
@@ -49,10 +46,10 @@ function Connected() {
   );
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateDatasourceActions = isPermitted(
-    [...userWorkspacePermissions, ...pagePermissions],
-    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTIONS],
-  );
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...userWorkspacePermissions,
+    ...pagePermissions,
+  ]);
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),

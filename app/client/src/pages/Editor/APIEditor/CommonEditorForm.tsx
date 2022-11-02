@@ -65,8 +65,9 @@ import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
@@ -583,17 +584,14 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
-  const isChangePermitted = isPermitted(
-    currentActionConfig?.userPermissions || [],
-    PERMISSION_TYPE.MANAGE_ACTIONS,
+  const isChangePermitted = hasManageActionPermission(
+    currentActionConfig?.userPermissions,
   );
-  const isExecutePermitted = isPermitted(
-    currentActionConfig?.userPermissions || [],
-    PERMISSION_TYPE.EXECUTE_ACTIONS,
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentActionConfig?.userPermissions,
   );
-  const isDeletePermitted = isPermitted(
-    currentActionConfig?.userPermissions || [],
-    PERMISSION_TYPE.DELETE_ACTIONS,
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentActionConfig?.userPermissions,
   );
 
   const plugin = useSelector((state: AppState) =>

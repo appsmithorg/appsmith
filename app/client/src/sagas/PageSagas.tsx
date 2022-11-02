@@ -121,10 +121,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
@@ -557,12 +554,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     const currentPageId: string = yield select(getCurrentPageId);
     const currentPage: Page = yield select(getPageById(currentPageId));
 
-    if (
-      !isPermitted(
-        currentPage?.userPermissions || [],
-        PERMISSION_TYPE.MANAGE_PAGES,
-      )
-    ) {
+    if (!hasManagePagePermission(currentPage?.userPermissions || [])) {
       yield validateResponse({
         status: 403,
         resourceType: "Page",

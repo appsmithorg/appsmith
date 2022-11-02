@@ -12,6 +12,7 @@ import {
   EMPTY_ACTIVE_DATA_SOURCES,
 } from "@appsmith/constants/messages";
 import {
+  hasCreateDatasourcePermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -67,9 +68,8 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = isPermitted(
+  const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
   if (dataSources.length === 0) {

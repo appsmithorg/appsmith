@@ -18,8 +18,8 @@ import {
 } from "@appsmith/constants/messages";
 import { AppState } from "@appsmith/reducers";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeleteDatasourcePermission,
+  hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { TreeDropdownOption } from "design-system";
 import { getDatasource } from "selectors/entitiesSelector";
@@ -49,14 +49,12 @@ export function DataSourceContextMenu(props: {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canDeleteDatasource = isPermitted(
+  const canDeleteDatasource = hasDeleteDatasourcePermission(
     datasourcePermissions,
-    PERMISSION_TYPE.DELETE_DATASOURCES,
   );
 
-  const canManageDatasource = isPermitted(
+  const canManageDatasource = hasManageDatasourcePermission(
     datasourcePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const treeOptions = [

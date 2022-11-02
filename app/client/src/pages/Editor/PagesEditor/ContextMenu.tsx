@@ -22,8 +22,8 @@ import { TooltipComponent } from "design-system";
 import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeletePagePermission,
+  hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 
 // render over popover portals
@@ -146,15 +146,9 @@ function ContextMenu(props: Props) {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGES,
-  );
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
-  const canDeletePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.DELETE_PAGES,
-  );
+  const canDeletePages = hasDeletePagePermission(pagePermissions);
 
   return (
     <Popover2
