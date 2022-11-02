@@ -49,7 +49,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       // })
       //.trigger("mouseover")
       .dblclick()
-      .type("{{JSObject1.");
+      .type("{backspace}{{JSObject1.");
     agHelper.GetNAssertElementText(locator._hints, "offsetValue", "have.text", 1);
     agHelper.Sleep();
     agHelper.TypeText(locator._codeMirrorTextArea, "offsetValue", 1);
@@ -65,7 +65,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       .contains("__limit__")
       //.trigger("mouseover")
       .dblclick()
-      .type("{{JSObject1.");
+      .type("{backspace}{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "limitValue");
     agHelper.Sleep(2000);
     //Commenting this since - many runs means - API response is 'You are doing too many launches'
