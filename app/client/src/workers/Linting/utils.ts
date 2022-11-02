@@ -50,6 +50,7 @@ import {
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { JSUpdate } from "utils/JSPaneUtils";
+import { spawn } from "redux-saga/effects";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -434,14 +435,11 @@ function getInvalidPropertyErrorsFromScript(
   );
   return invalidPropertyErrors;
 }
-
-export function initiateLinting(
+function* postAMessage(
   lintOrder: string[],
   jsUpdates: Record<string, JSUpdate>,
   unevalTree: DataTree,
-  requiresLinting: boolean,
 ) {
-  if (!requiresLinting) return;
   postMessage({
     promisified: true,
     responseData: {
@@ -451,4 +449,14 @@ export function initiateLinting(
       type: EVAL_WORKER_ACTIONS.LINT_TREE,
     },
   });
+}
+
+export function* initiateLinting(
+  lintOrder: string[],
+  jsUpdates: Record<string, JSUpdate>,
+  unevalTree: DataTree,
+  requiresLinting: boolean,
+) {
+  if (!requiresLinting) return;
+  yield spawn(postAMessage, lintOrder, jsUpdates, unevalTree);
 }
