@@ -1,6 +1,6 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ApiResponse } from "./ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { WorkspaceRole, Workspace } from "constants/workspaceConstants";
 
 export interface FetchWorkspaceRolesResponse extends ApiResponse {

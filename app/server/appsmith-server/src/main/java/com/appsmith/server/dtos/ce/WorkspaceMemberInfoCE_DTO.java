@@ -1,20 +1,14 @@
-package com.appsmith.server.dtos;
+package com.appsmith.server.dtos.ce;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
-public class UserAndPermissionGroupDTO {
-
+@AllArgsConstructor
+public class WorkspaceMemberInfoCE_DTO {
     String userId;
-
     String username;
-
     String name;
-
     String permissionGroupName;
-
     String permissionGroupId;
-
 }

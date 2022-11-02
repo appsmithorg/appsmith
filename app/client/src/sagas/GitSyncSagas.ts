@@ -57,14 +57,14 @@ import {
   setShowRepoLimitErrorModal,
   switchGitBranchInit,
   updateLocalGitConfigSuccess,
+  importAppViaGitStatusReset,
 } from "actions/gitSyncActions";
 
 import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 import { ApiResponse } from "api/ApiResponses";
 import { GitConfig, GitSyncModalTab } from "entities/GitSync";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
@@ -642,11 +642,15 @@ function* disconnectGitSaga() {
         payload: { id: "", name: "" },
       });
       yield put(setIsDisconnectGitModalOpen(false));
+      yield put(importAppViaGitStatusReset());
       yield put(
         setIsGitSyncModalOpen({
           isOpen: false,
         }),
       );
+      yield put({
+        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+      });
 
       // while disconnecting another application, i.e. not the current one
       if (currentApplicationId !== application.id) {

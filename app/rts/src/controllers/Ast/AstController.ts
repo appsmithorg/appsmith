@@ -13,6 +13,7 @@ type entityRefactorType = {
   script: string;
   oldName: string;
   newName: string;
+  isJSObject: boolean;
   evalVersion?: number;
 };
 
@@ -74,15 +75,16 @@ export default class AstController extends BaseController {
   async entityRefactorController(req: Request, res: Response) {
     try {
       // By default the application eval version is set to be 2
-      const { script, oldName, newName, evalVersion }: entityRefactorType =
+      const { script, oldName, newName, isJSObject, evalVersion = 2 }: entityRefactorType =
         req.body;
       const data = await AstService.entityRefactor(
         script,
         oldName,
         newName,
+        isJSObject,
         evalVersion
       );
-      return super.sendResponse(res, data);
+      return super.sendEntityResponse(res, data.body, data.isSuccess);
     } catch (err) {
       return super.sendError(
         res,

@@ -34,5 +34,6 @@ export const useGitConnect = () => {
   return {
     isConnectingToGit,
     connectToGit,
+    onGitConnectFailure,
   };
 };

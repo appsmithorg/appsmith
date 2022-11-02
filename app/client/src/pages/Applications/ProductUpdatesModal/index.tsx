@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useContext, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useContext,
+  useRef,
+  useEffect,
+} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
@@ -9,6 +15,7 @@ import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import ReleaseComponent, { Release } from "./ReleaseComponent";
 import { DialogComponent as Dialog, ScrollIndicator } from "design-system";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const StyledDialog = styled(Dialog)`
   .bp3-dialog-body {
@@ -42,6 +49,15 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   );
   const containerRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (props.hideTrigger && releaseItems.length === 0) {
+      dispatch({
+        type: ReduxActionTypes.FETCH_RELEASES,
+      });
+    }
+  }, []);
+
   const onOpening = useCallback(async () => {
     setIsOpen(true);
     dispatch(resetReleasesCount());

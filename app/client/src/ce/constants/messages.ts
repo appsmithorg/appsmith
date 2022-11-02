@@ -390,6 +390,8 @@ export const SHOW_MESSAGE = () => `Show message`;
 export const OPEN_MODAL = () => `Open modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const STORE_VALUE = () => `Store value`;
+export const REMOVE_VALUE = () => `Remove value`;
+export const CLEAR_STORE = () => `Clear store`;
 export const DOWNLOAD = () => `Download`;
 export const COPY_TO_CLIPBOARD = () => `Copy to clipboard`;
 export const RESET_WIDGET = () => `Reset widget`;
@@ -1024,7 +1026,6 @@ export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit Logs";
-export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
 export const INTRODUCING = (featureName: string) =>
@@ -1280,7 +1281,34 @@ export const INVALID_URL = () =>
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
-  { label: "Success", value: "'success'", id: "success" },
+  {
+    label: "Success",
+    value: "'success'",
+    id: "success",
+  },
   { label: "Error", value: "'error'", id: "error" },
   { label: "Warning", value: "'warning'", id: "warning" },
 ];
+
+export const USAGE_AND_BILLING = {
+  usage: () => "Usage",
+  billing: () => "Billing",
+  usageAndBilling: () => "Usage & Billing",
+  usageOverNDays: (days: number) => `Usage over the past ${days} days!`,
+  usageDetails: () =>
+    "This is how much you have used Appsmith to build and run apps.",
+  unit: () => "minutes/day",
+  averaged: () => "*averaged",
+  approximated: () => "*approximated",
+  sell: () => "Figure out your usage before purchasing Appsmith",
+  upgradeToBusiness: () => "UPGRADE TO BUSINESS EDITION",
+  rbacHeading: () => "Role Based Access Control",
+  rbacDetails: () =>
+    "RBAC is here to allow you to control access to appsmith as easy as you maintain your organization.",
+  ssoHeading: () => "SSO and Custom Authentication",
+  ssoDetails: () => "SSO and custom auth allow you to onboard users faster.",
+  gitHeading: () => "Unlimited private git repositories",
+  gitDetails: () => "Expand your single source of truth capability to infinite",
+  exclusive: () =>
+    "These features are exclusively available on business edition.",
+};

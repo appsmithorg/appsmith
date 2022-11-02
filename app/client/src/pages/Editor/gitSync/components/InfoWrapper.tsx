@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Classes } from "components/ads/common";
+import { Classes } from "design-system";
 
 const InfoWrapper = styled.div<{ isError?: boolean }>`
   width: 100%;

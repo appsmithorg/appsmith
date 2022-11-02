@@ -5,7 +5,7 @@ import {
   saveWorkspace,
   uploadWorkspaceLogo,
 } from "actions/workspaceActions";
-import { SaveWorkspaceRequest } from "api/WorkspaceApi";
+import { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
 import { debounce } from "lodash";
 import { TextInput, emailValidator, notEmptyValidator } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
