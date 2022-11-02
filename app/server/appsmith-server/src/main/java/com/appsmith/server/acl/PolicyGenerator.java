@@ -43,15 +43,37 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 
 
+
 @Component
 public class PolicyGenerator extends PolicyGeneratorCE {
 
     @Override
     protected void createPolicyGraphForEachType() {
         super.createPolicyGraphForEachType();
+        createEnvironmentPolicyGraph();
         createTenantPolicyGraph();
         createAuditLogPolicyGraph();
         createUserGroupPolicies();
+    }
+
+    protected void createEnvironmentPolicyGraph() {
+        hierarchyGraph.addEdge(MANAGE_WORKSPACES, AclPermission.CREATE_ENVIRONMENTS);
+        hierarchyGraph.addEdge(AclPermission.READ_WORKSPACES, AclPermission.READ_ENVIRONMENTS);
+        hierarchyGraph.addEdge(AclPermission.WORKSPACE_EXECUTE_DATASOURCES, AclPermission.EXECUTE_ENVIRONMENTS);
+        hierarchyGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
+        hierarchyGraph.addEdge(AclPermission.CREATE_ENVIRONMENTS, AclPermission.CREATE_ENVIRONMENT_VARIABLES);
+        hierarchyGraph.addEdge(AclPermission.READ_ENVIRONMENTS, AclPermission.READ_ENVIRONMENT_VARIABLES);
+        hierarchyGraph.addEdge(AclPermission.DELETE_ENVIRONMENTS, AclPermission.DELETE_ENVIRONMENT_VARIABLES);
+
+        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.READ_ENVIRONMENTS);
+        lateralGraph.addEdge(AclPermission.CREATE_ENVIRONMENTS, AclPermission.MANAGE_ENVIRONMENTS);
+        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
+        lateralGraph.addEdge(AclPermission.READ_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
+        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.DELETE_ENVIRONMENTS);
+
+        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENT_VARIABLES, AclPermission.READ_ENVIRONMENT_VARIABLES);
+        lateralGraph.addEdge(AclPermission.CREATE_ENVIRONMENT_VARIABLES, AclPermission.MANAGE_ENVIRONMENT_VARIABLES);
+        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENT_VARIABLES, AclPermission.DELETE_ENVIRONMENT_VARIABLES);
     }
 
     private void createTenantPolicyGraph() {
@@ -155,6 +177,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
                 .map(lateralGraph::getEdgeTarget)
                 .filter(interestingPermissions::contains)
                 .collect(Collectors.toSet());
+
     }
 
     public Set<AclPermission> getHierarchicalPermissions(AclPermission permission, Set<AclPermission> interestingPermissions) {

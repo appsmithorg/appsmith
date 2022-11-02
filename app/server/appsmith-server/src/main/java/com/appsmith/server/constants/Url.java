@@ -31,10 +31,11 @@ public interface Url {
     String THEME_URL = BASE_URL + VERSION + "/themes";
     String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
     String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
+    String ENVIRONMENT_URL = BASE_URL + VERSION + "/environments";
+    String ENVIRONMENT_VARIABLE_URL = BASE_URL + VERSION + "/environment-variables";
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
 
 
-    String ENVIRONMENT_URL = BASE_URL + VERSION + "/environments";
 
     // EE specific endpoints.
     String AUDIT_LOGS_URL = BASE_URL + VERSION + "/audit-logs";

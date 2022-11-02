@@ -6,4 +6,5 @@ import com.appsmith.server.repositories.ce.EnvironmentVariableRepositoryCE;
 @Repository
 public interface EnvironmentVariableRepository extends EnvironmentVariableRepositoryCE, CustomEnvironmentVariableRepository {
 
+
 }
