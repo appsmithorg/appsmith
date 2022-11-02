@@ -1,13 +1,10 @@
-import {
-  ACTION_TRIGGER_REGEX,
-  FUNC_ARGS_REGEX,
-  IS_URL_OR_MODAL,
-} from "./regex";
+import { ACTION_TRIGGER_REGEX, FUNC_ARGS_REGEX } from "./regex";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isValidURL } from "utils/URLUtils";
 import {
   getTextArgumentAtPosition,
   getEnumArgumentAtPosition,
+  getModalName,
 } from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
@@ -71,19 +68,10 @@ export const modalSetter = (changeValue: any, currentValue: string) => {
 };
 
 export const modalGetter = (value: string) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  let name = "none";
-  if (!matches.length) {
-    return name;
-  } else {
-    const modalName = matches[0][2].split(",")[0];
-    if (IS_URL_OR_MODAL.test(modalName) || modalName === "") {
-      name = modalName.substring(1, modalName.length - 1);
-    } else {
-      name = `{{${modalName}}}`;
-    }
-    return name;
-  }
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(value).jsSnippets[0];
+  return getModalName(requiredValue, self.evaluationVersion);
 };
 
 export const textSetter = (

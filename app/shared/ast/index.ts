@@ -25,9 +25,9 @@ import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 import { parseJSObjectWithAST } from "./src/jsObject";
 
 // action creator
-import { getTextArgumentAtPosition, getEnumArgumentAtPosition } from "./src/actionCreator";
+import { getTextArgumentAtPosition, getEnumArgumentAtPosition, getModalName } from "./src/actionCreator";
 
-// types or intefaces should be exported with type keyword, while enums can be exported like normal functions
+// types or interfaces should be exported with type keyword, while enums can be exported like normal functions
 export type {
   ObjectExpression,
   PropertyNode,
@@ -55,4 +55,5 @@ export {
   NodeTypes,
   getTextArgumentAtPosition,
   getEnumArgumentAtPosition,
+  getModalName,
 };

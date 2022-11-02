@@ -70,3 +70,29 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
 
     return requiredArgument;
 }
+
+export const getModalName = (value: string, evaluationVersion: number): string => {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let modalName: string = "none";
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        const wrappedCode = wrapCode(sanitizedScript);
+        ast = getAST(wrappedCode);
+    } catch (error) {
+        return modalName;
+    }
+
+    simple(ast, {
+        CallExpression(node) {
+            if (isCallExpressionNode(node) && node.arguments.length > 0) {
+                let argument = node.arguments[0];
+                switch (argument.type){
+                    case NodeTypes.Literal:
+                        modalName = argument.value as string;
+                }
+            }
+        },
+    });
+
+    return modalName;
+}
