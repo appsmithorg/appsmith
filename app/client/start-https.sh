@@ -171,6 +171,11 @@ rm -f "$nginx_access_log" "$nginx_error_log"
 
 nginx_dev_conf="$working_dir/nginx.dev.conf"
 
+# Rare case, if this file doesn't exist, and the `docker run` command
+# (from further below) the script runs, then it'll auto-create a _directory_
+# at this path, breaking this script after that.
+rm -rf "$nginx_dev_conf"
+
 worker_connections=1024
 
 echo "
