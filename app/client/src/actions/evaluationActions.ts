@@ -29,7 +29,6 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.UPDATE_LAYOUT]: true,
   [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: true,
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: true,
-  [ReduxActionTypes.BATCH_UPDATES_SUCCESS]: true,
   [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: true,
 };
 
@@ -103,6 +102,21 @@ export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
   }
   return true;
 };
+
+export function shouldLint(action: ReduxAction<unknown>) {
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    const batchedActionTypes = action.payload.map(
+      (batchedAction) => batchedAction.type,
+    );
+    return batchedActionTypes.some(
+      (actionType) => LINT_REDUX_ACTIONS[actionType],
+    );
+  }
+  return LINT_REDUX_ACTIONS[action.type];
+}
 
 export const setEvaluatedTree = (
   updates: Diff<DataTree, DataTree>[],

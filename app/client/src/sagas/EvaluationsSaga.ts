@@ -43,6 +43,7 @@ import {
   LINT_REDUX_ACTIONS,
   setDependencyMap,
   setEvaluatedTree,
+  shouldLint,
   shouldProcessBatchedAction,
 } from "actions/evaluationActions";
 import {
@@ -120,7 +121,7 @@ let widgetTypeConfigMap: WidgetTypeConfigMap;
 function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay = true,
-  type?: ReduxActionType,
+  requiresLinting = false,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
@@ -141,7 +142,7 @@ function* evaluateTreeSaga(
     theme,
     shouldReplay,
     allActionValidationConfig,
-    requiresLinting: LINT_REDUX_ACTIONS[type as ReduxActionType],
+    requiresLinting,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -622,12 +623,7 @@ function* evaluationChangeListenerSaga() {
     type: ReduxActionType;
     postEvalActions: Array<ReduxAction<unknown>>;
   } = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(
-    evaluateTreeSaga,
-    initAction.postEvalActions,
-    false,
-    initAction.type,
-  );
+  yield fork(evaluateTreeSaga, initAction.postEvalActions, false, true);
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -643,7 +639,7 @@ function* evaluationChangeListenerSaga() {
         evaluateTreeSaga,
         postEvalActions,
         get(action, "payload.shouldReplay"),
-        action.type,
+        shouldLint(action),
       );
     }
   }

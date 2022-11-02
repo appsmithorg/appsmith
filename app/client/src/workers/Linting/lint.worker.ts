@@ -9,35 +9,35 @@ import { getlintErrorsFromTree } from "./utils";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
   return (event: MessageEvent<LintWorkerRequest>) => {
-    const startTime = performance.now();
     const { method, requestId } = event.data;
-    if (method) {
-      const responseData = fn(event.data);
-      if (responseData) {
-        const endTime = performance.now();
-        try {
-          self.postMessage({
-            requestId,
-            responseData,
-            timeTaken: (endTime - startTime).toFixed(2),
-          });
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(e);
-          self.postMessage({
-            requestId,
-            responseData: {
-              errors: [
-                {
-                  type: WorkerErrorTypes.CLONE_ERROR,
-                  message: (e as Error)?.message,
-                },
-              ],
+    if (!method) return;
+
+    const startTime = performance.now();
+    const responseData = fn(event.data);
+    const endTime = performance.now();
+    if (!responseData) return;
+
+    try {
+      self.postMessage({
+        requestId,
+        responseData,
+        timeTaken: (endTime - startTime).toFixed(2),
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+      self.postMessage({
+        requestId,
+        responseData: {
+          errors: [
+            {
+              type: WorkerErrorTypes.CLONE_ERROR,
+              message: (e as Error)?.message,
             },
-            timeTaken: (endTime - startTime).toFixed(2),
-          });
-        }
-      }
+          ],
+        },
+        timeTaken: (endTime - startTime).toFixed(2),
+      });
     }
   };
 }
