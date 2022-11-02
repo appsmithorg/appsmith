@@ -826,8 +826,13 @@ const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "action cannot be triggered from this field";
 
 class TransformError {
-  private typeErrorRegex = /TypeError: ([\w_]+\.[\w_]+) is not a function/;
-  private referenceErrorRegex = /ReferenceError: ([\w_]+) is not defined/;
+  // Note all regex below groups the async function name
+  private errorMessageRegexList = [
+    /ReferenceError: Can't find variable: ([\w_]+)/, // ReferenceError message for safari
+    /ReferenceError: ([\w_]+) is not defined/, // ReferenceError message for other browser
+    /TypeError: ([\w_]+\.[\w_]+) is not a function/,
+  ];
+
   private asyncFunctionsNameMap: Record<string, string> = {};
 
   updateAsyncFunctions(dataTree: DataTree) {
@@ -835,19 +840,14 @@ class TransformError {
   }
 
   syncField(message: string) {
-    const refMatchResult = message.match(this.referenceErrorRegex);
-    if (refMatchResult) {
-      const referencedIdentifier = refMatchResult[1];
-      if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
-        return `${referencedIdentifier} ${UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR}`;
-      }
-    }
-
-    const typeMatchResult = message.match(this.typeErrorRegex);
-    if (typeMatchResult) {
-      const referencedIdentifier = typeMatchResult[1];
-      if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
-        return `${referencedIdentifier} ${UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR}`;
+    for (let index = 0; index < this.errorMessageRegexList.length; index++) {
+      const errorMessageRegex = this.errorMessageRegexList[index];
+      const matchResult = message.match(errorMessageRegex);
+      if (matchResult) {
+        const referencedIdentifier = matchResult[1];
+        if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
+          return `${referencedIdentifier} ${UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR}`;
+        }
       }
     }
 
