@@ -17,7 +17,7 @@ describe("Field component", () => {
       text: "Page Name",
     },
     depth: 1,
-    queriesAndJsObjectsOption: [],
+    integrationOptions: [],
     maxDepth: 0,
     modalDropdownList: [],
     navigateToSwitches: [
