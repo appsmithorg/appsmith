@@ -19,6 +19,8 @@ export interface AutoLayoutLayerProps {
   index: number;
   widgetId: string;
   isMobile?: boolean;
+  isCurrentCanvasDragging: boolean;
+  currentChildCount: number;
 }
 
 const LayoutLayerContainer = styled.div<{
@@ -35,6 +37,7 @@ const LayoutLayerContainer = styled.div<{
 `;
 
 const SubWrapper = styled.div<{
+  isCurrentCanvasDragging: boolean;
   flexDirection: FlexDirection;
   wrap?: boolean;
 }>`
@@ -43,6 +46,8 @@ const SubWrapper = styled.div<{
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   align-items: "flex-start";
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
+  height: ${({ isCurrentCanvasDragging }) =>
+    isCurrentCanvasDragging ? "100%" : "auto"};
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -71,13 +76,22 @@ function getInverseDirection(direction: LayoutDirection): LayoutDirection {
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   const flexDirection = getFlexDirection(getInverseDirection(props.direction));
+
+  const handleMouseMove = (e: any) => {
+    if (!props.isCurrentCanvasDragging) return;
+    e.stopPropagation();
+    console.log("#### mouse move", props.index, props.widgetId);
+  };
+
   return (
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
       flexDirection={flexDirection}
+      onMouseOver={(e) => handleMouseMove(e)}
     >
       <StartWrapper
         flexDirection={flexDirection}
+        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
         wrap={props.hasFillChild && props.isMobile}
       >
         {props.start}
@@ -85,12 +99,14 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
       <CenterWrapper
         className={props.hasFillChild ? "no-display" : ""}
         flexDirection={flexDirection}
+        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
       >
         {props.center}
       </CenterWrapper>
       <EndWrapper
         className={props.hasFillChild ? "no-display" : ""}
         flexDirection={flexDirection}
+        isCurrentCanvasDragging={props.isCurrentCanvasDragging}
       >
         {props.end}
       </EndWrapper>

@@ -63,6 +63,21 @@ export const FlexContainer = styled.div<{
     leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "4px;"};
 `;
 
+const DEFAULT_HIGHLIGHT_SIZE = 4;
+
+export const DropPosition = styled.div<{
+  isDragging: boolean;
+  isVertical: boolean;
+}>`
+  width: ${({ isVertical }) =>
+    isVertical ? `${DEFAULT_HIGHLIGHT_SIZE}px` : "100%"};
+  height: ${({ isVertical }) =>
+    isVertical ? "auto" : `${DEFAULT_HIGHLIGHT_SIZE}px`};
+  background-color: rgba(223, 158, 206, 0.6);
+  margin: 2px;
+  display: ${({ isDragging }) => (isDragging ? "block" : "none")};
+`;
+
 function FlexBoxComponent(props: FlexBoxProps) {
   // TODO: set isMobile as a prop at the top level
   const isMobile = useSelector(getIsMobile);
@@ -70,7 +85,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     props.direction || LayoutDirection.Horizontal;
   const appMode = useSelector(getAppMode);
   const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
-  const { autoLayoutDragDetails, dragDetails, flexHighlight } = useSelector(
+  const { autoLayoutDragDetails, dragDetails } = useSelector(
     (state: AppState) => state.ui.widgetDragResize,
   );
 
@@ -80,25 +95,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
     ? autoLayoutDragDetails.map((each) => each.widgetId)
     : [];
 
-  const getPreviewNode = () => {
-    return React.createElement(() => {
-      const height = autoLayoutDragDetails
-        ? autoLayoutDragDetails[0].height
-        : 0;
-      const width = autoLayoutDragDetails ? autoLayoutDragDetails[0].width : 0;
-
-      return (
-        <div
-          style={{
-            border: "1px dashed blue",
-            height: `${height}px`,
-            width: `${width}px`,
-          }}
-        />
-      );
-    });
-  };
-
   const renderChildren = () => {
     if (!props.children) return null;
     if (!props.useAutoLayout) return props.children;
@@ -106,25 +102,13 @@ function FlexBoxComponent(props: FlexBoxProps) {
       direction === LayoutDirection.Horizontal ||
       !(props.flexLayers && props.flexLayers.length)
     ) {
-      if (flexHighlight && isCurrentCanvasDragging) {
-        const previewNode = getPreviewNode();
-        const filteredChildren = (props.children as any)?.filter(
-          (child: any) => {
-            return (
-              draggedWidgets.indexOf(
-                (child as JSX.Element)?.props?.widgetId,
-              ) === -1
-            );
-          },
+      if (isCurrentCanvasDragging && draggedWidgets?.length)
+        return ((props.children as any) || [])?.filter(
+          (child: any) =>
+            draggedWidgets?.indexOf((child as JSX.Element).props.widgetId) ===
+            -1,
         );
-        return addInPosition(
-          filteredChildren,
-          flexHighlight?.index,
-          previewNode,
-        );
-      } else {
-        return props.children;
-      }
+      return props.children;
     }
 
     /**
@@ -137,81 +121,166 @@ function FlexBoxComponent(props: FlexBoxProps) {
       }
     }
 
-    const previewNode = getPreviewNode();
-    const layers: any[] = processLayers(map, previewNode);
-
-    if (flexHighlight?.isNewLayer && isCurrentCanvasDragging) {
-      return addInPosition(
-        layers,
-        flexHighlight.layerIndex !== undefined
-          ? flexHighlight.layerIndex
-          : layers.length,
-        <AutoLayoutLayer
-          center={[]}
-          direction={direction}
-          end={[]}
-          hasFillChild={false}
-          index={layers.length}
-          isMobile={isMobile}
-          key={layers.length}
-          start={[previewNode]}
-          widgetId={props.widgetId}
-        />,
-      );
-    }
+    const layers: any[] = processLayers(map);
 
     return layers;
   };
 
-  function processLayers(map: { [key: string]: any }, previewNode: any) {
-    return props.flexLayers
-      ?.map((layer: FlexLayer, index: number) => {
-        const { children, hasFillChild } = layer;
-        let start = [],
-          center = [],
-          end = [];
-        if (!children || !children.length) return null;
+  function DropPositionComponent(props: {
+    isVertical: boolean;
+    alignment: FlexLayerAlignment;
+    layerIndex: number;
+    childIndex: number;
+    widgetId: string;
+  }) {
+    return (
+      <DropPosition
+        className={`t--drop-position-${props.widgetId} alignment-${props.alignment} layer-index-${props.layerIndex} child-index-${props.childIndex}`}
+        isDragging={isCurrentCanvasDragging}
+        isVertical={props.isVertical}
+      />
+    );
+  }
 
-        for (const child of children) {
-          const widget = map[child.id];
-          if (hasFillChild) {
-            start.push(widget);
-            continue;
-          }
-          if (child.align === "end") end.push(widget);
-          else if (child.align === "center") center.push(widget);
-          else start.push(widget);
-        }
+  const getDropPositionKey = (
+    index: number,
+    alignment: FlexLayerAlignment,
+    layerIndex: number,
+  ): string =>
+    `drop-layer-${props.widgetId}-${layerIndex}-${alignment}-${index}`;
 
-        if (
-          isCurrentCanvasDragging &&
-          !flexHighlight?.isNewLayer &&
-          index === flexHighlight?.layerIndex
-        ) {
-          const pos = flexHighlight?.rowIndex || 0;
-          if (flexHighlight?.alignment === "start")
-            start = addInPosition(start, pos, previewNode);
-          else if (flexHighlight?.alignment === "center")
-            center = addInPosition(center, pos, previewNode);
-          else if (flexHighlight?.alignment === "end")
-            end = addInPosition(end, pos, previewNode);
-        }
-
-        return (
-          <AutoLayoutLayer
-            center={center}
-            direction={direction}
-            end={end}
-            hasFillChild={layer.hasFillChild}
-            index={index}
-            isMobile={isMobile}
-            key={index}
-            start={start}
+  const addDropPositions = (
+    arr: any[],
+    childCount: number,
+    layerIndex: number,
+    alignment: FlexLayerAlignment,
+    isVertical: boolean,
+  ): any[] => {
+    const res = [
+      <DropPositionComponent
+        alignment={alignment}
+        childIndex={childCount}
+        isVertical={isVertical}
+        key={getDropPositionKey(0, alignment, layerIndex)}
+        layerIndex={layerIndex}
+        widgetId={props.widgetId}
+      />,
+    ];
+    let count = 0;
+    if (arr) {
+      for (const item of arr) {
+        count += 1;
+        res.push(item);
+        res.push(
+          <DropPositionComponent
+            alignment={alignment}
+            childIndex={childCount + count}
+            isVertical={isVertical}
+            key={getDropPositionKey(0, alignment, layerIndex)}
+            layerIndex={layerIndex}
             widgetId={props.widgetId}
-          />
+          />,
         );
-      })
-      ?.filter((layer) => layer !== null);
+      }
+    }
+    return res;
+  };
+
+  function processLayers(map: { [key: string]: any }) {
+    let childCount = 0;
+    const layers = [
+      <DropPositionComponent
+        alignment={FlexLayerAlignment.Start}
+        childIndex={0}
+        isVertical={false}
+        key={getDropPositionKey(
+          Math.ceil(Math.random() * 100),
+          FlexLayerAlignment.Start,
+          0,
+        )}
+        layerIndex={0}
+        widgetId={props.widgetId}
+      />,
+    ];
+    props.flexLayers?.map((layer: FlexLayer, index: number) => {
+      const { children, hasFillChild } = layer;
+      let count = 0;
+      let start = [],
+        center = [],
+        end = [];
+      if (!children || !children.length) return null;
+
+      for (const child of children) {
+        count += 1;
+        const widget = map[child.id];
+        if (hasFillChild) {
+          start.push(widget);
+          continue;
+        }
+        if (child.align === "end") end.push(widget);
+        else if (child.align === "center") center.push(widget);
+        else start.push(widget);
+      }
+      /**
+       * Add drop positions
+       */
+      start = addDropPositions(
+        start,
+        childCount,
+        index,
+        FlexLayerAlignment.Start,
+        true,
+      );
+      center = addDropPositions(
+        center,
+        childCount,
+        index,
+        FlexLayerAlignment.Center,
+        true,
+      );
+      end = addDropPositions(
+        end,
+        childCount,
+        index,
+        FlexLayerAlignment.End,
+        true,
+      );
+
+      const res = (
+        <AutoLayoutLayer
+          center={center}
+          currentChildCount={childCount}
+          direction={direction}
+          end={end}
+          hasFillChild={layer.hasFillChild}
+          index={index}
+          isCurrentCanvasDragging={isCurrentCanvasDragging}
+          isMobile={isMobile}
+          key={index}
+          start={start}
+          widgetId={props.widgetId}
+        />
+      );
+      childCount += count;
+      layers.push(res);
+      layers.push(
+        <DropPositionComponent
+          alignment={FlexLayerAlignment.Start}
+          childIndex={childCount}
+          isVertical={false}
+          key={getDropPositionKey(
+            Math.ceil(Math.random() * 100),
+            FlexLayerAlignment.Start,
+            index,
+          )}
+          layerIndex={index}
+          widgetId={props.widgetId}
+        />,
+      );
+      return res;
+    });
+    return layers;
+    // ?.filter((layer) => layer !== null);
   }
 
   function addInPosition(arr: any[], index: number, item: any): any[] {
