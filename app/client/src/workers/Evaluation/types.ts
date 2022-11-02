@@ -2,8 +2,8 @@ import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { AppTheme } from "entities/AppTheming";
 import {
-  DataTree,
   EntityConfigCollection,
+  EvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
@@ -22,7 +22,7 @@ export type EvalWorkerRequest = WorkerRequest<any, EVAL_WORKER_ACTIONS>;
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
 
 export interface EvalTreeRequestData {
-  unevalTree: DataTree;
+  unevalTree: EvalTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
   widgets: CanvasWidgetsReduxState;
   theme: AppTheme;
@@ -34,7 +34,7 @@ export interface EvalTreeRequestData {
   entityConfigCollection: EntityConfigCollection;
 }
 export interface EvalTreeResponseData {
-  dataTree: DataTree;
+  dataTree: EvalTree;
   dependencies: DependencyMap;
   errors: EvalError[];
   evalMetaUpdates: EvalMetaUpdates;
