@@ -29,7 +29,7 @@ describe(".primaryColumnValidation", () => {
     expect(output).toEqual(expectedOutput);
   });
 
-  it("invalidates when input are not unique", () => {
+  it("invalidates when input keys are not unique", () => {
     const props = ({
       listData: [
         {
@@ -54,7 +54,35 @@ describe(".primaryColumnValidation", () => {
     expect(output).toEqual(expectedOutput);
   });
 
-  it("returns value when input value is non-array", () => {
+  it("returns empty with error when JS mode enabled and input value is non-array", () => {
+    const props = ({
+      listData: [
+        {
+          id: 1,
+        },
+        {
+          id: 2,
+        },
+      ],
+      dynamicPropertyPathList: [{ key: "primaryKeys" }],
+    } as unknown) as ListWidgetProps;
+
+    const inputs = [true, "true", 0, 1, undefined, null];
+
+    inputs.forEach((input) => {
+      const output = primaryColumnValidation(input, props, _);
+
+      expect(output).toEqual({
+        isValid: false,
+        parsed: [],
+        messages: [
+          "Use currentItem/currentIndex to generate primary key or composite key",
+        ],
+      });
+    });
+  });
+
+  it("returns empty with error when JS mode disabled and input value is non-array", () => {
     const props = ({
       listData: [
         {
@@ -66,41 +94,40 @@ describe(".primaryColumnValidation", () => {
       ],
     } as unknown) as ListWidgetProps;
 
-    const inputs = [
-      {
-        input: true,
-        expectedOutput_idValid: true,
-      },
-      {
-        input: "true",
-        expectedOutput_idValid: true,
-      },
-      {
-        input: 0,
-        expectedOutput_idValid: true,
-      },
-      {
-        input: 1,
-        expectedOutput_idValid: true,
-      },
-      {
-        input: undefined,
-        expectedOutput_idValid: true,
-      },
-      {
-        input: null,
-        expectedOutput_idValid: true,
-      },
-    ];
+    const inputs = [true, "true", 0, 1, undefined, null];
 
-    inputs.forEach(({ expectedOutput_idValid, input }) => {
+    inputs.forEach((input) => {
       const output = primaryColumnValidation(input, props, _);
 
       expect(output).toEqual({
-        isValid: expectedOutput_idValid,
-        parsed: input,
-        messages: [""],
+        isValid: false,
+        parsed: [],
+        messages: ["Select valid option form the primary key list"],
       });
+    });
+  });
+
+  it(" returns empty with error when JS mode enabled and input is empty", () => {
+    const props = ({
+      listData: [
+        {
+          id: 1,
+        },
+        {
+          id: 2,
+        },
+      ],
+      dynamicPropertyPathList: [{ key: "primaryKeys" }],
+    } as unknown) as ListWidgetProps;
+
+    const input: unknown = [];
+
+    const output = primaryColumnValidation(input, props, _);
+
+    expect(output).toEqual({
+      isValid: false,
+      parsed: [],
+      messages: ["Primary key cannot be empty"],
     });
   });
 });

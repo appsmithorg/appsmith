@@ -51,7 +51,7 @@ describe("List v2 - Primary Key property", () => {
     cy.wait(250);
 
     cy.get(".t--dropdown-option")
-      .last()
+      .first()
       .click({ force: true });
 
     cy.wait(1000);
@@ -59,7 +59,17 @@ describe("List v2 - Primary Key property", () => {
     cy.get(widgetsPage.containerWidget).should("have.length", 3);
   });
 
-  it("4. when given composite key, should produce a valid array", () => {
+  it("4. enabling the JS mode, it should prefill with currentItem", () => {
+    cy.get(`${propertyControl}-primarykey`)
+      .find(".t--js-toggle")
+      .click({ force: true });
+
+    cy.get(`${propertyControl}-primarykey`)
+      .find(".CodeMirror .CodeMirror-code")
+      .contains(`{{ currentItem["id"] }}`);
+  });
+
+  it("5. when given composite key, should produce a valid array", () => {
     const keys = ["001_Blue_0_ABC", "002_Green_1_ABC", "003_Red_2_ABC"];
 
     cy.get(`${propertyControl}-primarykey`)

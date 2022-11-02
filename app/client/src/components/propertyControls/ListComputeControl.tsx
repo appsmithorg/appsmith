@@ -15,6 +15,7 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 import { ListWidgetProps } from "widgets/ListWidgetV2/widget";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { getBindingTemplate } from "widgets/ListWidgetV2/constants";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -27,13 +28,6 @@ const CurlyBraces = styled.span`
   margin: 0px 2px;
   font-size: 10px;
 `;
-
-function getBindingTemplate(widgetName: string) {
-  return {
-    prefixTemplate: `{{${widgetName}.listData.map((currentItem, currentIndex) =>`,
-    suffixTemplate: `)}}`,
-  };
-}
 
 export function InputText(props: {
   label: string;

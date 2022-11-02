@@ -237,28 +237,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       mainCanvasId = "",
       mainContainerId = "",
       pageNo,
-      primaryKey,
+      primaryKeys,
     } = this.props;
     const pageSize = this.pageSize;
-
-    const primaryKeys = (() => {
-      if (Array.isArray(primaryKey)) {
-        return primaryKey;
-      }
-
-      if (typeof primaryKey === "string") {
-        return listData.map((d) => {
-          const keyValue = d[primaryKey];
-          if (typeof keyValue === "string" || typeof keyValue === "number") {
-            return keyValue;
-          }
-
-          return;
-        });
-      }
-
-      return [];
-    })();
 
     return {
       containerParentId: mainCanvasId,
@@ -868,7 +849,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   mainCanvasId?: string;
   mainContainerId?: string;
   onListItemClick?: string;
-  primaryKey?: string | (string | number)[];
+  primaryKeys?: (string | number)[];
   onPageSizeChange?: string;
   pageNo: number;
   currentViewItems: Array<Record<string, unknown>>;

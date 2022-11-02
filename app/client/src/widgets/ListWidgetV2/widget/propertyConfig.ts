@@ -6,6 +6,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from ".";
+import { getBindingTemplate } from "../constants";
 
 const isValidListData = (
   value: unknown,
@@ -18,8 +19,22 @@ export const primaryColumnValidation = (
   props: ListWidgetProps,
   _: any,
 ) => {
-  if (Array.isArray(inputValue)) {
-    const areKeysUnique = _.uniq(inputValue).length === props.listData?.length;
+  const { listData = [], dynamicPropertyPathList = [] } = props;
+  const isArray = Array.isArray(inputValue);
+  const isJSModeEnabled = Boolean(
+    dynamicPropertyPathList.find((d) => d.key === "primaryKeys"),
+  );
+
+  if (isArray) {
+    if (inputValue.length === 0) {
+      return {
+        isValid: false,
+        parsed: [],
+        messages: ["Primary key cannot be empty"],
+      };
+    }
+
+    const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
     if (!areKeysUnique) {
       return {
@@ -28,6 +43,16 @@ export const primaryColumnValidation = (
         messages: ["Primary keys are not unique."],
       };
     }
+  } else {
+    const message = isJSModeEnabled
+      ? "Use currentItem/currentIndex to generate primary key or composite key"
+      : "Select valid option form the primary key list";
+
+    return {
+      isValid: false,
+      parsed: [],
+      messages: [message],
+    };
   }
 
   return {
@@ -35,6 +60,23 @@ export const primaryColumnValidation = (
     parsed: inputValue,
     messages: [""],
   };
+};
+
+export const primaryKeyOptions = (props: ListWidgetProps) => {
+  const { widgetName } = props;
+  const listData = props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
+  const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
+
+  if (isValidListData(listData)) {
+    return Object.keys(listData[0]).map((key) => ({
+      label: key,
+      value: `${prefixTemplate} currentItem[${JSON.stringify(
+        key,
+      )}] ${suffixTemplate}`,
+    }));
+  } else {
+    return [];
+  }
 };
 
 const PropertyPaneConfig = [
@@ -87,30 +129,19 @@ const PropertyPaneConfig = [
         },
       },
       {
-        propertyName: "primaryKey",
+        propertyName: "primaryKeys",
         helpText:
           "Assign a unique column which improves performance and maintains values across page changes",
         label: "Primary key",
         controlType: "DROP_DOWN",
+        dropdownUsePropertyValue: true,
         customJSControl: "LIST_COMPUTE_CONTROL",
         isBindProperty: true,
         isTriggerProperty: false,
         isJSConvertible: true,
         dependencies: ["listData"],
         evaluatedDependencies: ["listData"],
-        options: (props: ListWidgetProps) => {
-          const listData =
-            props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
-
-          if (isValidListData(listData)) {
-            return Object.keys(listData[0]).map((key) => ({
-              label: key,
-              value: key,
-            }));
-          } else {
-            return [];
-          }
-        },
+        options: primaryKeyOptions,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {

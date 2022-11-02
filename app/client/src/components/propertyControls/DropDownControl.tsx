@@ -72,7 +72,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     } else {
       const computedValue =
         !isNil(this.props.propertyValue) &&
-        isDynamicValue(this.props.propertyValue)
+        isDynamicValue(this.props.propertyValue) &&
+        // "dropdownUsePropertyValue" comes from the property config. This is set to true when
+        // the actual propertyValue (not the evaluated) is to be used for finding the option from "options".
+        !this.props.dropdownUsePropertyValue
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
@@ -212,6 +215,7 @@ export interface DropDownControlProps extends ControlProps {
   propertyValue: string;
   optionWidth?: string;
   hideSubText?: boolean;
+  dropdownUsePropertyValue?: boolean;
 }
 
 export default DropDownControl;

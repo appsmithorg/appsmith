@@ -286,7 +286,7 @@ class MetaWidgetGenerator {
        * in the edit mode.
        *
        */
-      resetMetaWidgetIds = this.getAllMetaWidgetIds();
+      resetMetaWidgetIds = this.getAllCachedMetaWidgetIds();
       this.resetCache();
       this.prevViewMetaWidgetIds = [];
     }
@@ -838,7 +838,7 @@ class MetaWidgetGenerator {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
 
-    if (!equal(this.primaryKeys, nextOptions?.primaryKeys)) {
+    if (this.primaryKeys !== nextOptions?.primaryKeys) {
       this.modificationsQueue.add({
         type: MODIFICATION_TYPE.UPDATE_PRIMARY_KEY,
       });
@@ -1074,7 +1074,7 @@ class MetaWidgetGenerator {
     return metaWidgets;
   };
 
-  private getAllMetaWidgetIds = () => {
+  private getAllCachedMetaWidgetIds = () => {
     const cache = this.getCache();
     const metaWidgetIds: string[] = [];
 
