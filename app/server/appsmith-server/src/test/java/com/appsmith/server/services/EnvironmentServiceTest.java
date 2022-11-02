@@ -49,6 +49,9 @@ public class EnvironmentServiceTest {
     @SpyBean
     WorkspaceService workspaceService;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
 
     private Workspace workspace;
     private static final String environmentName = "Staging-Test";
@@ -64,6 +67,9 @@ public class EnvironmentServiceTest {
 
         Mockito.when(workspaceService.findById(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(workspace));
+
+        Mockito.when(featureFlagService.check(Mockito.any()))
+                .thenReturn(Mono.just(Boolean.TRUE));
 
         EnvironmentDTO environmentDTO = new EnvironmentDTO();
         environmentDTO.setName(environmentName);
