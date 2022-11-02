@@ -1,6 +1,7 @@
 import { AppsmithFunction, FieldType } from "../constants";
 import {
   CLEAR_INTERVAL,
+  CLEAR_STORE,
   CLOSE_MODAL,
   COPY_TO_CLIPBOARD,
   createMessage,
@@ -73,7 +74,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     fields: [FieldType.KEY_TEXT_FIELD],
   },
   [AppsmithFunction.clearStore]: {
-    label: createMessage(REMOVE_VALUE),
+    label: createMessage(CLEAR_STORE),
     fields: [],
   },
   [AppsmithFunction.download]: {
