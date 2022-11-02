@@ -21,16 +21,28 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   menuItemClickHandler = (onClick: string | undefined, index: number) => {
     if (onClick) {
-      const currentItem = this.props.sourceData?.[index];
+      if (this.props.menuItemsSource === MenuItemsSource.DYNAMIC) {
+        const currentItem = this.props.sourceData?.[index]
+          ? this.props.sourceData[index]
+          : {};
 
-      super.executeAction({
-        triggerPropertyName: "onClick",
-        dynamicString: onClick,
-        event: {
-          type: EventType.ON_CLICK,
-        },
-        globalContext: { currentItem, currentIndex: index },
-      });
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: onClick,
+          event: {
+            type: EventType.ON_CLICK,
+          },
+          globalContext: { currentItem, currentIndex: index },
+        });
+      } else if (this.props.menuItemsSource === MenuItemsSource.STATIC) {
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: onClick,
+          event: {
+            type: EventType.ON_CLICK,
+          },
+        });
+      }
     }
   };
 
@@ -104,7 +116,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           isDisabled: getValue("isDisabled", index),
           index: index,
           widgetId: "",
-          label: configureMenuItems?.config?.label?.[index],
+          label: getValue("label", index),
           onClick: configureMenuItems?.config?.onClick,
           textColor: getValue("textColor", index),
           backgroundColor: getValue("backgroundColor", index),

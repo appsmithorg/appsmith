@@ -131,19 +131,23 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     );
   }
 
-  static getPrefix = (menuButtonId: string) => {
+  static getBindingPrefix = (menuButtonId: string) => {
     return `{{${menuButtonId}.sourceData.map((currentItem, currentIndex) => ( `;
   };
 
-  static getSuffix = `))}}`;
+  static bindingSuffix = `))}}`;
 
   static getInputComputedValue = (
     propertyValue: string,
     menuButtonId: string,
   ) => {
+    if (!propertyValue.includes(this.getBindingPrefix(menuButtonId))) {
+      return propertyValue;
+    }
+
     const value = `${propertyValue.substring(
-      this.getPrefix(menuButtonId).length,
-      propertyValue.length - this.getSuffix.length,
+      this.getBindingPrefix(menuButtonId).length,
+      propertyValue.length - this.bindingSuffix.length,
     )}`;
     const stringValue = JSToString(value);
 
@@ -151,13 +155,19 @@ class MenuButtonDynamicItemsControl extends BaseControl<
   };
 
   getComputedValue = (value: string, menuButtonId: string) => {
+    if (!isDynamicValue(value)) {
+      return value;
+    }
+
     const stringToEvaluate = stringToJS(value);
+
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `${MenuButtonDynamicItemsControl.getPrefix(
+
+    return `${MenuButtonDynamicItemsControl.getBindingPrefix(
       menuButtonId,
-    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.getSuffix}`;
+    )}${stringToEvaluate}${MenuButtonDynamicItemsControl.bindingSuffix}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
