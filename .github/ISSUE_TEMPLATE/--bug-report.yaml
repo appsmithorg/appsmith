@@ -46,7 +46,7 @@ body:
   validations:
     required: false
 - type: input
-  id: app
+  id: video
   attributes:
     label: Issue video log
     description: "Share a loom video recording of how the issue can be reporduced"
