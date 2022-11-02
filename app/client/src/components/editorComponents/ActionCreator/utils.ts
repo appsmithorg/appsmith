@@ -5,7 +5,10 @@ import {
 } from "./regex";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isValidURL } from "utils/URLUtils";
-import { getTextArgumentAtPosition } from "@shared/ast";
+import {
+  getTextArgumentAtPosition,
+  getEnumArgumentAtPosition,
+} from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -133,14 +136,15 @@ export const enumTypeGetter = (
   argNum: number,
   defaultValue = "",
 ): string => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (!matches.length) {
-    return defaultValue;
-  } else {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    return arg ? arg.trim() : defaultValue;
-  }
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(value).jsSnippets[0];
+  return getEnumArgumentAtPosition(
+    requiredValue,
+    argNum,
+    defaultValue,
+    self.evaluationVersion,
+  );
 };
 
 /*
