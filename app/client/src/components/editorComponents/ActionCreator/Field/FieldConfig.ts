@@ -24,7 +24,7 @@ import { TreeDropdownOption } from "design-system";
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
     label: (props: FieldProps) => props.label || "",
-    options: (props: FieldProps) => props.apisQueriesAndJsObjectsOption,
+    options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
     getter: (storedValue: string) => {
       let matches: any[] = [];
@@ -329,7 +329,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.ON_SUCCESS_FIELD]: {
     label: () => "",
-    options: (props: FieldProps) => props.apisQueriesAndJsObjectsOption,
+    options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
     view: ViewTypes.NO_VIEW,
     getter: () => "",
@@ -337,7 +337,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   },
   [FieldType.ON_ERROR_FIELD]: {
     label: () => "",
-    options: (props: FieldProps) => props.apisQueriesAndJsObjectsOption,
+    options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
     view: ViewTypes.NO_VIEW,
     getter: () => "",
@@ -358,7 +358,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.KEY_VALUE_FIELD]: {
     label: () => "",
     defaultText: "Select Action",
-    options: (props: FieldProps) => props.apisQueriesAndJsObjectsOption,
+    options: (props: FieldProps) => props.integrationOptions,
     getter: (value: any) => {
       return value;
     },
