@@ -530,7 +530,7 @@ const ActionCreator = React.forwardRef(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
     const dataTree = useSelector(getDataTree);
-    const apisQueriesAndJsObjectsOption = useApisQueriesAndJsActionOptions();
+    const integrationOptions = useApisQueriesAndJsActionOptions();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const fields = getFieldFromValue(
@@ -545,9 +545,9 @@ const ActionCreator = React.forwardRef(
         <FieldGroup
           activeNavigateToTab={activeTabNavigateTo}
           additionalAutoComplete={props.additionalAutoComplete}
-          apisQueriesAndJsObjectsOption={apisQueriesAndJsObjectsOption}
           depth={1}
           fields={fields}
+          integrationOptions={integrationOptions}
           maxDepth={1}
           modalDropdownList={modalDropdownList}
           navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}

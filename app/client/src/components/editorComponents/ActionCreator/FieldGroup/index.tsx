@@ -66,11 +66,9 @@ function FieldGroup(props: FieldGroupProps) {
                   <FieldGroup
                     activeNavigateToTab={props.activeNavigateToTab}
                     additionalAutoComplete={props.additionalAutoComplete}
-                    apisQueriesAndJsObjectsOption={
-                      props.apisQueriesAndJsObjectsOption
-                    }
                     depth={props.depth + 1}
                     fields={field}
+                    integrationOptions={props.integrationOptions}
                     key={selectorField.label + index}
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
@@ -121,9 +119,9 @@ function FieldGroup(props: FieldGroupProps) {
         return (
           <FieldGroup
             activeNavigateToTab={props.activeNavigateToTab}
-            apisQueriesAndJsObjectsOption={props.apisQueriesAndJsObjectsOption}
             depth={props.depth + 1}
             fields={field}
+            integrationOptions={props.integrationOptions}
             key={index}
             label={selectorField.label}
             maxDepth={props.maxDepth}
