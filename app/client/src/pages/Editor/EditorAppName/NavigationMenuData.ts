@@ -29,7 +29,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { ThemeProp } from "widgets/constants";
 
@@ -115,9 +114,7 @@ export const GetNavigationMenuData = ({
     },
   ];
 
-  const featureFlags = useSelector(selectFeatureFlags);
-
-  if (featureFlags.GIT && !isGitConnected) {
+  if (!isGitConnected) {
     deployOptions.push({
       text: createMessage(CONNECT_TO_GIT_OPTION),
       onClick: () => openGitConnectionPopup(),
