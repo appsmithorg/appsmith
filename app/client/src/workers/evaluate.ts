@@ -16,7 +16,10 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { errorTransformer } from "./evaluationUtils";
+import {
+  ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR,
+  errorTransformer,
+} from "./evaluationUtils";
 
 export type EvalResult = {
   result: any;
@@ -298,6 +301,9 @@ export default function evaluateSync(
 
     try {
       __result = eval(script);
+      if (__result instanceof Promise) {
+        throw new Error(ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR);
+      }
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message

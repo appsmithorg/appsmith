@@ -824,13 +824,14 @@ export const isATriggerPath = (
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "action cannot be triggered from this field";
-
+export const ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR =
+  "Async function cannot be triggered from this field";
 class TransformError {
   // Note all regex below groups the async function name
   private errorMessageRegexList = [
     /ReferenceError: Can't find variable: ([\w_]+)/, // ReferenceError message for safari
     /ReferenceError: ([\w_]+) is not defined/, // ReferenceError message for other browser
-    /TypeError: ([\w_]+\.[\w_]+) is not a function/,
+    /TypeError: ([\w_]+\.[\w_]+)\(\) is not a function/,
   ];
 
   private asyncFunctionsNameMap: Record<string, string> = {};
