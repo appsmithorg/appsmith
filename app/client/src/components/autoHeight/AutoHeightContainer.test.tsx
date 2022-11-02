@@ -3,8 +3,9 @@ import { render } from "@testing-library/react";
 import "jest-styled-components";
 import React from "react";
 import renderer from "react-test-renderer";
-import { noop } from "utils/AppsmithUtils";
 import AutoHeightContainer from "./AutoHeightContainer";
+
+const onHeightUpdate = jest.fn();
 
 describe("<AutoHeightContainer />", () => {
   it("should wrap the children in a div whose height is auto.", async () => {
@@ -14,7 +15,7 @@ describe("<AutoHeightContainer />", () => {
           isAutoHeightWithLimits={false}
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          onHeightUpdate={noop}
+          onHeightUpdate={onHeightUpdate}
         >
           <div data-testid="test" />
         </AutoHeightContainer>,
@@ -30,7 +31,7 @@ describe("<AutoHeightContainer />", () => {
           isAutoHeightWithLimits={false}
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          onHeightUpdate={noop}
+          onHeightUpdate={onHeightUpdate}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
@@ -51,7 +52,7 @@ describe("<AutoHeightContainer />", () => {
           isAutoHeightWithLimits
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          onHeightUpdate={noop}
+          onHeightUpdate={onHeightUpdate}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
