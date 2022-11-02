@@ -11,4 +11,6 @@ REACT_APP_SENTRY_RELEASE=$GIT_SHA REACT_APP_CLIENT_LOG_LEVEL=ERROR EXTEND_ESLINT
 node ./upload-source-maps.js
 
 rm ./build/static/js/*.js.map
+rm ./build/static/js/*.js.map.gz
+
 echo "build finished"
