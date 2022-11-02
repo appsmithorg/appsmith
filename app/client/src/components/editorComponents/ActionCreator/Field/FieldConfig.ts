@@ -60,7 +60,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           defaultArgs = dropdownOption.args ? dropdownOption.args : [];
           break;
         case AppsmithFunction.setInterval:
-          defaultParams = "() => { \n\t // add code here \n}, 5000";
+          defaultParams = "() => { \n\t // add code here \n}, 5000, ''";
           break;
         case AppsmithFunction.getGeolocation:
           defaultParams = "(location) => { \n\t // add code here \n  }";

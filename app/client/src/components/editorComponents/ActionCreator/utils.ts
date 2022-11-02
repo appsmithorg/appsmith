@@ -5,6 +5,7 @@ import {
 } from "./regex";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isValidURL } from "utils/URLUtils";
+import { getTextArgumentAtPosition } from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -99,15 +100,15 @@ export const textSetter = (
   );
 };
 
-export const textGetter = (value: string, argNum: number) => {
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-  if (!matches.length) {
-    return "";
-  } else {
-    const args = argsStringToArray(matches[0][2]);
-    const arg = args[argNum];
-    return arg ? JSToString(arg.trim()) : arg;
-  }
+export const textGetter = (value: string, argNum: number): string => {
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(value).jsSnippets[0];
+  return getTextArgumentAtPosition(
+    requiredValue,
+    argNum,
+    self.evaluationVersion,
+  );
 };
 
 export const enumTypeSetter = (

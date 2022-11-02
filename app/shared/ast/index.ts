@@ -7,6 +7,7 @@ import {
   isLiteralNode,
   isPropertyNode,
   isPropertyAFunctionNode,
+  isCallExpressionNode,
   getAST,
   extractIdentifierInfoFromCode,
   entityRefactorFromCode,
@@ -23,7 +24,10 @@ import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 // JSObjects
 import { parseJSObjectWithAST, JsObjectProperty } from "./src/jsObject";
 
-// types or interfaces should be exported with type keyword, while enums can be exported like normal functions
+// action creator
+import { getTextArgumentAtPosition } from "./src/actionCreator";
+
+// types or intefaces should be exported with type keyword, while enums can be exported like normal functions
 export type {
   ObjectExpression,
   PropertyNode,
@@ -39,6 +43,7 @@ export {
   isLiteralNode,
   isPropertyNode,
   isPropertyAFunctionNode,
+  isCallExpressionNode,
   getAST,
   extractIdentifierInfoFromCode,
   entityRefactorFromCode,
@@ -49,4 +54,5 @@ export {
   ECMA_VERSION,
   SourceType,
   NodeTypes,
+  getTextArgumentAtPosition
 };
