@@ -247,6 +247,7 @@
     "@types/zipcelx": "^1.5.0",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
+    "aws-sdk": "^2.1245.0",
     "babel-plugin-module-resolver": "^4.1.0",
     "babel-plugin-styled-components": "^2.0.7",
     "chalk": "^4.1.1",

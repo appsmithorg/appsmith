@@ -147,6 +147,9 @@ jobs:
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
       - name: Create the bundle
+        env:
+          APPSMITH_PERFORMANCE_S3_KEY: ${{secrets.APPSMITH_PERFORMANCE_S3_KEY}}
+          APPSMITH_PERFORMANCE_S3_SECRET: ${{secrets.APPSMITH_PERFORMANCE_S3_SECRET}}
         run: |
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
