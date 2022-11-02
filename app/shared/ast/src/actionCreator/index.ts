@@ -44,3 +44,29 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
 
     return requiredArgument;
 }
+
+export const getEnumArgumentAtPosition = (value: string, argNum: number, defaultValue: string, evaluationVersion: number): string => {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let requiredArgument: string = defaultValue;
+    try {
+        const sanitizedScript = sanitizeScript(value, evaluationVersion);
+        const wrappedCode = wrapCode(sanitizedScript);
+        ast = getAST(wrappedCode);
+    } catch (error) {
+        return defaultValue;
+    }
+
+    simple(ast, {
+        CallExpression(node) {
+            if (isCallExpressionNode(node) && node.arguments.length > 0) {
+                let argument = node.arguments[argNum];
+                switch (argument.type) {
+                    case NodeTypes.Literal:
+                        requiredArgument = argument.raw as string;
+                }
+            }
+        },
+    });
+
+    return requiredArgument;
+}

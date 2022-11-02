@@ -84,6 +84,7 @@ interface AssignmentPatternNode extends Node {
 interface LiteralNode extends Node {
   type: NodeTypes.Literal;
   value: string | boolean | null | number | RegExp;
+  raw: string;
 }
 
 interface CallExpressionNode extends Node {
