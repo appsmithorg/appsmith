@@ -29,6 +29,7 @@ import {
   getGenerateCRUDEnabledPluginMap,
   getPluginPackageFromDatasourceId,
   getDatasources,
+  getDatasourceActionRouteInfo,
 } from "selectors/entitiesSelector";
 import {
   changeDatasource,
@@ -683,6 +684,12 @@ function* createDatasourceFromFormSaga(
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const actionRouteInfo: Partial<{
+      apiId: string;
+      datasourceId: string;
+      pageId: string;
+      applicationId: string;
+    }> = yield select(getDatasourceActionRouteInfo);
     yield call(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
@@ -760,6 +767,22 @@ function* createDatasourceFromFormSaga(
       // updating form initial values to latest data, so that next time when form is opened
       // isDirty will use updated initial values data to compare actual values with
       yield put(initialize(DATASOURCE_DB_FORM, response.data));
+
+      // This will ensure that API if saved as datasource, will get attached with datasource
+      // once the datasource is saved
+      if (!!actionRouteInfo.apiId) {
+        yield put(
+          setActionProperty({
+            actionId: actionRouteInfo.apiId,
+            propertyName: "datasource",
+            value: response.data,
+          }),
+        );
+
+        yield put({
+          type: ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE,
+        });
+      }
     }
   } catch (error) {
     yield put({
@@ -768,32 +791,6 @@ function* createDatasourceFromFormSaga(
     });
   }
 }
-
-// function* updateDraftsSaga() {
-//   const values: Record<string, unknown> = yield select(
-//     getFormValues(DATASOURCE_DB_FORM),
-//   );
-
-//   if (!values.id) return;
-//   const datasource: Datasource | undefined = yield select(
-//     getDatasource,
-//     // @ts-expect-error: values is of type unknown
-//     values.id,
-//   );
-//   if (equal(values, datasource)) {
-//     yield put({
-//       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
-//       payload: { id: values.id },
-//     });
-//   } else {
-//     yield put({
-//       type: ReduxActionTypes.UPDATE_DATASOURCE_DRAFT,
-//       payload: { id: values.id, draft: values },
-//     });
-//     // @ts-expect-error: values is of type unknown
-//     yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
-//   }
-// }
 
 function* changeDatasourceSaga(
   actionPayload: ReduxAction<{
@@ -863,10 +860,6 @@ function* formValueChangeSaga(
   }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
-
-  // Assumming that we would no longer require to store ds in draft state
-  // once user moves away from create/edit ds page, their data will be lost
-  // yield all([call(updateDraftsSaga)]);
 }
 
 function* storeAsDatasourceSaga() {
@@ -907,15 +900,6 @@ function* storeAsDatasourceSaga() {
   );
   // @ts-expect-error: createDatasourceSuccessAction is of type unknown
   const createdDatasource = createDatasourceSuccessAction.payload;
-
-  // Update action to have this datasource
-  yield put(
-    setActionProperty({
-      actionId: values.id,
-      propertyName: "datasource",
-      value: createdDatasource,
-    }),
-  );
 
   // Set datasource page to edit mode
   yield put(
