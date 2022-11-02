@@ -50,8 +50,6 @@ import {
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { JSUpdate } from "utils/JSPaneUtils";
-import { LINT_REDUX_ACTIONS } from "actions/evaluationActions";
-import { ReduxActionType } from "ce/constants/ReduxActionConstants";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
