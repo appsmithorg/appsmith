@@ -287,7 +287,10 @@ public class PolicyGeneratorCE {
         }
 
         if (policy.getPermissionGroups() == null) {
+            policy.setPermissionGroups(new HashSet<>());
+        }
         // Check the hierarchy graph to derive child permissions that must be given to this
+        // document
         Set<Policy> childPolicySet = new HashSet<>();
         Set<DefaultEdge> edges = hierarchyGraph.outgoingEdgesOf(aclPermission);
         for (DefaultEdge edge : edges) {
