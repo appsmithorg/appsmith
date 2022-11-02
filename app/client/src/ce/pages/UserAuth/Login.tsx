@@ -132,6 +132,7 @@ export function Login(props: LoginFormProps) {
             className="t--sign-up"
             isPrimary
             style={{ marginLeft: props.theme.spaces[3] }}
+            textType={TextType.CARD_SUBHEADER}
             to={signupURL}
           >
             {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}

@@ -32,7 +32,7 @@ import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
-import { Button, FormMessage, Link, Size } from "design-system";
+import { Button, FormMessage, Link, Size, TextType } from "design-system";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
@@ -162,6 +162,7 @@ export function SignUp(props: SignUpFormProps) {
         <Link
           isPrimary
           style={{ marginLeft: props.theme.spaces[3] }}
+          textType={TextType.CARD_SUBHEADER}
           to={AUTH_LOGIN_URL}
         >
           {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
