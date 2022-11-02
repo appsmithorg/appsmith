@@ -31,6 +31,12 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
+const SpanDisplayingNumberOfTabs = styled.span`
+  position: absolute;
+  top: 4px;
+  left: 33px;
+`;
+
 type DroppableItem = BaseItemProps;
 
 function AddTabButtonComponent({ widgetId }: any) {
@@ -195,6 +201,9 @@ class TabControl extends BaseControl<ControlProps, State> {
   render() {
     return (
       <TabsWrapper>
+        <SpanDisplayingNumberOfTabs>
+          <span>({this.getTabItems().length})</span>
+        </SpanDisplayingNumberOfTabs>
         <DroppableComponent
           deleteOption={this.deleteOption}
           fixedHeight={370}
