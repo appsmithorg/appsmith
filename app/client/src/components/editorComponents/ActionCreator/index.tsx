@@ -366,12 +366,9 @@ function getApiAndQueryOptions(
       action.config.pluginType === PluginType.REMOTE,
   );
 
-
   const queryAndApiOptions = actionList.find(
-   (action) => action.value === AppsmithFunction.integration,
+    (action) => action.value === AppsmithFunction.integration,
   );
-  if (integrationOption) {
-    integrationOption.children = [createIntegrationOption];
 
   if (queryAndApiOptions) {
     queryAndApiOptions.children = [createQueryObject];
@@ -396,7 +393,7 @@ function getApiAndQueryOptions(
         id: query.config.id,
         value: query.config.name,
         type: queryAndApiOptions.value,
-       icon: getActionConfig(query.config.pluginType)?.getIcon(
+        icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
           plugins[(query as any).config.datasource.pluginId],
         ),
@@ -534,7 +531,7 @@ const ActionCreator = React.forwardRef(
     );
     const dataTree = useSelector(getDataTree);
     const integrationOptions = useApisQueriesAndJsActionOptions();
-   const widgetOptionTree = useSelector(getWidgetOptionsTree);
+    const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const fields = getFieldFromValue(
       props.value,
