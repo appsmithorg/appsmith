@@ -35,7 +35,6 @@ import evaluate, {
 import { JSUpdate } from "utils/JSPaneUtils";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { initiateLinting } from "workers/Linting/utils";
-import { runSaga } from "redux-saga";
 
 const CANVAS = "canvas";
 
@@ -259,9 +258,7 @@ function eventRequestHandler({
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-          runSaga(
-            {},
-            initiateLinting,
+          initiateLinting(
             lintOrder,
             jsUpdates,
             dataTreeEvaluator.oldUnEvalTree,
@@ -298,9 +295,7 @@ function eventRequestHandler({
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-          runSaga(
-            {},
-            initiateLinting,
+          initiateLinting(
             lintOrder,
             jsUpdates,
             dataTreeEvaluator.oldUnEvalTree,
@@ -327,9 +322,8 @@ function eventRequestHandler({
           lintOrder = setupUpdateTreeResponse.lintOrder;
           jsUpdates = setupUpdateTreeResponse.jsUpdates;
           unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
-          runSaga(
-            {},
-            initiateLinting,
+
+          initiateLinting(
             lintOrder,
             jsUpdates,
             dataTreeEvaluator.oldUnEvalTree,
