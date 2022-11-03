@@ -27,7 +27,6 @@ export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
   canvasId: string;
   direction?: LayoutDirection;
-  dropPositionRef: React.RefObject<HTMLDivElement>;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
