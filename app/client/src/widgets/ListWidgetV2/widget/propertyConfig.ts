@@ -39,7 +39,7 @@ export const primaryColumnValidation = (
     if (!areKeysUnique) {
       return {
         isValid: false,
-        parsed: [],
+        parsed: [], // Empty array as the inputValue is an array type
         messages: ["Primary keys are not unique."],
       };
     }
@@ -50,7 +50,7 @@ export const primaryColumnValidation = (
 
     return {
       isValid: false,
-      parsed: undefined,
+      parsed: undefined, // undefined as we do not know what the data type of inputValue is so "[]" is not an appropriate value to return
       messages: [message],
     };
   }

@@ -1,9 +1,20 @@
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
+const simpleListWithLargeDataDSL = require("../../../../../fixtures/Listv2/simpleListWithLargeData.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const propertyControl = ".t--property-control";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("List v2 - Primary Key property", () => {
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   it("1. is present in the property pane", () => {
     cy.addDsl(simpleListDSL);
 
@@ -86,5 +97,31 @@ describe("List v2 - Primary Key property", () => {
     keys.forEach((key) => {
       cy.validateEvaluatedValue(key);
     });
+  });
+
+  it("6. with large data set and primary key set, the rows should render", () => {
+    cy.addDsl(simpleListWithLargeDataDSL);
+
+    cy.openPropertyPane("listwidgetv2");
+
+    // clicking on the primary key dropdown
+    cy.get(`${propertyControl}-primarykey`)
+      .find(".bp3-popover-target")
+      .last()
+      .click({ force: true });
+    cy.wait(250);
+
+    cy.get(".t--dropdown-option")
+      .first()
+      .click({ force: true });
+
+    cy.get(widgetsPage.containerWidget).should("have.length", 2);
+
+    cy.get(".rc-pagination")
+      .find("a")
+      .contains("2")
+      .click({ force: true });
+
+    cy.get(widgetsPage.containerWidget).should("have.length", 2);
   });
 });

@@ -74,7 +74,7 @@ describe(".primaryColumnValidation", () => {
 
       expect(output).toEqual({
         isValid: false,
-        parsed: [],
+        parsed: undefined,
         messages: [
           "Use currentItem/currentIndex to generate primary key or composite key",
         ],
@@ -101,7 +101,7 @@ describe(".primaryColumnValidation", () => {
 
       expect(output).toEqual({
         isValid: false,
-        parsed: [],
+        parsed: undefined,
         messages: ["Select valid option form the primary key list"],
       });
     });
