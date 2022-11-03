@@ -55,7 +55,7 @@ export const WidgetFeaturePropertyEnhancements: Record<
   },
 };
 
-function findAndUpdatePropertyPaneControlConfig(
+export function findAndUpdatePropertyPaneControlConfig(
   config: PropertyPaneConfig[],
   propertyPaneUpdates: Record<string, Record<string, unknown>>,
 ): PropertyPaneConfig[] {
@@ -74,7 +74,7 @@ function findAndUpdatePropertyPaneControlConfig(
         );
 
         if (
-          controlConfigIndex &&
+          controlConfigIndex !== undefined &&
           controlConfigIndex > -1 &&
           sectionConfig.children
         ) {
