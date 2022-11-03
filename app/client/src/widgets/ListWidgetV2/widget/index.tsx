@@ -45,6 +45,7 @@ export type DynamicPathMap = Record<string, DynamicPathType[]>;
 export type DynamicPathMapList = Record<string, DynamicPathMap>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
+
 export type MetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
   currentRow: string;
@@ -152,7 +153,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
-    this.pageSize = 0;
+    this.pageSize = this.getPageSize();
   }
 
   componentDidMount() {
@@ -820,9 +821,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               accentColor={this.props.accentColor}
               borderRadius={this.props.borderRadius}
               boxShadow={this.props.boxShadow}
-              current={this.props.pageNo}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
               onChange={this.onPageChange}
+              pageNo={this.props.pageNo}
               pageSize={pageSize}
               total={(this.props.listData || []).length}
             />
