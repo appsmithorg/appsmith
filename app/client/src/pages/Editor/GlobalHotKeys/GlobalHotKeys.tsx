@@ -33,8 +33,7 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";

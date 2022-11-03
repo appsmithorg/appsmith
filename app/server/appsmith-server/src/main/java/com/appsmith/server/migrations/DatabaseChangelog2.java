@@ -2674,6 +2674,13 @@ public class DatabaseChangelog2 {
         mongockTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 
+    @ChangeSet(order = "040", id = "delete-permissions-in-permissionGroups", author = "")
+    public void deletePermissionsInPermissionGroups(MongockTemplate mongockTemplate) {
+        Query query = new Query();
+        Update update = new Update().set("permissions", List.of());
+        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
+    }
+
     private void softDeletePluginFromAllWorkspaces(Plugin plugin, MongockTemplate mongockTemplate) {
         Query queryToGetNonDeletedWorkspaces = new Query();
         queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));

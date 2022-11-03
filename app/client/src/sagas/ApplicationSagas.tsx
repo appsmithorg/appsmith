@@ -52,10 +52,9 @@ import {
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
 } from "@appsmith/constants/messages";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import { APP_MODE } from "entities/App";
 import { Workspace, Workspaces } from "constants/workspaceConstants";
-import { Variant } from "components/ads/common";
 import { AppIconName } from "design-system";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
@@ -96,6 +95,7 @@ import { getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
+import { setCanvasCardsState } from "actions/editorActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -560,6 +560,10 @@ export function* createApplicationSaga(
             payload: application.id,
           });
         }
+        // Show cta's in empty canvas for the first page
+        yield put(
+          setCanvasCardsState(getDefaultPageId(response.data.pages) ?? ""),
+        );
         history.push(
           builderURL({
             pageId: application.defaultPageId as string,

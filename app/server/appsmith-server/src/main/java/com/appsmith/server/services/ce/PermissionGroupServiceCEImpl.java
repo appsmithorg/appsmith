@@ -98,6 +98,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return repository.findById(id, permission);
     }
 
+    @Override
     public Mono<Void> delete(String id) {
 
         return repository.findById(id)
