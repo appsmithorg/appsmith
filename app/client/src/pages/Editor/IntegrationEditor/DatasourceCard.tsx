@@ -51,7 +51,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -207,14 +206,12 @@ function DatasourceCard(props: DatasourceCardProps) {
       action.config.datasource.id === datasource.id,
   ).length;
 
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
+  const datasourcePermissions = datasource?.userPermissions || [];
 
   const pagePermissions = useSelector(getPagePermissions);
 
   const canCreateDatasourceActions = isPermitted(
-    [...userWorkspacePermissions, ...pagePermissions],
+    [...datasourcePermissions, ...pagePermissions],
     [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTIONS],
   );
 
