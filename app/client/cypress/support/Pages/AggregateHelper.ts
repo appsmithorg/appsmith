@@ -21,7 +21,7 @@ export class AggregateHelper {
 
   private isMac = Cypress.platform === "darwin";
   private selectLine = `${
-    this.isMac ? "{cmd}{rightArrow} {cmd}{shift}{leftArrow}" : "{shift}{home}"
+    this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
   private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
