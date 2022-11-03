@@ -68,7 +68,6 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   getInputValue,
@@ -79,7 +78,7 @@ import {
   removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
@@ -114,6 +113,7 @@ import {
 } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
+import { getEntityLintErrors } from "selectors/lintingSelectors";
 import {
   EntityNavigationData,
   getEntitiesForNavigation,
@@ -216,8 +216,6 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
-  // state of lint errors in editor
-  hasLintError: boolean;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -245,7 +243,6 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
-      hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -628,7 +625,14 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    if (this.props.editorLastCursorPosition) {
+    const { ch, line, sticky } = cm.getCursor();
+    // Check if it is a user focus
+    if (
+      ch === 0 &&
+      line === 0 &&
+      sticky === null &&
+      this.props.editorLastCursorPosition
+    ) {
       cm.setCursor(this.props.editorLastCursorPosition);
     }
 
@@ -687,8 +691,9 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleLintTooltip = () => {
-    // return if there is no lint error in editor instance
-    if (!this.state.hasLintError) return;
+    const { lintErrors } = this.props;
+
+    if (lintErrors.length === 0) return;
     const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
     if (!lintTooltipList) return;
     for (const tooltip of lintTooltipList) {
@@ -853,20 +858,15 @@ class CodeEditor extends Component<Props, State> {
     const {
       additionalDynamicData: contextData,
       dataTreePath,
-      dynamicData,
       isJSObject,
     } = this.props;
 
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
-    const errors = _.get(
-      dynamicData,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
+    const lintErrors = this.props.lintErrors;
 
-    const annotations = getLintAnnotations(editor.getValue(), errors, {
+    const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
       contextData,
     });
@@ -907,33 +907,17 @@ class CodeEditor extends Component<Props, State> {
   getPropertyValidation = (
     dataTreePath?: string,
   ): {
-    isInvalid: boolean;
-    errors: EvaluationError[];
+    evalErrors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
     if (!dataTreePath) {
       return {
-        isInvalid: false,
-        errors: [],
+        evalErrors: [],
         pathEvaluatedValue: undefined,
       };
     }
 
-    const errors = this.getErrors(this.props.dynamicData, dataTreePath);
-
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
-    const lintErrors = errors.filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-    );
-
-    if (!_.isEmpty(lintErrors)) {
-      !this.state.hasLintError && this.setState({ hasLintError: true });
-    } else {
-      this.state.hasLintError && this.setState({ hasLintError: false });
-    }
+    const evalErrors = this.getErrors(this.props.dynamicData, dataTreePath);
 
     const pathEvaluatedValue = _.get(
       this.props.dynamicData,
@@ -941,8 +925,7 @@ class CodeEditor extends Component<Props, State> {
     );
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      evalErrors,
       pathEvaluatedValue,
     };
   };
@@ -969,10 +952,13 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const validations = this.getPropertyValidation(dataTreePath);
-    let { errors, isInvalid } = validations;
-    const { pathEvaluatedValue } = validations;
-    let evaluated = evaluatedValue;
+    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
+      dataTreePath,
+    );
+    let errors = evalErrors,
+      isInvalid = evalErrors.length > 0,
+      evaluated = evaluatedValue;
+
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
@@ -1109,6 +1095,9 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
+  lintErrors: props.dataTreePath
+    ? getEntityLintErrors(state, props.dataTreePath)
+    : [],
   editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,

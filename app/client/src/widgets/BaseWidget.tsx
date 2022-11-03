@@ -26,7 +26,6 @@ import {
   DataTreeEvaluationProps,
   EVAL_ERROR_PATH,
   EvaluationError,
-  PropertyEvaluationErrorType,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
@@ -216,10 +215,7 @@ abstract class BaseWidget<
 
   getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
     return Object.values(evalErrors).reduce(
-      (prev, curr) =>
-        curr.filter(
-          (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-        ).length + prev,
+      (prev, curr) => curr.length + prev,
       0,
     );
   }, JSON.stringify);
