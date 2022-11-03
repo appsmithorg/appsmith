@@ -53,6 +53,7 @@ import {
 import { getWidgetMetaProps, getWidgets } from "./selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
+import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 
 export function* getMinHeightBasedOnChildren(
   widgetId: string,
@@ -688,11 +689,13 @@ let dynamicHeightUpdateWidgets: Record<string, number> = {};
 function* batchCallsToUpdateWidgetDynamicHeightSaga(
   action: ReduxAction<UpdateWidgetDynamicHeightPayload>,
 ) {
+  const isLayoutUpdating: boolean = yield select(getIsDraggingOrResizing);
   const { height, widgetId } = action.payload;
   log.debug("Dynamic height: batching update:", { widgetId, height });
 
   if (dynamicHeightUpdateWidgets[widgetId] !== height) {
     dynamicHeightUpdateWidgets[widgetId] = height;
+    if (isLayoutUpdating) return;
     yield put({
       type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
       payload: dynamicHeightUpdateWidgets,
@@ -734,6 +737,10 @@ function* generateTreeForDynamicHeightComputations(
   const { shouldCheckContainersForDynamicHeightUpdates } = action.payload;
 
   if (shouldCheckContainersForDynamicHeightUpdates) {
+    yield put({
+      type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
+      payload: dynamicHeightUpdateWidgets,
+    });
     yield put(checkContainersForDynamicHeightUpdate());
   }
   // TODO IMPLEMENT:(abhinav): Push this analytics to sentry|segment?
