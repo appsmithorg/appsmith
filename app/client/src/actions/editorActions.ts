@@ -13,6 +13,26 @@ export const setPreviewModeAction = (payload: boolean) => ({
 });
 
 /**
+ * action that sets visibility state of the canvas top section
+ *
+ * @param payload
+ * @returns
+ */
+export const setCanvasCardsState = (payload: string) => ({
+  type: ReduxActionTypes.SET_CANVAS_CARDS_STATE,
+  payload,
+});
+/**
+ * action that deletes/clears the visibility state of the canvas top section
+ *
+ * @param payload
+ * @returns
+ */
+export const deleteCanvasCardsState = () => ({
+  type: ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
+});
+
+/**
  * action that update canvas layout
  *
  * @param width

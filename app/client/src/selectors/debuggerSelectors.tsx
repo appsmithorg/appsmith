@@ -6,7 +6,7 @@ import { AppState } from "@appsmith/reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
-import { isWidget } from "workers/evaluationUtils";
+import { isWidget } from "workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 
 type ErrorObejct = {
