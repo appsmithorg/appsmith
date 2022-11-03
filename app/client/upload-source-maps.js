@@ -14,6 +14,7 @@ const s3 = new AWS.S3({
 });
 
 uploadFiles = async () => {
+  const start = performance.now();
   if (!process.env.CI) {
     console.log("Not running on CI, exiting");
     return;
@@ -38,6 +39,8 @@ uploadFiles = async () => {
       return;
     }
   });
+  const end = performance.now();
+  console.log(`Source maps uploaded in ${end - start}ms`);
 };
 
 try {
