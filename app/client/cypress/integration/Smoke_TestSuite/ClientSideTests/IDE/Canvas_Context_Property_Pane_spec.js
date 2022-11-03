@@ -204,6 +204,7 @@ function verifyPropertyPaneContext(
 
   //Switch back to Button1 widget
   ee.SelectEntityByName("Button1", "Widgets");
+  cy.wait(500);
 
   //assert Callback
   assertCallback();
