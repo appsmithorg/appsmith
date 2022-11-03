@@ -28,7 +28,9 @@ describe("Image Widget Validation Image Urls", function() {
     cy.openPropertyPane("imagewidget");
 
     cy.testJsontext("image", "");
-    cy.clearPropertyValue(1);
+    cy.get(".t--property-control-defaultimage").then(($el) =>
+      cy.updateCodeInput($el, ""),
+    );
 
     cy.get(
       `${viewWidgetsPage.imageWidget} div[data-testid=error-container]`,
