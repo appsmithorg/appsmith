@@ -31,6 +31,7 @@ export interface HighlightInfo {
   width: number; // width of the highlight.
   height: number; // height of the highlight.
   isVertical: boolean; // determines if the highlight is vertical or horizontal.
+  el?: Element; // dom node of the highlight.
 }
 
 export interface AutoLayoutHighlightProps {
@@ -46,6 +47,7 @@ export interface AutoLayoutHighlightProps {
 export interface HighlightSelectionPayload {
   highlights: HighlightInfo[];
   selectedHighlight: HighlightInfo;
+  showNewLayerAlignments?: boolean;
 }
 
 const OFFSET_WIDTH = 4;
@@ -66,6 +68,7 @@ export const useAutoLayoutHighlights = ({
   // const dispatch = useDispatch();
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
+  let isNewLayerExpanded = false;
   let containerDimensions: {
     top: number;
     bottom: number;
@@ -177,6 +180,7 @@ export const useAutoLayoutHighlights = ({
           width: rect.width,
           height: rect.height,
           isVertical: false,
+          el,
         },
       );
       highlights.push(highlight);
@@ -203,7 +207,7 @@ export const useAutoLayoutHighlights = ({
        */
       if (!updateContainerDimensions()) return [];
       // hideDraggedItems(draggedBlocks);
-      getDropPositions();
+
       const canvasChildren = canvas.children || [];
       // Get the list of children that are not being dragged.
       const offsetChildren = canvasChildren.filter((each) => {
@@ -551,6 +555,25 @@ export const useAutoLayoutHighlights = ({
   //   });
   // };
 
+  const toggleNewLayerAlignments = (
+    el: Element | undefined,
+    reveal: boolean,
+  ): void => {
+    if (!el) return;
+    const horizontalElement = el as HTMLElement;
+    const verticalElement = el?.nextSibling;
+    if (verticalElement) {
+      if (reveal) {
+        horizontalElement.style.display = "none";
+        (verticalElement as HTMLElement).style.display = "flex";
+        (verticalElement as HTMLElement).style.height = "40px";
+      } else {
+        (horizontalElement as HTMLElement).style.display = "block";
+        (verticalElement as HTMLElement).style.display = "none";
+      }
+    }
+  };
+
   const highlightDropPosition = (
     e: any,
     moveDirection: ReflowDirection,
@@ -563,7 +586,22 @@ export const useAutoLayoutHighlights = ({
     );
 
     if (!payload || !payload.selectedHighlight) return;
+
+    if (
+      payload.showNewLayerAlignments &&
+      (payload.selectedHighlight.layerIndex !==
+        lastActiveHighlight?.layerIndex ||
+        !isNewLayerExpanded)
+    ) {
+      toggleNewLayerAlignments(payload.selectedHighlight.el, true);
+      isNewLayerExpanded = true;
+    } else if (!payload.showNewLayerAlignments && isNewLayerExpanded) {
+      toggleNewLayerAlignments(lastActiveHighlight?.el, false);
+      isNewLayerExpanded = false;
+    }
+
     lastActiveHighlight = payload.selectedHighlight;
+
     return payload;
   };
 
@@ -604,7 +642,26 @@ export const useAutoLayoutHighlights = ({
       );
     });
 
-    return { highlights: [...arr.slice(1)], selectedHighlight: arr[0] };
+    const isVerticalDrag =
+      moveDirection &&
+      [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
+    let distance: number | undefined = undefined;
+    if (isVerticalDrag) {
+      distance = calculateDistance(
+        { ...arr[0], posX: 0 },
+        { ...pos, x: 0 },
+        moveDirection,
+      );
+    }
+
+    return {
+      highlights: [...arr.slice(1)],
+      selectedHighlight: arr[0],
+      showNewLayerAlignments:
+        isVerticalDrag && distance !== undefined
+          ? Math.abs(distance) < 15
+          : false,
+    };
   };
 
   function getViableDropPositions(

@@ -49,8 +49,7 @@ const FlexWidget = styled.div<{
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
 
-  width: ${({ componentWidth, isAffectedByDrag }) =>
-    isAffectedByDrag ? "auto" : `${Math.floor(componentWidth)}px`};
+  width: ${({ componentWidth }) => `${Math.floor(componentWidth)}px`};
   height: ${({ componentHeight, isMobile }) =>
     isMobile ? "100%" : Math.floor(componentHeight) + "px"};
   min-width: ${({ minWidth }) => minWidth};

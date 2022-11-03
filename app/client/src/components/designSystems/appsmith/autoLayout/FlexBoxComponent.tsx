@@ -82,19 +82,6 @@ export const NewLayerStyled = styled.div<{
   isDragging: boolean;
 }>`
   width: 100%;
-
-  div:nth-child(1) {
-    display: ${({ isDragging }) => (isDragging ? "block" : "none")};
-  }
-  div:nth-child(2) {
-    display: none;
-  }
-  .selected div:nth-child(1) {
-    display: none;
-  }
-  .selected div:nth-child(2) {
-    display: ${({ isDragging }) => (isDragging ? "block" : "none")};
-  }
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {
@@ -195,6 +182,15 @@ function FlexBoxComponent(props: FlexBoxProps) {
       map,
       widgetId,
     } = props;
+
+    const { element: verticalHighlights } = processIndividualLayer(
+      { children: [], hasFillChild: false },
+      childCount,
+      layerIndex,
+      map,
+      true,
+    );
+
     return (
       <NewLayerStyled
         className="selected"
@@ -210,17 +206,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           layerIndex={layerIndex}
           widgetId={widgetId}
         />
-        <div>
-          {
-            processIndividualLayer(
-              { children: [], hasFillChild: false },
-              childCount,
-              layerIndex,
-              map,
-              true,
-            ).element
-          }
-        </div>
+        {verticalHighlights}
       </NewLayerStyled>
     );
   }
@@ -306,9 +292,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
         index,
         map,
       );
-      index === 1 &&
-        props.widgetId !== "0" &&
-        console.log("#### element", element);
+
       if (element === null) return null;
       childCount += count;
       layers.push(element);
@@ -322,10 +306,10 @@ function FlexBoxComponent(props: FlexBoxProps) {
           key={getDropPositionKey(
             Math.ceil(Math.random() * 100),
             FlexLayerAlignment.Start,
-            index,
+            index + 1,
             false,
           )}
-          layerIndex={index}
+          layerIndex={index + 1}
           map={map}
           widgetId={props.widgetId}
         />,
@@ -344,7 +328,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     bypassEmptyCheck = false,
   ) {
     const { children, hasFillChild } = layer;
-    props.widgetId !== "0" && console.log("#### children", children);
+
     let count = 0;
     let start = [],
       center = [],
