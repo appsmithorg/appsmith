@@ -1,14 +1,16 @@
 import React from "react";
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
+  ExecuteTriggerPayload,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import MenuButtonComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import equal from "fast-deep-equal/es6";
-import orderBy from "lodash/orderBy";
-import { isArray } from "lodash";
+import { isArray, orderBy } from "lodash";
 import { getSourceDataKeys } from "./helper";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
@@ -22,28 +24,24 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   menuItemClickHandler = (onClick: string | undefined, index: number) => {
     if (onClick) {
-      if (this.props.menuItemsSource === MenuItemsSource.DYNAMIC) {
-        const currentItem = this.props.sourceData?.[index]
-          ? this.props.sourceData[index]
-          : {};
+      const config: ExecuteTriggerPayload = {
+        triggerPropertyName: "onClick",
+        dynamicString: onClick,
+        event: {
+          type: EventType.ON_CLICK,
+        },
+      };
 
-        super.executeAction({
-          triggerPropertyName: "onClick",
-          dynamicString: onClick,
-          event: {
-            type: EventType.ON_CLICK,
-          },
-          globalContext: { currentItem, currentIndex: index },
-        });
-      } else if (this.props.menuItemsSource === MenuItemsSource.STATIC) {
-        super.executeAction({
-          triggerPropertyName: "onClick",
-          dynamicString: onClick,
-          event: {
-            type: EventType.ON_CLICK,
-          },
-        });
+      if (this.props.menuItemsSource === MenuItemsSource.DYNAMIC) {
+        config.globalContext = {
+          currentItem: this.props.sourceData?.[index]
+            ? this.props.sourceData[index]
+            : {},
+          currentIndex: index,
+        };
       }
+
+      super.executeAction(config);
     }
   };
 
@@ -61,9 +59,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         .filter((item) => item.isVisible === true);
 
       return orderBy(visibleItems, ["index"], ["asc"]);
-    }
-
-    if (
+    } else if (
       menuItemsSource === MenuItemsSource.DYNAMIC &&
       isArray(sourceData) &&
       sourceData?.length
