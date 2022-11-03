@@ -50,7 +50,7 @@ export const primaryColumnValidation = (
 
     return {
       isValid: false,
-      parsed: [],
+      parsed: undefined,
       messages: [message],
     };
   }

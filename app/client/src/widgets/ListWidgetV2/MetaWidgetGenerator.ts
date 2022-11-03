@@ -360,7 +360,7 @@ class MetaWidgetGenerator {
     if (!templateWidget)
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
-    const key = this.getPrimaryKey(rowIndex);
+    const key = this.getPrimaryKey(index);
     const metaWidget = klona(templateWidget) as MetaWidget;
     const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
 
@@ -460,7 +460,7 @@ class MetaWidgetGenerator {
   };
 
   private generateWidgetCacheData = (index: number, rowIndex: number) => {
-    const key = this.getPrimaryKey(rowIndex);
+    const key = this.getPrimaryKey(index);
     const rowCache = this.getRowCache(key) || {};
     const isClonedRow = this.isClonedRow(index);
     const templateWidgets = Object.values(this.currTemplateWidgets || {}) || [];
@@ -591,8 +591,8 @@ class MetaWidgetGenerator {
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
   ) => {
-    const { metaWidgetName, rowIndex, templateWidgetId } = metaWidgetCacheProps;
-    const key = this.getPrimaryKey(rowIndex);
+    const { index, metaWidgetName, templateWidgetId } = metaWidgetCacheProps;
+    const key = this.getPrimaryKey(index);
     const dynamicMap = this.dynamicPathMapList[templateWidgetId];
     let referencesEntityDef: Record<string, string> = {};
 
@@ -1020,8 +1020,10 @@ class MetaWidgetGenerator {
 
   getMetaContainers = () => {
     const containers = { ids: [] as string[], names: [] as string[] };
+    const startIndex = this.getStartIndex();
     this.getData().forEach((_datum, rowIndex) => {
-      const key = this.getPrimaryKey(rowIndex);
+      const index = startIndex + rowIndex;
+      const key = this.getPrimaryKey(index);
       const metaContainer = this.getRowTemplateCache(
         key,
         this.containerWidgetId,
@@ -1043,13 +1045,13 @@ class MetaWidgetGenerator {
   private getContainerWidget = () =>
     this.currTemplateWidgets?.[this.containerWidgetId] as FlattenedWidgetProps;
 
-  private getPrimaryKey = (rowIndex: number): string => {
-    const key = this?.primaryKeys?.[rowIndex];
+  private getPrimaryKey = (index: number): string => {
+    const key = this?.primaryKeys?.[index];
     if (typeof key === "number" || typeof key === "string") {
       return key.toString();
     }
 
-    const data = this.getData()[rowIndex];
+    const data = this.getData()[index];
     return hash(data, { algorithm: "md5" });
   };
 

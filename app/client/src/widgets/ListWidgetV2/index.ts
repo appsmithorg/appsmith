@@ -129,6 +129,9 @@ export const CONFIG = {
       {
         key: "currentViewItems",
       },
+      {
+        key: "primaryKeys",
+      },
     ],
     currentViewItems: "{{[]}}",
     enhancements: {
@@ -212,6 +215,8 @@ export const CONFIG = {
     ],
     widgetName: "List",
     children: [],
+    primaryKeys:
+      '{{List2.listData.map((currentItem, currentIndex) => currentItem["id"] )}}',
     blueprint: {
       view: [
         {
