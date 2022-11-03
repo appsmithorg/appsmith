@@ -278,8 +278,9 @@ export class DataTreeFactory {
       theme,
     } as DataTreeAppsmith;
 
-    (entityConfigCollection.appsmith as DataTreeAppsmith).ENTITY_TYPE =
-      ENTITY_TYPE.APPSMITH;
+    entityConfigCollection.appsmith = {
+      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
+    } as DataTreeAppsmith;
 
     const end = performance.now();
 

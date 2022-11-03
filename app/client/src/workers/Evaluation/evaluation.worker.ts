@@ -17,7 +17,7 @@ import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
-import { isEmpty } from "lodash";
+import { isEmpty, merge } from "lodash";
 import { UserLogObject } from "entities/AppsmithConsole";
 import { WorkerErrorTypes } from "workers/common/types";
 import {
@@ -226,7 +226,7 @@ function eventRequestHandler({
       let unEvalUpdates: DataTreeDiff[] = [];
       let nonDynamicFieldValidationOrder: string[] = [];
       let isCreateFirstTree = false;
-      let dataTree: EvalTree = {};
+      let dataTree: DataTree = {};
       let errors: EvalError[] = [];
       let logs: any[] = [];
       let userLogs: UserLogObject[] = [];
@@ -268,7 +268,12 @@ function eventRequestHandler({
           // );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = dataTreeResponse.evalTree;
+
+          dataTree = merge(
+            dataTreeEvaluator.completeUnEvalTree,
+            dataTreeResponse.evalTree,
+          );
+
           dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
@@ -306,7 +311,10 @@ function eventRequestHandler({
           // );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = dataTreeResponse.evalTree;
+          dataTree = merge(
+            dataTreeEvaluator.completeUnEvalTree,
+            dataTreeResponse.evalTree,
+          );
           dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
         } else {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {

@@ -189,7 +189,7 @@ export default class DataTreeEvaluator {
     const firstCloneStartTime = performance.now();
     const completeUnEvalTree = merge(unEvalTree, entityConfigCollection);
     console.log("$$$-completeUnEvalTree", completeUnEvalTree);
-    let localUnEvalTree: DataTree = klona(completeUnEvalTree);
+    const localUnEvalTree: DataTree = klona(completeUnEvalTree);
     const firstCloneEndTime = performance.now();
 
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -199,8 +199,9 @@ export default class DataTreeEvaluator {
     //and functions are saved in dataTree as strings
     const parsedCollections = parseJSActions(this, localUnEvalTree);
     jsUpdates = parsedCollections.jsUpdates;
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
+    getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
+      unEvalTree,
       localUnEvalTree,
     );
     const allKeysGenerationStartTime = performance.now();

@@ -402,7 +402,7 @@ export async function evaluateAsync(
 
 export function isFunctionAsync(
   userFunction: unknown,
-  dataTree: DataTree,
+  dataTree: EvalTree,
   resolvedFunctions: Record<string, any>,
   logs: unknown[] = [],
 ) {
