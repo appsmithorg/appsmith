@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
@@ -9,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PEMCertificate;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
@@ -20,11 +22,9 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -174,7 +174,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneEmptyWorkspace() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -188,7 +188,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -200,7 +200,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithItsContents() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -239,7 +239,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(1);
@@ -254,7 +254,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyPublicApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -300,7 +300,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -325,7 +325,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyPrivateApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -356,7 +356,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).isEmpty();
@@ -424,7 +424,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyDatasources() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -465,7 +465,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.datasources).isEmpty();
@@ -477,7 +477,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithOnlyDatasourcesSpecifiedExplicitly() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -525,7 +525,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.datasources).hasSize(1);
@@ -539,7 +539,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithDatasourcesAndApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -591,7 +591,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -608,7 +608,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneWorkspaceWithDatasourcesAndApplicationsAndActionsAndCollections() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -739,7 +739,7 @@ public class ExamplesWorkspaceClonerTests {
                 .assertNext(data -> {
                     assertThat(data.workspace).isNotNull();
                     assertThat(data.workspace.getId()).isNotNull();
-                    assertThat(data.workspace.getName()).isEqualTo("user's apps");
+                    assertThat(data.workspace.getName()).isEqualTo("api_user's apps");
                     assertThat(data.workspace.getPolicies()).isNotEmpty();
 
                     assertThat(data.applications).hasSize(2);
@@ -779,7 +779,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "user@appsmith.com")
+    @WithUserDetails(value = "api_user")
     public void cloneApplicationWithActionsThrice() {
         Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");

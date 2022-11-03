@@ -185,6 +185,14 @@ With the initial configuration met, let's build the code.
 
 Note that you have to execute further steps into WSL terminal not in CMD.
 
+### Setting up local file path for the git
+
+To point to a custom Git Root where the git repositories will be persisted, update the env variable called APPSMITH_GIT_ROOT to point to your custom file path.
+
+```console
+APPSMITH_GIT_ROOT=./path/to/repo/directory 
+```
+
 ## Building and running the code
 
 1. Clone Appsmith repository.

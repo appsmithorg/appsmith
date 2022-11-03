@@ -19,8 +19,7 @@ import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -182,10 +181,9 @@ class DatasourceRestAPIEditor extends React.Component<
     if (!this.props.formData) return;
 
     if (this.state.confirmDelete) {
-      const delayConfirmDeleteToFalse = _.debounce(
-        () => this.setState({ confirmDelete: false }),
-        2200,
-      );
+      const delayConfirmDeleteToFalse = _.debounce(() => {
+        if (!this.props.isDeleting) this.setState({ confirmDelete: false });
+      }, 2200);
 
       delayConfirmDeleteToFalse();
     }
@@ -1212,7 +1210,9 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
-    deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+    deleteDatasource: (id: string) => {
+      dispatch(deleteDatasource({ id }));
+    },
   };
 };
 

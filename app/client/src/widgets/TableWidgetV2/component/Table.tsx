@@ -137,9 +137,17 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
+  /*
+    For serverSidePaginationEnabled we are taking props.data.length as the page size.
+    As props.pageSize is being set by the visible number of rows in the table (without scrolling),
+    it will not give the correct count of records in the current page when query limit
+    is set higher/lower than the visible number of rows in the table
+  */
   const pageCount =
-    props.serverSidePaginationEnabled && props.totalRecordsCount
-      ? Math.ceil(props.totalRecordsCount / props.pageSize)
+    props.serverSidePaginationEnabled &&
+    props.totalRecordsCount &&
+    props.data.length
+      ? Math.ceil(props.totalRecordsCount / props.data.length)
       : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {

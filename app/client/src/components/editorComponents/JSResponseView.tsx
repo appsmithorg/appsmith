@@ -29,17 +29,23 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Button, Callout, Icon, Size, Text, TextType } from "design-system";
-import { Classes } from "components/ads/common";
+import {
+  Button,
+  Callout,
+  Classes,
+  Icon,
+  Size,
+  Text,
+  TextType,
+  Variant,
+} from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { DebugButton } from "./Debugger/DebugCTA";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { TAB_MIN_HEIGHT } from "design-system";
-import { theme } from "constants/DefaultTheme";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
@@ -51,6 +57,7 @@ import {
   setJsPaneResponsePaneHeight,
   setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -58,7 +65,7 @@ const ResponseContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: ${TAB_MIN_HEIGHT};
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  height: ${({ theme }) => theme.actionsBottomTabInitialHeight};
+  height: ${ActionExecutionResizerHeight}px;
 
   .react-tabs__tab-panel {
     ${CodeEditorWithGutterStyles}
@@ -329,7 +336,10 @@ function JSResponseView(props: Props) {
   }, []);
 
   return (
-    <ResponseContainer ref={panelRef}>
+    <ResponseContainer
+      className="t--js-editor-bottom-pane-container"
+      ref={panelRef}
+    >
       <Resizer
         initialHeight={responseTabHeight}
         onResizeComplete={setResponseHeight}
@@ -338,7 +348,7 @@ function JSResponseView(props: Props) {
       <TabbedViewWrapper>
         <EntityBottomTabs
           containerRef={panelRef}
-          expandedHeight={theme.actionsBottomTabInitialHeight}
+          expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={setSelectedResponseTab}
           selectedTabKey={selectedResponseTab}
           tabs={tabs}

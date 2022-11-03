@@ -151,6 +151,30 @@ export function listTriggerFieldDependencies(
   return triggerFieldDependency;
 }
 
+export function listValidationDependencies(
+  entity: DataTreeWidget,
+  entityName: string,
+): DependencyMap {
+  const validationDependency: DependencyMap = {};
+  if (isWidget(entity)) {
+    const { validationPaths } = entity;
+
+    Object.entries(validationPaths).forEach(
+      ([propertyPath, validationConfig]) => {
+        if (validationConfig.dependentPaths) {
+          const dependencyArray = validationConfig.dependentPaths.map(
+            (path) => `${entityName}.${path}`,
+          );
+          validationDependency[
+            `${entityName}.${propertyPath}`
+          ] = dependencyArray;
+        }
+      },
+    );
+  }
+  return validationDependency;
+}
+
 /**This function returns a unique array containing a merge of both arrays
  * @param currentArr
  * @param updateArr

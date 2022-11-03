@@ -40,20 +40,21 @@ import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
+  Classes,
   Callout,
+  DropdownOption,
   Size,
   Text,
   TextType,
   TextProps,
-  DropdownOption,
+  Variant,
 } from "design-system";
-import { Classes, Variant } from "components/ads/common";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -493,6 +494,7 @@ function WorkspaceInviteUsersForm(props: any) {
               allowDeselection={isMultiSelectDropdown}
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
+              dropdownMaxHeight={props.dropdownMaxHeight}
               isMultiSelect={isMultiSelectDropdown}
               labelRenderer={(selected: Partial<DropdownOption>[]) =>
                 getLabel(selected)
