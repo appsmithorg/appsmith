@@ -1041,13 +1041,14 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, { dataTreePath }: EditorProps) => ({
+const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  editorIsFocused: getIsCodeEditorFocused(state, dataTreePath || ""),
-  lintErrors: dataTreePath ? getEntityLintErrors(state, dataTreePath) : [],
+  lintErrors: props.dataTreePath
+    ? getEntityLintErrors(state, props.dataTreePath)
+    : [],
   editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
