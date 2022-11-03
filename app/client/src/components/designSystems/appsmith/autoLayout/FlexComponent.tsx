@@ -51,7 +51,7 @@ const FlexWidget = styled.div<{
 
   width: ${({ componentWidth }) => `${Math.floor(componentWidth)}px`};
   height: ${({ componentHeight, isMobile }) =>
-    isMobile ? "100%" : Math.floor(componentHeight) + "px"};
+    isMobile ? "auto" : Math.floor(componentHeight) + "px"};
   min-width: ${({ minWidth }) => minWidth};
 
   min-height: 30px;

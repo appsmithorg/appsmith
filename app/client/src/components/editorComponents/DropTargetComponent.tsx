@@ -27,7 +27,7 @@ import {
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
-import { LayoutDirection } from "components/constants";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -38,23 +38,13 @@ type DropTargetComponentProps = WidgetProps & {
   isWrapper?: boolean;
 };
 
-const StyledDropTarget = styled.div<{
-  direction?: LayoutDirection;
-  isDragging: boolean;
-  isWrapper: boolean;
-}>`
+const StyledDropTarget = styled.div`
   transition: height 100ms ease-in;
   width: 100%;
   position: relative;
   background: none;
   user-select: none;
-  z-index: ${({ isWrapper }) => (isWrapper ? 2 : 1)};
-  margin-top: ${({ direction, isDragging, isWrapper }) =>
-    isWrapper && isDragging && direction === LayoutDirection.Horizontal
-      ? "8px"
-      : 0};
-  margin-right: ${({ direction, isWrapper }) =>
-    isWrapper && direction === LayoutDirection.Vertical ? "6px" : 0};
+  z-index: 1;
 `;
 
 function Onboarding() {
@@ -86,6 +76,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+
+  const isMobile = useSelector(getIsMobile);
 
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
@@ -138,7 +130,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
-      const height = props.isWrapper
+      const height = isMobile
         ? "auto"
         : canDropTargetExtend
         ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
@@ -205,15 +197,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     height,
     boxShadow,
   };
-  if (props.isWrapper && props.direction === LayoutDirection.Vertical)
-    style["width"] = "auto";
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
         className={`t--drop-target ${wrapperClass}`}
-        direction={props.direction}
-        isDragging={isDragging}
-        isWrapper={props.isWrapper || false}
         onClick={handleFocus}
         ref={dropTargetRef}
         style={style}

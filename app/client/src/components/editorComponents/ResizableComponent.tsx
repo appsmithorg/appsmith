@@ -52,6 +52,7 @@ import {
   isMultiSelectedWidget,
 } from "selectors/widgetSelectors";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -101,6 +102,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isCurrentCanvasDragging =
     dragDetails && dragDetails?.draggedOn === props.parentId;
 
+  const isMobile = useSelector(getIsMobile);
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
@@ -304,6 +306,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       handles={handles}
       isAffectedByDrag={isAffectedByDrag}
       isFlexChild={props.isFlexChild}
+      isMobile={isMobile}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}
