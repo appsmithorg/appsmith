@@ -128,7 +128,8 @@ function* evaluateTreeSaga(
   const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
-
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const isEditMode = appMode === APP_MODE.EDIT;
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -141,7 +142,7 @@ function* evaluateTreeSaga(
     theme,
     shouldReplay,
     allActionValidationConfig,
-    requiresLinting,
+    requiresLinting: isEditMode && requiresLinting,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -206,7 +207,6 @@ function* evaluateTreeSaga(
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
-  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode !== APP_MODE.PUBLISHED) {
     yield call(makeUpdateJSCollection, jsUpdates);
     yield fork(
