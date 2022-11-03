@@ -60,17 +60,19 @@ export function DataSourceContextMenu(props: {
   const treeOptions = [
     {
       value: "refresh",
+      className: "t--datasource-refresh",
       onSelect: dispatchRefresh,
       label: createMessage(CONTEXT_REFRESH),
     },
     canManageDatasource && {
       value: "rename",
+      className: "t--datasource-rename",
       onSelect: editDatasourceName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
     canDeleteDatasource && {
       confirmDelete: confirmDelete,
-      className: "t--apiFormDeleteBtn single-select",
+      className: "t--apiFormDeleteBtn single-select t--datasource-delete",
       value: "delete",
       onSelect: () => {
         confirmDelete ? dispatchDelete() : setConfirmDelete(true);
