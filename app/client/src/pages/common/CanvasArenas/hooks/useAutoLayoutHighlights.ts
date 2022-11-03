@@ -1,4 +1,6 @@
 import { FlexLayerAlignment, LayoutDirection } from "components/constants";
+import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import { isEqual } from "lodash";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
@@ -41,14 +43,14 @@ export const useAutoLayoutHighlights = ({
   blocksToDraw,
   canvasId,
   direction,
-  dropPositionRef,
   isCurrentDraggedCanvas,
   isDragging,
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
-  let isNewLayerExpanded = false;
+  let expandedNewLayer: number | undefined;
+
   const isVerticalStack = direction === LayoutDirection.Vertical;
   let containerDimensions: {
     top: number;
@@ -62,6 +64,8 @@ export const useAutoLayoutHighlights = ({
   /**
    * START AUTO LAYOUT OFFSET CALCULATION
    */
+
+  const isNewLayerExpanded = (): boolean => expandedNewLayer !== undefined;
 
   // Fetch and update the dimensions of the containing canvas.
   const updateContainerDimensions = (): boolean => {
@@ -93,12 +97,8 @@ export const useAutoLayoutHighlights = ({
 
     // reset state
     lastActiveHighlight = undefined;
+    expandedNewLayer = undefined;
     highlights = [];
-    // Hide the highlight
-    if (dropPositionRef && dropPositionRef.current) {
-      dropPositionRef.current.style.opacity = "0";
-      dropPositionRef.current.style.display = "none";
-    }
   };
 
   // Get a list of widgetIds that are being dragged.
@@ -210,6 +210,26 @@ export const useAutoLayoutHighlights = ({
     });
   };
 
+  const updateSelection = (highlight: HighlightInfo): void => {
+    if (lastActiveHighlight) {
+      const lastEl = lastActiveHighlight?.el as HTMLElement;
+      if (lastEl) {
+        lastActiveHighlight.isVertical
+          ? (lastEl.style.width = `${DEFAULT_HIGHLIGHT_SIZE}px`)
+          : (lastEl.style.height = `${DEFAULT_HIGHLIGHT_SIZE}px`);
+        lastEl.style.backgroundColor = "rgba(223, 158, 206, 0.6)";
+      }
+    }
+    const el = highlight.el as HTMLElement;
+    if (el) {
+      highlight.isVertical
+        ? (el.style.width = `${DEFAULT_HIGHLIGHT_SIZE * 1.5}px`)
+        : (el.style.height = `${DEFAULT_HIGHLIGHT_SIZE * 1.5}px`);
+      el.style.backgroundColor = "rgba(196, 139, 181, 1)";
+    }
+    lastActiveHighlight = highlight;
+  };
+
   const highlightDropPosition = (
     e: any,
     moveDirection: ReflowDirection,
@@ -221,13 +241,18 @@ export const useAutoLayoutHighlights = ({
       moveDirection,
     );
 
-    if (!payload || !payload.selectedHighlight) return;
+    if (
+      !payload ||
+      !payload.selectedHighlight ||
+      isEqual(payload.selectedHighlight, lastActiveHighlight)
+    )
+      return;
 
     if (
       payload.showNewLayerAlignments &&
       (payload.selectedHighlight.layerIndex !==
         lastActiveHighlight?.layerIndex ||
-        !isNewLayerExpanded)
+        !isNewLayerExpanded())
     ) {
       toggleNewLayerAlignments(payload.selectedHighlight.el, true);
       const selectedIndex = highlights.findIndex(
@@ -238,13 +263,15 @@ export const useAutoLayoutHighlights = ({
         highlights[selectedIndex + 2] = updateHighlight(selectedIndex + 2);
         highlights[selectedIndex + 3] = updateHighlight(selectedIndex + 3);
       }
-      isNewLayerExpanded = true;
-    } else if (!payload.showNewLayerAlignments && isNewLayerExpanded) {
+      expandedNewLayer = selectedIndex;
+      updateSelection(highlights[selectedIndex + 1]);
+      return { ...payload, selectedHighlight: highlights[selectedIndex + 1] };
+    } else if (!payload.showNewLayerAlignments && isNewLayerExpanded()) {
       toggleNewLayerAlignments(lastActiveHighlight?.el, false);
-      isNewLayerExpanded = false;
+      expandedNewLayer = undefined;
     }
 
-    lastActiveHighlight = payload.selectedHighlight;
+    updateSelection(payload.selectedHighlight);
 
     return payload;
   };
@@ -294,7 +321,7 @@ export const useAutoLayoutHighlights = ({
       selectedHighlight: arr[0],
       showNewLayerAlignments: isVerticalDrag
         ? distance !== undefined && Math.abs(distance) < 15
-        : isNewLayerExpanded,
+        : isNewLayerExpanded(),
     };
   };
 

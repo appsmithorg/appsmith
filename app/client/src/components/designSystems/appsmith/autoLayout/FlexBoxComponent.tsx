@@ -64,7 +64,7 @@ export const FlexContainer = styled.div<{
     leaveSpaceForWidgetName ? "4px 4px 22px 4px;" : "4px;"};
 `;
 
-const DEFAULT_HIGHLIGHT_SIZE = 4;
+export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
 export const DropPosition = styled.div<{
   isDragging: boolean;

@@ -28,7 +28,6 @@ import {
 import ContainerJumpMetrics from "./ContainerJumpMetric";
 import {
   HighlightInfo,
-  HighlightSelectionPayload,
   useAutoLayoutHighlights,
 } from "./useAutoLayoutHighlights";
 import {
@@ -52,7 +51,6 @@ const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
 }>();
 
 export const useCanvasDragging = (
-  dropPositionRef: React.RefObject<HTMLDivElement>,
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   {
@@ -125,7 +123,6 @@ export const useCanvasDragging = (
     blocksToDraw,
     canvasId: widgetId,
     direction,
-    dropPositionRef,
     isCurrentDraggedCanvas,
     isDragging,
     useAutoLayout,
@@ -605,18 +602,13 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               currentDirection.current = getMouseMoveDirection(e, 1);
               triggerReflow(e, firstMove);
-              let payload: HighlightSelectionPayload | undefined;
               if (
                 useAutoLayout &&
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
               )
-                payload = highlightDropPosition(
-                  e,
-                  currentDirection.current,
-                  // mouseAttributesRef?.current.prevAcceleration,
-                );
-              renderBlocks(payload);
+                highlightDropPosition(e, currentDirection.current);
+              renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -684,7 +676,7 @@ export const useCanvasDragging = (
           },
         );
 
-        const renderBlocks = (payload?: HighlightSelectionPayload) => {
+        const renderBlocks = () => {
           if (
             slidingArenaRef.current &&
             isCurrentDraggedCanvas &&
@@ -705,32 +697,6 @@ export const useCanvasDragging = (
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
               });
-              if (payload) {
-                const topOffset = getAbsolutePixels(
-                  stickyCanvasRef.current.style.top,
-                );
-                const leftOffset = getAbsolutePixels(
-                  stickyCanvasRef.current.style.left,
-                );
-                // canvasCtx.fillStyle = "rgba(223, 158, 206, 0.6)";
-                // payload.highlights.forEach((each) => {
-                //   canvasCtx.fillRect(
-                //     each.posX - leftOffset,
-                //     each.posY - topOffset,
-                //     each.width,
-                //     each.height,
-                //   );
-                // });
-                canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
-                canvasCtx.fillRect(
-                  payload.selectedHighlight.posX - leftOffset,
-                  payload.selectedHighlight.posY - topOffset,
-                  payload.selectedHighlight.width *
-                    (payload.selectedHighlight.isVertical ? 1.5 : 1),
-                  payload.selectedHighlight.height *
-                    (!payload.selectedHighlight.isVertical ? 1.5 : 1),
-                );
-              }
             }
             canvasCtx.restore();
           }
