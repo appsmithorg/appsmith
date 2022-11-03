@@ -18,6 +18,8 @@ import { getPageList } from "./appViewSelectors";
 import { AppState } from "@appsmith/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import { get } from "lodash";
+import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -104,4 +106,12 @@ export const getDataTreeForAutocomplete = createSelector(
     }
     return tree;
   },
+);
+export const getPathEvalErrors = createSelector(
+  [
+    getDataTreeForAutocomplete,
+    (_: unknown, dataTreePath: string) => dataTreePath,
+  ],
+  (dataTree: DataTree, dataTreePath: string) =>
+    get(dataTree, getEvalErrorPath(dataTreePath), []) as EvaluationError[],
 );
