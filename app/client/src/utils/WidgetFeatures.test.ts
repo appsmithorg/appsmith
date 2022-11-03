@@ -351,7 +351,7 @@ describe("Widget Features tests", () => {
   });
 
   describe("findAndUpdatePropertyPaneControlConfig", () => {
-    it("should add a new property in the config", () => {
+    it("should add a new property in the config.", () => {
       const config = [
         {
           sectionName: "General",
