@@ -306,10 +306,13 @@ class DatasourceRestAPIEditor extends React.Component<
       return this.props.updateDatasource(normalizedValues, onSuccess);
     }
 
-    this.props.createDatasource({
-      ...normalizedValues,
-      name: this.props.datasourceName,
-    });
+    this.props.createDatasource(
+      {
+        ...normalizedValues,
+        name: this.props.datasourceName,
+      },
+      onSuccess,
+    );
   };
 
   createApiAction = () => {
@@ -1248,8 +1251,8 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteDatasource: (id: string) => {
       dispatch(deleteDatasource({ id }));
     },
-    createDatasource: (formData: any) =>
-      dispatch(createDatasourceFromForm(formData)),
+    createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
+      dispatch(createDatasourceFromForm(formData, onSuccess)),
     toggleSaveActionFlag: (flag: boolean) =>
       dispatch(toggleSaveActionFlag(flag)),
   };

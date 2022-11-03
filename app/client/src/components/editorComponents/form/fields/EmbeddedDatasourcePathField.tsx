@@ -508,12 +508,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
               datasource && "id" in datasource ? datasource.id : undefined
             }
             enable
-            shouldSave={
-              (datasource && !("id" in datasource)) ||
-              (datasource &&
-                !!("id" in datasource) &&
-                datasource["id"] === TEMP_DATASOURCE_ID)
-            }
+            shouldSave={datasource && !("id" in datasource)}
           />
         )}
       </DatasourceContainer>

@@ -185,7 +185,7 @@ function DatasourceAuth({
   );
 
   useEffect(() => {
-    if (!!triggerSave && triggerSave) {
+    if (triggerSave) {
       if (pluginType === "SAAS") {
         handleOauthDatasourceSave();
       } else {
