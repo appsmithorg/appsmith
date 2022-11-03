@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.solutions.roles.constants.PermissionToViewablePermissionConstants.getPermissionViewableName;
+import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getPermissionViewableName;
 
 public class HelperUtil {
 

@@ -2,10 +2,7 @@ import { UserProps } from "../types";
 
 export const allUsers: UserProps[] = [
   {
-    isChangingRole: false,
-    isDeleting: false,
     name: "Ankita Kinger",
-    /* roleName: "Administrator + 2 more", */
     groups: [
       {
         id: "1",
@@ -14,6 +11,7 @@ export const allUsers: UserProps[] = [
       { id: "2", name: "Test_Admin" },
       { id: "3", name: "HR_Admin" },
     ],
+    allGroups: [],
     roles: [
       {
         id: "1",
@@ -22,38 +20,37 @@ export const allUsers: UserProps[] = [
       { id: "2", name: "Test_Admin-PG" },
       { id: "3", name: "HR_Admin-PG" },
     ],
+    allRoles: [],
     username: "techak@appsmith.com",
     id: "123",
   },
   {
-    isChangingRole: false,
-    isDeleting: false,
     name: "Sangy Sivan",
-    /* roleName: "App Viewer + 1 more", */
     groups: [
       { id: "4", name: "App Viewer" },
       { id: "3", name: "HR_Admin" },
     ],
+    allGroups: [],
     roles: [
       { id: "4", name: "App Viewer-PG" },
       { id: "3", name: "HR_Admin-PG" },
     ],
+    allRoles: [],
     username: "sangy@appsmith.com",
     id: "456",
   },
   {
-    isChangingRole: false,
-    isDeleting: false,
     name: "SS Sivan",
-    /* roleName: "App Viewer + 1 more", */
     groups: [
       { id: "4", name: "App Viewer" },
       { id: "3", name: "HR_Admin" },
     ],
+    allGroups: [],
     roles: [
       { id: "4", name: "App Viewer-PG" },
       { id: "3", name: "HR_Admin-PG" },
     ],
+    allRoles: [],
     username: "sangy123@appsmith.com",
     id: "789",
   },

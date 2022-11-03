@@ -2,18 +2,29 @@ import AclApi, {
   FetchSingleDataPayload,
   GroupResponse,
   RoleResponse,
+  UpdateGroupsInUserRequestPayload,
+  UpdateRolesInGroupRequestPayload,
+  UpdateRolesInUserRequestPayload,
 } from "@appsmith/api/AclApi";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { takeLatest, all, call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
-
 import { ApiResponse } from "api/ApiResponses";
 import { User } from "constants/userConstants";
 import { RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
 import history from "utils/history";
+import { INVITE_USERS_TAB_ID } from "@appsmith/pages/AdminSettings/acl/components";
+import log from "loglevel";
+import { Toaster, Variant } from "design-system";
+import { createMessage } from "design-system/build/constants/messages";
+import {
+  ACL_DELETED_SUCCESS,
+  SUCCESSFULLY_SAVED,
+} from "@appsmith/constants/messages";
 
 export function* fetchAclUsersSaga() {
   try {
@@ -27,12 +38,13 @@ export function* fetchAclUsersSaga() {
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_USERS_ERROR,
+        type: ReduxActionErrorTypes.FETCH_ACL_USERS_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_USERS_ERROR,
+      type: ReduxActionErrorTypes.FETCH_ACL_USERS_ERROR,
     });
   }
 }
@@ -46,25 +58,84 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_ACL_USER_SUCCESS,
-        payload: response.data,
+        payload: {
+          data: response.data,
+          id: action.payload.id,
+        },
+      });
+      Toaster.show({
+        text: "User deleted successfully",
+        variant: Variant.success,
       });
     } else {
       yield put({
-        type: ReduxActionTypes.DELETE_ACL_USER_ERROR,
+        type: ReduxActionErrorTypes.DELETE_ACL_USER_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.DELETE_ACL_USER_ERROR,
+      type: ReduxActionErrorTypes.DELETE_ACL_USER_ERROR,
     });
   }
 }
 
-export function* fetchAclUserSagaById(
+export function* fetchAclUserByIdSaga(
   action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
-    const response: ApiResponse = yield AclApi.fetchSingleAclUser(
+    const response: ApiResponse[] = yield all([
+      AclApi.fetchSingleAclUser(action.payload),
+      AclApi.fetchRolesForInvite(),
+      AclApi.fetchGroupsForInvite(),
+    ]);
+
+    const isValidResponse1: boolean = yield validateResponse(response[0]);
+
+    if (isValidResponse1) {
+      const data: any = response[0].data;
+      yield put({
+        type: ReduxActionTypes.FETCH_ACL_USER_BY_ID_SUCCESS,
+        payload: {
+          ...data,
+          allRoles: Array.isArray(response[1]?.data)
+            ? response[1]?.data?.filter((all) => {
+                return data?.roles?.length > 0
+                  ? data?.roles?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
+              })
+            : [],
+          allGroups: Array.isArray(response[2]?.data)
+            ? response[2]?.data?.filter((all) => {
+                return data?.groups?.length > 0
+                  ? data?.groups?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
+              })
+            : [],
+        },
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_ACL_USER_BY_ID_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ACL_USER_BY_ID_ERROR,
+    });
+  }
+}
+
+export function* updateGroupsInUserSaga(
+  action: ReduxAction<UpdateGroupsInUserRequestPayload>,
+) {
+  try {
+    const response: ApiResponse = yield AclApi.updateGroupsInUser(
       action.payload,
     );
 
@@ -72,17 +143,56 @@ export function* fetchAclUserSagaById(
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_USER_BY_ID_SUCCESS,
-        payload: response.data,
+        type: ReduxActionTypes.UPDATE_GROUPS_IN_USER_SUCCESS,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
+        payload: {
+          id: action.payload.userId || "",
+        },
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_USER_BY_ID_ERROR,
+        type: ReduxActionErrorTypes.UPDATE_GROUPS_IN_USER_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_USER_BY_ID_ERROR,
+      type: ReduxActionErrorTypes.UPDATE_GROUPS_IN_USER_ERROR,
+    });
+  }
+}
+
+export function* updateRolesInUserSaga(
+  action: ReduxAction<UpdateRolesInUserRequestPayload>,
+) {
+  try {
+    const response: ApiResponse = yield AclApi.updateRolesInUser(
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ROLES_IN_USER_SUCCESS,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
+        payload: {
+          id: action.payload?.users[0]?.id || "",
+        },
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.UPDATE_ROLES_IN_USER_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_ROLES_IN_USER_ERROR,
     });
   }
 }
@@ -99,12 +209,13 @@ export function* fetchAclGroupsSaga() {
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_GROUPS_ERROR,
+        type: ReduxActionErrorTypes.FETCH_ACL_GROUPS_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_GROUPS_ERROR,
+      type: ReduxActionErrorTypes.FETCH_ACL_GROUPS_ERROR,
     });
   }
 }
@@ -115,35 +226,37 @@ export function* fetchAclGroupSagaById(
   try {
     const response: ApiResponse[] = yield all([
       AclApi.fetchSingleAclGroup(action.payload),
-      AclApi.fetchAclRoles(),
+      AclApi.fetchRolesForInvite(),
     ]);
 
     const isValidResponse1: boolean = yield validateResponse(response[0]);
-    const isValidResponse2: boolean = yield validateResponse(response[1]);
 
-    if (isValidResponse1 && isValidResponse2) {
+    if (isValidResponse1) {
       const data: any = response[0].data;
       yield put({
         type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_SUCCESS,
         payload: {
           ...data,
-          allRoles: Array.isArray(response[1].data)
-            ? response[1].data.filter((all) => {
-                return data?.roles?.every((active: any) => {
-                  return active.id !== all.id;
-                });
+          allRoles: Array.isArray(response[1]?.data)
+            ? response[1]?.data?.filter((all) => {
+                return data?.roles?.length > 0
+                  ? data?.roles?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
               })
             : [],
         },
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_ERROR,
+        type: ReduxActionErrorTypes.FETCH_ACL_GROUP_BY_ID_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_ERROR,
+      type: ReduxActionErrorTypes.FETCH_ACL_GROUP_BY_ID_ERROR,
     });
   }
 }
@@ -152,19 +265,26 @@ export function* createAclGroupSaga(action: ReduxAction<any>) {
   try {
     const response: [GroupResponse, ApiResponse] = yield all([
       AclApi.createAclGroup(action.payload),
-      AclApi.fetchAclRoles(),
+      AclApi.fetchRolesForInvite(),
     ]);
 
     const isValidResponse1: boolean = yield validateResponse(response[0]);
-    const isValidResponse2: boolean = yield validateResponse(response[1]);
 
-    if (isValidResponse1 && isValidResponse2) {
+    if (isValidResponse1) {
       const data: any = response[0].data;
       yield put({
         type: ReduxActionTypes.CREATE_ACL_GROUP_SUCCESS,
         payload: {
           ...data,
-          allRoles: response[1].data,
+          allRoles: Array.isArray(response[1]?.data)
+            ? response[1]?.data?.filter((all) => {
+                return data?.roles?.length > 0
+                  ? data?.roles?.every((active: any) => {
+                      return active.id !== all.id;
+                    })
+                  : true;
+              })
+            : [],
         },
       });
       const role: RoleProps = {
@@ -175,12 +295,13 @@ export function* createAclGroupSaga(action: ReduxAction<any>) {
       history.push(`/settings/groups/${role.id}`);
     } else {
       yield put({
-        type: ReduxActionTypes.CREATE_ACL_GROUP_ERROR,
+        type: ReduxActionErrorTypes.CREATE_ACL_GROUP_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.CREATE_ACL_GROUP_ERROR,
+      type: ReduxActionErrorTypes.CREATE_ACL_GROUP_ERROR,
     });
   }
 }
@@ -196,14 +317,19 @@ export function* deleteAclGroupSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.DELETE_ACL_GROUP_SUCCESS,
         payload: response.data,
       });
+      Toaster.show({
+        text: createMessage(ACL_DELETED_SUCCESS),
+        variant: Variant.success,
+      });
     } else {
       yield put({
-        type: ReduxActionTypes.DELETE_ACL_GROUP_ERROR,
+        type: ReduxActionErrorTypes.DELETE_ACL_GROUP_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.DELETE_ACL_GROUP_ERROR,
+      type: ReduxActionErrorTypes.DELETE_ACL_GROUP_ERROR,
     });
   }
 }
@@ -221,19 +347,20 @@ export function* cloneGroupSaga(action: ReduxAction<any>) {
       });
     } else {
       yield put({
-        type: ReduxActionTypes.CLONE_ACL_GROUP_ERROR,
+        type: ReduxActionErrorTypes.CLONE_ACL_GROUP_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.CLONE_ACL_GROUP_ERROR,
+      type: ReduxActionErrorTypes.CLONE_ACL_GROUP_ERROR,
     });
   }
 }
 
 export function* updateGroupNameSaga(action: ReduxAction<any>) {
   try {
-    const response: ApiResponse = yield AclApi.updateAclGroupName(
+    const response: GroupResponse = yield AclApi.updateAclGroupName(
       action.payload,
     );
 
@@ -246,12 +373,100 @@ export function* updateGroupNameSaga(action: ReduxAction<any>) {
       });
     } else {
       yield put({
-        type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME_ERROR,
+        type: ReduxActionErrorTypes.UPDATE_ACL_GROUP_NAME_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME_ERROR,
+      type: ReduxActionErrorTypes.UPDATE_ACL_GROUP_NAME_ERROR,
+    });
+  }
+}
+
+export function* updateRolesInGroupSaga(
+  action: ReduxAction<UpdateRolesInGroupRequestPayload>,
+) {
+  try {
+    const response: ApiResponse = yield AclApi.updateRolesInGroup(
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_GROUP_ROLES_SUCCESS,
+      });
+      yield put({
+        type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID,
+        payload: {
+          id: action.payload?.groups[0]?.id || "",
+        },
+      });
+      Toaster.show({
+        text: createMessage(SUCCESSFULLY_SAVED),
+        variant: Variant.success,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.UPDATE_ACL_GROUP_ROLES_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_ACL_GROUP_ROLES_ERROR,
+    });
+  }
+}
+
+export function* addUsersInGroupSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.addUsersInSelectedGroup(
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.ADD_USERS_IN_GROUP_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.ADD_USERS_IN_GROUP_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.ADD_USERS_IN_GROUP_ERROR,
+    });
+  }
+}
+
+export function* removeUsersFromGroupSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.removeUsersFromSelectedGroup(
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.REMOVE_USERS_FROM_GROUP_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.REMOVE_USERS_FROM_GROUP_ERROR,
     });
   }
 }
@@ -268,12 +483,13 @@ export function* fetchAclRolesSaga() {
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_ROLES_ERROR,
+        type: ReduxActionErrorTypes.FETCH_ACL_ROLES_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_ROLES_ERROR,
+      type: ReduxActionErrorTypes.FETCH_ACL_ROLES_ERROR,
     });
   }
 }
@@ -293,12 +509,67 @@ export function* fetchAclRoleSagaById(
       });
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ACL_ROLE_BY_ID_ERROR,
+        type: ReduxActionErrorTypes.FETCH_ACL_ROLE_BY_ID_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.FETCH_ACL_ROLE_BY_ID_ERROR,
+      type: ReduxActionErrorTypes.FETCH_ACL_ROLE_BY_ID_ERROR,
+    });
+  }
+}
+
+export function* updateRoleNameSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.updateAclRoleName(
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_ROLE_NAME_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_NAME_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_NAME_ERROR,
+    });
+  }
+}
+
+export function* updateRoleSaga(action: ReduxAction<any>) {
+  try {
+    const response: ApiResponse = yield AclApi.updateAclRole(action.payload);
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ACL_ROLE_SUCCESS,
+        payload: response.data,
+      });
+      Toaster.show({
+        text: createMessage(SUCCESSFULLY_SAVED),
+        variant: Variant.success,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_ACL_ROLE_ERROR,
     });
   }
 }
@@ -321,12 +592,13 @@ export function* createAclRoleSaga(action: ReduxAction<any>) {
       history.push(`/settings/roles/${role.id}`);
     } else {
       yield put({
-        type: ReduxActionTypes.CREATE_ACL_ROLE_ERROR,
+        type: ReduxActionErrorTypes.CREATE_ACL_ROLE_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.CREATE_ACL_ROLE_ERROR,
+      type: ReduxActionErrorTypes.CREATE_ACL_ROLE_ERROR,
     });
   }
 }
@@ -342,14 +614,19 @@ export function* deleteAclRoleSaga(action: ReduxAction<any>) {
         type: ReduxActionTypes.DELETE_ACL_ROLE_SUCCESS,
         payload: response.data,
       });
+      Toaster.show({
+        text: createMessage(ACL_DELETED_SUCCESS),
+        variant: Variant.success,
+      });
     } else {
       yield put({
-        type: ReduxActionTypes.DELETE_ACL_ROLE_ERROR,
+        type: ReduxActionErrorTypes.DELETE_ACL_ROLE_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.DELETE_ACL_ROLE_ERROR,
+      type: ReduxActionErrorTypes.DELETE_ACL_ROLE_ERROR,
     });
   }
 }
@@ -367,81 +644,100 @@ export function* cloneRoleSaga(action: ReduxAction<any>) {
       });
     } else {
       yield put({
-        type: ReduxActionTypes.CLONE_ACL_ROLE_ERROR,
+        type: ReduxActionErrorTypes.CLONE_ACL_ROLE_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.CLONE_ACL_ROLE_ERROR,
+      type: ReduxActionErrorTypes.CLONE_ACL_ROLE_ERROR,
     });
   }
 }
 
-export function* fetchRolesForInviteSaga() {
+export function* fetchRolesGroupsForInviteSaga() {
   try {
-    const response: ApiResponse = yield AclApi.fetchRolesForInvite();
+    const response: ApiResponse[] = yield all([
+      AclApi.fetchRolesForInvite(),
+      AclApi.fetchGroupsForInvite(),
+    ]);
+
+    const isValidResponse1: boolean = yield validateResponse(response[0]);
+    const isValidResponse2: boolean = yield validateResponse(response[1]);
+
+    if (isValidResponse1 && isValidResponse2) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE_SUCCESS,
+        payload: {
+          roles: response[0].data,
+          groups: response[1].data,
+        },
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_ROLES_GROUPS_FOR_INVITE_ERROR,
+      });
+    }
+  } catch (e) {
+    log.error(e);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ROLES_GROUPS_FOR_INVITE_ERROR,
+    });
+  }
+}
+
+export function* createAclUserSaga(action: ReduxAction<any>) {
+  try {
+    const { via, ...request } = action.payload;
+    const response: ApiResponse =
+      via === INVITE_USERS_TAB_ID.VIA_GROUPS
+        ? yield AclApi.inviteUsersViaGroups(request)
+        : yield AclApi.inviteUsersViaRoles(request);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE_SUCCESS,
-        payload: response.data,
+        type: ReduxActionTypes.CREATE_ACL_USER_SUCCESS,
       });
+      if (response.data) {
+        yield put({
+          type: ReduxActionTypes.FETCH_ACL_USERS,
+        });
+      }
     } else {
       yield put({
-        type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE_ERROR,
+        type: ReduxActionErrorTypes.CREATE_ACL_USER_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE_ERROR,
+      type: ReduxActionErrorTypes.CREATE_ACL_USER_ERROR,
     });
   }
 }
 
-export function* addUsersInGroupSaga(action: ReduxAction<any>) {
+export function* fetchIconLocationsSagas() {
   try {
-    const response: ApiResponse = yield AclApi.addUsersInGroup(action.payload);
+    const response: ApiResponse = yield AclApi.fetchIconLocation();
+
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.ADD_USERS_IN_GROUP_SUCCESS,
+        type: ReduxActionTypes.FETCH_ICON_LOCATIONS_SUCCESS,
         payload: response.data,
       });
     } else {
       yield put({
-        type: ReduxActionTypes.ADD_USERS_IN_GROUP_ERROR,
+        type: ReduxActionErrorTypes.FETCH_ICON_LOCATIONS_ERROR,
       });
     }
   } catch (e) {
+    log.error(e);
     yield put({
-      type: ReduxActionTypes.ADD_USERS_IN_GROUP_ERROR,
-    });
-  }
-}
-
-export function* removeUsersFromGroupSaga(action: ReduxAction<any>) {
-  try {
-    const response: ApiResponse = yield AclApi.removeUsersFromGroup(
-      action.payload,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP_SUCCESS,
-        payload: response.data,
-      });
-    } else {
-      yield put({
-        type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP_ERROR,
-      });
-    }
-  } catch (e) {
-    yield put({
-      type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP_ERROR,
+      type: ReduxActionErrorTypes.FETCH_ICON_LOCATIONS_ERROR,
     });
   }
 }
@@ -450,29 +746,44 @@ export function* InitAclSaga(action: ReduxAction<User>) {
   const user = action.payload;
   if (user.isSuperUser) {
     yield all([
+      takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_USERS, fetchAclUsersSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserSagaById),
+      takeLatest(ReduxActionTypes.FETCH_ACL_USER_BY_ID, fetchAclUserByIdSaga),
+      takeLatest(
+        ReduxActionTypes.UPDATE_GROUPS_IN_USER,
+        updateGroupsInUserSaga,
+      ),
+      takeLatest(ReduxActionTypes.UPDATE_ROLES_IN_USER, updateRolesInUserSaga),
+      takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
+      takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUPS, fetchAclGroupsSaga),
       takeLatest(ReduxActionTypes.FETCH_ACL_GROUP_BY_ID, fetchAclGroupSagaById),
-      takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
-      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
-      // takeLatest(ReduxActionTypes.CREATE_ACL_USER, createAclUserSaga),
-      takeLatest(ReduxActionTypes.CREATE_ACL_GROUP, createAclGroupSaga),
-      takeLatest(ReduxActionTypes.CREATE_ACL_ROLE, createAclRoleSaga),
-      takeLatest(ReduxActionTypes.DELETE_ACL_USER, deleteAclUserSaga),
-      takeLatest(ReduxActionTypes.DELETE_ACL_GROUP, deleteAclGroupSaga),
-      takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
-      /*takeLatest(ReduxActionTypes.CLONE_ACL_GROUP, cloneGroupSaga),*/
-      takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
-      takeLatest(
-        ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
-        fetchRolesForInviteSaga,
-      ),
       takeLatest(ReduxActionTypes.UPDATE_ACL_GROUP_NAME, updateGroupNameSaga),
+      takeLatest(
+        ReduxActionTypes.UPDATE_ACL_GROUP_ROLES,
+        updateRolesInGroupSaga,
+      ),
       takeLatest(ReduxActionTypes.ADD_USERS_IN_GROUP, addUsersInGroupSaga),
       takeLatest(
         ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
         removeUsersFromGroupSaga,
+      ),
+      takeLatest(ReduxActionTypes.CREATE_ACL_ROLE, createAclRoleSaga),
+      takeLatest(ReduxActionTypes.DELETE_ACL_ROLE, deleteAclRoleSaga),
+      takeLatest(ReduxActionTypes.CLONE_ACL_ROLE, cloneRoleSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLES, fetchAclRolesSaga),
+      takeLatest(ReduxActionTypes.FETCH_ACL_ROLE_BY_ID, fetchAclRoleSagaById),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE_NAME, updateRoleNameSaga),
+      takeLatest(ReduxActionTypes.UPDATE_ACL_ROLE, updateRoleSaga),
+      takeLatest(
+        ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,
+        fetchRolesGroupsForInviteSaga,
+      ),
+      takeLatest(
+        ReduxActionTypes.FETCH_ICON_LOCATIONS,
+        fetchIconLocationsSagas,
       ),
     ]);
   }

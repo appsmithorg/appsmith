@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { Variant } from "components/ads";
-import { HighlightText, MenuItemProps, Toaster } from "design-system";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import {
@@ -27,9 +26,8 @@ import {
 import {
   ADD_ROLE,
   createMessage,
-  DELETE_ROLE,
-  EDIT_ROLE,
-  GROUP_DELETED,
+  ACL_DELETE,
+  ACL_EDIT,
   SEARCH_ROLES_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import {
@@ -56,12 +54,17 @@ export function RolesListing() {
 
   const [data, setData] = useState<RoleProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [selectedRole, setSelectedRole] = useState<RoleProps | null>(null);
+  const [isNewRole, setIsNewRole] = useState(false);
 
   const selectedRoleId = params?.selected;
 
   useEffect(() => {
-    setData(roles);
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setData(roles);
+    }
   }, [roles]);
 
   useEffect(() => {
@@ -73,6 +76,7 @@ export function RolesListing() {
       dispatch(getRoleById({ id: selectedRoleId }));
     } else if (!selectedRoleId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLES });
+      setIsNewRole(false);
     }
   }, [selectedRoleId]);
 
@@ -94,7 +98,7 @@ export function RolesListing() {
                 highlight={searchValue}
                 text={cellProps.cell.row.original.name}
               />
-              {cellProps.cell.row.original.isAppsmithProvided && (
+              {cellProps.cell.row.original.autoCreated && (
                 <AppsmithIcon data-testid="t--appsmith-badge">A</AppsmithIcon>
               )}
             </CellContainer>
@@ -111,7 +115,7 @@ export function RolesListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/roles/${key}`);
       },
-      text: createMessage(EDIT_ROLE),
+      text: createMessage(ACL_EDIT),
       label: "edit",
     },
     {
@@ -121,7 +125,7 @@ export function RolesListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_ROLE),
+      text: createMessage(ACL_DELETE),
     },
   ];
 
@@ -142,6 +146,7 @@ export function RolesListing() {
         name: "Untitled Role",
       }),
     );
+    setIsNewRole(true);
   };
 
   const onSearch = debounce((search: string) => {
@@ -158,17 +163,13 @@ export function RolesListing() {
   }, 300);
 
   const onDeleteHandler = (id: string) => {
-    dispatch(deleteRole(id));
+    dispatch(deleteRole({ id }));
     /* for jest tests */
     const updatedData = data.filter((role) => {
       return role.id !== id;
     });
     setData(updatedData);
     /* for jest tests */
-    Toaster.show({
-      text: createMessage(GROUP_DELETED),
-      variant: Variant.success,
-    });
   };
 
   return (
@@ -176,6 +177,7 @@ export function RolesListing() {
       {selectedRoleId && selectedRole ? (
         <RoleAddEdit
           isLoading={isLoading}
+          isNew={isNewRole}
           onDelete={onDeleteHandler}
           selected={selectedRole}
         />
@@ -187,6 +189,7 @@ export function RolesListing() {
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
             searchPlaceholder={createMessage(SEARCH_ROLES_PLACEHOLDER)}
+            searchValue={searchValue}
           />
           <Listing
             columns={columns}

@@ -20,6 +20,8 @@ import { useGoToTop } from "../../hooks/useGoToTop";
 import { StyledFilterContainer as Container } from "../../styled-components/container";
 import { StyledLabel as Label } from "../../styled-components/label";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { createMessage } from "design-system/build/constants/messages";
+import { EVENTS_LABEL, EVENTS_PLACEHOLDER } from "@appsmith/constants/messages";
 
 export default function EventFilter() {
   const data = useSelector(selectAuditLogsData);
@@ -69,7 +71,7 @@ export default function EventFilter() {
 
   return (
     <Container data-testid="t--audit-logs-event-type-filter-container">
-      <Label>Events</Label>
+      <Label>{createMessage(EVENTS_LABEL)}</Label>
       <Dropdown
         boundary="viewport"
         className="audit-logs-filter audit-logs-filter-dropdown audit-logs-event-filter-dropdown"
@@ -83,7 +85,7 @@ export default function EventFilter() {
         onSelect={handleSelection}
         optionWidth={AUDIT_LOGS_FILTER_WIDTH}
         options={events}
-        placeholder="Select events"
+        placeholder={createMessage(EVENTS_PLACEHOLDER)}
         removeSelectedOption={removeSelectedOption}
         searchAutoFocus
         selected={selectedEvents}

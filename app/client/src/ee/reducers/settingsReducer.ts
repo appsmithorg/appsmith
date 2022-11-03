@@ -4,7 +4,10 @@ import {
   initialState,
   SettingsReduxState,
 } from "ce/reducers/settingsReducer";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 
 const handlers = {
@@ -13,7 +16,7 @@ const handlers = {
     ...state,
     isSaving: true,
   }),
-  [ReduxActionTypes.FETCH_SAML_METADATA_ERROR]: (
+  [ReduxActionErrorTypes.FETCH_SAML_METADATA_ERROR]: (
     state: SettingsReduxState,
   ) => ({
     ...state,

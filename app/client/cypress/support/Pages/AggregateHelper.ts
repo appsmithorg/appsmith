@@ -402,6 +402,10 @@ export class AggregateHelper {
     cy.get("body").type("{esc}");
   }
 
+  public PressEnter() {
+    cy.get("body").type("{enter}");
+  }
+
   public PressDelete() {
     cy.get("body").type(`{del}`, { force: true });
   }
@@ -766,6 +770,12 @@ export class AggregateHelper {
       });
   }
 
+  public VerifyEvaluatedErrorMessage(errorMessage: string) {
+    cy.get(this.locator._evaluatedErrorMessage)
+      .should("be.visible")
+      .should("have.text", errorMessage);
+  }
+
   public VerifyEvaluatedValue(currentValue: string) {
     this.Sleep(3000);
     cy.get(this.locator._evaluatedCurrentValue)
@@ -811,17 +821,6 @@ export class AggregateHelper {
     toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 
-  public AssertDebugError(label: string, messgae: string) {
-    this.GetNClick(this.locator._debuggerIcon, 0, true, 0);
-    this.GetNClick(this.locator._errorTab, 0, true, 0);
-    this.GetText(this.locator._debuggerLabel, "text", 0).then(($text) => {
-      expect($text).to.eq(label);
-    });
-    this.GetText(this.locator._debugErrorMsg, "text", 0).then(($text) => {
-      expect($text).to.contains(messgae);
-    });
-  }
-
   public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
     return this.GetElement(selector, timeout).should("not.exist");
@@ -835,6 +834,12 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .invoke(textOrValue);
+  }
+
+  AssertHeight(selector: ElementType, height: number) {
+    return this.GetElement(selector)
+      .invoke("height")
+      .should("be.equal", height);
   }
 
   public AssertText(
@@ -891,13 +896,20 @@ export class AggregateHelper {
 
   public GetNAssertContains(
     selector: ElementType,
-    text: string | RegExp,
+    text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
+    index?: number,
     timeout?: number,
   ) {
-    return this.GetElement(selector, timeout)
-      .contains(text)
-      .should(exists);
+    if (index)
+      return this.GetElement(selector, timeout)
+        .eq(index)
+        .contains(text)
+        .should(exists);
+    else
+      return this.GetElement(selector, timeout)
+        .contains(text)
+        .should(exists);
   }
 
   public ScrollTo(

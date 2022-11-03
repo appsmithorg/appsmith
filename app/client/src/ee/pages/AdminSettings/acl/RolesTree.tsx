@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Column, useTable, useExpanded } from "react-table";
-import { Icon, IconSize, Spinner, Toaster } from "design-system";
-import { Checkbox } from "@blueprintjs/core";
+import { Checkbox, Icon, IconSize, Spinner } from "design-system";
 import { HighlightText } from "design-system";
 import { MenuIcons } from "icons/MenuIcons";
 import { Colors } from "constants/Colors";
@@ -12,28 +11,37 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { RoleTreeProps } from "./types";
 import { EmptyDataState, EmptySearchResult, SaveButtonBar } from "./components";
-import {
-  createMessage,
-  SUCCESSFULLY_SAVED,
-} from "@appsmith/constants/messages";
-import { Variant } from "components/ads";
 import _ from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { getIconLocations } from "@appsmith/selectors/aclSelectors";
+import { updateRoleById } from "@appsmith/actions/aclActions";
 
 let dataToBeSent: any[] = [];
 
 const CheckboxWrapper = styled.div`
-  display: inline-block;
   width: 100%;
   height: 36px;
   &.hover-state {
-    .bp3-control-indicator {
-      opacity: 0.4;
+    .design-system-checkbox {
+      span {
+        opacity: 0.4;
+      }
     }
   }
 
-  input:checked + .bp3-control-indicator::before,
-  input:indeterminate + .bp3-control-indicator::before {
-    background-color: var(--appsmith-color-black-700);
+  .design-system-checkbox {
+    display: unset;
+
+    span {
+      left: -8px;
+      width: 16px;
+      height: 16px;
+
+      &:after {
+        width: 5px;
+        height: 10px;
+      }
+    }
   }
 `;
 
@@ -144,6 +152,12 @@ const ResourceCellWrapper = styled.div`
       margin: 0 8px 0 0;
     }
 
+    img {
+      margin: 0 8px 0 0;
+      width: 16px;
+      height: 16px;
+    }
+
     span {
       display: -webkit-inline-box;
       -webkit-line-clamp: 2;
@@ -180,9 +194,6 @@ const TableWrapper = styled.div<{ isSaving?: boolean }>`
 `;
 
 const IconTypes: any = {
-  Workspace: "",
-  Application: "",
-  Datasource: "",
   HomePage: (
     <MenuIcons.DEFAULT_HOMEPAGE_ICON
       color={Colors.GREEN_1}
@@ -194,12 +205,13 @@ const IconTypes: any = {
     <MenuIcons.PAGE_ICON color={Colors.GRAY_700} height="16" width="16" />
   ),
   NewAction: <ApiMethodIcon type="GET" />,
-  "js-object": JsFileIconV2,
+  ActionCollection: JsFileIconV2,
 };
 
 function Table({
   columns,
   data,
+  filteredData,
   isLoading,
   loaderComponent,
   noDataComponent,
@@ -209,6 +221,7 @@ function Table({
 }: {
   columns: any;
   data: any;
+  filteredData: any;
   isLoading?: boolean;
   loaderComponent?: JSX.Element;
   noDataComponent?: JSX.Element;
@@ -246,6 +259,14 @@ function Table({
     }
   }, [flatRows, searchValue]);
 
+  const getRowVisibility = (row: any): string => {
+    let shouldHide = true;
+    if (JSON.stringify(filteredData).indexOf(row.original.id) > -1) {
+      shouldHide = false;
+    }
+    return shouldHide ? "hidden" : "shown";
+  };
+
   return (
     <StyledTable {...getTableProps()} data-testid="t--role-table">
       <thead className="table-header">
@@ -276,7 +297,11 @@ function Table({
           rows.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()} key={row.id}>
+              <tr
+                {...row.getRowProps()}
+                className={searchValue ? getRowVisibility(row) : "shown"}
+                key={row.id}
+              >
                 {row.cells.map((cell, index) => {
                   return (
                     <td {...cell.getCellProps()} key={index}>
@@ -364,6 +389,35 @@ export function traverseSubRows(subrows: any[], map: any): any {
   });
 }
 
+export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
+  const replaceDataIndex = dataToBeSent.findIndex((a: any) => a.id === row.id);
+  if (replaceDataIndex > -1) {
+    dataToBeSent[replaceDataIndex] = {
+      id: row.id,
+      permissions:
+        mapPIndex !== -1
+          ? row?.permissions?.map((r: number, rI: number) => {
+              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+            })
+          : row?.permissions,
+      type: row.type,
+      name: row.name,
+    };
+  } else {
+    dataToBeSent.push({
+      id: row.id,
+      permissions:
+        mapPIndex !== -1
+          ? row?.permissions?.map((r: number, rI: number) => {
+              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
+            })
+          : row?.permissions,
+      type: row.type,
+      name: row.name,
+    });
+  }
+}
+
 export function updateSubRows(
   map: any,
   rows: any[],
@@ -373,24 +427,7 @@ export function updateSubRows(
   const returnData = rows.map((subRow: any) => {
     if (map.id === subRow.id) {
       if (subRow.type !== "Header") {
-        const replaceDataIndex = dataToBeSent.findIndex(
-          (a: any) => a.id === subRow.id,
-        );
-        if (replaceDataIndex > -1) {
-          dataToBeSent[replaceDataIndex] = {
-            ...subRow,
-            permissions: subRow?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
-            }),
-          };
-        } else {
-          dataToBeSent.push({
-            ...subRow,
-            permissions: subRow?.permissions?.map((r: number, rI: number) => {
-              return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
-            }),
-          });
-        }
+        updateDataToBeSent(subRow, mapPIndex, value);
       }
       return {
         ...subRow,
@@ -404,12 +441,7 @@ export function updateSubRows(
         !dataToBeSent.some((a) => a.id === subRow.id) &&
         subRow.type !== "Header"
       ) {
-        dataToBeSent.push({
-          ...subRow,
-          permissions: subRow?.permissions?.map((r: number, rI: number) => {
-            return rI === mapPIndex && r !== -1 ? (value ? 1 : 0) : r;
-          }),
-        });
+        updateDataToBeSent(subRow, mapPIndex, value);
       }
       return subRow.subRows
         ? {
@@ -455,12 +487,7 @@ export function updateCheckbox(
     };
   }
   if (updatedRow.type !== "Header") {
-    dataToBeSent.push({
-      id: updatedRow.id,
-      permissions: updatedRow.permissions,
-      type: updatedRow.type,
-      name: updatedRow.name,
-    });
+    updateDataToBeSent(updatedRow, -1, value);
   }
   return updatedRow;
 }
@@ -472,7 +499,6 @@ export function updateData(
   rowId: string,
   tabData: any,
 ) {
-  // console.time("Execution Time");
   const updatedData = [...oldData];
   const currentCellId = cellId.split("_");
 
@@ -483,7 +509,6 @@ export function updateData(
 
   if (rowDataToUpdate) {
     if (currentCellId[0] === rowDataToUpdate.id) {
-      // console.log("parent");
       const { hoverMap, permissions } = tabData;
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
@@ -492,7 +517,6 @@ export function updateData(
         permissions,
       );
     } else if (updatedData[parseInt(rowIdArray[0])]?.subRows) {
-      // console.log("child");
       const subRowId = rowIdArray.slice(1).join(".");
       updatedData[parseInt(rowIdArray[0])] = {
         ...updatedData[parseInt(rowIdArray[0])],
@@ -506,20 +530,30 @@ export function updateData(
       };
     }
   }
-  // console.timeEnd("Execution Time");
   return updatedData;
 }
 
+export const getIcon = (iconLocations: any[], pluginId: string) => {
+  const icon = iconLocations.find((d) => d.id === pluginId);
+  return <img alt={icon.name} src={icon.iconLocation} />;
+};
+
 export default function RolesTree(props: RoleTreeProps) {
-  const { searchValue = "", tabData } = props;
+  const { roleId, searchValue = "", tabData } = props;
   const [filteredData, setFilteredData] = useState([]);
   const dataFromProps = makeData([tabData?.data]) || [];
   const [data, setData] = useState(dataFromProps);
   const [isSaving, setIsSaving] = useState(false);
+  const iconLocations = useSelector(getIconLocations);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dataToBeSent = [];
   }, []);
+
+  useEffect(() => {
+    setData(dataFromProps);
+  }, [tabData]);
 
   useEffect(() => {
     if (searchValue && searchValue.trim().length > 0) {
@@ -542,12 +576,26 @@ export default function RolesTree(props: RoleTreeProps) {
       Header: "Resource Permissions",
       accessor: "name",
       Cell: function CellContent(cellProps: any) {
+        const row = cellProps.cell.row.original;
+
+        const icon =
+          row.pluginId && iconLocations.length > 0
+            ? getIcon(iconLocations, row.pluginId)
+            : row.type
+            ? IconTypes[
+                row.type === "NewPage" && row.isDefault ? "HomePage" : row.type
+              ]
+            : null;
+
         const del: JSX.Element[] = [];
         for (let i = 0; i < cellProps.row.depth; i++) {
           del.push(<Delimeter key={i} />);
         }
+
         return cellProps.row.canExpand ? (
-          <ResourceCellWrapper {...cellProps.row.getToggleRowExpandedProps()}>
+          <ResourceCellWrapper
+            {...cellProps.row.getToggleRowExpandedProps({ title: undefined })}
+          >
             {cellProps.row.depth ? del : null}
             {cellProps.row.isExpanded ? (
               <Icon name="down-arrow" size={IconSize.XL} />
@@ -555,31 +603,16 @@ export default function RolesTree(props: RoleTreeProps) {
               <Icon name="right-arrow-2" size={IconSize.XL} />
             )}
             <div className="text-wrapper">
-              {cellProps.cell.row.original.type
-                ? IconTypes[
-                    cellProps.cell.row.original.type === "NewPage" &&
-                    cellProps.cell.row.original.isDefault
-                      ? "HomePage"
-                      : cellProps.cell.row.original.type
-                  ]
-                : null}
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.original.name}
-              />
+              {icon}
+              <HighlightText highlight={searchValue} text={row.name} />
             </div>
           </ResourceCellWrapper>
         ) : (
           <ResourceCellWrapper className="flat-row">
             {cellProps.row.depth ? del : null}
             <div className="text-wrapper">
-              {cellProps.cell.row.original.type
-                ? IconTypes[cellProps.cell.row.original.type]
-                : null}
-              <HighlightText
-                highlight={searchValue}
-                text={cellProps.cell.row.original.name}
-              />
+              {icon}
+              <HighlightText highlight={searchValue} text={row.name} />
             </div>
           </ResourceCellWrapper>
         );
@@ -594,6 +627,7 @@ export default function RolesTree(props: RoleTreeProps) {
           updateMyData,
           value,
         } = cellProps;
+        const rowData = cellProps.cell.row.original;
         const [isChecked, setIsChecked] = React.useState(
           value === 1 ? true : false,
         );
@@ -630,50 +664,40 @@ export default function RolesTree(props: RoleTreeProps) {
         };
 
         const onChangeHandler = (e: any, cellId: string) => {
-          setIsChecked(e.target.checked);
-          updateMyData(e.target.checked, cellId, rowId);
+          setIsChecked(e);
+          updateMyData(e, cellId, rowId);
         };
 
-        return cellProps.cell.row.original.permissions &&
-          cellProps.cell.row.original.permissions[i] !== -1 ? (
+        return rowData.permissions && rowData.permissions[i] !== -1 ? (
           <CheckboxWrapper
-            data-cellid={`${cellProps.cell.row.original.id}_${column}`}
+            data-cellid={`${rowData.id}_${column}`}
             data-rowid={parseInt(rowId.split(".")[0])}
-            data-testid={`${cellProps.cell.row.original.id}_${column}`}
+            data-testid={`${rowData.id}_${column}`}
             onMouseOut={() =>
               removeHoverClass(
-                `${cellProps.cell.row.original.id}_${column}`,
+                `${rowData.id}_${column}`,
                 parseInt(rowId.split(".")[0]),
               )
             }
             onMouseOver={() =>
               addHoverClass(
-                `${cellProps.cell.row.original.id}_${column}`,
+                `${rowData.id}_${column}`,
                 parseInt(rowId.split(".")[0]),
               )
             }
           >
             <Checkbox
-              checked={isChecked}
-              /*disabled={
-                cellProps.cell.row.original.editable[i]] === 0 ? true : false
+              className="design-system-checkbox"
+              isDefaultChecked={isChecked}
+              onCheckChange={(value: boolean) =>
+                onChangeHandler(value, `${rowData.id}_${column}`)
               }
-              id={`${cellProps.cell.row.original.id}-${column}`} */
-              indeterminate={
-                cellProps.cell.row.original.permissions[i] === 3 ? true : false
-              }
-              onChange={(e: any) =>
-                onChangeHandler(
-                  e,
-                  `${cellProps.cell.row.original.id}_${column}`,
-                )
-              }
-              value={`${cellProps.cell.row.original.id}_${column}`}
+              value={`${rowData.id}_${column}`}
             />
           </CheckboxWrapper>
         ) : (
           <CheckboxWrapper
-            data-cellid={`${cellProps.cell.row.original.id}_${column}`}
+            data-cellid={`${rowData.id}_${column}`}
             data-rowid={parseInt(rowId.split(".")[0])}
           >
             &nbsp;
@@ -684,11 +708,7 @@ export default function RolesTree(props: RoleTreeProps) {
   ];
 
   const onSaveChanges = () => {
-    /*console.log(dataToBeSent, props.currentTabName);*/
-    Toaster.show({
-      text: createMessage(SUCCESSFULLY_SAVED),
-      variant: Variant.success,
-    });
+    dispatch(updateRoleById(props.currentTabName, dataToBeSent, roleId));
     setIsSaving(false);
     dataToBeSent = [];
   };
@@ -706,7 +726,6 @@ export default function RolesTree(props: RoleTreeProps) {
      the rowIndex, columnId and new value to update the
      original data */
   const updateMyData = (newValue: any, cellId: string, rowId: any) => {
-    dataToBeSent = [];
     setIsSaving(true);
     setData((old: any[]) => {
       return updateData(old, newValue, cellId, rowId, tabData);
@@ -718,7 +737,8 @@ export default function RolesTree(props: RoleTreeProps) {
       <TableWrapper isSaving={isSaving}>
         <Table
           columns={columns}
-          data={searchValue !== "" ? filteredData : data}
+          data={data}
+          filteredData={filteredData}
           searchValue={props.searchValue}
           updateMyData={updateMyData}
           updateTabCount={props.updateTabCount}

@@ -206,9 +206,7 @@ jobs:
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
-            -e APPSMITH_AUDITLOG_ENABLED=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            -e APPSMITH_AUDITLOG_ENABLED=true \
             --add-host=host.docker.internal:host-gateway \
             fatcontainer
 
@@ -615,7 +613,6 @@ jobs:
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-          APPSMITH_AUDITLOG_ENABLED: true
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
         run: |
           ls -l
@@ -917,9 +914,9 @@ jobs:
         if: needs.fat-container-test.result != 'success'
         run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat
 
-      # Force save the failed spec list into a cache
+      # save the failed spec list into a cache
       - name: Store the combined run result
-        if: needs.ui-test.result
+        if: needs.ui-test.result != 'success'
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
@@ -930,7 +927,7 @@ jobs:
 
       # Force save the fat failed spec list into a cache
       - name: Store the combined run result for fat
-        if: needs.ui-test.result
+        if: needs.fat-container-test.result != 'success'
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
@@ -942,7 +939,7 @@ jobs:
       # Upload combined failed spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
-        if: needs.ui-test.result
+        if: needs.ui-test.result != 'success'
         uses: actions/upload-artifact@v2
         with:
           name: combined_failed_spec
@@ -951,7 +948,7 @@ jobs:
       # Upload combined failed fat spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
-        if: needs.ui-test.result
+        if: needs.fat-container-test.result != 'success'
         uses: actions/upload-artifact@v2
         with:
           name: combined_failed_spec_fat

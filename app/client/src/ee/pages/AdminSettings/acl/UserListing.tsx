@@ -3,34 +3,43 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
-/* import { OrgUser } from "constants/orgConstants";
-   import { getAllUsers } from "selectors/organizationSelectors";
-   import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions"; */
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { Variant } from "components/ads";
-import { HighlightText, MenuItemProps, Toaster } from "design-system";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
-import { AclWrapper, EmptyDataState, EmptySearchResult } from "./components";
+import {
+  AclWrapper,
+  EmptyDataState,
+  EmptySearchResult,
+  INVITE_USERS_TAB_ID,
+} from "./components";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import { deleteAclUser, getUserById } from "@appsmith/actions/aclActions";
+import {
+  deleteAclUser,
+  getUserById,
+  inviteUsersViaGroups,
+  inviteUsersViaRoles,
+} from "@appsmith/actions/aclActions";
 import {
   ACL_INVITE_MODAL_MESSAGE,
   ACL_INVITE_MODAL_TITLE,
   createMessage,
-  DELETE_USER,
+  ACL_DELETE,
   SHOW_LESS_GROUPS,
   SHOW_MORE_GROUPS,
+  SEARCH_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAclIsLoading,
+  getAclIsSaving,
   getAllAclUsers,
+  getGroupsForInvite,
   getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
@@ -93,7 +102,9 @@ export function UserListing() {
   const aclUsers = useSelector(getAllAclUsers);
   const selectedUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
+  const isSaving = useSelector(getAclIsSaving);
   const inviteViaRoles = useSelector(getRolesForInvite);
+  const inviteViaGroups = useSelector(getGroupsForInvite);
 
   const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -102,7 +113,11 @@ export function UserListing() {
   const selectedUserId = params?.selected;
 
   useEffect(() => {
-    setData(aclUsers);
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setData(aclUsers);
+    }
   }, [aclUsers]);
 
   useEffect(() => {
@@ -112,6 +127,34 @@ export function UserListing() {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
     }
   }, [selectedUserId]);
+
+  const onFormSubmitHandler = ({ ...values }) => {
+    if (values.selectedTab === INVITE_USERS_TAB_ID.VIA_GROUPS) {
+      dispatch(
+        inviteUsersViaGroups(
+          values.users ? values.users.split(",") : [],
+          values.options.map((option: any) => option.value),
+          values.selectedTab,
+        ),
+      );
+    } else {
+      dispatch(
+        inviteUsersViaRoles(
+          values.users
+            ? values.users.split(",").map((user: string) => ({
+                username: user,
+              }))
+            : [],
+          values.options.map((option: any) => ({
+            id: option.value,
+            name: option.label,
+          })),
+          values.selectedTab,
+        ),
+      );
+    }
+    setShowModal(false);
+  };
 
   const columns = [
     {
@@ -151,7 +194,7 @@ export function UserListing() {
           <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.roles.map((group: BaseAclProps) => (
+                {cellProps.cell.row.values.roles?.map((group: BaseAclProps) => (
                   <div key={group.id}>{group.name}</div>
                 ))}
                 <ShowLess
@@ -163,10 +206,11 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.roles?.[0].name}
-                {cellProps.cell.row.values.roles?.[0].name.length < 40 ? (
+                {cellProps.cell.row.values.roles?.[0]?.name}
+                {cellProps.cell.row.values.roles?.[0]?.name.length < 40 &&
+                cellProps.cell.row.values.roles?.length > 1 ? (
                   <>
-                    , {cellProps.cell.row.values.roles?.[1].name}
+                    , {cellProps.cell.row.values.roles?.[1]?.name}
                     {cellProps.cell.row.values.roles?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
@@ -187,7 +231,7 @@ export function UserListing() {
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values?.roles.length - 1,
+                        cellProps.cell.row.values.roles?.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -207,9 +251,11 @@ export function UserListing() {
           <CellContainer data-testid="user-listing-groupCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.groups.map((group: BaseAclProps) => (
-                  <div key={group.id}>{group.name}</div>
-                ))}
+                {cellProps.cell.row.values.groups?.map(
+                  (group: BaseAclProps) => (
+                    <div key={group.id}>{group.name}</div>
+                  ),
+                )}
                 <ShowLess
                   data-testid="t--show-less"
                   onClick={() => setShowAllGroups(false)}
@@ -219,10 +265,11 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.groups?.[0].name}
-                {cellProps.cell.row.values.groups?.[0].name.length < 40 ? (
+                {cellProps.cell.row.values.groups?.[0]?.name}
+                {cellProps.cell.row.values.groups?.[0]?.name.length < 40 &&
+                cellProps.cell.row.values.groups?.length > 1 ? (
                   <>
-                    , {cellProps.cell.row.values.groups?.[1].name}
+                    , {cellProps.cell.row.values.groups?.[1]?.name}
                     {cellProps.cell.row.values.groups?.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
@@ -275,7 +322,7 @@ export function UserListing() {
       onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_USER),
+      text: createMessage(ACL_DELETE),
     },
   ];
 
@@ -292,49 +339,43 @@ export function UserListing() {
 
   const tabs = [
     {
-      key: "via-roles",
+      key: INVITE_USERS_TAB_ID.VIA_ROLES,
       title: "via roles",
       component: WorkspaceInviteUsersForm,
-      options: inviteViaRoles.map((role: any) => ({
+      options: inviteViaRoles.map((role: BaseAclProps) => ({
         label: role.name,
         value: role.id,
         id: role.id,
       })),
+      dropdownPlaceholder: "Select a role",
+      dropdownMaxHeight: "240px",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
         disableManageUsers: true,
         disableUserList: true,
         isMultiSelectDropdown: true,
+        onSubmitHandler: onFormSubmitHandler,
       },
     },
     {
-      key: "via-groups",
+      key: INVITE_USERS_TAB_ID.VIA_GROUPS,
       title: "via groups",
       component: WorkspaceInviteUsersForm,
-      options: [
-        {
-          label: "Administrator",
-          value: "1",
-          id: "1",
-        },
-        {
-          label: "App Viewer",
-          value: "2",
-          id: "2",
-        },
-        {
-          label: "Developer",
-          value: "3",
-          id: "3",
-        },
-      ],
+      options: inviteViaGroups.map((group: BaseAclProps) => ({
+        label: group.name,
+        value: group.id,
+        id: group.id,
+      })),
+      dropdownPlaceholder: "Select a group",
+      dropdownMaxHeight: "240px",
       customProps: {
         isAclFlow: true,
         disableEmailSetup: true,
         disableManageUsers: true,
         disableUserList: true,
         isMultiSelectDropdown: true,
+        onSubmitHandler: onFormSubmitHandler,
       },
     },
   ];
@@ -342,7 +383,7 @@ export function UserListing() {
   const onButtonClick = () => {
     setShowModal(true);
     dispatch({
-      type: ReduxActionTypes.FETCH_ROLES_FOR_INVITE,
+      type: ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE,
     });
   };
 
@@ -351,7 +392,7 @@ export function UserListing() {
       setSearchValue(search);
       const results =
         aclUsers &&
-        aclUsers.filter((user: any) =>
+        aclUsers.filter((user: UserProps) =>
           user.username?.toLocaleUpperCase().includes(search),
         );
       setData(results);
@@ -362,15 +403,11 @@ export function UserListing() {
   }, 300);
 
   const onDeleteHandler = (userId: string) => {
-    dispatch(deleteAclUser(userId));
+    dispatch(deleteAclUser({ id: userId }));
     const updatedData = data.filter((user) => {
       return user.id !== userId;
     });
     setData(updatedData);
-    Toaster.show({
-      text: "User deleted successfully",
-      variant: Variant.success,
-    });
   };
 
   return (
@@ -379,6 +416,7 @@ export function UserListing() {
         <UserEdit
           data-testid="acl-user-edit"
           isLoading={isLoading}
+          isSaving={isSaving}
           onDelete={onDeleteHandler}
           searchPlaceholder="Search"
           selectedUser={selectedUser}
@@ -391,7 +429,8 @@ export function UserListing() {
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder="Search Users"
+            searchPlaceholder={createMessage(SEARCH_USERS_PLACEHOLDER)}
+            searchValue={searchValue}
           />
           <Listing
             columns={columns}

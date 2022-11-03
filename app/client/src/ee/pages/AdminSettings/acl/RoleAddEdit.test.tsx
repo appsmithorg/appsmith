@@ -5,8 +5,9 @@ import { RoleAddEdit } from "./RoleAddEdit";
 import { rolesTableData } from "./mocks/RolesListingMock";
 import userEvent from "@testing-library/user-event";
 import { response1 } from "./mocks/mockRoleTreeResponse";
-import { RoleEditProps } from "./types";
+import { BaseAclProps, RoleEditProps } from "./types";
 import { makeData } from "./RolesTree";
+import { MenuItemProps } from "design-system";
 
 let container: any = null;
 
@@ -33,6 +34,7 @@ const props: RoleEditProps = {
   },
   onDelete: jest.fn(),
   isLoading: false,
+  isNew: false,
 };
 
 function renderComponent() {
@@ -58,21 +60,34 @@ describe("<RoleAddEdit />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    const options = listMenuItems.map((menuItem: any) => menuItem.text);
+    const options = listMenuItems.map(
+      (menuItem: MenuItemProps) => menuItem.text,
+    );
     const menuElements = options
-      .map((option: any) => getAllByText(option))
+      .map((option: string) => getAllByText(option))
       .flat();
-    options.forEach((option: any, index: any) => {
+    options.forEach((option: string, index: number) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
-  it("should show input box on group name on double clicking title", async () => {
+  it("should show input box on role name on clicking title", async () => {
+    renderComponent();
+    let titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+    await userEvent.click(titleEl[0]);
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
+  });
+  it("should show input box on role name on clicking rename menu item", async () => {
     const { getAllByTestId } = renderComponent();
-    let titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).not.toContain("input");
-    await userEvent.dblClick(titleEl[0]);
-    titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).toContainHTML("input");
+    const moreMenu = getAllByTestId("t--page-header-actions");
+    await userEvent.click(moreMenu[0]);
+    let titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).not.toHaveClass("bp3-editable-text-editing");
+    const renameOption = document.getElementsByClassName("rename-menu-item");
+    await userEvent.click(renameOption[0]);
+    titleEl = document.getElementsByClassName("t--editable-title");
+    expect(titleEl[0]).toHaveClass("bp3-editable-text-editing");
   });
   it("should show tabs as per data recieved", () => {
     renderComponent();
@@ -86,7 +101,7 @@ describe("<RoleAddEdit />", () => {
     renderComponent();
     const tabData: any = Object.values(response1.tabs)[0];
     const columns = tabData?.permissions;
-    const tableColumns: any[] = screen.getAllByRole("columnheader");
+    const tableColumns: HTMLElement[] = screen.getAllByRole("columnheader");
     for (const index in columns) {
       expect(tableColumns[parseInt(index) + 1]).toHaveTextContent(
         columns[index],
@@ -139,26 +154,14 @@ describe("<RoleAddEdit />", () => {
     const hoverCheckboxEl = getAllByTestId(elId);
     const rightArrows = document.getElementsByName("right-arrow-2");
     rightArrows[0].click();
-    const hoverEls: any[] = [];
+    const hoverEls: HTMLElement[] = [];
     const tabData: any = Object.values(response1.tabs)[0];
-    tabData.hoverMap[elId].forEach((item: any) => {
+    tabData.hoverMap[elId].forEach((item: { id: string; p: string }) => {
       hoverEls.push(...queryAllByTestId(`${item.id}_${item.p}`));
     });
     userEvent.hover(hoverCheckboxEl[0]);
     expect(hoverEls[0]).toHaveClass("hover-state");
     /* expect(hoverEls[0]).toHaveStyle("opacity: 0.4"); styled-components 5.2.1 should solve this */
-  });
-
-  it("should show input box on role name on clicking rename menu item", async () => {
-    const { getAllByTestId } = renderComponent();
-    const moreMenu = getAllByTestId("t--page-header-actions");
-    await userEvent.click(moreMenu[0]);
-    let titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).not.toContain("input");
-    const renameOption = document.getElementsByClassName("rename-menu-item");
-    await userEvent.click(renameOption[0]);
-    titleEl = getAllByTestId("t--page-title");
-    expect(titleEl[0]).toContainHTML("input");
   });
   it("should show correct checkbox state", async () => {
     renderComponent();
@@ -167,7 +170,7 @@ describe("<RoleAddEdit />", () => {
     const inputs = rows[1].getElementsByTagName("input");
     const tabData: any = Object.values(response1.tabs)[0];
     const data = makeData([tabData.data] || []);
-    const noCheckboxCount = data[0].permissions.filter((p: any) => p);
+    const noCheckboxCount = data[0].permissions.filter((p: BaseAclProps) => p);
     expect(inputs.length).toEqual(
       data[0].permissions.length - noCheckboxCount.length,
     );
@@ -192,7 +195,7 @@ describe("<RoleAddEdit />", () => {
     expect(saveButton).not.toBeInTheDocument();
     const elId = "633ae5bf174013666db972c2_Create";
     const checkboxEl = document.querySelector(
-      `[data-testid="${elId}"] .bp3-control-indicator`,
+      `[data-testid="${elId}"] .design-system-checkbox span`,
     ) as HTMLElement;
     await checkboxEl?.click();
     saveButton = queryByText("Save Changes");
@@ -202,7 +205,7 @@ describe("<RoleAddEdit />", () => {
     const { queryByText } = renderComponent();
     const elId = "633ae5bf174013666db972c2_Create";
     const checkboxEl = document.querySelector(
-      `[data-testid="${elId}"] .bp3-control-indicator`,
+      `[data-testid="${elId}"] .design-system-checkbox span`,
     ) as HTMLElement;
     await checkboxEl?.click();
     let saveButton = queryByText("Save Changes");

@@ -8,6 +8,8 @@ import {
 import { selectAuditLogsFiltersDirtyBit as isDirty } from "@appsmith/selectors/auditLogsSelectors";
 import { initialAuditLogsFilterState as defaultFilters } from "@appsmith/reducers/auditLogsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { createMessage } from "design-system/build/constants/messages";
+import { CLEAR_ALL } from "@appsmith/constants/messages";
 
 export default function Clear() {
   const dispatch = useDispatch();
@@ -28,7 +30,7 @@ export default function Clear() {
       data-testid="t--audit-logs-filters-clear-all-button"
       onClick={handleClear}
     >
-      clear all
+      {createMessage(CLEAR_ALL)}
     </StyledClearAllButton>
   ) : null;
 }

@@ -5,11 +5,14 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
+import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -18,6 +21,7 @@ import com.appsmith.server.repositories.UserGroupRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -32,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
@@ -41,6 +46,7 @@ import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.GROUP_ID;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -79,8 +85,17 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     @Override
     public Flux<UserGroup> get(MultiValueMap<String, String> params) {
+        return this.getAll(READ_USER_GROUPS);
+    }
+
+    private Flux<UserGroup> getAll(AclPermission aclPermission) {
         return tenantService.getDefaultTenant()
-                .flatMapMany(defaultTenantId -> repository.findAllByTenantId(defaultTenantId.getId(), READ_USER_GROUPS));
+                .flatMapMany(defaultTenantId -> repository.findAllByTenantId(defaultTenantId.getId(), aclPermission));
+    }
+
+    @Override
+    public Flux<UserGroupCompactDTO> getAllWithAddUserPermission() {
+        return this.getAll(ADD_USERS_TO_USER_GROUPS).map(this::generateUserGroupCompactDTO);
     }
 
     @Override
@@ -137,7 +152,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository.findById(id, READ_USER_GROUPS)
+        return this.getGroupDTOById(id, READ_USER_GROUPS);
+    }
+
+    private Mono<UserGroupDTO> getGroupDTOById(String id, AclPermission permission) {
+        return repository.findById(id, permission)
                 .flatMap(userGroup -> {
 
                     Mono<List<PermissionGroupInfoDTO>> groupRolesMono = getRoleDTOsForTheGroup(id);
@@ -196,8 +215,14 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .collectList()
                 .flatMap(userGroups -> {
 
-                    // TODO: Handle adding a username which doesn't exist by creating a new user.
-                    Mono<Set<String>> toBeAddedUserIdsMono = userService.findAllByUsernameIn(usernames)
+                    Mono<Set<String>> toBeAddedUserIdsMono = Flux.fromIterable(usernames)
+                            .flatMap(username -> {
+                                User newUser = new User();
+                                newUser.setEmail(username.toLowerCase());
+                                newUser.setIsEnabled(false);
+                                return userService.findByEmail(username)
+                                        .switchIfEmpty(userService.userCreate(newUser, false));
+                            })
                             .map(User::getId)
                             .collect(Collectors.toSet())
                             .cache();
@@ -259,23 +284,22 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Mono<UserGroupDTO> removeUsers(UsersForGroupDTO removeUsersFromGroupDTO) {
+    public Mono<List<UserGroupDTO>> removeUsers(UsersForGroupDTO removeUsersFromGroupDTO) {
 
         Set<String> ids = removeUsersFromGroupDTO.getGroupIds();
 
-        // The service level function supports removal of users from only one group today.
-        if (CollectionUtils.isEmpty(ids) || ids.size() != 1) {
+        if (CollectionUtils.isEmpty(ids)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, GROUP_ID));
         }
 
-        String id = ids.stream().findFirst().get();
         Set<String> usernames = removeUsersFromGroupDTO.getUsernames();
 
         return validate(removeUsersFromGroupDTO)
                 // Now that we have validated the input, we can start the process of removing users from the group.
-                .flatMap(bool -> repository.findById(id, REMOVE_USERS_FROM_USER_GROUPS))
+                .flatMapMany(bool -> repository.findAllByIds(ids, REMOVE_USERS_FROM_USER_GROUPS))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "remove users from group")))
-                .flatMap(userGroup -> {
+                .collectList()
+                .flatMap(userGroups -> {
 
                     Mono<Set<String>> toBeRemovedUserIdsMono = userService.findAllByUsernameIn(usernames)
                             .map(User::getId)
@@ -283,14 +307,17 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             .cache();
 
                     // remove the users from the group
-                    Mono<UserGroup> updateUsersInGroupMono = toBeRemovedUserIdsMono
-                            .flatMap(userIds -> {
+                    Flux<UserGroup> updateUsersInGroupsMono = Flux.fromIterable(userGroups)
+                            .zipWith(toBeRemovedUserIdsMono.repeat())
+                            .flatMap(tuple -> {
+                                UserGroup userGroup = tuple.getT1();
+                                Set<String> userIds = tuple.getT2();
                                 userGroup.getUsers().removeAll(userIds);
-                                return super.update(id, userGroup);
+                                return super.update(userGroup.getId(), userGroup);
                             })
                             .cache();
 
-                    Flux<PermissionGroup> userGroupRolesFlux = permissionGroupService.findAllByAssignedToGroupIdsIn(Set.of(id))
+                    Flux<PermissionGroup> userGroupRolesFlux = permissionGroupService.findAllByAssignedToGroupIdsIn(ids)
                             .cache();
 
                     // Get roles for the group, and if there are any, then invalidate the cache for the newly removed users
@@ -313,14 +340,23 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             // In case there are no roles associated with the group, then return an empty list.
                             .switchIfEmpty(Mono.just(new ArrayList<>()));
 
-                    Mono<List<UserCompactDTO>> usersInGroupMono = updateUsersInGroupMono
-                            .flatMap(updatedUserGroup -> getUsersCompactForTheGroup(updatedUserGroup));
+                    Mono<Map<String, List<UserCompactDTO>>> usersInGroupMapMono = updateUsersInGroupsMono
+                            .flatMap(updatedUserGroup ->
+                                    getUsersCompactForTheGroup(updatedUserGroup)
+                                            .map(usersList -> Tuples.of(updatedUserGroup.getId(), usersList))
+                            )
+                            .collectMap(tuple -> tuple.getT1(), tuple -> tuple.getT2());
 
-                    return Mono.zip(invalidateCacheOfUsersMono, rolesInfoMono, usersInGroupMono)
+                    return Mono.zip(invalidateCacheOfUsersMono, rolesInfoMono, usersInGroupMapMono)
                             .flatMap(tuple -> {
                                 List<PermissionGroupInfoDTO> rolesInfoList = tuple.getT2();
-                                List<UserCompactDTO> usersList = tuple.getT3();
-                                return generateUserGroupDTO(userGroup, rolesInfoList, usersList);
+                                Map<String, List<UserCompactDTO>> usersInGroupMap = tuple.getT3();
+                                return Flux.fromIterable(userGroups)
+                                        .flatMap(userGroup -> {
+                                            List<UserCompactDTO> usersList = usersInGroupMap.get(userGroup.getId());
+                                            return generateUserGroupDTO(userGroup, rolesInfoList, usersList);
+                                        })
+                                        .collectList();
                             });
                 });
     }
@@ -369,5 +405,67 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     @Override
     public Mono<UserGroup> findById(String id, AclPermission permission) {
         return repository.findById(id, permission);
+    }
+
+    @Override
+    public Mono<List<UserGroupDTO>> changeGroupsForUser(UpdateGroupMembershipDTO updateGroupMembershipDTO, String originHeader) {
+
+        Set<String> groupIdsAdded = updateGroupMembershipDTO.getGroupsAdded();
+        Set<String> groupIdsRemoved = updateGroupMembershipDTO.getGroupsRemoved();
+        Set<String> usernames = updateGroupMembershipDTO.getUsernames();
+
+        Mono<List<UserGroupDTO>> userAddedMono = Mono.just(List.of());
+        Mono<List<UserGroupDTO>> userRemovedMono = Mono.just(List.of());
+
+        if (!CollectionUtils.isEmpty(groupIdsAdded)) {
+            UsersForGroupDTO addUsersDTO = new UsersForGroupDTO();
+            addUsersDTO.setUsernames(usernames);
+            addUsersDTO.setGroupIds(groupIdsAdded);
+            userAddedMono = inviteUsers(addUsersDTO, originHeader);
+        }
+        if (!CollectionUtils.isEmpty(groupIdsRemoved)) {
+            UsersForGroupDTO removeUsersDTO = new UsersForGroupDTO();
+            removeUsersDTO.setUsernames(usernames);
+            removeUsersDTO.setGroupIds(groupIdsRemoved);
+            userRemovedMono = removeUsers(removeUsersDTO);
+        }
+
+        return Mono.zip(userAddedMono, userRemovedMono)
+                .map(tuple -> Stream.concat(
+                                tuple.getT1().stream(),
+                                tuple.getT2().stream()
+                        )
+                        .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Flux<UserGroupCompactDTO> findAllGroupsForUser(String userId) {
+        return repository.findAllByUsersIn(Set.of(userId))
+                .map(userGroup -> new UserGroupCompactDTO(userGroup.getId(), userGroup.getName()));
+    }
+    private UserGroupCompactDTO generateUserGroupCompactDTO(UserGroup userGroup) {
+        if (userGroup == null) {
+            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "user group can't be null");
+        }
+        UserGroupCompactDTO userGroupCompactDTO = new UserGroupCompactDTO();
+        userGroupCompactDTO.setId(userGroup.getId());
+        userGroupCompactDTO.setName(userGroup.getName());
+        return userGroupCompactDTO;
+    }
+
+    @Override
+    public Mono<Boolean> bulkRemoveUserFromGroupsWithoutPermission(String userId, Set<String> groupIds) {
+        return repository.findAllById(groupIds)
+                .flatMap(userGroup -> {
+                    Set<String> usersInGroup = userGroup.getUsers();
+                    usersInGroup.remove(userId);
+
+                    Update updateObj = new Update();
+                    String path = fieldName(QUserGroup.userGroup.users);
+
+                    updateObj.set(path, usersInGroup);
+                    return repository.updateById(userGroup.getId(), updateObj);
+                })
+                .then(Mono.just(TRUE));
     }
 }

@@ -28,7 +28,8 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             helpText: "Determines the shape of the progress indicator",
             propertyName: "progressType",
             label: "Type",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 label: "Circular",

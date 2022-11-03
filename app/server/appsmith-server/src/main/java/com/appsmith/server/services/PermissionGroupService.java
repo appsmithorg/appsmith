@@ -17,7 +17,11 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<List<PermissionGroupInfoDTO>> getAll();
 
+    Flux<PermissionGroup> findAllByAssignedToUsersIn(Set<String> userIds);
+
     Mono<PermissionGroup> archiveById(String id);
+
+    Mono<PermissionGroup> bulkUnassignFromUserGroupsWithoutPermission(PermissionGroup permissionGroup, Set<String> userGroupIds);
 
     Mono<PermissionGroup> bulkUnassignFromUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
 
@@ -29,7 +33,11 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<RoleViewDTO> findConfigurableRoleById(String id);
 
-    Mono<Boolean> changeRoleAssociations(UpdateRoleAssociationDTO updateRoleAssociationDTO);
-
     Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup permissionGroup);
+
+    Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup);
+
+    Mono<Boolean> bulkUnassignUserFromPermissionGroupsWithoutPermission(String userId, Set<String> permissionGroupIds);
+
+    Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(Set<String> userIds, Set<String> permissionGroupIds);
 }

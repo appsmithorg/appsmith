@@ -1,4 +1,7 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { GroupProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const groupsReducers = {
@@ -6,7 +9,7 @@ export const groupsReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_GROUPS_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ACL_GROUPS_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -19,7 +22,7 @@ export const groupsReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_GROUP_BY_ID_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ACL_GROUP_BY_ID_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -35,7 +38,7 @@ export const groupsReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.CREATE_ACL_GROUP_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.CREATE_ACL_GROUP_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -48,7 +51,7 @@ export const groupsReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.CLONE_ACL_GROUP_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.CLONE_ACL_GROUP_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -57,17 +60,12 @@ export const groupsReducers = {
     groups: action.payload,
     isLoading: false,
   }),
-  [ReduxActionTypes.ACL_GROUP_IS_SAVING]: (state: any, action: any) => ({
-    ...state,
-    isSaving: action.payload.isSaving,
-  }),
   [ReduxActionTypes.UPDATE_ACL_GROUP_NAME]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.UPDATE_ACL_GROUP_NAME_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.UPDATE_ACL_GROUP_NAME_ERROR]: (state: any) => ({
     ...state,
-    isSaving: false,
     isLoading: false,
   }),
   [ReduxActionTypes.UPDATE_ACL_GROUP_NAME_SUCCESS]: (
@@ -75,15 +73,29 @@ export const groupsReducers = {
     action: any,
   ) => ({
     ...state,
-    selectedGroup: action.payload,
-    isSaving: false,
+    selectedGroup: {
+      ...state.selectedGroup,
+      name: action.payload.name,
+    },
     isLoading: false,
+  }),
+  [ReduxActionTypes.UPDATE_ACL_GROUP_ROLES]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.UPDATE_ACL_GROUP_ROLES_SUCCESS]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionErrorTypes.UPDATE_ACL_GROUP_ROLES_ERROR]: (state: any) => ({
+    ...state,
+    isLoading: true,
   }),
   [ReduxActionTypes.DELETE_ACL_GROUP]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.DELETE_ACL_GROUP_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.DELETE_ACL_GROUP_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -98,22 +110,25 @@ export const groupsReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.ADD_USERS_IN_GROUP_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.ADD_USERS_IN_GROUP_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
   [ReduxActionTypes.ADD_USERS_IN_GROUP_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    selectedGroup: Array.isArray(action.payload)
-      ? action.payload[0]
-      : action.payload,
+    selectedGroup: {
+      ...state.selectedGroup,
+      users: Array.isArray(action.payload)
+        ? action.payload[0].users
+        : action.payload.users,
+    },
     isLoading: false,
   }),
   [ReduxActionTypes.REMOVE_USERS_FROM_GROUP]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.REMOVE_USERS_FROM_GROUP_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.REMOVE_USERS_FROM_GROUP_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -122,9 +137,12 @@ export const groupsReducers = {
     action: any,
   ) => ({
     ...state,
-    selectedGroup: Array.isArray(action.payload)
-      ? action.payload[0]
-      : action.payload,
+    selectedGroup: {
+      ...state.selectedGroup,
+      users: Array.isArray(action.payload)
+        ? action.payload[0].users
+        : action.payload.users,
+    },
     isLoading: false,
   }),
 };

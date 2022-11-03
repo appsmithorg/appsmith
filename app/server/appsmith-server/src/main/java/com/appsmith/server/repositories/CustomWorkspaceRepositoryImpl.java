@@ -4,7 +4,6 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.ce.CustomWorkspaceRepositoryCEImpl;
 import com.appsmith.server.services.SessionUserService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -33,5 +32,6 @@ public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEIm
                 null
         );
     }
+
 
 }

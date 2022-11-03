@@ -8,7 +8,7 @@
       "isEditing": false,
       "isDeleting": false,
       "rolename": "Eng_New",
-      "isAppsmithProvided": false,
+      "autoCreated": false,
       "id": "123",
       "allRoles": [
         "devops_eng_nov",
@@ -26,7 +26,7 @@
       "isEditing": false,
       "isDeleting": false,
       "rolename": "Design",
-      "isAppsmithProvided": false,
+      "autoCreated": false,
       "id": "456",
       "allRoles": [
         "HR_Appsmith",
@@ -61,7 +61,7 @@
       "isEditing": false,
       "isDeleting": false,
       "rolename": "contractors_ruby",
-      "isAppsmithProvided": false,
+      "autoCreated": false,
       "id": "789",
       "allRoles": [
         "HR_Appsmith",
@@ -96,7 +96,7 @@
       "isEditing": false,
       "isDeleting": false,
       "rolename": "marketing_newsletter",
-      "isAppsmithProvided": false,
+      "autoCreated": false,
       "id": "103",
       "allRoles": [
         "HR_Appsmith",
@@ -131,7 +131,7 @@
       "isEditing": false,
       "isDeleting": false,
       "rolename": "Administrator",
-      "isAppsmithProvided": true,
+      "autoCreated": true,
       "id": "120",
       "allRoles": [
         "HR_Appsmith",
@@ -166,7 +166,7 @@
       "isEditing": false,
       "isDeleting": false,
       "rolename": "App Viewer",
-      "isAppsmithProvided": true,
+      "autoCreated": true,
       "id": "125",
       "allRoles": [
         "HR_Appsmith",

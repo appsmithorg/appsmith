@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -13,7 +15,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 
 @Service
-public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService{
+public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
     public TenantServiceImpl(Scheduler scheduler, 
                              Validator validator, 
                              MongoConverter mongoConverter, 
@@ -36,7 +38,26 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        return this.getDefaultTenantId()
-                .flatMap(id -> repository.retrieveById(id));
+        // Get the default tenant object from the DB and then populate the relevant user permissions in it
+        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
+        return repository.findBySlug(FieldName.DEFAULT)
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant)
+                        .switchIfEmpty(Mono.just(tenant)));
+    }
+
+    @Override
+    public Mono<Tenant> getTenantConfiguration() {
+        return this.getDefaultTenant()
+                .map(dbTenant -> {
+                    Tenant tenant = new Tenant();
+                    TenantConfiguration tenantConfiguration = new TenantConfiguration();
+                    TenantConfiguration dbTenantConfiguration = dbTenant.getTenantConfiguration();
+
+                    // Only copy the values that are pertinent to the client
+                    tenantConfiguration.copyNonSensitiveValues(dbTenantConfiguration);
+                    tenant.setTenantConfiguration(tenantConfiguration);
+                    tenant.setUserPermissions(dbTenant.getUserPermissions());
+                    return tenant;
+                });
     }
 }

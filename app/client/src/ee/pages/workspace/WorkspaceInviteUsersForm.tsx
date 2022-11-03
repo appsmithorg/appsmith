@@ -55,22 +55,22 @@ import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  Button,
   Callout,
   CalloutV2,
-  Button,
+  DropdownOption,
+  Icon,
+  IconSize,
   ScrollIndicator,
   Size,
   Text,
   TextType,
-  Icon,
-  IconSize,
-  DropdownOption,
+  Variant,
 } from "design-system";
-import { Variant } from "components/ads/common";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -191,6 +191,7 @@ function WorkspaceInviteUsersForm(props: any) {
     disableEmailSetup = false,
     disableManageUsers = false,
     disableUserList = false,
+    dropdownPlaceholder = "",
     error,
     fetchAllRoles,
     fetchCurrentWorkspace,
@@ -362,9 +363,9 @@ function WorkspaceInviteUsersForm(props: any) {
               ...(isEEFeature ? groups : {}),
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
               users,
-              permissionGroupId: isMultiSelectDropdown
-                ? selectedOption.map((group: any) => group.id).join(",")
-                : selectedOption[0].id,
+              options: isMultiSelectDropdown
+                ? selectedOption
+                : selectedOption[0],
             });
           }
           return inviteUsersToWorkspace(
@@ -407,6 +408,7 @@ function WorkspaceInviteUsersForm(props: any) {
               allowDeselection={isMultiSelectDropdown}
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
+              dropdownMaxHeight={props.dropdownMaxHeight}
               isMultiSelect={isMultiSelectDropdown}
               labelRenderer={(selected: Partial<DropdownOption>[]) =>
                 getLabel(selected)
@@ -415,7 +417,7 @@ function WorkspaceInviteUsersForm(props: any) {
               onSelect={(value, option) => onSelect(value, option)}
               options={styledRoles}
               outline={false}
-              placeholder="Select a role"
+              placeholder={dropdownPlaceholder || "Select a role"}
               removeSelectedOption={onRemoveOptions}
               {...(isAclFlow ? { selected: selectedOption } : {})}
               showLabelOnly={isMultiSelectDropdown}

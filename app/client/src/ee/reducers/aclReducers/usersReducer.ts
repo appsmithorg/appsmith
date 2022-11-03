@@ -1,11 +1,15 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { UserProps } from "@appsmith/pages/AdminSettings/acl/types";
 
 export const userReducers = {
   [ReduxActionTypes.FETCH_ACL_USERS]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_USERS_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ACL_USERS_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -18,7 +22,7 @@ export const userReducers = {
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ACL_USER_BY_ID_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ACL_USER_BY_ID_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
@@ -30,48 +34,76 @@ export const userReducers = {
     selectedUser: action.payload,
     isLoading: false,
   }),
-  [ReduxActionTypes.UPDATE_ACL_USER]: (state: any) => ({
+  [ReduxActionTypes.CREATE_ACL_USER]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.UPDATE_ACL_USER_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.CREATE_ACL_USER_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
-  [ReduxActionTypes.UPDATE_ACL_USER_SUCCESS]: (state: any, action: any) => ({
+  [ReduxActionTypes.CREATE_ACL_USER_SUCCESS]: (state: any) => ({
     ...state,
-    users: action.payload,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.UPDATE_ROLES_IN_USER]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.UPDATE_ROLES_IN_USER_SUCCESS]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionErrorTypes.UPDATE_ROLES_IN_USER_ERROR]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionTypes.UPDATE_GROUPS_IN_USER]: (state: any) => ({
+    ...state,
+    isLoading: true,
+  }),
+  [ReduxActionTypes.UPDATE_GROUPS_IN_USER_SUCCESS]: (state: any) => ({
+    ...state,
+    isLoading: false,
+  }),
+  [ReduxActionErrorTypes.UPDATE_GROUPS_IN_USER_ERROR]: (state: any) => ({
+    ...state,
     isLoading: false,
   }),
   [ReduxActionTypes.DELETE_ACL_USER]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.DELETE_ACL_USER_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.DELETE_ACL_USER_ERROR]: (state: any) => ({
     ...state,
     isLoading: false,
   }),
   [ReduxActionTypes.DELETE_ACL_USER_SUCCESS]: (state: any, action: any) => ({
     ...state,
-    users: action.payload,
+    users: state.users.filter(
+      (user: UserProps) => user.id !== action.payload.id,
+    ),
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE]: (state: any) => ({
+  [ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE]: (state: any) => ({
     ...state,
     isLoading: true,
   }),
-  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE_ERROR]: (state: any) => ({
+  [ReduxActionErrorTypes.FETCH_ROLES_GROUPS_FOR_INVITE_ERROR]: (
+    state: any,
+  ) => ({
     ...state,
     isLoading: false,
   }),
-  [ReduxActionTypes.FETCH_ROLES_FOR_INVITE_SUCCESS]: (
+  [ReduxActionTypes.FETCH_ROLES_GROUPS_FOR_INVITE_SUCCESS]: (
     state: any,
     action: any,
   ) => ({
     ...state,
     inviteOptions: {
       ...state.inviteOptions,
-      roles: action.payload,
+      roles: action.payload.roles,
+      groups: action.payload.groups,
     },
     isLoading: false,
   }),

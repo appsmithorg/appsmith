@@ -23,6 +23,7 @@ export default {
         {
           propertyName: "saveActionLabel",
           label: "Text",
+          helpText: "Sets the label text of the button",
           controlType: "TABLE_COMPUTE_VALUE",
           dependencies: ["primaryColumns"],
           isBindProperty: true,
@@ -37,6 +38,7 @@ export default {
         {
           propertyName: "onSave",
           label: "onSave",
+          helpText: "Triggers an action when the save button is clicked",
           controlType: "ACTION_SELECTOR",
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             const baseProperty = getBasePropertyPath(propertyPath);
@@ -69,6 +71,7 @@ export default {
         {
           propertyName: "isSaveDisabled",
           label: "Disabled",
+          helpText: "Disables clicks to the save button",
           defaultValue: false,
           controlType: "SWITCH",
           customJSControl: "TABLE_COMPUTE_VALUE",
@@ -126,7 +129,8 @@ export const saveButtonStyleConfig = {
         {
           propertyName: "saveButtonVariant",
           label: "Button Variant",
-          controlType: "DROP_DOWN",
+          controlType: "ICON_TABS",
+          fullWidth: true,
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText: "Sets the variant of the save button",
@@ -211,6 +215,7 @@ export const saveButtonStyleConfig = {
           label: "Position",
           helpText: "Sets the icon alignment of the save button",
           controlType: "ICON_TABS",
+          fullWidth: true,
           defaultValue: "left",
           options: [
             {
@@ -228,7 +233,7 @@ export const saveButtonStyleConfig = {
           validation: {
             type: ValidationTypes.TEXT,
             params: {
-              allowedValues: ["center", "left", "right"],
+              allowedValues: ["left", "right"],
             },
           },
         },

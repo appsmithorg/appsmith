@@ -4,11 +4,8 @@ import { DebouncedFunc } from "lodash";
 export type BaseAclProps = { id: string; name: string };
 
 export type RoleProps = BaseAclProps & {
-  /* isEditing: boolean;
-     isDeleting: boolean;
-     isAppsmithProvided: boolean; */
+  autoCreated?: boolean;
   description?: string;
-  new?: boolean;
   tabs?: any;
   userPermissions?: string[];
 };
@@ -17,6 +14,7 @@ export type RoleEditProps = {
   selected: RoleProps;
   onDelete: any;
   isLoading: boolean;
+  isNew: boolean;
 };
 
 export type RoleTableResponse = {
@@ -39,28 +37,32 @@ export type RoleTreeProps = {
   noData?: boolean;
   updateTabCount?: (val: number) => void;
   currentTabName: string;
+  roleId: string;
 };
 
 export type ActiveAllGroupsProps = {
-  activeGroups: Array<any>;
-  allGroups?: Array<any>;
+  activeGroups: Array<BaseAclProps>;
+  allGroups?: Array<BaseAclProps>;
   activeOnly?: boolean;
   title?: string;
   searchValue?: string;
   addedAllGroups?: Array<any>;
   removedActiveGroups: Array<any>;
-  onAddGroup?: (group: any) => void;
-  onRemoveGroup: (group: any) => void;
+  onAddGroup?: (group: BaseAclProps) => void;
+  onRemoveGroup: (group: BaseAclProps) => void;
   entityName: string;
 };
 
+export type UsersInGroup = {
+  id: string;
+  username: string;
+};
+
 export type GroupProps = BaseAclProps & {
-  isEditing: boolean;
-  isDeleting: boolean;
-  users: UserProps[];
-  new?: boolean;
+  users: UsersInGroup[];
   roles: BaseAclProps[];
   allRoles: BaseAclProps[];
+  userPermissions?: string[];
 };
 
 export type GroupEditProps = {
@@ -68,6 +70,7 @@ export type GroupEditProps = {
   onDelete: any;
   isLoading: boolean;
   isSaving: boolean;
+  isNew: boolean;
 };
 
 export type Permissions = {
@@ -94,15 +97,26 @@ export type PageHeaderProps = {
   isTitleEditable?: boolean;
   isEditingTitle?: boolean;
   onEditTitle?: (name: string) => void;
+  searchValue: string;
+};
+
+export type GroupsForUser = {
+  groups: BaseAclProps[];
+  allGroups: BaseAclProps[];
+};
+
+export type PermissionsForUser = {
+  roles: BaseAclProps[];
+  allRoles: BaseAclProps[];
 };
 
 export type UserProps = BaseAclProps & {
-  isChangingRole: boolean;
-  isDeleting: boolean;
   groups: BaseAclProps[];
   roles: BaseAclProps[];
+  allGroups: BaseAclProps[];
+  allRoles: BaseAclProps[];
   username: string;
-  roleName?: string;
+  userPermissions?: string[];
 };
 
 export type UserEditProps = {
@@ -110,4 +124,12 @@ export type UserEditProps = {
   onDelete: (id: string) => void;
   searchPlaceholder: string;
   isLoading: boolean;
+  isSaving: boolean;
+};
+
+export type UpdateRoleData = {
+  type: string;
+  id: string;
+  name: string;
+  permissions: number[];
 };

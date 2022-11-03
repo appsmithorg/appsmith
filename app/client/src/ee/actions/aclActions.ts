@@ -1,15 +1,48 @@
 import { FetchSingleDataPayload } from "@appsmith/api/AclApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { GroupProps, RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
+import {
+  BaseAclProps,
+  GroupProps,
+  RoleProps,
+  UpdateRoleData,
+} from "@appsmith/pages/AdminSettings/acl/types";
 
 export const getUserById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
   payload,
 });
 
-export const deleteAclUser = (id: string) => ({
+export const deleteAclUser = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.DELETE_ACL_USER,
-  payload: id,
+  payload,
+});
+
+export const updateGroupsInUser = (
+  userId: string,
+  user: string,
+  groupsAdded: string[],
+  groupsRemoved: string[],
+) => ({
+  type: ReduxActionTypes.UPDATE_GROUPS_IN_USER,
+  payload: {
+    userId,
+    usernames: [user],
+    groupsAdded,
+    groupsRemoved,
+  },
+});
+
+export const updateRolesInUser = (
+  user: { id: string; username: string },
+  rolesAdded: BaseAclProps[],
+  rolesRemoved: BaseAclProps[],
+) => ({
+  type: ReduxActionTypes.UPDATE_ROLES_IN_USER,
+  payload: {
+    users: [user],
+    rolesAdded,
+    rolesRemoved,
+  },
 });
 
 export const getGroupById = (payload: FetchSingleDataPayload) => ({
@@ -17,14 +50,14 @@ export const getGroupById = (payload: FetchSingleDataPayload) => ({
   payload,
 });
 
-export const updateGroupName = (payload: GroupProps) => ({
+export const updateGroupName = (payload: BaseAclProps) => ({
   type: ReduxActionTypes.UPDATE_ACL_GROUP_NAME,
   payload,
 });
 
-export const deleteGroup = (id: string) => ({
+export const deleteGroup = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.DELETE_ACL_GROUP,
-  payload: id,
+  payload,
 });
 
 export const cloneGroup = (payload: GroupProps) => ({
@@ -42,9 +75,14 @@ export const getRoleById = (payload: FetchSingleDataPayload) => ({
   payload,
 });
 
-export const deleteRole = (id: string) => ({
+export const updateRoleName = (payload: BaseAclProps) => ({
+  type: ReduxActionTypes.UPDATE_ACL_ROLE_NAME,
+  payload,
+});
+
+export const deleteRole = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.DELETE_ACL_ROLE,
-  payload: id,
+  payload,
 });
 
 export const cloneRole = (payload: RoleProps) => ({
@@ -61,7 +99,7 @@ export const addUsersInGroup = (usernames: string[], groupId: string) => ({
   type: ReduxActionTypes.ADD_USERS_IN_GROUP,
   payload: {
     usernames,
-    groupIds: [groupId],
+    groupIds: groupId.split(","),
   },
 });
 
@@ -69,6 +107,62 @@ export const removeUsersFromGroup = (usernames: string[], groupId: string) => ({
   type: ReduxActionTypes.REMOVE_USERS_FROM_GROUP,
   payload: {
     usernames,
-    groupIds: [groupId],
+    groupIds: groupId.split(","),
   },
 });
+
+export const updateRolesInGroup = (
+  groups: BaseAclProps,
+  rolesAdded: BaseAclProps[],
+  rolesRemoved: BaseAclProps[],
+) => ({
+  type: ReduxActionTypes.UPDATE_ACL_GROUP_ROLES,
+  payload: {
+    groups: [groups],
+    rolesAdded,
+    rolesRemoved,
+  },
+});
+
+export const updateRoleById = (
+  tabName: string,
+  entitiesChanged: UpdateRoleData[],
+  roleId: string,
+) => ({
+  type: ReduxActionTypes.UPDATE_ACL_ROLE,
+  payload: {
+    tabName,
+    entitiesChanged,
+    roleId,
+  },
+});
+
+export const inviteUsersViaGroups = (
+  usernames: string[],
+  groupIds: string[],
+  via: string,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_ACL_USER,
+    payload: {
+      usernames,
+      groupIds,
+      via,
+    },
+  };
+};
+
+export const inviteUsersViaRoles = (
+  users: { username: string }[],
+  rolesAdded: string[],
+  via: string,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_ACL_USER,
+    payload: {
+      users,
+      rolesAdded,
+      via,
+    },
+  };
+};

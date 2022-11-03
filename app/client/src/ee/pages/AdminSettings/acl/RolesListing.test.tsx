@@ -1,12 +1,13 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
+import { render, screen, waitFor } from "test/testUtils";
 import { RolesListing } from "./RolesListing";
 import { rolesTableData } from "./mocks/RolesListingMock";
 import userEvent from "@testing-library/user-event";
 import { MenuItemProps } from "design-system";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import { RoleProps } from "./types";
 
 let container: any = null;
 
@@ -70,16 +71,16 @@ describe("<RoleListing />", () => {
       `/settings/roles/${rolesTableData[0].id}`,
     );
   });
-  /*it("should render appsmith badge for appsmith provided role", () => {
+  it("should render appsmith badge for appsmith provided role", () => {
     renderComponent();
     const role = screen.getAllByTestId("t--roles-cell");
     const appsmithBadge = screen.getAllByTestId("t--appsmith-badge");
     const appsmithProvided = rolesTableData.filter(
-      (role: any) => role.isAppsmithProvided,
+      (role: RoleProps) => role.autoCreated,
     );
     expect(appsmithBadge.length).toEqual(appsmithProvided.length);
-    rolesTableData.forEach((group: any, index: any) => {
-      if (!group.isAppsmithProvided) {
+    rolesTableData.forEach((group: RoleProps, index: number) => {
+      if (!group.autoCreated) {
         expect(
           role[index].querySelectorAll("[data-testid='t--appsmith-badge']"),
         ).toHaveLength(0);
@@ -89,7 +90,7 @@ describe("<RoleListing />", () => {
         ).not.toHaveLength(0);
       }
     });
-  });*/
+  });
   it("should test new group gets created on Add group button click", () => {
     renderComponent();
     const button = screen.getAllByTestId("t--acl-page-header-input");
@@ -100,11 +101,13 @@ describe("<RoleListing />", () => {
     const { getAllByTestId, getAllByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
-    const options = listMenuItems.map((menuItem: any) => menuItem.text);
+    const options = listMenuItems.map(
+      (menuItem: MenuItemProps) => menuItem.text,
+    );
     const menuElements = options
-      .map((option: any) => getAllByText(option))
+      .map((option: string) => getAllByText(option))
       .flat();
-    options.forEach((option: any, index: any) => {
+    options.forEach((option: string, index: number) => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
@@ -117,6 +120,25 @@ describe("<RoleListing />", () => {
     expect(window.location.pathname).toEqual(
       `/settings/roles/${rolesTableData[0].id}`,
     );
+  });
+  it("should search and filter roles on search", async () => {
+    renderComponent();
+    const searchInput = screen.getAllByTestId("t--acl-search-input");
+    expect(searchInput).toHaveLength(1);
+
+    const groups = screen.queryAllByText("HR_Appsmith");
+    expect(groups).toHaveLength(1);
+
+    await userEvent.type(searchInput[0], "devops");
+    expect(searchInput[0]).toHaveValue("devops");
+
+    const searched = screen.queryAllByText("devops_design");
+    expect(searched).toHaveLength(1);
+
+    waitFor(() => {
+      const filtered = screen.queryAllByText("HR_Appsmith");
+      return expect(filtered).toHaveLength(0);
+    });
   });
   it("should delete the group when Delete list menu item is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();

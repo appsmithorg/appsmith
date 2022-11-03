@@ -9,7 +9,6 @@ import {
   FormHeaderWrapper,
   withDropdown,
 } from "./common";
-import StyledFormGroup from "components/ads/formFields/FormGroup";
 import {
   createMessage,
   WELCOME_FORM_EMAIL_ID,
@@ -27,7 +26,12 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import { Button, Category, Size } from "design-system";
+import {
+  Button,
+  Category,
+  FormGroup as StyledFormGroup,
+  Size,
+} from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 
 const DetailsFormWrapper = styled.div`

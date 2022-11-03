@@ -1,16 +1,22 @@
 import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, TabComponent } from "design-system";
+import {
+  Classes,
+  FontWeight,
+  Icon,
+  IconSize,
+  TabComponent,
+  Text,
+  TextType,
+} from "design-system";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import history from "utils/history";
-import { Text, FontWeight, TextType } from "design-system";
 import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
 import { getQueryParams } from "utils/URLUtils";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
 import { sortedDatasourcesHandler } from "./helpers";
 import { datasourcesEditorIdURL } from "RouteBuilder";

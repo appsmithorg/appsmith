@@ -30,7 +30,6 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -145,7 +144,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             UserUtils userUtils,
                             TenantService tenantService,
                             ObjectMapper objectMapper) {
-
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.analyticsService = analyticsService;

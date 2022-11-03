@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Variant } from "components/ads";
 import {
   Button,
   HighlightText,
@@ -11,7 +10,6 @@ import {
   TabComponent,
   Table,
   TabProp,
-  Toaster,
 } from "design-system";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -21,8 +19,13 @@ import { HelpPopoverStyle, SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import { useHistory } from "react-router";
-import { BaseAclProps, GroupEditProps, Permissions, UserProps } from "./types";
+import { useHistory, useParams } from "react-router";
+import {
+  BaseAclProps,
+  GroupEditProps,
+  Permissions,
+  UsersInGroup,
+} from "./types";
 import { Position, Spinner } from "@blueprintjs/core";
 import {
   ACL_INVITE_MODAL_MESSAGE,
@@ -30,13 +33,11 @@ import {
   ADD_USERS,
   ARE_YOU_SURE,
   createMessage,
-  DELETE_GROUP,
+  ACL_DELETE,
   NO_USERS_MESSAGE,
-  RENAME_GROUP,
+  ACL_RENAME,
   SEARCH_PLACEHOLDER,
   REMOVE_USER,
-  GROUP_UPDATED_SUCCESS,
-  RENAME_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
@@ -45,6 +46,7 @@ import {
   addUsersInGroup,
   removeUsersFromGroup,
   updateGroupName,
+  updateRolesInGroup,
 } from "@appsmith/actions/aclActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getFilteredData } from "./utils/getFilteredData";
@@ -124,11 +126,11 @@ const NoUsersText = styled.div`
 `;
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { isLoading, isSaving, selected } = props;
+  const { isLoading, isNew = false, isSaving, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [users, setUsers] = useState<UserProps[]>(selected.users || []);
+  const [users, setUsers] = useState<UsersInGroup[]>(selected.users || []);
   const [permissions, setPermissions] = useState<Permissions>({
     roles: selected.roles || [],
     allRoles: selected.allRoles || [],
@@ -141,6 +143,7 @@ export function GroupAddEdit(props: GroupEditProps) {
 
   const history = useHistory();
   const dispatch = useDispatch();
+  const params = useParams() as any;
 
   useEffect(() => {
     const saving = removedActiveGroups.length > 0 || addedAllGroups.length > 0;
@@ -153,11 +156,15 @@ export function GroupAddEdit(props: GroupEditProps) {
   }, [removedActiveGroups, addedAllGroups]);
 
   useEffect(() => {
-    setUsers(selected.users || []);
-    setPermissions({
-      roles: selected.roles || [],
-      allRoles: selected.allRoles || [],
-    });
+    if (searchValue) {
+      onSearch(searchValue);
+    } else {
+      setUsers(selected.users || []);
+      setPermissions({
+        roles: selected.roles || [],
+        allRoles: selected.allRoles || [],
+      });
+    }
   }, [selected]);
 
   const onButtonClick = () => {
@@ -165,21 +172,21 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSearch = debounce((search: string) => {
-    let userResults: UserProps[] = [];
+    let userResults: UsersInGroup[] = [];
     let permissionResults: Permissions;
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       userResults =
-        users &&
-        users.filter((user) =>
+        selected.users &&
+        selected.users.filter((user) =>
           user.username?.toLocaleUpperCase().includes(search),
         );
       setUsers(userResults);
       permissionResults = permissions && {
-        roles: permissions.roles.filter((permission) =>
+        roles: selected.roles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
-        allRoles: permissions.allRoles.filter((permission: any) =>
+        allRoles: selected.allRoles.filter((permission: BaseAclProps) =>
           permission.name?.toLocaleUpperCase().includes(search),
         ),
       };
@@ -213,24 +220,21 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSaveChanges = () => {
-    const updatedActiveGroups = permissions.roles.filter(
-      (role) => !(getFilteredData(removedActiveGroups, role, true).length > 0),
+    dispatch(
+      updateRolesInGroup(
+        { id: selected.id, name: selected.name },
+        addedAllGroups.map((group: BaseAclProps) => ({
+          id: group.id,
+          name: group.name,
+        })),
+        removedActiveGroups.map((group: BaseAclProps) => ({
+          id: group.id,
+          name: group.name,
+        })),
+      ),
     );
-    updatedActiveGroups.push(...addedAllGroups);
-    const updatedAllGroups = permissions.allRoles.filter(
-      (role) => !(getFilteredData(addedAllGroups, role, true).length > 0),
-    );
-    updatedAllGroups.push(...removedActiveGroups);
-    setPermissions({
-      roles: updatedActiveGroups,
-      allRoles: updatedAllGroups,
-    });
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
-    Toaster.show({
-      text: createMessage(GROUP_UPDATED_SUCCESS),
-      variant: Variant.success,
-    });
   };
 
   const onClearChanges = () => {
@@ -242,14 +246,10 @@ export function GroupAddEdit(props: GroupEditProps) {
     if (selected.name !== name) {
       dispatch(
         updateGroupName({
-          ...selected,
+          id: selected.id || params.selected,
           name,
         }),
       );
-      Toaster.show({
-        text: createMessage(RENAME_SUCCESSFUL),
-        variant: Variant.success,
-      });
     }
   };
 
@@ -262,7 +262,7 @@ export function GroupAddEdit(props: GroupEditProps) {
     dispatch(
       addUsersInGroup(
         values.users ? values.users.split(",") : [],
-        values.permissionGroupId || selected.id,
+        values?.options?.id || selected.id,
       ),
     );
     setShowModal(false);
@@ -403,14 +403,14 @@ export function GroupAddEdit(props: GroupEditProps) {
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: createMessage(RENAME_GROUP),
+      text: createMessage(ACL_RENAME),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
-      text: createMessage(DELETE_GROUP),
+      text: createMessage(ACL_DELETE),
       label: "delete",
     },
   ];
@@ -424,14 +424,15 @@ export function GroupAddEdit(props: GroupEditProps) {
       <BackButton />
       <PageHeader
         buttonText={createMessage(ADD_USERS)}
-        isEditingTitle={selected?.new || false}
+        isEditingTitle={isNew}
         isTitleEditable
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}
         searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
-        title={selected.name}
+        searchValue={searchValue}
+        title={selected?.name || ""}
       />
       <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>
         <TabComponent

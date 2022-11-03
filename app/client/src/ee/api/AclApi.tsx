@@ -2,7 +2,10 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "api/ApiResponses";
 import { uniqueId } from "lodash";
-import { BaseAclProps } from "@appsmith/pages/AdminSettings/acl/types";
+import {
+  BaseAclProps,
+  UpdateRoleData,
+} from "@appsmith/pages/AdminSettings/acl/types";
 
 export interface FetchAclUsersResponse extends ApiResponse {
   id: string;
@@ -20,7 +23,7 @@ export interface FetchSingleDataPayload {
 export type RoleResponsePayload = BaseAclProps & {
   assignedToGroupIds: string[];
   assignedToUserIds: string[];
-  new: boolean;
+  new?: boolean;
   permissions: {
     documentId: string;
     aclPermission: string;
@@ -32,7 +35,7 @@ export type RoleResponsePayload = BaseAclProps & {
 export type RoleResponse = ApiResponse<RoleResponsePayload>;
 
 export type GroupResponsePayload = BaseAclProps & {
-  new: boolean;
+  new?: boolean;
   tenantId: string;
   userPermissions: string[];
   users: string[];
@@ -41,43 +44,76 @@ export type GroupResponsePayload = BaseAclProps & {
 
 export type GroupResponse = ApiResponse<GroupResponsePayload>;
 
+export type UpdateGroupsInUserRequestPayload = {
+  userId: string;
+  usernames: string[];
+  groupsAdded: string[];
+  groupsRemoved: string[];
+};
+
+export type UpdateRolesInUserRequestPayload = {
+  users: { id: string; username: string }[];
+  rolesAdded: BaseAclProps[];
+  rolesRemoved: BaseAclProps[];
+};
+
+export type UpdateRolesInGroupRequestPayload = {
+  groups: BaseAclProps[];
+  rolesAdded: BaseAclProps[];
+  rolesRemoved: BaseAclProps[];
+};
+
+export type UpdateRoleRequestPayload = {
+  tabName: string;
+  entitiesChanged: UpdateRoleData;
+  roleId: string;
+};
+
 export class AclApi extends Api {
   static users = "/v1/users";
   static roles = "/v1/roles";
   static userGroups = "/v1/user-groups";
-  static inviteViaRoles = "v1/roles/assign";
+  static inviteViaRoles = "/v1/roles/assign";
+  static inviteViaGroups = "/v1/user-groups/for-invite";
+  static iconLocation = "/v1/plugins/icon-location";
 
   static async fetchAclUsers(): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(AclApi.users);
+    const response = await Api.get(`${AclApi.users}/manage/all`);
     return response;
   }
 
   static async fetchSingleAclUser(
     payload: FetchSingleDataPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const res = await Api.get(`${AclApi.users}/${payload.id}`);
-    return res;
+    const response = await Api.get(`${AclApi.users}/manage/${payload.id}`);
+    return response;
   }
 
-  static createAclUser(request: any): AxiosPromise<ApiResponse> {
-    return Api.post(AclApi.users, request);
+  static async deleteAclUser(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.users}/id/${payload.id}`);
+    return response;
   }
 
-  static updateAclUser(request: any): AxiosPromise<ApiResponse> {
-    return Api.patch(AclApi.users, request);
-  }
-
-  static deleteAclUser(id: string): Promise<ApiResponse> {
-    // return Api.delete(AclApi.aclUsersURL, id);
-    const response = Api.get(AclApi.users, "");
-    const result = response.then((data) => {
-      const user = data.data.filter((user: any) => user?.id !== id);
-      return { responseMeta: { status: 200, success: true }, data: user };
+  static async updateGroupsInUser(
+    payload: UpdateGroupsInUserRequestPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(`${AclApi.userGroups}/users`, {
+      usernames: payload.usernames,
+      groupsAdded: payload.groupsAdded,
+      groupsRemoved: payload.groupsRemoved,
     });
-    return result;
+    return response;
   }
 
-  /* Updated */
+  static async updateRolesInUser(
+    payload: UpdateRolesInUserRequestPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(`${AclApi.roles}/associate`, payload);
+    return response;
+  }
+
   static async fetchAclRoles(): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.get(AclApi.roles);
     return response;
@@ -90,13 +126,37 @@ export class AclApi extends Api {
     return response;
   }
 
+  static async updateAclRole(
+    payload: UpdateRoleRequestPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(
+      `${AclApi.roles}/configure/${payload.roleId}`,
+      {
+        tabName: payload.tabName,
+        entitiesChanged: payload.entitiesChanged,
+      },
+    );
+    return response;
+  }
+
   static async createAclRole(request: any): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.post(AclApi.roles, request);
     return response;
   }
 
-  static async deleteAclRole(id: string): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.delete(`${AclApi.roles}/${id}`);
+  static async updateAclRoleName(
+    payload: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(`${AclApi.roles}/${payload.id}`, {
+      name: payload.name,
+    });
+    return response;
+  }
+
+  static async deleteAclRole(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.roles}/${payload.id}`);
     return response;
   }
 
@@ -140,8 +200,17 @@ export class AclApi extends Api {
     return response;
   }
 
-  static async deleteAclGroup(id: string): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.delete(`${AclApi.userGroups}/${id}`);
+  static async updateRolesInGroup(
+    payload: UpdateRolesInGroupRequestPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(`${AclApi.roles}/associate`, payload);
+    return response;
+  }
+
+  static async deleteAclGroup(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.delete(`${AclApi.userGroups}/${payload.id}`);
     return response;
   }
 
@@ -157,14 +226,14 @@ export class AclApi extends Api {
     return response;
   }
 
-  static async addUsersInGroup(
+  static async addUsersInSelectedGroup(
     payload: any,
   ): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.post(`${AclApi.userGroups}/invite`, payload);
     return response;
   }
 
-  static async removeUsersFromGroup(
+  static async removeUsersFromSelectedGroup(
     payload: any,
   ): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.post(
@@ -174,14 +243,32 @@ export class AclApi extends Api {
     return response;
   }
 
-  /* to be re-checked*/
-  static async updateAclRole(payload: any): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.put(`${AclApi.roles}/${payload.id}`);
+  static async fetchRolesForInvite(): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.inviteViaRoles);
     return response;
   }
 
-  static async fetchRolesForInvite(): Promise<AxiosPromise<ApiResponse>> {
-    const response = await Api.get(AclApi.inviteViaRoles);
+  static async fetchGroupsForInvite(): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.inviteViaGroups);
+    return response;
+  }
+
+  static async inviteUsersViaRoles(
+    payload: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.put(`${AclApi.roles}/associate`, payload);
+    return response;
+  }
+
+  static async inviteUsersViaGroups(
+    payload: any,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.post(`${AclApi.userGroups}/invite`, payload);
+    return response;
+  }
+
+  static async fetchIconLocation(): Promise<AxiosPromise<ApiResponse>> {
+    const response = await Api.get(AclApi.iconLocation);
     return response;
   }
 }

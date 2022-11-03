@@ -426,6 +426,13 @@ const gitSyncReducer = createReducer(initialState, {
     isImportingApplicationViaGit: false,
     gitImportError: null,
   }),
+  [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_STATUS_RESET]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isImportingApplicationViaGit: false,
+    gitImportError: null,
+  }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR]: (
     state: GitSyncReducerState,
     action: ReduxAction<any>,

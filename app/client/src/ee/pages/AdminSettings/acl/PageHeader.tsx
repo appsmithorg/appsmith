@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import styled from "styled-components";
 import { PopoverPosition, Position } from "@blueprintjs/core";
@@ -29,7 +29,6 @@ import {
   ENTER_GROUP_NAME,
 } from "@appsmith/constants/messages";
 import { PageHeaderProps } from "./types";
-import { Colors } from "constants/Colors";
 
 const Container = styled.div`
   display: flex;
@@ -55,15 +54,34 @@ const StyledButton = styled(Button)`
   min-width: 88px;
 `;
 
-const StyledSettingsHeader = styled(SettingsHeader)<{ isEditing?: boolean }>`
-  width: 480px;
-  white-space: nowrap;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
+const StyledSettingsHeader = styled(SettingsHeader)`
+  max-width: 440px;
   cursor: pointer;
 
-  ${({ isEditing }) => isEditing && `background: ${Colors.GREY_2}`}
+  &.not-editable {
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  span.bp3-popover-target {
+    width: 100%;
+
+    > * {
+      width: 100%;
+      flex-grow: unset;
+
+      > * {
+        width: 100%;
+
+        .bp3-editable-text-content {
+          display: block;
+        }
+      }
+    }
+  }
 `;
 
 function getSettingLabel(name = "") {
@@ -89,8 +107,13 @@ export function PageHeader(props: PageHeaderProps) {
     onSearch,
     pageMenuItems,
     searchPlaceholder,
+    searchValue,
     title,
   } = props;
+
+  useEffect(() => {
+    setIsEditing(props.isEditingTitle || false);
+  }, [props.isEditingTitle]);
 
   const handleSearch = (search: string) => {
     onSearch?.(search.toLocaleUpperCase());
@@ -117,30 +140,39 @@ export function PageHeader(props: PageHeaderProps) {
   return (
     <Container>
       <HeaderWrapper margin={`0px`}>
-        {isTitleEditable && isEditing ? (
-          <StyledSettingsHeader data-testid="t--page-title" isEditing>
-            <EditableText
-              className="t--editable-title"
-              defaultValue={title ?? pageTitle}
-              editInteractionKind={EditInteractionKind.DOUBLE}
-              hideEditIcon
-              isEditingDefault={isEditing}
-              onBlur={() => setIsEditing(false)}
-              onTextChanged={(name) => onEditTitle?.(name)}
-              placeholder={createMessage(ENTER_GROUP_NAME)}
-              type="text"
-            />
+        {isTitleEditable ? (
+          <StyledSettingsHeader data-testid="t--page-title">
+            <TooltipComponent
+              boundary="viewport"
+              content={title ?? pageTitle}
+              disabled={(title ?? pageTitle).length < 40}
+              maxWidth="400px"
+              position={PopoverPosition.BOTTOM_LEFT}
+            >
+              <EditableText
+                className="t--editable-title"
+                defaultValue={title ?? pageTitle}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                isEditingDefault={isEditing}
+                isInvalid={(name) => !name || name.trim().length === 0}
+                onBlur={() => setIsEditing(false)}
+                onTextChanged={(name) => onEditTitle?.(name)}
+                placeholder={createMessage(ENTER_GROUP_NAME)}
+                type="text"
+              />
+            </TooltipComponent>
           </StyledSettingsHeader>
         ) : (
           <TooltipComponent
             boundary="viewport"
             content={title ?? pageTitle}
+            disabled={(title ?? pageTitle).length < 48}
             maxWidth="400px"
             position={PopoverPosition.BOTTOM_LEFT}
           >
             <StyledSettingsHeader
+              className="not-editable"
               data-testid="t--page-title"
-              onDoubleClick={() => isTitleEditable && setIsEditing(true)}
             >
               {title ?? pageTitle}
             </StyledSettingsHeader>
@@ -155,6 +187,7 @@ export function PageHeader(props: PageHeaderProps) {
           <StyledSearchInput
             className="acl-search-input"
             data-testid={"t--acl-search-input"}
+            defaultValue={searchValue.toLowerCase()}
             onChange={handleSearch}
             placeholder={searchPlaceholder}
             variant={SearchVariant.BACKGROUND}

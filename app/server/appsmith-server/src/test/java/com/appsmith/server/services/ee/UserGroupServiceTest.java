@@ -6,7 +6,9 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UserCompactDTO;
 import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -177,7 +179,7 @@ public class UserGroupServiceTest {
                 .assertNext(list -> {
                     assertThat(list.size()).isGreaterThan(0);
 
-                    // Assert that the created group is returned in the listing.
+                    // Assert that the created group is returned inside the listing.
                     assertThat(list.stream()
                             .filter(userGroup1 -> userGroup1.getName().equals(name))
                             .findFirst()
@@ -563,6 +565,39 @@ public class UserGroupServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails("api_user")
+    @DirtiesContext
+    public void testAddUsersToUserGroup_nonExistentUser() {
+        String usernameNonExistentUser = "username-non-existent-user@test.com";
+        String idNonExistentUser = null;
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : testAddUsersToUserGroup_nonExistentUser";
+        String description = "Test Group Description : testAddUsersToUserGroup_nonExistentUser";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of(usernameNonExistentUser));
+
+        UserGroupDTO userGroupDTO = userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block().get(0);
+        assertThat(userGroupDTO.getUsers().size()).isEqualTo(1);
+        UserCompactDTO userCompactDTO = userGroupDTO.getUsers().get(0);
+        assertThat(userCompactDTO.getUsername()).isEqualTo(usernameNonExistentUser);
+        idNonExistentUser = userCompactDTO.getId();
+
+        Mono<User> nonExistentUserMono = userRepository.findById(idNonExistentUser);
+        StepVerifier.create(nonExistentUserMono)
+                .assertNext(user -> {
+                    assertThat(user).isNotNull();
+                    assertThat(user.getEmail()).isEqualTo(usernameNonExistentUser);
+                })
+                .verifyComplete();
+    }
+
     // TODO: Add tests for groups with roles and then adding users to the group.
 
     @Test
@@ -610,7 +645,12 @@ public class UserGroupServiceTest {
         userGroupService.inviteUsers(usersForGroupDTO, "origin").block();
 
         StepVerifier.create(userGroupService.removeUsers(usersForGroupDTO))
-                .assertNext(group -> {
+                .assertNext(groups -> {
+
+                    assertThat(groups).hasSize(1);
+
+                    UserGroupDTO group = groups.get(0);
+
                     // assert that updated group did not edit the existing settings
                     assertEquals(createdGroup.getId(), group.getId());
                     assertEquals(createdGroup.getTenantId(), group.getTenantId());
@@ -622,6 +662,91 @@ public class UserGroupServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void changeGroupMembershipValid_WithoutRoles() {
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : changeGroupMembershipValid_WithoutRoles";
+        String description = "Test Group Description : changeGroupMembershipValid_WithoutRoles";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+
+        UserGroup userGroup2 = new UserGroup();
+        String name2 = "Test Group 2 : changeGroupMembershipValid_WithoutRoles";
+        String description2 = "Test Group Description 2 : changeGroupMembershipValid_WithoutRoles";
+        userGroup2.setName(name2);
+        userGroup2.setDescription(description2);
+
+        UserGroupDTO createdGroup2 = userGroupService.createGroup(userGroup2).block();
+
+        UserGroup toRemove = new UserGroup();
+        String name3 = "Test Group toRemove : changeGroupMembershipValid_WithoutRoles";
+        String description3 = "Test Group Description toRemove : changeGroupMembershipValid_WithoutRoles";
+        toRemove.setName(name3);
+        toRemove.setDescription(description3);
+
+        UserGroupDTO toRemoveCreated = userGroupService.createGroup(toRemove).block();
+
+        // First add the user to toRemove user group
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setGroupIds(Set.of(toRemoveCreated.getId()));
+        inviteUsersToGroupDTO.setUsernames(Set.of("api_user"));
+
+        userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin").block();
+
+        // Now change membership of the user
+        UpdateGroupMembershipDTO updateGroupMembershipDTO = new UpdateGroupMembershipDTO();
+        updateGroupMembershipDTO.setGroupsAdded(Set.of(createdGroup.getId(), createdGroup2.getId()));
+        updateGroupMembershipDTO.setGroupsRemoved(Set.of(toRemoveCreated.getId()));
+        updateGroupMembershipDTO.setUsernames(Set.of("api_user"));
+
+        StepVerifier.create(userGroupService.changeGroupsForUser(updateGroupMembershipDTO, "origin"))
+                .assertNext(groups -> {
+                    assertThat(groups).hasSize(3);
+                    UserGroupDTO group1 = groups.stream()
+                            .filter(group -> group.getName().equals(createdGroup.getName()))
+                            .findFirst().get();
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group1.getId());
+                    assertEquals(createdGroup.getTenantId(), group1.getTenantId());
+                    assertEquals(createdGroup.getDescription(), group1.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group1.getUsers().size());
+                    assertEquals(api_user.getId(), group1.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group1.getUsers().get(0).getUsername());
+
+                    UserGroupDTO group2 = groups.stream()
+                            .filter(group -> group.getName().equals(createdGroup2.getName()))
+                            .findFirst().get();
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup2.getId(), group2.getId());
+                    assertEquals(createdGroup2.getTenantId(), group2.getTenantId());
+                    assertEquals(createdGroup2.getDescription(), group2.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group2.getUsers().size());
+                    assertEquals(api_user.getId(), group2.getUsers().get(0).getId());
+                    assertEquals(api_user.getUsername(), group2.getUsers().get(0).getUsername());
+
+                    UserGroupDTO removedGroup = groups.stream()
+                            .filter(group -> group.getName().equals(toRemoveCreated.getName()))
+                            .findFirst().get();
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(toRemoveCreated.getId(), removedGroup.getId());
+                    assertEquals(toRemoveCreated.getTenantId(), removedGroup.getTenantId());
+                    assertEquals(toRemoveCreated.getDescription(), removedGroup.getDescription());
+
+                    // assert that the user was removed from the group
+                    assertEquals(0, removedGroup.getUsers().size());
+
+
+                })
+                .verifyComplete();
     }
 
     // TODO: Add tests for groups with roles and then adding users to the group.

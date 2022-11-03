@@ -318,9 +318,7 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action);
 
         StepVerifier
                 .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
@@ -329,6 +327,7 @@ public class ActionServiceCE_Test {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getUserPermissions()).isNotEmpty();
 
                     List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -381,17 +380,15 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName)
-                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(branchName, createdAction.getId(), READ_ACTIONS))
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName);
 
         StepVerifier
                 .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
-
                     assertThat(createdAction.getDefaultResources()).isNotNull();
+                    assertThat(createdAction.getUserPermissions()).isNotEmpty();
                     assertThat(createdAction.getDefaultResources().getActionId()).isEqualTo(createdAction.getId());
                     assertThat(createdAction.getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
                     assertThat(createdAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedPage.getApplicationId());
@@ -449,6 +446,7 @@ public class ActionServiceCE_Test {
                     ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
                     actionMoveDTO.setAction(savedAction);
                     actionMoveDTO.setDestinationPageId(destinationPage.getId());
+                    assertThat(savedAction.getUserPermissions()).isNotEmpty();
                     return layoutActionService.moveAction(actionMoveDTO);
                 });
 

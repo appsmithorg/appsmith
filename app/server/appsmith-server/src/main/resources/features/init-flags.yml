@@ -66,14 +66,23 @@ ff4j:
       enable: true
       description: Allow importing particular pages from templates in existing apps
       flipstrategy:
+        class: org.ff4j.strategy.PonderationStrategy
+        param:
+          - name: weight
+            value: 1
+
+    - uid: CONTEXT_SWITCHING
+      enable: true
+      description: Restoring old context while navigating across the app
+      flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emailDomains
             value: appsmith.com,moolya.com
 
-    - uid: CONTEXT_SWITCHING
+    - uid: DATASOURCE_ENVIRONMENTS
       enable: true
-      description: Restoring old context while navigating across the app
+      description: Introducing multiple execution environments for datasources
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:

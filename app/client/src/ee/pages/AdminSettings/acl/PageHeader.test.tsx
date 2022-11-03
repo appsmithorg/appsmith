@@ -27,6 +27,7 @@ function renderComponent() {
       onSearch={handleChange as any}
       pageMenuItems={pageMenuItems}
       searchPlaceholder="Search users"
+      searchValue=""
     />,
   );
 }
