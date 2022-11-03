@@ -114,6 +114,17 @@ public class ElasticSearchPluginTest {
     }
 
     @Test
+    public void testDefaultPort() {
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(host);
+
+        Long defaultPort = pluginExecutor.getPort(endpoint);
+
+        assertEquals(9200L,defaultPort);
+    }
+
+    @Test
     public void testGet() {
         StepVerifier.create(execute(HttpMethod.GET, "/planets/doc/id1", null))
                 .assertNext(result -> {
@@ -273,7 +284,7 @@ public class ElasticSearchPluginTest {
         endpoint.setHost(host);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of("Missing port for endpoint"),
+        assertEquals(Set.of(),
                 pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 
@@ -296,7 +307,7 @@ public class ElasticSearchPluginTest {
         Endpoint endpoint = new Endpoint();
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        assertEquals(Set.of("Missing port for endpoint", "Missing host for endpoint"),
+        assertEquals(Set.of("Missing host for endpoint"),
                 pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 
