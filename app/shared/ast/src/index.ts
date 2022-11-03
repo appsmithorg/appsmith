@@ -81,7 +81,7 @@ interface AssignmentPatternNode extends Node {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#literal
-interface LiteralNode extends Node {
+export interface LiteralNode extends Node {
   type: NodeTypes.Literal;
   value: string | boolean | null | number | RegExp;
   raw: string;
@@ -91,6 +91,7 @@ interface CallExpressionNode extends Node {
   type: NodeTypes.CallExpression;
   callee: {
     name: string;
+    end: number;
   };
   arguments: ArgumentTypes[];
 }

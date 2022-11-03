@@ -1,10 +1,12 @@
 import { ACTION_TRIGGER_REGEX, FUNC_ARGS_REGEX } from "./regex";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { isValidURL } from "utils/URLUtils";
 import {
   getTextArgumentAtPosition,
   getEnumArgumentAtPosition,
   getModalName,
+  setModalName,
+  setTextArgumentAtPosition,
 } from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
@@ -51,20 +53,10 @@ export const argsStringToArray = (funcArgs: string): string[] => {
 };
 
 export const modalSetter = (changeValue: any, currentValue: string) => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = matches[0][2].split(",");
-    if (isDynamicValue(changeValue)) {
-      args[0] = `${changeValue.substring(2, changeValue.length - 2)}`;
-    } else {
-      args[0] = `'${changeValue}'`;
-    }
-  }
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
-  );
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  return setModalName(requiredValue, changeValue, self.evaluationVersion);
 };
 
 export const modalGetter = (value: string) => {
@@ -79,15 +71,14 @@ export const textSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = stringToJS(changeValue);
-  }
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  return setTextArgumentAtPosition(
+    requiredValue,
+    changeValue,
+    argNum,
+    self.evaluationVersion,
   );
 };
 
