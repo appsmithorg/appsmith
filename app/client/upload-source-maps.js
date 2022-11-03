@@ -22,8 +22,12 @@ uploadFiles = async () => {
   console.log("Uploading source maps");
 
   const files = fs.readdirSync("./build/static/js/");
-  files.forEach(async (file) => {
+  const promises = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
     if (file.endsWith("js.map")) {
+      console.log(file);
+
       // upload to s3
       const inputStream = fs.createReadStream(
         path.join(__dirname, `build/static/js/${file}`),
@@ -35,10 +39,11 @@ uploadFiles = async () => {
         Bucket: BUCKET_NAME,
       };
 
-      await s3.upload(params).promise();
-      return;
+      promises.push(s3.upload(params).promise());
     }
-  });
+  }
+  await Promise.all(promises);
+
   const end = performance.now();
   console.log(`Source maps uploaded in ${end - start}ms`);
 };
