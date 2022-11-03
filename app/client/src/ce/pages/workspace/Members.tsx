@@ -28,7 +28,7 @@ import {
   TextType,
 } from "design-system";
 import styled from "styled-components";
-import DeleteConfirmationModal from "../../../pages/workspace/DeleteConfirmationModal";
+import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
