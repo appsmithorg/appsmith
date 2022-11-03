@@ -5,38 +5,31 @@ import { CarouselComponent as Carousel } from "./Carousel";
 import { FooterComponent as Footer } from "./Footer";
 import { UpgradePageProps } from "./types";
 
-export const ExternalContainer = styled.div`
-  display: flex;
-  flex-grow: 1;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 50px);
-  max-height: 100vh;
-  border-left: thin solid var(--appsmith-color-black-50);
-  background-color: var(--ads-color-black-50);
-`;
-
-export const InternalContainer = styled.div`
+export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  gap: 32px;
-  justify-content: center;
+  flex: 1 1;
+  border-left: thin solid var(--appsmith-color-black-50);
+  background-color: var(--ads-color-black-50);
   align-items: center;
+  justify-items: center;
+  height: calc(100vh - 50px - 112px);
+  min-width: 1180px;
+  min-height: 0;
+  overflow: auto;
+  gap: 32px;
 `;
 
 export default function UpgradePage(props: UpgradePageProps) {
   const { carousel, footer, header } = props;
   return (
-    <ExternalContainer
+    <Container
       className="upgrade-page-container"
       data-testid="t--upgrade-page-container"
     >
-      <InternalContainer>
-        <Header {...header} />
-        <Carousel {...carousel} />
-        <Footer {...footer} />
-      </InternalContainer>
-    </ExternalContainer>
+      <Header {...header} />
+      <Carousel {...carousel} />
+      <Footer {...footer} />
+    </Container>
   );
 }

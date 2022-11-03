@@ -560,6 +560,11 @@ export const entityDefinitions = {
       "!doc": "The text value of the input",
       "!url": "https://docs.appsmith.com/widget-reference/input",
     },
+    inputText: {
+      "!type": "string",
+      "!doc": "The unformatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
