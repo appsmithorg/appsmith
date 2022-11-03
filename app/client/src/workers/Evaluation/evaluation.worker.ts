@@ -235,6 +235,7 @@ function eventRequestHandler({
 
       const {
         allActionValidationConfig,
+        entityConfigCollection,
         requiresLinting,
         shouldReplay,
         theme,
@@ -253,6 +254,7 @@ function eventRequestHandler({
           );
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
+            entityConfigCollection,
           );
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
@@ -289,6 +291,7 @@ function eventRequestHandler({
           }
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
+            entityConfigCollection,
           );
           isCreateFirstTree = true;
           evalOrder = setupFirstTreeResponse.evalOrder;
@@ -317,6 +320,7 @@ function eventRequestHandler({
           }
           const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
             unevalTree,
+            entityConfigCollection,
           );
           evalOrder = setupUpdateTreeResponse.evalOrder;
           lintOrder = setupUpdateTreeResponse.lintOrder;

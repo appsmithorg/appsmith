@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { EvalTree } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
 import { QueryActionConfig } from "entities/Action";
@@ -119,8 +119,8 @@ export function shouldLint(action: ReduxAction<unknown>) {
 }
 
 export const setEvaluatedTree = (
-  updates: Diff<DataTree, DataTree>[],
-): ReduxAction<{ updates: Diff<DataTree, DataTree>[] }> => {
+  updates: Diff<EvalTree, EvalTree>[],
+): ReduxAction<{ updates: Diff<EvalTree, EvalTree>[] }> => {
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: { updates },

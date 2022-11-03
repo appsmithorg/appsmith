@@ -4,7 +4,7 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, EvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -51,7 +51,7 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
-  dataTree: DataTree,
+  dataTree: EvalTree,
   evaluationOrder: Array<string>,
 ) {
   const updatedDebuggerErrors: Record<string, Log> = {
@@ -62,6 +62,7 @@ function logLatestEvalPropertyErrors(
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
     );
+    // TODO: entityConfig
     const entity = dataTree[entityName];
     if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
       if (entity.logBlackList && propertyPath in entity.logBlackList) {
@@ -281,8 +282,8 @@ export function* evalErrorHandler(
 }
 
 export function* logSuccessfulBindings(
-  unEvalTree: DataTree,
-  dataTree: DataTree,
+  unEvalTree: EvalTree,
+  dataTree: EvalTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
 ) {
@@ -299,6 +300,7 @@ export function* logSuccessfulBindings(
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
     );
+    // TODO: change to entityConfig
     const entity = dataTree[entityName];
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
@@ -336,7 +338,7 @@ export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
 // We update the data tree definition after every eval so that autocomplete
 // is accurate
 export function* updateTernDefinitions(
-  dataTree: DataTree,
+  dataTree: EvalTree,
   updates?: DataTreeDiff[],
 ) {
   let shouldUpdate: boolean;

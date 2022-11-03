@@ -1,6 +1,10 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, EvalTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
-import { isJSObject, isWidget } from "workers/Evaluation/evaluationUtils";
+import {
+  isJSAction,
+  isJSObject,
+  isWidget,
+} from "workers/Evaluation/evaluationUtils";
 import { DependencyMap } from "./DynamicBindingUtils";
 import WidgetFactory from "./WidgetFactory";
 
@@ -11,7 +15,7 @@ type GroupedDependencyMap = Record<string, DependencyMap>;
 // filter exception: JS_OBJECT's, when a function depends on another function within the same object
 export const groupAndFilterDependantsMap = (
   inverseMap: DependencyMap,
-  dataTree: DataTree,
+  dataTree: EvalTree,
 ): GroupedDependencyMap => {
   const entitiesDepMap: GroupedDependencyMap = {};
 
@@ -19,7 +23,7 @@ export const groupAndFilterDependantsMap = (
     const dependencyEntityName = fullDependencyPath.split(".")[0];
     const dataTreeEntity = dataTree[dependencyEntityName];
     if (!dataTreeEntity) return;
-    const isJS_Object = isJSObject(dataTreeEntity);
+    const isJS_Object = isJSAction.node(dataTreeEntity);
 
     const entityDependantsMap = entitiesDepMap[dependencyEntityName] || {};
     let entityPathDependants = entityDependantsMap[fullDependencyPath] || [];
@@ -137,7 +141,7 @@ export const findLoadingEntities = (
     const entityPathArray = entityPath.split(".");
     const entityName = entityPathArray[0];
     const widget = get(dataTree, [entityName]);
-    if (isWidget(widget)) {
+    if (isWidget.config(widget)) {
       const loadingProperties = WidgetFactory.getLoadingProperties(widget.type);
 
       // check if propertyPath is listed in widgetConfig
