@@ -9,12 +9,14 @@ import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
 const { google } = getAppsmithConfigs();
 
-const render = (status: any) => {
+const render = (status: Status) => {
   switch (status) {
     case Status.LOADING:
-      return "Loading...";
+      return <span>Loading...</span>;
     case Status.FAILURE:
-      return "Error in the component";
+      return <span>Error in the component</span>;
+    case Status.SUCCESS:
+      return <span>Component loaded....</span>;
   }
 };
 class LocationSearchControl extends BaseControl<ControlProps> {

@@ -4,12 +4,14 @@ import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
-const render = (status: any) => {
+const render = (status: Status) => {
   switch (status) {
     case Status.LOADING:
-      return "Loading...";
+      return <span>Loading...</span>;
     case Status.FAILURE:
-      return "Error in the component";
+      return <span>Error in the component</span>;
+    case Status.SUCCESS:
+      return <span>Component loaded....</span>;
   }
 };
 function Map({
@@ -19,15 +21,18 @@ function Map({
   updateCenter,
   zoom,
 }: {
-  center: google.maps.LatLngLiteral;
+  center: {
+    lat: number;
+    lng: number;
+  };
   zoom: number;
   updateCenter?: any;
   enableSearch: boolean;
   clickedMarkerCentered?: boolean;
 }) {
-  const mapRef = useRef<HTMLElement>();
+  const mapRef = useRef<HTMLDivElement>(null);
   const mapObjectRef = useRef<google.maps.Map>();
-  const searchBoxRef = useRef<HTMLInputElement>();
+  const searchBoxRef = useRef<HTMLInputElement>(null);
   const searchBoxObjRef = useRef<google.maps.places.SearchBox>();
   const [markerPos, setMarkerPos] = useState<google.maps.LatLng>();
 
@@ -54,8 +59,9 @@ function Map({
   }, []);
 
   useEffect(() => {
-    mapObjectRef.current?.setCenter(center);
-  }, [center.lat, center.long]);
+    // Fix typing here
+    mapObjectRef.current?.setCenter((center as unknown) as google.maps.LatLng);
+  }, [center.lat, center.lng]);
 
   useEffect(() => {
     mapObjectRef.current?.setZoom(zoom);
@@ -72,14 +78,12 @@ function Map({
         const lat = location.lat();
         const long = location.lng();
         updateCenter(lat, long);
-        setMarkerPos({ lat, long });
+        setMarkerPos(new google.maps.LatLng(lat, long));
       }
     });
     mapObjectRef.current?.addListener(
       "click",
-      (e: google.maps.MapMouseEvent) => {
-        setMarkerPos(e.latLng);
-      },
+      (e: google.maps.MapMouseEvent) => e && e.latLng && setMarkerPos(e.latLng),
     );
 
     // We need to create new marker every time a location is loaded or the map is clicked.
@@ -94,11 +98,13 @@ function Map({
       }
     });
     return () => {
-      google.maps.event.clearListeners(mapObjectRef.current, "click");
-      google.maps.event.clearListeners(
-        searchBoxObjRef.current,
-        "places_changed",
-      );
+      mapObjectRef.current &&
+        google.maps.event.clearListeners(mapObjectRef.current, "click");
+      searchBoxObjRef.current &&
+        google.maps.event.clearListeners(
+          searchBoxObjRef.current,
+          "places_changed",
+        );
     };
   }, [
     markerPos?.lat,
@@ -130,7 +136,7 @@ const WrapperComp = ({
   updateCenter,
   zoomLevel,
 }: {
-  center?: {
+  center: {
     lat: number;
     long: number;
   };
@@ -147,7 +153,7 @@ const WrapperComp = ({
     render={render}
   >
     <Map
-      center={{ lng: center?.long, ...center }}
+      center={{ lng: center.long, lat: center.lat }}
       clickedMarkerCentered={clickedMarkerCentered}
       enableSearch={enableSearch}
       updateCenter={updateCenter}
