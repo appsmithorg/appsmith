@@ -1,7 +1,10 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "api/ApiResponses";
-import { WorkspaceRole, Workspace } from "constants/workspaceConstants";
+import {
+  WorkspaceRole,
+  Workspace,
+} from "@appsmith/constants/workspaceConstants";
 
 export interface FetchWorkspaceRolesResponse extends ApiResponse {
   data: WorkspaceRole[];
