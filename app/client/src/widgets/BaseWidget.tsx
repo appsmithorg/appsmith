@@ -344,6 +344,7 @@ abstract class BaseWidget<
         selected={this.props.selected}
         topRow={this.props.topRow}
         widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
         widgetType={this.props.type}
       >
         {content}

@@ -42,6 +42,7 @@ export type PositionedContainerProps = {
   noContainerOffset?: boolean;
   leftColumn: number;
   parentColumnSpace: number;
+  widgetName: string;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -164,6 +165,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
     <PositionedWidget
       className={containerClassName}
       data-testid="test-widget"
+      data-widgetname-cy={props.widgetName}
       id={props.widgetId}
       key={`positioned-container-${props.widgetId}`}
       // Positioned Widget is the top enclosure for all widgets and clicks on/inside the widget should not be propagated/bubbled out of this Container.
