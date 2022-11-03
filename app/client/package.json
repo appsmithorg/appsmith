@@ -166,7 +166,6 @@
     "url-search-params-polyfill": "^8.0.0",
     "webfontloader": "^1.6.28",
     "webpack-retry-chunk-load-plugin": "^3.1.1",
-    "worker-loader": "^3.0.2",
     "yjs": "^13.5.12",
     "zipcelx": "^1.6.2"
   },
@@ -196,6 +195,7 @@
   ],
   "devDependencies": {
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
+    "@babel/helper-string-parser": "^7.19.4",
     "@faker-js/faker": "^7.4.0",
     "@sentry/webpack-plugin": "^1.18.9",
     "@testing-library/jest-dom": "5.16.1",
@@ -290,6 +290,7 @@
     "redux-mock-store": "^1.5.4",
     "semver": "^7.3.5",
     "ts-jest": "27.0.0",
+    "ts-jest-mock-import-meta": "^0.12.0",
     "webpack-merge": "^5.8.0",
     "workbox-webpack-plugin": "^6.5.3"
   },

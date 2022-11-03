@@ -17,7 +17,7 @@ import {
   FormDataPaths,
   matchExact,
   MATCH_ACTION_CONFIG_PROPERTY,
-} from "workers/formEval";
+} from "workers/Evaluation/formEval";
 import { Action } from "entities/Action";
 
 const DropdownSelect = styled.div<{
