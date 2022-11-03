@@ -75,7 +75,7 @@ export const DropPosition = styled.div<{
     isVertical ? "auto" : `${DEFAULT_HIGHLIGHT_SIZE}px`};
   background-color: rgba(223, 158, 206, 0.6);
   margin: 2px;
-  display: ${({ isDragging }) => (isDragging ? "block" : "none")};
+  display: ${({ isDragging }) => (isDragging || true ? "block" : "none")};
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {
@@ -121,10 +121,21 @@ function FlexBoxComponent(props: FlexBoxProps) {
       }
     }
 
-    const layers: any[] = processLayers(map);
+    const layers: any[] = cleanLayers(processLayers(map));
 
     return layers;
   };
+
+  function cleanLayers(layers: any[]): any[] {
+    if (!layers) return [];
+    const set = new Set();
+    return layers.filter((layer) => {
+      const key = (layer as JSX.Element).key as string;
+      const flag = set.has(key);
+      set.add(key);
+      return !flag;
+    });
+  }
 
   function DropPositionComponent(props: {
     isVertical: boolean;
@@ -132,10 +143,15 @@ function FlexBoxComponent(props: FlexBoxProps) {
     layerIndex: number;
     childIndex: number;
     widgetId: string;
+    isNewLayer: boolean;
   }) {
     return (
       <DropPosition
-        className={`t--drop-position-${props.widgetId} alignment-${props.alignment} layer-index-${props.layerIndex} child-index-${props.childIndex}`}
+        className={`t--drop-position-${props.widgetId} alignment-${
+          props.alignment
+        } layer-index-${props.layerIndex} child-index-${props.childIndex} ${
+          props.isVertical ? "isVertical" : ""
+        } ${props.isNewLayer ? "isNewLayer" : ""}`}
         isDragging={isCurrentCanvasDragging}
         isVertical={props.isVertical}
       />
@@ -155,11 +171,13 @@ function FlexBoxComponent(props: FlexBoxProps) {
     layerIndex: number,
     alignment: FlexLayerAlignment,
     isVertical: boolean,
+    isNewLayer: boolean,
   ): any[] => {
     const res = [
       <DropPositionComponent
         alignment={alignment}
         childIndex={childCount}
+        isNewLayer={isNewLayer}
         isVertical={isVertical}
         key={getDropPositionKey(0, alignment, layerIndex)}
         layerIndex={layerIndex}
@@ -175,6 +193,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           <DropPositionComponent
             alignment={alignment}
             childIndex={childCount + count}
+            isNewLayer={isNewLayer}
             isVertical={isVertical}
             key={getDropPositionKey(0, alignment, layerIndex)}
             layerIndex={layerIndex}
@@ -192,6 +211,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       <DropPositionComponent
         alignment={FlexLayerAlignment.Start}
         childIndex={0}
+        isNewLayer
         isVertical={false}
         key={getDropPositionKey(
           Math.ceil(Math.random() * 100),
@@ -224,26 +244,31 @@ function FlexBoxComponent(props: FlexBoxProps) {
       /**
        * Add drop positions
        */
+      const startLength = start.length,
+        centerLength = center.length;
       start = addDropPositions(
         start,
         childCount,
         index,
         FlexLayerAlignment.Start,
         true,
+        false,
       );
       center = addDropPositions(
         center,
-        childCount,
+        childCount + startLength,
         index,
         FlexLayerAlignment.Center,
         true,
+        false,
       );
       end = addDropPositions(
         end,
-        childCount,
+        childCount + startLength + centerLength,
         index,
         FlexLayerAlignment.End,
         true,
+        false,
       );
 
       const res = (
@@ -267,6 +292,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
         <DropPositionComponent
           alignment={FlexLayerAlignment.Start}
           childIndex={childCount}
+          isNewLayer
           isVertical={false}
           key={getDropPositionKey(
             Math.ceil(Math.random() * 100),

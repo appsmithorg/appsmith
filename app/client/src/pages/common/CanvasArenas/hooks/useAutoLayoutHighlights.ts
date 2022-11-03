@@ -147,6 +147,44 @@ export const useAutoLayoutHighlights = ({
   //     }
   //   });
   // };
+  const getDropPositions = () => {
+    const els = document.querySelectorAll(`.t--drop-position-${canvasId}`);
+    const highlights: HighlightInfo[] = [];
+    for (const el of els) {
+      const rect: DOMRect = el.getBoundingClientRect();
+      console.log("rect", rect);
+      const classList = Array.from(el.classList);
+
+      const highlight: HighlightInfo = classList.reduce(
+        (acc: HighlightInfo, curr) => {
+          if (curr.indexOf("alignment") > -1)
+            acc.alignment = curr.split("-")[1] as FlexLayerAlignment;
+          else if (curr.indexOf("layer-index") > -1)
+            acc.layerIndex = parseInt(curr.split("layer-index-")[1]);
+          else if (curr.indexOf("child-index") > -1)
+            acc.index = parseInt(curr.split("child-index-")[1]);
+          else if (curr.indexOf("isNewLayer") > -1) acc.isNewLayer = true;
+          else if (curr.indexOf("isVertical") > -1) acc.isVertical = true;
+
+          return acc;
+        },
+        {
+          isNewLayer: false,
+          index: 0,
+          layerIndex: 0,
+          alignment: FlexLayerAlignment.Start,
+          posX: rect.x - containerDimensions.left,
+          posY: rect.y - containerDimensions?.top,
+          width: rect.width,
+          height: rect.height,
+          isVertical: false,
+        },
+      );
+      highlights.push(highlight);
+    }
+
+    return highlights;
+  };
 
   const calculateHighlights = (): HighlightInfo[] => {
     /**
@@ -166,7 +204,7 @@ export const useAutoLayoutHighlights = ({
        */
       if (!updateContainerDimensions()) return [];
       // hideDraggedItems(draggedBlocks);
-
+      getDropPositions();
       const canvasChildren = canvas.children || [];
       // Get the list of children that are not being dragged.
       const offsetChildren = canvasChildren.filter((each) => {
@@ -174,7 +212,7 @@ export const useAutoLayoutHighlights = ({
       });
 
       if (isVertical) {
-        highlights = calculateVerticalStackHighlights(layers, offsetChildren);
+        highlights = getDropPositions();
       } else {
         highlights = calculateRowHighlights(
           offsetChildren,
@@ -559,7 +597,7 @@ export const useAutoLayoutHighlights = ({
       pos,
       moveDirection,
     );
-    // console.log("#### filteredHighlights: ", filteredHighlights);
+    console.log("#### filteredHighlights: ", filteredHighlights, base);
     const arr = filteredHighlights.sort((a, b) => {
       return (
         calculateDistance(a, pos, moveDirection) -
