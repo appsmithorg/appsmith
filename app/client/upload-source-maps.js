@@ -15,8 +15,11 @@ const s3 = new AWS.S3({
 
 uploadFiles = async () => {
   if (!process.env.CI) {
+    console.log("Not running on CI, exiting");
     return;
   }
+  console.log("Uploading source maps");
+
   const files = fs.readdirSync("./build/static/js/");
   files.forEach(async (file) => {
     if (file.endsWith("js.map")) {
@@ -37,4 +40,8 @@ uploadFiles = async () => {
   });
 };
 
-uploadFiles();
+try {
+  uploadFiles();
+} catch (e) {
+  console.log(e);
+}
