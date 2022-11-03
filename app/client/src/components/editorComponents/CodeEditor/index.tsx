@@ -584,7 +584,14 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    if (this.props.editorLastCursorPosition) {
+    const { ch, line, sticky } = cm.getCursor();
+    // Check if it is a user focus
+    if (
+      ch === 0 &&
+      line === 0 &&
+      sticky === null &&
+      this.props.editorLastCursorPosition
+    ) {
       cm.setCursor(this.props.editorLastCursorPosition);
     }
 
