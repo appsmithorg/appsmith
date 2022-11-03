@@ -17,7 +17,7 @@ import {
   createMessage,
   EDIT_DATASOURCE,
   SAVE_DATASOURCE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 export const StoreDatasourceWrapper = styled.div<{ enable?: boolean }>`
   display: flex;
