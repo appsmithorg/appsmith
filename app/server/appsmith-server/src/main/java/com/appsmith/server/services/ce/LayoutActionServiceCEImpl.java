@@ -26,6 +26,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
@@ -691,6 +692,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             // The below field is to ensure that we record if the page load actions computation was valid
                             // when last stored in the database.
                             layout.setValidOnPageLoadActions(validOnPageLoadActions.get());
+                            layout.setUserPermissions(page.getUserPermissions());
 
                             BeanUtils.copyProperties(layout, storedLayout);
                             storedLayout.setId(layoutId);
@@ -719,6 +721,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     LayoutDTO layoutDTO = generateResponseDTO(savedLayout);
                     layoutDTO.setActionUpdates(actionUpdates);
                     layoutDTO.setMessages(messages);
+                    layoutDTO.setUserPermissions(savedLayout.userPermissions);
 
                     return sendUpdateLayoutAnalyticsEvent(pageId, layoutId, finalDsl, true, null)
                             .thenReturn(layoutDTO);
