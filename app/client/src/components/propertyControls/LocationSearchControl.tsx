@@ -21,7 +21,7 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   clearLocation = () => {
     this.updateProperty(this.props.propertyName, {
       lat: -34.397,
-      lng: 150.644,
+      long: 150.644,
       title: "",
     });
   };
@@ -33,8 +33,8 @@ class LocationSearchControl extends BaseControl<ControlProps> {
       const location = places[0].geometry.location;
       const title = places[0].formatted_address;
       const lat = location.lat();
-      const lng = location.lng();
-      const value = { lat, lng, title };
+      const long = location.lng();
+      const value = { lat, long, title };
       this.updateProperty(this.props.propertyName, value, true);
     } catch (e) {
       if (ref && ref.getPlaces)

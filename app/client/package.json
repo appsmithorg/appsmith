@@ -18,7 +18,6 @@
     "@draft-js-plugins/mention": "^4.5.1",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
-    "@googlemaps/markerclusterer": "^2.0.13",
     "@googlemaps/react-wrapper": "^1.1.35",
     "@manaflair/redux-batch": "^1.0.0",
     "@sentry/react": "^6.2.4",

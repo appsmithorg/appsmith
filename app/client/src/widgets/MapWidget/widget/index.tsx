@@ -37,11 +37,11 @@ const DisabledContainer = styled.div<{
   }
 `;
 
-const DefaultCenter = { ...DEFAULT_CENTER, lng: DEFAULT_CENTER.lng };
+const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.long };
 
 type Center = {
   lat: number;
-  lng: number;
+  long: number;
   [x: string]: any;
 };
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
@@ -72,7 +72,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                     },
                   },
                   {
-                    name: "lng",
+                    name: "long",
                     type: ValidationTypes.NUMBER,
                     params: {
                       min: -180,
@@ -91,7 +91,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             inputType: "ARRAY",
             helpText: "Sets the default markers on the map",
-            placeholderText: '[{ "lat": "val1", "lng": "val2" }]',
+            placeholderText: '[{ "lat": "val1", "long": "val2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -113,7 +113,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                         },
                       },
                       {
-                        name: "lng",
+                        name: "long",
                         type: ValidationTypes.NUMBER,
                         params: {
                           min: -180,
@@ -291,15 +291,15 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return {};
   }
 
-  updateCenter = (lat: number, lng: number, title?: string) => {
-    this.props.updateWidgetMetaProperty("center", { lat, lng, title });
+  updateCenter = (lat: number, long: number, title?: string) => {
+    this.props.updateWidgetMetaProperty("center", { lat, long, title });
   };
 
-  updateMarker = (lat: number, lng: number, index: number) => {
+  updateMarker = (lat: number, long: number, index: number) => {
     const markers: Array<MarkerProps> = [...(this.props.markers || [])].map(
       (marker, i) => {
         if (index === i) {
-          marker = { lat, lng };
+          marker = { lat, long };
         }
         return marker;
       },
@@ -308,9 +308,9 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("markers", markers);
   };
 
-  onCreateMarker = (lat: number, lng: number) => {
+  onCreateMarker = (lat: number, long: number) => {
     this.disableDrag(true);
-    const marker = { lat, lng, title: "" };
+    const marker = { lat, long, title: "" };
 
     const markers = [];
     (this.props.markers || []).forEach((m) => {
@@ -331,11 +331,11 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("selectedMarker", undefined);
   };
 
-  onMarkerClick = (lat: number, lng: number, title: string) => {
+  onMarkerClick = (lat: number, long: number, title: string) => {
     this.disableDrag(true);
     const selectedMarker = {
       lat: lat,
-      lng: lng,
+      long: long,
       title: title,
     };
     this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker, {
@@ -452,18 +452,18 @@ export interface MapWidgetProps extends WidgetProps {
   enablePickLocation: boolean;
   mapCenter: {
     lat: number;
-    lng: number;
+    long: number;
     title?: string;
   };
   center?: {
     lat: number;
-    lng: number;
+    long: number;
   };
   defaultMarkers?: Array<MarkerProps>;
   markers?: Array<MarkerProps>;
   selectedMarker?: {
     lat: number;
-    lng: number;
+    long: number;
     title?: string;
     color?: string;
   };

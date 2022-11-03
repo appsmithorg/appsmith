@@ -2,35 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { MarkerProps } from "../constants";
 import PickMyLocation from "./PickMyLocation";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
-import { MarkerClusterer } from "@googlemaps/markerclusterer";
-
-const locations = [
-  { lat: -31.56391, lng: 147.154312 },
-  { lat: -33.718234, lng: 150.363181 },
-  { lat: -33.727111, lng: 150.371124 },
-  { lat: -33.848588, lng: 151.209834 },
-  { lat: -33.851702, lng: 151.216968 },
-  { lat: -34.671264, lng: 150.863657 },
-  { lat: -35.304724, lng: 148.662905 },
-  { lat: -36.817685, lng: 175.699196 },
-  { lat: -36.828611, lng: 175.790222 },
-  { lat: -37.75, lng: 145.116667 },
-  { lat: -37.759859, lng: 145.128708 },
-  { lat: -37.765015, lng: 145.133858 },
-  { lat: -37.770104, lng: 145.143299 },
-  { lat: -37.7737, lng: 145.145187 },
-  { lat: -37.774785, lng: 145.137978 },
-  { lat: -37.819616, lng: 144.968119 },
-  { lat: -38.330766, lng: 144.695692 },
-  { lat: -39.927193, lng: 175.053218 },
-  { lat: -41.330162, lng: 174.865694 },
-  { lat: -42.734358, lng: 147.439506 },
-  { lat: -42.734358, lng: 147.501315 },
-  { lat: -42.735258, lng: 147.438 },
-  { lat: -43.999792, lng: 170.463352 },
-];
 
 const render = (status: any) => {
   switch (status) {
@@ -42,6 +14,7 @@ const render = (status: any) => {
 };
 function Map({
   center,
+  clickedMarkerCentered,
   enableSearch,
   updateCenter,
   zoom,
@@ -50,75 +23,94 @@ function Map({
   zoom: number;
   updateCenter?: any;
   enableSearch: boolean;
+  clickedMarkerCentered?: boolean;
 }) {
-  const ref = useRef();
-  const searchBoxRef = useRef();
+  const mapRef = useRef<HTMLElement>();
+  const mapObjectRef = useRef<google.maps.Map>();
+  const searchBoxRef = useRef<HTMLInputElement>();
+  const searchBoxObjRef = useRef<google.maps.places.SearchBox>();
   const [markerPos, setMarkerPos] = useState<google.maps.LatLng>();
+
   useEffect(() => {
-    const map = new window.google.maps.Map(ref?.current, {
-      center: center ?? { lat: 29.7604, lng: 95.3698 },
-      streetViewControl: false,
-      mapTypeControl: false,
-      fullscreenControl: false,
-      zoom,
-    });
-
-    // clustering functionality:
-    const infoWindow = new google.maps.InfoWindow({
-      content: "",
-      disableAutoPan: true,
-    });
-    // Create an array of alphabetical characters used to label the markers.
-    const labels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    // Add some markers to the map.
-    const markers = locations.map((position, i) => {
-      const label = labels[i % labels.length];
-      const marker = new google.maps.Marker({
-        position,
-        label,
+    /**
+     * This effect will initialize All the refs with google maps objects.
+     * TODO: Instead of initializing to refs, create a class to load these objects.
+     */
+    if (window && window.google && mapRef.current) {
+      const map = new window.google.maps.Map(mapRef.current, {
+        streetViewControl: false,
+        mapTypeControl: false,
+        fullscreenControl: false,
       });
+      mapObjectRef.current = map;
 
-      // markers can only be keyboard focusable when they have click listeners
-      // open info window when marker is clicked
-      marker.addListener("click", () => {
-        infoWindow.setContent(label);
-        infoWindow.open(map, marker);
-      });
+      if (searchBoxRef.current) {
+        const searchBox = new window.google.maps.places.SearchBox(
+          searchBoxRef.current,
+        );
+        searchBoxObjRef.current = searchBox;
+      }
+    }
+  }, []);
 
-      return marker;
-    });
-    new MarkerClusterer({ markers, map });
+  useEffect(() => {
+    mapObjectRef.current?.setCenter(center);
+  }, [center.lat, center.long]);
 
+  useEffect(() => {
+    mapObjectRef.current?.setZoom(zoom);
+  }, [zoom]);
+
+  useEffect(() => {
     // Add search box functionality:
-    const searchBox = new google.maps.places.SearchBox(searchBoxRef.current);
-    searchBox.addListener("places_changed", () => {
-      const places = searchBox.getPlaces();
-      const location = places[0].geometry.location;
+    searchBoxObjRef.current?.addListener("places_changed", () => {
+      const places:
+        | google.maps.places.PlaceResult[]
+        | undefined = searchBoxObjRef.current?.getPlaces();
+      const location = places ? places[0].geometry?.location : undefined;
       if (location) {
         const lat = location.lat();
-        const lng = location.lng();
-        updateCenter(lat, lng);
-        setMarkerPos({ lat, lng });
+        const long = location.lng();
+        updateCenter(lat, long);
+        setMarkerPos({ lat, long });
       }
     });
-    google.maps.event.clearListeners(map, "click");
-    map.addListener("click", (e: google.maps.MapMouseEvent) => {
-      setMarkerPos(e.latLng);
+    mapObjectRef.current?.addListener(
+      "click",
+      (e: google.maps.MapMouseEvent) => {
+        setMarkerPos(e.latLng);
+      },
+    );
+
+    // We need to create new marker every time a location is loaded or the map is clicked.
+    const marker = new window.google.maps.Marker({
+      position: markerPos ?? center,
+      map: mapObjectRef.current,
     });
 
-    new window.google.maps.Marker({
-      position: markerPos ?? center,
-      map: map,
+    marker.addListener("click", (e: any) => {
+      if (clickedMarkerCentered) {
+        mapObjectRef.current?.setCenter(e.latLng);
+      }
     });
-    // google.maps.event.clearListeners(marker, "click");
-    // marker.addListener("click", () => {
-    // });
-  }, [center, markerPos, zoom]);
+    return () => {
+      google.maps.event.clearListeners(mapObjectRef.current, "click");
+      google.maps.event.clearListeners(
+        searchBoxObjRef.current,
+        "places_changed",
+      );
+    };
+  }, [
+    markerPos?.lat,
+    markerPos?.lng,
+    center.lng,
+    center.lat,
+    clickedMarkerCentered,
+  ]);
 
   return (
     <>
-      <div id="map" ref={ref} />
+      <div id="map" ref={mapRef} />
       {enableSearch && (
         <StyledInput
           placeholder="Enter location to search"
@@ -132,6 +124,7 @@ function Map({
 const WrapperComp = ({
   apiKey,
   center,
+  clickedMarkerCentered,
   enablePickLocation,
   enableSearch,
   updateCenter,
@@ -139,13 +132,14 @@ const WrapperComp = ({
 }: {
   center?: {
     lat: number;
-    lng: number;
+    long: number;
   };
-  updateCenter: (lat: number, lng: number) => void;
+  updateCenter: (lat: number, long: number) => void;
   zoomLevel: number;
   apiKey: string;
   enablePickLocation: boolean;
   enableSearch: boolean;
+  clickedMarkerCentered?: boolean;
 }) => (
   <Wrapper
     apiKey={apiKey}
@@ -153,7 +147,8 @@ const WrapperComp = ({
     render={render}
   >
     <Map
-      center={center}
+      center={{ lng: center?.long, ...center }}
+      clickedMarkerCentered={clickedMarkerCentered}
       enableSearch={enableSearch}
       updateCenter={updateCenter}
       zoom={zoomLevel}
@@ -176,20 +171,20 @@ interface MapComponentProps {
   allowZoom: boolean;
   center: {
     lat: number;
-    lng: number;
+    long: number;
   };
   markers?: Array<MarkerProps>;
   selectedMarker?: {
     lat: number;
-    lng: number;
+    long: number;
     title?: string;
   };
   enableCreateMarker: boolean;
   clickedMarkerCentered?: boolean;
-  updateCenter: (lat: number, lng: number) => void;
-  updateMarker: (lat: number, lng: number, index: number) => void;
-  saveMarker: (lat: number, lng: number) => void;
-  selectMarker: (lat: number, lng: number, title: string) => void;
+  updateCenter: (lat: number, long: number) => void;
+  updateMarker: (lat: number, long: number, index: number) => void;
+  saveMarker: (lat: number, long: number) => void;
+  selectMarker: (lat: number, long: number, title: string) => void;
   enableDrag: (e: any) => void;
   unselectMarker: () => void;
   borderRadius: string;
@@ -249,6 +244,7 @@ function MapComponent(props: MapComponentProps) {
     <WrapperComp
       apiKey={props.apiKey}
       center={props.center}
+      clickedMarkerCentered={props.clickedMarkerCentered}
       enablePickLocation={props.enablePickLocation}
       enableSearch={props.enableSearch}
       updateCenter={props.updateCenter}

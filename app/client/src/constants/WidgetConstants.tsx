@@ -97,7 +97,7 @@ export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
 export const CANVAS_SELECTOR = "canvas";
 
-export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
+export const DEFAULT_CENTER = { lat: -34.397, long: 150.644 };
 
 export enum FontStyleTypes {
   BOLD = "BOLD",
