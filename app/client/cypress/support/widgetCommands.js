@@ -870,6 +870,24 @@ Cypress.Commands.add("addSuccessMessage", (value) => {
   cy.enterActionValue(value);
 });
 
+Cypress.Commands.add("selectResetWidget", () => {
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Reset widget")
+    .click();
+});
+
+Cypress.Commands.add("selectWidgetForReset", (value) => {
+  cy.get(commonlocators.chooseWidget)
+    .first()
+    .click({ force: true });
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains(value)
+    .click();
+  // cy.enterActionValue(value);
+});
+
 Cypress.Commands.add("SetDateToToday", () => {
   cy.get(formWidgetsPage.datepickerFooterPublish)
     .contains("Today")

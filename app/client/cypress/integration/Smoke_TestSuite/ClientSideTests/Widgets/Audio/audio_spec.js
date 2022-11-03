@@ -52,4 +52,16 @@ describe("Audio Widget Functionality", function() {
       200,
     );
   });
+
+  it("Audio widget reset functionality validation", function() {
+    cy.get(commonlocators.onPause).click();
+    cy.selectResetWidget();
+    cy.selectWidgetForReset("Audio1");
+    cy.get(widgetsPage.autoPlay).click();
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  });
 });
