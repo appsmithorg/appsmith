@@ -99,7 +99,7 @@ export interface JSActionEvalTree {
   body: string;
 }
 
-export type DataTreeJSAction = JSActionEntityConfig | JSActionEvalTree;
+export type DataTreeJSAction = JSActionEntityConfig & JSActionEvalTree;
 
 export interface MetaArgs {
   arguments: Variable[];
@@ -139,7 +139,7 @@ export type PropertyOverrideDependency = Record<
 //   meta: Record<string, unknown>;
 // }
 
-export interface WidgetEntityConfig extends Partial<WidgetConfig> {
+export interface WidgetEntityConfig extends WidgetConfig {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
@@ -152,9 +152,11 @@ export interface WidgetEntityConfig extends Partial<WidgetConfig> {
 
   defaultMetaProps: Array<string>;
   type: string;
+  widgetId: string;
+  widgetName: string;
 }
 
-export type DataTreeWidget = WidgetEvalTree | WidgetEntityConfig;
+export type DataTreeWidget = WidgetEvalTree & WidgetEntityConfig;
 
 export interface WidgetEvalTree extends Partial<WidgetProps> {
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;

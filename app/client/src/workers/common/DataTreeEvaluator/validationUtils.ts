@@ -1,10 +1,6 @@
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import {
-  DataTree,
-  DataTreeWidget,
-  EvalTree,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTreeWidget, EvalTree } from "entities/DataTree/dataTreeFactory";
 import { get, isUndefined, set } from "lodash";
 import {
   EvaluationError,
@@ -31,7 +27,7 @@ export function validateAndParseWidgetProperty({
 }: {
   fullPropertyPath: string;
   widget: DataTreeWidget;
-  currentTree: DataTree;
+  currentTree: EvalTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
 }): unknown {

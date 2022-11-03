@@ -2,7 +2,6 @@ import {
   DataTree,
   DataTreeEntity,
   DataTreeJSAction,
-  EntityConfigCollection,
   EvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
@@ -31,6 +30,7 @@ import {
  */
 export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   jsUpdates: Record<string, JSUpdate>,
+  unEvalTree: EvalTree,
   localUnEvalTree: DataTree,
 ) => {
   if (!isEmpty(jsUpdates)) {
@@ -40,22 +40,15 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
-          localUnEvalTree = updateJSCollectionInUnEvalTree(
-            parsedBody,
-            entity,
-            localUnEvalTree,
-          );
+          updateJSCollectionInUnEvalTree(parsedBody, entity, unEvalTree);
         } else {
           //if parse error remove functions and variables from dataTree
-          localUnEvalTree = removeFunctionsAndVariableJSCollection(
-            localUnEvalTree,
-            entity,
-          );
+          removeFunctionsAndVariableJSCollection(unEvalTree, entity);
         }
       }
     });
   }
-  return localUnEvalTree;
+  return unEvalTree;
 };
 
 const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);

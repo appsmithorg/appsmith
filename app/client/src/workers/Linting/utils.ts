@@ -57,11 +57,11 @@ import { JSUpdate } from "utils/JSPaneUtils";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
-  unEvalTree: EvalTree,
+  unEvalTree: DataTree,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
   const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({
-    dataTree: unEvalTree,
+    dataTree: (unEvalTree as unknown) as EvalTree,
     resolvedFunctions: {},
     isTriggerBased: false,
   });
@@ -101,7 +101,7 @@ export function getlintErrorsFromTree(
     // we only create GLOBAL_DATA_WITH_FUNCTIONS if there are paths requiring it
     // In trigger based fields, functions such as showAlert, storeValue, etc need to be added to the global data
     const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData({
-      dataTree: unEvalTree,
+      dataTree: (unEvalTree as unknown) as EvalTree,
       resolvedFunctions: {},
       isTriggerBased: true,
       skipEntityFunctions: true,

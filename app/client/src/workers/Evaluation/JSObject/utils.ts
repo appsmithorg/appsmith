@@ -21,7 +21,7 @@ import { isJSAction } from "workers/Evaluation/evaluationUtils";
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
   jsCollection: DataTreeJSAction,
-  unEvalTree: DataTree,
+  unEvalTree: EvalTree,
 ) => {
   // jsCollection here means unEvalTree JSObject
   const modifiedUnEvalTree = unEvalTree;
@@ -233,10 +233,10 @@ export const updateJSCollectionInUnEvalTree = (
  * @returns
  */
 export const removeFunctionsAndVariableJSCollection = (
-  unEvalTree: DataTree,
+  unEvalTree: EvalTree,
   entity: DataTreeJSAction,
 ) => {
-  const modifiedDataTree: DataTree = unEvalTree;
+  const modifiedDataTree: EvalTree = unEvalTree;
   const functionsList: Array<string> = [];
   Object.keys(entity.meta).forEach((action) => {
     functionsList.push(action);
@@ -281,7 +281,6 @@ export function isJSObjectFunction(
 ) {
   const entity = (dataTree[jsObjectName] as unknown) as DataTreeEntity;
   if (isJSAction(entity)) {
-    // @ts-expect-error: entity-meta
     return entity.meta.hasOwnProperty(key);
   }
   return false;

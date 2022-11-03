@@ -17,6 +17,7 @@ import {
   ENTITY_TYPE,
   DataTreeJSAction,
   PrivateWidgets,
+  EvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -91,15 +92,6 @@ export function getEntityNameAndPropertyPath(
   return { entityName, propertyPath };
 }
 
-//these paths are not required to go through evaluate tree as these are internal properties
-const ignorePathsForEvalRegex =
-  ".(reactivePaths|bindingPaths|triggerPaths|validationPaths|dynamicBindingPathList)";
-
-//match if paths are part of ignorePathsForEvalRegex
-const isUninterestingChangeForDependencyUpdate = (path: string) => {
-  return path.match(ignorePathsForEvalRegex);
-};
-
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
@@ -122,15 +114,8 @@ export const translateDiffEventToDataTreeDiffEvent = (
     value: "",
   };
 
-  //we do not need evaluate these paths coz these are internal paths
-  const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
-    propertyPath,
-  );
-  if (!!isUninterestingPathForUpdateTree) {
-    return result;
-  }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
-  const entity = unEvalDataTree[entityName];
+  const entity = (unEvalDataTree[entityName] as unknown) as DataTreeEntity;
   const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {

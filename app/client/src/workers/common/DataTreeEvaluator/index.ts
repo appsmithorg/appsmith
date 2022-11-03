@@ -121,6 +121,7 @@ export default class DataTreeEvaluator {
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
   oldUnEvalTree: EvalTree = {};
+  completeUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
@@ -352,8 +353,12 @@ export default class DataTreeEvaluator {
     nonDynamicFieldValidationOrder: string[];
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
-    const completeUnEvalTree = merge(unEvalTree, entityConfigCollection);
-    let localUnEvalTree = Object.assign({}, completeUnEvalTree);
+    const completeUnEvalTree = merge(
+      unEvalTree,
+      entityConfigCollection,
+    ) as DataTree;
+    this.completeUnEvalTree = completeUnEvalTree;
+    const localUnEvalTree = Object.assign({}, completeUnEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
@@ -375,17 +380,18 @@ export default class DataTreeEvaluator {
       this,
       localUnEvalTree,
       jsTranslatedDiffs,
-      this.oldUnEvalTree,
+      this.completeUnEvalTree,
     );
 
     jsUpdates = parsedCollections.jsUpdates;
     //update local data tree if js body has updated (remove/update/add js functions or variables)
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
+    unEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
+      unEvalTree,
       localUnEvalTree,
     );
 
-    const differences: Diff<DataTree, DataTree>[] =
+    const differences: Diff<EvalTree, EvalTree>[] =
       diff(this.oldUnEvalTree, unEvalTree) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
@@ -419,7 +425,7 @@ export default class DataTreeEvaluator {
     } = updateDependencyMap({
       dataTreeEvalRef: this,
       translatedDiffs,
-      unEvalDataTree: localUnEvalTree,
+      unEvalDataTree: completeUnEvalTree,
     });
     const updateDependencyEndTime = performance.now();
 
@@ -1103,7 +1109,7 @@ export default class DataTreeEvaluator {
         validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
           widget,
-          currentTree,
+          currentTree: this.evalTree,
           // we supply non-transformed evaluated value
           evalPropertyValue: get(this.getUnParsedEvalTree(), fullPath),
           unEvalPropertyValue: (get(
