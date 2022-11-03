@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
+import { isCurrentCanvasDragging } from "selectors/autoLayoutSelectors";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -76,6 +77,7 @@ export const DropPosition = styled.div<{
   background-color: rgba(223, 158, 206, 0.6);
   margin: 2px;
   display: ${({ isDragging }) => (isDragging ? "block" : "none")};
+  align-self: stretch;
 `;
 
 export const NewLayerStyled = styled.div<{
@@ -91,28 +93,26 @@ function FlexBoxComponent(props: FlexBoxProps) {
     props.direction || LayoutDirection.Horizontal;
   const appMode = useSelector(getAppMode);
   const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
-  const { dragDetails } = useSelector(
-    (state: AppState) => state.ui.widgetDragResize,
-  );
   // TODO: Add support for multiple dragged widgets
-  const draggedWidget = dragDetails?.draggingGroupCenter?.widgetId;
+  const draggedWidget = useSelector(
+    (state: AppState) =>
+      state.ui.widgetDragResize?.dragDetails?.draggingGroupCenter?.widgetId,
+  );
 
-  const isCurrentCanvasDragging = dragDetails?.draggedOn === props.widgetId;
+  const isDragging = useSelector(isCurrentCanvasDragging(props.widgetId));
 
   const renderChildren = () => {
     if (!props.children) return null;
     if (!props.useAutoLayout) return props.children;
-    if (
-      direction === LayoutDirection.Horizontal ||
-      !(props.flexLayers && props.flexLayers.length)
-    ) {
-      if (isCurrentCanvasDragging && draggedWidget)
-        return ((props.children as any) || [])?.filter(
-          (child: any) =>
-            draggedWidget !== (child as JSX.Element)?.props?.widgetId,
-        );
-
-      return props.children;
+    if (direction === LayoutDirection.Horizontal) {
+      return addDropPositions(
+        props.children as any,
+        0,
+        0,
+        FlexLayerAlignment.Start,
+        true,
+        true,
+      );
     }
 
     /**
@@ -156,7 +156,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
         } layer-index-${props.layerIndex} child-index-${props.childIndex} ${
           props.isVertical ? "isVertical" : "isHorizontal"
         } ${props.isNewLayer ? "isNewLayer" : ""}`}
-        isDragging={isCurrentCanvasDragging}
+        isDragging={isDragging}
         isVertical={props.isVertical}
       />
     );
@@ -281,7 +281,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           <NewLayerComponent
             alignment={FlexLayerAlignment.Start}
             childCount={childCount}
-            isDragging={isCurrentCanvasDragging}
+            isDragging={isDragging}
             isNewLayer
             isVertical={false}
             key={getDropPositionKey(
@@ -312,7 +312,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       <NewLayerComponent
         alignment={FlexLayerAlignment.Start}
         childCount={childCount}
-        isDragging={isCurrentCanvasDragging}
+        isDragging={isDragging}
         isNewLayer
         isVertical={false}
         key={getDropPositionKey(
@@ -395,7 +395,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           hasFillChild={layer.hasFillChild}
           hideOnLoad={allowEmptyLayer}
           index={index}
-          isCurrentCanvasDragging={isCurrentCanvasDragging}
+          isCurrentCanvasDragging={isDragging}
           isMobile={isMobile}
           key={index}
           start={start}
