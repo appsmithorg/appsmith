@@ -10,21 +10,13 @@ import {
 import { Diff } from "deep-diff";
 import {
   DataTree,
+  DataTreeAction,
   DataTreeAppsmith,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
+  DataTreeJSAction,
   PrivateWidgets,
-  EvalTree,
-  ActionEntityEvalTree,
-  ActionEntityConfig,
-  DataTreeEntityConfig,
-  WidgetEntityConfig,
-  WidgetEvalTree,
-  EvalTreeEntity,
-  JSActionEvalTree,
-  JSActionEntityConfig,
-  EntityConfigCollection,
 } from "entities/DataTree/dataTreeFactory";
 import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -139,7 +131,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
   }
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
   const entity = unEvalDataTree[entityName];
-  const isJsAction = isJSAction.node(entity);
+  const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {
       result.event = DataTreeDiffEvent.NEW;
@@ -367,55 +359,53 @@ export const addDependantsOfNestedPropertyPaths = (
   return withNestedPaths;
 };
 
-export const isWidget = {
-  config: (
-    entity: Partial<DataTreeEntityConfig>,
-  ): entity is WidgetEntityConfig =>
+export function isWidget(
+  entity: Partial<DataTreeEntity>,
+): entity is DataTreeWidget {
+  return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET,
-  node: (entity: Partial<EvalTreeEntity>): entity is WidgetEvalTree =>
-    typeof entity === "object" &&
-    "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET,
-};
+    entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET
+  );
+}
 
-export const isAction = {
-  config: (
-    entity: Partial<DataTreeEntityConfig>,
-  ): entity is ActionEntityConfig =>
+export function isAction(
+  entity: Partial<DataTreeEntity>,
+): entity is DataTreeAction {
+  return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
-  node: (entity: Partial<EvalTreeEntity>): entity is ActionEntityEvalTree =>
-    typeof entity === "object" &&
-    "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION,
-};
+    entity.ENTITY_TYPE === ENTITY_TYPE.ACTION
+  );
+}
 
-export const isAppsmithObject = {
-  config: (entity: Partial<DataTreeEntityConfig>): entity is DataTreeAppsmith =>
+export function isAppsmithEntity(
+  entity: DataTreeEntity,
+): entity is DataTreeAppsmith {
+  return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH,
-  node: (entity: Partial<EvalTreeEntity>): entity is DataTreeAppsmith =>
-    typeof entity === "object" &&
-    "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH,
-};
+    entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH
+  );
+}
 
-export const isJSAction = {
-  config: (
-    entity: Partial<DataTreeEntityConfig>,
-  ): entity is JSActionEntityConfig =>
+export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION,
-  node: (entity: Partial<EvalTreeEntity>): entity is JSActionEvalTree =>
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+  );
+}
+
+export function isJSObject(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
-    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION,
-};
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION &&
+    "pluginType" in entity &&
+    entity.pluginType === PluginType.JS
+  );
+}
 
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
@@ -538,12 +528,12 @@ export const trimDependantChangePaths = (
 };
 
 export function getSafeToRenderDataTree(
-  tree: EvalTree,
+  tree: DataTree,
   widgetTypeConfigMap: WidgetTypeConfigMap,
 ) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const entity = tree[entityKey];
-    if (!isWidget.node(entity)) {
+    const entity = tree[entityKey] as DataTreeWidget;
+    if (!isWidget(entity)) {
       return tree;
     }
     const safeToRenderEntity = { ...entity };
@@ -632,27 +622,20 @@ export const findDatatype = (value: unknown) => {
     .toLowerCase();
 };
 
-export const isDynamicLeaf = (
-  entityConfigCollection: EntityConfigCollection,
-  propertyPath: string,
-) => {
+export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
   // Framework feature: Top level items are never leaves
   if (entityName === propertyPath) return false;
   // Ignore if this was a delete op
-  if (!(entityName in entityConfigCollection)) return false;
+  if (!(entityName in unEvalTree)) return false;
 
-  const entity = entityConfigCollection[entityName];
-  if (
-    !isAction.config(entity) &&
-    !isWidget.config(entity) &&
-    !isJSAction.config(entity)
-  )
+  const entity = unEvalTree[entityName];
+  if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
     relativePropertyPath in entity.reactivePaths ||
-    (isWidget.config(entity) && relativePropertyPath in entity.triggerPaths)
+    (isWidget(entity) && relativePropertyPath in entity.triggerPaths)
   );
 };
 
@@ -660,7 +643,7 @@ export const addWidgetPropertyDependencies = ({
   entity,
   entityName,
 }: {
-  entity: WidgetEntityConfig;
+  entity: DataTreeWidget;
   entityName: string;
 }) => {
   const dependencies: DependencyMap = {};
@@ -716,8 +699,8 @@ export const getAllPrivateWidgetsInDataTree = (
 };
 
 export const getDataTreeWithoutPrivateWidgets = (
-  dataTree: EvalTree,
-): EvalTree => {
+  dataTree: DataTree,
+): DataTree => {
   const privateWidgets = getAllPrivateWidgetsInDataTree(dataTree);
   const privateWidgetNames = Object.keys(privateWidgets);
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
@@ -798,15 +781,17 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
-export function isValidEntity(entity: unknown): entity is EvalTreeEntity {
+export function isValidEntity(
+  entity: DataTreeEntity,
+): entity is DataTreeObjectEntity {
   if (!isObject(entity)) {
     return false;
   }
   return "ENTITY_TYPE" in entity;
 }
 export const isATriggerPath = (
-  entity: Partial<DataTreeEntityConfig>,
+  entity: DataTreeEntity,
   propertyPath: string,
 ) => {
-  return isWidget.config(entity) && isPathADynamicTrigger(entity, propertyPath);
+  return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };

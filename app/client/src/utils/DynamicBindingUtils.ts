@@ -12,10 +12,7 @@ import {
   isTrueObject,
 } from "workers/Evaluation/evaluationUtils";
 import forge from "node-forge";
-import {
-  DataTreeEntity,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -268,7 +265,7 @@ export const getWidgetDynamicTriggerPathList = (
 };
 
 export const isPathADynamicTrigger = (
-  widget: WidgetEntityConfig,
+  widget: WidgetProps,
   path: string,
 ): boolean => {
   if (

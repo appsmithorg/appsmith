@@ -19,8 +19,6 @@ import {
   DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
-  EntityConfigCollection,
-  EvalTree,
   EvaluationSubstitutionType,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
@@ -174,8 +172,7 @@ export default class DataTreeEvaluator {
    * evaluation of the first tree
    */
   setupFirstTree(
-    unEvalTree: EvalTree,
-    entityConfigCollection: EntityConfigCollection,
+    unEvalTree: DataTree,
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -338,8 +335,7 @@ export default class DataTreeEvaluator {
    */
 
   setupUpdateTree(
-    unEvalTree: EvalTree,
-    entityConfigCollection: EntityConfigCollection,
+    unEvalTree: DataTree,
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -850,12 +846,12 @@ export default class DataTreeEvaluator {
 
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = get(this.entityConfigCollection, entityName);
-      if (entity && isWidget.config(entity)) {
+      const entity = get(this.oldUnEvalTree, entityName);
+      if (entity && isWidget(entity)) {
         entityType = entity.type;
-      } else if (entity && isAction.config(entity)) {
+      } else if (entity && isAction(entity)) {
         entityType = entity.pluginType;
-      } else if (entity && isJSAction.config(entity)) {
+      } else if (entity && isJSAction(entity)) {
         entityType = entity.ENTITY_TYPE;
       }
       this.errors.push({
