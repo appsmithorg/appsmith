@@ -57,24 +57,6 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it("should test that editing is disabled when in add new row in progress", () => {
-      cy.openPropertyPane("tablewidgetv2");
-      cy.get(`[data-colindex=0][data-rowindex=0] .t--table-text-cell`).trigger(
-        "dblclick",
-      );
-      cy.get(
-        `[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input`,
-      ).should("exist");
-      cy.get(".t--add-new-row").click();
-      cy.get(`[data-colindex=0][data-rowindex=1] .t--table-text-cell`).trigger(
-        "dblclick",
-      );
-      cy.get(
-        `[data-colindex=0][data-rowindex=1] .t--inlined-cell-editor input.bp3-input`,
-      ).should("not.exist");
-      cy.get(".t--discard-new-row").click({ force: true });
-    });
-
     it("should test that new row is getting populated with the default row property value", () => {
       cy.updateCodeInput(
         ".t--property-control-defaultvalues",
