@@ -15,7 +15,7 @@ export enum ValidationTypes {
   IMAGE_URL = "IMAGE_URL",
   FUNCTION = "FUNCTION",
   SAFE_URL = "SAFE_URL",
-  ARRAY_TYPE_OR_TYPE = "ARRAY_TYPE_OR_TYPE",
+  ARRAY_OF_TYPE_OR_TYPE = "ARRAY_OF_TYPE_OR_TYPE",
 }
 
 export type ValidationResponse = {

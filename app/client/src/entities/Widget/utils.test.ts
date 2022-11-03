@@ -204,15 +204,15 @@ describe("getAllPathsFromPropertyConfig", () => {
       validationPaths: {
         tableData: { type: "OBJECT_ARRAY", params: { default: [] } },
         "primaryColumns.status.boxShadow": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: ValidationTypes.TEXT },
         },
         "primaryColumns.status.borderRadius": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: ValidationTypes.TEXT },
         },
         "primaryColumns.status.buttonVariant": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: {
@@ -222,58 +222,58 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.status.buttonColor": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { regex: /^(?![<|{{]).+/ },
           },
         },
         "primaryColumns.status.isDisabled": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: "BOOLEAN" },
         },
         "primaryColumns.status.isCellVisible": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: "BOOLEAN" },
         },
         "primaryColumns.createdAt.cellBackground": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { regex: /^(?![<|{{]).+/ },
           },
         },
         "primaryColumns.createdAt.textColor": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { regex: /^(?![<|{{]).+/ },
           },
         },
         "primaryColumns.createdAt.verticalAlignment": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { allowedValues: ["TOP", "CENTER", "BOTTOM"] },
           },
         },
         "primaryColumns.createdAt.fontStyle": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: ValidationTypes.TEXT },
         },
         "primaryColumns.createdAt.textSize": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: ValidationTypes.TEXT },
         },
         "primaryColumns.createdAt.horizontalAlignment": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { allowedValues: ["LEFT", "CENTER", "RIGHT"] },
           },
         },
         "primaryColumns.createdAt.outputFormat": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: {
@@ -303,7 +303,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.createdAt.inputFormat": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: {
@@ -333,47 +333,47 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.createdAt.isCellVisible": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: "BOOLEAN" },
         },
         "primaryColumns.name.cellBackground": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { regex: /^(?![<|{{]).+/ },
           },
         },
         "primaryColumns.name.textColor": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { regex: /^(?![<|{{]).+/ },
           },
         },
         "primaryColumns.name.verticalAlignment": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { allowedValues: ["TOP", "CENTER", "BOTTOM"] },
           },
         },
         "primaryColumns.name.fontStyle": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: ValidationTypes.TEXT },
         },
         "primaryColumns.name.textSize": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: ValidationTypes.TEXT },
         },
         "primaryColumns.name.horizontalAlignment": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: {
             type: ValidationTypes.TEXT,
             params: { allowedValues: ["LEFT", "CENTER", "RIGHT"] },
           },
         },
         "primaryColumns.name.isCellVisible": {
-          type: ValidationTypes.ARRAY_TYPE_OR_TYPE,
+          type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
           params: { type: "BOOLEAN" },
         },
         primaryColumnId: { type: ValidationTypes.TEXT },
