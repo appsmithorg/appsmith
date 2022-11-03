@@ -181,7 +181,7 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  const oldDataTree: DataTree = yield select(getDataTree);
+  const oldDataTree: EvalTree = yield select(getDataTree);
 
   const updates = diff(oldDataTree, dataTree) || [];
 
