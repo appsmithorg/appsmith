@@ -284,6 +284,22 @@ describe("Validate Validators", () => {
     });
   });
 
+  it("Validates number with passThroughOnZero", () => {
+    const config: any = {
+      type: ValidationTypes.NUMBER,
+      params: {
+        min: 1,
+        max: 4,
+      },
+    };
+
+    expect(validate(config, -1, DUMMY_WIDGET).parsed).toStrictEqual(-1);
+    expect(validate(config, 0, DUMMY_WIDGET).parsed).toStrictEqual(0);
+
+    config.params.passThroughOnZero = false;
+    expect(validate(config, 0, DUMMY_WIDGET).parsed).toStrictEqual(1);
+  });
+
   it("correctly validates number when required is true", () => {
     const config = {
       type: ValidationTypes.NUMBER,

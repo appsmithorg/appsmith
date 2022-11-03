@@ -572,7 +572,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       if (parsed < Number(config.params.min)) {
         return {
           isValid: false,
-          parsed: parsed || config.params.min || 0,
+          parsed:
+            // passThroughOnZero is introduced to resolve a bug and to not break existing apps
+            // Refer: https://github.com/appsmithorg/appsmith/issues/17472#issuecomment-1281818238
+            config.params.passThroughOnZero === false
+              ? parsed || config.params.min || 0
+              : parsed ?? config.params.min ?? 0,
           messages: [`Minimum allowed value: ${config.params.min}`],
         };
       }
