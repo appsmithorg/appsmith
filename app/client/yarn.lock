@@ -410,6 +410,11 @@
   dependencies:
     "@babel/types" "^7.16.7"
 
+"@babel/helper-string-parser@^7.19.4":
+  version "7.19.4"
+  resolved "https://registry.yarnpkg.com/@babel/helper-string-parser/-/helper-string-parser-7.19.4.tgz#38d3acb654b4701a9b77fb0615a96f775c3a9e63"
+  integrity sha512-nHtDoQcuqFmwYNYPz3Rah5ph2p8PFeFCsZk9A/48dPc/rGocJ5J3hAAZ7pb76VWX3fZKu+uEr/FhH5jLx7umrw==
+
 "@babel/helper-validator-identifier@^7.10.4":
   version "7.10.4"
   resolved "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.10.4.tgz"
@@ -14885,6 +14890,11 @@ ts-custom-error@^3.0.0:
   resolved "https://registry.yarnpkg.com/ts-custom-error/-/ts-custom-error-3.2.0.tgz#ff8f80a3812bab9dc448536312da52dce1b720fb"
   integrity sha512-cBvC2QjtvJ9JfWLvstVnI45Y46Y5dMxIaG1TDMGAD/R87hpvqFL+7LhvUDhnRCfOnx/xitollFWWvUKKKhbN0A==
 
+ts-jest-mock-import-meta@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/ts-jest-mock-import-meta/-/ts-jest-mock-import-meta-0.12.0.tgz#1be13ad2f8bee7619c28a2071c6c1fe36c9f5c75"
+  integrity sha512-LfuetNsQ6CDEAPekFOtMpCPRBBAgoA322IQ95eCa3x0mR++GwhZddlsmjOUhxRPLF3utbXUZpCEZiW+HP8jkiA==
+
 ts-jest@27.0.0:
   version "27.0.0"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.0.tgz#b94dbad8f39276b583edc7712e6b3c29e16c8863"
@@ -15827,13 +15837,6 @@ workbox-window@6.5.3:
   dependencies:
     "@types/trusted-types" "^2.0.2"
     workbox-core "6.5.3"
-
-worker-loader@^3.0.2:
-  version "3.0.4"
-  resolved "https://registry.npmjs.org/worker-loader/-/worker-loader-3.0.4.tgz"
-  dependencies:
-    loader-utils "^2.0.0"
-    schema-utils "^3.0.0"
 
 workerpool@6.2.0:
   version "6.2.0"
