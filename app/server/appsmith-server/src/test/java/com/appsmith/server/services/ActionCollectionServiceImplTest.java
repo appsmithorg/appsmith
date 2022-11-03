@@ -491,6 +491,9 @@ public class ActionCollectionServiceImplTest {
                         .findById(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
 
+        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenReturn(Mono.just(modifiedActionCollection));
+
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
                 layoutCollectionService.updateUnpublishedActionCollection("testCollectionId", modifiedActionCollectionDTO, null);
