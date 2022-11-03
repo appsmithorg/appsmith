@@ -507,13 +507,11 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
           isImageMirrored ? "mirror-video" : ""
         }`}
       >
-        {props.isDisabled && (
+        {props.isDisabled ? (
           <DisabledOverlayer disabled={props.isDisabled}>
             <CameraOfflineIcon />
           </DisabledOverlayer>
-        )}
-
-        {!props.isDisabled && (
+        ) : (
           <>
             {isTabActive && (
               <BarcodeScannerComponent
