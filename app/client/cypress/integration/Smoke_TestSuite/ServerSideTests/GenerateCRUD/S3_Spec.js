@@ -4,6 +4,9 @@ const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 import homePage from "../../../../locators/HomePage";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Generate New CRUD Page Inside from entity explorer", function() {
   let datasourceName;
@@ -176,7 +179,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     );
 
     cy.get("@dSName").then((dbName) => {
-      cy.get(generatePage.generateCRUDPageActionCard).click();
+      ee.AddNewPage("generate-page");
       cy.get(generatePage.selectDatasourceDropdown).click();
       cy.get(generatePage.datasourceDropdownOption)
         .contains(dbName)

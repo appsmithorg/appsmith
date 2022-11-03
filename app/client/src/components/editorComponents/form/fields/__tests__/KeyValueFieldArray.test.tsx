@@ -2,11 +2,16 @@ import React from "react";
 import "@testing-library/jest-dom";
 import KeyValueFieldArray from "../KeyValueFieldArray";
 import { reduxForm } from "redux-form";
-import { render, screen } from "test/testUtils";
+import { render } from "test/testUtils";
+
+type ActionConfig = Array<{
+  key: string;
+  value: string;
+}>;
 
 const initialProps = {
   name: "Headers",
-  actionConfig: [],
+  actionConfig: [] as ActionConfig,
   dataTreePath: ".config.headers",
   hideHeader: false,
   label: "Headers",
