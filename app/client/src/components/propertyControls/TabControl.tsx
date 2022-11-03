@@ -200,7 +200,9 @@ class TabControl extends BaseControl<ControlProps, State> {
     return (
       <TabsWrapper>
         <SpanDisplayingNumberOfTabs>
-          <span>{this.getTabItems().length} tabs</span>
+          <span className="t--number-of-tabs-span">
+            {this.getTabItems().length} tabs
+          </span>
         </SpanDisplayingNumberOfTabs>
         <DroppableComponent
           deleteOption={this.deleteOption}
