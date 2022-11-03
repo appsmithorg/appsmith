@@ -41,7 +41,7 @@ const DUMMY_PROPERTY_CONTROL: PropertyPaneConfig = {
 
 describe("Widget Features tests", () => {
   describe("hideDynamicHeightPropertyControl", () => {
-    it("Make sure hidden hook for dynamic Height disables if dynamic height is disabled", () => {
+    it("Make sure hidden hook for dynamic Height disables if dynamic height is disabled.", () => {
       const inputs = [
         DynamicHeight.FIXED,
         "Some other value",
