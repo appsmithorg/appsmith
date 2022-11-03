@@ -1,3 +1,4 @@
+import { isArray } from "lodash";
 import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
 
 export const getSourceDataKeysForEventAutocomplete = (
@@ -17,4 +18,18 @@ export const getSourceDataKeysForEventAutocomplete = (
       {},
     ),
   };
+};
+
+export const getSourceDataKeys = (props: MenuButtonWidgetProps) => {
+  if (!isArray(props.sourceData) || !props.sourceData?.length) {
+    return [];
+  }
+
+  const allKeys: string[] = [];
+
+  // get all keys
+  props.sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
+
+  // return unique keys
+  return [...new Set(allKeys)];
 };

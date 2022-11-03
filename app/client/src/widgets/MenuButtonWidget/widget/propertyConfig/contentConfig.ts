@@ -6,6 +6,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 import menuItemsConfig from "./childPanels/menuItemsConfig";
+import { updateMenuItemsSource } from "./propertyUtils";
 
 export default [
   {
@@ -41,6 +42,8 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        updateHook: updateMenuItemsSource,
+        dependencies: ["sourceData", "configureMenuItems"],
       },
       {
         helpText: "Menu items",

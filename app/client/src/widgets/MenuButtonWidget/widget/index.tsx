@@ -9,6 +9,7 @@ import styleConfig from "./propertyConfig/styleConfig";
 import equal from "fast-deep-equal/es6";
 import orderBy from "lodash/orderBy";
 import { isArray } from "lodash";
+import { getSourceDataKeys } from "./helper";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -46,40 +47,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     }
   };
 
-  getSourceDataKeys = () => {
-    if (!this.props.sourceData?.length) {
-      return [];
-    }
-
-    const allKeys: string[] = [];
-
-    // get all keys
-    this.props.sourceData.forEach((item) => allKeys.push(...Object.keys(item)));
-
-    // return unique keys
-    return [...new Set(allKeys)];
-  };
-
-  createInitialDynamicMenuItemsProperties = () => {
-    if (!("sourceData" in this.props)) {
-      super.updateWidgetProperty("sourceData", []);
-      super.updateWidgetProperty("sourceDataKeys", this.getSourceDataKeys());
-    }
-
-    if (!("configureMenuItems" in this.props)) {
-      super.updateWidgetProperty("configureMenuItems", {
-        label: "Configure Menu Items",
-        id: "config",
-        config: {
-          id: "config",
-          label: "",
-          isVisible: true,
-          isDisabled: false,
-        },
-      });
-    }
-  };
-
   getVisibleItems = () => {
     const {
       configureMenuItems,
@@ -96,7 +63,11 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       return orderBy(visibleItems, ["index"], ["asc"]);
     }
 
-    if (menuItemsSource === MenuItemsSource.DYNAMIC && sourceData?.length) {
+    if (
+      menuItemsSource === MenuItemsSource.DYNAMIC &&
+      isArray(sourceData) &&
+      sourceData?.length
+    ) {
       const getValue = (property: string, index: number) => {
         const propertyName = property as keyof typeof configureMenuItems.config;
 
@@ -133,16 +104,15 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   componentDidMount = () => {
-    super.updateWidgetProperty("sourceDataKeys", this.getSourceDataKeys());
+    super.updateWidgetProperty("sourceDataKeys", getSourceDataKeys(this.props));
   };
 
   componentDidUpdate = (prevProps: MenuButtonWidgetProps) => {
     if (!equal(prevProps.sourceData, this.props.sourceData)) {
-      super.updateWidgetProperty("sourceDataKeys", this.getSourceDataKeys());
-    }
-
-    if (!equal(prevProps.menuItemsSource, this.props.menuItemsSource)) {
-      this.createInitialDynamicMenuItemsProperties();
+      super.updateWidgetProperty(
+        "sourceDataKeys",
+        getSourceDataKeys(this.props),
+      );
     }
   };
 
