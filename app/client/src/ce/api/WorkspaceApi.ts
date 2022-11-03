@@ -122,8 +122,6 @@ class WorkspaceApi extends Api {
       `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
         username: request.username,
-        permissionGroupId: null,
-        permissionGroupName: null,
       },
     );
   }
