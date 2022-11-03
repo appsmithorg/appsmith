@@ -288,6 +288,9 @@ function transformToNumber(
 }
 // TODO FEATURE:(abhinav) Add validations to these properties
 
+const CONTAINER_SCROLL_HELPER_TEXT =
+  "While editing, this widget may scroll contents to facilitate adding widgets. When published, the widget may not scroll contents";
+
 export const PropertyPaneConfigTemplates: Record<
   RegisteredWidgetFeatures,
   PropertyPaneConfig[]
@@ -308,8 +311,16 @@ export const PropertyPaneConfigTemplates: Record<
         "bottomRow",
         "topRow",
         "overflow",
+        "dynamicHeight",
+        "isCanvas",
       ],
       updateHook: updateMinMaxDynamicHeight,
+      helperText: (props: WidgetProps) => {
+        return props.isCanvas &&
+          props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
+          ? CONTAINER_SCROLL_HELPER_TEXT
+          : "";
+      },
       options: [
         {
           label: "Auto Height",
