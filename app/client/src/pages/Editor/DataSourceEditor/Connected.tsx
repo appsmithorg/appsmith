@@ -9,7 +9,6 @@ import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
@@ -41,15 +40,6 @@ const Wrapper = styled.div`
 
 function Connected() {
   const params = useParams<{ datasourceId: string }>();
-  const userWorkspacePermissions = useSelector(
-    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
-  );
-  const pagePermissions = useSelector(getPagePermissions);
-
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...userWorkspacePermissions,
-    ...pagePermissions,
-  ]);
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
@@ -62,6 +52,15 @@ function Connected() {
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, datasource?.pluginId ?? ""),
   );
+
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
 
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
