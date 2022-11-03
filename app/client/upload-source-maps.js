@@ -13,43 +13,47 @@ const s3 = new AWS.S3({
   secretAccessKey: secret,
 });
 
-uploadFiles = async () => {
-  const start = performance.now();
-  if (!process.env.CI) {
-    console.log("Not running on CI, exiting");
-    return;
-  }
-  console.log("Uploading source maps");
+const uploadFile = async (file) => {
+  const inputStream = fs.createReadStream(
+    path.join(__dirname, `build/static/js/${file}`),
+  );
 
-  const files = fs.readdirSync("./build/static/js/");
-  const promises = [];
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    if (file.endsWith("js.map")) {
-      console.log(file);
-
-      // upload to s3
-      const inputStream = fs.createReadStream(
-        path.join(__dirname, `build/static/js/${file}`),
-      );
-
-      const params = {
-        Key: `source-maps/${file}`,
-        Body: inputStream,
-        Bucket: BUCKET_NAME,
-      };
-
-      promises.push(s3.upload(params).promise());
-    }
-  }
-  await Promise.all(promises);
-
-  const end = performance.now();
-  console.log(`Source maps uploaded in ${end - start}ms`);
+  const params = {
+    Key: `source-maps/${file}`,
+    Body: inputStream,
+    Bucket: BUCKET_NAME,
+  };
+  await s3.upload(params).promise();
+  inputStream.destroy();
 };
 
-try {
-  uploadFiles();
-} catch (e) {
-  console.log(e);
-}
+const uploadFiles = async () => {
+  try {
+    const start = performance.now();
+    if (!process.env.CI) {
+      console.log("Not running on CI, exiting");
+      return;
+    }
+    console.log("Uploading source maps");
+
+    const files = fs.readdirSync("./build/static/js/");
+    const promises = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.endsWith("js.map")) {
+        console.log(file);
+
+        uploadFile(file);
+        promises.push(uploadFile(file));
+      }
+    }
+    await Promise.all(promises);
+
+    const end = performance.now();
+    console.log(`Source maps uploaded in ${end - start}ms`);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+uploadFiles();
