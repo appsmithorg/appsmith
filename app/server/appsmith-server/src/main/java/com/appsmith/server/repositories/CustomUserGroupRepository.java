@@ -19,4 +19,6 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
     Flux<UserGroup> findAllByIds(Set<String> ids, AclPermission aclPermission);
 
     Mono<UpdateResult> updateById(String id, Update updateObj);
+
+    Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId);
 }

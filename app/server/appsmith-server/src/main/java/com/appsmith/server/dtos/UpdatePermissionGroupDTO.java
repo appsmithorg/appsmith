@@ -10,5 +10,5 @@ import lombok.NonNull;
 @Data
 @NoArgsConstructor
 public class UpdatePermissionGroupDTO extends UpdatePermissionGroupCE_DTO {
-
+    String userGroupId;
 }

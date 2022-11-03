@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -31,17 +32,24 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -174,6 +182,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         Flux<UserGroup> groupFlux = Flux.empty();
         Flux<PermissionGroup> rolesAddedFlux = Flux.empty();
         Flux<PermissionGroup> rolesRemovedFlux = Flux.empty();
+        Mono<Boolean> isMultipleRolesFromWorkspacePresentMono = Mono.just(TRUE);
+        Mono<Boolean> rolesFromSameWorkspaceExistsInUsersMono;
+        Mono<Boolean> rolesFromSameWorkspaceExistsInUserGroupsMono;
 
         if (!CollectionUtils.isEmpty(userDTOs)) {
             userFlux = Flux.fromIterable(userDTOs.stream().map(UserCompactDTO::getUsername).collect(Collectors.toSet()))
@@ -193,14 +204,29 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         if (!CollectionUtils.isEmpty(rolesAddedDTOs)) {
             rolesAddedFlux = permissionGroupRepository.findAllById(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()),
                     ASSIGN_PERMISSION_GROUPS);
+            isMultipleRolesFromWorkspacePresentMono = rolesAddedFlux.collectList()
+                    .flatMap(this::containsPermissionGroupsFromSameWorkspace);
         }
         if (!CollectionUtils.isEmpty(rolesRemovedDTOs)) {
             rolesRemovedFlux = permissionGroupRepository.findAllById(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()),
                     UNASSIGN_PERMISSION_GROUPS);
         }
 
+        // Checks and throws error, if 2 or more permission groups from the same Default Workspace ID are present
+        // in COMBINED_LIST.
+        // PG_LIST1: All Permission Groups a user already has.
+        // PG_LIST2: All Permission Groups a user will now be associated to.
+        // PG_LIST3: All Permission Groups a user will now be disassociated from.
+        // COMBINED_LIST: PG_LIST1 + PG_LIST2 - PG_LIST3
+        rolesFromSameWorkspaceExistsInUsersMono = this.hasMultipleRolesFromSameWorkspaceMono(
+                userFlux.flatMap(user -> permissionGroupService.findAllByAssignedToUserId(user.getId()).collectList()),
+                rolesAddedFlux, rolesRemovedFlux);
+        rolesFromSameWorkspaceExistsInUserGroupsMono = this.hasMultipleRolesFromSameWorkspaceMono(
+                groupFlux.flatMap(user -> permissionGroupService.findAllByAssignedToGroupId(user.getId()).collectList()),
+                rolesAddedFlux, rolesRemovedFlux);
+
         // Bulk assign to roles added
-        Flux<PermissionGroup> bulkAssignToRolesMono = Flux.zip(rolesAddedFlux, userFlux.collectList().repeat(), groupFlux.collectList().repeat())
+        Flux<PermissionGroup> bulkAssignToRolesFlux = Flux.zip(rolesAddedFlux, userFlux.collectList().repeat(), groupFlux.collectList().repeat())
                 .flatMap(tuple -> {
                     PermissionGroup permissionGroup = tuple.getT1();
                     List<User> users = tuple.getT2();
@@ -209,7 +235,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 });
 
         // Bulk unassign from roles removed
-        Flux<PermissionGroup> bulkUnassignFromRolesMono = Flux.zip(rolesRemovedFlux, userFlux.collectList().repeat(), groupFlux.collectList().repeat())
+        Flux<PermissionGroup> bulkUnassignFromRolesFlux = Flux.zip(rolesRemovedFlux, userFlux.collectList().repeat(), groupFlux.collectList().repeat())
                 .flatMap(tuple -> {
                     PermissionGroup permissionGroup = tuple.getT1();
                     List<User> users = tuple.getT2();
@@ -232,10 +258,11 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     return permissionGroupService.cleanPermissionGroupCacheForUsers(userIds);
                 });
 
-        return Mono.when(bulkAssignToRolesMono.collectList(), bulkUnassignFromRolesMono.collectList())
+        return Mono.when(isMultipleRolesFromWorkspacePresentMono)
+                .then(Mono.when(rolesFromSameWorkspaceExistsInUsersMono, rolesFromSameWorkspaceExistsInUserGroupsMono))
+                .then(Mono.when(bulkAssignToRolesFlux.collectList(), bulkUnassignFromRolesFlux.collectList()))
                 .then(cleanCacheForUsersMono)
                 .thenReturn(TRUE);
-
     }
 
     private Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup permissionGroup, List<User> users, List<UserGroup> groups) {
@@ -307,5 +334,84 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         // First invite the user and then invite the groups.
         return inviteIndividualUsersMono
                 .flatMap(users -> finalInviteGroupsMono.thenReturn(users));
+    }
+
+    // Takes a list of PermissionGroups and from them, extract the Highest level of permission, if there exists
+    // permission groups from the same DefaultWorkspaceId
+    // By highest, here we mean the following:
+    // ADMINISTRATOR > DEVELOPER > VIEWER
+    // So, if any 2 or 3 of these permission groups from the same default workspace id are present, we are going to
+    // send only ONE
+    private List<PermissionGroup> prunePermissionGroups(List<PermissionGroup> permissionGroups) {
+        List<PermissionGroup> nonAutoCreatedPermissionGroups = permissionGroups.stream()
+                .filter(pg -> ! StringUtils.hasLength(pg.getDefaultWorkspaceId()))
+                .collect(Collectors.toList());
+        List<PermissionGroup> highestOrderAutoCreatedPgs = permissionGroups.stream()
+                .filter(pg -> StringUtils.hasLength(pg.getDefaultWorkspaceId()))
+                .collect(Collectors.toList())
+                .stream()
+                .collect(Collectors.groupingBy(PermissionGroup::getDefaultWorkspaceId))
+                .values().stream()
+                .map(pgList -> {
+                    pgList.sort(permissionGroupComparator());
+                    return pgList.get(0);
+                })
+                .collect(Collectors.toList());
+        return Stream.of(nonAutoCreatedPermissionGroups, highestOrderAutoCreatedPgs)
+                .flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    private Comparator<PermissionGroup> permissionGroupComparator() {
+        return new Comparator<>() {
+            @Override
+            public int compare(PermissionGroup pg1, PermissionGroup pg2) {
+                return getOrder(pg1) - getOrder(pg2);
+            }
+
+            private int getOrder(PermissionGroup pg) {
+                if (pg.getName().startsWith(ADMINISTRATOR))
+                    return 0;
+                else if (pg.getName().startsWith(DEVELOPER))
+                    return 1;
+                return 2;
+            }
+        };
+    }
+
+    // Checks if there exists Permission Groups from the same Workspace or not
+    private Mono<Boolean> containsPermissionGroupsFromSameWorkspace(List<PermissionGroup> permissionGroups) {
+        if (CollectionUtils.isEmpty(permissionGroups))
+            return Mono.just(TRUE);
+        List<PermissionGroup> prunedPermissionGroups = this.prunePermissionGroups(permissionGroups);
+        if (permissionGroups.size() != prunedPermissionGroups.size())
+            return Mono.error(new AppsmithException(AppsmithError.ROLES_FROM_SAME_WORKSPACE));
+        return Mono.just(TRUE);
+    }
+
+    // The function takes Flux List of Permission Groups as permissionGroupListFlux, and to that,
+    // append the Flux of Permission Groups as addedPermissionGroupFlux, and
+    // remove the Flux of Permission Groups as removedPermissionGroupFlux
+    // In order to do that, we first remove all removedPermissionGroupFlux from both permissionGroupListFlux and addedPermissionGroupFlux,
+    // and then add the above result.
+    private Mono<Boolean> hasMultipleRolesFromSameWorkspaceMono(Flux<List<PermissionGroup>> permissionGroupListFlux,
+                                                                Flux<PermissionGroup> addedPermissionGroupFlux,
+                                                                Flux<PermissionGroup> removedPermissionGroupFlux) {
+        Mono<Tuple2<List<PermissionGroup>, List<PermissionGroup>>> combinedPermissionGroupsMono = addedPermissionGroupFlux.
+                collectList().
+                zipWith(removedPermissionGroupFlux.collectList());
+        return permissionGroupListFlux.zipWith(combinedPermissionGroupsMono.repeat())
+                .flatMap(tuple -> {
+                    Map<String, PermissionGroup> userHasPermissionsMap = tuple.getT1().stream().collect(Collectors.toMap(BaseDomain::getId, pg -> pg));
+                    Map<String, PermissionGroup> addRequestedPermissionsMap = tuple.getT2().getT1().stream().collect(Collectors.toMap(BaseDomain::getId, pg -> pg));;
+                    List<PermissionGroup> removeRequestedPermissions = tuple.getT2().getT2();
+                    removeRequestedPermissions.forEach(pg -> userHasPermissionsMap.remove(pg.getId()));
+                    removeRequestedPermissions.forEach(pg -> addRequestedPermissionsMap.remove(pg.getId()));
+                    return containsPermissionGroupsFromSameWorkspace(Stream.of(userHasPermissionsMap.values(), addRequestedPermissionsMap.values())
+                            .flatMap(Collection::stream)
+                            .collect(Collectors.toList()));
+                })
+                .filter(noDuplicateExists -> ! noDuplicateExists)
+                .hasElements()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ROLES_FROM_SAME_WORKSPACE)));
     }
 }

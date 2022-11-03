@@ -51,7 +51,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         this.mongoOperations = mongoOperations;
     }
 
-    private Criteria notDeleted() {
+    protected Criteria notDeleted() {
         return new Criteria().andOperator(
                 new Criteria().orOperator(
                         where(FieldName.DELETED).exists(false),

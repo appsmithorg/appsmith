@@ -60,7 +60,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class PermissionGroupServiceTest {
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -620,8 +620,15 @@ public class PermissionGroupServiceTest {
 
         userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
+        /**
+         * Updating the test case below and separating the User and UserGroup role association update,
+         * because of the latest changes which throw error if the Already Existing permissions are added again
+         * or permissions from the same workspace are added.
+         */
+
         // Now associate the created workspcae default role, createdPermissionGroup1 and createdPermissionGroup2 with the groups and users and remove
         // createdPermissionGroup3 from the groups and users
+        updateRoleAssociationDTO.setUsers(Set.of());
 
         updateRoleAssociationDTO.setRolesAdded(
                 Set.of(
@@ -636,6 +643,17 @@ public class PermissionGroupServiceTest {
                         new PermissionGroupCompactDTO(createdPermissionGroup3.getId(), createdPermissionGroup3.getName())
                 )
         );
+
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+
+        updateRoleAssociationDTO.setGroups(Set.of());
+        updateRoleAssociationDTO.setUsers(
+                Set.of(new UserCompactDTO(usertest.getId(), usertest.getEmail(), usertest.getName())));
+        updateRoleAssociationDTO.setRolesAdded(
+                Set.of(
+                        new PermissionGroupCompactDTO(createdPermissionGroup1.getId(), createdPermissionGroup1.getName()),
+                        new PermissionGroupCompactDTO(createdPermissionGroup2.getId(), createdPermissionGroup2.getName())
+                ));
 
         userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 

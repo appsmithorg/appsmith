@@ -11,6 +11,8 @@ import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -133,8 +135,18 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     }
 
     @Override
+    public Flux<PermissionGroup> findAllByAssignedToGroupId(String groupId) {
+        return findAllByAssignedToGroupIdsIn(Set.of(groupId));
+    }
+
+    @Override
     public Flux<PermissionGroup> findAllByAssignedToUsersIn(Set<String> userIds) {
         return repository.findAllByAssignedToUserIdsIn(userIds);
+    }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserId(String userId) {
+        return findAllByAssignedToUsersIn(Set.of(userId));
     }
 
     @Override
@@ -262,7 +274,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .collect(Collectors.toList());
 
         // Remove the user groups from the permission group
-        permissionGroup.getAssignedToGroupIds().removeAll(userGroups);
+        List<String> userGroupIds = userGroups.stream().map(UserGroup::getId).collect(Collectors.toList());
+        userGroupIds.forEach(permissionGroup.getAssignedToGroupIds()::remove);
 
         return Mono.zip(
                         repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.UNASSIGN_PERMISSION_GROUPS),
@@ -359,6 +372,40 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                     return Mono.just(tempSet);
                 })
                 .doOnNext(permissionGroupIdsSet -> autoCreatedPermissionGroupIds = permissionGroupIdsSet);
+    }
+
+    @Override
+    public Flux<PermissionGroup> getAllByAssignedToUserGroupAndDefaultWorkspace(UserGroup userGroup, Workspace defaultWorkspace, AclPermission aclPermission) {
+        return repository.findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(userGroup.getId(), defaultWorkspace.getId(), aclPermission);
+    }
+
+    @Override
+    public Mono<PermissionGroup> unassignFromUserGroup(PermissionGroup permissionGroup, UserGroup userGroup) {
+        return bulkUnassignFromUserGroups(permissionGroup, Set.of(userGroup));
+    }
+
+    @Override
+    public Mono<PermissionGroup> assignToUserGroup(PermissionGroup permissionGroup, UserGroup userGroup)  {
+        return this.bulkAssignToUserGroups(permissionGroup, Set.of(userGroup));
+    }
+    public Mono<PermissionGroup> bulkAssignToUserGroups(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
+        ensureAssignedToUserGroups(permissionGroup);
+        // Get the userIds from all the user groups that we are unassigning
+        List<String> userIds = userGroups.stream()
+                .map(ug -> ug.getUsers())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        List<String> userGroupIds = userGroups.stream().map(UserGroup::getId).collect(Collectors.toList());
+        permissionGroup.getAssignedToGroupIds().addAll(userGroupIds);
+        Mono<PermissionGroup> permissionGroupUpdateMono = repository
+                .updateById(permissionGroup.getId(), permissionGroup, AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
+
+        return Mono.zip(
+                        permissionGroupUpdateMono,
+                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
+                )
+                .map(tuple -> tuple.getT1());
     }
 
 }
