@@ -21,18 +21,23 @@ export interface AutoLayoutLayerProps {
   isMobile?: boolean;
   isCurrentCanvasDragging: boolean;
   currentChildCount: number;
+  hideOnLoad?: boolean;
 }
 
 const LayoutLayerContainer = styled.div<{
   flexDirection: FlexDirection;
+  hideOnLoad?: boolean;
+  isCurrentCanvasDragging: boolean;
 }>`
-  display: flex;
+  display: ${({ hideOnLoad }) => (hideOnLoad ? "none" : "flex")};
   flex-direction: ${({ flexDirection }) => flexDirection || FlexDirection.Row};
   justify-content: flex-start;
   align-items: flex-start;
 
   width: 100%;
   height: auto;
+  min-height: ${({ isCurrentCanvasDragging }) =>
+    isCurrentCanvasDragging ? "40px" : "auto"};
   margin-top: ${DRAG_MARGIN}px;
 `;
 
@@ -77,17 +82,12 @@ function getInverseDirection(direction: LayoutDirection): LayoutDirection {
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
   const flexDirection = getFlexDirection(getInverseDirection(props.direction));
 
-  const handleMouseMove = (e: any) => {
-    if (!props.isCurrentCanvasDragging) return;
-    e.stopPropagation();
-    console.log("#### mouse move", props.index, props.widgetId);
-  };
-
   return (
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
       flexDirection={flexDirection}
-      onMouseOver={(e) => handleMouseMove(e)}
+      hideOnLoad={props.hideOnLoad}
+      isCurrentCanvasDragging={props.isCurrentCanvasDragging}
     >
       <StartWrapper
         flexDirection={flexDirection}

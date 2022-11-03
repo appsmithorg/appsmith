@@ -63,9 +63,7 @@ export const useAutoLayoutHighlights = ({
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
   const canvas = allWidgets[canvasId];
-  const layers: FlexLayer[] = canvas?.flexLayers || [];
   const isVertical = direction === LayoutDirection.Vertical;
-  // const dispatch = useDispatch();
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
   let isNewLayerExpanded = false;
@@ -187,6 +185,18 @@ export const useAutoLayoutHighlights = ({
     }
 
     return highlights;
+  };
+
+  const updateHighlight = (index: number): HighlightInfo => {
+    const highlight = highlights[index];
+    if (!highlight || !highlight.el) return highlight;
+    const rect: DOMRect = highlight.el.getBoundingClientRect();
+    console.log("#### rect");
+    highlight.posX = rect.x - containerDimensions.left;
+    highlight.posY = rect.y - containerDimensions.top;
+    highlight.width = rect.width;
+    highlight.height = rect.height;
+    return highlight;
   };
 
   const calculateHighlights = (): HighlightInfo[] => {
@@ -561,15 +571,15 @@ export const useAutoLayoutHighlights = ({
   ): void => {
     if (!el) return;
     const horizontalElement = el as HTMLElement;
-    const verticalElement = el?.nextSibling;
+    const verticalElement = el?.nextSibling as HTMLElement;
     if (verticalElement) {
       if (reveal) {
         horizontalElement.style.display = "none";
-        (verticalElement as HTMLElement).style.display = "flex";
-        (verticalElement as HTMLElement).style.height = "40px";
+        verticalElement.style.display = "flex";
+        verticalElement.style.height = "40px";
       } else {
         (horizontalElement as HTMLElement).style.display = "block";
-        (verticalElement as HTMLElement).style.display = "none";
+        verticalElement.style.display = "none";
       }
     }
   };
@@ -594,6 +604,14 @@ export const useAutoLayoutHighlights = ({
         !isNewLayerExpanded)
     ) {
       toggleNewLayerAlignments(payload.selectedHighlight.el, true);
+      const selectedIndex = highlights.findIndex(
+        (each) => each === payload.selectedHighlight,
+      );
+      if (highlights[selectedIndex + 1].height === 0) {
+        highlights[selectedIndex + 1] = updateHighlight(selectedIndex + 1);
+        highlights[selectedIndex + 2] = updateHighlight(selectedIndex + 2);
+        highlights[selectedIndex + 3] = updateHighlight(selectedIndex + 3);
+      }
       isNewLayerExpanded = true;
     } else if (!payload.showNewLayerAlignments && isNewLayerExpanded) {
       toggleNewLayerAlignments(lastActiveHighlight?.el, false);
@@ -634,7 +652,12 @@ export const useAutoLayoutHighlights = ({
       pos,
       moveDirection,
     );
-    // console.log("#### filteredHighlights: ", filteredHighlights, base);
+    // console.log(
+    //   "#### filteredHighlights: ",
+    //   filteredHighlights,
+    //   base,
+    //   moveDirection,
+    // );
     const arr = filteredHighlights.sort((a, b) => {
       return (
         calculateDistance(a, pos, moveDirection) -
@@ -657,10 +680,9 @@ export const useAutoLayoutHighlights = ({
     return {
       highlights: [...arr.slice(1)],
       selectedHighlight: arr[0],
-      showNewLayerAlignments:
-        isVerticalDrag && distance !== undefined
-          ? Math.abs(distance) < 15
-          : false,
+      showNewLayerAlignments: isVerticalDrag
+        ? distance !== undefined && Math.abs(distance) < 15
+        : isNewLayerExpanded,
     };
   };
 

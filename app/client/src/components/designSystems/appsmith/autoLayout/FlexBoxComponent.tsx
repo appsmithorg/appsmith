@@ -189,6 +189,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       layerIndex,
       map,
       true,
+      true,
     );
 
     return (
@@ -246,7 +247,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
         const widgetId = item
           ? (item as JSX.Element)?.props.widgetId
           : undefined;
-        // if (draggedWidget && widgetId && draggedWidget === widgetId) continue;
+        if (draggedWidget && widgetId && draggedWidget === widgetId) continue;
         count += 1;
         res.push(item);
         res.push(
@@ -266,8 +267,48 @@ function FlexBoxComponent(props: FlexBoxProps) {
   };
 
   function processLayers(map: { [key: string]: any }) {
+    const layers = [];
     let childCount = 0;
-    const layers = [
+    let layerIndex = 0;
+    for (const layer of props.flexLayers) {
+      const isEmpty =
+        layer?.children?.filter(
+          (child: LayerChild) => child.id !== draggedWidget,
+        ).length === 0;
+
+      !isEmpty &&
+        layers.push(
+          <NewLayerComponent
+            alignment={FlexLayerAlignment.Start}
+            childCount={childCount}
+            isDragging={isCurrentCanvasDragging}
+            isNewLayer
+            isVertical={false}
+            key={getDropPositionKey(
+              Math.ceil(Math.random() * 100),
+              FlexLayerAlignment.Start,
+              layerIndex,
+              false,
+            )}
+            layerIndex={layerIndex}
+            map={map}
+            widgetId={props.widgetId}
+          />,
+        );
+
+      const { count, element } = processIndividualLayer(
+        layer,
+        childCount,
+        layerIndex,
+        map,
+      );
+      childCount += count;
+      if (!isEmpty) {
+        layerIndex += 1;
+        layers.push(element);
+      }
+    }
+    layers.push(
       <NewLayerComponent
         alignment={FlexLayerAlignment.Start}
         childCount={childCount}
@@ -277,47 +318,15 @@ function FlexBoxComponent(props: FlexBoxProps) {
         key={getDropPositionKey(
           Math.ceil(Math.random() * 100),
           FlexLayerAlignment.Start,
-          0,
+          layerIndex,
           false,
         )}
-        layerIndex={0}
+        layerIndex={layerIndex}
         map={map}
         widgetId={props.widgetId}
       />,
-    ];
-    props.flexLayers?.map((layer: FlexLayer, index: number) => {
-      const { count, element } = processIndividualLayer(
-        layer,
-        childCount,
-        index,
-        map,
-      );
-
-      if (element === null) return null;
-      childCount += count;
-      layers.push(element);
-      layers.push(
-        <NewLayerComponent
-          alignment={FlexLayerAlignment.Start}
-          childCount={childCount}
-          isDragging={isCurrentCanvasDragging}
-          isNewLayer
-          isVertical={false}
-          key={getDropPositionKey(
-            Math.ceil(Math.random() * 100),
-            FlexLayerAlignment.Start,
-            index + 1,
-            false,
-          )}
-          layerIndex={index + 1}
-          map={map}
-          widgetId={props.widgetId}
-        />,
-      );
-      return element;
-    });
+    );
     return layers;
-    // ?.filter((layer) => layer !== null);
   }
 
   function processIndividualLayer(
@@ -325,7 +334,8 @@ function FlexBoxComponent(props: FlexBoxProps) {
     childCount: number,
     index: number,
     map: { [key: string]: any },
-    bypassEmptyCheck = false,
+    allowEmptyLayer = false,
+    isNewLayer = false,
   ) {
     const { children, hasFillChild } = layer;
 
@@ -333,8 +343,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
     let start = [],
       center = [],
       end = [];
-    if ((!children || !children.length) && !bypassEmptyCheck)
-      return { element: null, count };
 
     for (const child of children) {
       count += 1;
@@ -358,7 +366,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       index,
       FlexLayerAlignment.Start,
       true,
-      false,
+      isNewLayer,
     );
     center = addDropPositions(
       center,
@@ -366,7 +374,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       index,
       FlexLayerAlignment.Center,
       true,
-      false,
+      isNewLayer,
     );
     end = addDropPositions(
       end,
@@ -374,7 +382,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       index,
       FlexLayerAlignment.End,
       true,
-      false,
+      isNewLayer,
     );
 
     return {
@@ -385,6 +393,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           direction={direction}
           end={end}
           hasFillChild={layer.hasFillChild}
+          hideOnLoad={allowEmptyLayer}
           index={index}
           isCurrentCanvasDragging={isCurrentCanvasDragging}
           isMobile={isMobile}
@@ -397,9 +406,9 @@ function FlexBoxComponent(props: FlexBoxProps) {
     };
   }
 
-  function addInPosition(arr: any[], index: number, item: any): any[] {
-    return [...arr.slice(0, index), item, ...arr.slice(index)];
-  }
+  // function addInPosition(arr: any[], index: number, item: any): any[] {
+  //   return [...arr.slice(0, index), item, ...arr.slice(index)];
+  // }
 
   return (
     <FlexContainer

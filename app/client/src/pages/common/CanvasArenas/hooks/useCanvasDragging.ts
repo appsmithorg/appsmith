@@ -712,15 +712,15 @@ export const useCanvasDragging = (
                 const leftOffset = getAbsolutePixels(
                   stickyCanvasRef.current.style.left,
                 );
-                canvasCtx.fillStyle = "rgba(223, 158, 206, 0.6)";
-                payload.highlights.forEach((each) => {
-                  canvasCtx.fillRect(
-                    each.posX - leftOffset,
-                    each.posY - topOffset,
-                    each.width,
-                    each.height,
-                  );
-                });
+                // canvasCtx.fillStyle = "rgba(223, 158, 206, 0.6)";
+                // payload.highlights.forEach((each) => {
+                //   canvasCtx.fillRect(
+                //     each.posX - leftOffset,
+                //     each.posY - topOffset,
+                //     each.width,
+                //     each.height,
+                //   );
+                // });
                 canvasCtx.fillStyle = "rgba(196, 139, 181, 1)";
                 canvasCtx.fillRect(
                   payload.selectedHighlight.posX - leftOffset,
