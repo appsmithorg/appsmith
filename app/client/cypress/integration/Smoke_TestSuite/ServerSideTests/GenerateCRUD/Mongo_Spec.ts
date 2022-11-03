@@ -29,7 +29,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       ee.AddNewPage();
-      agHelper.GetNClick(homePage._buildFromDataTableActionCard);
+      ee.AddNewPage("generate-page");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });

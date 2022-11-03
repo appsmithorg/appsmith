@@ -33,6 +33,17 @@ module.exports = {
   globals: {
     "ts-jest": {
       isolatedModules: true,
+      diagnostics: {
+        ignoreCodes: [1343],
+      },
+      astTransformers: {
+        before: [
+          {
+            path: "node_modules/ts-jest-mock-import-meta",
+            options: { metaObjectReplacement: { url: "https://www.url.com" } },
+          },
+        ],
+      },
     },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
@@ -77,7 +88,9 @@ module.exports = {
 
       disableTelemetry: "DISABLE_TELEMETRY" === "" || "DISABLE_TELEMETRY",
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
-      disableIframeWidgetSandbox: parseConfig("__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__"),
+      disableIframeWidgetSandbox: parseConfig(
+        "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
+      ),
     },
   },
 };
