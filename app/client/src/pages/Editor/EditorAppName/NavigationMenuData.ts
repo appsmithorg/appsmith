@@ -16,50 +16,21 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab } from "entities/GitSync";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
-import {
-  createMessage,
-  DEPLOY_MENU_OPTION,
-  CONNECT_TO_GIT_OPTION,
-  CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "@appsmith/constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
-  deploy: typeof noop;
-  currentDeployLink: string;
 };
 
 export const GetNavigationMenuData = ({
-  currentDeployLink,
-  deploy,
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
-
-  const isGitConnected = useSelector(getIsGitConnected);
-
-  const openGitConnectionPopup = () => {
-    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
-      source: "Application name menu (top left)",
-    });
-
-    dispatch(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.GIT_CONNECTION,
-      }),
-    );
-  };
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -94,36 +65,6 @@ export const GetNavigationMenuData = ({
       });
     }
   };
-
-  const deployOptions = [
-    {
-      text: createMessage(DEPLOY_MENU_OPTION),
-      onClick: deploy,
-      type: MenuTypes.MENU,
-      isVisible: true,
-      isOpensNewWindow: true,
-      className: "t--app-name-menu-deploy",
-    },
-    {
-      text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
-      onClick: () => openExternalLink(currentDeployLink),
-      type: MenuTypes.MENU,
-      isVisible: true,
-      isOpensNewWindow: true,
-      className: "t--app-name-menu-deploy-current-version",
-    },
-  ];
-
-  if (!isGitConnected) {
-    deployOptions.push({
-      text: createMessage(CONNECT_TO_GIT_OPTION),
-      onClick: () => openGitConnectionPopup(),
-      type: MenuTypes.MENU,
-      isVisible: true,
-      isOpensNewWindow: false,
-      className: "t--app-name-menu-deploy-connect-to-git",
-    });
-  }
 
   return [
     {

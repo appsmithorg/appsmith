@@ -59,6 +59,7 @@ import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
+  DEPLOY_MENU_OPTION,
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
   LOCK_ENTITY_EXPLORER_MESSAGE,
@@ -396,12 +397,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={deployLink}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               defaultValue={currentApplication?.name || ""}
-              deploy={() => handleClickDeploy(false)}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -485,7 +484,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
                   size={Size.small}
-                  text={"Deploy"}
+                  text={DEPLOY_MENU_OPTION()}
                 />
               </TooltipComponent>
 
