@@ -357,7 +357,7 @@ function* appendSelectedWidgetToUrlSaga(
   }
 
   if (currentURL !== canvasEditorURL) {
-    history.push(canvasEditorURL);
+    // history.push(canvasEditorURL);
   }
 }
 

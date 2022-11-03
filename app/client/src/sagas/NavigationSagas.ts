@@ -19,10 +19,14 @@ import log from "loglevel";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Location } from "history";
-import { AppsmithLocationState } from "utils/history";
+import history, { AppsmithLocationState } from "utils/history";
 
 let previousPath: string;
 let previousHash: string | undefined;
+
+history.listen((...args: any[]) => {
+  console.log("location", args);
+});
 
 function* handleRouteChange(
   action: ReduxAction<Location<AppsmithLocationState>>,
@@ -57,7 +61,7 @@ function* contextSwitchingSaga(
   // Check if it should restore the stored state of the path
   if (shouldSetState(previousPath, pathname, previousHash, hash, state)) {
     // restore old state for new path
-    // yield call(setStateOfPath, pathname, hash);
+    yield call(setStateOfPath, pathname, hash);
   }
 }
 
@@ -141,7 +145,8 @@ function shouldSetState(
   currHash?: string,
   state?: AppsmithLocationState,
 ) {
-  if (state && state.directNavigation) return false;
+  debugger;
+  if (state && state.directNavigation) return true;
   const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
   const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
 
