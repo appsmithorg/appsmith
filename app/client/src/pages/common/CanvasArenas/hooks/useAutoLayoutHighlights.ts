@@ -152,7 +152,6 @@ export const useAutoLayoutHighlights = ({
     const highlights: HighlightInfo[] = [];
     for (const el of els) {
       const rect: DOMRect = el.getBoundingClientRect();
-      console.log("rect", rect);
       const classList = Array.from(el.classList);
 
       const highlight: HighlightInfo = classList.reduce(
@@ -597,7 +596,7 @@ export const useAutoLayoutHighlights = ({
       pos,
       moveDirection,
     );
-    console.log("#### filteredHighlights: ", filteredHighlights, base);
+    // console.log("#### filteredHighlights: ", filteredHighlights, base);
     const arr = filteredHighlights.sort((a, b) => {
       return (
         calculateDistance(a, pos, moveDirection) -
