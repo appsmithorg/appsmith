@@ -5,7 +5,10 @@ import {
   ReduxActionErrorTypes,
   ApplicationPayload,
 } from "@appsmith/constants/ReduxActionConstants";
-import { Workspaces, WorkspaceUser } from "constants/workspaceConstants";
+import {
+  Workspaces,
+  WorkspaceUser,
+} from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
