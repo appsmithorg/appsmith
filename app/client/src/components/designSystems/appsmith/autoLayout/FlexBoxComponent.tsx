@@ -78,6 +78,7 @@ export const DropPosition = styled.div<{
   margin: 2px;
   display: ${({ isDragging }) => (isDragging ? "block" : "none")};
   align-self: stretch;
+  opacity: 0;
 `;
 
 export const NewLayerStyled = styled.div<{

@@ -49,6 +49,7 @@ export const useAutoLayoutHighlights = ({
   let highlights: HighlightInfo[] = [];
   let lastActiveHighlight: HighlightInfo | undefined;
   let isNewLayerExpanded = false;
+  const isVerticalStack = direction === LayoutDirection.Vertical;
   let containerDimensions: {
     top: number;
     bottom: number;
@@ -198,6 +199,17 @@ export const useAutoLayoutHighlights = ({
     }
   };
 
+  const toggleHighlightVisibility = (
+    arr: HighlightInfo[],
+    selected: HighlightInfo[],
+  ): void => {
+    arr.forEach((each: HighlightInfo) => {
+      const el = each.el as HTMLElement;
+      if (!isVerticalStack) el.style.opacity = "1";
+      else el.style.opacity = selected.includes(each) ? "1" : "0";
+    });
+  };
+
   const highlightDropPosition = (
     e: any,
     moveDirection: ReflowDirection,
@@ -256,18 +268,14 @@ export const useAutoLayoutHighlights = ({
       pos,
       moveDirection,
     );
-    // console.log(
-    //   "#### filteredHighlights: ",
-    //   filteredHighlights,
-    //   base,
-    //   moveDirection,
-    // );
+
     const arr = filteredHighlights.sort((a, b) => {
       return (
         calculateDistance(a, pos, moveDirection) -
         calculateDistance(b, pos, moveDirection)
       );
     });
+    toggleHighlightVisibility(base, filteredHighlights);
 
     const isVerticalDrag =
       moveDirection &&
