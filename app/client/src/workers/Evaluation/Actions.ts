@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  EvalTree,
+  EvalTreeEntity,
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import {
   ActionDescription,
@@ -41,8 +46,8 @@ export const DATA_TREE_FUNCTIONS: Record<
   string,
   | ActionDispatcherWithExecutionType
   | {
-      qualifier: (entity: DataTreeEntity) => boolean;
-      func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
+      qualifier: (entity: EvalTreeEntity) => boolean;
+      func: (entity: EvalTreeEntity) => ActionDispatcherWithExecutionType;
       path?: string;
     }
 > = {
@@ -299,12 +304,12 @@ export const DATA_TREE_FUNCTIONS: Record<
 };
 
 export const enhanceDataTreeWithFunctions = (
-  dataTree: Readonly<DataTree>,
+  dataTree: Readonly<EvalTree>,
   requestId = "",
   // Whether not to add functions like "run", "clear" to entity
   skipEntityFunctions = false,
   eventType?: EventType,
-): DataTree => {
+): EvalTree => {
   const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {

@@ -1,6 +1,6 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, EvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -226,7 +226,7 @@ function eventRequestHandler({
       let unEvalUpdates: DataTreeDiff[] = [];
       let nonDynamicFieldValidationOrder: string[] = [];
       let isCreateFirstTree = false;
-      let dataTree: DataTree = {};
+      let dataTree: EvalTree = {};
       let errors: EvalError[] = [];
       let logs: any[] = [];
       let userLogs: UserLogObject[] = [];
@@ -235,6 +235,7 @@ function eventRequestHandler({
 
       const {
         allActionValidationConfig,
+        entityConfigCollection,
         requiresLinting,
         shouldReplay,
         theme,
@@ -253,6 +254,7 @@ function eventRequestHandler({
           );
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
+            entityConfigCollection,
           );
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
@@ -289,6 +291,7 @@ function eventRequestHandler({
           }
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
+            entityConfigCollection,
           );
           isCreateFirstTree = true;
           evalOrder = setupFirstTreeResponse.evalOrder;
@@ -317,6 +320,7 @@ function eventRequestHandler({
           }
           const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
             unevalTree,
+            entityConfigCollection,
           );
           evalOrder = setupUpdateTreeResponse.evalOrder;
           lintOrder = setupUpdateTreeResponse.lintOrder;

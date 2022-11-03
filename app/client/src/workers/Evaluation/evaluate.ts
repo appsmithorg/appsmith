@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, EvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   extraLibraries,
@@ -124,7 +124,7 @@ export function setupEvaluationEnvironment() {
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export interface createGlobalDataArgs {
-  dataTree: DataTree;
+  dataTree: EvalTree;
   resolvedFunctions: Record<string, any>;
   context?: EvaluateContext;
   evalArguments?: Array<unknown>;

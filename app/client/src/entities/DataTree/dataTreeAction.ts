@@ -50,6 +50,7 @@ export const generateDataTreeAction = (
 
   return {
     unEvalTree: {
+      actionId: action.config.id,
       run: {},
       clear: {},
       data: action.data ? action.data.body : undefined,

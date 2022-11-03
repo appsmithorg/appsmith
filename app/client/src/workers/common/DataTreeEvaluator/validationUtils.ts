@@ -1,6 +1,10 @@
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeWidget,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { get, isUndefined, set } from "lodash";
 import {
   EvaluationError,
@@ -107,7 +111,7 @@ export function validateActionProperty(
   return validate(config, value, {}, "");
 }
 
-export function getValidatedTree(tree: DataTree) {
+export function getValidatedTree(tree: EvalTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {

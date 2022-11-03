@@ -46,6 +46,7 @@ export enum EvaluationSubstitutionType {
 export type PrivateWidgets = Record<string, true>;
 
 export interface ActionEntityEvalTree {
+  actionId: string;
   isLoading: boolean;
   data: ActionResponse["body"];
   run: ActionDispatcher | RunPluginActionDescription | Record<string, unknown>;

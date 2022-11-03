@@ -1,4 +1,10 @@
-import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  DataTreeJSAction,
+  EntityConfigCollection,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -266,12 +272,12 @@ export function parseJSActions(
   return { jsUpdates };
 }
 
-export function getJSEntities(dataTree: DataTree) {
+export function getJSEntities(dataTree: EvalTree) {
   const jsCollections: Record<string, DataTreeJSAction> = {};
   Object.keys(dataTree).forEach((key: string) => {
-    const entity = dataTree[key];
+    const entity = (dataTree[key] as unknown) as DataTreeEntity;
     if (isJSAction(entity)) {
-      jsCollections[entity.name] = entity;
+      jsCollections[key] = entity;
     }
   });
   return jsCollections;

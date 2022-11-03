@@ -1,4 +1,8 @@
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  EvalTree,
+} from "entities/DataTree/dataTreeFactory";
 
 import { Position } from "codemirror";
 import {
@@ -53,7 +57,7 @@ import { JSUpdate } from "utils/JSPaneUtils";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
-  unEvalTree: DataTree,
+  unEvalTree: EvalTree,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
   const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({

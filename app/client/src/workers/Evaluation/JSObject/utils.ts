@@ -1,6 +1,8 @@
 import {
   DataTree,
+  DataTreeEntity,
   DataTreeJSAction,
+  EvalTree,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -273,12 +275,13 @@ export const removeFunctionsAndVariableJSCollection = (
 };
 
 export function isJSObjectFunction(
-  dataTree: DataTree,
+  dataTree: EvalTree,
   jsObjectName: string,
   key: string,
 ) {
-  const entity = dataTree[jsObjectName];
+  const entity = (dataTree[jsObjectName] as unknown) as DataTreeEntity;
   if (isJSAction(entity)) {
+    // @ts-expect-error: entity-meta
     return entity.meta.hasOwnProperty(key);
   }
   return false;

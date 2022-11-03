@@ -19,6 +19,8 @@ import {
   DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
+  EntityConfigCollection,
+  EvalTree,
   EvaluationSubstitutionType,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
@@ -47,6 +49,7 @@ import {
   isEmpty,
   isFunction,
   isObject,
+  merge,
   set,
   union,
   unset,
@@ -108,7 +111,8 @@ export default class DataTreeEvaluator {
   sortedDependencies: SortedDependencies = [];
   inverseDependencyMap: DependencyMap = {};
   widgetConfigMap: WidgetTypeConfigMap = {};
-  evalTree: DataTree = {};
+  evalTree: EvalTree = {};
+  entityConfigCollection: EntityConfigCollection = {};
   /**
    * This contains raw evaluated value without any validation or parsing.
    * This is used for revalidation as we do not store the raw validated value.
@@ -116,7 +120,7 @@ export default class DataTreeEvaluator {
   unParsedEvalTree: DataTree = {};
   allKeys: Record<string, true> = {};
   privateWidgets: PrivateWidgets = {};
-  oldUnEvalTree: DataTree = {};
+  oldUnEvalTree: EvalTree = {};
   errors: EvalError[] = [];
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
@@ -155,7 +159,7 @@ export default class DataTreeEvaluator {
     return this.evalTree;
   }
 
-  setEvalTree(evalTree: DataTree) {
+  setEvalTree(evalTree: EvalTree) {
     this.evalTree = evalTree;
   }
 
@@ -172,7 +176,8 @@ export default class DataTreeEvaluator {
    * evaluation of the first tree
    */
   setupFirstTree(
-    unEvalTree: DataTree,
+    unEvalTree: EvalTree,
+    entityConfigCollection: EntityConfigCollection,
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -181,7 +186,9 @@ export default class DataTreeEvaluator {
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const firstCloneStartTime = performance.now();
-    let localUnEvalTree = klona(unEvalTree);
+    const completeUnEvalTree = merge(unEvalTree, entityConfigCollection);
+    console.log("$$$-completeUnEvalTree", completeUnEvalTree);
+    let localUnEvalTree: DataTree = klona(completeUnEvalTree);
     const firstCloneEndTime = performance.now();
 
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -197,7 +204,7 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
     // set All keys
-    this.allKeys = getAllPaths(localUnEvalTree);
+    this.allKeys = getAllPaths(unEvalTree);
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
@@ -235,7 +242,7 @@ export default class DataTreeEvaluator {
     const inverseDependencyGenerationEndTime = performance.now();
 
     const secondCloneStartTime = performance.now();
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = klona(unEvalTree);
     const secondCloneEndTime = performance.now();
 
     const totalFirstTreeSetupEndTime = performance.now();
@@ -276,7 +283,7 @@ export default class DataTreeEvaluator {
   }
 
   evalAndValidateFirstTree(): {
-    evalTree: DataTree;
+    evalTree: EvalTree;
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const evaluationStartTime = performance.now();
@@ -311,7 +318,7 @@ export default class DataTreeEvaluator {
     };
   }
 
-  updateLocalUnEvalTree(dataTree: DataTree) {
+  updateLocalUnEvalTree(dataTree: EvalTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
@@ -335,7 +342,8 @@ export default class DataTreeEvaluator {
    */
 
   setupUpdateTree(
-    unEvalTree: DataTree,
+    unEvalTree: EvalTree,
+    entityConfigCollection: EntityConfigCollection,
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -344,15 +352,15 @@ export default class DataTreeEvaluator {
     nonDynamicFieldValidationOrder: string[];
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
-
-    let localUnEvalTree = Object.assign({}, unEvalTree);
+    const completeUnEvalTree = merge(unEvalTree, entityConfigCollection);
+    let localUnEvalTree = Object.assign({}, completeUnEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
-    this.updateLocalUnEvalTree(localUnEvalTree);
+    this.updateLocalUnEvalTree(unEvalTree);
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
-    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+    const localUnEvalTreeJSCollection = getJSEntities(unEvalTree);
     const jsDifferences: Diff<
       Record<string, DataTreeJSAction>,
       Record<string, DataTreeJSAction>
@@ -378,7 +386,7 @@ export default class DataTreeEvaluator {
     );
 
     const differences: Diff<DataTree, DataTree>[] =
-      diff(this.oldUnEvalTree, localUnEvalTree) || [];
+      diff(this.oldUnEvalTree, unEvalTree) || [];
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
@@ -467,7 +475,7 @@ export default class DataTreeEvaluator {
     const cloneStartTime = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = klona(unEvalTree);
     const cloneEndTime = performance.now();
 
     const totalUpdateTreeSetupEndTime = performance.now();
@@ -639,12 +647,12 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: DataTree,
+    oldUnevalTree: EvalTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
     option = { skipRevalidation: true },
   ): {
-    evaluatedTree: DataTree;
+    evaluatedTree: EvalTree;
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
@@ -655,7 +663,7 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
-          const entity = currentTree[entityName] as
+          const entity = this.entityConfigCollection[entityName] as
             | DataTreeWidget
             | DataTreeAction;
           const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
