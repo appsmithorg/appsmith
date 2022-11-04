@@ -121,10 +121,19 @@ function eventRequestHandler({
       if (!dataTreeEvaluator) {
         return { triggers: [], errors: [] };
       }
+      const completeUnEvalTree = merge(
+        {},
+        dataTree,
+        entityConfigCollection,
+      ) as DataTree;
       const {
         evalOrder,
         nonDynamicFieldValidationOrder,
-      } = dataTreeEvaluator.setupUpdateTree(dataTree, entityConfigCollection);
+      } = dataTreeEvaluator.setupUpdateTree(
+        dataTree,
+        entityConfigCollection,
+        completeUnEvalTree,
+      );
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
@@ -253,9 +262,15 @@ function eventRequestHandler({
             widgetTypeConfigMap,
             allActionValidationConfig,
           );
+          const completeUnEvalTree = merge(
+            {},
+            unevalTree,
+            entityConfigCollection,
+          ) as DataTree;
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
             entityConfigCollection,
+            completeUnEvalTree,
           );
           evalOrder = setupFirstTreeResponse.evalOrder;
           lintOrder = setupFirstTreeResponse.lintOrder;
@@ -296,9 +311,15 @@ function eventRequestHandler({
               allActionValidationConfig,
             );
           }
+          const completeUnEvalTree = merge(
+            {},
+            unevalTree,
+            entityConfigCollection,
+          ) as DataTree;
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
             entityConfigCollection,
+            completeUnEvalTree,
           );
           isCreateFirstTree = true;
           evalOrder = setupFirstTreeResponse.evalOrder;
@@ -330,9 +351,16 @@ function eventRequestHandler({
           if (shouldReplay) {
             replayMap[CANVAS]?.update({ widgets, theme });
           }
+
+          const completeUnEvalTree = merge(
+            {},
+            unevalTree,
+            entityConfigCollection,
+          ) as DataTree;
           const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
             unevalTree,
             entityConfigCollection,
+            completeUnEvalTree,
           );
           evalOrder = setupUpdateTreeResponse.evalOrder;
           lintOrder = setupUpdateTreeResponse.lintOrder;

@@ -134,7 +134,12 @@ const generateDataTreeWidgetWithoutMeta = (
    */
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {},
-    widget,
+    _.omit(widget, [
+      "dynamicBindingPathList",
+      "dynamicPropertyPathList",
+      "dynamicTriggerPathList",
+      "privateWidgets",
+    ]),
     unInitializedDefaultProps,
     derivedProps,
     {
@@ -164,6 +169,7 @@ const generateDataTreeWidgetWithoutMeta = (
       propertyOverrideDependency,
       overridingPropertyPaths,
       type: widget.type,
+      ..._.pick(widget, ["dynamicPropertyPathList", "dynamicTriggerPathList"]),
     },
   };
 };

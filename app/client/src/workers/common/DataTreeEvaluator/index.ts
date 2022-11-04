@@ -181,6 +181,7 @@ export default class DataTreeEvaluator {
   setupFirstTree(
     unEvalTree: EvalTree,
     entityConfigCollection: EntityConfigCollection,
+    completeUnEvalTree: DataTree,
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -189,11 +190,7 @@ export default class DataTreeEvaluator {
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const firstCloneStartTime = performance.now();
-    const completeUnEvalTree = merge(
-      {},
-      unEvalTree,
-      entityConfigCollection,
-    ) as DataTree;
+
     this.completeUnEvalTree = completeUnEvalTree;
     this.oldUnEvalTree = klona(unEvalTree);
 
@@ -353,6 +350,7 @@ export default class DataTreeEvaluator {
   setupUpdateTree(
     unEvalTree: EvalTree,
     entityConfigCollection: EntityConfigCollection,
+    completeUnEvalTree: DataTree,
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -361,11 +359,7 @@ export default class DataTreeEvaluator {
     nonDynamicFieldValidationOrder: string[];
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
-    const completeUnEvalTree = merge(
-      {},
-      unEvalTree,
-      entityConfigCollection,
-    ) as DataTree;
+
     this.completeUnEvalTree = completeUnEvalTree;
     const localUnEvalTree = Object.assign({}, completeUnEvalTree);
     let jsUpdates: Record<string, JSUpdate> = {};
