@@ -1,4 +1,3 @@
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { ApplicationVersion } from "actions/applicationActions";
 import {
   ApplicationPagePayload,

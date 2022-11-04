@@ -33,7 +33,6 @@ import {
   DataTreeEvaluationProps,
   EvaluationError,
   EVAL_ERROR_PATH,
-  EvaluationError,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
