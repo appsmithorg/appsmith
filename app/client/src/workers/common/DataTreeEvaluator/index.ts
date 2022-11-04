@@ -537,9 +537,11 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const evaluationStartTime = performance.now();
-    const { evalMetaUpdates, evaluatedTree: newEvalTree } = this.evaluateTree(
+    const {
+      evalMetaUpdates,
+      evaluatedTree: newEvalTree,
+    } = this.evaluateTree(
       this.evalTree,
-
       this.resolvedFunctions,
       evaluationOrder,
       { skipRevalidation: false },
@@ -662,7 +664,7 @@ export default class DataTreeEvaluator {
   }
 
   evaluateTree(
-    oldUnevalTree: EvalTree,
+    treeToEvaluate: EvalTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
     option = { skipRevalidation: true },
@@ -670,7 +672,7 @@ export default class DataTreeEvaluator {
     evaluatedTree: EvalTree;
     evalMetaUpdates: EvalMetaUpdates;
   } {
-    const tree = klona(oldUnevalTree);
+    const tree = klona(treeToEvaluate);
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
