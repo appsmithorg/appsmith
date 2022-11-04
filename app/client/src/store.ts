@@ -13,12 +13,14 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import routeParamsMiddleware from "RouteParamsMiddleware";
 
 const sagaMiddleware = createSagaMiddleware();
+const ignoredSentryActionTypes = [
+  ReduxActionTypes.SET_EVALUATED_TREE,
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  ReduxActionTypes.SET_LINT_ERRORS,
+];
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   actionTransformer: (action) => {
-    if (
-      action.type === ReduxActionTypes.SET_EVALUATED_TREE ||
-      action.type === ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS
-    ) {
+    if (ignoredSentryActionTypes.includes(action.type)) {
       // Return null to not log the action to Sentry
       action.payload = null;
     }

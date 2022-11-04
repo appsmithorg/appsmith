@@ -22,7 +22,7 @@ import {
   GENERATE_PAGE_DESCRIPTION,
   TEMPLATE_CARD_DESCRIPTION,
   TEMPLATE_CARD_TITLE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { deleteCanvasCardsState } from "actions/editorActions";
