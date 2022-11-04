@@ -566,6 +566,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             minInputSingleLineHeight >
             1 && this.props.inputType === InputTypes.TEXT
         }
+        onBlur={this.onBlur}
+        onFocus={this.onFocus}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
@@ -581,6 +583,28 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   }
 
+  onFocus = () => {
+    if (this.props.onFocus)
+      super.executeAction({
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+  };
+
+  onBlur = () => {
+    if (this.props.onBlur)
+      super.executeAction({
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+  };
+
   static getWidgetType(): WidgetType {
     return "INPUT_WIDGET_V2";
   }
@@ -593,6 +617,8 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   maxNum?: number;
   minNum?: number;
   inputText: string;
+  onFocus?: string;
+  onBlur?: string;
 }
 
 export default InputWidget;

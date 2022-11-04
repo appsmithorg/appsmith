@@ -323,6 +323,8 @@ class DatePickerComponent extends React.Component<
               initialMonth={initialMonth}
               inputProps={{
                 inputRef: this.props.inputRef,
+                onFocus: () => this.props.onFocus?.(),
+                onBlur: () => this.props.onBlur?.(),
               }}
               maxDate={maxDate}
               minDate={minDate}
@@ -448,6 +450,8 @@ interface DatePickerComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 interface DatePickerComponentState {

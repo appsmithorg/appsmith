@@ -445,6 +445,24 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: true,
           },
+          {
+            helpText: "Triggers an action when a select field gets focus",
+            propertyName: "onFocus",
+            label: "onFocus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when a user leaves the select field",
+            propertyName: "onBlur",
+            label: "onBlur",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
         ],
       },
     ];
@@ -660,8 +678,10 @@ class MultiSelectWidget extends BaseWidget<
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
+        onBlur={this.onBlur}
         onChange={this.onOptionChange}
         onFilterChange={this.onFilterChange}
+        onFocus={this.onFocus}
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
@@ -710,6 +730,30 @@ class MultiSelectWidget extends BaseWidget<
     }
   };
 
+  onFocus = () => {
+    if (this.props.onFocus) {
+      super.executeAction({
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+    }
+  };
+
+  onBlur = () => {
+    if (this.props.onBlur) {
+      super.executeAction({
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+    }
+  };
+
   static getWidgetType(): WidgetType {
     return "MULTI_SELECT_WIDGET_V2";
   }
@@ -730,6 +774,8 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   onOptionChange: string;
   onFilterChange: string;
+  onFocus?: string;
+  onBlur?: string;
   defaultOptionValue: string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
