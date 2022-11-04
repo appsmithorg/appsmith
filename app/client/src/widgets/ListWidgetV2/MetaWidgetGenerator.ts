@@ -49,6 +49,7 @@ export type GeneratorOptions = {
   pageSize?: number;
   primaryKeys?: (string | number | undefined)[];
   scrollElement: ConstructorProps["scrollElement"];
+  serverSidePagination: ConstructorProps["serverSidePagination"];
   templateBottomRow: ConstructorProps["templateBottomRow"];
   widgetName: string;
 };
@@ -61,6 +62,7 @@ type ConstructorProps = {
   onVirtualListScroll: () => void;
   renderMode: string;
   scrollElement: HTMLDivElement | null;
+  serverSidePagination: boolean;
   setWidgetCache: (data: MetaWidgetCache) => void;
   templateBottomRow: number;
   widgetId: string;
@@ -152,6 +154,7 @@ class MetaWidgetGenerator {
   private renderMode: ConstructorProps["renderMode"];
   private modificationsQueue: Queue<MODIFICATION_TYPE>;
   private scrollElement: ConstructorProps["scrollElement"];
+  private serverSidePagination: ConstructorProps["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
   private templateBottomRow: ConstructorProps["templateBottomRow"];
   private templateWidgetStatus: TemplateWidgetStatus;
@@ -179,6 +182,7 @@ class MetaWidgetGenerator {
     this.renderMode = props.renderMode;
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
     this.scrollElement = props.scrollElement;
+    this.serverSidePagination = props.serverSidePagination;
     this.setWidgetCache = props.setWidgetCache;
     this.templateBottomRow = props.templateBottomRow;
     this.templateWidgetStatus = {
@@ -204,6 +208,7 @@ class MetaWidgetGenerator {
     this.pageSize = options.pageSize;
     this.primaryKeys = options.primaryKeys;
     this.scrollElement = options.scrollElement;
+    this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
     this.widgetName = options.widgetName;
     this.currTemplateWidgets = extractTillNestedListWidget(
@@ -916,6 +921,10 @@ class MetaWidgetGenerator {
   };
 
   private getData = () => {
+    if (this.serverSidePagination) {
+      return this.data;
+    }
+
     if (this.infiniteScroll) {
       if (this.virtualizer) {
         const virtualItems = this.virtualizer.getVirtualItems();
@@ -943,6 +952,7 @@ class MetaWidgetGenerator {
         return items[0]?.index ?? 0;
       }
     } else if (
+      !this.serverSidePagination &&
       typeof this.pageSize === "number" &&
       typeof this.pageNo === "number"
     ) {

@@ -98,7 +98,7 @@ const PropertyPaneConfig = [
       {
         helpText:
           "Bind the List.pageNo property in your API and call it onPageChange",
-        propertyName: "serverSidePaginationEnabled",
+        propertyName: "serverSidePagination",
         label: "Server Side Pagination",
         controlType: "SWITCH",
         isBindProperty: false,
@@ -207,8 +207,8 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled"],
+          !props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
       },
       {
         helpText: "Triggers an action when a list page size is changed",
@@ -219,8 +219,8 @@ const PropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled"],
+          !props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
       },
     ],
   },

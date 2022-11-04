@@ -238,6 +238,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       mainContainerId = "",
       pageNo,
       primaryKeys,
+      serverSidePagination = false,
     } = this.props;
     const pageSize = this.pageSize;
 
@@ -257,6 +258,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       widgetName: this.props.widgetName,
       pageNo,
       pageSize,
+      serverSidePagination,
     };
   };
 
@@ -385,7 +387,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       infiniteScroll,
       listData,
       parentRowSpace,
-      serverSidePaginationEnabled,
+      serverSidePagination,
     } = this.props;
     const widgetPadding = parentRowSpace * 0.4;
     const itemsCount = (listData || []).length;
@@ -408,7 +410,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     const spaceTakenByAllContainers = spaceTakenByOneContainer * itemsCount;
     const paginationControlsEnabled =
       (spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls ||
-        serverSidePaginationEnabled) &&
+        serverSidePagination) &&
       !infiniteScroll;
 
     const totalAvailableSpace = paginationControlsEnabled
@@ -429,9 +431,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
 
   shouldFireOnPageSizeChange = () => {
-    return (
-      this.props.serverSidePaginationEnabled && this.props.onPageSizeChange
-    );
+    return this.props.serverSidePagination && this.props.onPageSizeChange;
   };
 
   mainMetaCanvasWidget = () => {
@@ -613,7 +613,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     const {
       infiniteScroll = false,
       listData,
-      serverSidePaginationEnabled,
+      serverSidePagination,
     } = this.props;
     const pageSize = this.pageSize;
 
@@ -621,7 +621,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       return { shouldPaginate: false, pageSize: (listData || []).length };
     }
 
-    if (serverSidePaginationEnabled) {
+    if (serverSidePagination) {
       return { shouldPaginate: true, pageSize: pageSize };
     }
 
@@ -735,7 +735,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
    */
   getPageView() {
     const { componentHeight } = this.getComponentDimensions();
-    const { pageNo, serverSidePaginationEnabled } = this.props;
+    const { pageNo, serverSidePagination } = this.props;
     const { pageSize, shouldPaginate } = this.shouldPaginate();
     const templateHeight =
       this.getTemplateBottomRow() * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -802,7 +802,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
           {this.renderChildren()}
         </MetaWidgetContextProvider>
         {shouldPaginate &&
-          (serverSidePaginationEnabled ? (
+          (serverSidePagination ? (
             <ServerSideListPagination
               nextPageClick={() => this.onPageChange(pageNo + 1)}
               pageNo={this.props.pageNo}
@@ -840,6 +840,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   boxShadow?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
+  currentViewItems: Array<Record<string, unknown>>;
   dynamicPathMapList?: DynamicPathMapList;
   gridGap?: number;
   infiniteScroll?: boolean;
@@ -849,11 +850,11 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   mainCanvasId?: string;
   mainContainerId?: string;
   onListItemClick?: string;
-  primaryKeys?: (string | number)[];
   onPageSizeChange?: string;
   pageNo: number;
-  currentViewItems: Array<Record<string, unknown>>;
   pageSize: number;
+  primaryKeys?: (string | number)[];
+  serverSidePagination?: boolean;
 }
 
 export default ListWidget;
