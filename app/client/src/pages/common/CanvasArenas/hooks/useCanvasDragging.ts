@@ -607,7 +607,9 @@ export const useCanvasDragging = (
                 isCurrentDraggedCanvas &&
                 currentDirection.current !== ReflowDirection.UNSET
               )
-                highlightDropPosition(e, currentDirection.current);
+                debounce(() => {
+                  highlightDropPosition(e, currentDirection.current);
+                }, 100)();
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
