@@ -14,6 +14,7 @@ import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { isCurrentCanvasDragging } from "selectors/autoLayoutSelectors";
+import { getWidgets } from "sagas/selectors";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -33,6 +34,26 @@ export interface LayerChild {
 export interface FlexLayer {
   children: LayerChild[];
   hasFillChild?: boolean;
+}
+
+interface DropPositionProps {
+  isVertical: boolean;
+  alignment: FlexLayerAlignment;
+  layerIndex: number;
+  childIndex: number;
+  widgetId: string;
+  isNewLayer: boolean;
+}
+
+interface NewLayerProps {
+  alignment: FlexLayerAlignment;
+  childCount: number;
+  layerIndex: number;
+  isDragging: boolean;
+  isNewLayer: boolean;
+  isVertical: boolean;
+  map: { [key: string]: any };
+  widgetId: string;
 }
 
 export const FlexContainer = styled.div<{
@@ -93,6 +114,7 @@ export const NewLayerStyled = styled.div<{
 function FlexBoxComponent(props: FlexBoxProps) {
   // TODO: set isMobile as a prop at the top level
   const isMobile = useSelector(getIsMobile);
+  const allWidgets = useSelector(getWidgets);
   const direction: LayoutDirection =
     props.direction || LayoutDirection.Horizontal;
   const appMode = useSelector(getAppMode);
@@ -109,14 +131,15 @@ function FlexBoxComponent(props: FlexBoxProps) {
     if (!props.children) return null;
     if (!props.useAutoLayout) return props.children;
     if (direction === LayoutDirection.Horizontal) {
-      return addDropPositions(
-        props.children as any,
-        0,
-        0,
-        FlexLayerAlignment.Start,
-        true,
-        true,
-      );
+      return addDropPositions({
+        arr: props.children as any,
+        childCount: 0,
+        layerIndex: 0,
+        alignment: FlexLayerAlignment.Start,
+        isVertical: true,
+        isNewLayer: true,
+        addInitialHighlight: true,
+      });
     }
 
     /**
@@ -145,14 +168,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     });
   }
 
-  function DropPositionComponent(props: {
-    isVertical: boolean;
-    alignment: FlexLayerAlignment;
-    layerIndex: number;
-    childIndex: number;
-    widgetId: string;
-    isNewLayer: boolean;
-  }) {
+  function DropPositionComponent(props: DropPositionProps) {
     return (
       <DropPosition
         className={`t--drop-position-${props.widgetId} alignment-${
@@ -166,16 +182,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     );
   }
 
-  function NewLayerComponent(props: {
-    alignment: FlexLayerAlignment;
-    childCount: number;
-    layerIndex: number;
-    isDragging: boolean;
-    isNewLayer: boolean;
-    isVertical: boolean;
-    map: { [key: string]: any };
-    widgetId: string;
-  }): JSX.Element {
+  function NewLayerComponent(props: NewLayerProps): JSX.Element {
     const {
       alignment,
       childCount,
@@ -226,25 +233,37 @@ function FlexBoxComponent(props: FlexBoxProps) {
       isVertical ? "vertical" : "horizontal"
     }-${Math.random()}`;
 
-  const addDropPositions = (
-    arr: any[],
-    childCount: number,
-    layerIndex: number,
-    alignment: FlexLayerAlignment,
-    isVertical: boolean,
-    isNewLayer: boolean,
-  ): any[] => {
-    const res = [
-      <DropPositionComponent
-        alignment={alignment}
-        childIndex={childCount}
-        isNewLayer={isNewLayer}
-        isVertical={isVertical}
-        key={getDropPositionKey(0, alignment, layerIndex, true)}
-        layerIndex={layerIndex}
-        widgetId={props.widgetId}
-      />,
-    ];
+  const addDropPositions = (data: {
+    arr: any[];
+    childCount: number;
+    layerIndex: number;
+    alignment: FlexLayerAlignment;
+    isVertical: boolean;
+    isNewLayer: boolean;
+    addInitialHighlight: boolean;
+  }): any[] => {
+    const {
+      addInitialHighlight,
+      alignment,
+      arr,
+      childCount,
+      isNewLayer,
+      isVertical,
+      layerIndex,
+    } = data;
+    const res = addInitialHighlight
+      ? [
+          <DropPositionComponent
+            alignment={alignment}
+            childIndex={childCount}
+            isNewLayer={isNewLayer}
+            isVertical={isVertical}
+            key={getDropPositionKey(0, alignment, layerIndex, true)}
+            layerIndex={layerIndex}
+            widgetId={props.widgetId}
+          />,
+        ]
+      : [];
     let count = 0;
     if (arr) {
       for (const item of arr) {
@@ -347,47 +366,70 @@ function FlexBoxComponent(props: FlexBoxProps) {
     let start = [],
       center = [],
       end = [];
+    let startColumns = 0,
+      centerColumns = 0,
+      endColumns = 0;
 
     for (const child of children) {
       count += 1;
       const widget = map[child.id];
       if (hasFillChild) {
         start.push(widget);
+        startColumns += allWidgets[child.id].rightColumn;
         continue;
       }
-      if (child.align === "end") end.push(widget);
-      else if (child.align === "center") center.push(widget);
-      else start.push(widget);
+      if (child.align === "end") {
+        end.push(widget);
+        endColumns += allWidgets[child.id]
+          ? allWidgets[child.id]?.rightColumn
+          : 0;
+      } else if (child.align === "center") {
+        center.push(widget);
+        centerColumns += allWidgets[child.id]
+          ? allWidgets[child.id]?.rightColumn
+          : 0;
+      } else {
+        start.push(widget);
+        startColumns += allWidgets[child.id]
+          ? allWidgets[child.id]?.rightColumn
+          : 0;
+      }
     }
     /**
      * Add drop positions
      */
     const startLength = start.length,
       centerLength = center.length;
-    start = addDropPositions(
-      start,
+
+    start = addDropPositions({
+      arr: start,
       childCount,
-      index,
-      FlexLayerAlignment.Start,
-      true,
+      layerIndex: index,
+      alignment: FlexLayerAlignment.Start,
+      isVertical: true,
       isNewLayer,
-    );
-    center = addDropPositions(
-      center,
-      childCount + startLength,
-      index,
-      FlexLayerAlignment.Center,
-      true,
+      addInitialHighlight: !(
+        start.length === 0 && centerColumns + endColumns > 60
+      ),
+    });
+    center = addDropPositions({
+      arr: center,
+      childCount: childCount + startLength,
+      layerIndex: index,
+      alignment: FlexLayerAlignment.Center,
+      isVertical: true,
       isNewLayer,
-    );
-    end = addDropPositions(
-      end,
-      childCount + startLength + centerLength,
-      index,
-      FlexLayerAlignment.End,
-      true,
+      addInitialHighlight: !(startColumns > 25 || endColumns > 25),
+    });
+    end = addDropPositions({
+      arr: end,
+      childCount: childCount + startLength + centerLength,
+      layerIndex: index,
+      alignment: FlexLayerAlignment.End,
+      isVertical: true,
       isNewLayer,
-    );
+      addInitialHighlight: !(centerColumns > 25 || startColumns > 60),
+    });
 
     return {
       element: (
@@ -409,10 +451,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
       count,
     };
   }
-
-  // function addInPosition(arr: any[], index: number, item: any): any[] {
-  //   return [...arr.slice(0, index), item, ...arr.slice(index)];
-  // }
 
   return (
     <FlexContainer
