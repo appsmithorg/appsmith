@@ -759,8 +759,8 @@ export function EditorJSONtoForm(props: Props) {
 
   const onResponseTabSelect = (tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
-      AnalyticsUtil.logEvent("ERROR_TAB_CLICK", {
-        source: "API_PANE",
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "QUERY_PANE",
       });
     }
     updateActionResponseDisplayFormat({
