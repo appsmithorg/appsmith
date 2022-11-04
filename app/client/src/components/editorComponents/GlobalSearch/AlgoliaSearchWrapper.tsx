@@ -6,7 +6,10 @@ import { debounce } from "lodash";
 import { isSnippet, SearchCategory } from "./utils";
 
 const { algolia } = getAppsmithConfigs();
-const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
+const searchClient = algoliasearch(
+  algolia.apiId,
+  "9dda5f786aa88b81fa9f7860aab67d02",
+);
 
 type SearchProps = {
   query: string;
@@ -35,7 +38,7 @@ function Search({
 
   return (
     <InstantSearch
-      indexName={isSnippet(category) ? "snippet" : algolia.indexName}
+      indexName={isSnippet(category) ? "snippet" : "appsmith_docusaurus_index"}
       onSearchStateChange={(searchState) => {
         setRefinement(searchState.refinementList || {});
       }}

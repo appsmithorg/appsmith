@@ -36,7 +36,10 @@ const {
   cloudHosting,
   intercomAppID,
 } = getAppsmithConfigs();
-const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
+const searchClient = algoliasearch(
+  algolia.apiId,
+  "9dda5f786aa88b81fa9f7860aab67d02",
+);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
 const DocumentIcon = HelpIcons.DOCUMENT;
@@ -395,7 +398,7 @@ class DocumentationSearch extends React.Component<Props, State> {
           />
         )}
         <InstantSearch
-          indexName={algolia.indexName}
+          indexName={"appsmith_docusaurus_index"}
           searchClient={searchClient}
         >
           <Configure hitsPerPage={this.props.hitsPerPage} />

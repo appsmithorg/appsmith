@@ -126,7 +126,10 @@ const parseMarkdown = (value: string) => {
       const currentToken = token;
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      if ("type" in currentToken && currentToken.type === "link") {
+      if (
+        "type" in currentToken &&
+        (currentToken.type === "link" || currentToken.type === "image")
+      ) {
         if ("href" in currentToken) {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore

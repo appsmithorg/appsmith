@@ -279,6 +279,7 @@
     "mochawesome": "^7.1.2",
     "mochawesome-report-generator": "^6.1.1",
     "msw": "^0.28.0",
+    "octokit": "^2.0.10",
     "patch-package": "^6.4.7",
     "plop": "^3.1.1",
     "postinstall-postinstall": "^2.1.0",
