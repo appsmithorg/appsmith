@@ -1,11 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/videoWidgetDsl.json");
+const buttondsl = require("../../../../../fixtures/buttondsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Video Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.addDsl(buttondsl);
   });
 
   it("Video Widget play functionality validation", function() {
@@ -71,6 +73,49 @@ describe("Video Widget Functionality", function() {
     cy.get(commonlocators.toastMsg).should("be.visible");
     cy.get(commonlocators.toastMsg).contains("Pause success");
     */
+  });
+
+  it("Resets video widget when it is paused", function() {
+    cy.get(commonlocators.onPause).click();
+    cy.selectResetWidget();
+    cy.selectWidgetForReset("Video1");
+    cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  });
+
+  it("Resets video widget on button click", function() {
+    cy.openPropertyPane("buttonwidget");
+    cy.widgetText(
+      "Button1",
+      widgetsPage.buttonWidget,
+      commonlocators.buttonInner,
+    );
+    cy.get(commonlocators.onClick).click();
+    cy.selectResetWidget();
+    cy.selectWidgetForReset("Video1");
+    cy.openPropertyPane("videowidget");
+    cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(widgetsPage.widgetBtn).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   });
 
   afterEach(() => {

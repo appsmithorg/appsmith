@@ -1,11 +1,13 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/audioWidgetDsl.json");
+const buttondsl = require("../../../../../fixtures/buttondsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Audio Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.addDsl(buttondsl);
   });
 
   it("Audio Widget play functionality validation", function() {
@@ -53,11 +55,42 @@ describe("Audio Widget Functionality", function() {
     );
   });
 
-  it("Audio widget reset functionality validation", function() {
+  it("Resets audio widget when it is paused", function() {
     cy.get(commonlocators.onPause).click();
     cy.selectResetWidget();
     cy.selectWidgetForReset("Audio1");
-    cy.get(widgetsPage.autoPlay).click();
+    cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+  });
+
+  it("Resets audio widget on button click", function() {
+    cy.openPropertyPane("buttonwidget");
+    cy.widgetText(
+      "Button1",
+      widgetsPage.buttonWidget,
+      commonlocators.buttonInner,
+    );
+    cy.get(commonlocators.onClick).click();
+    cy.selectResetWidget();
+    cy.selectWidgetForReset("Audio1");
+    cy.openPropertyPane("audiowidget");
+    cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(widgetsPage.widgetBtn).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

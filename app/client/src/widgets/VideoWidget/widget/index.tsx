@@ -178,7 +178,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     return {};
   }
 
-  componentDidUpdate(prevProps: VideoWidgetProps): void {
+  componentDidUpdate(): void {
     if (this.props.playState === "NOT_STARTED") this._player.current?.seekTo(0);
   }
 

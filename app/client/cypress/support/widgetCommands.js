@@ -879,7 +879,7 @@ Cypress.Commands.add("selectResetWidget", () => {
 
 Cypress.Commands.add("selectWidgetForReset", (value) => {
   cy.get(commonlocators.chooseWidget)
-    .first()
+    .last()
     .click({ force: true });
   cy.get(commonlocators.chooseAction)
     .children()
