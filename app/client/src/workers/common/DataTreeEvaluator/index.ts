@@ -51,7 +51,6 @@ import {
   isEmpty,
   isFunction,
   isObject,
-  merge,
   set,
   union,
   unset,

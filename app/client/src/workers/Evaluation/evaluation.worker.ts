@@ -287,6 +287,7 @@ function eventRequestHandler({
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
 
           dataTree = merge(
+            {},
             dataTreeResponse.evalTree,
             dataTreeEvaluator.completeUnEvalTree,
           );
@@ -337,6 +338,7 @@ function eventRequestHandler({
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
 
           dataTree = merge(
+            {},
             dataTreeResponse.evalTree,
             dataTreeEvaluator.completeUnEvalTree,
           );
