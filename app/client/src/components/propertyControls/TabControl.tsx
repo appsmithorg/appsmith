@@ -31,7 +31,7 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
-const SpanDisplayingNumberOfTabs = styled.span`
+const NumberOfTabs = styled.div`
   margin: 1% 0;
 `;
 
@@ -197,19 +197,18 @@ class TabControl extends BaseControl<ControlProps, State> {
     });
   };
   render() {
+    const tabs = this.getTabItems();
     return (
       <TabsWrapper>
-        <SpanDisplayingNumberOfTabs>
-          <span className="t--number-of-tabs-span">
-            {this.getTabItems().length} tabs
-          </span>
-        </SpanDisplayingNumberOfTabs>
+        <NumberOfTabs className="t--number-of-tabs">
+          {tabs.length} tabs
+        </NumberOfTabs>
         <DroppableComponent
           deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={this.getTabItems()}
+          items={tabs}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
