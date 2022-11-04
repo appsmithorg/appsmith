@@ -13,7 +13,8 @@ export interface LintTreeResponse {
 
 export interface LintTreeRequest {
   pathsToLint: string[];
-  unevalTree: DataTree;
+  unevalTree: EvalTree;
+  completeUnEvalTree: DataTree;
   jsUpdates: Record<string, JSUpdate>;
 }
 

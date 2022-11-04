@@ -442,7 +442,8 @@ function getInvalidPropertyErrorsFromScript(
 export function initiateLinting(
   lintOrder: string[],
   jsUpdates: Record<string, JSUpdate>,
-  unevalTree: DataTree,
+  unevalTree: EvalTree,
+  completeUnEvalTree: DataTree,
   requiresLinting: boolean,
 ) {
   if (!requiresLinting) return;
@@ -452,6 +453,7 @@ export function initiateLinting(
       lintOrder,
       jsUpdates,
       unevalTree,
+      completeUnEvalTree,
       type: EVAL_WORKER_ACTIONS.LINT_TREE,
     },
   });

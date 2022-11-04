@@ -264,6 +264,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
+            dataTreeEvaluator.evalTree,
             dataTreeEvaluator.completeUnEvalTree,
             requiresLinting,
           );
@@ -307,6 +308,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
+            dataTreeEvaluator.evalTree,
             dataTreeEvaluator.completeUnEvalTree,
             requiresLinting,
           );
@@ -340,6 +342,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
+            dataTreeEvaluator.evalTree,
             dataTreeEvaluator.completeUnEvalTree,
             requiresLinting,
           );
@@ -380,7 +383,10 @@ function eventRequestHandler({
           });
           console.error(error);
         }
-        // dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
+        dataTree = getSafeToRenderDataTree(
+          merge({}, unevalTree, entityConfigCollection) as DataTree,
+          widgetTypeConfigMap,
+        );
         unEvalUpdates = [];
       }
 

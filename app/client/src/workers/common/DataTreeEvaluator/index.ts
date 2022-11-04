@@ -17,6 +17,7 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeEntityConfig,
   DataTreeJSAction,
   DataTreeWidget,
   EntityConfigCollection,
@@ -677,7 +678,7 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
-          const entity = this.entityConfigCollection[entityName] as
+          const entity = this.completeUnEvalTree[entityName] as
             | DataTreeWidget
             | DataTreeAction;
           const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
@@ -920,7 +921,9 @@ export default class DataTreeEvaluator {
       // Get the Data Tree value of those "binding "paths
       const values = jsSnippets.map((jsSnippet, index) => {
         const toBeSentForEval =
-          entity && isJSAction(entityConfig) && propertyPath === "body"
+          entity &&
+          isJSAction(entity as DataTreeEntity) &&
+          propertyPath === "body"
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
@@ -928,7 +931,7 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
-            !!entity && isJSAction(entityConfig),
+            !!entity && isJSAction(entity as DataTreeEntity),
             contextData,
             callBackData,
             fullPropertyPath?.includes("body") ||
@@ -954,9 +957,9 @@ export default class DataTreeEvaluator {
             } else if (isAction(entity)) {
               type = CONSOLE_ENTITY_TYPE.ACTION;
               id = entity.actionId;
-            } else if (isJSAction(entityConfig)) {
+            } else if (isJSAction(entity as DataTreeEntity)) {
               type = CONSOLE_ENTITY_TYPE.JSACTION;
-              id = entityConfig.actionId;
+              id = (entityConfig as DataTreeJSAction).actionId;
             }
 
             // This is the object that will help to associate the log with the origin entity

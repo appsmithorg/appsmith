@@ -37,7 +37,8 @@ export function* lintTreeSaga({
   const lintTreeRequestData: LintTreeRequest = {
     jsUpdates,
     pathsToLint,
-    unevalTree: completeUnEvalTree,
+    unevalTree: updatedUnevalTree,
+    completeUnEvalTree,
   };
 
   const { errors }: LintTreeResponse = yield call(
@@ -47,5 +48,8 @@ export function* lintTreeSaga({
   );
 
   yield put(setLintingErrors(errors));
-  yield call(logLatestLintPropertyErrors, { errors, dataTree: unevalTree });
+  yield call(logLatestLintPropertyErrors, {
+    errors,
+    dataTree: completeUnEvalTree,
+  });
 }

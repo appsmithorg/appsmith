@@ -401,6 +401,7 @@ export function* executeDynamicTriggerRequest(
         pathsToLint: requestData.lintOrder,
         jsUpdates: requestData.jsUpdates,
         unevalTree: requestData.unevalTree,
+        completeUnEvalTree: requestData.completeUnEvalTree,
       });
     }
     if (requestData?.errors) {
