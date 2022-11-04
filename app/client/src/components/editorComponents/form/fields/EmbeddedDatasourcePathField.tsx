@@ -53,7 +53,6 @@ import {
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 type ReduxStateProps = {
   workspaceId: string;
