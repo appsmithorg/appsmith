@@ -21,13 +21,14 @@ import {
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
+import {
+  getDataTreeForAutocomplete,
+  getPathEvalErrors,
+} from "selectors/dataTreeSelectors";
 import {
   EvaluationError,
-  getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox, CheckboxType } from "design-system";
@@ -58,9 +59,9 @@ const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
+  errors: EvaluationError[];
 }
-
-type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
+interface EvaluatedValueProps {
   isFocused: boolean;
   theme: EditorTheme;
   popperPlacement?: Placement;
@@ -71,7 +72,9 @@ type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   hideEvaluatedValue?: boolean;
   useValidationMessage?: boolean;
   children: JSX.Element;
-};
+}
+
+type EvaluatedValuePopupWrapperProps = ReduxStateProps & EvaluatedValueProps;
 
 type ColumnsType = Record<string, ColumnProperties>;
 
@@ -476,6 +479,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
     errors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
+    const { errors } = this.props;
     if (!dataTreePath) {
       return {
         isInvalid: false,
@@ -484,21 +488,11 @@ class EvaluatedValuePopupWrapperClass extends Component<
       };
     }
 
-    const errors = _.get(
-      dataTree,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
-
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      isInvalid: errors.length > 0,
+      errors: errors,
       pathEvaluatedValue,
     };
   };
@@ -540,10 +534,16 @@ class EvaluatedValuePopupWrapperClass extends Component<
     );
   };
 }
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getDataTreeForAutocomplete(state),
-  datasources: state.entities.datasources,
-});
+const mapStateToProps = (
+  state: AppState,
+  { dataTreePath }: EvaluatedValueProps,
+): ReduxStateProps => {
+  return {
+    dynamicData: getDataTreeForAutocomplete(state),
+    datasources: state.entities.datasources,
+    errors: dataTreePath ? getPathEvalErrors(state, dataTreePath) : [],
+  };
+};
 
 const EvaluatedValuePopupWrapper = Sentry.withProfiler(
   connect(mapStateToProps)(EvaluatedValuePopupWrapperClass),
