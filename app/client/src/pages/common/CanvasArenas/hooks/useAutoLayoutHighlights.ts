@@ -46,7 +46,7 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   let highlights: HighlightInfo[] = [];
-  let newLayers: { [key: string]: number };
+  let newLayers: { [key: string]: number } = {};
   let lastActiveHighlight: HighlightInfo | undefined;
   let expandedNewLayer: number | undefined;
 
