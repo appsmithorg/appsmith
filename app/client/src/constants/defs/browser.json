@@ -251,5 +251,10 @@
         "!type": "fn(timeout: number)",
         "!url": "https://developer.mozilla.org/en/docs/DOM/window.clearTimeout",
         "!doc": "Clears the delay set by window.setTimeout()."
+    },
+    "fetch": {
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API",
+        "!doc": "The Fetch API provides an interface for fetching resources (including across the network).",
+        "!type": "fn(url: string, options?: ?) -> +Promise[:t=[!0.<i>.:t]]"
     }
 }
