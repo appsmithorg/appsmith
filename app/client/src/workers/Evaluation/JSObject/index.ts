@@ -41,10 +41,17 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
-          updateJSCollectionInUnEvalTree(parsedBody, entity, unEvalTree);
+          unEvalTree = updateJSCollectionInUnEvalTree(
+            parsedBody,
+            entity,
+            unEvalTree,
+          );
         } else {
           //if parse error remove functions and variables from dataTree
-          removeFunctionsAndVariableJSCollection(unEvalTree, entity);
+          unEvalTree = removeFunctionsAndVariableJSCollection(
+            unEvalTree,
+            entity,
+          );
         }
       }
     });

@@ -546,7 +546,7 @@ export function getSafeToRenderDataTree(
 
 export const addErrorToEntityProperty = (
   errors: EvaluationError[],
-  dataTree: DataTree,
+  evalTree: EvalTree,
   fullPropertyPath: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -555,14 +555,14 @@ export const addErrorToEntityProperty = (
   const isPrivateEntityPath = getAllPrivateWidgetsInDataTree(dataTree)[
     entityName
   ];
-  const logBlackList = get(dataTree, `${entityName}.logBlackList`, {});
+  const logBlackList = get(evalTree, `${entityName}.logBlackList`, {});
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
-    const existingErrors = get(dataTree, errorPath, []) as EvaluationError[];
-    set(dataTree, errorPath, existingErrors.concat(errors));
+    const existingErrors = get(evalTree, errorPath, []) as EvaluationError[];
+    set(evalTree, errorPath, existingErrors.concat(errors));
   }
 
-  return dataTree;
+  return evalTree;
 };
 
 export const resetValidationErrorsForEntityProperty = (
@@ -710,7 +710,7 @@ export const overrideWidgetProperties = (params: {
   entity: DataTreeWidget;
   propertyPath: string;
   value: unknown;
-  currentTree: DataTree;
+  currentTree: EvalTree;
   evalMetaUpdates: EvalMetaUpdates;
 }) => {
   const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;

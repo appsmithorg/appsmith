@@ -187,9 +187,14 @@ export default class DataTreeEvaluator {
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const firstCloneStartTime = performance.now();
-    const completeUnEvalTree = merge(unEvalTree, entityConfigCollection);
-    console.log("$$$-completeUnEvalTree", completeUnEvalTree);
-    const localUnEvalTree: DataTree = klona(completeUnEvalTree);
+    const completeUnEvalTree = merge(
+      {},
+      unEvalTree,
+      entityConfigCollection,
+    ) as DataTree;
+    this.completeUnEvalTree = completeUnEvalTree;
+    this.oldUnEvalTree = klona(unEvalTree);
+
     const firstCloneEndTime = performance.now();
 
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -197,12 +202,13 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parsedCollections = parseJSActions(this, this.completeUnEvalTree);
     jsUpdates = parsedCollections.jsUpdates;
-    getUpdatedLocalUnEvalTreeAfterJSUpdates(
+    console.log("$$$-this.completeUnEvalTree", this.completeUnEvalTree);
+    unEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       unEvalTree,
-      localUnEvalTree,
+      this.completeUnEvalTree,
     );
     const allKeysGenerationStartTime = performance.now();
     // set All keys
@@ -216,7 +222,7 @@ export default class DataTreeEvaluator {
       invalidReferencesMap,
       triggerFieldDependencyMap,
       validationDependencyMap,
-    } = createDependencyMap(this, localUnEvalTree);
+    } = createDependencyMap(this, this.completeUnEvalTree);
     const createDependencyMapEndTime = performance.now();
 
     this.dependencyMap = dependencyMap;
@@ -355,6 +361,7 @@ export default class DataTreeEvaluator {
   } {
     const totalUpdateTreeSetupStartTime = performance.now();
     const completeUnEvalTree = merge(
+      {},
       unEvalTree,
       entityConfigCollection,
     ) as DataTree;
@@ -386,10 +393,11 @@ export default class DataTreeEvaluator {
 
     jsUpdates = parsedCollections.jsUpdates;
     //update local data tree if js body has updated (remove/update/add js functions or variables)
+    console.log("$$$-this.completeUnEvalTree", this.completeUnEvalTree);
     unEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       unEvalTree,
-      localUnEvalTree,
+      this.completeUnEvalTree,
     );
 
     const differences: Diff<EvalTree, EvalTree>[] =
@@ -527,11 +535,9 @@ export default class DataTreeEvaluator {
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const evaluationStartTime = performance.now();
-    const {
-      evalMetaUpdates,
-      evaluatedTree: newEvalTree,
-    } = this.evaluateTree(
+    const { evalMetaUpdates, evaluatedTree: newEvalTree } = this.evaluateTree(
       this.evalTree,
+
       this.resolvedFunctions,
       evaluationOrder,
       { skipRevalidation: false },
@@ -666,7 +672,7 @@ export default class DataTreeEvaluator {
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
       const evaluatedTree = sortedDependencies.reduce(
-        (currentTree: DataTree, fullPropertyPath: string) => {
+        (currentTree: EvalTree, fullPropertyPath: string) => {
           const { entityName, propertyPath } = getEntityNameAndPropertyPath(
             fullPropertyPath,
           );
@@ -861,7 +867,7 @@ export default class DataTreeEvaluator {
 
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = get(this.oldUnEvalTree, entityName);
+      const entity = get(this.oldUnEvalTree, entityName) as DataTreeEntity;
       if (entity && isWidget(entity)) {
         entityType = entity.type;
       } else if (entity && isAction(entity)) {
@@ -887,7 +893,7 @@ export default class DataTreeEvaluator {
 
   getDynamicValue(
     dynamicBinding: string,
-    data: DataTree,
+    data: EvalTree,
     resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
     contextData?: EvaluateContext,
@@ -1006,7 +1012,7 @@ export default class DataTreeEvaluator {
 
   async evaluateTriggers(
     userScript: string,
-    dataTree: DataTree,
+    dataTree: EvalTree,
     requestId: string,
     resolvedFunctions: Record<string, any>,
     callbackData: Array<unknown>,
@@ -1027,7 +1033,7 @@ export default class DataTreeEvaluator {
   // Also returns any action triggers found after evaluating value
   evaluateDynamicBoundValue(
     js: string,
-    data: DataTree,
+    data: EvalTree,
     resolvedFunctions: Record<string, any>,
     createGlobalData: boolean,
     contextData?: EvaluateContext,
@@ -1068,7 +1074,7 @@ export default class DataTreeEvaluator {
     parsedValue,
     propertyPath,
   }: {
-    currentTree: DataTree;
+    currentTree: EvalTree;
     entity: DataTreeWidget;
     evalMetaUpdates: EvalMetaUpdates;
     fullPropertyPath: string;
@@ -1100,7 +1106,7 @@ export default class DataTreeEvaluator {
   }: {
     fullPropertyPath: string;
     widget: DataTreeWidget;
-    currentTree: DataTree;
+    currentTree: EvalTree;
   }) {
     if (this.inverseValidationDependencyMap[fullPropertyPath]) {
       const pathsToRevalidate = this.inverseValidationDependencyMap[
@@ -1110,7 +1116,7 @@ export default class DataTreeEvaluator {
         validateAndParseWidgetProperty({
           fullPropertyPath: fullPath,
           widget,
-          currentTree: this.evalTree,
+          currentTree: currentTree || this.evalTree,
           // we supply non-transformed evaluated value
           evalPropertyValue: get(this.getUnParsedEvalTree(), fullPath),
           unEvalPropertyValue: (get(
@@ -1124,7 +1130,7 @@ export default class DataTreeEvaluator {
 
   reValidateTree(
     nonDynamicFieldValidationOrder: string[],
-    currentTree: DataTree,
+    currentTree: EvalTree,
   ) {
     nonDynamicFieldValidationOrder.forEach((fullPropertyPath) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -1145,7 +1151,7 @@ export default class DataTreeEvaluator {
   validateActionProperty(
     fullPropertyPath: string,
     action: DataTreeAction,
-    currentTree: DataTree,
+    currentTree: EvalTree,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     validationConfig: ValidationConfig,

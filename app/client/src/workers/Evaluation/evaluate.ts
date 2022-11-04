@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { DataTree, EvalTree } from "entities/DataTree/dataTreeFactory";
+import { EvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   extraLibraries,
@@ -247,7 +247,7 @@ export const getUserScriptToEvaluate = (
 
 export default function evaluateSync(
   userScript: string,
-  dataTree: DataTree,
+  dataTree: EvalTree,
   resolvedFunctions: Record<string, any>,
   isJSCollection: boolean,
   context?: EvaluateContext,
@@ -322,7 +322,7 @@ export default function evaluateSync(
 
 export async function evaluateAsync(
   userScript: string,
-  dataTree: DataTree,
+  dataTree: EvalTree,
   requestId: string,
   resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,

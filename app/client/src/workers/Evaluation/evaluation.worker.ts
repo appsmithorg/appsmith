@@ -1,6 +1,6 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { DataTree, EvalTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -34,7 +34,7 @@ import evaluate, {
 } from "./evaluate";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
-// import { initiateLinting } from "workers/Linting/utils";
+import { initiateLinting } from "workers/Linting/utils";
 
 const CANVAS = "canvas";
 
@@ -113,6 +113,7 @@ function eventRequestHandler({
         callbackData,
         dataTree,
         dynamicTrigger,
+        entityConfigCollection,
         eventType,
         globalContext,
         triggerMeta,
@@ -123,7 +124,7 @@ function eventRequestHandler({
       const {
         evalOrder,
         nonDynamicFieldValidationOrder,
-      } = dataTreeEvaluator.setupUpdateTree(dataTree);
+      } = dataTreeEvaluator.setupUpdateTree(dataTree, entityConfigCollection);
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
@@ -260,18 +261,18 @@ function eventRequestHandler({
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-          // initiateLinting(
-          //   lintOrder,
-          //   jsUpdates,
-          //   dataTreeEvaluator.oldUnEvalTree,
-          //   requiresLinting,
-          // );
+          initiateLinting(
+            lintOrder,
+            jsUpdates,
+            dataTreeEvaluator.completeUnEvalTree,
+            requiresLinting,
+          );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
 
           dataTree = merge(
-            dataTreeEvaluator.completeUnEvalTree,
             dataTreeResponse.evalTree,
+            dataTreeEvaluator.completeUnEvalTree,
           );
 
           dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
@@ -303,17 +304,18 @@ function eventRequestHandler({
           lintOrder = setupFirstTreeResponse.lintOrder;
           jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-          // initiateLinting(
-          //   lintOrder,
-          //   jsUpdates,
-          //   dataTreeEvaluator.oldUnEvalTree,
-          //   requiresLinting,
-          // );
+          initiateLinting(
+            lintOrder,
+            jsUpdates,
+            dataTreeEvaluator.completeUnEvalTree,
+            requiresLinting,
+          );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+
           dataTree = merge(
-            dataTreeEvaluator.completeUnEvalTree,
             dataTreeResponse.evalTree,
+            dataTreeEvaluator.completeUnEvalTree,
           );
           dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
         } else {
@@ -335,12 +337,12 @@ function eventRequestHandler({
           jsUpdates = setupUpdateTreeResponse.jsUpdates;
           unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;
 
-          // initiateLinting(
-          //   lintOrder,
-          //   jsUpdates,
-          //   dataTreeEvaluator.oldUnEvalTree,
-          //   requiresLinting,
-          // );
+          initiateLinting(
+            lintOrder,
+            jsUpdates,
+            dataTreeEvaluator.completeUnEvalTree,
+            requiresLinting,
+          );
           nonDynamicFieldValidationOrder =
             setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
           const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
