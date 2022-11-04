@@ -156,7 +156,7 @@ class JSONFormWidget extends BaseWidget<
     if (isDynamicHeightEnabledForWidget(this.props)) {
       const maxDynamicHeight = getWidgetMaxDynamicHeight(this.props);
       const minDynamicHeight = getWidgetMinDynamicHeight(this.props);
-      const footerHeight = 60; // TODO(abhinav): Get it from the component. Check with Ashit
+      const footerHeight = 80; // TODO(abhinav): Get it from the component. Check with Ashit
 
       if (
         maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT <
@@ -176,7 +176,7 @@ class JSONFormWidget extends BaseWidget<
       const totalHeight = footerHeight + height;
       const { componentHeight } = this.getComponentDimensions();
 
-      if (height && Math.abs(componentHeight - totalHeight) > 20) {
+      if (height && Math.abs(componentHeight - totalHeight) > 0) {
         this.updateDynamicHeight(totalHeight);
       }
     }

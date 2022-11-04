@@ -109,6 +109,14 @@ export const WidgetFeaturePropertyPaneEnhancements: Record<
         hidden: hideWhenDynamicHeightIsEnabled,
         dependencies: ["dynamicHeight"],
       },
+      scrollContents: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
+      },
+      fixedFooter: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
+      },
       overflow: {
         hidden: hideWhenDynamicHeightIsEnabled,
         dependencies: ["dynamicHeight"],
@@ -269,6 +277,18 @@ function updateMinMaxDynamicHeight(
         propertyValue: "NONE",
       });
     }
+    if (props.scrollContents === true) {
+      updates.push({
+        propertyPath: "scrollContents",
+        propertyValue: false,
+      });
+    }
+    if (props.fixedFooter === true) {
+      updates.push({
+        propertyPath: "fixedFooter",
+        propertyValue: false,
+      });
+    }
   }
 
   return updates;
@@ -335,6 +355,7 @@ export const PropertyPaneConfigTemplates: Record<
           value: DynamicHeight.FIXED,
         },
       ],
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT],
     },
     {
       propertyName: "minDynamicHeight",

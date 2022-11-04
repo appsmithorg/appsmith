@@ -46,6 +46,8 @@ const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
 
         state[widgetId].topRow = tree[widgetId].topRow;
         state[widgetId].bottomRow = tree[widgetId].bottomRow;
+        state[widgetId].originalBottomRow = tree[widgetId].originalBottomRow;
+        state[widgetId].originalTopRow = tree[widgetId].originalTopRow;
       } else {
         state[widgetId] = tree[widgetId];
       }
