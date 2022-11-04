@@ -53,6 +53,7 @@ function CodeEditor(props: any) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   let handle: number;
   const handleFocus = (): void => {
+    (window as any).cancelIdleCallback(handle);
     setEditorFocused(true);
     setEditorVisibility(true);
   };
