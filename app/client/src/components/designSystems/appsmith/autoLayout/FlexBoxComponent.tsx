@@ -289,6 +289,11 @@ function FlexBoxComponent(props: FlexBoxProps) {
     return res;
   };
 
+  function getColumns(id: string): number {
+    if (!allWidgets[id]) return 0;
+    return allWidgets[id].rightColumn;
+  }
+
   function processLayers(map: { [key: string]: any }) {
     const layers = [];
     let childCount = 0;
@@ -375,24 +380,18 @@ function FlexBoxComponent(props: FlexBoxProps) {
       const widget = map[child.id];
       if (hasFillChild) {
         start.push(widget);
-        startColumns += allWidgets[child.id].rightColumn;
+        startColumns += getColumns(child.id);
         continue;
       }
       if (child.align === "end") {
         end.push(widget);
-        endColumns += allWidgets[child.id]
-          ? allWidgets[child.id]?.rightColumn
-          : 0;
+        endColumns += getColumns(child.id);
       } else if (child.align === "center") {
         center.push(widget);
-        centerColumns += allWidgets[child.id]
-          ? allWidgets[child.id]?.rightColumn
-          : 0;
+        centerColumns += getColumns(child.id);
       } else {
         start.push(widget);
-        startColumns += allWidgets[child.id]
-          ? allWidgets[child.id]?.rightColumn
-          : 0;
+        startColumns += getColumns(child.id);
       }
     }
     /**

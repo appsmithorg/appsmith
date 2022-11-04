@@ -136,7 +136,6 @@ function* reorderAutolayoutChildren(params: {
   layerIndex?: number;
 }) {
   const {
-    alignment,
     allWidgets,
     direction,
     index,
@@ -145,6 +144,7 @@ function* reorderAutolayoutChildren(params: {
     movedWidgets,
     parentId,
   } = params;
+  let alignment = params.alignment;
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
   const selectedWidgets = [...movedWidgets];
@@ -160,6 +160,17 @@ function* reorderAutolayoutChildren(params: {
     const canvas = widgets[parentId];
     if (!canvas) return widgets;
     const flexLayers = canvas.flexLayers || [];
+
+    // TODO: temporary hack. Remove this once we have a better way to handle this.
+    if (isNewLayer) {
+      const hasFillChild = selectedWidgets.some(
+        (id: string) =>
+          widgets[id] &&
+          widgets[id].responsiveBehavior === ResponsiveBehavior.Fill,
+      );
+      if (hasFillChild) alignment = FlexLayerAlignment.Start;
+    }
+
     // Remove moved widgets from the flex layers.
     const filteredLayers = removeWidgetsFromCurrentLayers(
       widgets,
