@@ -586,8 +586,8 @@ Cypress.Commands.add(
   ($selector, cursor = { ch: 0, line: 0 }) => {
     cy.EnableAllCodeEditors();
     cy.get($selector)
-      .find(".CodeEditorTarget")
-      .should("have.focus")
+      //.find(".CodeEditorTarget")
+      //.should("have.focus")
       .find(".CodeMirror")
       .first()
       .then((ins) => {

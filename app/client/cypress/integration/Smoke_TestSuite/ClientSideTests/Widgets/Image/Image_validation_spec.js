@@ -6,7 +6,7 @@ describe("Image Widget Validation Image Urls", function() {
     cy.addDsl(dsl);
   });
 
-  it("Check default image src", function() {
+  it("1. Check default image src", function() {
     cy.openPropertyPane("imagewidget");
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
@@ -16,7 +16,7 @@ describe("Image Widget Validation Image Urls", function() {
       );
   });
 
-  it("Add new image and check image is showing instead of default image", function() {
+  it("2. Add new image and check image is showing instead of default image", function() {
     cy.testCodeMirror(this.data.NewImage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
@@ -24,7 +24,7 @@ describe("Image Widget Validation Image Urls", function() {
     cy.closePropertyPane();
   });
 
-  it("Remove both images and check empty screen", function() {
+  it("3. Remove both images and check empty screen", function() {
     cy.openPropertyPane("imagewidget");
 
     cy.testJsontext("image", "");
@@ -45,7 +45,7 @@ describe("Image Widget Validation Image Urls", function() {
     cy.closePropertyPane();
   });
 
-  it("Add new image and check image src", function() {
+  it("4. Add new image and check image src", function() {
     cy.openPropertyPane("imagewidget");
     cy.clearPropertyValue(0);
 
