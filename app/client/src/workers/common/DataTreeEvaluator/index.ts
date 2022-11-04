@@ -427,6 +427,7 @@ export default class DataTreeEvaluator {
     const updateDependencyStartTime = performance.now();
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
+
     const {
       dependenciesOfRemovedPaths,
       extraPathsToLint,
@@ -435,6 +436,7 @@ export default class DataTreeEvaluator {
       dataTreeEvalRef: this,
       translatedDiffs,
       unEvalDataTree: completeUnEvalTree,
+      unEvalTree,
     });
     const updateDependencyEndTime = performance.now();
 

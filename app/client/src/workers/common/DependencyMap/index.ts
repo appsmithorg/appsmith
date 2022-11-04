@@ -15,6 +15,7 @@ import {
   DataTreeAction,
   DataTreeWidget,
   DataTreeJSAction,
+  EvalTree,
 } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
@@ -145,10 +146,12 @@ export const updateDependencyMap = ({
   dataTreeEvalRef,
   translatedDiffs,
   unEvalDataTree,
+  unEvalTree,
 }: {
   dataTreeEvalRef: DataTreeEvaluator;
   translatedDiffs: Array<DataTreeDiff>;
   unEvalDataTree: DataTree;
+  unEvalTree: EvalTree;
 }): UpdateDependencyMap => {
   const diffCalcStart = performance.now();
   let didUpdateDependencyMap = false;
@@ -160,7 +163,7 @@ export const updateDependencyMap = ({
   // This is needed for NEW and DELETE events below.
   // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
   // TODO: Optimise by only getting paths of changed node
-  dataTreeEvalRef.allKeys = getAllPaths(unEvalDataTree);
+  dataTreeEvalRef.allKeys = getAllPaths(unEvalTree);
   // Transform the diff library events to Appsmith evaluator events
   translatedDiffs.forEach((dataTreeDiff) => {
     const { entityName } = getEntityNameAndPropertyPath(
