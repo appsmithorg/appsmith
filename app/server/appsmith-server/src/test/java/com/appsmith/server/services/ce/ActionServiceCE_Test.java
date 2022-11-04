@@ -1228,7 +1228,8 @@ public class ActionServiceCE_Test {
                 .flatMap(preUpdateAction -> {
                     ActionDTO actionUpdate = action;
                     actionUpdate.getActionConfiguration().setBody("New Body");
-                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), actionUpdate);
+                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), actionUpdate)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
                 });
 
         StepVerifier
@@ -1424,7 +1425,8 @@ public class ActionServiceCE_Test {
                 .flatMap(preUpdateAction -> {
                     ActionDTO actionUpdate = action;
                     actionUpdate.getActionConfiguration().setBody("New Body");
-                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), actionUpdate);
+                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), actionUpdate)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
                 });
 
         StepVerifier
@@ -1460,7 +1462,8 @@ public class ActionServiceCE_Test {
         Mono<ActionDTO> updateActionMono = newActionMono
                 .flatMap(preUpdateAction -> {
                     action.getActionConfiguration().setBody("New Body");
-                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), action);
+                    return layoutActionService.updateSingleAction(preUpdateAction.getId(), action)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
                 });
 
         StepVerifier

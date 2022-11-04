@@ -208,6 +208,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             })
                             .flatMapMany(Flux::fromIterable)
                             .flatMap(action -> layoutActionService.updateSingleAction(action.getId(), action))
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction))
                             .collectList()
                             .zipWith(actionCollectionMono)
                             .flatMap(tuple1 -> {
@@ -587,6 +588,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
+                .flatMap(savedActionCollection -> layoutActionService.updatePageLayoutsGivenAction(savedActionCollection.getPublishedCollection().getPageId()).thenReturn(savedActionCollection))
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
