@@ -588,7 +588,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
-                .flatMap(savedActionCollection -> layoutActionService.updatePageLayoutsGivenAction(savedActionCollection.getPublishedCollection().getPageId()).thenReturn(savedActionCollection))
+                .flatMap(savedActionCollection -> layoutActionService.updatePageLayoutsGivenAction(savedActionCollection.getUnpublishedCollection().getPageId()).thenReturn(savedActionCollection))
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
