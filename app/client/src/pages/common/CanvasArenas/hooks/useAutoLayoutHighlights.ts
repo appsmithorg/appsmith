@@ -305,7 +305,7 @@ export const useAutoLayoutHighlights = ({
       const upper: number =
         expandedNewLayer !== undefined &&
         expandedNewLayer === parseInt(keys[index])
-          ? each + 40
+          ? each + 35
           : each + 14;
       return y >= lower && (y <= upper || index === positions.length - 1);
     });

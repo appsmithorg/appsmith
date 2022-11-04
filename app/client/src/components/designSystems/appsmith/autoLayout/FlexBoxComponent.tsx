@@ -85,6 +85,9 @@ export const NewLayerStyled = styled.div<{
   isDragging: boolean;
 }>`
   width: 100%;
+  > div {
+    transition: 500ms ease-in-out;
+  }
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {
