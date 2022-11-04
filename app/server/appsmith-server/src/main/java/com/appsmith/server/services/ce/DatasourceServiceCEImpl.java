@@ -133,7 +133,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .flatMap(savedDatasource ->
                         analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
                 )
-                .flatMap(this::populateHintMessages); // For REST API datasource create flow.
+                .flatMap(this::populateHintMessages)  // For REST API datasource create flow.
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {

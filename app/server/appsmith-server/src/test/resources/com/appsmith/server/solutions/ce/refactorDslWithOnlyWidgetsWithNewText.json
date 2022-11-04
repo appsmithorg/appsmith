@@ -1,0 +1,374 @@
+{
+  "widgetName": "MainContainer",
+  "widgetId": "0",
+  "type": "CANVAS_WIDGET",
+  "dynamicBindingPathList": [],
+  "children": [
+    {
+      "widgetName": "Text1",
+      "type": "TEXT_WIDGET",
+      "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+      "dynamicBindingPathList": [
+        {
+          "key": "fontFamily"
+        },
+        {
+          "key": "borderRadius"
+        }
+      ],
+      "text": "Label",
+      "key": "3pqpn28ba4",
+      "widgetId": "wemfst2t7m",
+      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+    },
+    {
+      "widgetName": "Text2",
+      "type": "TEXT_WIDGET",
+      "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+      "dynamicBindingPathList": [
+        {
+          "key": "fontFamily"
+        },
+        {
+          "key": "borderRadius"
+        },
+        {
+          "key": "text"
+        }
+      ],
+      "text": "{{Text1.text}}",
+      "key": "3pqpn28ba4",
+      "widgetId": "2bensj901c",
+      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+    },
+    {
+      "template": {
+        "Image1": {
+          "image": "{{List1.listData.map((currentItem) => currentItem.img)}}",
+          "widgetName": "Image1",
+          "type": "IMAGE_WIDGET",
+          "key": "e0c7wcn17q",
+          "dynamicBindingPathList": [
+            {
+              "key": "image"
+            },
+            {
+              "key": "borderRadius"
+            }
+          ],
+          "widgetId": "bvixbymoxr",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        },
+        "newText": {
+          "text": "{{List1.listData.map((currentItem) => currentItem.name)}}",
+          "widgetName": "newText",
+          "type": "TEXT_WIDGET",
+          "key": "3pqpn28ba4",
+          "dynamicBindingPathList": [
+            {
+              "key": "text"
+            },
+            {
+              "key": "fontFamily"
+            },
+            {
+              "key": "borderRadius"
+            }
+          ],
+          "widgetId": "6ox4ujv63y",
+          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        },
+        "Text4": {
+          "text": "{{List1.listData.map((currentItem, currentIndex) => {\n              return (function(){\n                return  currentItem.id + Text1.text;\n              })();\n            })}}",
+          "widgetName": "Text4",
+          "type": "TEXT_WIDGET",
+          "key": "3pqpn28ba4",
+          "dynamicBindingPathList": [
+            {
+              "key": "text"
+            },
+            {
+              "key": "fontFamily"
+            },
+            {
+              "key": "borderRadius"
+            }
+          ],
+          "widgetId": "rtlyvpkvhc",
+          "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        }
+      },
+      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      "widgetName": "List1",
+      "type": "LIST_WIDGET",
+      "dynamicBindingPathList": [
+        {
+          "key": "accentColor"
+        },
+        {
+          "key": "borderRadius"
+        },
+        {
+          "key": "boxShadow"
+        },
+        {
+          "key": "template.Image1.image"
+        },
+        {
+          "key": "template.newText.text"
+        },
+        {
+          "key": "template.Text4.text"
+        }
+      ],
+      "dynamicTriggerPathList": [
+        {
+          "key": "onListItemClick"
+        }
+      ],
+      "onListItemClick": "{{newText.text}}",
+      "children": [
+        {
+          "widgetName": "Canvas1",
+          "type": "CANVAS_WIDGET",
+          "dynamicBindingPathList": [
+            {
+              "key": "borderRadius"
+            },
+            {
+              "key": "accentColor"
+            }
+          ],
+          "children": [
+            {
+              "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+              "widgetName": "Container1",
+              "dynamicBindingPathList": [
+                {
+                  "key": "borderRadius"
+                },
+                {
+                  "key": "boxShadow"
+                }
+              ],
+              "children": [
+                {
+                  "widgetName": "Canvas2",
+                  "type": "CANVAS_WIDGET",
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "accentColor"
+                    }
+                  ],
+                  "children": [
+                    {
+                      "widgetName": "Image1",
+                      "type": "IMAGE_WIDGET",
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "image"
+                        },
+                        {
+                          "key": "borderRadius"
+                        }
+                      ],
+                      "key": "e0c7wcn17q",
+                      "image": "{{currentItem.img}}",
+                      "widgetId": "bvixbymoxr",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+                    },
+                    {
+                      "widgetName": "newText",
+                      "type": "TEXT_WIDGET",
+                      "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "text"
+                        },
+                        {
+                          "key": "fontFamily"
+                        },
+                        {
+                          "key": "borderRadius"
+                        }
+                      ],
+                      "text": "{{currentItem.name}}",
+                      "key": "3pqpn28ba4",
+                      "widgetId": "6ox4ujv63y",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+                    },
+                    {
+                      "widgetName": "Text4",
+                      "type": "TEXT_WIDGET",
+                      "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                      "dynamicBindingPathList": [
+                        {
+                          "key": "text"
+                        },
+                        {
+                          "key": "fontFamily"
+                        },
+                        {
+                          "key": "borderRadius"
+                        }
+                      ],
+                      "text": "{{currentItem.id + Text1.text}}",
+                      "key": "3pqpn28ba4",
+                      "widgetId": "rtlyvpkvhc",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+                    }
+                  ],
+                  "key": "3m0y9rrh1o",
+                  "widgetId": "zdz4f503fm",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+                }
+              ],
+              "key": "sca9shlkpb",
+              "widgetId": "vt8i2g9u5r",
+              "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+            }
+          ],
+          "key": "3m0y9rrh1o",
+          "widgetId": "ki75z4pfxm",
+          "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        }
+      ],
+      "key": "t35n4gddpu",
+      "widgetId": "bunz1f076j",
+      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+    },
+    {
+      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      "type": "TABLE_WIDGET_V2",
+      "dynamicBindingPathList": [
+        {
+          "key": "primaryColumns.step.computedValue"
+        },
+        {
+          "key": "primaryColumns.task.computedValue"
+        },
+        {
+          "key": "primaryColumns.status.computedValue"
+        },
+        {
+          "key": "primaryColumns.action.computedValue"
+        },
+        {
+          "key": "primaryColumns.action.buttonColor"
+        },
+        {
+          "key": "primaryColumns.action.borderRadius"
+        },
+        {
+          "key": "primaryColumns.action.boxShadow"
+        },
+        {
+          "key": "accentColor"
+        },
+        {
+          "key": "borderRadius"
+        },
+        {
+          "key": "boxShadow"
+        },
+        {
+          "key": "childStylesheet.button.buttonColor"
+        },
+        {
+          "key": "childStylesheet.button.borderRadius"
+        },
+        {
+          "key": "childStylesheet.menuButton.menuColor"
+        },
+        {
+          "key": "childStylesheet.menuButton.borderRadius"
+        },
+        {
+          "key": "childStylesheet.iconButton.buttonColor"
+        },
+        {
+          "key": "childStylesheet.iconButton.borderRadius"
+        },
+        {
+          "key": "childStylesheet.editActions.saveButtonColor"
+        },
+        {
+          "key": "childStylesheet.editActions.saveBorderRadius"
+        },
+        {
+          "key": "childStylesheet.editActions.discardButtonColor"
+        },
+        {
+          "key": "childStylesheet.editActions.discardBorderRadius"
+        }
+      ],
+      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+      "childStylesheet": {
+        "button": {
+          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        },
+        "menuButton": {
+          "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        },
+        "iconButton": {
+          "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        },
+        "editActions": {
+          "saveButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "saveBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          "discardButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+          "discardBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+        }
+      },
+      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      "widgetName": "Table1",
+      "primaryColumns": {
+        "step": {
+          "id": "step",
+          "originalId": "step",
+          "alias": "step",
+          "label": "step",
+          "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"step\"]))}}"
+        },
+        "task": {
+          "id": "task",
+          "originalId": "task",
+          "alias": "task",
+          "label": "task",
+          "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( Text1.text + \" \" + currentRow[\"task\"]))}}"
+        },
+        "status": {
+          "id": "status",
+          "originalId": "status",
+          "alias": "status",
+          "label": "status",
+          "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"status\"]))}}"
+        },
+        "action": {
+          "id": "action",
+          "originalId": "action",
+          "alias": "action",
+          "label": "action",
+          "onClick": "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+          "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"action\"]))}}",
+          "buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.colors.primaryColor))}}",
+          "borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+          "boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}"
+        }
+      },
+      "key": "ouqfcjyuwa",
+      "widgetId": "vrcp6kbiz8"
+    }
+  ]
+}

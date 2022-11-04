@@ -22,7 +22,6 @@ import {
   ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -34,10 +33,13 @@ import {
   Button,
   Callout,
   Category,
+  Classes,
   Icon,
   Size,
+  TAB_MIN_HEIGHT,
   Text,
   TextType,
+  Variant,
 } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
@@ -74,10 +76,6 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
-
-  .react-tabs__tab-panel > * {
-    padding-bottom: 10px;
-  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;
@@ -91,8 +89,8 @@ const ResponseMetaWrapper = styled.div`
   align-items: center;
   display: flex;
   position: absolute;
-  right: ${(props) => props.theme.spaces[12]}px;
-  top: ${(props) => props.theme.spaces[4]}px;
+  right: ${(props) => props.theme.spaces[17] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 1}px;
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -108,12 +106,13 @@ const TabbedViewWrapper = styled.div`
   &&& {
     ul.react-tabs__tab-list {
       margin: 0px ${(props) => props.theme.spaces[11]}px;
+      height: ${TAB_MIN_HEIGHT};
     }
   }
 
   & {
     .react-tabs__tab-panel {
-      height: calc(100% - 32px);
+      height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
 `;
@@ -181,7 +180,6 @@ const HelpSection = styled.div`
 `;
 
 const ResponseBodyContainer = styled.div`
-  padding-top: 10px;
   overflow-y: auto;
   height: 100%;
   display: grid;
@@ -555,7 +553,7 @@ function ApiResponseView(props: Props) {
   ];
 
   return (
-    <ResponseContainer ref={panelRef}>
+    <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
       <Resizer
         initialHeight={responsePaneHeight}
         onResizeComplete={(height: number) => {
@@ -633,6 +631,8 @@ function ApiResponseView(props: Props) {
           </ResponseMetaWrapper>
         )}
         <EntityBottomTabs
+          containerRef={panelRef}
+          expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={updateSelectedResponseTab}
           selectedTabKey={selectedResponseTab}
           tabs={tabs}

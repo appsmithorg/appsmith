@@ -4,7 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserWorkspaceService;
@@ -47,15 +47,15 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
     }
 
     @GetMapping("/{workspaceId}/members")
-    public Mono<ResponseDTO<List<UserAndPermissionGroupDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
+    public Mono<ResponseDTO<List<WorkspaceMemberInfoDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
         return userWorkspaceService.getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
     @PutMapping("/{workspaceId}/permissionGroup")
-    public Mono<ResponseDTO<UserAndPermissionGroupDTO>> updatePermissionGroupForMember(@RequestBody UpdatePermissionGroupDTO updatePermissionGroupDTO,
-                                                           @PathVariable String workspaceId,
-                                                           @RequestHeader(name = "Origin", required = false) String originHeader) {
+    public Mono<ResponseDTO<WorkspaceMemberInfoDTO>> updatePermissionGroupForMember(@RequestBody UpdatePermissionGroupDTO updatePermissionGroupDTO,
+                                                                                    @PathVariable String workspaceId,
+                                                                                    @RequestHeader(name = "Origin", required = false) String originHeader) {
         return userWorkspaceService.updatePermissionGroupForMember(workspaceId, updatePermissionGroupDTO, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }

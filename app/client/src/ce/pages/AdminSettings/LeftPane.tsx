@@ -6,6 +6,10 @@ import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system";
+import { createMessage } from "design-system/build/constants/messages";
+import { USAGE_AND_BILLING } from "@appsmith/constants/messages";
+import { useSelector } from "react-redux";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -33,7 +37,9 @@ export const CategoryList = styled.ul`
   width: 264px;
 `;
 
-export const CategoryItem = styled.li``;
+export const CategoryItem = styled.li`
+  width: 80%;
+`;
 
 export const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
@@ -119,6 +125,7 @@ export function Categories({
 }
 
 export default function LeftPane() {
+  const features = useSelector(selectFeatureFlags);
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
   return (
@@ -148,6 +155,20 @@ export default function LeftPane() {
               <div>Audit logs</div>
             </StyledLink>
           </CategoryItem>
+          {features.USAGE && (
+            <CategoryItem>
+              <StyledLink
+                $active={category === "usage"}
+                data-testid="t--enterprise-settings-category-item-usage"
+                to="/settings/usage"
+              >
+                <div>
+                  <Icon name="lock-2-line" size={IconSize.XL} />
+                </div>
+                <div>{createMessage(USAGE_AND_BILLING.usage)}</div>
+              </StyledLink>
+            </CategoryItem>
+          )}
         </CategoryList>
       </>
     </Wrapper>

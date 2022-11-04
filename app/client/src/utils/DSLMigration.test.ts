@@ -19,6 +19,8 @@ import * as selectWidgetMigration from "./migrations/SelectWidget";
 import * as mapChartReskinningMigrations from "./migrations/MapChartReskinningMigrations";
 import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { originalDSLForDSLMigrations } from "./testDSLs";
+import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
+import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
 
 type Migration = {
   functionLookup: {
@@ -623,6 +625,24 @@ const migrations: Migration[] = [
       },
     ],
     version: 63,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: rateWidgetMigrations,
+        functionName: "migrateRateWidgetDisabledState",
+      },
+    ],
+    version: 64,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: codeScannerWidgetMigrations,
+        functionName: "migrateCodeScannerLayout",
+      },
+    ],
+    version: 65,
   },
 ];
 

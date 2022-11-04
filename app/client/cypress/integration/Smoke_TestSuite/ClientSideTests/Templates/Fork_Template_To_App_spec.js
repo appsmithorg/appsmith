@@ -1,8 +1,19 @@
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 const publish = require("../../../../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Fork a template to the current app", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   it("1. Fork a template to the current app", () => {
     cy.get(template.startFromTemplateCard).click();
     cy.wait("@fetchTemplate").should(
@@ -10,7 +21,7 @@ describe("Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(1000);
+    cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
       "//div[text()='Customer Support Dashboard']/following-sibling::div//button[contains(@class, 'fork-button')]",
@@ -46,7 +57,7 @@ describe("Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(1000);
+    cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath("//div[text()='Customer Support Dashboard']").click();
     cy.wait("@getTemplatePages").should(

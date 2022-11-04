@@ -29,9 +29,8 @@ import {
   getQueryAction,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
-import { Workspaces } from "constants/workspaceConstants";
+import { Toaster, Variant } from "design-system";
+import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
   enableGuidedTour,
   focusWidgetProperty,

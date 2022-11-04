@@ -20,11 +20,11 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
-import { Variant } from "components/ads/common";
 import {
   Button,
   Callout,
   Category,
+  Classes,
   Icon as AdsIcon,
   IconSize,
   SearchSnippet,
@@ -34,9 +34,9 @@ import {
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
 import styled from "constants/DefaultTheme";
-import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
@@ -102,7 +102,6 @@ import {
 import {
   responseTabComponent,
   InlineButton,
-  SectionDivider,
   CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
@@ -155,7 +154,7 @@ const ErrorMessage = styled.p`
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
-  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
+  height: ${ActionExecutionResizerHeight}px;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
@@ -188,8 +187,8 @@ const SettingsWrapper = styled.div`
 
 const ResultsCount = styled.div`
   position: absolute;
-  right: 13px;
-  top: 8px;
+  right: ${(props) => props.theme.spaces[17] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 1}px;
   color: #716e6e;
 `;
 
@@ -774,7 +773,7 @@ export function EditorJSONtoForm(props: Props) {
 
   const responseTabs = [
     {
-      key: "Response",
+      key: "response",
       title: "Response",
       panelComponent: (
         <ResponseContentWrapper>
@@ -1062,7 +1061,10 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <TabbedViewContainer ref={panelRef}>
+            <TabbedViewContainer
+              className="t--query-bottom-pane-container"
+              ref={panelRef}
+            >
               <Resizable
                 initialHeight={responsePaneHeight}
                 onResizeComplete={(height: number) =>
@@ -1072,7 +1074,6 @@ export function EditorJSONtoForm(props: Props) {
                 panelRef={panelRef}
                 snapToHeight={ActionExecutionResizerHeight}
               />
-              <SectionDivider />
               {isRunning && (
                 <>
                   <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
@@ -1101,7 +1102,7 @@ export function EditorJSONtoForm(props: Props) {
                 <ResultsCount>
                   <Text type={TextType.P3}>
                     Result:
-                    <Text type={TextType.H5}>{`${output.length} Record${
+                    <Text type={TextType.H5}>{` ${output.length} Record${
                       output.length > 1 ? "s" : ""
                     }`}</Text>
                   </Text>
@@ -1109,6 +1110,8 @@ export function EditorJSONtoForm(props: Props) {
               )}
 
               <EntityBottomTabs
+                containerRef={panelRef}
+                expandedHeight={`${ActionExecutionResizerHeight}px`}
                 onSelect={setSelectedResponseTab}
                 selectedTabKey={selectedResponseTab}
                 tabs={responseTabs}

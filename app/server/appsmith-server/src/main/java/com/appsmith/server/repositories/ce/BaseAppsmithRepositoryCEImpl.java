@@ -140,7 +140,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(query)
                             .one()
-                            .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
+                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
                 });
     }
 
@@ -175,7 +175,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                                 }
                                 return findById(id, permission);
                             })
-                            .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
+                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
                 });
     }
 
@@ -213,7 +213,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(createQueryWithPermission(criterias, permissionGroups, aclPermission))
                             .one()
-                            .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
+                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
                 });
     }
 
@@ -226,7 +226,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(createQueryWithPermission(criterias, permissionGroups, aclPermission))
                             .first()
-                            .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
+                            .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
                 });
     }
 
@@ -315,14 +315,22 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return mongoOperations.query(this.genericDomain)
                 .matching(query)
                 .all()
-                .map(obj -> (T) setUserPermissionsInObject(obj, permissionGroups));
+                .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
     }
 
-    public T setUserPermissionsInObject(T obj, Set<String> permissionGroups) {
+    public Mono<T> setUserPermissionsInObject(T obj) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
+                .flatMap(permissionGroups -> setUserPermissionsInObject(obj, permissionGroups));
+    }
+
+    public Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups) {
         Set<String> permissions = new HashSet<>();
 
         if (CollectionUtils.isEmpty(obj.getPolicies())) {
-            return obj;
+            return Mono.just(obj);
         }
 
         for (Policy policy : obj.getPolicies()) {
@@ -339,7 +347,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
 
         obj.setUserPermissions(permissions);
-        return obj;
+        return Mono.just(obj);
     }
 
     public Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {

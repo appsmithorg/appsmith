@@ -290,7 +290,9 @@ function TableHeader(props: TableHeaderProps) {
                 {props.pageNo + 1}
               </PaginationItemWrapper>
               &nbsp;
-              <span>{`of ${props.pageCount}`}</span>
+              <span
+                data-pagecount={props.pageCount}
+              >{`of ${props.pageCount}`}</span>
             </TableHeaderContentWrapper>
           ) : (
             <PaginationItemWrapper
