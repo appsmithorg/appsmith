@@ -40,6 +40,7 @@ import {
   executeDatasourceQueryReduxAction,
   createTempDatasourceFromForm,
   removeTempDatasource,
+  createDatasourceSuccess,
 } from "actions/datasourceActions";
 import { ApiResponse } from "api/ApiResponses";
 import DatasourcesApi, { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -661,10 +662,7 @@ function* createTempDatasourceFromFormSaga(
     initialValues,
   );
 
-  yield put({
-    type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
-    payload,
-  });
+  yield put(createDatasourceSuccess(payload as Datasource));
 
   yield put({
     type: ReduxActionTypes.SAVE_DATASOURCE_NAME,
@@ -724,10 +722,9 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
         payload: response.data,
       });
-      yield put({
-        type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
-        payload: response.data,
-      });
+      yield put(
+        createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
+      );
       // Todo: Refactor later.
       // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
       if (response.data.id !== TEMP_DATASOURCE_ID) {
@@ -767,22 +764,6 @@ function* createDatasourceFromFormSaga(
       // updating form initial values to latest data, so that next time when form is opened
       // isDirty will use updated initial values data to compare actual values with
       yield put(initialize(DATASOURCE_DB_FORM, response.data));
-
-      // This will ensure that API if saved as datasource, will get attached with datasource
-      // once the datasource is saved
-      if (!!actionRouteInfo.apiId) {
-        yield put(
-          setActionProperty({
-            actionId: actionRouteInfo.apiId,
-            propertyName: "datasource",
-            value: response.data,
-          }),
-        );
-
-        yield put({
-          type: ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE,
-        });
-      }
     }
   } catch (error) {
     yield put({

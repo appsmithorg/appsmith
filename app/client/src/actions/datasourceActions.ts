@@ -52,6 +52,13 @@ export type UpdateDatasourceSuccessAction = {
   queryParams?: Record<string, string>;
 };
 
+export type CreateDatasourceSuccessAction = {
+  type: string;
+  payload: Datasource;
+  isDBCreated: boolean;
+  redirect: boolean;
+};
+
 export const updateDatasourceSuccess = (
   payload: Datasource,
   redirect = true,
@@ -61,6 +68,17 @@ export const updateDatasourceSuccess = (
   payload,
   redirect,
   queryParams,
+});
+
+export const createDatasourceSuccess = (
+  payload: Datasource,
+  isDBCreated = false,
+  redirect = false,
+): CreateDatasourceSuccessAction => ({
+  type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+  payload,
+  isDBCreated,
+  redirect,
 });
 
 export const redirectAuthorizationCode = (
