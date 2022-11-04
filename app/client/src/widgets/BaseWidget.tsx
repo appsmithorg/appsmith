@@ -371,10 +371,10 @@ abstract class BaseWidget<
   }
 
   addAutoHeightOverlay(content: ReactNode, style?: CSSProperties) {
-    const onBatchUpdate = (height: number, propertiesToUpdate?: string[]) => {
-      if (propertiesToUpdate === undefined) {
-        propertiesToUpdate = ["minDynamicHeight", "maxDynamicHeight"];
-      }
+    const onBatchUpdate = (
+      height: number,
+      propertiesToUpdate: string[] = ["minDynamicHeight", "maxDynamicHeight"],
+    ) => {
       const modifyObj: Record<string, unknown> = {};
       propertiesToUpdate.forEach((propertyName) => {
         modifyObj[propertyName] = Math.ceil(
@@ -453,7 +453,7 @@ abstract class BaseWidget<
         : this.getPageView();
 
     if (isAutoHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
-      return this.addAutoHeightContainer(this.getPageView());
+      return this.addAutoHeightContainer(content);
     }
     return this.addErrorBoundary(content);
   };
