@@ -63,6 +63,7 @@ interface BaseDatasource {
   isValid: boolean;
   isConfigured?: boolean;
   userPermissions?: string[];
+  isDeleting?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (

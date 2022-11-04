@@ -111,7 +111,7 @@ function DatasourceAuth({
     formData &&
     formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId } = datasource;
+  const { id: datasourceId, isDeleting } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
 
   const datasourcePermissions = datasource.userPermissions || [];
@@ -175,7 +175,7 @@ function DatasourceAuth({
 
   // selectors
   const {
-    datasources: { isDeleting, isTesting, loading: isSaving },
+    datasources: { isTesting, loading: isSaving },
   } = useSelector(getEntities);
 
   const delayConfirmDeleteToFalse = debounce(
