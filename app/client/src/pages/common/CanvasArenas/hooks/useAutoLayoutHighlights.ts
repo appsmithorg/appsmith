@@ -1,6 +1,5 @@
 import { FlexLayerAlignment, LayoutDirection } from "components/constants";
 import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { isEqual } from "lodash";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
@@ -20,7 +19,7 @@ export interface HighlightInfo {
   width: number; // width of the highlight.
   height: number; // height of the highlight.
   isVertical: boolean; // determines if the highlight is vertical or horizontal.
-  el?: Element; // dom node of the highlight.
+  el: Element; // dom node of the highlight.
 }
 
 export interface AutoLayoutHighlightProps {
@@ -65,8 +64,6 @@ export const useAutoLayoutHighlights = ({
    * START AUTO LAYOUT OFFSET CALCULATION
    */
 
-  const isNewLayerExpanded = (): boolean => expandedNewLayer !== undefined;
-
   // Fetch and update the dimensions of the containing canvas.
   const updateContainerDimensions = (): boolean => {
     const container = document.querySelector(`.appsmith_widget_${canvasId}`);
@@ -100,12 +97,6 @@ export const useAutoLayoutHighlights = ({
     expandedNewLayer = undefined;
     highlights = [];
     newLayers = {};
-  };
-
-  // Get a list of widgetIds that are being dragged.
-  const getDraggedBlocks = (): string[] => {
-    const blocks = blocksToDraw.map((block) => block.widgetId);
-    return blocks;
   };
 
   const getDropPositions = () => {
@@ -164,8 +155,7 @@ export const useAutoLayoutHighlights = ({
   const calculateHighlights = (): HighlightInfo[] => {
     cleanUpTempStyles();
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
-      const draggedBlocks = getDraggedBlocks();
-      if (!draggedBlocks || !draggedBlocks.length) return [];
+      if (!blocksToDraw || !blocksToDraw.length) return [];
       /**
        * update dimensions of the current canvas
        * and break out of the function if returned value is false.
