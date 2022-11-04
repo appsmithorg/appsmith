@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {
-  DataTree,
-  DataTreeEntity,
-  EvalTree,
-  EvalTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import { EvalTree, EvalTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import {
   ActionDescription,

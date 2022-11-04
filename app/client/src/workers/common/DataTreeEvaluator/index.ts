@@ -206,7 +206,6 @@ export default class DataTreeEvaluator {
     //and functions are saved in dataTree as strings
     const parsedCollections = parseJSActions(this, this.completeUnEvalTree);
     jsUpdates = parsedCollections.jsUpdates;
-    console.log("$$$-this.completeUnEvalTree", this.completeUnEvalTree);
     unEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       unEvalTree,
@@ -395,7 +394,6 @@ export default class DataTreeEvaluator {
 
     jsUpdates = parsedCollections.jsUpdates;
     //update local data tree if js body has updated (remove/update/add js functions or variables)
-    console.log("$$$-this.completeUnEvalTree", this.completeUnEvalTree);
     unEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       unEvalTree,
