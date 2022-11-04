@@ -682,7 +682,7 @@ describe("Table widget inline editing functionality", () => {
     ).should("not.be.disabled");
   });
 
-  it.only("24. should check that doesn't grow taller when text wrapping is disabled", () => {
+  it("24. should check that doesn't grow taller when text wrapping is disabled", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);
@@ -695,7 +695,7 @@ describe("Table widget inline editing functionality", () => {
     ).should("have.css", "height", "32px");
   });
 
-  it.only("25. should check that grows taller when text wrapping is enabled", () => {
+  it("25. should check that grows taller when text wrapping is enabled", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editColumn("step");
