@@ -18,7 +18,6 @@ import {
   ButtonVariantTypes,
   ButtonPlacement,
 } from "components/constants";
-import { ThemeProp } from "components/ads/common";
 import styled, { createGlobalStyle } from "styled-components";
 import {
   getCustomBackgroundColor,
@@ -30,6 +29,7 @@ import { RenderMode, RenderModes } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import { ThemeProp } from "widgets/constants";
 
 // Utility functions
 interface ButtonData {
@@ -230,7 +230,7 @@ const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
         "1px solid var(--wds-color-border-disabled)"} !important;
       background: ${buttonVariant !== ButtonVariantTypes.TERTIARY &&
         "var(--wds-color-bg-disabled)"} !important;
-      
+
       span {
         color: var(--wds-color-text-disabled) !important;
       }

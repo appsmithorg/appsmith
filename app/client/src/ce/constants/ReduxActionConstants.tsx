@@ -3,7 +3,7 @@ import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
@@ -584,6 +584,8 @@ export const ReduxActionTypes = {
   SET_EXPLORER_PINNED: "SET_EXPLORER_PINNED",
   SET_EXPLORER_ACTIVE: "SET_EXPLORER_ACTIVE",
   SET_PREVIEW_MODE: "SET_PREVIEW_MODE",
+  SET_CANVAS_CARDS_STATE: "SET_CANVAS_TOP_SECTION_VISIBILITY",
+  DELETE_CANVAS_CARDS_STATE: "DELETE_CANVAS_CARDS_STATE",
   UPDATE_EXPLORER_WIDTH: "UPDATE_EXPLORER_WIDTH",
   FIRST_TIME_USER_ONBOARDING_INIT: "FIRST_TIME_USER_ONBOARDING_INIT",
   SET_USER_ROLE_USECASE: "SET_USER_ROLE_USECASE",
@@ -707,6 +709,7 @@ export const ReduxActionTypes = {
   GENERATE_AUTO_HEIGHT_LAYOUT_TREE: "GENERATE_AUTO_HEIGHT_LAYOUT_TREE",
   CHECK_CONTAINERS_FOR_AUTO_HEIGHT: "CHECK_CONTAINERS_FOR_AUTO_HEIGHT",
   UPDATE_WIDGET_AUTO_HEIGHT: "UPDATE_WIDGET_AUTO_HEIGHT",
+  SET_LINT_ERRORS: "SET_LINT_ERRORS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
