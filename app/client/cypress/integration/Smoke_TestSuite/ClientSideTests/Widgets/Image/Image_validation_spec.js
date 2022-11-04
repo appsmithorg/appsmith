@@ -27,7 +27,9 @@ describe("Image Widget Validation Image Urls", function() {
   it("3. Remove both images and check empty screen", function() {
     cy.openPropertyPane("imagewidget");
 
-    cy.testJsontext("image", "");
+    cy.get(".t--property-control-image").then(($el) =>
+      cy.updateCodeInput($el, ""),
+    );
     cy.get(".t--property-control-defaultimage").then(($el) =>
       cy.updateCodeInput($el, ""),
     );

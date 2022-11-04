@@ -122,12 +122,12 @@ const PropertyControl = memo((props: Props) => {
             controlRef.current,
           );
           focusableElement?.scrollIntoView({
-            block: "start",
+            block: "center",
             behavior: "smooth",
           });
           focusableElement?.focus();
         }
-      }, 500);
+      }, 0);
     }
   }, [shouldFocusPropertyPath]);
   /**
