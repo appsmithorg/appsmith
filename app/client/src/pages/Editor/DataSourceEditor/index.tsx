@@ -205,7 +205,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     fromImporting: props.fromImporting ?? false,
     pluginId,
     isSaving: datasources.loading,
-    isDeleting: datasources.isDeleting,
+    isDeleting: !!datasource?.isDeleting,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,

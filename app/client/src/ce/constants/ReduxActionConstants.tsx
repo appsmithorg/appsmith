@@ -3,7 +3,7 @@ import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
@@ -707,6 +707,7 @@ export const ReduxActionTypes = {
   SET_JS_PANE_CONFIG_SELECTED_TAB: "SET_JS_PANE_CONFIG_SELECTED_TAB",
   SET_JS_PANE_RESPONSE_SELECTED_TAB: "SET_JS_PANE_RESPONSE_SELECTED_TAB",
   SET_JS_PANE_RESPONSE_PANE_HEIGHT: "SET_JS_PANE_RESPONSE_PANE_HEIGHT",
+  SET_LINT_ERRORS: "SET_LINT_ERRORS",
   REMOVE_TEMP_DATASOURCE_SUCCESS: "REMOVE_TEMP_DATASOURCE_SUCCESS",
   SET_DATASOURCE_SAVE_ACTION_FLAG: "SET_DATASOURCE_SAVE_ACTION_FLAG",
   SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG:

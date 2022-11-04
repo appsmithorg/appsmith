@@ -15,7 +15,6 @@ export interface DatasourceDataState {
   list: Datasource[];
   loading: boolean;
   isTesting: boolean;
-  isDeleting: boolean;
   isListing: boolean; // fetching unconfigured datasource list
   fetchingDatasourceStructure: boolean;
   isRefreshingStructure: boolean;
@@ -33,7 +32,6 @@ const initialState: DatasourceDataState = {
   list: [],
   loading: false,
   isTesting: false,
-  isDeleting: false,
   isListing: false,
   fetchingDatasourceStructure: false,
   isRefreshingStructure: false,
@@ -102,8 +100,20 @@ const datasourceReducer = createReducer(initialState, {
   [ReduxActionTypes.TEST_DATASOURCE_INIT]: (state: DatasourceDataState) => {
     return { ...state, isTesting: true };
   },
-  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: (state: DatasourceDataState) => {
-    return { ...state, isDeleting: true };
+  [ReduxActionTypes.DELETE_DATASOURCE_INIT]: (
+    state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
+  ) => {
+    return {
+      ...state,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, isDeleting: true };
+        }
+
+        return datasource;
+      }),
+    };
   },
   [ReduxActionTypes.REFRESH_DATASOURCE_STRUCTURE_INIT]: (
     state: DatasourceDataState,
@@ -209,7 +219,6 @@ const datasourceReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isDeleting: false,
       list: state.list.filter(
         (datasource) => datasource.id !== action.payload.id,
       ),
@@ -217,10 +226,17 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DELETE_DATASOURCE_CANCELLED]: (
     state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
   ) => {
     return {
       ...state,
-      isDeleting: false,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, isDeleting: false };
+        }
+
+        return datasource;
+      }),
     };
   },
   [ReduxActionTypes.CREATE_DATASOURCE_SUCCESS]: (
@@ -314,8 +330,18 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
+    action: ReduxAction<Datasource>,
   ) => {
-    return { ...state, isDeleting: false };
+    return {
+      ...state,
+      list: state.list.map((datasource) => {
+        if (datasource.id === action.payload.id) {
+          return { ...datasource, isDeleting: false };
+        }
+
+        return datasource;
+      }),
+    };
   },
   [ReduxActionErrorTypes.TEST_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
