@@ -19,30 +19,17 @@ import {
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
+import { Overlay } from "./Overlay";
+import { OVERLAY_COLOR } from "./constants";
+import { DashedBorder } from "./DashedBorder";
 
-const StyledDynamicHeightOverlay = styled.div`
+const StyledDynamicHeightOverlay = styled.div<{ isHidden: boolean }>`
   width: 100%;
   height: 100%;
   position: absolute;
   z-index: 3;
   pointer-events: none;
-`;
-
-const OVERLAY_COLOR = "#F32B8B";
-
-interface OverlayDisplayProps {
-  isActive: boolean;
-  maxY: number;
-}
-
-const OverlayDisplay = styled.div<OverlayDisplayProps>`
-  display: ${(props) => (props.isActive ? "block" : "none")};
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: ${(props) => props.maxY}px;
-  background-color: rgba(243, 43, 139, 0.1);
+  display: ${(props) => (props.isHidden ? "none" : "block")};
 `;
 
 interface MinMaxHeightProps {
@@ -211,24 +198,6 @@ interface OverlayHandlesProps {
   minHoverFns: UseHoverStateFunctions;
 }
 
-const Border = styled.div<{ isActive: boolean }>`
-  background-image: linear-gradient(
-    to right,
-    ${OVERLAY_COLOR} 50%,
-    rgba(255, 255, 255, 0) 0%
-  );
-  background-size: 8% 1px;
-  background-repeat: repeat-x;
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  top: 0px;
-  cursor: ns-resize;
-
-  ${(props) => (props.isActive ? `background-color: ${OVERLAY_COLOR}` : "")}
-`;
-
 const DraggableBorder: React.FC<DragFunctions & { isActive: boolean }> = ({
   isActive,
   onStart,
@@ -256,7 +225,7 @@ const DraggableBorder: React.FC<DragFunctions & { isActive: boolean }> = ({
   );
   const bindings = bind();
   return (
-    <Border
+    <DashedBorder
       isActive={isActive}
       ref={ref}
       {...bindings}
@@ -338,7 +307,9 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
     </StyledOverlayHandles>
   );
 };
-interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
+interface DynamicHeightOverlayContainerProps
+  extends MinMaxHeightProps,
+    WidgetProps {
   batchUpdate: (height: number) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
@@ -356,9 +327,14 @@ const getSnappedValues = (
   };
 };
 
+interface DynamicHeightOverlayProps extends DynamicHeightOverlayContainerProps {
+  isHidden: boolean;
+}
+
 const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
   ({
     batchUpdate,
+    isHidden,
     maxDynamicHeight,
     minDynamicHeight,
     onMaxHeightSet,
@@ -366,15 +342,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     style,
     ...props
   }) => {
-    const widgetId = props.widgetId;
     const showPropertyPane = useShowPropertyPane();
     const { selectWidget } = useWidgetSelection();
     const selectedWidget = useSelector(
       (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
-    );
-
-    const selectedWidgets = useSelector(
-      (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
     );
 
     const parentWidgetToSelect = useSelector(
@@ -384,10 +355,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const { setIsResizing } = useWidgetDragResize();
     const isResizing = useSelector(
       (state: AppState) => state.ui.widgetDragResize.isResizing,
-    );
-
-    const isDragging = useSelector(
-      (state: AppState) => state.ui.widgetDragResize.isDragging,
     );
 
     const [isMinDotDragging, setIsMinDotDragging] = useState(false);
@@ -486,8 +453,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
 
       onAnyDotStop();
     }
-
-    //////////////////////////////////////////////////////////////
 
     useEffect(() => {
       setMinY(minDynamicHeight * 10);
@@ -599,11 +564,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       };
     }, []);
 
-    const isWidgetSelected = selectedWidget === widgetId;
-    const multipleWidgetsSelected = selectedWidgets.length > 1;
-    const isOverlayToBeDisplayed =
-      isWidgetSelected && !multipleWidgetsSelected && !isDragging;
-
     const {
       bottomRow,
       leftColumn,
@@ -637,66 +597,71 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     );
 
     return (
-      <StyledDynamicHeightOverlay style={style ?? styles}>
-        <div
-          style={{
-            display: isOverlayToBeDisplayed ? "block" : "none",
+      <StyledDynamicHeightOverlay isHidden={isHidden} style={style ?? styles}>
+        <Overlay
+          data-cy="t--auto-height-overlay-min"
+          isActive={
+            isMinDotDragging || isMinDotActive || isPropertyPaneMinFieldFocused
+          }
+          maxY={finalMinY}
+        />
+        <Overlay
+          data-cy="t--auto-height-overlay-max"
+          isActive={
+            isMaxDotDragging || isMaxDotActive || isPropertyPaneMaxFieldFocused
+          }
+          maxY={finalMaxY}
+        />
+        <OverlayHandles
+          isMaxDotActive={
+            isMaxDotDragging || isMaxDotActive || isPropertyPaneMaxFieldFocused
+          }
+          isMaxDotDragging={isMaxDotDragging}
+          isMinDotActive={
+            isMinDotDragging || isMinDotActive || isPropertyPaneMinFieldFocused
+          }
+          isMinDotDragging={isMinDotDragging}
+          maxDragFunctions={{
+            onUpdate: onMaxUpdate,
+            onStop: onMaxStop,
+            onStart: onMaxDotStart,
           }}
-        >
-          <OverlayDisplay
-            data-cy="t--auto-height-overlay-min"
-            isActive={
-              isMinDotDragging ||
-              isMinDotActive ||
-              isPropertyPaneMinFieldFocused
-            }
-            maxY={finalMinY}
-          />
-          <OverlayDisplay
-            data-cy="t--auto-height-overlay-max"
-            isActive={
-              isMaxDotDragging ||
-              isMaxDotActive ||
-              isPropertyPaneMaxFieldFocused
-            }
-            maxY={finalMaxY}
-          />
-          <OverlayHandles
-            isMaxDotActive={
-              isMaxDotDragging ||
-              isMaxDotActive ||
-              isPropertyPaneMaxFieldFocused
-            }
-            isMaxDotDragging={isMaxDotDragging}
-            isMinDotActive={
-              isMinDotDragging ||
-              isMinDotActive ||
-              isPropertyPaneMinFieldFocused
-            }
-            isMinDotDragging={isMinDotDragging}
-            maxDragFunctions={{
-              onUpdate: onMaxUpdate,
-              onStop: onMaxStop,
-              onStart: onMaxDotStart,
-            }}
-            maxHoverFns={maxHoverFns}
-            maxY={finalMaxY}
-            minDragFunctions={{
-              onUpdate: onMinUpdate,
-              onStop: onMinStop,
-              onStart: onMinDotStart,
-            }}
-            minHoverFns={minHoverFns}
-            minY={finalMinY}
-            onMaxHeightSet={onMaxHeightSet}
-            onMinHeightSet={onMinHeightSet}
-          />
-        </div>
+          maxHoverFns={maxHoverFns}
+          maxY={finalMaxY}
+          minDragFunctions={{
+            onUpdate: onMinUpdate,
+            onStop: onMinStop,
+            onStart: onMinDotStart,
+          }}
+          minHoverFns={minHoverFns}
+          minY={finalMinY}
+          onMaxHeightSet={onMaxHeightSet}
+          onMinHeightSet={onMinHeightSet}
+        />
       </StyledDynamicHeightOverlay>
     );
   },
 );
 
-DynamicHeightOverlay.displayName = "DynamicHeightOverlay";
+const DynamicHeightOverlayContainer: React.FC<DynamicHeightOverlayContainerProps> = memo(
+  (props) => {
+    const widgetId = props.widgetId;
+    const {
+      isDragging,
+      lastSelectedWidget: selectedWidget,
+      selectedWidgets,
+    } = useSelector((state: AppState) => state.ui.widgetDragResize);
 
-export default DynamicHeightOverlay;
+    const isWidgetSelected = selectedWidget === widgetId;
+    const multipleWidgetsSelected = selectedWidgets.length > 1;
+    const isHidden = multipleWidgetsSelected || isDragging;
+
+    if (isWidgetSelected) {
+      return <DynamicHeightOverlay isHidden={isHidden} {...props} />;
+    }
+
+    return null;
+  },
+);
+
+export default DynamicHeightOverlayContainer;
