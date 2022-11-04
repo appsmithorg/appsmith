@@ -20,7 +20,6 @@ import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
-import { unEvalTree } from "workers/common/DataTreeEvaluator/mockData/mockUnEvalTree";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body

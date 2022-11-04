@@ -1,4 +1,4 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, EvalTree } from "entities/DataTree/dataTreeFactory";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { WorkerRequest } from "workers/common/types";
@@ -25,5 +25,6 @@ export type LintWorkerRequest = WorkerRequest<
 export type LintTreeSagaRequestData = {
   pathsToLint: string[];
   jsUpdates: Record<string, JSUpdate>;
-  unevalTree: DataTree;
+  unevalTree: EvalTree;
+  completeUnEvalTree: DataTree;
 };

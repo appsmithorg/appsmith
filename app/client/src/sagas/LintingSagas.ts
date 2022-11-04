@@ -20,6 +20,7 @@ export const lintWorker = new GracefulWorkerService(
 );
 
 export function* lintTreeSaga({
+  completeUnEvalTree,
   jsUpdates,
   pathsToLint,
   unevalTree,
@@ -31,11 +32,12 @@ export function* lintTreeSaga({
   const updatedUnevalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
     jsUpdates,
     unevalTree,
+    completeUnEvalTree,
   );
   const lintTreeRequestData: LintTreeRequest = {
     jsUpdates,
     pathsToLint,
-    unevalTree: updatedUnevalTree,
+    unevalTree: completeUnEvalTree,
   };
 
   const { errors }: LintTreeResponse = yield call(

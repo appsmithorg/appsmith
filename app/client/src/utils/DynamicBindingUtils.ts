@@ -14,6 +14,7 @@ import {
 import forge from "node-forge";
 import {
   DataTreeEntity,
+  EvalTreeEntity,
   WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
@@ -74,7 +75,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
 //{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
-  entity?: DataTreeEntity,
+  entity?: EvalTreeEntity,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !_.isString(dynamicString)) {
@@ -82,7 +83,7 @@ export const getDynamicBindings = (
   }
   const sanitisedString = dynamicString.trim();
   let stringSegments, paths: any;
-  if (entity && isJSAction(entity)) {
+  if (entity && isJSAction((entity as unknown) as DataTreeEntity)) {
     stringSegments = [sanitisedString];
     paths = [sanitisedString];
   } else {

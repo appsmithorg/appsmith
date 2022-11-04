@@ -21,6 +21,7 @@ import {
   DataTreeWidget,
   EntityConfigCollection,
   EvalTree,
+  EvalTreeEntity,
   EvaluationSubstitutionType,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
@@ -326,18 +327,18 @@ export default class DataTreeEvaluator {
     };
   }
 
-  updateLocalUnEvalTree(dataTree: EvalTree) {
+  updateLocalUnEvalTree(unEvalTree: EvalTree) {
     //add functions and variables to unevalTree
     Object.keys(this.currentJSCollectionState).forEach((update) => {
       const updates = this.currentJSCollectionState[update];
-      if (!!dataTree[update]) {
+      if (!!unEvalTree[update]) {
         Object.keys(updates).forEach((key) => {
-          const data = get(dataTree, `${update}.${key}.data`, undefined);
-          if (isJSObjectFunction(dataTree, update, key)) {
-            set(dataTree, `${update}.${key}`, new String(updates[key]));
-            set(dataTree, `${update}.${key}.data`, data);
+          const data = get(unEvalTree, `${update}.${key}.data`, undefined);
+          if (isJSObjectFunction(this.completeUnEvalTree, update, key)) {
+            set(unEvalTree, `${update}.${key}`, new String(updates[key]));
+            set(unEvalTree, `${update}.${key}.data`, data);
           } else {
-            set(dataTree, `${update}.${key}`, updates[key]);
+            set(unEvalTree, `${update}.${key}`, updates[key]);
           }
         });
       }
@@ -901,12 +902,14 @@ export default class DataTreeEvaluator {
     fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
-    let entity: DataTreeEntity | undefined = undefined;
+    let entity: EvalTreeEntity | undefined = undefined;
+    let entityConfig: DataTreeEntityConfig | undefined;
     let propertyPath: string;
     if (fullPropertyPath) {
       const entityName = fullPropertyPath.split(".")[0];
       propertyPath = fullPropertyPath.split(".")[1];
       entity = data[entityName];
+      entityConfig = this.entityConfigCollection[entityName];
     }
     // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(
@@ -917,7 +920,7 @@ export default class DataTreeEvaluator {
       // Get the Data Tree value of those "binding "paths
       const values = jsSnippets.map((jsSnippet, index) => {
         const toBeSentForEval =
-          entity && isJSAction(entity) && propertyPath === "body"
+          entity && isJSAction(entityConfig) && propertyPath === "body"
             ? jsSnippet.replace(/export default/g, "")
             : jsSnippet;
         if (jsSnippet) {
@@ -925,7 +928,7 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
-            !!entity && isJSAction(entity),
+            !!entity && isJSAction(entityConfig),
             contextData,
             callBackData,
             fullPropertyPath?.includes("body") ||
@@ -951,9 +954,9 @@ export default class DataTreeEvaluator {
             } else if (isAction(entity)) {
               type = CONSOLE_ENTITY_TYPE.ACTION;
               id = entity.actionId;
-            } else if (isJSAction(entity)) {
+            } else if (isJSAction(entityConfig)) {
               type = CONSOLE_ENTITY_TYPE.JSACTION;
-              id = entity.actionId;
+              id = entityConfig.actionId;
             }
 
             // This is the object that will help to associate the log with the origin entity
