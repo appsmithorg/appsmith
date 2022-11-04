@@ -47,6 +47,7 @@ export const useAutoLayoutHighlights = ({
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
   let highlights: HighlightInfo[] = [];
+  let newLayers: { [key: string]: number };
   let lastActiveHighlight: HighlightInfo | undefined;
   let expandedNewLayer: number | undefined;
 
@@ -98,6 +99,7 @@ export const useAutoLayoutHighlights = ({
     lastActiveHighlight = undefined;
     expandedNewLayer = undefined;
     highlights = [];
+    newLayers = {};
   };
 
   // Get a list of widgetIds that are being dragged.
@@ -139,6 +141,7 @@ export const useAutoLayoutHighlights = ({
           el,
         },
       );
+      if (!highlight.isVertical) newLayers[highlights.length] = highlight.posY;
       highlights.push(highlight);
     }
 
@@ -154,6 +157,7 @@ export const useAutoLayoutHighlights = ({
     highlight.posY = rect.y - containerDimensions.top;
     highlight.width = rect.width;
     highlight.height = rect.height;
+    highlights[index] = highlight;
     return highlight;
   };
 
@@ -191,6 +195,7 @@ export const useAutoLayoutHighlights = ({
         horizontalElement.style.display = "none";
         verticalElement.style.display = "flex";
         verticalElement.style.height = "40px";
+        verticalElement.style.border = "1px dotted rgba(223, 158, 206, 0.6)";
       } else {
         (horizontalElement as HTMLElement).style.display = "block";
         verticalElement.style.display = "none";
@@ -240,35 +245,7 @@ export const useAutoLayoutHighlights = ({
       moveDirection,
     );
 
-    if (
-      !payload ||
-      !payload.selectedHighlight ||
-      isEqual(payload.selectedHighlight, lastActiveHighlight)
-    )
-      return;
-
-    if (
-      payload.showNewLayerAlignments &&
-      (payload.selectedHighlight.layerIndex !==
-        lastActiveHighlight?.layerIndex ||
-        !isNewLayerExpanded())
-    ) {
-      toggleNewLayerAlignments(payload.selectedHighlight.el, true);
-      const selectedIndex = highlights.findIndex(
-        (each) => each === payload.selectedHighlight,
-      );
-      if (highlights[selectedIndex + 1].height === 0) {
-        highlights[selectedIndex + 1] = updateHighlight(selectedIndex + 1);
-        highlights[selectedIndex + 2] = updateHighlight(selectedIndex + 2);
-        highlights[selectedIndex + 3] = updateHighlight(selectedIndex + 3);
-      }
-      expandedNewLayer = selectedIndex;
-      updateSelection(highlights[selectedIndex + 1]);
-      return { ...payload, selectedHighlight: highlights[selectedIndex + 1] };
-    } else if (!payload.showNewLayerAlignments && isNewLayerExpanded()) {
-      toggleNewLayerAlignments(lastActiveHighlight?.el, false);
-      expandedNewLayer = undefined;
-    }
+    if (!payload || !payload.selectedHighlight) return;
 
     updateSelection(payload.selectedHighlight);
 
@@ -289,40 +266,62 @@ export const useAutoLayoutHighlights = ({
       y: e?.offsetY || val?.y,
     };
 
-    const filteredHighlights: HighlightInfo[] = getViableDropPositions(
-      base,
-      pos,
-      moveDirection,
-    );
+    let filteredHighlights: HighlightInfo[] = [];
+    const newLayerIndex = isInNewLayerRange(pos.y);
 
+    if (newLayerIndex > -1) {
+      filteredHighlights = [
+        ...base.slice(
+          newLayerIndex + 1,
+          Math.min(newLayerIndex + 4, base.length),
+        ),
+      ];
+      if (filteredHighlights[0].height === 0) {
+        filteredHighlights[0] = updateHighlight(newLayerIndex + 1);
+        filteredHighlights[1] = updateHighlight(newLayerIndex + 2);
+        filteredHighlights[2] = updateHighlight(newLayerIndex + 3);
+      }
+      expandedNewLayer !== undefined &&
+        toggleNewLayerAlignments(highlights[expandedNewLayer]?.el, false);
+      toggleNewLayerAlignments(highlights[newLayerIndex].el, true);
+      expandedNewLayer = newLayerIndex;
+    } else {
+      filteredHighlights = getViableDropPositions(base, pos, moveDirection);
+      expandedNewLayer !== undefined &&
+        toggleNewLayerAlignments(highlights[expandedNewLayer]?.el, false);
+      expandedNewLayer = undefined;
+    }
+    toggleHighlightVisibility(base, filteredHighlights);
     const arr = filteredHighlights.sort((a, b) => {
       return (
         calculateDistance(a, pos, moveDirection) -
         calculateDistance(b, pos, moveDirection)
       );
     });
-    toggleHighlightVisibility(base, filteredHighlights);
-
-    const isVerticalDrag =
-      moveDirection &&
-      [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
-    let distance: number | undefined = undefined;
-    if (isVerticalDrag) {
-      distance = calculateDistance(
-        { ...arr[0], posX: 0 },
-        { ...pos, x: 0 },
-        moveDirection,
-      );
-    }
 
     return {
       highlights: [...arr.slice(1)],
       selectedHighlight: arr[0],
-      showNewLayerAlignments: isVerticalDrag
-        ? distance !== undefined && Math.abs(distance) < 15
-        : isNewLayerExpanded(),
     };
   };
+
+  function isInNewLayerRange(y: number): number {
+    const positions: number[] = Object.values(newLayers);
+    const keys: string[] = Object.keys(newLayers);
+    if (!positions || !positions.length) return -1;
+    const index: number = positions.findIndex((each: number, index: number) => {
+      const lower: number =
+        expandedNewLayer !== undefined ? each : Math.max(each - 5, 0);
+      const upper: number =
+        expandedNewLayer !== undefined &&
+        expandedNewLayer === parseInt(keys[index])
+          ? each + 40
+          : each + 14;
+      return y >= lower && (y <= upper || index === positions.length - 1);
+    });
+    if (index === -1) return -1;
+    return parseInt(keys[index]);
+  }
 
   function getViableDropPositions(
     arr: HighlightInfo[],
