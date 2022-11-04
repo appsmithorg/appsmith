@@ -1,25 +1,5 @@
 import { TreeNode } from "./constants";
 
-// This function lets us know which boxes are effected by one box changing height
-// For example, if box2 is below box1 and box3 is below box2
-// box1 will effect box2 and box3.
-// function getEffectedBoxes(
-//   id: string,
-//   tree: Record<string, TreeNode>,
-//   effectedBoxes = [],
-// ): string[] {
-//   const belows = tree[id].belows;
-//   // We use the "belows" list for this box id to know which boxes will be effected.
-//   // How about uniq(effectedBoxes.concat(belows))?
-//   // Or, [...effectedBoxes, ...belows]?
-//   // On second thought, this function seems pointless now, earlier
-//   // We had a few other details here, but this has since then simplified.
-//   belows.forEach((belowId) => {
-//     (effectedBoxes as string[]).push(belowId);
-//   });
-//   return effectedBoxes;
-// }
-
 // This function computes the new positions for boxes based on the boxes which have changed height
 // delta: a map of boxes with change in heights
 // tree: a layout tree which contains the current state of the boxes.
