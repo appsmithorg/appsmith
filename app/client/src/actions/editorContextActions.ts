@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EvaluatedPopupState } from "reducers/uiReducers/editorContextReducer";
 
 export const setFocusableField = (path: string | undefined) => {
