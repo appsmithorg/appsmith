@@ -208,7 +208,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             })
                             .flatMapMany(Flux::fromIterable)
                             .flatMap(action -> layoutActionService.updateSingleAction(action.getId(), action))
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction))
                             .collectList()
                             .zipWith(actionCollectionMono)
                             .flatMap(tuple1 -> {
@@ -220,7 +219,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                                         actionCollection1.getUnpublishedCollection(),
                                                         actionDTOList,
                                                         false));
-                            });
+                            })
+                            .flatMap(actionCollectionDTO -> layoutActionService.updatePageLayoutsGivenAction(actionCollectionDTO.getPageId()).thenReturn(actionCollectionDTO));
                 });
     }
 

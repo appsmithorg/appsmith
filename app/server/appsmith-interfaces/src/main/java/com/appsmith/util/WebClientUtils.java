@@ -1,5 +1,6 @@
 package com.appsmith.util;
 
+import io.netty.handler.logging.LogLevel;
 import io.netty.resolver.AddressResolver;
 import io.netty.resolver.AddressResolverGroup;
 import io.netty.resolver.InetNameResolver;
@@ -12,6 +13,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
+import reactor.netty.transport.logging.AdvancedByteBufFormat;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -63,7 +65,8 @@ public class WebClientUtils {
     }
 
     public static WebClient.Builder builder(ConnectionProvider provider) {
-        return builder(HttpClient.create(provider));
+        return builder(HttpClient.create(provider)
+                .wiretap("com.appsmith.test", LogLevel.DEBUG, AdvancedByteBufFormat.TEXTUAL));
     }
 
     public static WebClient.Builder builder(HttpClient httpClient) {

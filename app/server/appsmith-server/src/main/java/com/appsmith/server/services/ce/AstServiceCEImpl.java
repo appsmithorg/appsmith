@@ -17,6 +17,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -34,12 +36,11 @@ public class AstServiceCEImpl implements AstServiceCE {
     private final InstanceConfig instanceConfig;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
-            .maxConnections(1000)
-            .maxIdleTime(Duration.ofSeconds(5))
-            .maxLifeTime(Duration.ofSeconds(10))
+            .maxConnections(100)
+            .maxIdleTime(Duration.ofSeconds(30))
+            .maxLifeTime(Duration.ofSeconds(40))
             .pendingAcquireTimeout(Duration.ofSeconds(10))
             .pendingAcquireMaxCount(-1)
-            .evictInBackground(Duration.ofSeconds(60))
             .build());
 
     private final static long MAX_API_RESPONSE_TIME_IN_MS = 50;
@@ -48,6 +49,13 @@ public class AstServiceCEImpl implements AstServiceCE {
     public Flux<Tuple2<String, Set<String>>> getPossibleReferencesFromDynamicBinding(List<String> bindingValues, int evalVersion) {
         if (bindingValues == null || bindingValues.size() == 0) {
             return Flux.empty();
+        }
+        /*
+            For the binding value which starts with "appsmith.theme" can be directly served
+            without calling the AST API or the calling the method for non-AST implementation
+         */
+        if (bindingValues.size() == 1 && bindingValues.get(0).startsWith("appsmith.theme.")) {
+            return Flux.just(Tuples.of(bindingValues.get(0), new HashSet<>(bindingValues)));
         }
 
         // If RTS server is not accessible for this instance, it means that this is a slim container set up
@@ -67,9 +75,10 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .body(BodyInserters.fromValue(new GetIdentifiersRequestBulk(bindingValues, evalVersion)))
                 .retrieve()
                 .bodyToMono(GetIdentifiersResponseBulk.class)
+                .retryWhen(Retry.max(3))
                 .elapsed()
                 .map(tuple -> {
-                    log.debug("Time elapsed since AST get identifiers call: {} ms, for size: {}", tuple.getT1(), bindingValues.size());
+                    log.debug("Time elapsed since AST get identifiers call: {} ms, for size: {}, bindingValues: {}", tuple.getT1(), bindingValues.size(), bindingValues);
                     return tuple.getT2().data;
                 })
                 .flatMapIterable(getIdentifiersResponseDetails -> getIdentifiersResponseDetails)
