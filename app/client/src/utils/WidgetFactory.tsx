@@ -17,6 +17,9 @@ type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type WidgetType = typeof WidgetFactory.widgetTypes[number];
 
+export enum NonSerialisableWidgetConfigs {
+  CANVAS_HEIGHT_OFFSET = "canvasHeightOffset",
+}
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
@@ -53,6 +56,11 @@ class WidgetFactory {
   static widgetConfigMap: Map<
     WidgetType,
     Partial<WidgetProps> & WidgetConfigProps & { type: string }
+  > = new Map();
+
+  static nonSerialisableWidgetConfigMap: Map<
+    WidgetType,
+    Record<NonSerialisableWidgetConfigs, unknown>
   > = new Map();
 
   static registerWidgetBuilder(
@@ -143,6 +151,13 @@ class WidgetFactory {
     config: Partial<WidgetProps> & WidgetConfigProps & { type: string },
   ) {
     this.widgetConfigMap.set(widgetType, Object.freeze(config));
+  }
+
+  static storeNonSerialisablewidgetConfig(
+    widgetType: string,
+    config: Record<NonSerialisableWidgetConfigs, unknown>,
+  ) {
+    this.nonSerialisableWidgetConfigMap.set(widgetType, config);
   }
 
   static createWidget(
