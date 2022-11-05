@@ -4,16 +4,9 @@ import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
 import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
-
-interface TableActionProps {
-  selected: boolean;
-  selectMenu: (selected: boolean) => void;
-  className: string;
-  icon: string;
-  title: string;
-  titleColor?: string;
-  borderRadius?: string;
-}
+import { ReactComponent as AddIcon } from "assets/icons/control/add.svg";
+import Tooltip from "components/editorComponents/Tooltip";
+import { TooltipContentWrapper } from "../../TableStyledWrappers";
 
 export const TableIconWrapper = styled.div<{
   selected?: boolean;
@@ -28,36 +21,51 @@ export const TableIconWrapper = styled.div<{
   background: var(--wds-color-bg);
   border-radius: ${(props) => props.borderRadius || "0"};
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
-  cursor: ${(props) => !props.disabled && "pointer"};
+  cursor: ${(props) => props.disabled && "pointer"};
   color: ${(props) => (props.selected ? Colors.CODE_GRAY : Colors.GRAY)};
-  .action-title {
-    margin-left: 4px;
-    white-space: nowrap;
-    color: ${(props) => props.titleColor || Colors.GRAY};
-  }
   position: relative;
   margin-left: 8px;
   padding: 0 6px;
-  &:hover {
+  ${(props) =>
+    !props.disabled &&
+    `&:hover {
     background: var(--wds-color-bg-hover);
-  }
-
-  & > div {
-    width: 16px;
-  }
+  }`}
 
   span {
     font-size: 13px;
   }
+
+  .action-title {
+    margin-left: 4px;
+    white-space: nowrap;
+    color: ${(props) => props.titleColor || Colors.GRAY};
+    margin-top: 3px;
+  }
 `;
 
-function TableAction(props: TableActionProps) {
+interface ActionItemProps {
+  selected?: boolean;
+  selectMenu: (selected: boolean) => void;
+  className: string;
+  icon: string;
+  title: string;
+  titleColor?: string;
+  width?: number;
+  borderRadius?: string;
+  disabled?: boolean;
+  disabledMessage?: string;
+}
+
+function ActionItem(props: ActionItemProps) {
   const handleIconClick = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
-      props.selectMenu(!props.selected);
-      e.stopPropagation();
+      if (!props.disabled) {
+        props.selectMenu(!props.selected);
+        e.stopPropagation();
+      }
     },
-    [props.selected],
+    [props.selected, props.disabled],
   );
 
   const getIcon = () => {
@@ -66,13 +74,16 @@ function TableAction(props: TableActionProps) {
         return <DownloadIcon />;
       case "filter":
         return <FilterIcon />;
+      case "add":
+        return <AddIcon />;
     }
   };
 
-  return (
+  const item = (
     <TableIconWrapper
       borderRadius={props.borderRadius}
-      className={props.className}
+      className={`${props.className} ${props.disabled && "disabled"}`}
+      disabled={props.disabled}
       onClick={handleIconClick}
       selected={props.selected}
       titleColor={props.titleColor}
@@ -80,13 +91,30 @@ function TableAction(props: TableActionProps) {
       <IconWrapper
         color={props.titleColor ? props.titleColor : Colors.GRAY}
         height={20}
-        width={20}
+        width={props.width || 20}
       >
         {getIcon()}
       </IconWrapper>
       <span className="action-title">{props.title}</span>
     </TableIconWrapper>
   );
+
+  if (props.disabled && props.disabledMessage) {
+    return (
+      <Tooltip
+        autoFocus={false}
+        content={
+          <TooltipContentWrapper>{props.disabledMessage}</TooltipContentWrapper>
+        }
+        hoverOpenDelay={200}
+        position="auto"
+      >
+        {item}
+      </Tooltip>
+    );
+  } else {
+    return item;
+  }
 }
 
-export default TableAction;
+export default ActionItem;
