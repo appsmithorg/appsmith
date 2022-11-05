@@ -27,13 +27,14 @@ import {
 } from "./helpers";
 
 /**
- * Saga to update a widget's dynamic height
+ * Saga to update a widget's auto height
  * When a widget changes in height, it must do the following
  * - Make sure any parent that should also change height accordingly, does so
  * - Make sure any widget that needs to reposition due to the above changes, does so
  *
  *
- * TODO: PERF_TRACK(abhinav): Make sure to benchmark the computations. We need to propagate changes within 10ms
+ * TODO: PERF_TRACK(abhinav): Make sure to benchmark the computations.
+ * We need to propagate changes within 10ms
  */
 export function* updateWidgetAutoHeightSaga() {
   const updates = getAutoHeightUpdateQueue();
@@ -340,11 +341,6 @@ export function* updateWidgetAutoHeightSaga() {
                 parentId: parentContainerLikeWidget.parentId,
               };
 
-              // log.debug("Dynamic height parent container like widget:", {
-              //   parentContainerLikeWidget,
-              //   type: parentContainerLikeWidget.type,
-              // });
-
               // If this widget is actually removed from the layout
               // For example, if this is a ModalWidget
               // We need to make sure that we change properties other than bottomRow and topRow
@@ -382,10 +378,6 @@ export function* updateWidgetAutoHeightSaga() {
                 !parentContainerLikeWidget.detachFromLayout &&
                 parentContainerLikeWidget.parentId
               ) {
-                // log.debug("Dynamic height: Adding parent update", {
-                //   parentContainerLikeWidget,
-                //   expectedUpdate,
-                // });
                 // If this widget's parent canvas already has some updates
                 // We push this update to the existing array.
                 // DRY THIS

@@ -4,7 +4,7 @@ import { batchCallsToUpdateWidgetDynamicHeightSaga } from "./batcher";
 import { dynamicallyUpdateContainersSaga } from "./containers";
 import { updateWidgetAutoHeightSaga } from "./widgets";
 
-export default function* widgetOperationSagas() {
+export default function* autoHeightSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
