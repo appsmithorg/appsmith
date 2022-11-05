@@ -10,9 +10,9 @@ import { ReactComponent as RecorderPauseIcon } from "assets/icons/widget/recorde
 import { ReactComponent as RecorderCompleteIcon } from "assets/icons/widget/recorder/recorder_complete.svg";
 import { ReactComponent as RecorderNoPermissionIcon } from "assets/icons/widget/recorder/recorder_no_permission.svg";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { ThemeProp } from "widgets/constants";
 
 export enum RecorderStatusTypes {
   PERMISSION_PROMPT = "PERMISSION_PROMPT",

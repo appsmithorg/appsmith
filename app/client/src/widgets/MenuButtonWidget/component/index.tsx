@@ -19,7 +19,6 @@ import {
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-import { ThemeProp } from "components/ads/common";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -34,6 +33,7 @@ import orderBy from "lodash/orderBy";
 import { RenderMode } from "constants/WidgetConstants";
 import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import { ThemeProp } from "widgets/constants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -133,7 +133,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
           : "transparent"
       } !important;
       color: var(--wds-color-text-disabled) !important;
-      
+
       span {
         color: var(--wds-color-text-disabled) !important;
       }
