@@ -43,11 +43,11 @@ export function generateTree(
           aboveMap[comparisionSpace.id] = pushToArray(
             currentSpace.id,
             aboveMap[comparisionSpace.id],
-          );
+          ) as string[];
           belowMap[currentSpace.id] = pushToArray(
             comparisionSpace.id,
             belowMap[currentSpace.id],
-          );
+          ) as string[];
         }
       }
       // Get the originalTop and originalBottom from the previous tree.

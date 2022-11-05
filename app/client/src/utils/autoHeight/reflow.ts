@@ -26,7 +26,7 @@ export function computeChangeInPositionBasedOnDelta(
       effectedBoxMap[effectedId] = pushToArray(
         delta[boxId],
         effectedBoxMap[effectedId],
-      );
+      ) as number[];
     });
 
     // Add this box's delta to the repositioning, as this won't show up in the effectedBoxMap
