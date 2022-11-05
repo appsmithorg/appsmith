@@ -1,3 +1,4 @@
+import { pushToArray } from "utils/helpers";
 import { TreeNode } from "./constants";
 
 // This function computes the new positions for boxes based on the boxes which have changed height
@@ -22,10 +23,10 @@ export function computeChangeInPositionBasedOnDelta(
     // We simply take all the boxes which are below this box from the tree
     // and add the delta to the effectedBoxMap where the key is the below boxId from the tree
     tree[boxId].belows.forEach((effectedId) => {
-      effectedBoxMap[effectedId] = [
-        ...(effectedBoxMap[effectedId] || []),
+      effectedBoxMap[effectedId] = pushToArray(
         delta[boxId],
-      ];
+        effectedBoxMap[effectedId],
+      );
     });
 
     // Add this box's delta to the repositioning, as this won't show up in the effectedBoxMap
