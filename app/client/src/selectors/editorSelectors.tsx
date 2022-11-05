@@ -18,6 +18,7 @@ import {
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WidgetType,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
@@ -605,3 +606,19 @@ export const showCanvasTopSectionSelector = createSelector(
     return true;
   },
 );
+
+/**
+ * This returns the number of rows which is not occupied by a Canvas Widget within
+ * a parent container like widget of type widgetType
+ * For example, the Tabs Widget takes 4 rows for the tabs
+ * @param widgetType Type of widget
+ * @param props Widget properties
+ * @returns the offset in rows
+ */
+export const getCanvasHeightOffset = (
+  widgetType: WidgetType,
+  props: WidgetProps,
+) => {
+  // Will be implemented in a separate PR
+  return 0;
+};
