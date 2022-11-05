@@ -274,7 +274,7 @@ function NewApiScreen(props: Props) {
                 src={PlusLogo}
               />
             </div>
-            <p className="textBtn">Create new API</p>
+            <p className="textBtn">REST API</p>
           </CardContentWrapper>
           {isCreating && <Spinner className="cta" size={25} />}
         </ApiCard>
@@ -322,7 +322,7 @@ function NewApiScreen(props: Props) {
                 src={PlusLogo}
               />
             </div>
-            <p className="textBtn">Create new GraphQL API</p>
+            <p className="textBtn">GraphQL API</p>
           </CardContentWrapper>
         </ApiCard>
         {API_PLUGINS.map((p) => (
