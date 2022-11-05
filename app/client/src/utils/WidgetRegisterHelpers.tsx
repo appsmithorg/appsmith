@@ -10,6 +10,11 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
+import {
+  RegisteredWidgetFeatures,
+  WidgetFeaturePropertyEnhancements,
+  WidgetFeatureProps,
+} from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
 import withWidgetProps from "widgets/withWidgetProps";
 
@@ -49,8 +54,21 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
 };
 
 export const configureWidget = (config: WidgetConfiguration) => {
+  let features: Record<string, unknown> = {};
+  if (config.features) {
+    Object.keys(config.features).forEach((registeredFeature: string) => {
+      features = Object.assign(
+        {},
+        WidgetFeatureProps[registeredFeature as RegisteredWidgetFeatures],
+        WidgetFeaturePropertyEnhancements[
+          registeredFeature as RegisteredWidgetFeatures
+        ](config),
+      );
+    });
+  }
   const _config = {
     ...config.defaults,
+    ...features,
     searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,

@@ -21,7 +21,7 @@ export interface WidgetConfiguration {
   features?: WidgetFeatures;
   searchTags?: string[];
   properties: {
-    config: PropertyPaneConfig[];
+    config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
     styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;

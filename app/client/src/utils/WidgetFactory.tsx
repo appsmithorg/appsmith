@@ -10,6 +10,7 @@ import {
   addPropertyConfigIds,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
+  PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
 
@@ -76,7 +77,7 @@ class WidgetFactory {
       loadingProperties &&
         this.loadingProperties.set(widgetType, loadingProperties);
 
-      if (propertyPaneConfig) {
+      if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneConfig,
         );
@@ -98,6 +99,8 @@ class WidgetFactory {
       if (propertyPaneContentConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneContentConfig,
+          features,
+          PropertyPaneConfigTypes.CONTENT,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -117,6 +120,8 @@ class WidgetFactory {
       if (propertyPaneStyleConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneStyleConfig,
+          features,
+          PropertyPaneConfigTypes.STYLE,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -217,7 +222,7 @@ class WidgetFactory {
     const map = this.propertyPaneConfigsMap.get(type);
     if (!map || (map && map.length === 0)) {
       const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
-      if (config.length === 0) {
+      if (config === undefined) {
         log.error("Widget property pane config not defined", type);
       }
       return config;

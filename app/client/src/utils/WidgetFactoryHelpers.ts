@@ -4,6 +4,17 @@ import {
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "./generators";
+import {
+  PropertyPaneConfigTemplates,
+  RegisteredWidgetFeatures,
+  WidgetFeaturePropertyPaneEnhancements,
+  WidgetFeatures,
+} from "./WidgetFeatures";
+
+export enum PropertyPaneConfigTypes {
+  STYLE = "STYLE",
+  CONTENT = "CONTENT",
+}
 
 /* This function recursively parses the property pane configuration and
    adds random hash values as `id`.
@@ -55,8 +66,40 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 };
 
 /* General function which enhances the property pane configuration
- */
-export function enhancePropertyPaneConfig(config: PropertyPaneConfig[]) {
+
+   We can use this to insert or add property configs based on widget
+   features passed as the second argument.
+*/
+export function enhancePropertyPaneConfig(
+  config: PropertyPaneConfig[],
+  features?: WidgetFeatures,
+  configType?: PropertyPaneConfigTypes,
+) {
+  // Enhance property pane with widget features
+  // TODO(abhinav): The following "configType" check should come
+  // from the features themselves.
+  if (
+    features &&
+    (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
+  ) {
+    Object.keys(features).forEach((registeredFeature: string) => {
+      if (
+        Array.isArray(config[0].children) &&
+        PropertyPaneConfigTemplates[
+          registeredFeature as RegisteredWidgetFeatures
+        ]
+      ) {
+        config[0].children.push(
+          ...PropertyPaneConfigTemplates[
+            registeredFeature as RegisteredWidgetFeatures
+          ],
+        );
+        config = WidgetFeaturePropertyPaneEnhancements[
+          registeredFeature as RegisteredWidgetFeatures
+        ](config);
+      }
+    });
+  }
   return config;
 }
 
