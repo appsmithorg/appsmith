@@ -1,4 +1,5 @@
 import { areIntersecting } from "utils/boxHelpers";
+import { pushToArray } from "utils/helpers";
 import { MAX_BOX_SIZE, NodeSpace, TreeNode } from "./constants";
 
 // This function uses the spaces occupied by sibling boxes and provides us with
@@ -39,14 +40,14 @@ export function generateTree(
         if (areIntersecting(currentSpace, comparisionSpace)) {
           // If there is an overlap, comparisonSpace is below the current space
           // so, we update the aboveMap and belowMap accordingly
-          aboveMap[comparisionSpace.id] = [
-            ...(aboveMap[comparisionSpace.id] || []),
+          aboveMap[comparisionSpace.id] = pushToArray(
             currentSpace.id,
-          ];
-          belowMap[currentSpace.id] = [
-            ...(belowMap[currentSpace.id] || []),
+            aboveMap[comparisionSpace.id],
+          );
+          belowMap[currentSpace.id] = pushToArray(
             comparisionSpace.id,
-          ];
+            belowMap[currentSpace.id],
+          );
         }
       }
       // Get the originalTop and originalBottom from the previous tree.
