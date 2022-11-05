@@ -624,6 +624,7 @@ export const getExistingJSCollectionNames = createSelector(
     jsActions.map((action: { config: { name: string } }) => action.config.name),
 );
 
+// TODO(abhinav): This is a duplicate, we have this in `applicationSelectors`
 export const getAppMode = (state: AppState) => state.entities.app.mode;
 
 export const widgetsMapWithParentModalId = (state: AppState) => {
