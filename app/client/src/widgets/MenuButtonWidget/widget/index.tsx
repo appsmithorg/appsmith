@@ -305,7 +305,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Icon",
             helpText: "Sets the icon to be used for the menu button",
             controlType: "ICON_SELECT",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             updateHook: (
               props: MenuButtonWidgetProps,
