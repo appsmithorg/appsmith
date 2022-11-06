@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { ReactComponent as Layout } from "assets/images/layout.svg";
 import { ReactComponent as Database } from "assets/images/database.svg";
@@ -6,6 +6,7 @@ import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  previewModeSelector,
   selectURLSlugs,
   showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
@@ -21,9 +22,10 @@ import {
   GENERATE_PAGE_DESCRIPTION,
   TEMPLATE_CARD_DESCRIPTION,
   TEMPLATE_CARD_TITLE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
+import { deleteCanvasCardsState } from "actions/editorActions";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -79,9 +81,16 @@ const goToGenPageForm = ({ pageId }: routeId): void => {
 function CanvasTopSection() {
   const dispatch = useDispatch();
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
+  const inPreviewMode = useSelector(previewModeSelector);
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
+
+  useEffect(() => {
+    if (!showCanvasTopSection && !inPreviewMode) {
+      dispatch(deleteCanvasCardsState());
+    }
+  }, [showCanvasTopSection, inPreviewMode]);
 
   if (!showCanvasTopSection) return null;
 
@@ -90,7 +99,7 @@ function CanvasTopSection() {
   };
 
   return (
-    <Wrapper>
+    <Wrapper data-cy="canvas-ctas">
       {!!featureFlags.TEMPLATES_PHASE_2 && (
         <Card data-cy="start-from-template" onClick={showTemplatesModal}>
           <Layout />

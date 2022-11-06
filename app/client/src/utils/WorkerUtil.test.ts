@@ -1,9 +1,15 @@
 import { GracefulWorkerService } from "./WorkerUtil";
 import { channel, runSaga } from "redux-saga";
-import WebpackWorker from "worker-loader!";
 
 const MessageType = "message";
-class MockWorker implements WebpackWorker {
+interface extraWorkerProperties {
+  callback: CallableFunction;
+  noop: CallableFunction;
+  delayMilliSeconds: number;
+  running: boolean;
+}
+type WorkerClass = Worker & extraWorkerProperties;
+class MockWorkerClass implements WorkerClass {
   // Implement interface
   onmessage: any;
   onmessageerror: any;
@@ -14,12 +20,12 @@ class MockWorker implements WebpackWorker {
   noop: CallableFunction;
   messages: Array<any>;
   delayMilliSeconds: number;
-  static instance: MockWorker | undefined;
+  instance: WorkerClass | undefined;
   responses: Set<number>;
   running: boolean;
 
-  static resetInstance() {
-    MockWorker.instance = undefined;
+  resetInstance() {
+    this.instance = undefined;
   }
 
   constructor() {
@@ -29,7 +35,7 @@ class MockWorker implements WebpackWorker {
     this.messages = [];
     this.delayMilliSeconds = 0;
     this.responses = new Set<number>();
-    MockWorker.instance = this;
+    this.instance = this;
     this.running = true;
   }
 
@@ -76,13 +82,8 @@ class MockWorker implements WebpackWorker {
 }
 
 describe("GracefulWorkerService", () => {
-  beforeEach(() => {
-    MockWorker.resetInstance();
-    // Assert we don't have an instance from before
-    expect(MockWorker.instance).toBeUndefined();
-  });
-
   test("Worker should start", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
 
     // wait for worker to start
@@ -95,6 +96,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Independent requests should respond independently irrespective of order", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     await runSaga({}, w.start);
     const message1 = { tree: "hello" };
@@ -110,6 +112,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Request should wait for ready", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { hello: "world" };
     // Send a request before starting
@@ -121,6 +124,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Worker should wait to drain in-flight requests before shutdown", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { hello: "world" };
     await runSaga({}, w.start);
@@ -146,7 +150,8 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Worker restart should work", async () => {
-    const w = new GracefulWorkerService(MockWorker);
+    const MockWorker = new MockWorkerClass();
+    let w = new GracefulWorkerService(MockWorker);
     const message1 = { tree: "hello" };
     await runSaga({}, w.start);
 
@@ -165,18 +170,21 @@ describe("GracefulWorkerService", () => {
     expect(oldInstance.running).toEqual(false);
 
     // Send a message to the new worker before starting it
+    const newMockWorker = new MockWorkerClass();
+    w = new GracefulWorkerService(newMockWorker);
     const message2 = { tree: "world" };
     const result2 = await runSaga({}, w.request, "test", message2);
 
     await runSaga({}, w.start);
 
     // We should have a new instance of the worker
-    expect(MockWorker.instance).not.toEqual(oldInstance);
+    expect(newMockWorker.instance).not.toEqual(oldInstance);
     // The new worker should get the correct message
     expect(await result2.toPromise()).toEqual(message2);
   });
 
   test("Cancelling saga before starting up should not crash", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { tree: "hello" };
 
@@ -190,6 +198,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("Cancelled saga should clean up", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     const message = { tree: "hello" };
     await runSaga({}, w.start);
@@ -211,6 +220,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("duplex request starter", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     await runSaga({}, w.start);
     // Need this to work with eslint
@@ -237,6 +247,7 @@ describe("GracefulWorkerService", () => {
   });
 
   test("duplex response channel handler", async () => {
+    const MockWorker = new MockWorkerClass();
     const w = new GracefulWorkerService(MockWorker);
     await runSaga({}, w.start);
 

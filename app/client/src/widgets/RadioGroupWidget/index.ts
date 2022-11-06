@@ -10,11 +10,11 @@ export const CONFIG = {
   needsMeta: true,
   searchTags: ["choice"],
   defaults: {
-    rows: 4,
+    rows: 6,
     columns: 20,
     animateLoading: true,
     label: "Label",
-    labelPosition: LabelPosition.Left,
+    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelTextSize: "0.875rem",
     labelWidth: 5,
