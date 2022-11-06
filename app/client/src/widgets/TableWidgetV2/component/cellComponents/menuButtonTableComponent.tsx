@@ -19,7 +19,6 @@ import {
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import { ThemeProp } from "components/ads/common";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
@@ -29,6 +28,7 @@ import {
   getBooleanPropertyValue,
   getPropertyValue,
 } from "widgets/TableWidgetV2/widget/utilities";
+import { ThemeProp } from "widgets/constants";
 
 const MenuButtonContainer = styled.div`
   width: 100%;

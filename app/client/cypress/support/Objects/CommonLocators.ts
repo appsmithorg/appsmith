@@ -4,6 +4,7 @@ export class CommonLocators {
   _runBtnSpinner = ".cs-spinner";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
+  _emptyCanvasCta = "[data-cy='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
   _dsNameTxt = ".t--edit-datasource-name input";
   _widgetName = (widgetName: string) =>
@@ -149,6 +150,7 @@ export class CommonLocators {
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
   _cancelActionExecution = ".t--cancel-action-button";
+  _widgetPane = "[data-cy='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-cy="slider-thumb"]';
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
   _dropDownMultiTreeValue = (dropdownOption: string) =>

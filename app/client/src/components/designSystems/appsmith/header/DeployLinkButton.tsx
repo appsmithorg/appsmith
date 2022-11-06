@@ -10,7 +10,6 @@ import { Colors } from "constants/Colors";
 
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;
@@ -71,10 +70,7 @@ type Props = {
 export const DeployLinkButton = withTheme((props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
-
   const isGitConnected = useSelector(getIsGitConnected);
-
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const onClose = () => {
     setIsOpen(false);
@@ -98,7 +94,7 @@ export const DeployLinkButton = withTheme((props: Props) => {
       canEscapeKeyClose={false}
       content={
         <DeployLinkDialog>
-          {featureFlags.GIT && !isGitConnected && (
+          {!isGitConnected && (
             <DeployLink
               className="t--connect-to-git-btn"
               onClick={goToGitConnectionPopup}

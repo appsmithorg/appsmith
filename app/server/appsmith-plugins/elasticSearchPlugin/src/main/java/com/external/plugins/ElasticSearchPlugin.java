@@ -52,6 +52,8 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 
 public class ElasticSearchPlugin extends BasePlugin {
 
+    private static final long ELASTIC_SEARCH_DEFAULT_PORT = 9200L;
+
     public ElasticSearchPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -166,6 +168,15 @@ public class ElasticSearchPlugin extends BasePlugin {
             return path.split("\\?", 1)[0].matches(".*\\b_bulk$");
         }
 
+        public Long getPort(Endpoint endpoint) {
+
+            if (endpoint.getPort() == null) {
+                return ELASTIC_SEARCH_DEFAULT_PORT;
+            }
+
+            return endpoint.getPort();
+        }
+
         @Override
         public Mono<RestClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
@@ -184,7 +195,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     scheme = url.getProtocol();
                 }
 
-                hosts.add(new HttpHost(url.getHost(), endpoint.getPort().intValue(), scheme));
+                hosts.add(new HttpHost(url.getHost(), getPort(endpoint).intValue(), scheme));
             }
 
             final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[]{}));
@@ -247,9 +258,6 @@ public class ElasticSearchPlugin extends BasePlugin {
                         }
                     }
 
-                    if (endpoint.getPort() == null) {
-                        invalids.add("Missing port for endpoint");
-                    }
                 }
 
             }

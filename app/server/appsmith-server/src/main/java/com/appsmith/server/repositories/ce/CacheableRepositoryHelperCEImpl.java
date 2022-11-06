@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
@@ -45,9 +46,13 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
         Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
+        Criteria notDeletedCriteria = notDeleted();
+
+        Criteria andCriteria = new Criteria();
+        andCriteria.andOperator(assignedToUserIdsCriteria, notDeletedCriteria);
 
         Query query = new Query();
-        query.addCriteria(assignedToUserIdsCriteria);
+        query.addCriteria(andCriteria);
 
         return mongoOperations.find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())

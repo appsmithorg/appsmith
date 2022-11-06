@@ -39,6 +39,8 @@ public class MySQLSpecificDataTypes {
                 new MySQLDateTimeType(),
                 new StringType()
         ));
+
+        pluginSpecificTypes.put(ClientDataType.ARRAY, List.of(new StringType()));
     }
 
 }
