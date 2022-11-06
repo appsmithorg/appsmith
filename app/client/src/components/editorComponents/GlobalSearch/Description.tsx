@@ -111,6 +111,13 @@ const Container = styled.div`
     width: 100%;
     height: 280px;
   }
+
+  ul,
+  ol {
+    list-style: revert;
+    padding: revert;
+    margin: revert;
+  }
 `;
 
 const StyledDocumentationDescription = styled.div`
