@@ -533,12 +533,15 @@ export function* updateWidgetAutoHeightSaga() {
 
 // TODO(abhinav): Remove these when these are added via another PR.
 function generateDynamicHeightComputationTree(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   arg0: boolean,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   arg1: boolean,
 ): any {
   throw new Error("Function not implemented.");
 }
 function updateMultipleWidgetProperties(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   widgetsToUpdate: Record<
     string,
     Array<{ propertyPath: string; propertyValue: unknown }>
@@ -547,7 +550,9 @@ function updateMultipleWidgetProperties(
   throw new Error("Function not implemented.");
 }
 function computeChangeInPositionBasedOnDelta(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   autoHeightLayoutTree: Record<string, TreeNode>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   delta: Record<string, number>,
 ) {
   throw new Error("Function not implemented.");
