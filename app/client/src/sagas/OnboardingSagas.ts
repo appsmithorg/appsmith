@@ -30,7 +30,7 @@ import {
   getTableWidget,
 } from "selectors/onboardingSelectors";
 import { Toaster, Variant } from "design-system";
-import { Workspaces } from "constants/workspaceConstants";
+import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
   enableGuidedTour,
   focusWidgetProperty,

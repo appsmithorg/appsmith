@@ -38,7 +38,7 @@ import ApplicationCard from "./ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { User } from "constants/userConstants";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
@@ -74,7 +74,10 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
+import {
+  deleteWorkspace,
+  saveWorkspace,
+} from "@appsmith/actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
@@ -540,7 +543,6 @@ function ApplicationsSection(props: any) {
   ) => {
     dispatch(updateApplication(id, data));
   };
-  const featureFlags = useSelector(selectFeatureFlags);
 
   useEffect(() => {
     // Clears URL params cache
@@ -953,12 +955,10 @@ function ApplicationsSection(props: any) {
       isMobile={isMobile}
     >
       {workspacesListComponent}
-      {featureFlags.GIT_IMPORT && (
-        <>
-          <GitSyncModal isImport />
-          <DisconnectGitModal />
-        </>
-      )}
+      <>
+        <GitSyncModal isImport />
+        <DisconnectGitModal />
+      </>
       <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
