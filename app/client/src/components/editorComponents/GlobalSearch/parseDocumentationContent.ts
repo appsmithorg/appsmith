@@ -154,8 +154,8 @@ const parseMarkdown = (value: string) => {
 };
 
 const replaceHintTagsWithCode = (text: string) => {
-  let result = text.replace(/{% hint .*?%}/, "```");
-  result = result.replace(/{% endhint .*?%}/, "```");
+  let result = text.replaceAll(/:::.*?/g, "```");
+  result = result.replaceAll(/:::/g, "```");
   return result;
 };
 

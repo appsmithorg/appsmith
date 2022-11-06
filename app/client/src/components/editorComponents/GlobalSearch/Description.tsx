@@ -106,6 +106,11 @@ const Container = styled.div`
       background: transparent !important;
     }
   }
+
+  object {
+    width: 100%;
+    height: 280px;
+  }
 `;
 
 const StyledDocumentationDescription = styled.div`
