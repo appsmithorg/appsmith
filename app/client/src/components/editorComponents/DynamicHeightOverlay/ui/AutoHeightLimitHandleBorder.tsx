@@ -1,11 +1,13 @@
 import styled from "styled-components";
-import { OVERLAY_COLOR } from "./constants";
+import { OVERLAY_COLOR } from "../constants";
 
-interface DashedBorderProps {
+interface AutoHeightLimitHandleBorderProps {
   isActive: boolean;
 }
 
-export const DashedBorder = styled.div<DashedBorderProps>`
+const AutoHeightLimitHandleBorder = styled.div<
+  AutoHeightLimitHandleBorderProps
+>`
   background-image: linear-gradient(
     to right,
     ${OVERLAY_COLOR} 50%,
@@ -22,3 +24,5 @@ export const DashedBorder = styled.div<DashedBorderProps>`
 
   ${(props) => (props.isActive ? `background-color: ${OVERLAY_COLOR}` : "")}
 `;
+
+export default AutoHeightLimitHandleBorder;

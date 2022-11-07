@@ -1,11 +1,13 @@
 import styled from "styled-components";
 
-interface OverlayDisplayProps {
+interface AutoHeightLimitOverlayDisplayProps {
   isActive: boolean;
   maxY: number;
 }
 
-export const Overlay = styled.div<OverlayDisplayProps>`
+const AutoHeightLimitOverlayDisplay = styled.div<
+  AutoHeightLimitOverlayDisplayProps
+>`
   display: ${(props) => (props.isActive ? "block" : "none")};
   position: absolute;
   top: 0;
@@ -14,3 +16,5 @@ export const Overlay = styled.div<OverlayDisplayProps>`
   height: ${(props) => props.maxY}px;
   background-color: rgba(243, 43, 139, 0.1);
 `;
+
+export default AutoHeightLimitOverlayDisplay;
