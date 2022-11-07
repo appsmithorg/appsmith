@@ -5,14 +5,13 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { WidgetType } from "utils/WidgetFactory";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDrawing: false,
   isDragging: false,
-  drawingDetails: {
-    type: undefined,
-  },
+  drawingDetails: {},
   dragDetails: {},
   isResizing: false,
   lastSelectedWidget: undefined,
@@ -150,11 +149,11 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state: WidgetDragResizeState,
     action: ReduxAction<{
       isDrawing: boolean;
-      type?: string;
+      drawingDetails: DrawingDetails;
     }>,
   ) => {
     state.isDrawing = action.payload.isDrawing;
-    state.drawingDetails.type = action.payload.type;
+    state.drawingDetails = action.payload.drawingDetails || {};
   },
 });
 
@@ -171,13 +170,20 @@ export type DragDetails = {
   dragOffset?: any;
 };
 
+export type DrawingDetails = {
+  type: WidgetType;
+  key: string;
+  displayName: string;
+  icon: string;
+  isBeta: boolean;
+  newWidgetId: string;
+};
+
 export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   isDrawing: boolean;
-  drawingDetails: {
-    type?: string;
-  };
+  drawingDetails: Partial<DrawingDetails>;
   dragDetails: DragDetails;
   isResizing: boolean;
   lastSelectedWidget?: string;

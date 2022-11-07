@@ -61,6 +61,8 @@ export const drawWidget = (payload: {
   topRow: number;
   leftColumn: number;
   widgetId: string;
+  snapColumnSpace: number;
+  snapRowSpace: number;
 }): ReduxAction<any> => {
   return {
     type: ReduxActionTypes.DRAW_WIDGET,

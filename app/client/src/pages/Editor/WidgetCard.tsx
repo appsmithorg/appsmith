@@ -75,8 +75,8 @@ function WidgetCard(props: CardProps) {
     (state: AppState) => state.ui.widgetDragResize.isDrawing,
   );
 
-  const drawingDetails = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.drawingDetails,
+  const widgetDrawType = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.drawingDetails.type,
   );
 
   const dispatch = useDispatch();
@@ -103,17 +103,23 @@ function WidgetCard(props: CardProps) {
     event.preventDefault();
     event.stopPropagation();
 
-    if (drawingDetails.type === props.details.type) {
+    if (widgetDrawType === props.details.type) {
       dispatch({
         type: ReduxActionTypes.SET_WIDGET_DRAWING,
-        payload: { isDrawing: false },
+        payload: { isDrawing: false, drawingDetails: {} },
       });
       return;
     }
 
     dispatch({
       type: ReduxActionTypes.SET_WIDGET_DRAWING,
-      payload: { isDrawing: true, type: props.details.type },
+      payload: {
+        isDrawing: true,
+        drawingDetails: {
+          ...props.details,
+          newWidgetId: generateReactKey(),
+        },
+      },
     });
   };
 
@@ -127,7 +133,7 @@ function WidgetCard(props: CardProps) {
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
       draggable={!isDrawing}
-      isDrawing={drawingDetails.type === props.details.type}
+      isDrawing={widgetDrawType === props.details.type}
       onClick={onWidgetCardClick}
       onDragStart={onDragStart}
     >

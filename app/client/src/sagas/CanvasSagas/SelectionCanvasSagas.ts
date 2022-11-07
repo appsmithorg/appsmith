@@ -10,13 +10,14 @@ import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelecti
 import { Task } from "redux-saga";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
-import { getSelectDrawWidget, getSelectedWidgets } from "selectors/ui";
+import { getDrawingDetails, getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { generateReactKey } from "utils/generators";
+import { stopReflowAction } from "actions/reflowActions";
+import { DrawingDetails } from "reducers/uiReducers/dragResizeReducer";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];
@@ -147,22 +148,25 @@ function* drawWidgetSaga(
     topRow: number;
     leftColumn: number;
     widgetId: string;
+    snapColumnSpace: number;
+    snapRowSpace: number;
   }>,
 ) {
-  const widgetType: string | undefined = yield select(getSelectDrawWidget);
+  const drawingDetails: DrawingDetails = yield select(getDrawingDetails);
 
-  const newWidgetId = generateReactKey();
-
+  /**
+   * 1. When we draw and click escape the rectangle should disappear.
+   * 2. Push the code.
+   */
   const widgetPayload = {
+    ...drawingDetails,
     columns: drawWidgetAction.payload.columns,
     leftColumn: drawWidgetAction.payload.leftColumn,
-    newWidgetId,
-    parentColumnSpace: 10.046875,
-    parentRowSpace: 10,
     rows: drawWidgetAction.payload.rows,
     topRow: drawWidgetAction.payload.topRow,
-    type: widgetType,
     widgetId: drawWidgetAction.payload.widgetId,
+    parentColumnSpace: drawWidgetAction.payload.snapColumnSpace,
+    parentRowSpace: drawWidgetAction.payload.snapRowSpace,
   };
 
   yield put({
@@ -170,10 +174,18 @@ function* drawWidgetSaga(
     payload: widgetPayload,
   });
 
+  yield put(stopReflowAction());
+
+  yield put({
+    type: ReduxActionTypes.SELECT_WIDGET_INIT,
+    payload: { widgetId: drawingDetails.newWidgetId },
+  });
+
   yield put({
     type: ReduxActionTypes.SET_WIDGET_DRAWING,
     payload: {
       isDrawing: false,
+      drawingDetails: {},
     },
   });
 }

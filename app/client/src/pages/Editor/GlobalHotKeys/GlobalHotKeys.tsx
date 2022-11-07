@@ -423,6 +423,7 @@ const mapDispatchToProps = (dispatch: any) => {
           type: ReduxActionTypes.SET_WIDGET_DRAWING,
           payload: {
             isDrawing: false,
+            drawingDetails: {},
           },
         }),
       ),

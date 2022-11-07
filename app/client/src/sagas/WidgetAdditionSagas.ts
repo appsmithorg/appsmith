@@ -39,7 +39,7 @@ import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
-import { getPropertiesToUpdate } from "./WidgetOperationSagas";
+import { getPropertiesToUpdate, reflowWidgets } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
@@ -266,6 +266,99 @@ function* generateChildWidgets(
   return { widgetId: widget.widgetId, widgets };
 }
 
+export function* getUpdateWidgetsAndReflowAfterGettingChild(
+  addChildPayload: WidgetAddChild,
+) {
+  const parentWidgetId = addChildPayload.widgetId;
+  // Get the current parent widget whose child will be the new widget.
+  const stateParent: FlattenedWidgetProps = yield select(
+    getWidget,
+    parentWidgetId,
+  );
+  // const parent = Object.assign({}, stateParent);
+  // Get all the widgets from the canvasWidgetsReducer
+  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgets = Object.assign({}, stateWidgets);
+  // Generate the full WidgetProps of the widget to be added.
+  const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
+    stateParent,
+    addChildPayload,
+    widgets,
+    // sending blueprint for onboarding usecase
+    addChildPayload.props?.blueprint,
+  );
+
+  const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
+
+  const reflowedWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield call(
+    reflowWidgets,
+    widgets,
+    newWidget,
+    addChildPayload.parentColumnSpace,
+    addChildPayload.parentRowSpace,
+  );
+
+  const parentBottomRow = getParentBottomRowAfterAddingWidget(
+    stateParent,
+    newWidget,
+  );
+
+  // Update widgets to put back in the canvasWidgetsReducer
+  // TODO(abhinav): This won't work if dont already have an empty children: []
+  const parent = {
+    ...stateParent,
+    bottomRow: parentBottomRow,
+    children: [...(stateParent.children || []), childWidgetPayload.widgetId],
+  };
+
+  reflowedWidgets[parent.widgetId] = parent;
+  AppsmithConsole.info({
+    text: "Widget was created",
+    source: {
+      type: ENTITY_TYPE.WIDGET,
+      id: childWidgetPayload.widgetId,
+      name: childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
+    },
+  });
+  yield put({
+    type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
+    payload: {
+      widgetId: childWidgetPayload.widgetId,
+      type: addChildPayload.type,
+    },
+  });
+  // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
+  // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+  // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    traverseTreeAndExecuteBlueprintChildOperations,
+    parent,
+    addChildPayload.newWidgetId,
+    reflowedWidgets,
+  );
+
+  if (parentWidgetId === MAIN_CONTAINER_WIDGET_ID) {
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
+    const mainCanvasMinHeight = mainCanvasProps?.height;
+
+    //updates bottom Row of main Canvas
+    updatedWidgets[
+      MAIN_CONTAINER_WIDGET_ID
+    ].bottomRow = resizeCanvasToLowestWidget(
+      updatedWidgets,
+      parentWidgetId,
+      updatedWidgets[MAIN_CONTAINER_WIDGET_ID].bottomRow,
+      mainCanvasMinHeight,
+    );
+  }
+
+  return updatedWidgets;
+}
+
 export function* getUpdateDslAfterCreatingChild(
   addChildPayload: WidgetAddChild,
 ) {
@@ -358,7 +451,10 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     Toaster.clear();
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
-    } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
+    } = yield call(
+      getUpdateWidgetsAndReflowAfterGettingChild,
+      addChildAction.payload,
+    );
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
