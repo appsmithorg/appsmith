@@ -11,7 +11,7 @@ import {
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
   getFocusableField,
@@ -49,6 +49,7 @@ import {
   setSelectedPropertyTabIndex,
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
+import { PluginPackageName } from "entities/Action";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -73,6 +74,7 @@ type Config = {
   selector: (state: AppState) => unknown;
   setter: (payload: any) => ReduxAction<any>;
   defaultValue?: unknown;
+  subTypes?: Record<string, { defaultValue: unknown }>;
 };
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
@@ -169,6 +171,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getApiPaneConfigSelectedTabIndex,
       setter: setApiPaneConfigSelectedTabIndex,
       defaultValue: 0,
+      subTypes: {
+        [PluginPackageName.GRAPHQL]: {
+          defaultValue: 2,
+        },
+      },
     },
     {
       name: FocusElement.ApiPaneResponseTabs,

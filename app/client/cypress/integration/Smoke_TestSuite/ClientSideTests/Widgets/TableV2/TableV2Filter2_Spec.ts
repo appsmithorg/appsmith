@@ -366,8 +366,8 @@ describe("Verify various Table_Filter combinations", function() {
     filterOnlyCondition("does not contain", "49");
     filterOnlyCondition("starts with", "1");
 
-    //Ends with - Open Bug 13334
-    //filterOnlyCondition('ends with', '1')
+    // Ends with - Open Bug 13334
+    filterOnlyCondition("ends with", "1");
 
     filterOnlyCondition("is exactly", "1");
     filterOnlyCondition("empty", "0");

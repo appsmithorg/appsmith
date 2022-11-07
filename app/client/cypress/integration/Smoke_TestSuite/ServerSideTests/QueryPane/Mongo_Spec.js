@@ -4,7 +4,8 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const formControls = require("../../../../locators/FormControl.json");
 import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
+const ee = ObjectsRegistry.EntityExplorer;
+const dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 
@@ -63,7 +64,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     // cy.EvaluateCurrentValue(`{"find": "listingAndReviews","limit": 10}`);
 
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
     cy.deleteQueryUsingContext();
   });
 
@@ -81,18 +82,18 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
 
     cy.typeValueNValidate("listingAndReviews", formControls.mongoCollection);
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
 
     cy.typeValueNValidate("{beds : {$lte: 2}}", formControls.mongoFindQuery);
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
 
     cy.typeValueNValidate(
       "{number_of_reviews: -1}",
       formControls.mongoFindSort,
     ); //sort descending
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "10 Records");
+    dataSources.CheckResponseRecordsCount(10);
 
     cy.typeValueNValidate(
       "{house_rules: 1, description:1}",
@@ -108,7 +109,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
         "Response is not as expected for Find commmand with multiple conditions",
       );
     });
-    cy.xpath(queryLocators.countText).should("have.text", "5 Records");
+    dataSources.CheckResponseRecordsCount(5);
 
     cy.typeValueNValidate("2", formControls.mongoFindSkip); //Skip field
     cy.onlyQueryRun();
@@ -119,7 +120,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
         "Response is not as expected for Find commmand with multiple conditions",
       );
     });
-    cy.xpath(queryLocators.countText).should("have.text", "5 Records");
+    dataSources.CheckResponseRecordsCount(5);
     cy.deleteQueryUsingContext();
   });
 
@@ -418,7 +419,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     );
 
     cy.runQuery();
-    cy.xpath(queryLocators.countText).should("have.text", "3 Records");
+    dataSources.CheckResponseRecordsCount(3);
 
     cy.get("@dSName").then((dbName) => {
       //cy.CheckAndUnfoldEntityItem("Datasources");

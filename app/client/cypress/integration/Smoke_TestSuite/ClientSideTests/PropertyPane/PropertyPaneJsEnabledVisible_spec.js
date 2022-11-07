@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/jsonFormDslWithSchema.json");
-const { ObjectsRegistry } = require("../../../../support/Objects/Registry");
 
 describe("Property pane js enabled field", function() {
   before(() => {

@@ -31,7 +31,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -46,10 +46,9 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.WidgetSuggestionHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
@@ -106,6 +105,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -129,9 +129,6 @@ public class ActionServiceCE_Test {
     WorkspaceService workspaceService;
 
     @Autowired
-    WorkspaceRepository workspaceRepository;
-
-    @Autowired
     PluginRepository pluginRepository;
 
     @MockBean
@@ -153,9 +150,6 @@ public class ActionServiceCE_Test {
     DatasourceService datasourceService;
 
     @Autowired
-    ActionCollectionService actionCollectionService;
-
-    @Autowired
     ImportExportApplicationService importExportApplicationService;
 
     @SpyBean
@@ -172,6 +166,9 @@ public class ActionServiceCE_Test {
 
     @Autowired
     PermissionGroupService permissionGroupService;
+
+    @SpyBean
+    AstService astService;
 
     Application testApp = null;
 
@@ -321,9 +318,7 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action);
 
         StepVerifier
                 .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
@@ -332,6 +327,7 @@ public class ActionServiceCE_Test {
                     assertThat(createdAction.getId()).isNotEmpty();
                     assertThat(createdAction.getName()).isEqualTo(action.getName());
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
+                    assertThat(createdAction.getUserPermissions()).isNotEmpty();
 
                     List<PermissionGroup> permissionGroups = tuple.getT2();
                     PermissionGroup adminPermissionGroup = permissionGroups.stream()
@@ -384,17 +380,15 @@ public class ActionServiceCE_Test {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName)
-                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(branchName, createdAction.getId(), READ_ACTIONS))
-                .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
+        Mono<ActionDTO> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName);
 
         StepVerifier
                 .create(Mono.zip(actionMono, defaultPermissionGroupsMono))
                 .assertNext(tuple -> {
                     ActionDTO createdAction = tuple.getT1();
                     assertThat(createdAction.getExecuteOnLoad()).isFalse();
-
                     assertThat(createdAction.getDefaultResources()).isNotNull();
+                    assertThat(createdAction.getUserPermissions()).isNotEmpty();
                     assertThat(createdAction.getDefaultResources().getActionId()).isEqualTo(createdAction.getId());
                     assertThat(createdAction.getDefaultResources().getPageId()).isEqualTo(gitConnectedPage.getId());
                     assertThat(createdAction.getDefaultResources().getApplicationId()).isEqualTo(gitConnectedPage.getApplicationId());
@@ -452,6 +446,7 @@ public class ActionServiceCE_Test {
                     ActionMoveDTO actionMoveDTO = new ActionMoveDTO();
                     actionMoveDTO.setAction(savedAction);
                     actionMoveDTO.setDestinationPageId(destinationPage.getId());
+                    assertThat(savedAction.getUserPermissions()).isNotEmpty();
                     return layoutActionService.moveAction(actionMoveDTO);
                 });
 
@@ -2718,9 +2713,17 @@ public class ActionServiceCE_Test {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+                    return layoutActionService.updateLayout(page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
 
                 });
+
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.prev", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.prev"))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding("paginatedApi.data.next", EVALUATION_VERSION))
+                .thenReturn(Mono.just(new HashSet<>(Set.of("paginatedApi.data.next"))));
+
         StepVerifier
                 .create(testMono)
                 .assertNext(layout -> {

@@ -323,3 +323,20 @@ Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
     .last()
     .type(`${renamedEntity}`, { force: true });
 });
+Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
+  cy.openWorkspaceOptionsPopup(newWorkspaceName);
+  cy.get(homePage.workspaceNamePopoverContent)
+    .find("a")
+    .should("have.length", 1)
+    .first()
+    .contains("Leave Workspace")
+    .click();
+  cy.contains("Are you sure").click();
+  cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
+    expect(httpResponse.status).to.equal(200);
+  });
+  cy.get(homePage.toastMessage).should(
+    "contain",
+    "You have successfully left the workspace",
+  );
+});

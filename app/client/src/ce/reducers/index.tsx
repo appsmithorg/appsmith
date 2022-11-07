@@ -18,7 +18,7 @@ import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
-import { WorkspaceReduxState } from "reducers/uiReducers/workspaceReducer";
+import { WorkspaceReduxState } from "@appsmith/reducers/uiReducers/workspaceReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
@@ -61,8 +61,13 @@ import SettingsReducer, {
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
+import tenantReducer, {
+  TenantReduxState,
+} from "@appsmith/reducers/tenantReducer";
 import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
+import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import lintErrorReducer from "reducers/lintingReducers";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -70,6 +75,8 @@ export const reducerObject = {
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
+  tenant: tenantReducer,
+  linting: lintErrorReducer,
 };
 
 export interface AppState {
@@ -137,8 +144,12 @@ export interface AppState {
     formEvaluation: FormEvaluationState;
     triggers: TriggerValuesEvaluationState;
   };
+  linting: {
+    errors: LintErrors;
+  };
   form: {
     [key: string]: any;
   };
   settings: SettingsReduxState;
+  tenant: TenantReduxState;
 }

@@ -22,7 +22,8 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
+
 import {
   DataTree,
   ENTITY_TYPE,
@@ -64,7 +65,6 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   getInputValue,
@@ -75,7 +75,7 @@ import {
   removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
@@ -104,6 +104,7 @@ import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
 import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
+import { getEntityLintErrors } from "selectors/lintingSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -185,6 +186,10 @@ export type EditorProps = EditorStyleProps &
     containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
+
+    // On focus and blur event handler
+    onEditorBlur?: () => void;
+    onEditorFocus?: () => void;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -196,8 +201,6 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
-  // state of lint errors in editor
-  hasLintError: boolean;
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -221,7 +224,6 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
-      hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -352,8 +354,24 @@ class CodeEditor extends Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
-    if (this.props.dynamicData !== nextProps.dynamicData)
-      return nextState.isFocused || !!nextProps.isJSObject;
+    if (this.props.dynamicData !== nextProps.dynamicData) {
+      // check if isFocused or isJSObject or areErrors changed then re-render
+      let areErrorsEqual = true;
+      if (this.props.dataTreePath) {
+        const errors = this.getErrors(
+          this.props.dynamicData,
+          this.props.dataTreePath,
+        );
+        const newErrors = this.getErrors(
+          nextProps.dynamicData,
+          this.props.dataTreePath,
+        );
+        if (errors && newErrors) {
+          areErrorsEqual = isEqual(errors, newErrors);
+        }
+      }
+      return nextState.isFocused || !!nextProps.isJSObject || !areErrorsEqual;
+    }
     return true;
   }
 
@@ -561,6 +579,10 @@ class CodeEditor extends Component<Props, State> {
             hinter.showHint(cm, entityInformation, blockCompletions),
         );
     }
+
+    if (this.props.onEditorFocus) {
+      this.props.onEditorFocus();
+    }
   };
 
   handleEditorBlur = () => {
@@ -569,6 +591,9 @@ class CodeEditor extends Component<Props, State> {
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
     this.props.setCodeEditorLastFocus(this.props.dataTreePath);
+    if (this.props.onEditorBlur) {
+      this.props.onEditorBlur();
+    }
   };
 
   handleBeforeChange = (
@@ -589,8 +614,9 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleLintTooltip = () => {
-    // return if there is no lint error in editor instance
-    if (!this.state.hasLintError) return;
+    const { lintErrors } = this.props;
+
+    if (lintErrors.length === 0) return;
     const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
     if (!lintTooltipList) return;
     for (const tooltip of lintTooltipList) {
@@ -743,20 +769,15 @@ class CodeEditor extends Component<Props, State> {
     const {
       additionalDynamicData: contextData,
       dataTreePath,
-      dynamicData,
       isJSObject,
     } = this.props;
 
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
-    const errors = _.get(
-      dynamicData,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
+    const lintErrors = this.props.lintErrors;
 
-    const annotations = getLintAnnotations(editor.getValue(), errors, {
+    const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
       contextData,
     });
@@ -785,40 +806,28 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
+  getErrors(dynamicData: DataTree, dataTreePath: string) {
+    return _.get(
+      dynamicData,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+  }
+
   getPropertyValidation = (
     dataTreePath?: string,
   ): {
-    isInvalid: boolean;
-    errors: EvaluationError[];
+    evalErrors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
     if (!dataTreePath) {
       return {
-        isInvalid: false,
-        errors: [],
+        evalErrors: [],
         pathEvaluatedValue: undefined,
       };
     }
 
-    const errors = _.get(
-      this.props.dynamicData,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
-
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
-    const lintErrors = errors.filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-    );
-
-    if (!_.isEmpty(lintErrors)) {
-      !this.state.hasLintError && this.setState({ hasLintError: true });
-    } else {
-      this.state.hasLintError && this.setState({ hasLintError: false });
-    }
+    const evalErrors = this.getErrors(this.props.dynamicData, dataTreePath);
 
     const pathEvaluatedValue = _.get(
       this.props.dynamicData,
@@ -826,8 +835,7 @@ class CodeEditor extends Component<Props, State> {
     );
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      evalErrors,
       pathEvaluatedValue,
     };
   };
@@ -854,10 +862,13 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const validations = this.getPropertyValidation(dataTreePath);
-    let { errors, isInvalid } = validations;
-    const { pathEvaluatedValue } = validations;
-    let evaluated = evaluatedValue;
+    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
+      dataTreePath,
+    );
+    let errors = evalErrors,
+      isInvalid = evalErrors.length > 0,
+      evaluated = evaluatedValue;
+
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
@@ -989,12 +1000,13 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: EditorProps) => ({
+const mapStateToProps = (state: AppState, { dataTreePath }: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
+  editorIsFocused: getIsCodeEditorFocused(state, dataTreePath || ""),
+  lintErrors: dataTreePath ? getEntityLintErrors(state, dataTreePath) : [],
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

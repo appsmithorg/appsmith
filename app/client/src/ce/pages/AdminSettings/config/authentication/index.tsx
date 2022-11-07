@@ -1,17 +1,17 @@
 import React from "react";
 import {
-  GOOGLE_SIGNUP_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
+  GOOGLE_SIGNUP_SETUP_DOC,
   SIGNUP_RESTRICTION_DOC,
 } from "constants/ThirdPartyConstants";
 import {
+  AdminConfigType,
   SettingCategories,
   SettingSubCategories,
-  SettingTypes,
   SettingSubtype,
-  AdminConfigType,
+  SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { AuthPage, AuthMethodType } from "./AuthPage";
+import { AuthMethodType, AuthPage } from "./AuthPage";
 import Google from "assets/images/Google.png";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
@@ -214,6 +214,7 @@ function AuthMain() {
 }
 
 export const config: AdminConfigType = {
+  icon: "lock-password-line",
   type: SettingCategories.AUTHENTICATION,
   controlType: SettingTypes.PAGE,
   title: "Authentication",

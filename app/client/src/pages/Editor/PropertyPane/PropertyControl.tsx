@@ -51,7 +51,7 @@ import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
 import {
   getPropertyControlFocusElement,

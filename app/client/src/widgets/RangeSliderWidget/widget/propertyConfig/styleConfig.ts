@@ -8,7 +8,8 @@ export default [
         helpText: "Controls the size of the slider",
         propertyName: "sliderSize",
         label: "Size",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         defaultValue: "m",
         options: [
           {
@@ -39,6 +40,7 @@ export default [
       {
         propertyName: "labelTextColor",
         label: "Font Color",
+        helpText: "Control the color of the label associated",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -48,6 +50,7 @@ export default [
       {
         propertyName: "labelTextSize",
         label: "Label Text Size",
+        helpText: "Control the font size of the label associated",
         controlType: "DROP_DOWN",
         defaultValue: "0.875rem",
         options: [
@@ -90,6 +93,7 @@ export default [
       {
         propertyName: "labelStyle",
         label: "Emphasis",
+        helpText: "Control if the label should be bold or italics",
         controlType: "BUTTON_TABS",
         options: [
           {

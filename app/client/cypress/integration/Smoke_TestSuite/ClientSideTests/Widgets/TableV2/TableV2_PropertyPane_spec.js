@@ -321,7 +321,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       "0",
       "0",
       "background",
-      "rgb(126, 34, 206) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(113, 30, 184) none repeat scroll 0% 0% / auto padding-box border-box",
       true,
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
@@ -332,7 +332,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       "0",
       "0",
       "background",
-      "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
+      "rgb(102, 0, 102) none repeat scroll 0% 0% / auto padding-box border-box",
       true,
     );
     // close property pane
