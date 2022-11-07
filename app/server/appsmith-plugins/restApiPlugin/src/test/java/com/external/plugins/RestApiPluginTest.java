@@ -26,7 +26,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import net.minidev.json.JSONObject;
@@ -44,7 +43,14 @@ import reactor.util.function.Tuple2;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -59,7 +65,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Slf4j
 public class RestApiPluginTest {
 
     private static HintMessageUtils hintMessageUtils;

@@ -197,11 +197,9 @@ public class RestApiPlugin extends BasePlugin {
                 if (actionConfiguration.getNext() == null) {
                     datasourceConfiguration.setUrl(null);
                 } else {
-//                    datasourceConfiguration.setUrl(URLDecoder.decode(actionConfiguration.getNext(), StandardCharsets.UTF_8));
                     datasourceConfiguration.setUrl(encodeUrl(actionConfiguration.getNext()));
                 }
             } else if (PaginationField.PREV.equals(paginationField)) {
-//                datasourceConfiguration.setUrl(actionConfiguration.getPrev());
                 datasourceConfiguration.setUrl(encodeUrl(actionConfiguration.getPrev()));
             }
 
