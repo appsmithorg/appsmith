@@ -9,7 +9,8 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
 
 import { AutocompleteDataType } from "./autocomplete/TernServer";
-import EventEmitter from "./EventEmitter";
+import DynamicHeightCallbackHandler from "./CallbackHandler/DynamicHeightCallbackHandler";
+import { CallbackHandlerEventType } from "./CallbackHandler/CallbackHandlerEventType";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -360,10 +361,14 @@ export const PropertyPaneConfigTemplates: Record<
     {
       propertyName: "minDynamicHeight",
       onBlur: () => {
-        EventEmitter.emit("property_pane_input_blurred", "minDynamicHeight");
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
+        );
       },
       onFocus: () => {
-        EventEmitter.emit("property_pane_input_focused", "minDynamicHeight");
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_FOCUS,
+        );
       },
       label: "Min Height (in rows)",
       helpText: "Minimum number of rows to occupy irrespective of contents",
@@ -390,10 +395,14 @@ export const PropertyPaneConfigTemplates: Record<
     {
       propertyName: "maxDynamicHeight",
       onFocus: () => {
-        EventEmitter.emit("property_pane_input_focused", "maxDynamicHeight");
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
+        );
       },
       onBlur: () => {
-        EventEmitter.emit("property_pane_input_blurred", "maxDynamicHeight");
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_BLUR,
+        );
       },
       label: "Max Height (in rows)",
       helpText: "Maximum Height, after which contents will scroll",
