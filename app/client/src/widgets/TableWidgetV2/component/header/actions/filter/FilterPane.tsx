@@ -6,8 +6,8 @@ import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { ReactTableColumnProps, ReactTableFilter } from "./Constants";
-import TableFilterPaneContent from "./TableFilterPaneContent";
+import { ReactTableColumnProps, ReactTableFilter } from "../../../Constants";
+import TableFilterPaneContent from "./FilterPaneContent";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 import { Layers } from "constants/Layers";
 import Popper from "pages/Editor/Popper";
