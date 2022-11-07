@@ -20,7 +20,8 @@ import {
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import AutoHeightLimitHandleGroup from "./AutoHeightLimitHandleGroup";
 import AutoHeightLimitOverlayDisplay from "./ui/AutoHeightLimitOverlayDisplay";
-import { useHoverState } from "./hooks";
+import { useHoverState, usePositionedStyles } from "./hooks";
+import { getSnappedValues } from "./utils";
 
 const StyledDynamicHeightOverlay = styled.div<{ isHidden: boolean }>`
   width: 100%;
@@ -44,17 +45,6 @@ interface DynamicHeightOverlayContainerProps
   onMinHeightSet: (height: number) => void;
   style?: CSSProperties;
 }
-
-const getSnappedValues = (
-  x: number,
-  y: number,
-  snapGrid: { x: number; y: number },
-) => {
-  return {
-    x: Math.round(x / snapGrid.x) * snapGrid.x,
-    y: Math.round(y / snapGrid.y) * snapGrid.y,
-  };
-};
 
 interface DynamicHeightOverlayProps extends DynamicHeightOverlayContainerProps {
   isHidden: boolean;
@@ -303,27 +293,15 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       topRow,
     } = props;
 
-    const styles: CSSProperties = useMemo(
-      () => ({
-        height: (bottomRow - topRow) * parentRowSpace,
-        width: (rightColumn - leftColumn) * parentColumnSpace,
-        left:
-          leftColumn * parentColumnSpace +
-          (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-        top:
-          topRow * parentRowSpace +
-          (noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      }),
-      [
-        bottomRow,
-        leftColumn,
-        noContainerOffset,
-        parentColumnSpace,
-        parentRowSpace,
-        rightColumn,
-        topRow,
-      ],
-    );
+    const styles = usePositionedStyles({
+      bottomRow,
+      leftColumn,
+      noContainerOffset,
+      parentColumnSpace,
+      parentRowSpace,
+      rightColumn,
+      topRow,
+    });
 
     return (
       <StyledDynamicHeightOverlay isHidden={isHidden} style={style ?? styles}>
