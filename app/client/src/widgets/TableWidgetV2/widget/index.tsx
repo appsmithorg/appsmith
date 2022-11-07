@@ -144,6 +144,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       updatedRow: `{{this.triggeredRow}}`,
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
+      tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
     };
   }
 

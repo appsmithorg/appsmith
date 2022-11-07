@@ -773,4 +773,8 @@ export default {
     return validationMap;
   },
   //
+  getTableHeaders: (props, moment, _) => {
+    return 100;
+    // return Object.create({ id: "name", label: "NAMES", visible: true });
+  },
 };
