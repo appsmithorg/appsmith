@@ -3,6 +3,10 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2WidgetDsl.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+const table = ObjectsRegistry.TableV2;
+const PropPane = ObjectsRegistry.PropertyPane;
 
 describe("Table Widget V2 Functionality", function() {
   before(() => {
@@ -190,5 +194,49 @@ describe("Table Widget V2 Functionality", function() {
     cy.get(".t--button-tab-ROW_LEVEL").click();
     cy.get(".t--table-filter-columns-dropdown").click();
     cy.get(".t--dropdown-option").should("not.contain", "Save / Discard");
+  });
+
+  it("6. Verify that table filter is retained when the tableData scehma doesn't change", () => {
+    cy.openPropertyPane("tablewidgetv2");
+    PropPane.UpdatePropertyFieldValue(
+      "Table Data",
+      `{{[{number: "1", work: "test"}, {number: "2", work: "celebrate!"}]}}`,
+    );
+    table.OpenNFilterTable("number", "contains", "2");
+    cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");
+    cy.readTableV2data(0, 1).then((val) => {
+      expect(val).to.equal("2");
+    });
+    PropPane.UpdatePropertyFieldValue(
+      "Table Data",
+      `{{[{number: "1.1", work: "test"}, {number: "2", work: "celebrate!"}]}}`,
+    );
+    cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");
+    cy.readTableV2data(0, 1).then((val) => {
+      expect(val).to.equal("2");
+    });
+    cy.get(".t--close-filter-btn").click({ force: true });
+    PropPane.UpdatePropertyFieldValue(
+      "Table Data",
+      `{{[{number: "1.1", task: "test"}, {number: "2", task: "celebrate!"}]}}`,
+    );
+    cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters");
+    cy.readTableV2data(0, 1).then((val) => {
+      expect(val).to.equal("1.1");
+    });
+    table.OpenNFilterTable("number", "contains", "2");
+    cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");
+    cy.readTableV2data(0, 1).then((val) => {
+      expect(val).to.equal("2");
+    });
+    cy.get(".t--close-filter-btn").click({ force: true });
+    PropPane.UpdatePropertyFieldValue(
+      "Table Data",
+      `{{[{number: "1", task: "test"}, {number: "2", task: "celebrate!"}]}}`,
+    );
+    cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");
+    cy.readTableV2data(0, 1).then((val) => {
+      expect(val).to.equal("2");
+    });
   });
 });
