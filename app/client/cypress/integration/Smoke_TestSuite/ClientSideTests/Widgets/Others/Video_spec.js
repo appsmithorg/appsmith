@@ -6,8 +6,8 @@ const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Video Widget Functionality", function() {
   before(() => {
-    cy.addDsl(dsl);
     cy.addDsl(buttondsl);
+    cy.addDsl(dsl);
   });
 
   it("Video Widget play functionality validation", function() {
@@ -94,6 +94,7 @@ describe("Video Widget Functionality", function() {
   });
 
   it("Resets video widget on button click", function() {
+    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");
     cy.widgetText(
       "Button1",
@@ -105,11 +106,6 @@ describe("Video Widget Functionality", function() {
     cy.selectWidgetForReset("Video1");
     cy.openPropertyPane("videowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.get(widgetsPage.widgetBtn).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
