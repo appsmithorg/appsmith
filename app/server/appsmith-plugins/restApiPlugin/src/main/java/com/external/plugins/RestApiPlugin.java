@@ -221,20 +221,16 @@ public class RestApiPlugin extends BasePlugin {
         private String encodeQueryParameters(String queryParams) {
 
             StringBuilder responseBuilder = new StringBuilder();
-
             String[] queryParamArray = queryParams.split("&");
 
             for (String queryParam : queryParamArray) {
-
-                String[] a = queryParam.split("=");
-
-                if (a.length == 2) {
+                String[] keyValue = queryParam.split("=");
+                if (keyValue.length == 2) {
                     if (responseBuilder.length() != 0) {
                         responseBuilder.append("&");
                     }
-                    responseBuilder.append(a[0]).append("=").append(URLEncoder.encode(a[1], StandardCharsets.UTF_8));
+                    responseBuilder.append(keyValue[0]).append("=").append(URLEncoder.encode(keyValue[1], StandardCharsets.UTF_8));
                 }
-
             }
 
             return responseBuilder.toString();
