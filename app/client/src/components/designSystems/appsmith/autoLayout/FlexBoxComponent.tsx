@@ -43,6 +43,7 @@ interface DropPositionProps {
   childIndex: number;
   widgetId: string;
   isNewLayer: boolean;
+  rowIndex: number;
 }
 
 interface NewLayerProps {
@@ -175,7 +176,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           props.alignment
         } layer-index-${props.layerIndex} child-index-${props.childIndex} ${
           props.isVertical ? "isVertical" : "isHorizontal"
-        } ${props.isNewLayer ? "isNewLayer" : ""}`}
+        } ${props.isNewLayer ? "isNewLayer" : ""} row-index-${props.rowIndex}`}
         isDragging={isDragging}
         isVertical={props.isVertical}
       />
@@ -216,6 +217,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           isVertical={isVertical}
           key={getDropPositionKey(0, alignment, layerIndex, false)}
           layerIndex={layerIndex}
+          rowIndex={0}
           widgetId={widgetId}
         />
         {verticalHighlights}
@@ -260,6 +262,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
             isVertical={isVertical}
             key={getDropPositionKey(0, alignment, layerIndex, true)}
             layerIndex={layerIndex}
+            rowIndex={0}
             widgetId={props.widgetId}
           />,
         ]
@@ -281,6 +284,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
             isVertical={isVertical}
             key={getDropPositionKey(0, alignment, layerIndex, true)}
             layerIndex={layerIndex}
+            rowIndex={count}
             widgetId={props.widgetId}
           />,
         );
@@ -365,7 +369,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     allowEmptyLayer = false,
     isNewLayer = false,
   ) {
-    const { children, hasFillChild } = layer;
+    const { children } = layer;
 
     let count = 0;
     let start = [],
@@ -378,11 +382,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     for (const child of children) {
       count += 1;
       const widget = map[child.id];
-      if (hasFillChild) {
-        start.push(widget);
-        startColumns += getColumns(child.id);
-        continue;
-      }
+
       if (child.align === "end") {
         end.push(widget);
         endColumns += getColumns(child.id);
@@ -427,7 +427,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       alignment: FlexLayerAlignment.End,
       isVertical: true,
       isNewLayer,
-      addInitialHighlight: !(centerColumns > 25 || startColumns > 60),
+      addInitialHighlight: !(centerColumns + startColumns > 60),
     });
 
     return {

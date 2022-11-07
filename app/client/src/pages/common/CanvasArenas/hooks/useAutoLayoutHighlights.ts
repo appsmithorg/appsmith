@@ -12,7 +12,7 @@ export interface HighlightInfo {
   isNewLayer: boolean; // determines if a new layer / child has been added directly to the container.
   index: number; // index of the child in props.children.
   layerIndex?: number; // index of layer in props.flexLayers.
-  rowIndex?: number; // index of highlight within a horizontal layer.
+  rowIndex: number; // index of highlight within a horizontal layer.
   alignment: FlexLayerAlignment; // alignment of the child in the layer.
   posX: number; // x position of the highlight.
   posY: number; // y position of the highlight.
@@ -114,6 +114,9 @@ export const useAutoLayoutHighlights = ({
             acc.layerIndex = parseInt(curr.split("layer-index-")[1]);
           else if (curr.indexOf("child-index") > -1)
             acc.index = parseInt(curr.split("child-index-")[1]);
+          else if (curr.indexOf("row-index") > -1)
+            acc.rowIndex = parseInt(curr.split("row-index-")[1]);
+          else if (curr.indexOf("new-layer") > -1) acc.isNewLayer = true;
           else if (curr.indexOf("isNewLayer") > -1) acc.isNewLayer = true;
           else if (curr.indexOf("isVertical") > -1) acc.isVertical = true;
 
@@ -123,6 +126,7 @@ export const useAutoLayoutHighlights = ({
           isNewLayer: false,
           index: 0,
           layerIndex: 0,
+          rowIndex: 0,
           alignment: FlexLayerAlignment.Start,
           posX: rect.x - containerDimensions.left,
           posY: rect.y - containerDimensions?.top,
@@ -288,7 +292,7 @@ export const useAutoLayoutHighlights = ({
         calculateDistance(b, pos, moveDirection)
       );
     });
-
+    // console.log("#### arr", arr, base);
     return {
       highlights: [...arr.slice(1)],
       selectedHighlight: arr[0],
