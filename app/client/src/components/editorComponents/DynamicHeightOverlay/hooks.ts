@@ -1,5 +1,7 @@
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
-import { CSSProperties, useMemo, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { CallbackHandlerEventType } from "utils/CallbackHandler/CallbackHandlerEventType";
+import DynamicHeightCallbackHandler from "utils/CallbackHandler/DynamicHeightCallbackHandler";
 import { onMouseHoverCallbacksProps } from "./types";
 
 type UseHoverStateReturnType = [boolean, onMouseHoverCallbacksProps];
@@ -62,4 +64,81 @@ export const usePositionedStyles = ({
   );
 
   return styles;
+};
+
+export const useMaxMinPropertyPaneFieldsFocused = () => {
+  const [
+    isPropertyPaneMinFieldFocused,
+    setPropertyPaneMinFieldFocused,
+  ] = useState(false);
+
+  const [
+    isPropertyPaneMaxFieldFocused,
+    setPropertyPaneMaxFieldFocused,
+  ] = useState(false);
+
+  function handleOnMaxLimitPropertyPaneFieldFocus() {
+    setPropertyPaneMaxFieldFocused(true);
+  }
+
+  function handleOnMaxLimitPropertyPaneFieldBlur() {
+    setPropertyPaneMaxFieldFocused(false);
+  }
+
+  function handleOnMinLimitPropertyPaneFieldFocus() {
+    setPropertyPaneMinFieldFocused(true);
+  }
+
+  function handleOnMinLimitPropertyPaneFieldBlur() {
+    setPropertyPaneMinFieldFocused(false);
+  }
+
+  useEffect(() => {
+    DynamicHeightCallbackHandler.add(
+      CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
+      handleOnMaxLimitPropertyPaneFieldFocus,
+    );
+
+    DynamicHeightCallbackHandler.add(
+      CallbackHandlerEventType.MAX_HEIGHT_LIMIT_BLUR,
+      handleOnMaxLimitPropertyPaneFieldBlur,
+    );
+
+    DynamicHeightCallbackHandler.add(
+      CallbackHandlerEventType.MIN_HEIGHT_LIMIT_FOCUS,
+      handleOnMinLimitPropertyPaneFieldFocus,
+    );
+
+    DynamicHeightCallbackHandler.add(
+      CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
+      handleOnMinLimitPropertyPaneFieldBlur,
+    );
+
+    return () => {
+      DynamicHeightCallbackHandler.remove(
+        CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
+        handleOnMaxLimitPropertyPaneFieldFocus,
+      );
+
+      DynamicHeightCallbackHandler.remove(
+        CallbackHandlerEventType.MAX_HEIGHT_LIMIT_BLUR,
+        handleOnMaxLimitPropertyPaneFieldBlur,
+      );
+
+      DynamicHeightCallbackHandler.remove(
+        CallbackHandlerEventType.MIN_HEIGHT_LIMIT_FOCUS,
+        handleOnMinLimitPropertyPaneFieldFocus,
+      );
+
+      DynamicHeightCallbackHandler.remove(
+        CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
+        handleOnMinLimitPropertyPaneFieldBlur,
+      );
+    };
+  }, []);
+
+  return {
+    isPropertyPaneMaxFieldFocused,
+    isPropertyPaneMinFieldFocused,
+  };
 };

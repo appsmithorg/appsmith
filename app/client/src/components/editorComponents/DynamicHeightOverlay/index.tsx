@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import EventEmitter from "utils/EventEmitter";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
@@ -12,15 +11,15 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  CONTAINER_GRID_PADDING,
-  GridDefaults,
-  WidgetHeightLimits,
-} from "constants/WidgetConstants";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import AutoHeightLimitHandleGroup from "./AutoHeightLimitHandleGroup";
 import AutoHeightLimitOverlayDisplay from "./ui/AutoHeightLimitOverlayDisplay";
-import { useHoverState, usePositionedStyles } from "./hooks";
+import {
+  useHoverState,
+  useMaxMinPropertyPaneFieldsFocused,
+  usePositionedStyles,
+} from "./hooks";
 import { getSnappedValues } from "./utils";
 
 const StyledDynamicHeightOverlay = styled.div<{ isHidden: boolean }>`
@@ -88,15 +87,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const finalMaxY = maxY + maxdY;
     const finalMinY = minY + mindY;
 
-    const [
-      isPropertyPaneMinFieldFocused,
-      setPropertyPaneMinFieldFocused,
-    ] = useState(false);
-
-    const [
+    const {
       isPropertyPaneMaxFieldFocused,
-      setPropertyPaneMaxFieldFocused,
-    ] = useState(false);
+      isPropertyPaneMinFieldFocused,
+    } = useMaxMinPropertyPaneFieldsFocused();
 
     useEffect(() => {
       setMaxY(maxDynamicHeight * 10);
@@ -240,48 +234,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       }),
       [props.parentColumnSpace, props.parentRowSpace],
     );
-
-    function onPropertPaneFocusedFocusedHandler(propertyName: string) {
-      if (propertyName === "maxDynamicHeight") {
-        setPropertyPaneMaxFieldFocused(true);
-      }
-
-      if (propertyName === "minDynamicHeight") {
-        setPropertyPaneMinFieldFocused(true);
-      }
-    }
-
-    function onPropertFieldBlurredHandler(propertyName: string) {
-      if (propertyName === "maxDynamicHeight") {
-        setPropertyPaneMaxFieldFocused(false);
-      }
-
-      if (propertyName === "minDynamicHeight") {
-        setPropertyPaneMinFieldFocused(false);
-      }
-    }
-
-    useEffect(() => {
-      EventEmitter.add(
-        "property_pane_input_focused",
-        onPropertPaneFocusedFocusedHandler,
-      );
-      EventEmitter.add(
-        "property_pane_input_blurred",
-        onPropertFieldBlurredHandler,
-      );
-
-      return () => {
-        EventEmitter.remove(
-          "property_pane_input_focused",
-          onPropertPaneFocusedFocusedHandler,
-        );
-        EventEmitter.remove(
-          "property_pane_input_blurred",
-          onPropertFieldBlurredHandler,
-        );
-      };
-    }, []);
 
     const {
       bottomRow,
