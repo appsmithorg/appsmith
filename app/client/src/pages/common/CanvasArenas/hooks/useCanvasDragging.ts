@@ -609,7 +609,7 @@ export const useCanvasDragging = (
               )
                 debounce(() => {
                   highlightDropPosition(e, currentDirection.current);
-                }, 100)();
+                }, 200)();
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {

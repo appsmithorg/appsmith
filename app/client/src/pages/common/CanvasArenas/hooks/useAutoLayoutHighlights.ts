@@ -304,14 +304,14 @@ export const useAutoLayoutHighlights = ({
     const keys: string[] = Object.keys(newLayers);
     if (!positions || !positions.length) return -1;
     const index: number = positions.findIndex((each: number, index: number) => {
-      const lower: number =
-        expandedNewLayer !== undefined ? each : Math.max(each - 5, 0);
+      // const lower: number =
+      //   expandedNewLayer !== undefined ? each : Math.max(each - 5, 0);
       const upper: number =
         expandedNewLayer !== undefined &&
         expandedNewLayer === parseInt(keys[index])
           ? each + 35
           : each + 14;
-      return y >= lower && (y <= upper || index === positions.length - 1);
+      return y >= each && (y <= upper || index === positions.length - 1);
     });
     if (index === -1) return -1;
     return parseInt(keys[index]);
