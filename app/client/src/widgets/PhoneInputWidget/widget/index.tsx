@@ -346,6 +346,8 @@ class PhoneInputWidget extends BaseInputWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
+        onBlur={this.onBlur}
+        onFocus={this.onFocus}
         onFocusChange={this.handleFocusChange}
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
@@ -360,6 +362,28 @@ class PhoneInputWidget extends BaseInputWidget<
     );
   }
 
+  onFocus = () => {
+    if (this.props.onFocus)
+      super.executeAction({
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+  };
+
+  onBlur = () => {
+    if (this.props.onBlur)
+      super.executeAction({
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+  };
+
   static getWidgetType(): WidgetType {
     return "PHONE_INPUT_WIDGET";
   }
@@ -370,6 +394,8 @@ export interface PhoneInputWidgetProps extends BaseInputWidgetProps {
   countryCode?: CountryCode;
   defaultText?: string;
   allowDialCodeChange: boolean;
+  onFocus?: string;
+  onBlur?: string;
 }
 
 export default PhoneInputWidget;

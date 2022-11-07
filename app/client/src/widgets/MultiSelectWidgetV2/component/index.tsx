@@ -58,8 +58,8 @@ export interface MultiSelectProps
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
-  onFocus?: (e: React.FocusEvent) => void;
-  onBlur?: (e: React.FocusEvent) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   renderMode?: RenderMode;
 }
 
@@ -116,6 +116,8 @@ function MultiSelectComponent({
   } = useDropdown({
     inputRef,
     renderMode,
+    onFocus,
+    onBlur,
   });
 
   // SelectAll if all options are in Value
@@ -339,10 +341,8 @@ function MultiSelectComponent({
           menuItemSelectedIcon={menuItemSelectedIcon}
           mode="multiple"
           notFoundContent="No Results Found"
-          onBlur={onBlur}
           onChange={onChange}
           onDropdownVisibleChange={onDropdownVisibleChange}
-          onFocus={onFocus}
           open={isOpen}
           options={filteredOptions}
           placeholder={placeholder || "select option(s)"}

@@ -331,6 +331,24 @@ class MultiSelectTreeWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: true,
           },
+          {
+            helpText: "Triggers an action when a select field gets focus",
+            propertyName: "onFocus",
+            label: "onFocus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when a user leaves the select field",
+            propertyName: "onBlur",
+            label: "onBlur",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
         ],
       },
     ];
@@ -528,7 +546,9 @@ class MultiSelectTreeWidget extends BaseWidget<
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         mode={this.props.mode}
+        onBlur={this.onBlur}
         onChange={this.onOptionChange}
+        onFocus={this.onFocus}
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
@@ -556,6 +576,30 @@ class MultiSelectTreeWidget extends BaseWidget<
     }
   };
 
+  onFocus = () => {
+    if (this.props.onFocus) {
+      super.executeAction({
+        triggerPropertyName: "onFocus",
+        dynamicString: this.props.onFocus,
+        event: {
+          type: EventType.ON_FOCUS,
+        },
+      });
+    }
+  };
+
+  onBlur = () => {
+    if (this.props.onBlur) {
+      super.executeAction({
+        triggerPropertyName: "onBlur",
+        dynamicString: this.props.onBlur,
+        event: {
+          type: EventType.ON_BLUR,
+        },
+      });
+    }
+  };
+
   static getWidgetType(): WidgetType {
     return "MULTI_SELECT_TREE_WIDGET";
   }
@@ -573,6 +617,8 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   selectedIndexArr?: number[];
   options?: DropdownOption[];
   onOptionChange: string;
+  onFocus?: string;
+  onBlur?: string;
   defaultOptionValue: string[];
   isRequired: boolean;
   isLoading: boolean;

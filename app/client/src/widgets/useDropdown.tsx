@@ -17,15 +17,23 @@ const BackDropContainer = styled.div`
 type useDropdownProps = {
   inputRef: React.RefObject<HTMLInputElement>;
   renderMode?: RenderMode;
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 const FOCUS_TIMEOUT = 500;
 
 // TODO: Refactor More functionalities in MultiSelect, MultiTreeSelect and TreeSelect Components
-const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
+const useDropdown = ({
+  inputRef,
+  onBlur,
+  onFocus,
+  renderMode,
+}: useDropdownProps) => {
   // This is to make the dropdown controlled
   const [isOpen, setIsOpen] = useState(false);
   const popupContainer = useRef<HTMLElement>(getMainCanvas());
   const selectRef = useRef<BaseSelectRef | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     if (!popupContainer.current) {
@@ -47,24 +55,40 @@ const useDropdown = ({ inputRef, renderMode }: useDropdownProps) => {
   // Get PopupContainer on main Canvas
   const getPopupContainer = useCallback(() => popupContainer.current, []);
 
+  const handleOnFocus = useCallback(() => {
+    if (!isFocused && onFocus) {
+      onFocus();
+      setIsFocused(true);
+    }
+  }, [onFocus, isFocused]);
+
+  const handleOnBlur = useCallback(() => {
+    if (isFocused && onBlur) {
+      onBlur();
+      setIsFocused(false);
+    }
+  }, [onBlur, isFocused]);
+
   // When Dropdown is opened disable scrolling within the app except the list of options
   const onOpen = useCallback(
     (open: boolean) => {
       setIsOpen(open);
       if (open) {
+        handleOnFocus();
         setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
         // for more context, the Element we attach to in view mode doesn't have an overflow style, so this only applies to edit mode.
         if (popupContainer.current && renderMode === RenderModes.CANVAS) {
           popupContainer.current.style.overflowY = "hidden";
         }
       } else {
+        handleOnBlur();
         if (popupContainer.current && renderMode === RenderModes.CANVAS) {
           popupContainer.current.style.overflowY = "auto";
         }
         selectRef.current?.blur();
       }
     },
-    [renderMode],
+    [renderMode, isFocused],
   );
 
   const closeBackDrop = useCallback(() => {

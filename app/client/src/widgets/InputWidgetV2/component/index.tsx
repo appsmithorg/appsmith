@@ -70,6 +70,8 @@ class InputComponent extends React.Component<InputComponentProps> {
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
         multiline={this.props.multiline}
+        onBlur={this.props.onBlur}
+        onFocus={this.props.onFocus}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.props.onKeyDown}
         onValueChange={this.props.onValueChange}
@@ -93,6 +95,8 @@ export interface InputComponentProps extends BaseInputComponentProps {
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export default InputComponent;

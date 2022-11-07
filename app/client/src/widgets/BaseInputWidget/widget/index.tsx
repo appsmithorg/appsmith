@@ -254,6 +254,25 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
+            helpText: "Triggers an action when the input is focused",
+            propertyName: "onFocus",
+            label: "onFocus",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText:
+              "Triggers an action when the when a user leaves the input field",
+            propertyName: "onBlur",
+            label: "onBlur",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
             helpText: "Clears the input value after submit",
             propertyName: "resetOnSubmit",
             label: "Reset on submit",

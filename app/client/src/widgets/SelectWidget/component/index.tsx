@@ -31,6 +31,7 @@ const MAX_RENDER_MENU_ITEMS_HEIGHT = 300;
 interface SelectComponentState {
   activeItemIndex: number | undefined;
   isOpen?: boolean;
+  isFocused?: boolean;
 }
 
 class SelectComponent extends React.Component<
@@ -45,6 +46,7 @@ class SelectComponent extends React.Component<
     // used to show focused item for keyboard up down key interection
     activeItemIndex: -1,
     isOpen: false,
+    isFocused: false,
   };
 
   componentDidMount = () => {
@@ -157,6 +159,18 @@ class SelectComponent extends React.Component<
     event.stopPropagation();
     this.onItemSelect({});
   };
+  handleOnFocus = () => {
+    if (!this.state.isFocused && this.props.onFocus) {
+      this.props.onFocus();
+      this.setState({ isFocused: true });
+    }
+  };
+  handleOnBlur = () => {
+    if (this.state.isFocused && this.props.onBlur) {
+      this.props.onBlur();
+      this.setState({ isFocused: false });
+    }
+  };
   handleCloseList = () => {
     if (this.state.isOpen) {
       this.togglePopoverVisibility();
@@ -165,6 +179,7 @@ class SelectComponent extends React.Component<
         this.props.options[this.props.selectedIndex],
       );
     } else {
+      this.handleOnBlur();
       /**
        * Clear the search input on closing the widget
        * and when serverSideFiltering is off
@@ -393,6 +408,7 @@ class SelectComponent extends React.Component<
               displayText={value.toString()}
               handleCancelClick={this.handleCancelClick}
               hideCancelIcon={this.props.hideCancelIcon}
+              onFocus={this.handleOnFocus}
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
@@ -429,6 +445,8 @@ export interface SelectComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   value?: string | number;
   label?: string | number;
   filterText?: string;
