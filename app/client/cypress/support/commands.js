@@ -1684,11 +1684,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   // Set the label position: Auto
   cy.get(".t--button-tab-Auto").click({ force: true });
   // Assert label position: Auto
-  cy.get(containerSelector).should(
-    "have.css",
-    "flex-direction",
-    `${isCompact ? "row" : "column"}`,
-  );
+  cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
   cy.get(".t--button-tab-Top").click({ force: true });

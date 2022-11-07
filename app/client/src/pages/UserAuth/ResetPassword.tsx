@@ -7,10 +7,10 @@ import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import { Icon } from "@blueprintjs/core";
-import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/utils/ReduxFormTextField";
 import {
   Button,
+  FormGroup,
   FormMessage,
   FormMessageProps,
   MessageAction,

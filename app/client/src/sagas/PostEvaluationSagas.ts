@@ -13,21 +13,19 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "workers/evaluationUtils";
+} from "workers/Evaluation/evaluationUtils";
 import {
   EvalError,
   EvalErrorTypes,
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -69,7 +67,7 @@ function logLatestEvalPropertyErrors(
       if (entity.logBlackList && propertyPath in entity.logBlackList) {
         continue;
       }
-      let allEvalErrors: EvaluationError[] = get(
+      const allEvalErrors: EvaluationError[] = get(
         entity,
         getEvalErrorPath(evaluatedPath, {
           fullPath: false,
@@ -77,12 +75,6 @@ function logLatestEvalPropertyErrors(
         }),
         [],
       );
-
-      allEvalErrors = isJSAction(entity)
-        ? allEvalErrors
-        : allEvalErrors.filter(
-            (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
-          );
 
       const evaluatedValue = get(
         entity,
@@ -95,11 +87,7 @@ function logLatestEvalPropertyErrors(
       const evalWarnings: EvaluationError[] = [];
 
       for (const err of allEvalErrors) {
-        // Don't log lint warnings
-        if (
-          err.severity === Severity.WARNING &&
-          err.errorType !== PropertyEvaluationErrorType.LINT
-        ) {
+        if (err.severity === Severity.WARNING) {
           evalWarnings.push(err);
         }
         if (err.severity === Severity.ERROR) {
@@ -325,10 +313,8 @@ export function* logSuccessfulBindings(
         getEvalErrorPath(evaluatedPath),
         [],
       ) as EvaluationError[];
-      const criticalErrors = errors.filter(
-        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-      );
-      const hasErrors = criticalErrors.length > 0;
+
+      const hasErrors = errors.length > 0;
 
       if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
         AnalyticsUtil.logEvent("BINDING_SUCCESS", {

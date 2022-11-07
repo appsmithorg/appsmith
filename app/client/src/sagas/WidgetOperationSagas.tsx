@@ -62,14 +62,13 @@ import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions"
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getAllPaths } from "workers/evaluationUtils";
+import { getAllPaths } from "workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,

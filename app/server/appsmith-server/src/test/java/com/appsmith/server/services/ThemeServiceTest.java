@@ -16,6 +16,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,6 +77,9 @@ public class ThemeServiceTest {
     @Autowired
     private ThemeRepository themeRepository;
 
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
+
     Workspace workspace;
 
 
@@ -116,7 +120,7 @@ public class ThemeServiceTest {
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
         inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, origin).block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin).block();
 
         // Remove api_user from the workspace
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();

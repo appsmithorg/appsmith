@@ -1,5 +1,5 @@
 import React from "react";
-import { Header } from "./types";
+import { Carousel, Header } from "./types";
 import UpgradePage from "./UpgradePage";
 
 export function AccessControlUpgradePage() {
@@ -7,7 +7,7 @@ export function AccessControlUpgradePage() {
     heading: "Access Control",
     subHeadings: ["sub heading 1", "sub heading 2"],
   };
-  const carousel = {
+  const carousel: Carousel = {
     triggers: [
       {
         icon: "lock-2-line",
@@ -26,6 +26,7 @@ export function AccessControlUpgradePage() {
       },
     ],
     targets: ["first", "second", "third"],
+    design: "split-left-trigger",
   };
   const footer = {
     onClick: () => null,

@@ -17,7 +17,7 @@ import { Text, TextType, Toggle } from "design-system";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
-import { fetchWorkspace } from "actions/workspaceActions";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useWorkspace from "utils/hooks/useWorkspace";
 
 const StyledCopyToClipBoard = styled(CopyToClipboard)`
