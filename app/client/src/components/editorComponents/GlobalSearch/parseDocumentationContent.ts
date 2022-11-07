@@ -144,7 +144,8 @@ const parseMarkdown = (value: string) => {
           currentToken.href = href
             .replace(aisTag, "")
             .replaceAll(aisOpenHTMLTag, "")
-            .replaceAll(aisCloseHTMLTag, "");
+            .replaceAll(aisCloseHTMLTag, "")
+            .replace(/<|>/g, "");
         }
       }
     },
