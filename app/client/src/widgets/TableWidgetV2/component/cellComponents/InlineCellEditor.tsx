@@ -142,7 +142,7 @@ export function InlineCellEditor({
 
   const onFocusChange = useCallback(
     (focus: boolean) => {
-      // !focus && onSave();
+      !focus && onSave();
       setHasFocus(focus);
     },
     [onSave],
