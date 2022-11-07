@@ -121,12 +121,14 @@ export function FlexComponent(props: AutoLayoutProps) {
   const isAffectedByDrag: boolean =
     isCurrentCanvasDragging ||
     (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
+  // TODO: Simplify this logic.
   const resizedWidth: number = isAffectedByDrag
     ? props.componentWidth -
       dragMargin -
       (props.parentId !== MAIN_CONTAINER_WIDGET_ID && siblingCount > 0
         ? DEFAULT_MARGIN / siblingCount
-        : 0)
+        : 0) -
+      ((siblingCount || 0) + 1) * 6
     : props.componentWidth;
 
   return (

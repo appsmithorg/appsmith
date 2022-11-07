@@ -1,3 +1,4 @@
+import { AppState } from "ce/reducers";
 import {
   FlexLayer,
   LayerChild,
@@ -36,6 +37,15 @@ export const getLayerIndex = (widgetId: string, parentId: string) => {
       return selectedLayer.children?.findIndex(
         (child: LayerChild) => child.id === widgetId,
       );
+    },
+  );
+};
+
+export const isCurrentCanvasDragging = (widgetId: string) => {
+  return createSelector(
+    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+    (dragDetails): boolean => {
+      return dragDetails?.draggedOn === widgetId;
     },
   );
 };

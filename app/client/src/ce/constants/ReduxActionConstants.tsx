@@ -1,4 +1,3 @@
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { ApplicationVersion } from "actions/applicationActions";
 import {
   ApplicationPagePayload,
@@ -8,7 +7,8 @@ import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
@@ -705,6 +705,7 @@ export const ReduxActionTypes = {
   SET_JS_PANE_CONFIG_SELECTED_TAB: "SET_JS_PANE_CONFIG_SELECTED_TAB",
   SET_JS_PANE_RESPONSE_SELECTED_TAB: "SET_JS_PANE_RESPONSE_SELECTED_TAB",
   SET_JS_PANE_RESPONSE_PANE_HEIGHT: "SET_JS_PANE_RESPONSE_PANE_HEIGHT",
+  SET_LINT_ERRORS: "SET_LINT_ERRORS",
 
   AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",

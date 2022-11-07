@@ -9,7 +9,7 @@ import {
   setApiPaneResponsePaneHeight,
 } from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
   getFocusableField,
