@@ -20,7 +20,10 @@ import { ButtonVariantTypes } from "components/constants";
 
 import AddIcon from "remixicon-react/AddLineIcon";
 import { cloneDeep } from "lodash";
-import { ColumnTypes, FilterableColumnTypes } from "../constants";
+import {
+  ColumnTypes,
+  FilterableColumnTypes,
+} from "widgets/TableWidgetV2/constants";
 
 const TableFilterOuterWrapper = styled.div<{
   borderRadius?: string;
