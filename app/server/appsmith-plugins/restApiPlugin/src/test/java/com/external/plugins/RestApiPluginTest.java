@@ -49,6 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Slf4j
 public class RestApiPluginTest {
 
     private static HintMessageUtils hintMessageUtils;
@@ -111,14 +112,15 @@ public class RestApiPluginTest {
                 .verifyComplete();
     }
 
+
     @Test
-    public void testExecuteWithPaginationForPreviousUrlApi() {
+    public void testExecuteApiWithPaginationForPreviousUrl() {
 
-        String url = "https://api.github.com/orgs/appsmithorg/issues?filter=all&state=open&labels=UI Builders Pod&pulls=true&per_page=100&page=2";
-        String previousUrl = "https://api.github.com/orgs/appsmithorg/issues?filter=all&state=open&labels=UI Builders Pod&pulls=true&page=1&per_page=100";
-        String nextUrl = "https://api.github.com/orgs/appsmithorg/issues?filter=all&state=open&labels=UI Builders Pod&pulls=true&per_page=100&page=2";
+        String url = "https://mock-api.appsmith.com/users?pageSize=1&page=3&mock_filter=abc 11";
+        String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
 
-        String actionId = "634f0dcee577f13a234483a2";
+        String actionId = "6363b463274d262e00edc1c5";
 
         Param param = new Param();
         param.setKey(url);
@@ -128,26 +130,18 @@ public class RestApiPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(actionId);
-        executeActionDTO.setParams(Collections.singletonList(param));
         executeActionDTO.setPaginationField(PaginationField.PREV);
         executeActionDTO.setViewMode(Boolean.FALSE);
-        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
-        executeActionDTO.setParameterMap(Collections.singletonMap(url,"k0"));
-        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0",url));
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://api.github.com");
+        dsConfig.setUrl("https://mock-api.appsmith.com");
 
-        final List<Property> headers = List.of(
-                new Property("Accept","application/vnd.github+json"));
+        final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("filter","all"),
-                new Property("state","open"),
-                new Property("labels","UI Builders Pod"),
-                new Property("pulls","true"),
-                new Property("per_page","100"),
-                new Property("page","2")
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
         );
 
         ActionConfiguration actionConfig = new ActionConfiguration();
@@ -157,7 +151,7 @@ public class RestApiPluginTest {
 
         actionConfig.setTimeoutInMillisecond("10000");
 
-        actionConfig.setPath("/orgs/appsmithorg/issues");
+        actionConfig.setPath("/users");
         actionConfig.setPrev(previousUrl);
         actionConfig.setNext(nextUrl);
 
@@ -175,8 +169,8 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    ArrayNode body = (ArrayNode) result.getBody();
-                    assertEquals(100,body.size());
+                    JsonNode body = (JsonNode) result.getBody();
+                    assertEquals(3,body.size());
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(HttpMethod.GET, request.getHttpMethod());
                 })
@@ -185,13 +179,13 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testExecuteWithPaginationForNextUrlApi() {
+    public void testExecuteApiWithPaginationForNextUrl() {
 
-        String url = "https://api.github.com/orgs/appsmithorg/issues?filter=all&state=open&labels=UI Builders Pod&pulls=true&per_page=100&page=2";
-        String previousUrl = "https://api.github.com/orgs/appsmithorg/issues?filter=all&state=open&labels=UI Builders Pod&pulls=true&page=1&per_page=100";
-        String nextUrl = "https://api.github.com/orgs/appsmithorg/issues?filter=all&state=open&labels=UI Builders Pod&pulls=true&per_page=100&page=2";
+        String url = "https://mock-api.appsmith.com/users?pageSize=1&page=3&mock_filter=abc 11";
+        String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
 
-        String actionId = "634f0dcee577f13a234483a2";
+        String actionId = "6363b463274d262e00edc1c5";
 
         Param param = new Param();
         param.setKey(url);
@@ -201,26 +195,18 @@ public class RestApiPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(actionId);
-        executeActionDTO.setParams(Collections.singletonList(param));
         executeActionDTO.setPaginationField(PaginationField.NEXT);
         executeActionDTO.setViewMode(Boolean.FALSE);
-        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
-        executeActionDTO.setParameterMap(Collections.singletonMap(url,"k0"));
-        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0",url));
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://api.github.com");
+        dsConfig.setUrl("https://mock-api.appsmith.com");
 
-        final List<Property> headers = List.of(
-                new Property("Accept","application/vnd.github+json"));
+        final List<Property> headers = List.of();
 
         final List<Property> queryParameters = List.of(
-                new Property("filter","all"),
-                new Property("state","open"),
-                new Property("labels","UI Builders Pod"),
-                new Property("pulls","true"),
-                new Property("per_page","100"),
-                new Property("page","2")
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
         );
 
         ActionConfiguration actionConfig = new ActionConfiguration();
@@ -230,7 +216,7 @@ public class RestApiPluginTest {
 
         actionConfig.setTimeoutInMillisecond("10000");
 
-        actionConfig.setPath("/orgs/appsmithorg/issues");
+        actionConfig.setPath("/users");
         actionConfig.setPrev(previousUrl);
         actionConfig.setNext(nextUrl);
 
@@ -248,8 +234,8 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    ArrayNode body = (ArrayNode) result.getBody();
-                    assertEquals(100,body.size());
+                    JsonNode body = (JsonNode) result.getBody();
+                    assertEquals(3,body.size());
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(HttpMethod.GET, request.getHttpMethod());
                 })
