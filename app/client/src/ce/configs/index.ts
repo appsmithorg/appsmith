@@ -238,9 +238,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     },
     algolia: {
       enabled: true,
-      apiId: algoliaAPIID.value || "H8R3I8PINP",
+      apiId: "H8R3I8PINP",
       apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
-      indexName: algoliaIndex.value || "test_appsmith",
+      indexName: "omnibar_docusaurus_index",
       snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     google: {

@@ -38,7 +38,7 @@ function Search({
 
   return (
     <InstantSearch
-      indexName={isSnippet(category) ? "snippet" : "appsmith_docusaurus_index"}
+      indexName={isSnippet(category) ? "snippet" : "omnibar_docusaurus_index"}
       onSearchStateChange={(searchState) => {
         setRefinement(searchState.refinementList || {});
       }}

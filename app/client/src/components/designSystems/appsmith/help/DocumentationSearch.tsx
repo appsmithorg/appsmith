@@ -398,7 +398,7 @@ class DocumentationSearch extends React.Component<Props, State> {
           />
         )}
         <InstantSearch
-          indexName={"appsmith_docusaurus_index"}
+          indexName={"omnibar_docusaurus_index"}
           searchClient={searchClient}
         >
           <Configure hitsPerPage={this.props.hitsPerPage} />

@@ -566,7 +566,7 @@ function GlobalSearch() {
                   refinements.entities.length && <SnippetRefinements />}
                 <div className="main">
                   {(isMenu(category) || isDocumentation(category)) && (
-                    <Index indexName={"appsmith_docusaurus_index"}>
+                    <Index indexName={"omnibar_docusaurus_index"}>
                       <SetSearchResults
                         category={category}
                         setSearchResults={setDocumentationSearchResultsInState}
