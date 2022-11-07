@@ -66,8 +66,8 @@ const GroupBody = styled.div`
     }
 
     .tag-input .${Classes.TAG} {
-      color: #575757;
-      background-color: #e7e7e7;
+      color: ${Colors.GRAY_700};
+      background-color: ${Colors.GRAY_200};
       ${(props) => getTypographyByKey(props, "h5")}
     }
 
