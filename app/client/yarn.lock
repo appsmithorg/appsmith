@@ -410,6 +410,11 @@
   dependencies:
     "@babel/types" "^7.16.7"
 
+"@babel/helper-string-parser@^7.19.4":
+  version "7.19.4"
+  resolved "https://registry.yarnpkg.com/@babel/helper-string-parser/-/helper-string-parser-7.19.4.tgz#38d3acb654b4701a9b77fb0615a96f775c3a9e63"
+  integrity sha512-nHtDoQcuqFmwYNYPz3Rah5ph2p8PFeFCsZk9A/48dPc/rGocJ5J3hAAZ7pb76VWX3fZKu+uEr/FhH5jLx7umrw==
+
 "@babel/helper-validator-identifier@^7.10.4":
   version "7.10.4"
   resolved "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.10.4.tgz"
@@ -3260,6 +3265,13 @@
 "@types/react-native@*":
   version "0.63.25"
   resolved "https://registry.npmjs.org/@types/react-native/-/react-native-0.63.25.tgz"
+  dependencies:
+    "@types/react" "*"
+
+"@types/react-page-visibility@^6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@types/react-page-visibility/-/react-page-visibility-6.4.1.tgz#21c3bc4a3f310d38d188916cadc55f2bde65f27d"
+  integrity sha512-vNlYAqKhB2SU1HmF9ARFTFZN0NSPzWn8HSjBpFqYuQlJhsb/aSYeIZdygeqfSjAg0PZ70id2IFWHGULJwe59Aw==
   dependencies:
     "@types/react" "*"
 
@@ -6211,10 +6223,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.31":
-  version "1.0.31"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.31.tgz#99b36067210d7ae17a518652f5532cf2e2d4f24d"
-  integrity sha512-8/iTofBdVMmOgeJ3fLdZr2BKmNl+AH2Wqwx9+aeL+YQ2N84eYSo6CzjOT9rRC1BZA280yFkjPxqNLOKtykiZ5A==
+"design-system@npm:@appsmithorg/design-system@1.0.32":
+  version "1.0.32"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.32.tgz#ea75b83161b11320009ab4f3a9227cf3e6a6992a"
+  integrity sha512-1Fio3mF9KFR409TLWu+6KBXt0TZEv6vXgOA7RSvTH/PYyr8r8RD3G/l8aym4cLx1R1Ksv2YAb5f58tUxyWva4w==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
@@ -12850,6 +12862,13 @@ react-modal@^3.15.1:
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
 
+react-page-visibility@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/react-page-visibility/-/react-page-visibility-7.0.0.tgz#13dfe604790d061e70b900038bad1ca769a36cbc"
+  integrity sha512-d4Kq/8TtJSr8dQc8EJeAZcSKTrGzC5OPTm6UrMur9BnwP0fgTawI9+Nd+ZGB7vwCfn2yZS0qDF9DR3/QYTGazw==
+  dependencies:
+    prop-types "^15.7.2"
+
 react-paginating@^1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/react-paginating/-/react-paginating-1.4.0.tgz"
@@ -14885,6 +14904,11 @@ ts-custom-error@^3.0.0:
   resolved "https://registry.yarnpkg.com/ts-custom-error/-/ts-custom-error-3.2.0.tgz#ff8f80a3812bab9dc448536312da52dce1b720fb"
   integrity sha512-cBvC2QjtvJ9JfWLvstVnI45Y46Y5dMxIaG1TDMGAD/R87hpvqFL+7LhvUDhnRCfOnx/xitollFWWvUKKKhbN0A==
 
+ts-jest-mock-import-meta@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/ts-jest-mock-import-meta/-/ts-jest-mock-import-meta-0.12.0.tgz#1be13ad2f8bee7619c28a2071c6c1fe36c9f5c75"
+  integrity sha512-LfuetNsQ6CDEAPekFOtMpCPRBBAgoA322IQ95eCa3x0mR++GwhZddlsmjOUhxRPLF3utbXUZpCEZiW+HP8jkiA==
+
 ts-jest@27.0.0:
   version "27.0.0"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.0.tgz#b94dbad8f39276b583edc7712e6b3c29e16c8863"
@@ -15827,13 +15851,6 @@ workbox-window@6.5.3:
   dependencies:
     "@types/trusted-types" "^2.0.2"
     workbox-core "6.5.3"
-
-worker-loader@^3.0.2:
-  version "3.0.4"
-  resolved "https://registry.npmjs.org/worker-loader/-/worker-loader-3.0.4.tgz"
-  dependencies:
-    loader-utils "^2.0.0"
-    schema-utils "^3.0.0"
 
 workerpool@6.2.0:
   version "6.2.0"

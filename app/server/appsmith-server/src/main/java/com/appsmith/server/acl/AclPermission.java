@@ -118,6 +118,8 @@ public enum AclPermission {
     READ_PERMISSION_GROUP_MEMBERS("read:permissionGroupMembers", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
+    @Deprecated
+    READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
 
     // Manage tenant permissions
     MANAGE_TENANT("manage:tenants", Tenant.class),
