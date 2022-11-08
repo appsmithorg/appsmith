@@ -75,24 +75,6 @@ describe("Video Widget Functionality", function() {
     */
   });
 
-  it("Resets video widget when it is paused", function() {
-    cy.get(commonlocators.onPause).click();
-    cy.selectResetWidget();
-    cy.selectWidgetForReset("Video1");
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-  });
-
   it("Resets video widget on button click", function() {
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");
@@ -107,11 +89,9 @@ describe("Video Widget Functionality", function() {
     cy.openPropertyPane("videowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.get(widgetsPage.widgetBtn).click({ force: true });
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    cy.get(`${widgetsPage.videoWidget} video`)
+      .its("currentTime")
+      .should(0);
   });
 
   afterEach(() => {

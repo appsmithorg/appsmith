@@ -178,8 +178,23 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     return {};
   }
 
-  componentDidUpdate(): void {
-    if (this.props.playState === "NOT_STARTED") this._player.current?.seekTo(0);
+  // private playStateOfReactPlayer = false;
+
+  // private handlePlayStateOfReactPlayer = (value: boolean) => {
+  //   this.playStateOfReactPlayer = value;
+  // };
+
+  componentDidUpdate(prevProps: VideoWidgetProps): void {
+    // console.log("PLAYERRRRRRRRRR", this._player.current?.props.playing);
+    // if (prevProps.autoPlay !== this.props.autoPlay) {
+    //   this.handlePlayStateOfReactPlayer(this.props.autoPlay);
+    // }
+    if (
+      prevProps.playState !== "NOT_STARTED" &&
+      this.props.playState === "NOT_STARTED"
+    ) {
+      this._player.current?.seekTo(0);
+    }
   }
 
   getPageView() {
@@ -188,6 +203,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
           autoplay={autoPlay}
+          // autoplay={this.playStateOfReactPlayer}
+          // autoplay={this.props.playState === "PLAYING" ? true : false}
           backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
