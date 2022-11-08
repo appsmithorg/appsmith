@@ -11,9 +11,11 @@ import {
   ButtonVariantTypes,
   ButtonPlacementTypes,
   ButtonPlacement,
+  ResponsiveBehavior,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { MinimumPopupRows } from "widgets/constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -250,6 +252,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
         ],
       },
     ];

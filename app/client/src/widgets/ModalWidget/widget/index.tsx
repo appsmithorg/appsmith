@@ -17,7 +17,7 @@ import { deselectModalWidgetAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { Alignment, Positioning, Spacing } from "components/constants";
-import { generatePositioningConfig } from "utils/layoutPropertiesUtils";
+// import { generatePositioningConfig } from "utils/layoutPropertiesUtils";
 
 const minSize = 100;
 
@@ -54,7 +54,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          { ...generatePositioningConfig(Positioning.Fixed) },
+          // { ...generatePositioningConfig(Positioning.Fixed) },
         ],
       },
       {

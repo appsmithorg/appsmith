@@ -7,8 +7,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
@@ -105,6 +106,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
         ],
       },
       {

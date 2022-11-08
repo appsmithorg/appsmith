@@ -14,6 +14,8 @@ import {
   CameraModeTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "components/constants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -77,6 +79,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
         ],
       },
       {

@@ -6,6 +6,8 @@ import {
   ValidationResponse,
 } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "components/constants";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -116,6 +118,7 @@ class DocumentViewerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
         ],
       },
     ];

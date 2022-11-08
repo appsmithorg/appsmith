@@ -4,6 +4,8 @@ import {
   CodeScannerWidgetProps,
   ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "components/constants";
 
 export default [
   {
@@ -93,6 +95,7 @@ export default [
           props.scannerLayout === ScannerLayout.ALWAYS_ON,
         dependencies: ["scannerLayout"],
       },
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
     ],
   },
   {

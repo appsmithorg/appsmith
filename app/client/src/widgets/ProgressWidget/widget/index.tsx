@@ -7,6 +7,8 @@ import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "components/constants";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -122,6 +124,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
             dependencies: ["isIndeterminate"],
           },
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
         ],
       },
     ];

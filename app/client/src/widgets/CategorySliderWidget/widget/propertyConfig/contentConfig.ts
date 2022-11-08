@@ -1,4 +1,4 @@
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Alignment } from "@blueprintjs/core";
@@ -8,6 +8,7 @@ import {
   optionsCustomValidation,
 } from "../../validations";
 import { CategorySliderWidgetProps } from "..";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 export default [
   {
@@ -175,6 +176,7 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
     ],
   },
   {
