@@ -774,7 +774,21 @@ export default {
   },
   //
   getTableHeaders: (props, moment, _) => {
-    return 100;
-    // return Object.create({ id: "name", label: "NAMES", visible: true });
+    const pageSize =
+      props.serverSidePaginationEnabled && props.tableData
+        ? props.tableData?.length
+        : props.pageSize;
+
+    if (
+      Number.isFinite(props.pageNo) &&
+      Number.isFinite(pageSize) &&
+      props.pageNo >= 0 &&
+      pageSize >= 0
+    ) {
+      /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
+      return Math.max(props.pageNo - 1, 0) * pageSize;
+    }
+    return 0;
   },
+  //
 };
