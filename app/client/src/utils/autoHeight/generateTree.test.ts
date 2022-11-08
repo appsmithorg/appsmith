@@ -1,7 +1,7 @@
 import { NodeSpace, TreeNode } from "./constants";
 import { generateTree } from "./generateTree";
 
-describe("Generate Auto Height Layout tRee", () => {
+describe("Generate Auto Height Layout tree", () => {
   it("Does not conflict when only one horizontal edge is the same", () => {
     const input: NodeSpace[] = [
       { left: 0, right: 100, top: 0, bottom: 30, id: "1" },
