@@ -214,8 +214,6 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    // console.log(`${props.widgetName} : ${props.widgetId} =======`);
-    // console.log(props);
     return (
       <ContainerComponent {...props}>
         <WidgetsMultiSelectBox

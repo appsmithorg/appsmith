@@ -232,25 +232,22 @@ export const useAutoLayoutHighlights = ({
     e: any,
     moveDirection: ReflowDirection,
     // acceleration: number,
-  ): HighlightSelectionPayload | undefined => {
+  ): HighlightInfo | undefined => {
     if (!highlights) return;
-    const payload: HighlightSelectionPayload = getHighlightPayload(
-      e,
-      moveDirection,
-    );
+    const highlight: HighlightInfo = getHighlightPayload(e, moveDirection);
 
-    if (!payload || !payload.selectedHighlight) return;
+    if (!highlight) return;
 
-    updateSelection(payload.selectedHighlight);
+    updateSelection(highlight);
 
-    return payload;
+    return highlight;
   };
 
   const getHighlightPayload = (
     e: any,
     moveDirection?: ReflowDirection,
     val?: XYCord,
-  ): HighlightSelectionPayload => {
+  ): HighlightInfo => {
     let base: HighlightInfo[] = [];
     if (!highlights || !highlights.length) highlights = getDropPositions();
     base = highlights;
@@ -293,10 +290,7 @@ export const useAutoLayoutHighlights = ({
       );
     });
     // console.log("#### arr", arr, base);
-    return {
-      highlights: [...arr.slice(1)],
-      selectedHighlight: arr[0],
-    };
+    return arr[0];
   };
 
   function isInNewLayerRange(y: number): number {
@@ -304,14 +298,14 @@ export const useAutoLayoutHighlights = ({
     const keys: string[] = Object.keys(newLayers);
     if (!positions || !positions.length) return -1;
     const index: number = positions.findIndex((each: number, index: number) => {
-      // const lower: number =
-      //   expandedNewLayer !== undefined ? each : Math.max(each - 5, 0);
+      const lower: number =
+        expandedNewLayer !== undefined ? each : Math.max(each - 2, 0);
       const upper: number =
         expandedNewLayer !== undefined &&
         expandedNewLayer === parseInt(keys[index])
           ? each + 35
           : each + 14;
-      return y >= each && (y <= upper || index === positions.length - 1);
+      return y >= lower && (y <= upper || index === positions.length - 1);
     });
     if (index === -1) return -1;
     return parseInt(keys[index]);
@@ -405,14 +399,10 @@ export const useAutoLayoutHighlights = ({
   const getDropInfo = (val: XYCord): HighlightInfo | undefined => {
     if (lastActiveHighlight) return lastActiveHighlight;
 
-    const payload: HighlightSelectionPayload = getHighlightPayload(
-      null,
-      undefined,
-      val,
-    );
+    const payload: HighlightInfo = getHighlightPayload(null, undefined, val);
     if (!payload) return;
-    lastActiveHighlight = payload.selectedHighlight;
-    return payload.selectedHighlight;
+    lastActiveHighlight = payload;
+    return payload;
   };
 
   return {
