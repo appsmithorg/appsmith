@@ -17,7 +17,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
                     .then((tnewheight) => {
                         expect(theight).to.equal(tnewheight);
                         //cy.get("label:Contains('OFF')").should("be.visible");
-                        cy.get("label:Contains('ON')").should("not.be.enabled")
+                        cy.get("label:Contains('On')").should("not.be.enabled")
                     });
             });
         cy.PublishtheApp();
@@ -27,7 +27,7 @@ describe("Dynamic Height Width validation for Visibility", function () {
                 cy.get(".t--widget-containerwidget").invoke("css", "height")
                     .then((tnewheight) => {
                         expect(theight).to.equal(tnewheight);
-                        cy.get("label:Contains('ON')").should("not.be.enabled")
+                        cy.get("label:Contains('On')").should("not.be.enabled")
                         //cy.get("label:Contains('Off')").should("be.visible");
                     });
             });
