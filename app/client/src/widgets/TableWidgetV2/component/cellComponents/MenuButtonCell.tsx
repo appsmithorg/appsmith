@@ -85,6 +85,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
     compactMode,
     fontStyle,
     horizontalAlignment,
+    isCellDisabled,
     isCellVisible,
     isHidden,
     textColor,
@@ -99,6 +100,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}

@@ -419,6 +419,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     return Mono.just(savedAction);
                 })
+                .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }

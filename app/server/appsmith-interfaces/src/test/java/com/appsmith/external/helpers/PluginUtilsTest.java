@@ -4,6 +4,9 @@ import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.models.Condition;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -16,8 +19,10 @@ import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
 import static com.appsmith.external.helpers.PluginUtils.parseWhereClause;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Slf4j
 public class PluginUtilsTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -173,6 +178,28 @@ public class PluginUtilsTest {
 
         assertEquals(Map.of("k", "value"), data);
     }
+    
+
+    @Test
+    public void testGetValueSafelyInFormData_IncorrectParsingByCaller() {
+        final Map<String, Object> dataMap = Map.of("k", 1);
+
+        final Object data = PluginUtils.getValueSafelyFromFormData(dataMap, "k");
+
+        assertThrows(ClassCastException.class, () -> {
+            String result = (String) data;
+        });
+    }
+
+    @Test
+    public void testGetValueSafelyInFormDataAsString() {
+        final Map<String, Object> dataMap = Map.of("k", 1);
+
+        final Object data = PluginUtils.getValueSafelyFromFormDataAsString(dataMap, "k");
+
+        String result = (String) data;
+        assertTrue(result instanceof String);
+    }
 
     @Test
     public void testSetDataValueSafelyInFormData_withNestedPath_createsInnermostDataKey() {
@@ -182,4 +209,5 @@ public class PluginUtilsTest {
 
         assertEquals(Map.of("key", Map.of("innerKey", Map.of("data", "value"))), dataMap);
     }
+
 }
