@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 interface AutoHeightLimitOverlayDisplayProps {
   isActive: boolean;
-  maxY: number;
+  height: number;
 }
 
 const AutoHeightLimitOverlayDisplay = styled.div<
@@ -13,7 +13,7 @@ const AutoHeightLimitOverlayDisplay = styled.div<
   top: 0;
   left: 0;
   width: 100%;
-  height: ${(props) => props.maxY}px;
+  height: ${(props) => props.height}px;
   background-color: rgba(243, 43, 139, 0.1);
 `;
 
