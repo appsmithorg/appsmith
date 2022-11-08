@@ -1,5 +1,5 @@
 import React from "react";
-import { Header } from "./types";
+import { Carousel, Header } from "./types";
 import UpgradePage from "./UpgradePage";
 import DebuggingImage from "assets/svg/upgrade/audit-logs/debugging.svg";
 import IncidentManagementImage from "assets/svg/upgrade/audit-logs/incident-management.svg";
@@ -29,7 +29,7 @@ export function AuditLogsUpgradePage() {
     heading: createMessage(INTRODUCING, createMessage(AUDIT_LOGS)),
     subHeadings: [createMessage(AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING)],
   };
-  const carousel = {
+  const carousel: Carousel = {
     triggers: [
       {
         icon: "lock-2-line",
@@ -63,6 +63,7 @@ export function AuditLogsUpgradePage() {
         src={IncidentManagementImage}
       />,
     ],
+    design: "split-left-trigger",
   };
 
   const footer = {
