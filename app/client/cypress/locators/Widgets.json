@@ -191,5 +191,7 @@
     "colorPickerV2Color": ".t--colorpicker-v2-color",
     "modalCloseButton": ".t--draggable-iconbuttonwidget .bp3-button",
     "filepickerwidgetv2": ".t--widget-filepickerwidgetv2",
+    "filepickerwidgetv2CancelBtn": "button.uppy-DashboardContent-back",
+    "filepickerwidgetv2CloseModalBtn": "button.uppy-Dashboard-close",
     "codescannerwidget": ".t--widget-codescannerwidget"
 }

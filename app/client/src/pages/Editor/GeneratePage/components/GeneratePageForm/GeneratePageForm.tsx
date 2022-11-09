@@ -54,7 +54,6 @@ import {
   DropdownOptions,
   DatasourceTableDropdownOption,
   PluginFormInputFieldMap,
-  PLUGIN_PACKAGE_NAME,
   DEFAULT_DROPDOWN_OPTION,
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
@@ -70,6 +69,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
+import { PluginPackageName } from "entities/Action";
 
 //  ---------- Styles ----------
 
@@ -223,10 +223,10 @@ function GeneratePageForm() {
     generateCRUDSupportedPlugin[selectedDatasourcePluginId];
 
   const isGoogleSheetPlugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
+    selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 
   const isS3Plugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
+    selectedDatasourcePluginPackageName === PluginPackageName.S3;
 
   const isFetchingSheetPluginForm = useSelector((state: AppState) => {
     if (isGoogleSheetPlugin) {
@@ -287,7 +287,7 @@ function GeneratePageForm() {
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
-            case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
+            case PluginPackageName.GOOGLE_SHEETS:
               break;
             default: {
               if (dataSourceObj.id) {
@@ -598,7 +598,7 @@ function GeneratePageForm() {
 
   const showSearchableColumn =
     !!selectedTable.value &&
-    PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
+    PluginPackageName.S3 !== selectedDatasourcePluginPackageName;
 
   const showSubmitButton =
     selectedTable.value &&

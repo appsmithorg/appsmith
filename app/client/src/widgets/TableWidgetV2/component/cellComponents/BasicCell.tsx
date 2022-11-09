@@ -80,6 +80,7 @@ type PropType = BaseCellComponentProps & {
   disabledEditIcon: boolean;
   onEdit?: () => void;
   url?: string;
+  disabledEditIconMessage: string;
 };
 
 export const BasicCell = React.forwardRef(
@@ -91,9 +92,11 @@ export const BasicCell = React.forwardRef(
       columnType,
       compactMode,
       disabledEditIcon,
+      disabledEditIconMessage,
       fontStyle,
       hasUnsavedChanges,
       horizontalAlignment,
+      isCellDisabled,
       isCellEditable,
       isCellEditMode,
       isCellVisible,
@@ -136,6 +139,7 @@ export const BasicCell = React.forwardRef(
           compactMode={compactMode}
           fontStyle={fontStyle}
           horizontalAlignment={horizontalAlignment}
+          isCellDisabled={isCellDisabled}
           isCellVisible={isCellVisible}
           isHidden={isHidden}
           tableWidth={tableWidth}
@@ -161,7 +165,7 @@ export const BasicCell = React.forwardRef(
                 autoFocus={false}
                 content={
                   <TooltipContentWrapper>
-                    Save or discard the unsaved row to start editing here
+                    {disabledEditIconMessage}
                   </TooltipContentWrapper>
                 }
                 hoverOpenDelay={200}

@@ -233,7 +233,7 @@ describe("RichTextEditor Widget Functionality", function() {
     });
   });
 
-  it("Check if the cursor position is at the end for the RTE widget", function() {
+  it.only("Check if the cursor position is at the end for the RTE widget", function() {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
     const testStringLen = testString.length;
@@ -246,16 +246,10 @@ describe("RichTextEditor Widget Functionality", function() {
 
     // Changing the input type to markdown and again testing the cursor position
     cy.openPropertyPane("richtexteditorwidget");
-    cy.selectDropdownValue(
-      ".t--property-control-inputtype .bp3-popover-target",
-      "Markdown",
-    );
+    cy.get(".t--button-tab-markdown").click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
-    cy.selectDropdownValue(
-      ".t--property-control-inputtype .bp3-popover-target",
-      "HTML",
-    );
+    cy.get(".t--button-tab-html").click({ force: true });
   });
 
   it("Check if different font size texts are supported inside the RTE widget", function() {

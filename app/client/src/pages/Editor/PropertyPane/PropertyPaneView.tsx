@@ -26,9 +26,9 @@ import {
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
-import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
 import {
+  BannerMessage,
   IconSize,
   InputWrapper,
   SearchInput,

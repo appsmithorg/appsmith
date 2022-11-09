@@ -195,6 +195,10 @@ const paginatorCss = css<{
   .rc-pagination-disabled:hover,
   .rc-pagination-disabled:focus {
     cursor: not-allowed;
+
+    & > * {
+      pointer-events: none;
+    }
   }
   .rc-pagination-disabled .rc-pagination-item-link,
   .rc-pagination-disabled:hover .rc-pagination-item-link,
@@ -322,7 +326,6 @@ const paginatorCss = css<{
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     color:  var(--wds-color-text) !important;
     border-color:  transparent !important;
-
   }
 
   .rc-pagination-prev .rc-pagination-item-link, .rc-pagination-next .rc-pagination-item-link  {
@@ -338,6 +341,10 @@ const paginatorCss = css<{
         color: var(--wds-color-text);
       }
     }
+  }
+
+  .rc-pagination-disabled .rc-pagination-item-link {
+    color: var(--wds-color-text-disabled) !important;
   }
 
   .rc-pagination-item:hover {

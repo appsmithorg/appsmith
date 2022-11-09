@@ -69,9 +69,7 @@ export class DataSources {
   _queryResponse = (responseType: string) =>
     "li[data-cy='t--tab-" + responseType + "']";
   _queryRecordResult = (recordCount: number) =>
-    "//div/span[text()='Result:']/span[contains(text(),'" +
-    recordCount +
-    " Record')]";
+    `//div/span[text()='Result:']/span[contains(text(),' ${recordCount} Record')]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
@@ -142,6 +140,12 @@ export class DataSources {
         cy.writeFile(fixtureFile, JSON.stringify(data));
       });
     });
+  }
+
+  public startRoutesForDatasource() {
+    cy.server();
+    cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+    cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   }
 
   public StartInterceptRoutesForMySQL() {
@@ -227,6 +231,14 @@ export class DataSources {
     //   .should("be.visible")
     //   .click({ force: true });
     cy.get(this._newDatabases).should("be.visible");
+  }
+
+  CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._mockDB(dbName));
+    return cy
+      .wait("@getMockDb")
+      .then(($createdMock) => $createdMock.response?.body.data.name);
   }
 
   public FillPostgresDSForm(
@@ -418,6 +430,11 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the CreateQuery
   }
 
+  DeleteQuery(queryName: string) {
+    this.ee.ExpandCollapseEntity("Queries/JS");
+    this.ee.ActionContextMenuByEntityName(queryName, "Delete", "Are you sure?");
+  }
+
   public ValidateNSelectDropdown(
     ddTitle: string,
     currentValue = "",
@@ -520,7 +537,7 @@ export class DataSources {
   }
 
   public RunQueryNVerifyResponseViews(
-    expectdRecordCount = 1,
+    expectedRecordsCount = 1,
     tableCheck = true,
   ) {
     this.RunQuery();
@@ -528,8 +545,12 @@ export class DataSources {
       this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
     this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
     this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+    this.CheckResponseRecordsCount(expectedRecordsCount);
+  }
+
+  public CheckResponseRecordsCount(expectedRecordCount: number) {
     this.agHelper.AssertElementVisible(
-      this._queryRecordResult(expectdRecordCount),
+      this._queryRecordResult(expectedRecordCount),
     );
   }
 

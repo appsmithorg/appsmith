@@ -8,7 +8,7 @@ import React, {
 import { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
-import { TabComponent } from "components/ads/Tabs";
+import { TabComponent } from "design-system";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,

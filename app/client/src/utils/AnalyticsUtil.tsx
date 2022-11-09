@@ -225,6 +225,7 @@ export type EventName =
   | "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD"
   | "ADMIN_SETTINGS_EDIT_AUTH_METHOD"
   | "ADMIN_SETTINGS_ENABLE_AUTH_METHOD"
+  | "ADMIN_SETTINGS_UPGRADE_HOOK"
   | "REFLOW_BETA_FLAG"
   | "CONTAINER_JUMP"
   | "CONNECT_GIT_CLICK"
@@ -338,9 +339,7 @@ class AnalyticsUtil {
           n.type = "text/javascript";
           n.async = !0;
           n.src =
-            "https://cdn.segment.com/analytics.js/v1/" +
-            t +
-            "/analytics.min.js";
+            "https://a.appsmith.com/analytics.js/v1/" + t + "/analytics.min.js";
           const a: any = document.getElementsByTagName("script")[0];
           a.parentNode.insertBefore(n, a);
           analytics._loadOptions = e;

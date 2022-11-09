@@ -90,26 +90,25 @@ public class ArangoDBPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                log.debug("In the ArangoDBPlugin, got action execution result");
-                ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
-                ActionExecutionResult result = new ActionExecutionResult();
-                result.setIsExecutionSuccess(true);
-                List<Map> docList = new ArrayList<>();
+                        log.debug("In the ArangoDBPlugin, got action execution result");
+                        ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(true);
+                        List<Map> docList = new ArrayList<>();
 
-                if (isUpdateQuery(query)) {
-                    Map<String, Long> updateCount = new HashMap<>();
-                    updateCount.put(WRITES_EXECUTED_KEY, cursor.getStats().getWritesExecuted());
-                    updateCount.put(WRITES_IGNORED_KEY, cursor.getStats().getWritesIgnored());
-                    docList.add(updateCount);
-                }
-                else {
-                    docList.addAll(cursor.asListRemaining());
-                }
+                        if (isUpdateQuery(query)) {
+                            Map<String, Long> updateCount = new HashMap<>();
+                            updateCount.put(WRITES_EXECUTED_KEY, cursor.getStats().getWritesExecuted());
+                            updateCount.put(WRITES_IGNORED_KEY, cursor.getStats().getWritesIgnored());
+                            docList.add(updateCount);
+                        } else {
+                            docList.addAll(cursor.asListRemaining());
+                        }
 
-                result.setBody(objectMapper.valueToTree(docList));
+                        result.setBody(objectMapper.valueToTree(docList));
 
-                return result;
-            })
+                        return result;
+                    })
                     .onErrorResume(error -> {
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(false);
@@ -163,44 +162,44 @@ public class ArangoDBPlugin extends BasePlugin {
 
             return (Mono<ArangoDatabase>) Mono.fromCallable(() -> {
 
-                List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
-                        .filter(endpoint -> isNonEmptyEndpoint(endpoint))
-                        .collect(Collectors.toList());
+                        List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
+                                .filter(endpoint -> isNonEmptyEndpoint(endpoint))
+                                .collect(Collectors.toList());
 
-                DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
-                Builder dbBuilder = getBasicBuilder(auth);
-                nonEmptyEndpoints.stream()
-                        .forEach(endpoint -> {
-                            String host = endpoint.getHost();
-                            int port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
-                            dbBuilder.host(host, port);
-                        });
+                        DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
+                        Builder dbBuilder = getBasicBuilder(auth);
+                        nonEmptyEndpoints.stream()
+                                .forEach(endpoint -> {
+                                    String host = endpoint.getHost();
+                                    int port = (int) (long) ObjectUtils.defaultIfNull(endpoint.getPort(), DEFAULT_PORT);
+                                    dbBuilder.host(host, port);
+                                });
 
-                /**
-                 * - datasource.connection, datasource.connection.ssl, datasource.connection.ssl.authType objects
-                 * are never expected to be null because form.json always assigns a default value to authType object.
-                 */
-                SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
-                try {
-                    setSSLParam(dbBuilder, sslAuthType);
-                } catch (AppsmithPluginException e) {
-                    return Mono.error(e);
-                }
+                        /**
+                         * - datasource.connection, datasource.connection.ssl, datasource.connection.ssl.authType objects
+                         * are never expected to be null because form.json always assigns a default value to authType object.
+                         */
+                        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+                        try {
+                            setSSLParam(dbBuilder, sslAuthType);
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
 
-                try {
-                    setSSLContext(dbBuilder, datasourceConfiguration);
-                } catch (AppsmithPluginException e) {
-                    return Mono.error(e);
-                }
+                        try {
+                            setSSLContext(dbBuilder, datasourceConfiguration);
+                        } catch (AppsmithPluginException e) {
+                            return Mono.error(e);
+                        }
 
-                String dbName = auth.getDatabaseName();
+                        String dbName = auth.getDatabaseName();
 
-                /**
-                 * - This instance is thread safe as ArangoDatabase has in-built connection pooling.
-                 * - src: https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
-                 */
-                return Mono.just(dbBuilder.build().db(dbName));
-            })
+                        /**
+                         * - This instance is thread safe as ArangoDatabase has in-built connection pooling.
+                         * - src: https://www.arangodb.com/docs/stable/drivers/java-reference-setup.html
+                         */
+                        return Mono.just(dbBuilder.build().db(dbName));
+                    })
                     .flatMap(obj -> obj)
                     .subscribeOn(scheduler);
         }
@@ -251,11 +250,11 @@ public class ArangoDBPlugin extends BasePlugin {
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isAuthenticationMissing(auth)) {
-               invalids.add(
-                       "Could not find required authentication info. At least one of 'Username', 'Password', " +
-                               "'Database Name' fields is missing. Please edit the 'Username', 'Password' and " +
-                               "'Database Name' fields to provide authentication info."
-               );
+                invalids.add(
+                        "Could not find required authentication info. At least one of 'Username', 'Password', " +
+                                "'Database Name' fields is missing. Please edit the 'Username', 'Password' and " +
+                                "'Database Name' fields to provide authentication info."
+                );
             }
 
             if (!isEndpointAvailable(datasourceConfiguration.getEndpoints())) {
@@ -269,7 +268,7 @@ public class ArangoDBPlugin extends BasePlugin {
                     .getCaCertificateType();
             if (!SSLDetails.CACertificateType.NONE.equals(caCertificateType)
                     && !isCaCertificateAvailable(datasourceConfiguration)) {
-                    invalids.add("Could not find CA certificate. Please provide a CA certificate.");
+                invalids.add("Could not find CA certificate. Please provide a CA certificate.");
             }
 
             return invalids;
@@ -297,22 +296,15 @@ public class ArangoDBPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .map(db -> {
-                        db.getVersion();
-
-                        if (db != null) {
-                            db.arango().shutdown();
-                        }
-
+        public Mono<DatasourceTestResult> testDatasource(ArangoDatabase connection) {
+            return Mono.fromCallable(() -> {
+                        connection.getVersion();
                         return new DatasourceTestResult();
                     })
                     .onErrorResume(error -> {
                         log.error("Error when testing ArangoDB datasource.", error);
                         return Mono.just(new DatasourceTestResult(error.getMessage()));
-                    })
-                    .subscribeOn(scheduler);
+                    });
         }
 
         @Override

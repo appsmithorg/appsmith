@@ -82,7 +82,9 @@ interface Props {
   fontStyle?: string;
   cellBackground?: string;
   textSize?: string;
+  disablePadding?: boolean;
   url?: string;
+  isCellDisabled?: boolean;
 }
 
 function LinkWrapper(props: Props) {
@@ -96,6 +98,7 @@ function LinkWrapper(props: Props) {
       compactMode={props.compactMode}
       fontStyle={props.fontStyle}
       horizontalAlignment={props.horizontalAlignment}
+      isCellDisabled={props.isCellDisabled}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
@@ -130,8 +133,10 @@ function AutoToolTipComponent(props: Props) {
         cellBackground={props.cellBackground}
         className="cell-wrapper"
         compactMode={props.compactMode}
+        disablePadding={props.disablePadding}
         fontStyle={props.fontStyle}
         horizontalAlignment={props.horizontalAlignment}
+        isCellDisabled={props.isCellDisabled}
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
         isTextType

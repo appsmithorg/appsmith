@@ -28,21 +28,22 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
+  Callout,
   Case,
+  Classes,
   Icon,
   IconSize,
   SearchSnippet,
   Size,
+  TabComponent,
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
-import { Classes, Variant } from "components/ads/common";
-import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -217,7 +218,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 110px);
+  height: calc(100% - 135px);
   position: relative;
 `;
 export interface CommonFormProps {

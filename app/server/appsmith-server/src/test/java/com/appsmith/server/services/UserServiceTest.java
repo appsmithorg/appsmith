@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
@@ -67,6 +68,9 @@ public class UserServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserAndAccessManagementService userAndAccessManagementService;
 
     @Autowired
     WorkspaceService workspaceService;
@@ -346,7 +350,7 @@ public class UserServiceTest {
                     inviteUsersDTO.setUsernames(users);
                     inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream().findFirst().get());
 
-                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
+                    return userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();
 
         // Now Sign Up as the new user
