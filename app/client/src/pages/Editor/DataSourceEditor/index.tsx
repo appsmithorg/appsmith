@@ -78,7 +78,6 @@ class DataSourceEditor extends React.Component<Props> {
     }
 
     if (this.props.isNewDatasource && this.props.viewMode) {
-      console.log("setting again");
       this.props.setDatasourceViewMode(false);
     }
   }
