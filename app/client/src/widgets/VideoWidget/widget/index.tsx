@@ -187,13 +187,15 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: VideoWidgetProps): void {
     // console.log("PLAYERRRRRRRRRR", this._player.current?.props.playing);
     // if (prevProps.autoPlay !== this.props.autoPlay) {
-    //   this.handlePlayStateOfReactPlayer(this.props.autoPlay);
+    //   // this.handlePlayStateOfReactPlayer(this.props.autoPlay);
     // }
     if (
       prevProps.playState !== "NOT_STARTED" &&
       this.props.playState === "NOT_STARTED"
     ) {
       this._player.current?.seekTo(0);
+      console.log("THISSSSSSSSSS", this._player.current);
+      // this.handlePlayStateOfReactPlayer(false);
     }
   }
 
@@ -204,7 +206,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
         <VideoComponent
           autoplay={autoPlay}
           // autoplay={this.playStateOfReactPlayer}
-          // autoplay={this.props.playState === "PLAYING" ? true : false}
+          // autoplay={this.props.playState === "NOT_STARTED" ? false : autoPlay}
           backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
@@ -218,6 +220,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 type: EventType.ON_VIDEO_END,
               },
             });
+            // this.handlePlayStateOfReactPlayer(false);
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
@@ -228,6 +231,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 type: EventType.ON_VIDEO_PAUSE,
               },
             });
+            // this.handlePlayStateOfReactPlayer(false);
           }}
           onPlay={() => {
             this.props.updateWidgetMetaProperty(
@@ -241,6 +245,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 },
               },
             );
+            // this.handlePlayStateOfReactPlayer(true);
           }}
           player={this._player}
           url={url}

@@ -61,6 +61,7 @@ export default function VideoComponent(props: VideoComponentProps) {
     player,
     url,
   } = props;
+  // alert(autoplay);
   return url ? (
     <VideoWrapper
       backgroundColor={props.backgroundColor}
