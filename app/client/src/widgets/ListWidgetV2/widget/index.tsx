@@ -112,6 +112,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
+      selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
     };
@@ -126,9 +127,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       pageNo: 1,
       pageSize: 0,
       currentViewRows: "{{[]}}",
-      selectedItemIndex: -1,
+      selectedRowIndex: -1,
       triggeredRowIndex: -1,
-      selectedRow: "{{{}}}",
+      selectedRowViewIndex: -1,
     };
   }
 
@@ -561,10 +562,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 
   onPageChange = (page: number) => {
-    const currentPage = this.props.pageNo;
+    const { currentPage, selectedRowIndex } = this.props;
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
-    this.resetSelectedItemMeta();
+    this.resetSelectedItemMeta(selectedRowIndex);
     this.props.updateWidgetMetaProperty("pageNo", page, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
@@ -580,7 +581,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     action: string | undefined,
   ) => {
     this.updateSelectedItemMeta(rowIndex);
-    // this.updateSelectedRowMeta(rowIndex, viewIndex);
+    this.updateSelectedVewIndex(rowIndex, viewIndex);
 
     if (!action) return;
 
@@ -608,53 +609,48 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   };
 
-  onRowClickCapture = (rowIndex: number) => {
+  onRowClickCapture = (rowIndex: number, viewIndex: number) => {
     this.updateTriggeredRowIndexMeta(rowIndex);
+    this.props.updateWidgetMetaProperty("triggeredRowViewIndex", viewIndex);
   };
 
   updateSelectedItemMeta = (rowIndex: number) => {
-    const { pageNo, selectedItemIndex } = this.props;
-    const newSelectedItemIndex = this.pageSize * (pageNo - 1) + rowIndex;
+    const { pageNo, selectedRowIndex } = this.props;
+    const newSelectedRowIndex = this.pageSize * (pageNo - 1) + rowIndex;
 
-    if (newSelectedItemIndex === selectedItemIndex) {
-      this.resetSelectedItemMeta();
+    if (newSelectedRowIndex === selectedRowIndex) {
+      this.resetSelectedItemMeta(newSelectedRowIndex);
       return;
     }
 
     this.props.updateWidgetMetaProperty(
-      "selectedItemIndex",
-      newSelectedItemIndex,
+      "selectedRowIndex",
+      newSelectedRowIndex,
+    );
+    this.props.updateWidgetMetaProperty(
+      "previousSelectedRowIndex",
+      selectedRowIndex,
     );
   };
 
-  // updateSelectedRowMeta = (rowIndex: number, viewIndex: number) => {
-  //   let selectedRow = {};
-  //   const { currentViewRows, selectedItemIndex } = this.props;
-  //   const selectedRowBinding = "{{{}}}";
-
-  //   // This doesn't trigger another evaluation
-
-  //   if (rowIndex === selectedItemIndex) {
-  //     this.selectedRowViewIndex = undefined;
-  //   } else {
-  //     selectedRow = currentViewRows[viewIndex];
-  //   }
-
-  //   // this.props.updateWidgetMetaProperty("selectedRow", selectedRow);
-
-  //   // this.context?.syncUpdateWidgetMetaProperty?.(
-  //   //   this.props.widgetId,
-  //   //   "selectedRow",
-  //   //   selectedRowBinding,
-  //   // );
-  // };
+  updateSelectedVewIndex = (rowIndex: number, viewIndex: number) => {
+    let currentViewIndex = -1;
+    if (rowIndex !== this.props.selectedRowIndex) {
+      currentViewIndex = viewIndex;
+    }
+    this.props.updateWidgetMetaProperty(
+      "selectedRowViewIndex",
+      currentViewIndex,
+    );
+  };
 
   updateTriggeredRowIndexMeta = (rowIndex: number) => {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
   };
 
-  resetSelectedItemMeta = () => {
-    this.props.updateWidgetMetaProperty("selectedItemIndex", -1);
+  resetSelectedItemMeta = (rowIndex: number) => {
+    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+    this.props.updateWidgetMetaProperty("previousSelectedRowIndex", rowIndex);
   };
 
   getGridGap = () =>
@@ -694,18 +690,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { pageNo } = this.props;
     const pageSize = this.pageSize;
     const startIndex = this.metaWidgetGenerator.getStartIndex();
-    let calculatedSelectedItemIndex = pageSize * (pageNo - 1) + index;
+    let calculatedSelectedRowIndex = pageSize * (pageNo - 1) + index;
 
     if (this.props.infiniteScroll) {
-      calculatedSelectedItemIndex = startIndex + index;
+      calculatedSelectedRowIndex = startIndex + index;
     }
 
-    return calculatedSelectedItemIndex;
+    return calculatedSelectedRowIndex;
   };
 
   renderChildren = () => {
     const { componentWidth } = this.getComponentDimensions();
-    const { selectedItemIndex } = this.props;
+    const { selectedRowIndex } = this.props;
 
     return (this.props.metaWidgetChildrenStructure || []).map(
       (childWidgetStructure) => {
@@ -717,20 +713,20 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         // child.shouldScrollContents = true;
         child.canExtend = true;
         child.children = child.children?.map((container, index) => {
-          const calculatedSelectedItemIndex = this.getContainerIndex(index);
+          const calculatedSelectedRowIndex = this.getContainerIndex(index);
           return {
             ...container,
-            selected: selectedItemIndex === calculatedSelectedItemIndex,
+            selected: selectedRowIndex === calculatedSelectedRowIndex,
             onClick: (e: React.MouseEvent<HTMLElement>) => {
               e.stopPropagation();
               this.onItemClick(
-                calculatedSelectedItemIndex,
+                calculatedSelectedRowIndex,
                 index,
                 this.props.onRowClick,
               );
             },
             onClickCapture: () => {
-              this.onRowClickCapture(calculatedSelectedItemIndex);
+              this.onRowClickCapture(calculatedSelectedRowIndex, index);
             },
           };
         });
@@ -939,12 +935,13 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   onPageSizeChange?: string;
   pageNo: number;
   pageSize: number;
-  currentViewRows: Array<Record<string, unknown>>;
-  selectedItemIndex: number;
+  currentViewRows: string;
+  selectedRowIndex: number;
   selectedRow: Record<string, unknown>;
-  selectedRowViewIndex?: number;
-  previousSelectedRowViewIndex?: number;
+  selectedRowViewIndex: number;
   triggeredRowIndex: number;
+  triggeredRowViewIndex: number;
+  previousSelectedRowIndex: number;
 }
 
 export default ListWidget;
