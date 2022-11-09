@@ -778,7 +778,11 @@ export default {
       props.primaryColumns ? props.primaryColumns : [],
     );
     const tableHeaders = tableHeadersArray.map((object) => ({
-      id: object?.index ? object.index : "",
+      id: object
+        ? object.index !== undefined && object.index !== null
+          ? `#${Number(object.index) + 1}`
+          : ""
+        : "",
       label: object?.id ? object.id : "",
       visible: object?.isVisible ? object.isVisible : "",
     }));

@@ -3360,7 +3360,7 @@ describe("Validate tableHeaders function", () => {
       }),
     ).toEqual([
       {
-        id: 0,
+        id: "#1",
         label: "some value",
         visible: true,
       },
@@ -3382,7 +3382,7 @@ describe("Validate tableHeaders function", () => {
       }),
     ).toEqual([
       {
-        id: 0,
+        id: "#1",
         label: "some value",
         visible: true,
       },
@@ -3458,7 +3458,7 @@ describe("Validate tableHeaders function", () => {
       }),
     ).toEqual([
       {
-        id: 0,
+        id: "#1",
         label: "",
         visible: true,
       },
@@ -3480,7 +3480,7 @@ describe("Validate tableHeaders function", () => {
       }),
     ).toEqual([
       {
-        id: 0,
+        id: "#1",
         label: "",
         visible: true,
       },
