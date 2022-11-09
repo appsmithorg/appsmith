@@ -74,9 +74,9 @@ const ListWidgetPropertyPaneConfig = [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a grid list item is clicked",
-        propertyName: "onListItemClick",
-        label: "onListItemClick",
+        helpText: "Triggers an action when a row is clicked",
+        propertyName: "onRowClick",
+        label: "onRowClick",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,

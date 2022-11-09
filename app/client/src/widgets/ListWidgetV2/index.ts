@@ -127,10 +127,10 @@ export const CONFIG = {
     gridType: "vertical",
     dynamicBindingPathList: [
       {
-        key: "currentViewItems",
+        key: "currentViewRows",
       },
     ],
-    currentViewItems: "{{[]}}",
+    currentViewRows: "{{[]}}",
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {

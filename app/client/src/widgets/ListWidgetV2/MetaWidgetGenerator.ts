@@ -881,7 +881,7 @@ class MetaWidgetGenerator {
     return [];
   };
 
-  private getStartIndex = () => {
+  getStartIndex = () => {
     if (this.infiniteScroll) {
       if (this.virtualizer) {
         const items = this.virtualizer.getVirtualItems();
@@ -899,6 +899,10 @@ class MetaWidgetGenerator {
 
   getVirtualListHeight = () => {
     return this.virtualizer?.getTotalSize?.();
+  };
+
+  getVirtualItemsSize = () => {
+    return this.virtualizer?.getVirtualItems().length;
   };
 
   private getRowTemplateCache = (key: string, templateWidgetId: string) => {

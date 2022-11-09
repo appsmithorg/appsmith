@@ -79,7 +79,7 @@
                 "topRow": 5,
                 "bottomRow": 60,
                 "parentRowSpace": 10,
-                "currentViewItems": "{{[]}}",
+                "currentViewRows": "{{[]}}",
                 "type": "LIST_WIDGET_V2",
                 "hideCard": false,
                 "gridGap": 0,
@@ -90,7 +90,7 @@
                 "dynamicTriggerPathList": [],
                 "dynamicBindingPathList": [
                     {
-                        "key": "currentViewItems"
+                        "key": "currentViewRows"
                     },
                     {
                         "key": "borderRadius"

@@ -427,7 +427,7 @@ export const entityDefinitions = {
     listData: generateTypeDef(widget.listData, extraDefsToDefine),
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
-    currentViewItems: generateTypeDef(widget.currentViewItems),
+    currentViewRows: generateTypeDef(widget.currentViewRows),
     selectedItemIndex: "number",
   }),
   RATE_WIDGET: {
