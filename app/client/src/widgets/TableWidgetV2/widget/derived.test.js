@@ -3315,9 +3315,9 @@ describe("getEditableCellValidity", () => {
 });
 
 describe("Validate tableHeaders function", () => {
-  it("should test that it returns empty array when primaryColumns is empty", () => {
-    const { getTableHeaders } = derivedProperty;
+  const { getTableHeaders } = derivedProperty;
 
+  it("should test that it returns empty array when primaryColumns is empty", () => {
     expect(
       getTableHeaders({
         primaryColumns: {},
@@ -3326,8 +3326,6 @@ describe("Validate tableHeaders function", () => {
   });
 
   it("should test that it returns empty array when primaryColumns is null", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: null,
@@ -3336,8 +3334,6 @@ describe("Validate tableHeaders function", () => {
   });
 
   it("should test that it returns empty array when primaryColumns is undefined", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: undefined,
@@ -3346,8 +3342,6 @@ describe("Validate tableHeaders function", () => {
   });
 
   it("should test that it returns expected array when primaryColumns key is undefined", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: {
@@ -3362,14 +3356,12 @@ describe("Validate tableHeaders function", () => {
       {
         id: "#1",
         label: "some value",
-        visible: true,
+        isVisible: true,
       },
     ]);
   });
 
   it("should test that it returns expected array when primaryColumns key is null", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: {
@@ -3384,14 +3376,12 @@ describe("Validate tableHeaders function", () => {
       {
         id: "#1",
         label: "some value",
-        visible: true,
+        isVisible: true,
       },
     ]);
   });
 
   it("should test that it returns expected array when primaryColumns value is empty", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: {
@@ -3402,14 +3392,12 @@ describe("Validate tableHeaders function", () => {
       {
         id: "",
         label: "",
-        visible: "",
+        isVisible: "",
       },
     ]);
   });
 
   it("should test that it returns expected array when primaryColumns value is undefined", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: {
@@ -3420,14 +3408,12 @@ describe("Validate tableHeaders function", () => {
       {
         id: "",
         label: "",
-        visible: "",
+        isVisible: "",
       },
     ]);
   });
 
   it("should test that it returns expected array when primaryColumns value is null", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: {
@@ -3438,14 +3424,12 @@ describe("Validate tableHeaders function", () => {
       {
         id: "",
         label: "",
-        visible: "",
+        isVisible: "",
       },
     ]);
   });
 
   it("should test that it returns expected array when primaryColumns data is undefined", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: {
@@ -3460,14 +3444,12 @@ describe("Validate tableHeaders function", () => {
       {
         id: "#1",
         label: "",
-        visible: true,
+        isVisible: true,
       },
     ]);
   });
 
   it("should test that it returns expected array when primaryColumns data is null", () => {
-    const { getTableHeaders } = derivedProperty;
-
     expect(
       getTableHeaders({
         primaryColumns: {
@@ -3482,7 +3464,7 @@ describe("Validate tableHeaders function", () => {
       {
         id: "#1",
         label: "",
-        visible: true,
+        isVisible: true,
       },
     ]);
   });

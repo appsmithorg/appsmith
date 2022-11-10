@@ -774,19 +774,20 @@ export default {
   },
   //
   getTableHeaders: (props, moment, _) => {
-    const tableHeadersArray = Object.values(
-      props.primaryColumns ? props.primaryColumns : [],
-    );
-    const tableHeaders = tableHeadersArray.map((object) => ({
-      id: object
-        ? object.index !== undefined && object.index !== null
-          ? `#${Number(object.index) + 1}`
-          : ""
-        : "",
-      label: object?.id ? object.id : "",
-      visible: object?.isVisible ? object.isVisible : "",
-    }));
-    return tableHeaders;
+    const columns = props.primaryColumns
+      ? Object.values(props.primaryColumns)
+      : [];
+    return columns
+      .map((column) => ({
+        id: column
+          ? column.index !== undefined && column.index !== null
+            ? `#${Number(column.index) + 1}`
+            : ""
+          : "",
+        label: column?.id ? column.id : "",
+        isVisible: column?.isVisible ? column.isVisible : "",
+      }))
+      .sort((a, b) => (a.id < b.id ? -1 : 1));
   },
   //
 };
