@@ -208,9 +208,6 @@ const StyledRTEditor = styled.div<{
   }
 
   ${labelLayoutStyles}
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { align-items: stretch; }" : ""};
 `;
 
 export const RichTextEditorInputWrapper = styled.div<{
