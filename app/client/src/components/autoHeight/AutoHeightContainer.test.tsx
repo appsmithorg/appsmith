@@ -24,7 +24,7 @@ describe("<AutoHeightContainer />", () => {
     expect(tree).toHaveStyleRule("height", "auto");
   });
 
-  describe("when isAutoHeightWithLimits is false", () => {
+  describe("when isAutoHeightWithLimits is false.", () => {
     it("should wrap the children in a simple div with class auto-height-container", async () => {
       const getTestComponent = () => (
         <AutoHeightContainer
