@@ -562,10 +562,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 
   onPageChange = (page: number) => {
-    const { currentPage, selectedRowIndex } = this.props;
+    const { currentPage } = this.props;
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
-    this.resetSelectedItemMeta(selectedRowIndex);
+    this.resetSelectedRowIndexMeta();
     this.props.updateWidgetMetaProperty("pageNo", page, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
@@ -580,8 +580,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     viewIndex: number,
     action: string | undefined,
   ) => {
-    this.updateSelectedItemMeta(rowIndex);
-    this.updateSelectedVewIndex(rowIndex, viewIndex);
+    this.updateSelectedRowIndexMeta(rowIndex);
+    this.updateSelectedViewIndex(rowIndex, viewIndex);
 
     if (!action) return;
 
@@ -614,12 +614,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     this.props.updateWidgetMetaProperty("triggeredRowViewIndex", viewIndex);
   };
 
-  updateSelectedItemMeta = (rowIndex: number) => {
+  updateSelectedRowIndexMeta = (rowIndex: number) => {
     const { pageNo, selectedRowIndex } = this.props;
     const newSelectedRowIndex = this.pageSize * (pageNo - 1) + rowIndex;
 
     if (newSelectedRowIndex === selectedRowIndex) {
-      this.resetSelectedItemMeta(newSelectedRowIndex);
+      this.resetSelectedRowIndexMeta();
       return;
     }
 
@@ -627,13 +627,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       "selectedRowIndex",
       newSelectedRowIndex,
     );
-    this.props.updateWidgetMetaProperty(
-      "previousSelectedRowIndex",
-      selectedRowIndex,
-    );
   };
 
-  updateSelectedVewIndex = (rowIndex: number, viewIndex: number) => {
+  updateSelectedViewIndex = (rowIndex: number, viewIndex: number) => {
     let currentViewIndex = -1;
     if (rowIndex !== this.props.selectedRowIndex) {
       currentViewIndex = viewIndex;
@@ -648,9 +644,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
   };
 
-  resetSelectedItemMeta = (rowIndex: number) => {
+  resetSelectedRowIndexMeta = () => {
     this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
-    this.props.updateWidgetMetaProperty("previousSelectedRowIndex", rowIndex);
   };
 
   getGridGap = () =>
@@ -941,7 +936,6 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   selectedRowViewIndex: number;
   triggeredRowIndex: number;
   triggeredRowViewIndex: number;
-  previousSelectedRowIndex: number;
 }
 
 export default ListWidget;
