@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useMemo, useCallback } from "react";
 import styled from "styled-components";
 import {
   Classes,
@@ -216,9 +216,6 @@ function ApiRightPane(props: any) {
     props.actionName,
   );
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
-  useEffect(() => {
-    if (!!props.hasResponse) dispatch(setApiRightPaneSelectedTab(1));
-  }, [props.hasResponse]);
 
   const setSelectedTab = useCallback((selectedIndex: number) => {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));
