@@ -171,42 +171,32 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       playState: PlayState.NOT_STARTED,
+      playing: true,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    return {
+      playing: "autoPlay",
+    };
   }
 
-  // private playStateOfReactPlayer = false;
-
-  // private handlePlayStateOfReactPlayer = (value: boolean) => {
-  //   this.playStateOfReactPlayer = value;
-  // };
-
   componentDidUpdate(prevProps: VideoWidgetProps): void {
-    // console.log("PLAYERRRRRRRRRR", this._player.current?.props.playing);
-    // if (prevProps.autoPlay !== this.props.autoPlay) {
-    //   // this.handlePlayStateOfReactPlayer(this.props.autoPlay);
-    // }
     if (
       prevProps.playState !== "NOT_STARTED" &&
       this.props.playState === "NOT_STARTED"
     ) {
       this._player.current?.seekTo(0);
-      console.log("THISSSSSSSSSS", this._player.current);
-      // this.handlePlayStateOfReactPlayer(false);
+      this.props.updateWidgetMetaProperty("playing", false);
     }
   }
 
   getPageView() {
-    const { autoPlay, onEnd, onPause, onPlay, url } = this.props;
+    const { onEnd, onPause, onPlay, playing, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
-          autoplay={autoPlay}
-          // autoplay={this.playStateOfReactPlayer}
-          // autoplay={this.props.playState === "NOT_STARTED" ? false : autoPlay}
+          // autoplay={autoPlay}
           backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
@@ -220,7 +210,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 type: EventType.ON_VIDEO_END,
               },
             });
-            // this.handlePlayStateOfReactPlayer(false);
+            this.props.updateWidgetMetaProperty("playing", false);
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
@@ -231,7 +221,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 type: EventType.ON_VIDEO_PAUSE,
               },
             });
-            // this.handlePlayStateOfReactPlayer(false);
+            this.props.updateWidgetMetaProperty("playing", false);
           }}
           onPlay={() => {
             this.props.updateWidgetMetaProperty(
@@ -245,9 +235,10 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 },
               },
             );
-            // this.handlePlayStateOfReactPlayer(true);
+            this.props.updateWidgetMetaProperty("playing", true);
           }}
           player={this._player}
+          playing={playing}
           url={url}
         />
       </Suspense>
