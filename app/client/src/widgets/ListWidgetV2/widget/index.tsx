@@ -575,7 +575,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
   };
 
-  onItemClick = (
+  onRowClick = (
     rowIndex: number,
     viewIndex: number,
     action: string | undefined,
@@ -615,18 +615,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updateSelectedRowIndexMeta = (rowIndex: number) => {
-    const { pageNo, selectedRowIndex } = this.props;
-    const newSelectedRowIndex = this.pageSize * (pageNo - 1) + rowIndex;
+    const { selectedRowIndex } = this.props;
 
-    if (newSelectedRowIndex === selectedRowIndex) {
+    if (rowIndex === selectedRowIndex) {
       this.resetSelectedRowIndexMeta();
       return;
     }
 
-    this.props.updateWidgetMetaProperty(
-      "selectedRowIndex",
-      newSelectedRowIndex,
-    );
+    this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
   };
 
   updateSelectedViewIndex = (rowIndex: number, viewIndex: number) => {
@@ -646,6 +642,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   resetSelectedRowIndexMeta = () => {
     this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+  };
+  resetTriggeredRowIndexMeta = () => {
+    this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
+    this.props.updateWidgetMetaProperty("triggeredRowViewIndex", -1);
   };
 
   getGridGap = () =>
@@ -714,7 +714,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             selected: selectedRowIndex === calculatedSelectedRowIndex,
             onClick: (e: React.MouseEvent<HTMLElement>) => {
               e.stopPropagation();
-              this.onItemClick(
+              this.onRowClick(
                 calculatedSelectedRowIndex,
                 index,
                 this.props.onRowClick,
