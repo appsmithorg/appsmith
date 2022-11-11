@@ -1,4 +1,4 @@
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 
 export const getQueryPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.queryPane.selectedConfigTabIndex;

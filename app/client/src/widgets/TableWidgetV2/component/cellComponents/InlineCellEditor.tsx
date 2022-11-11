@@ -5,7 +5,13 @@ import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { EditableCell } from "widgets/TableWidgetV2/constants";
-import { TABLE_SIZES, VerticalAlignment } from "../Constants";
+import {
+  EDITABLE_CELL_PADDING_OFFSET,
+  TABLE_SIZES,
+  VerticalAlignment,
+} from "../Constants";
+
+const FOCUS_CLASS = "has-focus";
 
 const Wrapper = styled.div<{
   accentColor: string;
@@ -14,20 +20,33 @@ const Wrapper = styled.div<{
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
   isEditableCellValid: boolean;
+  paddedInput: boolean;
 }>`
   padding: 1px;
   border: 1px solid
-    ${(props) =>
-      props.isEditableCellValid ? props.accentColor : Colors.DANGER_SOLID};
+    ${(props) => (!props.isEditableCellValid ? Colors.DANGER_SOLID : "#fff")};
   background: #fff;
   position: absolute;
-  width: 100%;
-  left: 0;
+  width: ${(props) =>
+    props.paddedInput
+      ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
+      : "100%"};
+  left: 50%;
+  transform: translate(-50%, 0);
   overflow: hidden;
-  height: ${(props) =>
-    props.allowCellWrapping
-      ? `100%`
-      : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`};
+  border-radius: 3px;
+  height: ${(props) => {
+    if (props.allowCellWrapping) {
+      return props.paddedInput
+        ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
+        : "100%";
+    } else {
+      return props.paddedInput
+        ? `${TABLE_SIZES[props.compactMode].ROW_HEIGHT -
+            EDITABLE_CELL_PADDING_OFFSET}px`
+        : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
+    }
+  }};
   ${(props) => {
     switch (props.verticalAlignment) {
       case "TOP":
@@ -73,6 +92,11 @@ const Wrapper = styled.div<{
       box-shadow: none !important;
     }
   }
+
+  &.${FOCUS_CLASS} {
+    ${(props) =>
+      props.isEditableCellValid && `border: 1px solid ${props.accentColor}`}
+  }
 `;
 
 type InlineEditorPropsType = {
@@ -90,10 +114,13 @@ type InlineEditorPropsType = {
   isEditableCellValid: boolean;
   validationErrorMessage: string;
   widgetId: string;
+  paddedInput: boolean;
+  autoFocus: boolean;
 };
 
 export function InlineCellEditor({
   accentColor,
+  autoFocus,
   compactMode,
   inputType = InputTypes.TEXT,
   isEditableCellValid,
@@ -109,10 +136,16 @@ export function InlineCellEditor({
   widgetId,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
+  const [hasFocus, setHasFocus] = useState(false);
   const [cursorPos, setCursorPos] = useState(value.length);
-  const onFocusChange = useCallback((focus: boolean) => !focus && onSave(), [
-    onSave,
-  ]);
+
+  const onFocusChange = useCallback(
+    (focus: boolean) => {
+      !focus && onSave();
+      setHasFocus(focus);
+    },
+    [onSave],
+  );
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -174,16 +207,19 @@ export function InlineCellEditor({
     <Wrapper
       accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
-      className={`t--inlined-cell-editor ${!isEditableCellValid &&
+      className={`${
+        hasFocus ? FOCUS_CLASS : ""
+      } t--inlined-cell-editor ${!isEditableCellValid &&
         "t--inlined-cell-editor-has-error"}`}
       compactMode={compactMode}
       isEditableCellValid={isEditableCellValid}
+      paddedInput
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
       <BaseInputComponent
         accentColor={accentColor}
-        autoFocus
+        autoFocus={hasFocus || autoFocus}
         compactMode
         disableNewLineOnPressEnterKey={false}
         errorMessage={validationErrorMessage}
@@ -191,7 +227,7 @@ export function InlineCellEditor({
         inputHTMLType={inputType}
         inputRef={inputRef}
         inputType={inputType}
-        isInvalid={!isEditableCellValid}
+        isInvalid={hasFocus && !isEditableCellValid}
         isLoading={false}
         label=""
         multiline={multiline}

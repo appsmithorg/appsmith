@@ -11,7 +11,7 @@ import { Collapse } from "@blueprintjs/core";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { AppIcon as Icon, Size } from "design-system";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";

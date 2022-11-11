@@ -19,6 +19,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
@@ -59,6 +60,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
+    private final ActionCollectionRepository actionCollectionRepository;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -190,6 +192,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 }
                                 return actionCollectionService.save(savedActionCollection);
                             })
+                            .flatMap(actionCollectionRepository::setUserPermissionsInObject)
                             .cache();
 
                     return actionCollectionMono

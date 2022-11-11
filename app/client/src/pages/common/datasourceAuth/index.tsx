@@ -17,6 +17,7 @@ import {
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
+  setDatasourceViewMode,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
@@ -36,8 +37,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -108,7 +108,7 @@ function DatasourceAuth({
     formData &&
     formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId } = datasource;
+  const { id: datasourceId, isDeleting } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
 
   // hooks
@@ -124,11 +124,6 @@ function DatasourceAuth({
       delayConfirmDeleteToFalse();
     }
   }, [confirmDelete]);
-
-  const delayConfirmDeleteToFalse = debounce(
-    () => setConfirmDelete(false),
-    2200,
-  );
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -165,8 +160,13 @@ function DatasourceAuth({
 
   // selectors
   const {
-    datasources: { isDeleting, isTesting, loading: isSaving },
+    datasources: { isTesting, loading: isSaving },
   } = useSelector(getEntities);
+
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
 
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasourceId),
@@ -204,6 +204,7 @@ function DatasourceAuth({
       pageId: pageId,
       appId: applicationId,
     });
+    dispatch(setDatasourceViewMode(true));
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
     dispatch(
@@ -218,6 +219,7 @@ function DatasourceAuth({
 
   // Handles Oauth datasource saving
   const handleOauthDatasourceSave = () => {
+    dispatch(setDatasourceViewMode(true));
     dispatch(
       updateDatasource(
         getSanitizedFormData(),
@@ -241,7 +243,7 @@ function DatasourceAuth({
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
           text={
-            confirmDelete
+            confirmDelete && !isDeleting
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }

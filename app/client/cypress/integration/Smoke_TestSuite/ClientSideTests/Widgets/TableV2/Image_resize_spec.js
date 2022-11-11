@@ -14,26 +14,17 @@ describe("Table Widget Image Resize feature validation", function() {
     cy.editColumn("image");
     cy.moveToStyleTab();
 
-    cy.get(".t--property-control-imagesize")
-      .last()
-      .click();
-    cy.get(".ds--dropdown-tooltip:nth-child(2)").click();
+    cy.get(".t--button-tab-MEDIUM").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "64px");
     });
 
-    cy.get(".t--property-control-imagesize")
-      .last()
-      .click();
-    cy.get(".ds--dropdown-tooltip:nth-child(3)").click();
+    cy.get(".t--button-tab-LARGE").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "128px");
     });
 
-    cy.get(".t--property-control-imagesize")
-      .last()
-      .click();
-    cy.get(".ds--dropdown-tooltip:nth-child(1)").click();
+    cy.get(".t--button-tab-DEFAULT").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "32px");
     });
@@ -55,26 +46,17 @@ describe("Table Widget Image Resize feature validation", function() {
     cy.editColumn("image");
     cy.moveToStyleTab();
 
-    cy.get(".t--property-control-imagesize")
-      .last()
-      .click();
-    cy.get(".ds--dropdown-tooltip:nth-child(2)").click();
+    cy.get(".t--button-tab-MEDIUM").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "64px");
     });
 
-    cy.get(".t--property-control-imagesize")
-      .last()
-      .click();
-    cy.get(".ds--dropdown-tooltip:nth-child(3)").click();
+    cy.get(".t--button-tab-LARGE").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "128px");
     });
 
-    cy.get(".t--property-control-imagesize")
-      .last()
-      .click();
-    cy.get(".ds--dropdown-tooltip:nth-child(1)").click();
+    cy.get(".t--button-tab-DEFAULT").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "32px");
     });

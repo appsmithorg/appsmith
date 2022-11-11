@@ -1,5 +1,5 @@
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const routeChanged = (pathname: string, hash?: string) => {
   return {

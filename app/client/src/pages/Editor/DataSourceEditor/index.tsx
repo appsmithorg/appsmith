@@ -34,8 +34,7 @@ import {
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { isDatasourceInViewMode } from "selectors/ui";
 
 interface ReduxStateProps {
@@ -76,6 +75,10 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.datasourceId !== prevProps.datasourceId
     ) {
       this.props.switchDatasource(this.props.datasourceId);
+    }
+
+    if (this.props.isNewDatasource && this.props.viewMode) {
+      this.props.setDatasourceViewMode(false);
     }
   }
   componentDidMount() {
@@ -174,7 +177,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     fromImporting: props.fromImporting ?? false,
     pluginId,
     isSaving: datasources.loading,
-    isDeleting: datasources.isDeleting,
+    isDeleting: !!datasource?.isDeleting,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === datasourceId,

@@ -53,8 +53,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -347,7 +346,6 @@ function* updateDatasourceSaga(
           queryParams,
         ),
       );
-      yield put(setDatasourceViewMode(true));
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
@@ -652,9 +650,7 @@ function* createDatasourceFromFormSaga(
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
-      // Todo: Refactor later.
-      // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
-      yield put(setDatasourceViewMode(false));
+
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
         variant: Variant.success,

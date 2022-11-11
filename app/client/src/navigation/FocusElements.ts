@@ -9,7 +9,7 @@ import {
   setApiPaneResponsePaneHeight,
 } from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
-import { ReduxAction } from "ce/constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
   getFocusableField,
@@ -51,11 +51,11 @@ import {
   setSelectedPropertyTabIndex,
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
-import { PluginPackageName } from "entities/Action";
 import {
-  setAllDatasourceCollapsible,
   setDatasourceViewMode,
+  setAllDatasourceCollapsible,
 } from "actions/datasourceActions";
+import { PluginPackageName } from "entities/Action";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
