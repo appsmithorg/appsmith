@@ -20,25 +20,18 @@ export const htmlToElement = (html: string) => {
  */
 const strip = (text: string) => text.replace(/{% .*?%}/gm, "");
 
-export const YT_EMBEDDING_SELECTION_REGEX = [
-  /{% embed url="<a href="https:\/\/www.youtube.com\/watch\?v=(.*?)\&.*? %}/m,
-  /{% embed url="<a href="https:\/\/youtu.be.*?>https:\/\/youtu.be\/(.*?)".*? %}/m,
-];
-
 const getYtIframe = (videoId: string) => {
   return `<iframe width="100%" height="280" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
 };
-const updateYoutubeEmbeddingsWithIframe = (text: string) => {
+
+const updateVideoEmbeddingsWithIframe = (text: string) => {
   let docString = text;
+  const embedRegex = /<videoembed[^>]*videoid="(.*?)"[^>]*>/;
   let match;
-  YT_EMBEDDING_SELECTION_REGEX.forEach((ytRegex) => {
-    while ((match = ytRegex.exec(docString)) !== null) {
-      // gitbook adds \\ in front of a _ char in an id. TO remove that we have to do this.
-      let videoId = match[1].replaceAll("%5C", "");
-      videoId = videoId.replaceAll("\\", "");
-      docString = docString.replace(ytRegex, getYtIframe(videoId));
-    }
-  });
+  while ((match = embedRegex.exec(docString)) !== null) {
+    const videoId = match[1];
+    docString = docString.replace(embedRegex, getYtIframe(videoId));
+  }
   return docString;
 };
 
@@ -256,7 +249,7 @@ const parseDocumentationContent = (item: any): string | undefined => {
 
     // Remove highlight for nodes that don't match well
     removeBadHighlights(documentObj, query);
-    let content = updateYoutubeEmbeddingsWithIframe(documentObj.body.innerHTML);
+    let content = updateVideoEmbeddingsWithIframe(documentObj.body.innerHTML);
     content = strip(content).trim();
     return content;
   } catch (e) {
