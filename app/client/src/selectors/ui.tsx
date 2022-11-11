@@ -46,7 +46,6 @@ export const getDatasourceCollapsibleState = createSelector(
     datasourceCollapsibleState: { [key: string]: boolean },
     key: string,
   ): boolean | undefined => {
-    console.log(datasourceCollapsibleState, "datasourceCollapsibleState");
     return datasourceCollapsibleState[key];
   },
 );
