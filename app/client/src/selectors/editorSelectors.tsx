@@ -647,7 +647,16 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
         let level = 0;
         while (parentId) {
           const parent = widgets[parentId];
-          if (parent.type === "CANVAS_WIDGET") level++;
+          if (parent.type === "CANVAS_WIDGET") {
+            level++;
+            // If we've already computed the level of the ancestor (parent.widgetId),
+            // then this canvas widget's level is the ancestor level + level
+            if (canvasLevelMap.hasOwnProperty(parent.widgetId)) {
+              canvasLevelMap[canvasWidget.widgetId] =
+                canvasLevelMap[parent.widgetId] + level;
+              break;
+            }
+          }
           parentId = parent.parentId;
         }
         canvasLevelMap[canvasWidget.widgetId] = level;
