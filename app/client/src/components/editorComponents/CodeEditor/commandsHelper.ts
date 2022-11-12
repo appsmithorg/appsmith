@@ -5,15 +5,12 @@ import {
   CommandsCompletion,
 } from "utils/autocomplete/TernServer";
 import { generateQuickCommands } from "./generateQuickCommands";
+import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { SlashCommandPayload } from "entities/Action";
-import store from "store";
-import { getDatasources } from "selectors/entitiesSelector";
-import { getPluginIdToImageLocation } from "sagas/selectors";
-import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions = Object.values(data).filter(
@@ -25,18 +22,20 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
       editor: CodeMirror.Editor,
       { entityId, entityType, expectedType, propertyPath },
       {
+        datasources,
         executeCommand,
+        pluginIdToImageLocation,
+        recentEntities,
         update,
       }: {
+        datasources: Datasource[];
         executeCommand: (payload: SlashCommandPayload) => void;
+        pluginIdToImageLocation: Record<string, string>;
+        recentEntities: string[];
         update: (value: string) => void;
         entityId: string;
       },
     ): boolean => {
-      const state = store.getState();
-      const datasources = getDatasources(state);
-      const pluginIdToImageLocation = getPluginIdToImageLocation(state);
-      const recentEntities = getRecentEntityIds(state);
       const currentEntityType =
         entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
