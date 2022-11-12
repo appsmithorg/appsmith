@@ -626,7 +626,9 @@ export const showCanvasTopSectionSelector = createSelector(
  * @returns the offset in rows
  */
 export const getCanvasHeightOffset = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   widgetType: WidgetType,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   props: WidgetProps,
 ) => {
   // Will be implemented in a separate PR
