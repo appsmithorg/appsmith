@@ -719,9 +719,6 @@ class CodeEditor extends Component<Props, State> {
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         blockCompletions,
-        datasources: this.props.datasources.list,
-        pluginIdToImageLocation: this.props.pluginIdToImageLocation,
-        recentEntities: this.props.recentEntities,
         update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
@@ -1001,9 +998,6 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState, { dataTreePath }: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
-  datasources: state.entities.datasources,
-  pluginIdToImageLocation: getPluginIdToImageLocation(state),
-  recentEntities: getRecentEntityIds(state),
   editorIsFocused: getIsCodeEditorFocused(state, dataTreePath || ""),
   lintErrors: dataTreePath ? getEntityLintErrors(state, dataTreePath) : [],
 });
