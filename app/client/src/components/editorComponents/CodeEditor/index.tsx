@@ -372,8 +372,6 @@ class CodeEditor extends Component<Props, State> {
       }
       return nextState.isFocused || !!nextProps.isJSObject || !areErrorsEqual;
     }
-    if (this.props.lintErrors !== nextProps.lintErrors)
-      return this.state.isFocused;
     return true;
   }
 
