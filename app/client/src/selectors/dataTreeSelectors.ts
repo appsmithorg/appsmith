@@ -6,7 +6,6 @@ import {
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   DataTree,
   DataTreeFactory,
