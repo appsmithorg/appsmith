@@ -311,8 +311,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     getter: (value: any) => {
       return enumTypeGetter(value, 2);
     },
-    setter: (option: any, currentValue: string) =>
-      enumTypeSetter(option.value, currentValue, 2),
+    setter: (option: any, currentValue: string) => {
+      return enumTypeSetter(option.value, currentValue, 2);
+    },
     view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.NAVIGATION_TARGET_FIELD]: {
