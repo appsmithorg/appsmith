@@ -419,8 +419,6 @@ class CodeEditor extends Component<Props, State> {
       }
       CodeEditor.updateMarkings(this.editor, this.props.marking);
     });
-    if (prevProps.lintErrors !== this.props.lintErrors)
-      this.lintCode(this.editor);
   }
 
   handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -867,6 +865,7 @@ class CodeEditor extends Component<Props, State> {
     const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
       dataTreePath,
     );
+    this.lintCode(this.editor);
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
       evaluated = evaluatedValue;
