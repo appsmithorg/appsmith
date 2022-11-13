@@ -1,4 +1,4 @@
-import { ACTION_TRIGGER_REGEX, FUNC_ARGS_REGEX } from "./regex";
+import { FUNC_ARGS_REGEX } from "./regex";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { isValidURL } from "utils/URLUtils";
 import {
@@ -7,6 +7,7 @@ import {
   getModalName,
   setModalName,
   setTextArgumentAtPosition,
+  setEnumArgumentAtPosition,
 } from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
@@ -98,15 +99,14 @@ export const enumTypeSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const matches = [...currentValue.matchAll(ACTION_TRIGGER_REGEX)];
-  let args: string[] = [];
-  if (matches.length) {
-    args = argsStringToArray(matches[0][2]);
-    args[argNum] = changeValue as string;
-  }
-  return currentValue.replace(
-    ACTION_TRIGGER_REGEX,
-    `{{$1(${args.join(",")})}}`,
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  return setEnumArgumentAtPosition(
+    requiredValue,
+    changeValue,
+    argNum,
+    self.evaluationVersion,
   );
 };
 

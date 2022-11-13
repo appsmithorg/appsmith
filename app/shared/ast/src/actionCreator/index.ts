@@ -100,6 +100,40 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     return requiredArgument;
 }
 
+export const setEnumArgumentAtPosition = (currentValue: string, changeValue: string, argNum: number, evaluationVersion: number): string => {
+    let ast: Node = { end: 0, start: 0, type: "" };
+    let changedValue: string = currentValue;
+    console.log("*", currentValue, changedValue, argNum);
+    try {
+        const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
+        ast = getAST(sanitizedScript);
+        console.log("*", ast);
+    } catch (error) {
+        console.log("*", error, changedValue);
+        return changedValue;
+    }
+
+    simple(ast, {
+        CallExpression(node) {
+            if (isCallExpressionNode(node)) {
+                const startPosition = node.callee.end + 1;
+                node.arguments[argNum] = {
+                    type: NodeTypes.Literal,
+                    value: `'${changeValue}'`,
+                    raw: String.raw`'${changeValue}'`,
+                    start: startPosition,
+                    // add 2 for quotes
+                    end: (startPosition) + (changeValue.length + 2),
+                };
+                console.log("*", node);
+                changedValue = `{{${generate(ast)}}}`;
+            }
+        },
+    });
+    console.log("*", changedValue);
+    return changedValue;
+}
+
 export const getModalName = (value: string, evaluationVersion: number): string => {
     let ast: Node = { end: 0, start: 0, type: "" };
     let modalName: string = "none";

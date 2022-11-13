@@ -29,6 +29,7 @@ import {
   getTextArgumentAtPosition,
   setTextArgumentAtPosition,
   getEnumArgumentAtPosition,
+  setEnumArgumentAtPosition,
   getModalName,
   setModalName,
 } from "./src/actionCreator";
@@ -64,4 +65,5 @@ export {
   getModalName,
   setModalName,
   setTextArgumentAtPosition,
+  setEnumArgumentAtPosition,
 };
