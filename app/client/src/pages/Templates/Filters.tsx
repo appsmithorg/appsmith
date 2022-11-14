@@ -31,7 +31,7 @@ const FilterWrapper = styled.div`
 
 const FilterItemWrapper = styled.div<{ selected: boolean }>`
   padding: ${(props) =>
-    `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11]}px`};
+    `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11] - 10}px `};
   .filter input + span {
     ${(props) => !props.selected && `border: 1.8px solid ${Colors.GRAY_400};`}
   }
@@ -47,6 +47,7 @@ const StyledFilterCategory = styled(Text)`
     margin-bottom: ${(props) => props.theme.spaces[12] - 10}px;
     display: inline-block;
     text-transform: uppercase;
+    // font-size: 14px;
   }
 `;
 
@@ -186,7 +187,7 @@ function Filters() {
 
   return (
     <div>
-      <StyledFilterCategory className={"title"} type={TextType.H5}>
+      <StyledFilterCategory className={"title"} type={TextType.SIDE_HEAD}>
         {createMessage(FILTERS)}
       </StyledFilterCategory>
       <FilterWrapper className="filter-wrapper">
