@@ -7,8 +7,8 @@ import {
   ReactTableFilter,
   Operator,
   OperatorTypes,
-} from "./Constants";
-import { DropdownOption } from "./TableFilters";
+} from "../../../Constants";
+import { DropdownOption } from ".";
 import CascadeFields from "./CascadeFields";
 import {
   createMessage,
