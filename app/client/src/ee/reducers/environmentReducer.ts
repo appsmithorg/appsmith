@@ -25,14 +25,19 @@ export interface EnvironmentsReduxState {
    */
   isLoading: boolean;
   /**
+   * @param {boolean} error - Whether there was an error while fetching the environments
+   */
+  error: boolean;
+  /**
    * @param {EnvironmentType} data - The list of environments
    */
   data: EnvironmentType[];
 }
 
 // Initial state of the environment state in redux
-export const initailEnvironmentsState: EnvironmentsReduxState = {
-  isLoading: true,
+export const initialEnvironmentState: EnvironmentsReduxState = {
+  isLoading: false,
+  error: false,
   data: [],
 };
 
@@ -57,7 +62,8 @@ const handlers = {
   ): EnvironmentsReduxState => ({
     ...state,
     isLoading: false,
+    error: true,
   }),
 };
 
-export default createReducer(initailEnvironmentsState, handlers);
+export default createReducer(initialEnvironmentState, handlers);
