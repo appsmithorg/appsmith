@@ -29,9 +29,8 @@ import {
 } from "@appsmith/constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
-import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, FormMessage, Size } from "design-system";
+import { Button, FormGroup, FormMessage, Size } from "design-system";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import {

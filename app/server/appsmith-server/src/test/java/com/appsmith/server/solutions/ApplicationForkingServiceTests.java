@@ -153,6 +153,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private PermissionGroupService permissionGroupService;
 
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
+
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;
@@ -259,7 +262,7 @@ public class ApplicationForkingServiceTests {
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
-        PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUPS)
+        PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
@@ -269,7 +272,7 @@ public class ApplicationForkingServiceTests {
         users.add("usertest@usertest.com");
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;
     }

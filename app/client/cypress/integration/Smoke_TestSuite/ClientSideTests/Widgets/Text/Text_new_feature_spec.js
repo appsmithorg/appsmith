@@ -128,13 +128,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
 
   it("Test to validate enable scroll feature", function() {
     cy.moveToContentTab();
-    cy.selectDropdownValue(
-      commonlocators.textOverflowDropdown,
-      "Scroll contents",
-    );
-    cy.get(commonlocators.textOverflowDropdown)
-      .last()
-      .should("have.text", "Scroll contents");
+    cy.get(".t--button-tab-SCROLL").click({ force: true });
     cy.wait("@updateLayout");
     cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
       force: true,
