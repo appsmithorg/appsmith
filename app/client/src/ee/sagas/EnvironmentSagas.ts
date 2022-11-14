@@ -8,6 +8,8 @@ import { validateResponse } from "sagas/ErrorSagas";
 import EnvironmentApi from "@appsmith/api/EnvironmentApi";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
+import FeatureFlags from "entities/FeatureFlags";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 // Saga to handle fetching the environment configs
 function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
@@ -40,8 +42,12 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
 
 // function to fetch workspace id and start fetching the envs
 function* fetchWorkspaceIdandInitSaga() {
-  const workspaceId: string = yield select(getCurrentWorkspaceId);
-  yield put(fetchingEnvironmentConfigs(workspaceId));
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  // Only fetch if the feature flag allows it
+  if (featureFlags.DATASOURCE_ENVIRONMENTS) {
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    yield put(fetchingEnvironmentConfigs(workspaceId));
+  }
 }
 
 export default function* EnvironmentSagas() {
