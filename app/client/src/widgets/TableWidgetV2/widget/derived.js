@@ -778,12 +778,12 @@ export default {
       ? Object.values(props.primaryColumns)
       : [];
     return columns
+      .sort((a, b) => a.index - b.index)
       .map((column) => ({
         id: column?.id,
         label: column?.label,
         isVisible: column?.isVisible,
-      }))
-      .sort((a, b) => a.index - b.index);
+      }));
   },
   //
 };
