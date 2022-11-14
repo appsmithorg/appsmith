@@ -144,7 +144,7 @@ export type EditorStyleProps = {
  *
  * element => HTML Element that gets added to line
  *
- * isFocusedAction => function called when focused
+ * isFocusedAction => function called when code editor is focused
  */
 export type GutterConfig = {
   line: number;
@@ -157,12 +157,6 @@ export type CodeEditorGutter = {
     | ((editorValue: string, cursorLineNumber: number) => GutterConfig | null)
     | null;
   gutterId: string;
-};
-
-export type CustomKeyMap = {
-  // combination of keys
-  combination: string;
-  onKeyDown: (cm: CodeMirror.Editor) => void;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -381,6 +375,9 @@ class CodeEditor extends Component<Props, State> {
   }, 100);
 
   componentDidUpdate(prevProps: Props): void {
+    if (!isEqual(this.props.lintErrors, prevProps.lintErrors)) {
+      this.lintCode(this.editor);
+    }
     if (
       prevProps.containerHeight &&
       this.props.containerHeight &&
@@ -880,9 +877,6 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
-    /*  Evaluation results for snippet snippets */
-    this.lintCode(this.editor);
-
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
