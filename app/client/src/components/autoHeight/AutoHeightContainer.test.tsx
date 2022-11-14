@@ -5,15 +5,17 @@ import AutoHeightContainer from "./AutoHeightContainer";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
 
+const onHeightUpdate = jest.fn();
+
 describe("<AutoHeightContainer />", () => {
   it("should wrap the children in a div whose height is auto.", async () => {
     const tree = renderer
       .create(
         <AutoHeightContainer
+          isAutoHeightWithLimits={false}
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          isAutoHeightWithLimits={false}
-          onHeightUpdate={() => {}}
+          onHeightUpdate={onHeightUpdate}
         >
           <div data-testid="test" />
         </AutoHeightContainer>,
@@ -26,10 +28,10 @@ describe("<AutoHeightContainer />", () => {
     it("should wrap the children in a simple div with class auto-height-container", async () => {
       const getTestComponent = () => (
         <AutoHeightContainer
+          isAutoHeightWithLimits={false}
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          isAutoHeightWithLimits={false}
-          onHeightUpdate={() => {}}
+          onHeightUpdate={onHeightUpdate}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
@@ -47,10 +49,10 @@ describe("<AutoHeightContainer />", () => {
     it("should wrap the children in a div of class auto-height-container and then a div with class auto-height-scroll-container", async () => {
       const getTestComponent = () => (
         <AutoHeightContainer
+          isAutoHeightWithLimits
           maxDynamicHeight={0}
           minDynamicHeight={0}
-          isAutoHeightWithLimits={true}
-          onHeightUpdate={() => {}}
+          onHeightUpdate={onHeightUpdate}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
