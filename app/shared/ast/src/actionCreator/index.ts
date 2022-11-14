@@ -28,7 +28,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
         CallExpression(node) {
             if (isCallExpressionNode(node) && node.arguments.length > 0) {
                 let argument = node.arguments[argNum];
-                switch (argument.type){
+                switch (argument.type) {
                     case NodeTypes.ObjectExpression:
                         requiredArgument = "{{{}}}";
                         break;
@@ -103,13 +103,10 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
 export const setEnumArgumentAtPosition = (currentValue: string, changeValue: string, argNum: number, evaluationVersion: number): string => {
     let ast: Node = { end: 0, start: 0, type: "" };
     let changedValue: string = currentValue;
-    console.log("*", currentValue, changedValue, argNum);
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
         ast = getAST(sanitizedScript);
-        console.log("*", ast);
     } catch (error) {
-        console.log("*", error, changedValue);
         return changedValue;
     }
 
@@ -119,18 +116,16 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
                 const startPosition = node.callee.end + 1;
                 node.arguments[argNum] = {
                     type: NodeTypes.Literal,
-                    value: `'${changeValue}'`,
-                    raw: String.raw`'${changeValue}'`,
+                    value: `${changeValue}`,
+                    raw: String.raw`${changeValue}`,
                     start: startPosition,
                     // add 2 for quotes
                     end: (startPosition) + (changeValue.length + 2),
                 };
-                console.log("*", node);
                 changedValue = `{{${generate(ast)}}}`;
             }
         },
     });
-    console.log("*", changedValue);
     return changedValue;
 }
 

@@ -49,6 +49,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       let value = dropdownOption.value;
       let defaultParams = "";
       let defaultArgs: Array<any> = [];
+      // TODO - elegant way to write this
       switch (type) {
         case AppsmithFunction.integration:
           value = `${value}.run`;
@@ -70,6 +71,18 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           break;
         case AppsmithFunction.postWindowMessage:
           defaultParams = `'', 'window', '*'`;
+          break;
+        case AppsmithFunction.clearInterval:
+        case AppsmithFunction.copyToClipboard:
+        case AppsmithFunction.removeValue:
+          defaultParams = `''`;
+          break;
+        case AppsmithFunction.download:
+          defaultParams = `'', '', ''`;
+          break;
+        case AppsmithFunction.showAlert:
+        case AppsmithFunction.storeValue:
+          defaultParams = `'', ''`;
           break;
         default:
           break;
