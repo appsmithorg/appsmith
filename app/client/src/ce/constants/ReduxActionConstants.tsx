@@ -3,7 +3,7 @@ import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import {
