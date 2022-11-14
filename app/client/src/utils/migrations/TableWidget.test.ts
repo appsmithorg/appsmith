@@ -7,6 +7,7 @@ import {
   migrateTableWidgetSelectedRowBindings,
   migrateTableSanitizeColumnKeys,
   migrateTableWidgetNumericColumnName,
+  migrateTableWidgetV2ValidationBinding,
 } from "./TableWidget";
 
 const input1: DSLWidget = {
@@ -2588,5 +2589,91 @@ describe("Table Widget numeric column name to string update", () => {
     };
 
     expect(newDsl).toStrictEqual(outputDsl);
+  });
+});
+
+const oldBindingPrefix = `{{
+  (
+    (editedValue, currentRow, currentIndex) => (
+`;
+const newBindingPrefix = `{{
+  (
+    (editedValue, currentRow, currentIndex, isNewRow) => (
+`;
+
+const oldBindingSuffix = (tableId: string, columnName: string) => `
+  ))
+  (
+    ${tableId}.columnEditableCellValue.${columnName} || "",
+    ${tableId}.processedTableData[${tableId}.editableCell.index] ||
+      Object.keys(${tableId}.processedTableData[0])
+        .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
+        .reduce((prev, curr) => {
+          prev[curr] = "";
+          return prev;
+        }, {}),
+    ${tableId}.editableCell.index)
+}}
+`;
+const newBindingSuffix = (tableId: string, columnName: string) => {
+  return `
+    ))
+    (
+      (${tableId}.isAddRowInProgress ? ${tableId}.newRow.${columnName} : ${tableId}.columnEditableCellValue.${columnName}) || "",
+      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+        Object.keys(${tableId}.processedTableData[0])
+          .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
+          .reduce((prev, curr) => {
+            prev[curr] = "";
+            return prev;
+          }, {})),
+      ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
+      ${tableId}.isAddRowInProgress
+    )
+  }}
+  `;
+};
+
+describe("migrateTableWidgetV2ValidationBinding", () => {
+  const binding = "true";
+
+  it("should test that binding of isColumnEditableCellValid is getting updated", () => {
+    expect(
+      migrateTableWidgetV2ValidationBinding(({
+        children: [
+          {
+            widgetName: "Table",
+            type: "TABLE_WIDGET_V2",
+            primaryColumns: {
+              step: {
+                validation: {
+                  isColumnEditableCellValid: `${oldBindingPrefix}${binding}${oldBindingSuffix(
+                    "Table",
+                    "step",
+                  )}`,
+                },
+              },
+            },
+          },
+        ],
+      } as any) as DSLWidget),
+    ).toEqual({
+      children: [
+        {
+          widgetName: "Table",
+          type: "TABLE_WIDGET_V2",
+          primaryColumns: {
+            step: {
+              validation: {
+                isColumnEditableCellValid: `${newBindingPrefix}${binding}${newBindingSuffix(
+                  "Table",
+                  "step",
+                )}`,
+              },
+            },
+          },
+        },
+      ],
+    });
   });
 });

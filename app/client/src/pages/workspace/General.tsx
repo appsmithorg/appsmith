@@ -4,7 +4,7 @@ import {
   deleteWorkspaceLogo,
   saveWorkspace,
   uploadWorkspaceLogo,
-} from "actions/workspaceActions";
+} from "@appsmith/actions/workspaceActions";
 import { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
 import { debounce } from "lodash";
 import { TextInput, emailValidator, notEmptyValidator } from "design-system";

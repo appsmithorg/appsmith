@@ -3268,6 +3268,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-page-visibility@^6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@types/react-page-visibility/-/react-page-visibility-6.4.1.tgz#21c3bc4a3f310d38d188916cadc55f2bde65f27d"
+  integrity sha512-vNlYAqKhB2SU1HmF9ARFTFZN0NSPzWn8HSjBpFqYuQlJhsb/aSYeIZdygeqfSjAg0PZ70id2IFWHGULJwe59Aw==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@^7.0.1":
   version "7.1.9"
   resolved "https://registry.npmjs.org/@types/react-redux/-/react-redux-7.1.9.tgz"
@@ -12854,6 +12861,13 @@ react-modal@^3.15.1:
     prop-types "^15.7.2"
     react-lifecycles-compat "^3.0.0"
     warning "^4.0.3"
+
+react-page-visibility@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/react-page-visibility/-/react-page-visibility-7.0.0.tgz#13dfe604790d061e70b900038bad1ca769a36cbc"
+  integrity sha512-d4Kq/8TtJSr8dQc8EJeAZcSKTrGzC5OPTm6UrMur9BnwP0fgTawI9+Nd+ZGB7vwCfn2yZS0qDF9DR3/QYTGazw==
+  dependencies:
+    prop-types "^15.7.2"
 
 react-paginating@^1.4.0:
   version "1.4.0"

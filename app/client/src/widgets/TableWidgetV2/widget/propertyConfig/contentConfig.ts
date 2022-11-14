@@ -349,6 +349,84 @@ export default [
     ],
   },
   {
+    sectionName: "Adding a row",
+    children: [
+      {
+        propertyName: "allowAddNewRow",
+        helpText: "Enables adding a new row",
+        isJSConvertible: true,
+        label: "Allow adding a row",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        propertyName: "onAddNewRowSave",
+        helpText:
+          "Triggers an action when a add new row save button is clicked",
+        label: "onSave",
+        controlType: "ACTION_SELECTOR",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow", "primaryColumns"],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: (props: TableWidgetProps) => {
+          const newRow: Record<string, unknown> = {};
+
+          if (props.primaryColumns) {
+            Object.values(props.primaryColumns)
+              .filter((column) => !column.isDerived)
+              .forEach((column) => {
+                newRow[column.alias] = "";
+              });
+          }
+
+          return {
+            newRow,
+          };
+        },
+      },
+      {
+        propertyName: "onAddNewRowDiscard",
+        helpText:
+          "Triggers an action when a add new row discard button is clicked",
+        label: "onDiscard",
+        controlType: "ACTION_SELECTOR",
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        dependencies: ["allowAddNewRow"],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
+      {
+        propertyName: "defaultNewRow",
+        helpText: "Default new row values",
+        label: "Default Values",
+        controlType: "INPUT_TEXT",
+        dependencies: ["allowAddNewRow"],
+        hidden: (props: TableWidgetProps) => {
+          return !props.allowAddNewRow;
+        },
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            default: {},
+          },
+        },
+      },
+    ],
+  },
+  {
     sectionName: "General",
     children: [
       {
