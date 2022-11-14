@@ -215,6 +215,8 @@ export const getAST = memoize((code: string, options?: AstOptions) =>
   parse(code, { ...options, ecmaVersion: ECMA_VERSION })
 );
 
+export const getUnMemoisedAST = (code: string, options?: AstOptions) => parse(code, { ...options, ecmaVersion: ECMA_VERSION });
+
 /**
  * An AST based extractor that fetches all possible references in a given
  * piece of code. We use this to get any references to the global entities in Appsmith
