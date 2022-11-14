@@ -6,7 +6,7 @@ const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("MaintainContext&Focus", function() {
-  it("Import the test application", () => {
+  it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
@@ -27,7 +27,8 @@ describe("MaintainContext&Focus", function() {
       }
     });
   });
-  it("Focus on different entities", () => {
+
+  it("2. Focus on different entities", () => {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
     cy.SearchEntityandOpen("Text1");
@@ -79,7 +80,8 @@ describe("MaintainContext&Focus", function() {
     );
     cy.wait("@saveAction");
   });
-  it("Maintains focus on the property pane", () => {
+
+  it("3. Maintains focus on the property pane", () => {
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
@@ -88,7 +90,8 @@ describe("MaintainContext&Focus", function() {
       line: 0,
     });
   });
-  it("Maintains focus on Api Pane", () => {
+
+  it("4. Maintains focus on Api Pane", () => {
     cy.SearchEntityandOpen("Graphql_Query");
     cy.contains(".react-tabs__tab", "Body").should(
       "have.class",
@@ -106,7 +109,8 @@ describe("MaintainContext&Focus", function() {
     );
     cy.assertCursorOnCodeInput(apiwidget.headerValue);
   });
-  it("Maintains focus on Query panes", () => {
+
+  it("5. Maintains focus on Query panes", () => {
     cy.SearchEntityandOpen("SQL_Query");
     cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
       ch: 5,
@@ -123,7 +127,8 @@ describe("MaintainContext&Focus", function() {
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
   });
-  it("Maintains focus on JS Objects", () => {
+
+  it("6. Maintains focus on JS Objects", () => {
     cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 4, line: 4 });
 

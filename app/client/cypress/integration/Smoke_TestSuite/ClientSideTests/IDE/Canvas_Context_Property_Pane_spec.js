@@ -24,7 +24,7 @@ describe("Canvas context Property Pane", function() {
     agHelper.RefreshPage();
   });
 
-  it("Code Editor should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("1. Code Editor should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector = ".t--property-control-label";
     verifyPropertyPaneContext(
       () => {
@@ -36,7 +36,7 @@ describe("Canvas context Property Pane", function() {
     );
   });
 
-  it("Action Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("2. Action Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector =
       ".t--property-control-onclick .t--open-dropdown-Select-Action";
     verifyPropertyPaneContext(
@@ -49,7 +49,7 @@ describe("Canvas context Property Pane", function() {
     );
   });
 
-  it("Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("3. Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector = `.t--property-control-animateloading input[type="checkbox"]`;
     verifyPropertyPaneContext(
       () => {
@@ -61,7 +61,7 @@ describe("Canvas context Property Pane", function() {
     );
   });
 
-  it("DropDown Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("4. DropDown Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
     const propertyControlVerifySelector =
       ".t--property-control-googlerecaptchaversion .ur--has-border";
@@ -78,7 +78,7 @@ describe("Canvas context Property Pane", function() {
     );
   });
 
-  it("Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("5. Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlClickSelector = `.t--property-control-borderradius div[aria-selected="true"]`;
     const propertyControlVerifySelector = `.t--property-control-borderradius div[role="tablist"]`;
     verifyPropertyPaneContext(
@@ -92,7 +92,7 @@ describe("Canvas context Property Pane", function() {
     );
   });
 
-  it("ColorPicker Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
+  it("6. ColorPicker Property controls should have focus while switching between widgets, pages and Editor Panes", function() {
     const propertyControlSelector = `.t--property-control-buttoncolor input[type="text"]`;
     verifyPropertyPaneContext(
       () => {
@@ -105,7 +105,7 @@ describe("Canvas context Property Pane", function() {
     );
   });
 
-  it("Property Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+  it("7. Property Sections should retain state while switching between widgets, pages and Editor Panes", function() {
     const propertySectionState = {
       basic: false,
       general: true,
@@ -123,7 +123,7 @@ describe("Canvas context Property Pane", function() {
     );
   });
 
-  it("Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function() {
+  it("8. Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function() {
     const propertySectionState = {
       general: true,
       icon: false,
