@@ -265,7 +265,7 @@ public class LayoutActionServiceTest {
 
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 .flatMap(savedAction -> layoutActionService.deleteUnpublishedAction(savedAction.getId())) // Delete action
                 .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false)); // Get page info
@@ -328,7 +328,7 @@ public class LayoutActionServiceTest {
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(unreferencedAction))
                 .flatMap(savedAction -> {
@@ -338,7 +338,7 @@ public class LayoutActionServiceTest {
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
                 .flatMap(savedAction -> {
@@ -350,7 +350,7 @@ public class LayoutActionServiceTest {
                     updates.setUserPermissions(null);
                     updates.setDatasource(d2);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 // fetch the unpublished page
                 .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
@@ -492,7 +492,7 @@ public class LayoutActionServiceTest {
                     ds.setPluginId(datasource.getPluginId());
                     updates.setDatasource(ds);
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 });
 
         StepVerifier
@@ -758,7 +758,7 @@ public class LayoutActionServiceTest {
 
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 }).block();
         ActionDTO createdAction3 = layoutActionService.createSingleAction(action3)
                 .flatMap(savedAction -> {
@@ -769,7 +769,7 @@ public class LayoutActionServiceTest {
 
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService.updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsGivenAction(updatedAction.getPageId()).thenReturn(updatedAction));
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 }).block();
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);

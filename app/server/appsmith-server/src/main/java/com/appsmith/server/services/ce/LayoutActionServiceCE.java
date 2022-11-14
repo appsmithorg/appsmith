@@ -24,7 +24,7 @@ public interface LayoutActionServiceCE {
 
     Mono<ActionDTO> updateSingleAction(String id, ActionDTO action);
 
-    Mono<String> updatePageLayoutsGivenAction(String pageId);
+    Mono<String> updatePageLayoutsByPageId(String pageId);
 
     Mono<ActionDTO> updateSingleActionWithBranchName(String id, ActionDTO action, String branchName);
 
