@@ -266,7 +266,7 @@ function updateMinMaxDynamicHeight(
         propertyValue: props.topRow,
       });
     }
-    if (props.shouldScrollContents === false) {
+    if (!props.shouldScrollContents) {
       updates.push({
         propertyPath: "shouldScrollContents",
         propertyValue: true,

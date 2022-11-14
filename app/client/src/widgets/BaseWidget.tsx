@@ -46,9 +46,9 @@ import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
-import DynamicHeightContainer from "./DynamicHeightContainer";
 import { CSSProperties } from "styled-components";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { DynamicHeightContainerWrapper } from "./DynamicHeightContainerWrapper";
 
 /***
  * BaseWidget
@@ -209,6 +209,7 @@ abstract class BaseWidget<
         this.props.widgetName,
         height,
         shouldUpdate,
+        this.props.isCanvas,
       );
       const paddedHeight = height + WIDGET_PADDING * 2;
 
@@ -225,6 +226,7 @@ abstract class BaseWidget<
     );
 
     const canWidgetCollapse = false;
+    if (this.props.isCanvas) return false;
 
     // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
     // then we need to compute.
@@ -504,35 +506,17 @@ abstract class BaseWidget<
 
     if (renderMode === RenderModes.CANVAS) {
       return this.getCanvasView();
-    } else {
-      if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
-        return this.addDynamicHeightContainer(this.getPageView());
-      }
-
-      return this.getPageView();
     }
-  };
-
-  addDynamicHeightContainer = (content: ReactNode) => {
-    const onHeightUpdate = (height: number) => {
-      requestAnimationFrame(() => {
-        this.updateDynamicHeight(height);
-      });
-    };
-
-    const maxDynamicHeight = getWidgetMaxDynamicHeight(this.props);
-    const minDynamicHeight = getWidgetMinDynamicHeight(this.props);
-
-    return (
-      <DynamicHeightContainer
-        dynamicHeight={this.props.dynamicHeight}
-        maxDynamicHeight={maxDynamicHeight}
-        minDynamicHeight={minDynamicHeight}
-        onHeightUpdate={onHeightUpdate}
-      >
-        {content}
-      </DynamicHeightContainer>
-    );
+    if (isDynamicHeightEnabledForWidget(this.props)) {
+      return (
+        <DynamicHeightContainerWrapper
+          onUpdateDynamicHeight={this.updateDynamicHeight}
+          widgetProps={this.props}
+        >
+          {this.getPageView()}
+        </DynamicHeightContainerWrapper>
+      );
+    }
   };
 
   private getWidgetView(): ReactNode {
@@ -582,7 +566,14 @@ abstract class BaseWidget<
   getCanvasView(): ReactNode {
     let content = this.getPageView();
     if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
-      content = this.addDynamicHeightContainer(content);
+      content = (
+        <DynamicHeightContainerWrapper
+          onUpdateDynamicHeight={this.updateDynamicHeight}
+          widgetProps={this.props}
+        >
+          {content}
+        </DynamicHeightContainerWrapper>
+      );
     }
     return this.addErrorBoundary(content);
   }
