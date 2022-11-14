@@ -19,14 +19,14 @@ import log from "loglevel";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Location } from "history";
-import history, { AppsmithLocationState } from "utils/history";
+import { AppsmithLocationState } from "utils/history";
 
 let previousPath: string;
 let previousHash: string | undefined;
 
-history.listen((...args: any[]) => {
-  console.log("location", args);
-});
+// history.listen((...args: any[]) => {
+//   console.log("location", args);
+// });
 
 function* handleRouteChange(
   action: ReduxAction<Location<AppsmithLocationState>>,
@@ -145,7 +145,6 @@ function shouldSetState(
   currHash?: string,
   state?: AppsmithLocationState,
 ) {
-  debugger;
   if (state && state.directNavigation) return true;
   const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
   const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
