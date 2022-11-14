@@ -1,4 +1,4 @@
-import {getAST, isCallExpressionNode, LiteralNode} from "../index";
+import {getUnMemoisedAST, isCallExpressionNode, LiteralNode} from "../index";
 import {sanitizeScript} from "../utils";
 import {simple} from "acorn-walk";
 import {Node} from "acorn";
@@ -19,7 +19,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = getAST(wrappedCode);
+        ast = getUnMemoisedAST(wrappedCode);
     } catch (error) {
         return requiredArgument;
     }
@@ -50,7 +50,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: str
     let changedValue: string = currentValue;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = getAST(sanitizedScript);
+        ast = getUnMemoisedAST(sanitizedScript);
     } catch (error) {
         return changedValue;
     }
@@ -80,7 +80,7 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = getAST(wrappedCode);
+        ast = getUnMemoisedAST(wrappedCode);
     } catch (error) {
         return defaultValue;
     }
@@ -105,7 +105,7 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     let changedValue: string = currentValue;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = getAST(sanitizedScript);
+        ast = getUnMemoisedAST(sanitizedScript);
     } catch (error) {
         return changedValue;
     }
@@ -135,7 +135,7 @@ export const getModalName = (value: string, evaluationVersion: number): string =
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = getAST(wrappedCode);
+        ast = getUnMemoisedAST(wrappedCode);
     } catch (error) {
         return modalName;
     }
@@ -160,7 +160,7 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
     let changedValue: string = currentValue;
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = getAST(sanitizedScript);
+        ast = getUnMemoisedAST(sanitizedScript);
     } catch (error) {
         return changedValue;
     }
