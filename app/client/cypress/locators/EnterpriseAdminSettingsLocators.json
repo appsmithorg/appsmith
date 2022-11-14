@@ -1,6 +1,5 @@
 {
   "upgradeSamlButton": ".t--settings-sub-category-upgrade-saml",
   "upgradeOidcButton": ".t--settings-sub-category-upgrade-oidc",
-  "hideAppsmithWatermarkSetting": ".admin-settings-group-APPSMITH_HIDE_WATERMARK",
-  "embedSettings": ".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS"
+  "hideAppsmithWatermarkSetting": ".admin-settings-group-APPSMITH_HIDE_WATERMARK"
 }

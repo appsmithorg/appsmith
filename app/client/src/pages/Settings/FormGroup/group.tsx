@@ -72,8 +72,7 @@ const GroupBody = styled.div`
     }
 
     .tag-input .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-      border: 1.2px solid ${Colors.GRAY_400};
-      border-color: var(--appsmith-color-black-900);
+      border: 1.2px solid var(--appsmith-color-black-900);
     }
   }
 `;
