@@ -3346,15 +3346,15 @@ describe("Validate tableHeaders function", () => {
       getTableHeaders({
         primaryColumns: {
           undefined: {
-            index: 0,
             id: "some value",
+            label: "some value",
             isVisible: true,
           },
         },
       }),
     ).toEqual([
       {
-        id: "#1",
+        id: "some value",
         label: "some value",
         isVisible: true,
       },
@@ -3366,15 +3366,15 @@ describe("Validate tableHeaders function", () => {
       getTableHeaders({
         primaryColumns: {
           null: {
-            index: 0,
             id: "some value",
+            label: "some value",
             isVisible: true,
           },
         },
       }),
     ).toEqual([
       {
-        id: "#1",
+        id: "some value",
         label: "some value",
         isVisible: true,
       },
@@ -3390,9 +3390,9 @@ describe("Validate tableHeaders function", () => {
       }),
     ).toEqual([
       {
-        id: "",
-        label: "",
-        isVisible: "",
+        id: undefined,
+        label: undefined,
+        isVisible: undefined,
       },
     ]);
   });
@@ -3406,9 +3406,9 @@ describe("Validate tableHeaders function", () => {
       }),
     ).toEqual([
       {
-        id: "",
-        label: "",
-        isVisible: "",
+        id: undefined,
+        label: undefined,
+        isVisible: undefined,
       },
     ]);
   });
@@ -3422,9 +3422,9 @@ describe("Validate tableHeaders function", () => {
       }),
     ).toEqual([
       {
-        id: "",
-        label: "",
-        isVisible: "",
+        id: undefined,
+        label: undefined,
+        isVisible: undefined,
       },
     ]);
   });
@@ -3434,16 +3434,16 @@ describe("Validate tableHeaders function", () => {
       getTableHeaders({
         primaryColumns: {
           null: {
-            index: 0,
-            id: undefined,
+            id: "some value",
+            label: undefined,
             isVisible: true,
           },
         },
       }),
     ).toEqual([
       {
-        id: "#1",
-        label: "",
+        id: "some value",
+        label: undefined,
         isVisible: true,
       },
     ]);
@@ -3454,16 +3454,16 @@ describe("Validate tableHeaders function", () => {
       getTableHeaders({
         primaryColumns: {
           null: {
-            index: 0,
-            id: null,
+            id: "some value",
+            label: null,
             isVisible: true,
           },
         },
       }),
     ).toEqual([
       {
-        id: "#1",
-        label: "",
+        id: "some value",
+        label: null,
         isVisible: true,
       },
     ]);

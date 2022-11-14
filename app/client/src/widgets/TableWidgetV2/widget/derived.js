@@ -779,15 +779,11 @@ export default {
       : [];
     return columns
       .map((column) => ({
-        id: column
-          ? column.index !== undefined && column.index !== null
-            ? `#${Number(column.index) + 1}`
-            : ""
-          : "",
-        label: column?.id ? column.id : "",
-        isVisible: column?.isVisible ? column.isVisible : "",
+        id: column?.id,
+        label: column?.label,
+        isVisible: column?.isVisible,
       }))
-      .sort((a, b) => (a.id < b.id ? -1 : 1));
+      .sort((a, b) => a.index - b.index);
   },
   //
 };
