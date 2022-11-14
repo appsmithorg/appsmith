@@ -9,6 +9,7 @@ import EnvironmentApi from "@appsmith/api/EnvironmentApi";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 
+// Saga to handle fetching the environment configs
 function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
   try {
     const response: ApiResponse = yield call(
@@ -37,6 +38,7 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
   }
 }
 
+// function to fetch workspace id and start fetching the envs
 function* fetchWorkspaceIdandInitSaga() {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   yield put(fetchingEnvironmentConfigs(workspaceId));
@@ -52,10 +54,5 @@ export default function* EnvironmentSagas() {
       ReduxActionTypes.FETCH_ENVIRONMENT_INIT,
       FetchEnvironmentsInitSaga,
     ),
-    // debounce(
-    //   1,
-    //   ReduxActionTypes.FETCH_ENVIRONMENT_INIT,
-    //   FetchEnvironmentsInitSaga,
-    // ),
   ]);
 }

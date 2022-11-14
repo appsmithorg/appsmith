@@ -4,6 +4,7 @@ class EnvironmentApi extends Api {
   static environmentsUrl = "v1/environments";
   static fetchEnvByWorkspaceIdUrl = "/workspaces";
 
+  // endpoint to fetch the env and env variables
   static fetchEnvironmentConfigs(workspaceId: string) {
     const url =
       EnvironmentApi.environmentsUrl +
