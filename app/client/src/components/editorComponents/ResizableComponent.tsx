@@ -183,7 +183,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     // False, if none of the rows and cols have changed.
     const newRowCols: WidgetRowCols | false = computeFinalRowCols(
       delta,
-      position,
+      props.isFlexChild ? { x: 0, y: position.y } : position,
       props,
     );
 

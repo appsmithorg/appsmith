@@ -83,15 +83,6 @@ export const useAutoLayoutHighlights = ({
   };
 
   const cleanUpTempStyles = () => {
-    // reset display of all dragged blocks
-    const els = document.querySelectorAll(`.auto-layout-parent-${canvasId}`);
-    if (els && els.length) {
-      els.forEach((el) => {
-        (el as any).classList.remove("auto-temp-no-display");
-        (el as any).style.transform = null;
-      });
-    }
-
     // reset state
     lastActiveHighlight = undefined;
     expandedNewLayer = undefined;
