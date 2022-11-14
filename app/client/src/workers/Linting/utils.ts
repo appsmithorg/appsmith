@@ -161,17 +161,11 @@ function lintBindingPath(
 
   if (isJSAction(entity)) {
     if (!entity.body) return lintErrors;
-    const codeLen = entity.body.length;
-    let firstLineBreakIndex = 0;
-    for (; firstLineBreakIndex < codeLen; firstLineBreakIndex++) {
-      if (entity.body[firstLineBreakIndex] === "\n") break;
-    }
-    const firstLine = entity.body.slice(0, firstLineBreakIndex);
-    if (!firstLine || !firstLine.startsWith(JS_OBJECT_START_STATEMENT)) {
+    if (!entity.body.startsWith(JS_OBJECT_START_STATEMENT)) {
       return lintErrors.concat([
         {
           errorType: PropertyEvaluationErrorType.LINT,
-          errorSegment: firstLine,
+          errorSegment: "",
           originalBinding: entity.body,
           line: 0,
           ch: 0,
