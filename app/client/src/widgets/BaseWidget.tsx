@@ -200,8 +200,8 @@ abstract class BaseWidget<
   */
   updateDynamicHeight(height: number): void {
     const shouldUpdate = this.shouldUpdateDynamicHeight(height);
-    const { updateWidgetDynamicHeight } = this.context;
-    if (updateWidgetDynamicHeight) {
+    const { updateWidgetAutoHeight } = this.context;
+    if (updateWidgetAutoHeight) {
       const { widgetId } = this.props;
       log.debug(
         "updateDynamicHeight: computing debounced:",
@@ -212,7 +212,7 @@ abstract class BaseWidget<
       );
       const paddedHeight = height + WIDGET_PADDING * 2;
 
-      shouldUpdate && updateWidgetDynamicHeight(widgetId, paddedHeight);
+      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
     }
   }
 
@@ -461,9 +461,7 @@ abstract class BaseWidget<
       });
       this.batchUpdateWidgetProperty({
         modify: modifyObj,
-        postUpdateActions: [
-          ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
-        ],
+        postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
       });
     };
 

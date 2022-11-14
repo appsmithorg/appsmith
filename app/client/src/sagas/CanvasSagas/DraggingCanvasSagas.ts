@@ -27,10 +27,10 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -152,7 +152,7 @@ function* addWidgetAndMoveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
-    yield put(generateDynamicHeightComputationTree(true, true));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [newWidget.newWidgetId],
@@ -306,7 +306,7 @@ function* moveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
-    yield put(generateDynamicHeightComputationTree(true, true));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     const block = draggedBlocksToUpdate[0];
     const oldParentId = block.updateWidgetParams.payload.parentId;

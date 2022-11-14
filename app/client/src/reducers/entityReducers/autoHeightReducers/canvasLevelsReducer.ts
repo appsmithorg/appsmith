@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { DynamicHeightLayoutTreePayload } from "./dynamicHeightLayoutTreeReducer";
+import { AutoHeightLayoutTreePayload } from "./autoHeightLayoutTreeReducer";
 
 export type CanvasLevelsPayload = Record<string, number>;
 
@@ -14,9 +14,9 @@ export type CanvasLevelsReduxState = {
 const initialState: CanvasLevelsReduxState = {};
 
 const canvasLevelsReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_DYNAMIC_HEIGHT_LAYOUT_TREE]: (
+  [ReduxActionTypes.SET_AUTO_HEIGHT_LAYOUT_TREE]: (
     state: CanvasLevelsReduxState,
-    action: ReduxAction<DynamicHeightLayoutTreePayload>,
+    action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { canvasLevelMap } = action.payload;
     for (const widgetId in canvasLevelMap) {

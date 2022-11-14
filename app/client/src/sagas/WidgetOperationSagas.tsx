@@ -142,8 +142,8 @@ import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
-import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -246,7 +246,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(movedWidgets));
-    yield put(generateDynamicHeightComputationTree(true, true));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -1705,7 +1705,7 @@ function* pasteWidgetSaga(
     type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
     payload: newlyCreatedWidgetIds,
   });
-  yield put(generateDynamicHeightComputationTree(true, true));
+  yield put(generateAutoHeightLayoutTreeAction(true, true));
 
   //if pasting at the bottom of the canvas, then flash it.
   if (shouldGroup || !newPastingPositionMap) {

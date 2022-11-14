@@ -120,13 +120,13 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
-import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
 import { showModal } from "actions/widgetActions";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -263,7 +263,7 @@ export function* handleFetchedPage({
 
     // Since new page has new layout, we need to generate a data structure
     // to compute dynamic height based on the new layout.
-    yield put(generateDynamicHeightComputationTree(true, true));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     if (willPageBeMigrated) {
       yield put(saveLayout());
@@ -356,7 +356,7 @@ export function* fetchPublishedPageSaga(
 
       // Since new page has new layout, we need to generate a data structure
       // to compute dynamic height based on the new layout.
-      yield put(generateDynamicHeightComputationTree(true, true));
+      yield put(generateAutoHeightLayoutTreeAction(true, true));
 
       /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
        */

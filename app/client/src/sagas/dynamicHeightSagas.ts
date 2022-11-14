@@ -2,13 +2,8 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { setDynamicHeightLayoutTree } from "actions/canvasActions";
 import { UpdateWidgetDynamicHeightPayload } from "actions/controlActions";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
-import {
-  checkContainersForDynamicHeightUpdate,
-  generateDynamicHeightComputationTree,
-} from "actions/dynamicHeightActions";
 import {
   CANVAS_MIN_HEIGHT,
   GridDefaults,
@@ -20,8 +15,6 @@ import {
   CanvasWidgetsReduxState,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { CanvasLevelsReduxState } from "reducers/entityReducers/dynamicHeightReducers/canvasLevelsReducer";
-import { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 import {
   all,
   put,
@@ -37,7 +30,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   getCanvasLevelMap,
-  getDynamicHeightLayoutTree,
+  getAutoHeightLayoutTree,
 } from "selectors/widgetReflowSelectors";
 import {
   computeChangeInPositionBasedOnDelta,
@@ -54,6 +47,13 @@ import { getWidgetMetaProps, getWidgets } from "./selectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
+import {
+  checkContainersForAutoHeightAction,
+  generateAutoHeightLayoutTreeAction,
+  setAutoHeightLayoutTreeAction,
+} from "actions/autoHeightActions";
+import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
+import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 
 export function* getMinHeightBasedOnChildren(
   widgetId: string,
@@ -62,8 +62,8 @@ export function* getMinHeightBasedOnChildren(
   let minHeightInRows = 0;
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
-    getDynamicHeightLayoutTree,
+  const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
+    getAutoHeightLayoutTree,
   );
   const { children = [] } = stateWidgets[widgetId];
   // For each child widget id.
@@ -308,8 +308,8 @@ export function* updateWidgetDynamicHeightSaga() {
     }
 
     // Get the tree data structure we will be using to compute updates
-    const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
-      getDynamicHeightLayoutTree,
+    const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
+      getAutoHeightLayoutTree,
     );
 
     // Initialise a list of changes so far.
@@ -675,7 +675,7 @@ export function* updateWidgetDynamicHeightSaga() {
     // as we don't need to trigger an eval
     yield put(updateMultipleWidgetProperties(widgetsToUpdate));
     dynamicHeightUpdateWidgets = {};
-    yield put(generateDynamicHeightComputationTree(false, false));
+    yield put(generateAutoHeightLayoutTreeAction(false, false));
   }
 
   log.debug(
@@ -697,7 +697,7 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
     dynamicHeightUpdateWidgets[widgetId] = height;
     if (isLayoutUpdating) return;
     yield put({
-      type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
+      type: ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
       payload: dynamicHeightUpdateWidgets,
     });
   }
@@ -720,7 +720,7 @@ function* generateTreeForDynamicHeightComputations(
   // widget positions and sizes
   let tree: Record<string, TreeNode> = {};
   const previousTree: Record<string, TreeNode> = yield select(
-    getDynamicHeightLayoutTree,
+    getAutoHeightLayoutTree,
   );
   for (const canvasWidgetId in occupiedSpaces) {
     if (occupiedSpaces[canvasWidgetId].length > 0) {
@@ -733,15 +733,15 @@ function* generateTreeForDynamicHeightComputations(
     }
   }
 
-  yield put(setDynamicHeightLayoutTree(tree, canvasLevelMap));
+  yield put(setAutoHeightLayoutTreeAction(tree, canvasLevelMap));
   const { shouldCheckContainersForDynamicHeightUpdates } = action.payload;
 
   if (shouldCheckContainersForDynamicHeightUpdates) {
     yield put({
-      type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
+      type: ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
       payload: dynamicHeightUpdateWidgets,
     });
-    yield put(checkContainersForDynamicHeightUpdate());
+    yield put(checkContainersForAutoHeightAction());
   }
   // TODO IMPLEMENT:(abhinav): Push this analytics to sentry|segment?
   log.debug(
@@ -762,8 +762,8 @@ export function* dynamicallyUpdateContainersSaga() {
     getCanvasLevelMap,
   );
 
-  const dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState = yield select(
-    getDynamicHeightLayoutTree,
+  const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
+    getAutoHeightLayoutTree,
   );
 
   const groupedByCanvasLevel = groupBy(
@@ -871,7 +871,7 @@ export function* dynamicallyUpdateContainersSaga() {
     // TODO(abhinav): Make sure there are no race conditions or scenarios where these updates are not considered.
     for (const widgetId in updates) {
       yield put({
-        type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
+        type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
         payload: {
           widgetId,
           height: updates[widgetId],
@@ -885,22 +885,22 @@ export default function* widgetOperationSagas() {
   yield all([
     // TODO: DEBUG(abhinav): Is takeEvery the right way?
     takeEvery(
-      ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
+      ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
       batchCallsToUpdateWidgetDynamicHeightSaga,
     ),
     debounce(
       100,
-      ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
+      ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
       updateWidgetDynamicHeightSaga,
     ),
     takeLatest(
       [
-        ReduxActionTypes.GENERATE_DYNAMIC_HEIGHT_COMPUTATION_TREE, // add, move, paste, cut, delete, undo/redo
+        ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       ],
       generateTreeForDynamicHeightComputations,
     ),
     takeLatest(
-      ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+      ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
       dynamicallyUpdateContainersSaga,
     ),
   ]);

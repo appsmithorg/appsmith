@@ -356,7 +356,7 @@ export const PropertyPaneConfigTemplates: Record<
           value: DynamicHeight.FIXED,
         },
       ],
-      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT],
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
     },
     {
       propertyName: "minDynamicHeight",
@@ -390,7 +390,7 @@ export const PropertyPaneConfigTemplates: Record<
           },
         },
       },
-      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT],
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
     },
     {
       propertyName: "maxDynamicHeight",
@@ -424,7 +424,7 @@ export const PropertyPaneConfigTemplates: Record<
       isJSConvertible: false,
       isBindProperty: true,
       isTriggerProperty: false,
-      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT],
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
     },
   ],
 };

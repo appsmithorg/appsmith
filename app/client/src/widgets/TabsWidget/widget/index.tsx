@@ -173,7 +173,7 @@ class TabsWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
             postUpdateActions: [
-              ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+              ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
             ],
           },
         ],
@@ -270,8 +270,8 @@ class TabsWidget extends BaseWidget<
   }
 
   callDynamicHeightUpdates = () => {
-    const { checkContainersForDynamicHeight } = this.context;
-    checkContainersForDynamicHeight && checkContainersForDynamicHeight();
+    const { checkContainersForAutoHeight } = this.context;
+    checkContainersForAutoHeight && checkContainersForAutoHeight();
   };
 
   onTabChange = (tabWidgetId: string) => {

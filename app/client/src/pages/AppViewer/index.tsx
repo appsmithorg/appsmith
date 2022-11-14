@@ -33,7 +33,6 @@ import BrandingBadge from "./BrandingBadge";
 import {
   BatchPropertyUpdatePayload,
   batchUpdateWidgetProperty,
-  updateWidgetDynamicHeightAction,
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
@@ -45,7 +44,11 @@ import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { checkContainersForDynamicHeightUpdate } from "actions/dynamicHeightActions";
+
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -229,11 +232,11 @@ function AppViewer(props: Props) {
     [triggerEvalOnMetaUpdate, dispatch],
   );
 
-  const updateWidgetDynamicHeightCallback = useCallback(
+  const updateWidgetAutoHeightCallback = useCallback(
     (widgetId: string, height: number) => {
-      dispatch(updateWidgetDynamicHeightAction(widgetId, height));
+      dispatch(updateWidgetAutoHeightAction(widgetId, height));
     },
-    [updateWidgetDynamicHeightAction, dispatch],
+    [updateWidgetAutoHeightAction, dispatch],
   );
 
   return (
@@ -245,8 +248,8 @@ function AppViewer(props: Props) {
           batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
           syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
           triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
-          updateWidgetDynamicHeight: updateWidgetDynamicHeightCallback,
-          checkContainersForDynamicHeight: checkContainersForDynamicHeightUpdate,
+          updateWidgetAutoHeight: updateWidgetAutoHeightCallback,
+          checkContainersForAutoHeight: checkContainersForAutoHeightAction,
         }}
       >
         <WidgetGlobaStyles
