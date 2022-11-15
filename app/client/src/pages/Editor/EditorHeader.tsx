@@ -51,8 +51,8 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
-import { fetchUsersForWorkspace } from "actions/workspaceActions";
-import { WorkspaceUser } from "constants/workspaceConstants";
+import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
