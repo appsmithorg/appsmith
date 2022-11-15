@@ -354,9 +354,6 @@ class CodeEditor extends Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
-    if (this.props.lintErrors !== nextProps.lintErrors)
-      return this.state.isFocused || nextState.isFocused;
-
     if (this.props.dynamicData !== nextProps.dynamicData) {
       // check if isFocused or isJSObject or areErrors changed then re-render
       let areErrorsEqual = true;
