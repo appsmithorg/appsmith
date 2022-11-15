@@ -87,17 +87,20 @@ const StyledIcon = styled(Icon)`
 type PropertySectionProps = {
   id: string;
   name: string;
+  childCount: number;
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
-  hidden?: boolean;
+  className?: string;
+  // hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
   tag?: string;
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
-  return prev.id === next.id && prev.hidden === next.hidden;
+  return prev.id === next.id && prev.childCount === next.childCount;
+  // return false;
 };
 
 //Context is being provided to re-render anything that subscribes to this context on open and close
@@ -127,16 +130,20 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   }, []);
 
   if (!widgetProps) return null;
-  if (props.hidden) {
-    return null;
-  }
+  // if (props.hidden) {
+  //   if (props.hidden(widgetProps, props.propertyPath || "")) {
+  //     return null;
+  //   }
+  // }
 
   const className = props.name
     .split(" ")
     .join("")
     .toLowerCase();
   return (
-    <SectionWrapper className="t--property-pane-section-wrapper">
+    <SectionWrapper
+      className={`t--property-pane-section-wrapper ${props.className}`}
+    >
       <SectionTitleWrapper
         className={`t--property-pane-section-collapse-${className} flex items-center`}
         onClick={handleSectionTitleClick}

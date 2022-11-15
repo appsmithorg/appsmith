@@ -200,6 +200,89 @@ class SearchWidget extends BaseWidget<SearchWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Section Ten",
+        children: [
+          {
+            sectionName: "Sub Section One",
+            children: [
+              {
+                propertyName: "name",
+                label: "Property Text One",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+              {
+                propertyName: "name",
+                label: "Text Property Two",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+              {
+                propertyName: "name",
+                label: "Property Three",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+            ],
+          },
+          {
+            sectionName: "Sub Section Two Text",
+            children: [
+              {
+                propertyName: "name",
+                label: "Property Text One",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+              {
+                propertyName: "name",
+                label: "Text Property Two",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+              {
+                propertyName: "name",
+                label: "Property Three",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+            ],
+          },
+          {
+            sectionName: "Text Sub Section Three",
+            children: [
+              {
+                propertyName: "name",
+                label: "Property Text One",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+              {
+                propertyName: "name",
+                label: "Text Property Two",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+              {
+                propertyName: "name",
+                label: "Property Three",
+                controlType: "SWITCH",
+                isBindProperty: true,
+                isTriggerProperty: false,
+              },
+            ],
+          },
+        ],
+      },
     ];
   }
 

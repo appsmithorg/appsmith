@@ -1,5 +1,5 @@
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { searchProperty } from "./helpers";
+import { PropertyPaneSectionConfig } from "constants/PropertyControlConstants";
+import { searchProperty } from "./propertyPaneSearch";
 
 describe("Property configuration search", () => {
   const commonProperties = {
@@ -7,7 +7,7 @@ describe("Property configuration search", () => {
     isBindProperty: false,
     isTriggerProperty: false,
   };
-  const config: PropertyPaneConfig[] = [
+  const config: PropertyPaneSectionConfig[] = [
     {
       sectionName: "Section One",
       children: [
@@ -129,13 +129,13 @@ describe("Property configuration search", () => {
         sectionName: "Section One",
         children: [
           {
-            label: "Reset Button Label",
-            propertyName: "resetButtonLabel",
+            label: "Submit Button Label",
+            propertyName: "submitButtonLabel",
             ...commonProperties,
           },
           {
-            label: "Submit Button Label",
-            propertyName: "submitButtonLabel",
+            label: "Reset Button Label",
+            propertyName: "resetButtonLabel",
             ...commonProperties,
           },
         ],
