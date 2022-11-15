@@ -106,7 +106,7 @@ import { GenerateTemplatePageRequest } from "api/PageApi";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
-import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
@@ -706,7 +706,7 @@ export function* clonePageSaga(
 
       yield put(fetchActionsForPage(response.data.id));
       yield put(fetchJSCollectionsForPage(response.data.id));
-      yield put(selectMultipleWidgetsAction([]));
+      yield put(selectMultipleWidgetsInitAction([]));
 
       // TODO: Update URL params here.
 

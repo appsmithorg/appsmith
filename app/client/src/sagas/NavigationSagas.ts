@@ -1,8 +1,4 @@
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import { call, put, select, take } from "redux-saga/effects";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
@@ -18,15 +14,45 @@ import { Plugin } from "api/PluginApi";
 import log from "loglevel";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { Location } from "history";
+import history from "utils/history";
+import { EventChannel, eventChannel } from "redux-saga";
+import {
+  selectMultipleWidgetsAction,
+  selectWidgetAction,
+} from "actions/widgetSelectionActions";
 
+const listenToUrlChanges = () => {
+  return eventChannel((emitter) => {
+    return history.listen((location: Location<unknown>, action: string) => {
+      emitter({ location, action });
+    });
+  });
+};
+
+type LocationChangePayload = {
+  location: Location<unknown>;
+  action: string;
+};
+
+function* navigationListenerSaga() {
+  const eventChan: EventChannel<{
+    location: string;
+    action: string;
+  }> = yield call(listenToUrlChanges);
+
+  while (true) {
+    const payload: LocationChangePayload = yield take(eventChan);
+    yield call(handleRouteChange, payload);
+  }
+}
 let previousPath: string;
 let previousHash: string | undefined;
 
-function* handleRouteChange(
-  action: ReduxAction<{ pathname: string; hash?: string }>,
-) {
-  const { hash, pathname } = action.payload;
+function* handleRouteChange(payload: LocationChangePayload) {
+  const { hash, pathname } = payload.location;
   try {
+    yield call(selectWidgetsBasedOnUrl, payload.location);
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     if (featureFlags.CONTEXT_SWITCHING) {
       yield call(contextSwitchingSaga, pathname, hash);
@@ -171,6 +197,24 @@ function shouldStoreStateForCanvas(
   );
 }
 
+function* selectWidgetsBasedOnUrl(url: Location<unknown>) {
+  const { hash, pathname } = url;
+  const entity = identifyEntityFromPath(pathname, hash).entity;
+  if ([FocusEntity.PROPERTY_PANE, FocusEntity.CANVAS].includes(entity)) {
+    if (!hash) {
+      yield put(selectMultipleWidgetsAction([]));
+      return;
+    }
+    const widgetsInURL = hash.slice(1).split(",");
+    const isMulti = widgetsInURL.length > 1;
+    if (isMulti) {
+      yield put(selectMultipleWidgetsAction(widgetsInURL));
+    } else {
+      yield put(selectWidgetAction(widgetsInURL[0], false));
+    }
+  }
+}
+
 export default function* rootSaga() {
-  yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
+  yield call(navigationListenerSaga);
 }
