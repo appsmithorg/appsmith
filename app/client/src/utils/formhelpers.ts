@@ -1,5 +1,4 @@
 const PASSWORD_MIN_LENGTH = 6;
-const PASSWORD_MAX_LENGTH = 48;
 
 export const hashPassword = (password: string) => {
   return password;
@@ -10,8 +9,7 @@ export const isEmptyString = (value: string) => {
 };
 
 export const isStrongPassword = (value: string) => {
-  const passwordLength = value.trim().length;
-  return passwordLength >= PASSWORD_MIN_LENGTH;
+  return value.trim().length >= PASSWORD_MIN_LENGTH;
 };
 
 export const noSpaces = (value: string) => {
