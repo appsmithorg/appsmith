@@ -99,12 +99,14 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
       <CenterWrapper
         flexDirection={flexDirection}
         isCurrentCanvasDragging={props.isCurrentCanvasDragging}
+        wrap={props.hasFillChild && props.isMobile}
       >
         {props.center}
       </CenterWrapper>
       <EndWrapper
         flexDirection={flexDirection}
         isCurrentCanvasDragging={props.isCurrentCanvasDragging}
+        wrap={props.hasFillChild && props.isMobile}
       >
         {props.end}
       </EndWrapper>
