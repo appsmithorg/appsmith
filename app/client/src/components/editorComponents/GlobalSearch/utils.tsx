@@ -10,7 +10,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
@@ -28,7 +28,6 @@ import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
-import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -356,7 +355,7 @@ export const actionOperations: ActionOperation[] = [
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (pageId: string, location: EventLocation) =>
-      createNewApiAction(pageId, location, GRAPHQL_PLUGIN_PACKAGE_NAME),
+      createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
   },
   {
     title: "New JS Object",

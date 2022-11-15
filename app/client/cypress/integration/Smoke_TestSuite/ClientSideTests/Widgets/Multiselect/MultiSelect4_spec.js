@@ -14,7 +14,7 @@ describe("MultiSelect Widget Functionality", function() {
     cy.addDsl(dsl);
   });
   beforeEach(() => {
-    cy.wait(7000);
+    cy.wait(3000);
   });
   it("Add new multiselect widget", () => {
     cy.get(explorer.addWidget).click();

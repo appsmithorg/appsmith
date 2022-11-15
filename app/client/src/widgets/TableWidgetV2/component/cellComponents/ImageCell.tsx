@@ -2,7 +2,7 @@ import React from "react";
 import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import { BaseCellComponentProps } from "../Constants";
+import { BaseCellComponentProps, ImageSize } from "../Constants";
 
 /*
  * Function to split the CSV of image url's
@@ -26,6 +26,7 @@ type renderImageType = BaseCellComponentProps & {
   value: unknown;
   onClick?: () => void;
   isSelected?: boolean;
+  imageSize?: ImageSize;
 };
 
 export function ImageCell(props: renderImageType) {
@@ -42,6 +43,8 @@ export function ImageCell(props: renderImageType) {
     fontStyle,
     textColor,
     textSize,
+    imageSize,
+    isCellDisabled,
   } = props;
 
   if (!value) {
@@ -52,6 +55,8 @@ export function ImageCell(props: renderImageType) {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        imageSize={imageSize}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -67,6 +72,8 @@ export function ImageCell(props: renderImageType) {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        imageSize={imageSize}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -87,6 +94,8 @@ export function ImageCell(props: renderImageType) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      imageSize={imageSize}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}
@@ -104,10 +113,7 @@ export function ImageCell(props: renderImageType) {
                 onClick();
               }}
             >
-              <div
-                className="image-cell"
-                style={{ backgroundImage: `url("${item}")` }}
-              />
+              <img className="image-cell" src={item} />
             </div>
           );
         } else {

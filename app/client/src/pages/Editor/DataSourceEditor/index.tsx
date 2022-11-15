@@ -34,8 +34,7 @@ import {
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -172,7 +171,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     fromImporting: props.fromImporting ?? false,
     pluginId,
     isSaving: datasources.loading,
-    isDeleting: datasources.isDeleting,
+    isDeleting: !!datasource?.isDeleting,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === datasourceId,

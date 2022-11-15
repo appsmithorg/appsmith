@@ -5,9 +5,21 @@ const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
 const pageid = "MyPage";
 
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("Table Widget V2 and Navigate to functionality validation", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(2000); //dsl to settle!
   });
 
   it("1. Create MyPage and validate if its successfully created", function() {
@@ -30,6 +42,10 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
       commonlocators.tableV2Inner,
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
+    cy.focused().blur();
+    cy.get(widgetsPage.tableOnRowSelect)
+      .scrollIntoView()
+      .should("be.visible");
     cy.get(widgetsPage.tableOnRowSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()

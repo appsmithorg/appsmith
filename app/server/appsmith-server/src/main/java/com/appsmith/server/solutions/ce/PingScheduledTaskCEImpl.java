@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @Slf4j
 @RequiredArgsConstructor
-@ConditionalOnExpression("!${is.cloud-hosted:false}")
+@ConditionalOnExpression("!${is.cloud-hosting:false}")
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;

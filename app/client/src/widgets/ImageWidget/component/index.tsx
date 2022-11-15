@@ -104,7 +104,7 @@ const ControlBtn = styled.a<{
     background: var(--wds-color-bg-hover);
 
     svg path {
-      fill: var(--wds-color-hover);
+      fill: var(--wds-color-icon-hover);
     }
   }
 `;

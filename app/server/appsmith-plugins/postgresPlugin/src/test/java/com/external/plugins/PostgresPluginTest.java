@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -8,6 +9,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
@@ -18,6 +20,7 @@ import com.appsmith.external.services.SharedConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -261,6 +264,22 @@ public class PostgresPluginTest {
         StepVerifier.create(dsConnectionMono)
                 .assertNext(Assertions::assertNotNull)
                 .verifyComplete();
+    }
+
+    @Test
+    public void testTestDatasource_withCorrectCredentials_returnsWithoutInvalids() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        final Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(dsConfig);
+
+        StepVerifier.create(testDatasourceMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
+
     }
 
     @Test
@@ -617,6 +636,8 @@ public class PostgresPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
+
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -691,6 +712,7 @@ public class PostgresPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -774,6 +796,7 @@ public class PostgresPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("1");
+        param.setClientDataType(ClientDataType.NUMBER);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -853,6 +876,7 @@ public class PostgresPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("null");
+        param.setClientDataType(ClientDataType.NULL);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -917,6 +941,7 @@ public class PostgresPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue(null);
+        param.setClientDataType(ClientDataType.NULL);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -1139,6 +1164,7 @@ public class PostgresPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("2021-03-24 14:05:34");
+        param.setClientDataType(ClientDataType.STRING);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -1183,6 +1209,7 @@ public class PostgresPluginTest {
         Param param = new Param();
         param.setKey("binding1");
         param.setValue("2021-03-24 14:05:34");
+        param.setClientDataType(ClientDataType.STRING);
         params.add(param);
         executeActionDTO.setParams(params);
 
@@ -1238,12 +1265,30 @@ public class PostgresPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
-        params.add(new Param("id", "10"));
-        params.add(new Param("firstName", "1001"));
-        params.add(new Param("lastName", "LastName"));
-        params.add(new Param("email", "email@email.com"));
-        params.add(new Param("date", "2018-12-31"));
-        params.add(new Param("rating", String.valueOf(5.1)));
+        Param param = new Param("id", "10");
+        param.setClientDataType(ClientDataType.NUMBER);
+        params.add(param);
+
+        param = new Param("firstName", "1001");
+        param.setClientDataType(ClientDataType.STRING);
+        params.add(param);
+
+        param = new Param("lastName", "LastName");
+        param.setClientDataType(ClientDataType.STRING);
+        params.add(param);
+
+        param = new Param("email", "email@email.com");
+        param.setClientDataType(ClientDataType.STRING);
+        params.add(param);
+
+        param = new Param("date", "2018-12-31");
+        param.setClientDataType(ClientDataType.STRING);
+        params.add(param);
+
+        param = new Param("rating", String.valueOf(5.1));
+        param.setClientDataType(ClientDataType.NUMBER);
+        params.add(param);
+
         executeActionDTO.setParams(params);
 
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
@@ -1314,7 +1359,9 @@ public class PostgresPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
-        params.add(new Param("createdTS", "2022-04-11T05:30:00Z"));
+        Param param = new Param("createdTS", "2022-04-11T05:30:00Z");
+        param.setClientDataType(ClientDataType.STRING);
+        params.add(param);
 
         executeActionDTO.setParams(params);
 
@@ -1381,10 +1428,22 @@ public class PostgresPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
-        params.add(new Param("id", "10"));
-        params.add(new Param("jsonObject1", "{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}"));
-        params.add(new Param("jsonObject2", "{\"country\":\"japan\", \"city\":\"kyoto\"}"));
-        params.add(new Param("stringValue", "Something here"));
+        Param param = new Param("id", "10");
+        param.setClientDataType(ClientDataType.NUMBER);
+        params.add(param);
+
+        param = new Param("jsonObject1", "{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}");
+        param.setClientDataType(ClientDataType.OBJECT);
+        params.add(param);
+
+        param = new Param("jsonObject2", "{\"country\":\"japan\", \"city\":\"kyoto\"}");
+        param.setClientDataType(ClientDataType.OBJECT);
+        params.add(param);
+
+        param = new Param("stringValue", "Something here");
+        param.setClientDataType(ClientDataType.STRING);
+        params.add(param);
+
         executeActionDTO.setParams(params);
 
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
@@ -1427,5 +1486,51 @@ public class PostgresPluginTest {
         connectionCreateMono
                 .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
 
+    }
+
+    @Test
+    public void testNumericStringHavingLeadingZeroWithPreparedStatement() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT {{binding1}} as numeric_string;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("098765");
+        param1.setClientDataType(ClientDataType.STRING);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertArrayEquals(
+                            new String[] {
+                                    "numeric_string"
+                            },
+                            new ObjectMapper()
+                                    .convertValue(node, LinkedHashMap.class)
+                                    .keySet()
+                                    .toArray());
+
+                    // Verify value
+                    assertEquals(JsonNodeType.STRING, node.get("numeric_string").getNodeType());
+                    assertEquals(param1.getValue(), node.get("numeric_string").asText());
+
+                })
+                .verifyComplete();
     }
 }

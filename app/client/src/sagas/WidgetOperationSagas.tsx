@@ -62,14 +62,13 @@ import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions"
 
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getAllPaths } from "workers/evaluationUtils";
+import { getAllPaths } from "workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
@@ -362,7 +361,7 @@ export function removeDynamicBindingProperties(
   dynamicBindingPathList: DynamicPath[],
 ) {
   /*
-  we are doing this because when you toggle js off we only 
+  we are doing this because when you toggle js off we only
   receive the  `primaryColumns.` properties not the `derivedColumns.`
   properties therefore we need just a hard-codded check.
   (TODO) - Arsalan remove this primaryColumns check when the Table widget v2 is live.
@@ -1709,10 +1708,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
     const pageId: string = yield select(getCurrentPageId);
 
-    navigateToCanvas({
-      pageId,
-      widgetId: newWidget.newWidgetId,
-    });
+    navigateToCanvas(pageId);
   } catch (error) {
     log.error(error);
   }

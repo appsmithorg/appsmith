@@ -1,11 +1,21 @@
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jsonFormUnicodeDSLWithoutSourceData.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = ".t--property-pane-back-btn";
 
 describe("JSON Form Widget Unicode keys", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
   it("generates fields with valid source data json", () => {
     cy.addDsl(dslWithoutSchema);
     const sourceData = {

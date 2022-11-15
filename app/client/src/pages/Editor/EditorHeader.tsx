@@ -25,7 +25,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { EditInteractionKind, SavingState } from "components/ads/EditableText";
+import { EditInteractionKind, SavingState } from "design-system";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
@@ -35,7 +35,7 @@ import {
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { Button, Icon, IconSize, Size, TooltipComponent } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
@@ -46,15 +46,13 @@ import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
-import { useLocation } from "react-router";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
-import { fetchUsersForWorkspace } from "actions/workspaceActions";
-import { WorkspaceUser } from "constants/workspaceConstants";
+import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
@@ -251,7 +249,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     publishApplication,
     workspaceId,
   } = props;
-  const location = useLocation();
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
@@ -262,15 +259,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const user = useSelector(getCurrentUser);
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
-
-  useEffect(() => {
-    if (window.location.href) {
-      const searchParams = new URL(window.location.href).searchParams;
-      const isSnipingMode = searchParams.get("isSnipingMode");
-      const updatedIsSnipingMode = isSnipingMode === "true";
-      dispatch(setSnipingModeAction(updatedIsSnipingMode));
-    }
-  }, [location]);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -297,11 +285,9 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  const featureFlags = useSelector(selectFeatureFlags);
-
   const handleClickDeploy = useCallback(
     (fromDeploy?: boolean) => {
-      if (featureFlags.GIT && isGitConnected) {
+      if (isGitConnected) {
         dispatch(showConnectGitModal());
         AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
@@ -312,7 +298,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         handlePublish();
       }
     },
-    [featureFlags.GIT, dispatch, handlePublish],
+    [dispatch, handlePublish],
   );
 
   /**

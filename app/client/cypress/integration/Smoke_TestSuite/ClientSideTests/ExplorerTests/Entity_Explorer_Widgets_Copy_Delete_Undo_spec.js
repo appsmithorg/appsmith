@@ -3,8 +3,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWidgetdsl.json");
 
-const pageid = "MyPage";
-
 before(() => {
   cy.addDsl(dsl);
 });

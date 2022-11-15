@@ -9,12 +9,12 @@ import {
   WorkspaceDetails,
 } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
-import { Workspaces } from "constants/workspaceConstants";
+import { Workspaces } from "@appsmith/constants/workspaceConstants";
 import { GitApplicationMetadata } from "api/ApplicationApi";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name"],
