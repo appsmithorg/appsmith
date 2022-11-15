@@ -105,6 +105,15 @@ import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActio
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
+import { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
+
+import "codemirror/mode/sql/sql.js";
+// import theme style
+import "codemirror/theme/lesser-dark.css";
+
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/sql-hint";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -396,6 +405,26 @@ class CodeEditor extends Component<Props, State> {
     ) {
       this.editor.focus();
     }
+
+    if (
+      this.props.datasourceStructures !== prevProps.datasourceStructures &&
+      !!this.props.datasourceStructures
+    ) {
+      // @ts-expect-error: Types are not available
+      CodeMirror.commands.autocomplete = function(cm) {
+        cm.showHint({
+          // @ts-expect-error: Types are not available
+          hint: CodeMirror.hint.sql,
+          completeSingle: false,
+        });
+      };
+
+      // this.editor.setOption("hintOptions", {
+      //   // @ts-expect-error types not found
+      //   tables: this.props.datasourceStructures || [],
+      // });
+    }
+
     this.editor.operation(() => {
       if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
@@ -645,6 +674,9 @@ class CodeEditor extends Component<Props, State> {
       this.setState({
         changeStarted: false,
       });
+      if (this.props.datasourceStructures) {
+        this.editor.execCommand("autocomplete");
+      }
       this.props.input.onChange(value);
     }
     CodeEditor.updateMarkings(this.editor, this.props.marking);
@@ -1007,6 +1039,10 @@ const mapStateToProps = (state: AppState, { dataTreePath }: EditorProps) => ({
   recentEntities: getRecentEntityIds(state),
   editorIsFocused: getIsCodeEditorFocused(state, dataTreePath || ""),
   lintErrors: dataTreePath ? getEntityLintErrors(state, dataTreePath) : [],
+  datasourceStructures: getDatasourceStructuresFromDatasourceId(
+    state,
+    dataTreePath || "",
+  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

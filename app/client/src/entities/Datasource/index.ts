@@ -55,6 +55,8 @@ export interface DatasourceTable {
   templates: QueryTemplate[];
 }
 
+export type DatasourceTableName = Pick<DatasourceTable, "name">;
+
 // todo: check which fields are truly optional and move the common ones into base
 interface BaseDatasource {
   pluginId: string;

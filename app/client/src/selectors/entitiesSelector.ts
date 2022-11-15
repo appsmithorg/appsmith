@@ -10,9 +10,10 @@ import {
   MockDatasource,
   DatasourceStructure,
   isEmbeddedRestDatasource,
+  DatasourceTable,
 } from "entities/Datasource";
 import { Action, PluginType } from "entities/Action";
-import { find, get, sortBy } from "lodash";
+import { find, get, sortBy, isEmpty } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -42,6 +43,36 @@ export const getDatasourcesStructure = (
 ): Record<string, DatasourceStructure> => {
   return state.entities.datasources.structure;
 };
+
+export const getDatasourceStructuresFromDatasourceId = createSelector(
+  (state: AppState) => getDatasourcesStructure(state),
+  (state: AppState) => getActions(state),
+  (state: AppState, dataTreePath: string) => dataTreePath,
+  (datasourceStructures: any, actions: any, dataTreePath: string) => {
+    const actionName = dataTreePath.split(".")[0];
+
+    const action = find(actions, (a) => a.config.name === actionName);
+    let datasourceId = "";
+    if (action) {
+      datasourceId = action?.config?.datasource?.id;
+    }
+    let structures: DatasourceStructure | undefined = undefined;
+    const tables: Record<string, string[]> = {};
+
+    if (datasourceId in datasourceStructures) {
+      structures = datasourceStructures[datasourceId];
+
+      if (structures && structures.tables) {
+        structures?.tables.forEach((table: DatasourceTable) => {
+          if (table?.name) {
+            tables[table.name] = table.columns.map((column) => column.name);
+          }
+        });
+      }
+    }
+    return isEmpty(tables) ? undefined : tables;
+  },
+);
 
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
