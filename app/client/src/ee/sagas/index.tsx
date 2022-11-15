@@ -6,8 +6,9 @@ import log from "loglevel";
 import * as sentry from "@sentry/react";
 import AclSagas from "./AclSagas";
 import AuditLogsSagas from "@appsmith/sagas/AuditLogsSagas";
+import EnvironmentSagas from "./EnvironmentSagas";
 
-const sagasArr = [...CE_Sagas, AclSagas, AuditLogsSagas];
+const sagasArr = [...CE_Sagas, AclSagas, AuditLogsSagas, EnvironmentSagas];
 
 export function* rootSaga(sagasToRun = sagasArr): any {
   // This race effect ensures that we fail as soon as the first safe crash is dispatched.
