@@ -15,19 +15,20 @@ import {
 } from "selectors/entitiesSelector";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { InstallState } from "reducers/uiReducers/libraryReducer";
+import { Collapse } from "@blueprintjs/core";
 
 const defaultLibraries = extraLibraries.map((lib) => lib.displayName);
 
 const Library = styled.li`
   list-style: none;
+  flex-direction: column;
   color: ${Colors.GRAY_700};
   font-weight: 400;
-  gap: 0.5rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 8px 12px 8px 20px;
+  padding: 6px 12px 6px 0.5rem;
   position: relative;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
@@ -54,6 +55,20 @@ const Library = styled.li`
   & .t--package-version {
     display: block;
     font-size: 12px;
+  }
+  .open-collapse {
+    transform: rotate(90deg);
+  }
+
+  .content {
+    font-size: 12px;
+    font-weight: 400;
+    padding: 6px 0 0 8px;
+    color: ${Colors.GRAY_700};
+    .accessor {
+      padding-top: 8px;
+      color: ${Colors.ENTERPRISE_DARK};
+    }
   }
 `;
 const Name = styled.div`
@@ -83,7 +98,7 @@ const PrimaryCTA = function({ name }: { name: string }) {
     dispatch(uninstallLibraryInit(name));
   }, [name]);
 
-  if (installationStatus.hasOwnProperty(name))
+  if (installationStatus[name] === InstallState.Queued)
     return (
       <div className="shrink-0">
         <Spinner />
@@ -93,7 +108,7 @@ const PrimaryCTA = function({ name }: { name: string }) {
   if (!defaultLibraries.includes(name))
     return (
       <Icon
-        className="uninstall-library"
+        className="uninstall-library ml-1"
         name="trash-outline"
         onClick={uninstallLibrary}
         size={IconSize.MEDIUM}
@@ -103,24 +118,43 @@ const PrimaryCTA = function({ name }: { name: string }) {
   return null;
 };
 
-function JSDependencies() {
+function LibraryEntity({ lib }: any) {
   const openDocs = (name: string, url: string) => () => window.open(url, name);
-  const libraries = useSelector(selectLibrariesForExplorer);
-  const dependencyList = libraries.map((lib) => {
-    return (
-      <Library
-        key={lib.displayName}
-        onClick={openDocs(lib.displayName, lib.docsURL)}
-      >
+  const [isOpen, open] = React.useState(false);
+  return (
+    <Library>
+      <div className="flex flex-row items-center">
+        <Icon
+          className={isOpen ? "open-collapse" : ""}
+          fillColor={Colors.GREY_7}
+          name="right-arrow-2"
+          onClick={() => open(!isOpen)}
+          size={IconSize.XXXL}
+        />
         <Name>{lib.displayName}</Name>
-        <Version className="t--package-version" version={lib.version}>
+        <Version
+          className="t--package-version"
+          onClick={openDocs(lib.displayName, lib.docsURL)}
+          version={lib.version}
+        >
           {lib.version}
         </Version>
-        {/* <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} /> */}
-        <PrimaryCTA name={lib.displayName} />
-      </Library>
-    );
-  });
+        <PrimaryCTA name={lib.url as string} />
+      </div>
+      <Collapse className="text-xs" isOpen={isOpen}>
+        <div className="content">
+          Available as <span className="accessor">{lib.accessor}</span>
+        </div>
+      </Collapse>
+    </Library>
+  );
+}
+
+function JSDependencies() {
+  const libraries = useSelector(selectLibrariesForExplorer);
+  const dependencyList = libraries.map((lib) => (
+    <LibraryEntity key={lib.displayName} lib={lib} />
+  ));
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}

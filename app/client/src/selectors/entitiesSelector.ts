@@ -30,6 +30,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -858,11 +859,18 @@ export const selectLibrariesForExplorer = createSelector(
   (libs, libStatus) => {
     const queuedInstalls = Object.keys(libStatus)
       .filter((key) => libStatus[key] !== InstallState.Success)
-      .map((lib) => ({
-        displayName: lib,
-        docsURL: lib,
-        version: "",
-      }));
+      .map((url) => {
+        const recommendedLibrary = recommendedLibraries.find(
+          (lib) => lib.url === url,
+        );
+        return {
+          displayName: recommendedLibrary?.name || url,
+          docsURL: recommendedLibrary?.url || url,
+          version: recommendedLibrary?.version || "",
+          url: recommendedLibrary?.url || url,
+          accessor: "",
+        };
+      });
     return [...queuedInstalls, ...libs];
   },
 );

@@ -1,6 +1,7 @@
 import { createReducer } from "utils/ReducerUtils";
 import { extraLibraries, ExtraLibrary } from "utils/DynamicBindingUtils";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 
 export enum InstallState {
   Queued,
@@ -16,6 +17,7 @@ export type LibraryState = {
     docsURL: string;
     version?: string;
     accessor: string;
+    url?: string;
   }[];
 };
 
@@ -26,6 +28,7 @@ const initialState = {
       displayName: lib.displayName,
       docsURL: lib.docsURL,
       version: lib.version,
+      accessor: lib.accessor,
     };
   }),
 };
@@ -52,6 +55,9 @@ const jsLibraryReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (state, action) => {
     const { libraryAccessor, url } = action.payload;
+    const recommendedLibrary = recommendedLibraries.find(
+      (lib) => lib.url === url,
+    );
     return {
       ...state,
       installationStatus: {
@@ -60,9 +66,10 @@ const jsLibraryReducer = createReducer(initialState, {
       },
       installedLibraries: [
         {
-          displayName: url,
-          docsURL: url,
-          version: "",
+          displayName: recommendedLibrary?.name || libraryAccessor,
+          docsURL: recommendedLibrary?.url || url,
+          version: recommendedLibrary?.version || "",
+          url,
           accessor: libraryAccessor,
         },
         ...state.installedLibraries,
