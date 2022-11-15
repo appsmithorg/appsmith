@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements CustomJSLibServiceCE {
@@ -24,17 +25,27 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<List<CustomJSLib>> addJSLibToApplication(String applicationId, CustomJSLib jsLib) {
-
+    public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib) {
+        return getAllJSLibsInApplication(applicationId)
+                .map(jsLibs -> jsLibs.add(jsLib))
+                .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId, "installedCustomJSLibs",
+                        updatedJSLibs))
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
-    public Mono<List<CustomJSLib>> deleteJSLibFromApplication(String applicationId, CustomJSLib jsLib) {
-        return null;
+    public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId,
+                                                    @NotNull CustomJSLib jsLib) {
+        return getAllJSLibsInApplication(applicationId)
+                .map(jsLibs -> jsLibs.remove(jsLib))
+                .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId, "installedCustomJSLibs",
+                        updatedJSLibs))
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
-    public Mono<List<CustomJSLib>> getAllJSLibInApplication(String applicationId) {
-        return null;
+    public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId) {
+        return repository.findByIdAndFieldName(applicationId, "installedCustomJSLibs")
+                .map(Application::getInstalledCustomJSLibs);
     }
 }

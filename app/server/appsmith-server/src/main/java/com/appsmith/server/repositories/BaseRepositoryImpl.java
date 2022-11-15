@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
+import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -70,6 +71,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
+    @Override
     public Mono<T> findByIdAndFieldName(ID id, String fieldName) {
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
@@ -102,9 +104,19 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
-    public Mono<T> findByIdAndBranchNameButFetchOnlySpecifiedField(@NotNull ID id, @NotNull String fieldName) {
-        // branchName will be ignored and this method is overridden for the services which are shared across branches
-        return this.findByIdAndFieldName(id, fieldName);
+    public Mono<UpdateResult> updateByIdAndFieldName(@NotNull ID id, @NotNull String fieldName, Object value) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> {
+                    Query query = new Query(getIdCriteria(id));
+                    query.addCriteria(notDeleted());
+
+                    Update update = new Update();
+                    update.set(fieldName, value);
+
+                    return mongoOperations.updateFirst(query, update, entityInformation.getJavaType());
+                });
     }
 
     @Override

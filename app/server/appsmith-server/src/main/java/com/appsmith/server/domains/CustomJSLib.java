@@ -11,7 +11,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class CustomJSLib extends BaseDomain {
-    String alias;
+    String name;
     String umdSrcUrl;
     String documentationUrl;
     String version;

@@ -9,8 +9,8 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public interface CustomJSLibServiceCE extends CrudService<Application, String> {
-    public Mono<List<CustomJSLib>> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib);
-    public Mono<List<CustomJSLib>> deleteJSLibFromApplication(@NotNull String applicationId,
-                                                              @NotNull CustomJSLib jsLib);
-    public Mono<List<CustomJSLib>> getAllJSLibInApplication(@NotNull String applicationId);
+    public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib);
+    public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId,
+                                                    @NotNull CustomJSLib jsLib);
+    public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId);
 }

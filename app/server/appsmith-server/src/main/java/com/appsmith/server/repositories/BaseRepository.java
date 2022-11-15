@@ -1,9 +1,11 @@
 package com.appsmith.server.repositories;
 
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import reactor.core.publisher.Mono;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -35,7 +37,9 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      */
     Mono<Boolean> archiveAllById(List<ID> ids);
 
+    Mono<T> findByIdAndFieldName(ID id, String fieldName);
+
     Mono<T> findByIdAndBranchName(ID id, String branchName);
 
-    Mono<T> findByIdAndBranchNameButFetchOnlySpecifiedField(ID id, String fieldName);
+    Mono<UpdateResult> updateByIdAndFieldName(ID id, String fieldName, Object value);
 }
