@@ -517,6 +517,8 @@ abstract class BaseWidget<
         </DynamicHeightContainerWrapper>
       );
     }
+
+    return this.getPageView();
   };
 
   private getWidgetView(): ReactNode {
