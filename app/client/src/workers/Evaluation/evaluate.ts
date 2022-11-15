@@ -76,7 +76,7 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key]) continue;
-    if (key === "evaluationVersion") continue;
+    if (key === "evaluationVersion" || key === "window") continue;
     if (extraLibraries.find((lib) => lib.accessor === key)) continue;
     // @ts-expect-error: Types are not available
     delete self[key];
@@ -119,6 +119,7 @@ export function setupEvaluationEnvironment() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
+  self.window = self;
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();

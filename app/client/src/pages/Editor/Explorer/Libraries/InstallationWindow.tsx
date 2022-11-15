@@ -88,6 +88,16 @@ const Wrapper = styled.div`
         &:hover {
           background-color: var(--appsmith-color-black-100);
         }
+        .description {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          font-size: 13px;
+          line-clamp: 3;
+          font-weight: 400;
+          -webkit-box-orient: vertical;
+        }
       }
     }
   }
@@ -402,9 +412,7 @@ function LibraryCard({
             />
           )}
         </div>
-        <div className="flex flex-row">
-          <Text type={TextType.P2}>{lib.description}</Text>
-        </div>
+        <div className="flex flex-row description">{lib.description}</div>
         <div className="flex flex-row items-center gap-1">
           <ProfileImage size={20} source={lib.icon} />
           <Text type={TextType.P3}>{lib.author}</Text>
