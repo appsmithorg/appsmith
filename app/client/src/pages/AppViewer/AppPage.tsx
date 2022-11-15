@@ -5,7 +5,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { RenderModes } from "constants/WidgetConstants";
-import Axios from "axios";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
