@@ -1,6 +1,6 @@
-import React, { useCallback } from "react";
+import React, { MutableRefObject, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, Spinner } from "design-system";
+import { Icon, IconSize, Spinner, Toaster, Variant } from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
 import {
@@ -13,12 +13,11 @@ import {
   selectInstallationStatus,
   selectLibrariesForExplorer,
 } from "selectors/entitiesSelector";
-import { extraLibraries } from "utils/DynamicBindingUtils";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
-
-const defaultLibraries = extraLibraries.map((lib) => lib.displayName);
+import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import useClipboard from "utils/hooks/useClipboard";
 
 const Library = styled.li`
   list-style: none;
@@ -30,6 +29,7 @@ const Library = styled.li`
   cursor: pointer;
   padding: 6px 12px 6px 0.5rem;
   position: relative;
+  line-height: 17px;
   &:hover {
     background: ${Colors.ALABASTER_ALT};
 
@@ -63,10 +63,21 @@ const Library = styled.li`
   .content {
     font-size: 12px;
     font-weight: 400;
-    padding: 6px 0 0 8px;
+    padding: 4px 0 0 8px;
     color: ${Colors.GRAY_700};
+    display: flex;
+    align-items: center;
+    gap: 4px;
     .accessor {
-      padding-top: 8px;
+      padding: 2px 8px;
+      flex-grow: 1;
+      border: 1px solid #b3b3b3;
+      font-size: 10px;
+      background: white;
+      display: flex;
+      height: 26px;
+      justify-content: space-between;
+      align-items: center;
       color: ${Colors.ENTERPRISE_DARK};
     }
   }
@@ -75,7 +86,8 @@ const Name = styled.div`
   width: calc(100% - 36px);
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
+  display: flex;
+  align-items: center;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -90,22 +102,23 @@ const uninstallLibraryInit = (payload: string) => ({
   payload,
 });
 
-const PrimaryCTA = function({ name }: { name: string }) {
+const PrimaryCTA = function({ url }: { url: string }) {
   const installationStatus = useSelector(selectInstallationStatus);
   const dispatch = useDispatch();
 
   const uninstallLibrary = useCallback(() => {
-    dispatch(uninstallLibraryInit(name));
-  }, [name]);
+    dispatch(uninstallLibraryInit(url));
+  }, [url]);
 
-  if (installationStatus[name] === InstallState.Queued)
+  if (installationStatus[url] === InstallState.Queued)
     return (
       <div className="shrink-0">
         <Spinner />
       </div>
     );
 
-  if (!defaultLibraries.includes(name))
+  if (url) {
+    //Default libraries will not have url
     return (
       <Icon
         className="uninstall-library ml-1"
@@ -114,12 +127,24 @@ const PrimaryCTA = function({ name }: { name: string }) {
         size={IconSize.MEDIUM}
       />
     );
+  }
 
   return null;
 };
 
 function LibraryEntity({ lib }: any) {
   const openDocs = (name: string, url: string) => () => window.open(url, name);
+  const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const write = useClipboard(propertyRef);
+
+  const copyToClipboard = useCallback(() => {
+    write(lib.accessor);
+    Toaster.show({
+      message: "Copied to clipboard",
+      variant: Variant.success,
+    });
+  }, [lib.accessor]);
+
   const [isOpen, open] = React.useState(false);
   return (
     <Library>
@@ -139,11 +164,14 @@ function LibraryEntity({ lib }: any) {
         >
           {lib.version}
         </Version>
-        <PrimaryCTA name={lib.url as string} />
+        <PrimaryCTA url={lib.url as string} />
       </div>
       <Collapse className="text-xs" isOpen={isOpen}>
         <div className="content">
-          Available as <span className="accessor">{lib.accessor}</span>
+          Available as{" "}
+          <div className="accessor">
+            {lib.accessor} <CopyIcon onClick={copyToClipboard} />
+          </div>
         </div>
       </Collapse>
     </Library>

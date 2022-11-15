@@ -413,6 +413,10 @@ function eventRequestHandler({
       defs["!name"] = `LIB/${libraryAccessor}`;
       defs[libraryAccessor] = ternDefinitionGenerator(library);
       return { status: true, defs, libraryAccessor };
+    case EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY:
+      const accessor = requestData;
+      delete self[accessor];
+      return true;
     default: {
       console.error("Action not registered on evalWorker", method);
     }

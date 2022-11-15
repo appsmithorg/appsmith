@@ -54,7 +54,7 @@ const jsLibraryReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (state, action) => {
-    const { libraryAccessor, url } = action.payload;
+    const { libraryAccessor, url, version } = action.payload;
     const recommendedLibrary = recommendedLibraries.find(
       (lib) => lib.url === url,
     );
@@ -68,7 +68,7 @@ const jsLibraryReducer = createReducer(initialState, {
         {
           displayName: recommendedLibrary?.name || libraryAccessor,
           docsURL: recommendedLibrary?.url || url,
-          version: recommendedLibrary?.version || "",
+          version: recommendedLibrary?.version || version,
           url,
           accessor: libraryAccessor,
         },

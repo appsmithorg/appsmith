@@ -277,25 +277,19 @@ function InstallationPopoverContent(props: any) {
   }, []);
 
   const installLibrary = useCallback(
-    (url?: string) => {
-      if (!url) {
-        const libFound = installedLibraries.find(
-          (lib) => lib.displayName === URL,
-        );
-        if (libFound) {
-          Toaster.show({
-            text: createMessage(
-              customJSLibraryMessages.INSTALLED_ALREADY,
-              libFound.accessor,
-            ),
-            variant: Variant.info,
-          });
-          return;
-        }
-        dispatch(installLibraryInit(URL));
-      } else {
-        dispatch(installLibraryInit(url));
+    (url: string) => {
+      const libFound = installedLibraries.find((lib) => lib.url === url);
+      if (libFound) {
+        Toaster.show({
+          text: createMessage(
+            customJSLibraryMessages.INSTALLED_ALREADY,
+            libFound.accessor,
+          ),
+          variant: Variant.info,
+        });
+        return;
       }
+      dispatch(installLibraryInit(url));
     },
     [URL, installedLibraries],
   );
@@ -331,7 +325,7 @@ function InstallationPopoverContent(props: any) {
               category={Category.primary}
               data-testid="install-library-btn"
               icon="download"
-              onClick={() => installLibrary()}
+              onClick={() => installLibrary(URL)}
               size={Size.medium}
               tag="button"
               text="INSTALL"
@@ -385,7 +379,7 @@ function LibraryCard({
   onClick,
 }: {
   lib: any;
-  onClick: (url?: string) => void;
+  onClick: (url: string) => void;
 }) {
   const status = useSelector(selectStatusForURL(lib.url));
   return (
