@@ -36,9 +36,9 @@ export function AppPage(props: AppPageProps) {
     const storeString = JSON.stringify(storageKeys);
     localStorage.setItem(storeKey, storeString);
   };
+  window.addEventListener("message", messageHandler);
   useEffect(() => {
     // add postmessage
-    window.addEventListener("message", messageHandler);
     AnalyticsUtil.logEvent("PAGE_LOAD", {
       pageName: props.pageName,
       pageId: props.pageId,
