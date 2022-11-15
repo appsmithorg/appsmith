@@ -89,7 +89,6 @@ function AppViewer(props: Props) {
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
-  const { hideWatermark } = getAppsmithConfigs();
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -253,16 +252,6 @@ function AppViewer(props: Props) {
           >
             {isInitialized && registered && <AppViewerPageContainer />}
           </AppViewerBody>
-          {!hideWatermark && (
-            <a
-              className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
-              href="https://appsmith.com"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <BrandingBadge />
-            </a>
-          )}
         </AppViewerBodyContainer>
       </EditorContext.Provider>
     </ThemeProvider>
