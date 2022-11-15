@@ -171,7 +171,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       playState: PlayState.NOT_STARTED,
-      playing: true,
+      playing: false,
     };
   }
 
@@ -181,13 +181,20 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     };
   }
 
-  componentDidUpdate(prevProps: VideoWidgetProps): void {
+  componentDidUpdate(prevProps: VideoWidgetProps) {
+    console.log(
+      "LOOK AT ME !!!!!!!!!",
+      `${prevProps.playState} ${this.props.playState}`,
+    );
     if (
       prevProps.playState !== "NOT_STARTED" &&
       this.props.playState === "NOT_STARTED"
     ) {
       this._player.current?.seekTo(0);
-      this.props.updateWidgetMetaProperty("playing", false);
+      this.props.updateWidgetMetaProperty("playing", this.props.autoPlay);
+      if (this.props.autoPlay) {
+        this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+      }
     }
   }
 
@@ -210,10 +217,11 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 type: EventType.ON_VIDEO_END,
               },
             });
-            this.props.updateWidgetMetaProperty("playing", false);
+            // this.props.updateWidgetMetaProperty("playing", false);
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
+            this.props.updateWidgetMetaProperty("playing", false);
             this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
               triggerPropertyName: "onPause",
               dynamicString: onPause,
@@ -221,9 +229,9 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 type: EventType.ON_VIDEO_PAUSE,
               },
             });
-            this.props.updateWidgetMetaProperty("playing", false);
           }}
           onPlay={() => {
+            this.props.updateWidgetMetaProperty("playing", true);
             this.props.updateWidgetMetaProperty(
               "playState",
               PlayState.PLAYING,
@@ -235,7 +243,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 },
               },
             );
-            this.props.updateWidgetMetaProperty("playing", true);
           }}
           player={this._player}
           playing={playing}
