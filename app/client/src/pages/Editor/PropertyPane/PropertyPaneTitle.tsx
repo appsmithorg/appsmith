@@ -132,9 +132,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       // Checks if the property pane opened not because of focusing an input inside a widget
       if (
         document.activeElement &&
-        ["input", "textarea"].indexOf(
-          document.activeElement?.tagName?.toLowerCase(),
-        ) === -1
+        !document.activeElement?.closest(".t--property-control-wrapper") &&
+        shouldFocusOnPropertyControl()
+        // ["input", "textarea"].indexOf(
+        //   document.activeElement?.tagName?.toLowerCase(),
+        // ) === -1
       ) {
         document
           .querySelector(".t--property-pane-search-input-wrapper")

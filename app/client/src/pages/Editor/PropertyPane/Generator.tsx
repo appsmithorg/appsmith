@@ -5,7 +5,7 @@ import {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { WidgetType } from "constants/WidgetConstants";
-import React, { useRef } from "react";
+import React from "react";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -35,18 +35,27 @@ const generatePropertyControl = (
     if ((config as PropertyPaneSectionConfig).sectionName) {
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
-        <PropertySection
-          childCount={config.children?.length ?? 0}
-          collapsible={sectionConfig.collapsible ?? true}
-          id={config.id || sectionConfig.sectionName}
-          isDefaultOpen={sectionConfig.isDefaultOpen}
-          key={config.id + props.id + props.searchQuery}
-          name={sectionConfig.sectionName}
-          propertyPath={sectionConfig.propertySectionPath}
-          tag={sectionConfig.tag}
+        <Boxed
+          key={config.id + props.id}
+          show={
+            (config as PropertyPaneSectionConfig).sectionName !== "General" &&
+            props.type === "TABLE_WIDGET"
+          }
+          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
-          {config.children && generatePropertyControl(config.children, props)}
-        </PropertySection>
+          <PropertySection
+            childCount={config.children?.length ?? 0}
+            collapsible={sectionConfig.collapsible ?? true}
+            id={config.id || sectionConfig.sectionName}
+            isDefaultOpen={sectionConfig.isDefaultOpen}
+            key={config.id + props.id + props.searchQuery}
+            name={sectionConfig.sectionName}
+            propertyPath={sectionConfig.propertySectionPath}
+            tag={sectionConfig.tag}
+          >
+            {config.children && generatePropertyControl(config.children, props)}
+          </PropertySection>
+        </Boxed>
       );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
@@ -72,7 +81,6 @@ const generatePropertyControl = (
 };
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const finalProps = evaluateHiddenProperty(props.config, widgetProps);
   const searchResults = searchProperty(
@@ -85,12 +93,12 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   return isSearchResultEmpty ? (
     <EmptySearchResult />
   ) : (
-    <div ref={wrapperRef}>
+    <>
       {generatePropertyControl(
         searchResults as readonly PropertyPaneConfig[],
         props,
       )}
-    </div>
+    </>
   );
 }
 
