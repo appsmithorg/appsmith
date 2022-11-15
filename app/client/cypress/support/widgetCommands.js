@@ -581,6 +581,28 @@ Cypress.Commands.add(
   },
 );
 
+Cypress.Commands.add(
+  "assertSoftFocusOnPropertyPane",
+  ($selector, cursor = { ch: 0, line: 0 }) => {
+    cy.EnableAllCodeEditors();
+    cy.get($selector)
+      .find(".CodeEditorTarget")
+      .should("have.focus")
+      .find(".CodeMirror")
+      .first()
+      .then((ins) => {
+        const input = ins[0].CodeMirror;
+        if (!input.hasFocus()) {
+          input.focus();
+        }
+        expect(input.hasFocus()).to.be.true;
+        const editorCursor = input.getCursor();
+        expect(editorCursor.ch).to.equal(cursor.ch);
+        expect(editorCursor.line).to.equal(cursor.line);
+      });
+  },
+);
+
 Cypress.Commands.add("selectColor", (GivenProperty, colorOffset = -15) => {
   // Property pane of the widget is opened, and click given property.
   cy.get(
