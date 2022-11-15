@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "components/constants";
 import { Colors } from "constants/Colors";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
@@ -95,6 +96,7 @@ export const CONFIG = {
       },
     },
   },
+  responsiveBehavior: ResponsiveBehavior.Fill,
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),

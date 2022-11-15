@@ -1,4 +1,8 @@
-import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
+import {
+  ButtonVariantTypes,
+  RecaptchaTypes,
+  ResponsiveBehavior,
+} from "components/constants";
 import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -89,6 +93,7 @@ export const CONFIG = {
         },
       ],
     },
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
