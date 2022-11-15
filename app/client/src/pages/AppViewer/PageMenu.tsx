@@ -16,10 +16,8 @@ import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
@@ -49,7 +47,6 @@ export function PageMenu(props: AppViewerHeaderProps) {
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
-  const { hideWatermark } = getAppsmithConfigs();
 
   // hide menu on click outside
   useOnClickOutside(
@@ -136,16 +133,6 @@ export function PageMenu(props: AppViewerHeaderProps) {
             />
           )}
           <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          {!hideWatermark && (
-            <a
-              className="flex hover:no-underline"
-              href="https://appsmith.com"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <BrandingBadge />
-            </a>
-          )}
         </div>
       </div>
     </>
