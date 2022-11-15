@@ -3,6 +3,8 @@ import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
 import log from "loglevel";
 
+const aisOpenHTMLTag = `<${algoliaHighlightTag}>`;
+const aisCloseHTMLTag = `</${algoliaHighlightTag}>`;
 /**
  * @param {String} HTML representing a single element
  * @return {Element}
@@ -30,6 +32,9 @@ const updateVideoEmbeddingsWithIframe = (text: string) => {
   let match;
   while ((match = embedRegex.exec(docString)) !== null) {
     const videoId = match[1];
+    docString = docString
+      .replaceAll(aisOpenHTMLTag, "")
+      .replaceAll(aisCloseHTMLTag, "");
     docString = docString.replace(embedRegex, getYtIframe(videoId));
   }
   return docString;
@@ -109,9 +114,6 @@ const removeBadHighlights = (node: HTMLElement | Document, query: string) => {
  * @returns String of compiled HTML
  */
 const parseMarkdown = (value: string) => {
-  const aisOpenHTMLTag = `<${algoliaHighlightTag}>`;
-  const aisCloseHTMLTag = `</${algoliaHighlightTag}>`;
-
   value = replaceHintTagsWithCode(stripDescriptionMarkdown(value));
 
   marked.use({

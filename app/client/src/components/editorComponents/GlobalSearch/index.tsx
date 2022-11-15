@@ -566,7 +566,7 @@ function GlobalSearch() {
                   refinements.entities.length && <SnippetRefinements />}
                 <div className="main">
                   {(isMenu(category) || isDocumentation(category)) && (
-                    <Index indexName={"omnibar_docusaurus_index"}>
+                    <Index indexName={algolia.indexName}>
                       <SetSearchResults
                         category={category}
                         setSearchResults={setDocumentationSearchResultsInState}
