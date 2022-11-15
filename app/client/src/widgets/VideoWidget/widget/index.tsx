@@ -191,10 +191,10 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       this.props.playState === "NOT_STARTED"
     ) {
       this._player.current?.seekTo(0);
-      this.props.updateWidgetMetaProperty("playing", this.props.autoPlay);
-      if (this.props.autoPlay) {
-        this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
-      }
+      this.props.updateWidgetMetaProperty("playing", false);
+      // if (this.props.autoPlay) {
+      //   this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+      // }
     }
   }
 
@@ -217,7 +217,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 type: EventType.ON_VIDEO_END,
               },
             });
-            // this.props.updateWidgetMetaProperty("playing", false);
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
