@@ -36,6 +36,7 @@ import {
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
+import recommendedLibraries from "./recommendedLibraries";
 
 type TInstallWindowProps = any;
 
@@ -251,8 +252,8 @@ function InstallationPopoverContent(props: any) {
   }, []);
 
   const installLibrary = useCallback(
-    (index?: number) => {
-      if (!index) {
+    (url?: string) => {
+      if (!url) {
         const libFound = installedLibraries.find(
           (lib) => lib.displayName === URL,
         );
@@ -267,6 +268,8 @@ function InstallationPopoverContent(props: any) {
           return;
         }
         dispatch(installLibraryInit(URL));
+      } else {
+        dispatch(installLibraryInit(url));
       }
     },
     [URL, installedLibraries],
@@ -339,12 +342,16 @@ function InstallationPopoverContent(props: any) {
           </Text>
         </div>
         <div className="search-results">
-          {new Array(20).fill(0).map((_, idx) => (
-            <div className="library-card" key={idx}>
+          {recommendedLibraries.map((lib, idx) => (
+            <div
+              className="library-card"
+              key={idx}
+              onClick={(e) => installLibrary(lib.url)}
+            >
               <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-2">
                   <Text type={TextType.P0} weight="bold">
-                    angular-aria
+                    {lib.name}
                   </Text>
                   <Icon
                     fillColor={Colors.GRAY}
@@ -359,15 +366,11 @@ function InstallationPopoverContent(props: any) {
                 />
               </div>
               <div className="flex flex-row">
-                <Text type={TextType.P2}>
-                  AngularJS module for common ARIA attributes that convey state
-                  or semantic information about the application for users of
-                  assistive technologies.
-                </Text>
+                <Text type={TextType.P2}>{lib.description}</Text>
               </div>
               <div className="flex flex-row items-center gap-1">
                 <ProfileImage size={20} />
-                <Text type={TextType.P3}>Arun</Text>
+                <Text type={TextType.P3}>{lib.author}</Text>
               </div>
             </div>
           ))}
