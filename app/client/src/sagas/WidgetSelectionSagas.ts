@@ -41,6 +41,8 @@ import { builderURL } from "RouteBuilder";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
 import { quickScrollToWidget } from "utils/helpers";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -249,16 +251,12 @@ function* selectWidgetSaga(
     const { isMultiSelect, widgetId } = action.payload;
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
     const currentPageId: string = yield select(getCurrentPageId);
-    if (!widgetId) {
-      history.push(builderURL({ pageId: currentPageId }));
-      return;
-    }
-    if (isMultiSelect && selectedWidgets.length > 0) {
-      const widgetsURL = selectedWidgets.concat(widgetId).join(",");
-      history.push(builderURL({ pageId: currentPageId, hash: widgetsURL }));
-    } else {
-      history.push(builderURL({ pageId: currentPageId, hash: widgetId }));
-    }
+    updateSelectedWidgetsURL(
+      [widgetId],
+      isMultiSelect,
+      currentPageId,
+      selectedWidgets,
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
@@ -333,12 +331,7 @@ function* selectMultipleWidgetsSaga(
         yield put(showModal(allWidgets[widgetIds[0]]?.parentModalId, false));
       }
       const pageId: string = yield select(getCurrentPageId);
-      if (widgetIds.length) {
-        const widgetIdHash = widgetIds.join(",");
-        history.push(builderURL({ pageId, hash: widgetIdHash }));
-      } else {
-        history.push(builderURL({ pageId }));
-      }
+      updateSelectedWidgetsURL(widgetIds, true, pageId, []);
     }
   } catch (error) {
     yield put({
@@ -418,6 +411,32 @@ function* postWidgetSelectionSaga() {
       quickScrollToWidget(selectedWidgets[0]);
     }
   }
+}
+
+function updateSelectedWidgetsURL(
+  widgetIds: string[],
+  isMultiSelect: boolean,
+  pageId?: string,
+  selectedWidgets?: string[],
+) {
+  if (!pageId) {
+    return;
+  }
+  if (widgetIds.length === 0 || widgetIds[0] === undefined) {
+    if (
+      identifyEntityFromPath(window.location.pathname, window.location.hash)
+        .entity === FocusEntity.PROPERTY_PANE
+    ) {
+      history.push(builderURL({ pageId }));
+    }
+    return;
+  }
+  if (isMultiSelect) {
+    const widgetsHash = (selectedWidgets || []).concat(widgetIds).join(",");
+    history.push(builderURL({ pageId: pageId, hash: widgetsHash }));
+    return;
+  }
+  history.push(builderURL({ pageId: pageId, hash: widgetIds[0] }));
 }
 
 export function* widgetSelectionSagas() {
