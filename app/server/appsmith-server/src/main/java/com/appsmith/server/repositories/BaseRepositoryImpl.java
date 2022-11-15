@@ -17,10 +17,12 @@ import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -68,8 +70,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
-    @Override
-    public Mono<T> findById(ID id) {
+    public Mono<T> findByIdAndFieldName(ID id, String fieldName) {
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -77,6 +78,10 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(notDeleted());
+
+                    if (!isBlank(fieldName)) {
+                        query.fields().include(fieldName);
+                    }
 
                     return mongoOperations.query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
@@ -86,9 +91,20 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
+    public Mono<T> findById(ID id) {
+        return this.findByIdAndFieldName(id, null);
+    }
+
+    @Override
     public Mono<T> findByIdAndBranchName(ID id, String branchName) {
         // branchName will be ignored and this method is overridden for the services which are shared across branches
         return this.findById(id);
+    }
+
+    @Override
+    public Mono<T> findByIdAndBranchNameButFetchOnlySpecifiedField(@NotNull ID id, @NotNull String fieldName) {
+        // branchName will be ignored and this method is overridden for the services which are shared across branches
+        return this.findByIdAndFieldName(id, fieldName);
     }
 
     @Override

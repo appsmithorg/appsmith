@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.services.ce.CustomJSLibServiceCEImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
@@ -76,6 +77,9 @@ public class Application extends BaseDomain {
 
     @JsonIgnore
     AppLayout publishedAppLayout;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    List<CustomJSLib> installedCustomJSLibs;
 
     GitApplicationMetadata gitApplicationMetadata;
 
