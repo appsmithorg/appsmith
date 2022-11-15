@@ -212,6 +212,8 @@ function* selectWidgetsBasedOnUrl(url: Location<unknown>) {
     } else {
       yield put(selectWidgetAction(widgetsInURL[0], false));
     }
+  } else {
+    yield put(selectMultipleWidgetsAction([]));
   }
 }
 
