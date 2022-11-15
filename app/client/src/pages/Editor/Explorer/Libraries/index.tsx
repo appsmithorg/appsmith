@@ -140,7 +140,7 @@ function LibraryEntity({ lib }: any) {
   const copyToClipboard = useCallback(() => {
     write(lib.accessor);
     Toaster.show({
-      message: "Copied to clipboard",
+      text: "Copied to clipboard",
       variant: Variant.success,
     });
   }, [lib.accessor]);
