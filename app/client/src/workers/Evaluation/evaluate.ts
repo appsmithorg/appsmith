@@ -2,7 +2,7 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  extraLibraries,
+  defaultLibraries,
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
@@ -77,7 +77,7 @@ function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key]) continue;
     if (key === "evaluationVersion" || key === "window") continue;
-    if (extraLibraries.find((lib) => lib.accessor === key)) continue;
+    if (defaultLibraries.find((lib) => lib.accessor === key)) continue;
     // @ts-expect-error: Types are not available
     delete self[key];
   }
@@ -109,7 +109,7 @@ export const getScriptToEval = (
 
 export function setupEvaluationEnvironment() {
   ///// Adding extra libraries separately
-  extraLibraries.forEach((library) => {
+  defaultLibraries.forEach((library) => {
     // @ts-expect-error: Types are not available
     self[library.accessor] = library.lib;
   });

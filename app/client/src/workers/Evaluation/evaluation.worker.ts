@@ -6,7 +6,7 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
-  extraLibraries,
+  defaultLibraries,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -404,10 +404,10 @@ function eventRequestHandler({
       if (!libraryAccessor) return { status: true, defs };
       //@ts-expect-error test
       const library = self[libraryAccessor];
-      extraLibraries.push({
+      defaultLibraries.push({
         accessor: libraryAccessor,
         lib: library,
-        displayName: url,
+        name: libraryAccessor,
         docsURL: url,
       });
       defs["!name"] = `LIB/${libraryAccessor}`;

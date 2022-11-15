@@ -3,7 +3,7 @@ import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { Position } from "codemirror";
 import {
   EVAL_WORKER_ACTIONS,
-  extraLibraries,
+  defaultLibraries,
   isDynamicValue,
   isPathADynamicBinding,
   LintError,
@@ -279,7 +279,7 @@ export function getLintingErrors(
     globalData[dataKey] = true;
   }
   // Jshint shouldn't throw errors for additional libraries
-  extraLibraries.forEach((lib) => (globalData[lib.accessor] = true));
+  defaultLibraries.forEach((lib) => (globalData[lib.accessor] = true));
   // JSHint shouldn't throw errors for supported web apis
   Object.keys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),

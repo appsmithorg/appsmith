@@ -72,7 +72,7 @@ const Library = styled.li`
       padding: 2px 8px;
       flex-grow: 1;
       border: 1px solid #b3b3b3;
-      font-size: 10px;
+      font-size: 12px;
       background: white;
       display: flex;
       height: 26px;
