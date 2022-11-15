@@ -3377,20 +3377,7 @@ describe("Validate tableHeaders function", () => {
           },
         },
       }).length,
-    ).toEqual(
-      [
-        {
-          id: "some other value",
-          label: "some other value",
-          isVisible: true,
-        },
-        {
-          id: "some value",
-          label: "some value",
-          isVisible: true,
-        },
-      ].length,
-    );
+    ).toEqual(2);
   });
 
   it("should test that it returns expected array sorted", () => {
