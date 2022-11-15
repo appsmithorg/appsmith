@@ -354,9 +354,11 @@ class CodeEditor extends Component<Props, State> {
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
+    if (this.props.lintErrors !== nextProps.lintErrors)
+      return this.state.isFocused || nextState.isFocused;
+
     if (this.props.dynamicData !== nextProps.dynamicData) {
       // check if isFocused or isJSObject or areErrors changed then re-render
-      if (this.props.lintErrors !== nextProps.lintErrors) return true;
       let areErrorsEqual = true;
       if (this.props.dataTreePath) {
         const errors = this.getErrors(
@@ -373,8 +375,7 @@ class CodeEditor extends Component<Props, State> {
       }
       return nextState.isFocused || !!nextProps.isJSObject || !areErrorsEqual;
     }
-    if (this.props.lintErrors !== nextProps.lintErrors)
-      return this.state.isFocused || nextState.isFocused;
+
     return true;
   }
 
