@@ -11,10 +11,7 @@ export const isEmptyString = (value: string) => {
 
 export const isStrongPassword = (value: string) => {
   const passwordLength = value.trim().length;
-  return (
-    passwordLength >= PASSWORD_MIN_LENGTH &&
-    passwordLength < PASSWORD_MAX_LENGTH
-  );
+  return passwordLength >= PASSWORD_MIN_LENGTH;
 };
 
 export const noSpaces = (value: string) => {

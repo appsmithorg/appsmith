@@ -50,7 +50,7 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 6 and 42 characters`;
+  `Please provide a password more than 6 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = () => `Use your workspace email`;
