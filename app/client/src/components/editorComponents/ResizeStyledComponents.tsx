@@ -85,23 +85,31 @@ export const HorizontalHandleStyles = css<{
   }
 `;
 
-export const LeftHandleStyles = styled.div`
+export const LeftHandleStyles = styled.div.attrs({
+  "data-cy": "resize-left-handle",
+})`
   ${VerticalHandleStyles}
   left: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
 `;
 
-export const RightHandleStyles = styled.div`
+export const RightHandleStyles = styled.div.attrs({
+  "data-cy": "resize-right-handle",
+})`
   ${VerticalHandleStyles};
   right: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING}px);
 `;
 
-export const TopHandleStyles = styled.div`
+export const TopHandleStyles = styled.div.attrs({
+  "data-cy": "resize-top-handle",
+})`
   ${HorizontalHandleStyles};
   top: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
 `;
 
-export const BottomHandleStyles = styled.div`
+export const BottomHandleStyles = styled.div.attrs({
+  "data-cy": "resize-bottom-handle",
+})`
   ${HorizontalHandleStyles};
   bottom: ${-EDGE_RESIZE_HANDLE_WIDTH / 2 - WIDGET_PADDING}px;
 `;
