@@ -13,8 +13,7 @@ import {
 import log from "loglevel";
 import {
   deselectMultipleWidgetsAction,
-  selectMultipleWidgetsAction,
-  selectWidgetAction,
+  selectMultipleWidgetsInitAction,
   selectWidgetInitAction,
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
@@ -33,10 +32,17 @@ import { AppState } from "@appsmith/reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
 import { showModal } from "actions/widgetActions";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import history from "utils/history";
+import {
+  getCurrentPageId,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
+import { quickScrollToWidget } from "utils/helpers";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -175,7 +181,7 @@ function* selectAllWidgetsInCanvasSaga() {
       getAllSelectableChildren,
     );
     if (allSelectableChildren && allSelectableChildren.length) {
-      yield put(selectMultipleWidgetsAction(allSelectableChildren));
+      yield put(selectMultipleWidgetsInitAction(allSelectableChildren));
       const isAnyModalSelected = allSelectableChildren.some((each) => {
         return (
           each &&
@@ -243,7 +249,14 @@ function* selectWidgetSaga(
 ) {
   try {
     const { isMultiSelect, widgetId } = action.payload;
-    yield put(selectWidgetAction(widgetId, isMultiSelect));
+    const selectedWidgets: string[] = yield select(getSelectedWidgets);
+    const currentPageId: string = yield select(getCurrentPageId);
+    updateSelectedWidgetsURL(
+      [widgetId],
+      isMultiSelect,
+      currentPageId,
+      selectedWidgets,
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
@@ -317,8 +330,8 @@ function* selectMultipleWidgetsSaga(
       if (widgetIds.length > 0 && allWidgets[widgetIds[0]]?.parentModalId) {
         yield put(showModal(allWidgets[widgetIds[0]]?.parentModalId, false));
       }
-      yield put(selectWidgetAction());
-      yield put(selectMultipleWidgetsAction(widgetIds));
+      const pageId: string = yield select(getCurrentPageId);
+      updateSelectedWidgetsURL(widgetIds, true, pageId, []);
     }
   } catch (error) {
     yield put({
@@ -328,35 +341,6 @@ function* selectMultipleWidgetsSaga(
         error,
       },
     });
-  }
-}
-
-/**
- * Append Selected widgetId as hash to the url path
- * @param action
- */
-function* appendSelectedWidgetToUrlSaga(
-  action: ReduxAction<{ selectedWidgets: string[] }>,
-) {
-  const { hash, pathname } = window.location;
-  const { selectedWidgets } = action.payload;
-  const currentPageId: string = yield select(getCurrentPageId);
-
-  const currentURL = hash ? `${pathname}${hash}` : pathname;
-  let canvasEditorURL;
-  if (selectedWidgets.length === 1) {
-    canvasEditorURL = `${builderURL({
-      pageId: currentPageId,
-      hash: selectedWidgets[0],
-    })}`;
-  } else {
-    canvasEditorURL = `${builderURL({
-      pageId: currentPageId,
-    })}`;
-  }
-
-  if (currentURL !== canvasEditorURL) {
-    // history.push(canvasEditorURL);
   }
 }
 
@@ -370,7 +354,7 @@ function* canPerformSelectionSaga(saga: any, action: any) {
 }
 
 function* deselectAllWidgetsSaga() {
-  yield put(selectMultipleWidgetsAction([]));
+  yield put(selectMultipleWidgetsInitAction([]));
 }
 
 /**
@@ -392,7 +376,7 @@ function* deselectModalWidgetSaga(
     (selectedWidgets.length === 1 && selectedWidgets[0] === modalId) ||
     isWidgetPartOfChildren(selectedWidgets[0], modalWidgetChildren)
   )
-    yield put(selectMultipleWidgetsAction([]));
+    yield put(selectMultipleWidgetsInitAction([]));
 }
 
 /**
@@ -417,6 +401,42 @@ function isWidgetPartOfChildren(
   }
 
   return false;
+}
+
+function* postWidgetSelectionSaga() {
+  const selectedWidgets: Array<string> = yield select(getSelectedWidgets);
+  const isSnipingMode: boolean = yield select(snipingModeSelector);
+  if (!isSnipingMode) {
+    if (selectedWidgets.length === 1) {
+      quickScrollToWidget(selectedWidgets[0]);
+    }
+  }
+}
+
+function updateSelectedWidgetsURL(
+  widgetIds: string[],
+  isMultiSelect: boolean,
+  pageId?: string,
+  selectedWidgets?: string[],
+) {
+  if (!pageId) {
+    return;
+  }
+  if (widgetIds.length === 0 || widgetIds[0] === undefined) {
+    if (
+      identifyEntityFromPath(window.location.pathname, window.location.hash)
+        .entity === FocusEntity.PROPERTY_PANE
+    ) {
+      history.push(builderURL({ pageId }));
+    }
+    return;
+  }
+  if (isMultiSelect) {
+    const widgetsHash = (selectedWidgets || []).concat(widgetIds).join(",");
+    history.push(builderURL({ pageId: pageId, hash: widgetsHash }));
+    return;
+  }
+  history.push(builderURL({ pageId: pageId, hash: widgetIds[0] }));
 }
 
 export function* widgetSelectionSagas() {
@@ -460,9 +480,6 @@ export function* widgetSelectionSagas() {
       ReduxActionTypes.DESELECT_MODAL_WIDGETS,
       deselectModalWidgetSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
-      appendSelectedWidgetToUrlSaga,
-    ),
+    takeLatest(ReduxActionTypes.SELECT_WIDGET, postWidgetSelectionSaga),
   ]);
 }
