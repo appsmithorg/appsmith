@@ -568,7 +568,7 @@ abstract class BaseWidget<
     if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
       content = (
         <DynamicHeightContainerWrapper
-          onUpdateDynamicHeight={this.updateDynamicHeight}
+          onUpdateDynamicHeight={(height) => this.updateDynamicHeight(height)}
           widgetProps={this.props}
         >
           {content}
