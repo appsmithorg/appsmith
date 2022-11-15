@@ -32,6 +32,7 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
+  selectStatusForURL,
 } from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
@@ -154,10 +155,9 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     props.addBorder ? `1px solid var(--appsmith-color-black-300)` : "none"};
   display: flex;
   flex-direction: column;
-  background: var(--appsmith-color-black-100);
+  background: var(--appsmith-color-black-50);
   text-overflow: ellipsis;
   padding: 8px 12px;
-  margin: 0 24px;
   .progress-container {
     display: flex;
     flex-direction: column;
@@ -198,27 +198,43 @@ function getStatusIcon(status: InstallState) {
   return <Spinner />;
 }
 
+function ProgressTracker({
+  addBorder,
+  status,
+  url,
+}: {
+  addBorder: boolean;
+  status: InstallState;
+  url: string;
+}) {
+  return (
+    <InstallationProgressWrapper addBorder={addBorder}>
+      {[InstallState.Queued, InstallState.Installing].includes(status) && (
+        <div className="text-gray-700 text-xs">Installing...</div>
+      )}
+      <div className="flex justify-between items-center bg-g gap-2 fw-500 text-sm">
+        <div className="install-url fw-500">{url}</div>
+        <div className="shrink-0">{getStatusIcon(status)}</div>
+      </div>
+    </InstallationProgressWrapper>
+  );
+}
+
 function InstallationProgress() {
   const installStatusMap = useSelector(selectInstallationStatus);
-  const urls = Object.keys(installStatusMap);
+  const urls = Object.keys(installStatusMap).filter(
+    (url) => !recommendedLibraries.find((lib) => lib.url === url),
+  );
   if (urls.length === 0) return null;
   return (
-    <div className="pt-1">
+    <div className="pt-1 ml-6 mr-6">
       {urls.map((url, idx) => (
-        <InstallationProgressWrapper
+        <ProgressTracker
           addBorder={idx !== 0}
-          key={`${url}_${idx}_${installStatusMap[url]}`}
-        >
-          {[InstallState.Queued, InstallState.Installing].includes(
-            installStatusMap[url],
-          ) && <div className="text-gray-700 text-xs">Installing...</div>}
-          <div className="flex justify-between items-center bg-g gap-2 fw-500 text-sm">
-            <div className="install-url fw-500">{url}</div>
-            <div className="shrink-0">
-              {getStatusIcon(installStatusMap[url])}
-            </div>
-          </div>
-        </InstallationProgressWrapper>
+          key={`${url}_${idx}`}
+          status={installStatusMap[url]}
+          url={url}
+        />
       ))}
     </div>
   );
@@ -342,39 +358,58 @@ function InstallationPopoverContent(props: any) {
         </div>
         <div className="search-results">
           {recommendedLibraries.map((lib, idx) => (
-            <div
-              className="library-card"
-              key={idx}
-              onClick={() => installLibrary(lib.url)}
-            >
-              <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-2">
-                  <Text type={TextType.P0} weight="bold">
-                    {lib.name}
-                  </Text>
-                  <Icon
-                    fillColor={Colors.GRAY}
-                    name="open-new-tab"
-                    size={IconSize.MEDIUM}
-                  />
-                </div>
-                <Icon
-                  fillColor={Colors.GRAY}
-                  name="download"
-                  size={IconSize.MEDIUM}
-                />
-              </div>
-              <div className="flex flex-row">
-                <Text type={TextType.P2}>{lib.description}</Text>
-              </div>
-              <div className="flex flex-row items-center gap-1">
-                <ProfileImage size={20} source={lib.icon} />
-                <Text type={TextType.P3}>{lib.author}</Text>
-              </div>
-            </div>
+            <LibraryCard
+              key={`${idx}_${lib.name}`}
+              lib={lib}
+              onClick={installLibrary}
+            />
           ))}
         </div>
       </div>
     </Wrapper>
+  );
+}
+
+function LibraryCard({
+  lib,
+  onClick,
+}: {
+  lib: any;
+  onClick: (url?: string) => void;
+}) {
+  const status = useSelector(selectStatusForURL(lib.url));
+  return (
+    <div>
+      <div className="library-card" onClick={() => onClick(lib.url)}>
+        <div className="flex flex-row justify-between">
+          <div className="flex flex-row gap-2">
+            <Text type={TextType.P0} weight="bold">
+              {lib.name}
+            </Text>
+            <Icon
+              fillColor={Colors.GRAY}
+              name="open-new-tab"
+              size={IconSize.MEDIUM}
+            />
+          </div>
+          {status ? (
+            getStatusIcon(status)
+          ) : (
+            <Icon
+              fillColor={Colors.GRAY}
+              name="download"
+              size={IconSize.MEDIUM}
+            />
+          )}
+        </div>
+        <div className="flex flex-row">
+          <Text type={TextType.P2}>{lib.description}</Text>
+        </div>
+        <div className="flex flex-row items-center gap-1">
+          <ProfileImage size={20} source={lib.icon} />
+          <Text type={TextType.P3}>{lib.author}</Text>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -847,6 +847,10 @@ export const selectInstallationStatus = (state: AppState) =>
   state.ui.libraries.installationStatus;
 export const selectInstalledLibraries = (state: AppState) =>
   state.ui.libraries.installedLibraries;
+export const selectStatusForURL = (url: string) =>
+  createSelector(selectInstallationStatus, (statusMap) => {
+    return statusMap[url];
+  });
 
 export const selectLibrariesForExplorer = createSelector(
   selectInstalledLibraries,

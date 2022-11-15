@@ -1293,7 +1293,7 @@ export const ALERT_STYLE_OPTIONS = [
 
 export const customJSLibraryMessages = {
   ADD_JS_LIBRARY: () => "Add JS Libraries",
-  REC_LIBRARY: () => "RECOMMENDED LIBRARIES",
+  REC_LIBRARY: () => "Recommended Libraries",
   INSTALLATION_SUCCESSFUL: (accessor: string) =>
     `Installation Successful. You can access the library via ${accessor}`,
   INSTALLATION_FAILED: () => "Installation failed",
