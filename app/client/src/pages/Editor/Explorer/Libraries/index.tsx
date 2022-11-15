@@ -156,10 +156,10 @@ function LibraryEntity({ lib }: any) {
           onClick={() => open(!isOpen)}
           size={IconSize.XXXL}
         />
-        <Name>{lib.displayName}</Name>
+        <Name>{lib.name}</Name>
         <Version
           className="t--package-version"
-          onClick={openDocs(lib.displayName, lib.docsURL)}
+          onClick={openDocs(lib.name, lib.docsURL)}
           version={lib.version}
         >
           {lib.version}
@@ -181,7 +181,7 @@ function LibraryEntity({ lib }: any) {
 function JSDependencies() {
   const libraries = useSelector(selectLibrariesForExplorer);
   const dependencyList = libraries.map((lib) => (
-    <LibraryEntity key={lib.displayName} lib={lib} />
+    <LibraryEntity key={lib.name} lib={lib} />
   ));
   return (
     <Entity

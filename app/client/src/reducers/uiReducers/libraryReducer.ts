@@ -15,13 +15,7 @@ export enum InstallState {
 
 export type LibraryState = {
   installationStatus: Record<string, InstallState>;
-  installedLibraries: {
-    name: string;
-    docsURL: string;
-    version?: string;
-    accessor: string;
-    url?: string;
-  }[];
+  installedLibraries: TJSLibrary[];
 };
 
 const initialState = {
@@ -41,14 +35,20 @@ const jsLibraryReducer = createImmerReducer(initialState, {
     state: LibraryState,
     action: ReduxAction<string>,
   ) => {
-    state.installationStatus[action.payload] =
-      state.installationStatus[action.payload] || InstallState.Queued;
+    state.installationStatus = {
+      ...state.installationStatus,
+      [action.payload]:
+        state.installationStatus[action.payload] || InstallState.Queued,
+    };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_START]: (
     state: LibraryState,
     action: ReduxAction<string>,
   ) => {
-    state.installationStatus[action.payload] = InstallState.Queued;
+    state.installationStatus = {
+      ...state.installationStatus,
+      [action.payload]: InstallState.Queued,
+    };
   },
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (
     state: LibraryState,

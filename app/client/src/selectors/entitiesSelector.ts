@@ -853,6 +853,15 @@ export const selectStatusForURL = (url: string) =>
     return statusMap[url];
   });
 
+export const selectQueuedLibraries = createSelector(
+  selectInstallationStatus,
+  (statusMap) => {
+    return Object.keys(statusMap).filter(
+      (url) => statusMap[url] === InstallState.Queued,
+    );
+  },
+);
+
 export const selectLibrariesForExplorer = createSelector(
   selectInstalledLibraries,
   selectInstallationStatus,
@@ -864,7 +873,7 @@ export const selectLibrariesForExplorer = createSelector(
           (lib) => lib.url === url,
         );
         return {
-          displayName: recommendedLibrary?.name || url,
+          name: recommendedLibrary?.name || url,
           docsURL: recommendedLibrary?.url || url,
           version: recommendedLibrary?.version || "",
           url: recommendedLibrary?.url || url,

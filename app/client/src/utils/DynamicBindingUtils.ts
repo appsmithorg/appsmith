@@ -155,7 +155,8 @@ export type TJSLibrary = {
   docsURL: string;
   name: string;
   accessor: string;
-  lib: any;
+  lib?: any;
+  url?: string;
 };
 
 export const defaultLibraries: TJSLibrary[] = [

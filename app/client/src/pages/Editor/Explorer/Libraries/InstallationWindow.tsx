@@ -32,6 +32,7 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
+  selectQueuedLibraries,
   selectStatusForURL,
 } from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
@@ -250,20 +251,26 @@ function InstallationProgress() {
   );
 }
 
+enum Repo {
+  Unpkg,
+  JsDelivr,
+}
+
 function InstallationPopoverContent(props: any) {
   const { closeWindow } = props;
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
+  const queuedLibraries = useSelector(selectQueuedLibraries);
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
   }, []);
 
-  const openDoc = useCallback((e, repo: string) => {
+  const openDoc = useCallback((e, repo: Repo) => {
     e.preventDefault();
-    if (repo === "UNPKG") return window.open("https://unpkg.com");
+    if (repo === Repo.Unpkg) return window.open("https://unpkg.com");
     window.open("https://www.jsdelivr.com/");
   }, []);
 
@@ -277,13 +284,17 @@ function InstallationPopoverContent(props: any) {
   }, []);
 
   const installLibrary = useCallback(
-    (url: string) => {
-      const libFound = installedLibraries.find((lib) => lib.url === url);
-      if (libFound) {
+    (url?: string) => {
+      url = url || URL;
+      const isQueued = queuedLibraries.find((libURL) => libURL === url);
+      if (isQueued) return;
+
+      const libInstalled = installedLibraries.find((lib) => lib.url === url);
+      if (libInstalled) {
         Toaster.show({
           text: createMessage(
             customJSLibraryMessages.INSTALLED_ALREADY,
-            libFound.accessor,
+            libInstalled.accessor,
           ),
           variant: Variant.info,
         });
@@ -291,7 +302,7 @@ function InstallationPopoverContent(props: any) {
       }
       dispatch(installLibraryInit(url));
     },
-    [URL, installedLibraries],
+    [URL, installedLibraries, queuedLibraries],
   );
 
   return (
@@ -325,7 +336,7 @@ function InstallationPopoverContent(props: any) {
               category={Category.primary}
               data-testid="install-library-btn"
               icon="download"
-              onClick={() => installLibrary(URL)}
+              onClick={() => installLibrary()}
               size={Size.medium}
               tag="button"
               text="INSTALL"
@@ -340,19 +351,27 @@ function InstallationPopoverContent(props: any) {
             Explore libraries on{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, "JSDELIVR")}
+              onClick={(e) => openDoc(e, Repo.JsDelivr)}
             >
               jsDelivr
             </a>{" "}
             or{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, "UNPKG")}
+              onClick={(e) => openDoc(e, Repo.Unpkg)}
             >
               UNPKG.
             </a>
           </span>
-          <span>Learn more about Custom JS Libraries here.</span>
+          <span>
+            {createMessage(customJSLibraryMessages.LEARN_MORE)}{" "}
+            <a
+              className="text-primary-500"
+              onClick={(e) => openDoc(e, Repo.Unpkg)}
+            >
+              here.
+            </a>
+          </span>
         </div>
         <InstallationProgress />
         <div className="pl-6 pb-3 pt-4 sticky top-0 z-2 bg-white">

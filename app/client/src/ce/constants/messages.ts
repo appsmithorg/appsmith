@@ -1301,6 +1301,7 @@ export const customJSLibraryMessages = {
     `This library is installed already. You could access it via ${accessor}.`,
   UNINSTALL_FAILED: (name: string) =>
     `Couldn't uninstall ${name}. Please try again after sometime.`,
+  LEARN_MORE: () => "Learn more about Custom JS Libraries",
 };
 
 export const USAGE_AND_BILLING = {
