@@ -200,11 +200,10 @@ function getStatusIcon(status: InstallState) {
 
 function InstallationProgress() {
   const installStatusMap = useSelector(selectInstallationStatus);
-  // const application = useSelector(getCurrentApplication);
   const urls = Object.keys(installStatusMap);
   if (urls.length === 0) return null;
   return (
-    <>
+    <div className="pt-1">
       {urls.map((url, idx) => (
         <InstallationProgressWrapper
           addBorder={idx !== 0}
@@ -221,7 +220,7 @@ function InstallationProgress() {
           </div>
         </InstallationProgressWrapper>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -346,7 +345,7 @@ function InstallationPopoverContent(props: any) {
             <div
               className="library-card"
               key={idx}
-              onClick={(e) => installLibrary(lib.url)}
+              onClick={() => installLibrary(lib.url)}
             >
               <div className="flex flex-row justify-between">
                 <div className="flex flex-row gap-2">
@@ -369,7 +368,7 @@ function InstallationPopoverContent(props: any) {
                 <Text type={TextType.P2}>{lib.description}</Text>
               </div>
               <div className="flex flex-row items-center gap-1">
-                <ProfileImage size={20} />
+                <ProfileImage size={20} source={lib.icon} />
                 <Text type={TextType.P3}>{lib.author}</Text>
               </div>
             </div>

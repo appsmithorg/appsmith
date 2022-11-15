@@ -5,13 +5,16 @@ export default [
     author: "auth0",
     version: "8.5.1",
     url: "https://appsmith-packd.herokuapp.com/jsonwebtoken@8.5.1",
+    icon: "https://github.com/auth0.png?s=20",
   },
   {
     name: "Supabase",
     description: "Isomorphic Javascript client for Supabase",
     author: "supabase",
     version: "2.1.0",
-    url: "https://www.jsdelivr.com/package/npm/@supabase/supabase-js",
+    url:
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.1.0/dist/umd/supabase.min.js",
+    icon: "https://github.com/supabase.png?s=20",
   },
   {
     name: "fast-csv",
@@ -19,6 +22,7 @@ export default [
     author: "C2FO",
     version: "4.3.6",
     url: "https://appsmith-packd.herokuapp.com/fast-csv@4.3.6",
+    icon: "https://github.com/C2FO.png?s=20",
   },
   {
     name: "ky",
@@ -26,6 +30,7 @@ export default [
     author: "sindresorhus",
     version: "0.25.0",
     url: "https://www.unpkg.com/ky@0.25.0/umd.js",
+    icon: "https://github.com/sindresorhus.png?s=20",
   },
   {
     name: "jspdf",
@@ -33,6 +38,7 @@ export default [
     author: "MrRio",
     version: "2.5.1",
     url: "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.js",
+    icon: "https://github.com/MrRio.png?s=20",
   },
   {
     name: "@amplitude/analytics-browser",
@@ -41,6 +47,7 @@ export default [
     version: "1.6.1",
     url:
       "https://cdn.jsdelivr.net/npm/@amplitude/analytics-browser@1.6.1/lib/scripts/amplitude-min.umd.js",
+    icon: "https://github.com/amplitude.png?s=20",
   },
   {
     name: "uzip-module",
@@ -48,6 +55,7 @@ export default [
     author: "greggman",
     version: "1.0.3",
     url: "https://appsmith-packd.herokuapp.com/uzip-module@1.0.3",
+    icon: "https://github.com/greggman.png?s=20",
   },
   {
     name: "@sentry/browser",
@@ -55,5 +63,6 @@ export default [
     author: "getsentry",
     version: "7.17.3",
     url: "https://browser.sentry-cdn.com/7.17.3/bundle.min.js",
+    icon: "https://github.com/getsentry.png?s=20",
   },
 ];
