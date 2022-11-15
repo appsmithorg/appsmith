@@ -71,6 +71,7 @@ import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
 import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
+import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -127,6 +128,7 @@ export interface AppState {
     mainCanvas: MainCanvasReduxState;
     focusHistory: FocusHistoryState;
     editorContext: EditorContextState;
+    autoHeightUI: AutoHeightUIState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

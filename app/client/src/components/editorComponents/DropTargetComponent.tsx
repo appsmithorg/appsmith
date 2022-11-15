@@ -74,6 +74,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isAutoHeightWithLimitsChanging = useSelector(
+    (state: AppState) => state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,
+  );
 
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
@@ -101,7 +104,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { deselectAll, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
   const showDragLayer =
-    (isDragging && draggedOn === props.widgetId) || isResizing;
+    (isDragging && draggedOn === props.widgetId) ||
+    isResizing ||
+    isAutoHeightWithLimitsChanging;
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -114,7 +119,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     }
   }, [props.bottomRow, props.canExtend]);
   useEffect(() => {
-    if (!isDragging || !isResizing) {
+    if (!isDragging || !isResizing || !isAutoHeightWithLimitsChanging) {
       // bottom row of canvas can increase by any number as user moves/resizes any widget towards the bottom of the canvas
       // but canvas height is not lost when user moves/resizes back top.
       // it is done that way to have a pleasant building experience.
@@ -122,7 +127,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       rowRef.current = snapRows;
       updateHeight();
     }
-  }, [isDragging, isResizing]);
+  }, [isDragging, isResizing, isAutoHeightWithLimitsChanging]);
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
@@ -155,7 +160,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   };
 
   const handleFocus = (e: any) => {
-    if (!isResizing && !isDragging) {
+    if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
       if (!props.parentId) {
         deselectAll();
         focusWidget && focusWidget(props.widgetId);
@@ -171,7 +176,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
     : "100%";
   const boxShadow =
-    (isResizing || isDragging) && props.widgetId === MAIN_CONTAINER_WIDGET_ID
+    (isResizing || isDragging || isAutoHeightWithLimitsChanging) &&
+    props.widgetId === MAIN_CONTAINER_WIDGET_ID
       ? "inset 0px 0px 0px 1px #DDDDDD"
       : "0px 0px 0px 1px transparent";
 
