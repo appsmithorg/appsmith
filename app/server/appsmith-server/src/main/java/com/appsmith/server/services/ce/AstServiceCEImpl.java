@@ -36,7 +36,7 @@ public class AstServiceCEImpl implements AstServiceCE {
     private final InstanceConfig instanceConfig;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
-            .maxConnections(500)
+            .maxConnections(100)
             .maxIdleTime(Duration.ofSeconds(30))
             .maxLifeTime(Duration.ofSeconds(40))
             .pendingAcquireTimeout(Duration.ofSeconds(10))
