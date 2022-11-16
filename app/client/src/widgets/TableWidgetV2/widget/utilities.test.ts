@@ -2020,7 +2020,7 @@ describe("getArrayPropertyValue", () => {
     ]);
   });
 
-  it("should test that it returns the correct value when value is an araray of array of label values", () => {
+  it("should test that it returns the correct value when value is an array of array of label values", () => {
     expect(
       getArrayPropertyValue(
         [
