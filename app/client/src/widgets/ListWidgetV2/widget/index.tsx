@@ -29,10 +29,7 @@ import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-import {
-  EventType,
-  ExecuteTriggerPayload,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
@@ -46,7 +43,6 @@ export enum DynamicPathType {
   LEVEL = "level",
 }
 export type DynamicPathMap = Record<string, DynamicPathType[]>;
-export type DynamicPathMapList = Record<string, DynamicPathMap>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
 
@@ -231,7 +227,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   metaWidgetGeneratorOptions = (): GeneratorOptions => {
     const {
-      dynamicPathMapList = {},
       flattenedChildCanvasWidgets = {},
       listData = [],
       mainCanvasId = "",
@@ -247,7 +242,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
       data: listData,
-      dynamicPathMapList,
       gridGap: this.getGridGap(),
       infiniteScroll: this.props.infiniteScroll ?? false,
       levelData: this.props.levelData,
@@ -651,34 +645,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  overrideExecuteAction = (triggerPayload: ExecuteTriggerPayload) => {
-    const { id: metaWidgetId } = triggerPayload?.source || {};
-
-    if (metaWidgetId) {
-      const { index } = this.metaWidgetGenerator.getCacheByMetaWidgetId(
-        metaWidgetId,
-      );
-      const { listData = [] } = this.props;
-
-      const globalContext = {
-        currentIndex: index,
-        currentItem: listData[index],
-        ...triggerPayload.globalContext,
-      };
-
-      const payload = {
-        ...triggerPayload,
-        globalContext,
-      };
-
-      super.executeAction(payload);
-    } else {
-      log.error(
-        `LIST_WIDGET_V2 ${this.props.widgetName} - meta widget not found on "executeAction" call`,
-      );
-    }
-  };
-
   overrideBatchUpdateWidgetProperty = (
     metaWidgetId: string,
     updates: BatchPropertyUpdatePayload,
@@ -795,7 +761,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         <MetaWidgetContextProvider
           batchUpdateWidgetProperty={this.overrideBatchUpdateWidgetProperty}
           deleteWidgetProperty={this.overrideDeleteWidgetProperty}
-          executeAction={this.overrideExecuteAction}
           updateWidget={this.overrideUpdateWidget}
           updateWidgetProperty={this.overrideUpdateWidgetProperty}
         >
@@ -840,8 +805,6 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   boxShadow?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
-  currentViewItems: Array<Record<string, unknown>>;
-  dynamicPathMapList?: DynamicPathMapList;
   gridGap?: number;
   infiniteScroll?: boolean;
   level?: number;
@@ -852,6 +815,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   onListItemClick?: string;
   onPageSizeChange?: string;
   pageNo: number;
+  currentViewItems: Array<Record<string, unknown>>;
   pageSize: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;

@@ -1,6 +1,6 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, without } from "lodash";
+import { difference, omit, set, get, isEmpty, isString, without } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -16,7 +16,6 @@ import { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import {
-  DynamicPathMapList,
   DynamicPathType,
   LevelData,
   ListWidgetProps,
@@ -41,7 +40,6 @@ export type GeneratorOptions = {
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
-  dynamicPathMapList: DynamicPathMapList;
   gridGap: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
@@ -130,13 +128,21 @@ const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 // eslint-disable-next-line prettier/prettier
 const LEVEL_PATH_REGEX = /level_[\$\w]*(\.[a-zA-Z\$\_][\$\w]*)*/gi;
 
+const hasCurrentItem = (value: string) =>
+  isString(value) && value.indexOf("currentItem") > -1;
+const hasCurrentIndex = (value: string) =>
+  isString(value) && value.indexOf("currentIndex") > -1;
+const hasCurrentRow = (value: string) =>
+  isString(value) && value.indexOf("currentRow") > -1;
+const hasLevel = (value: string) =>
+  isString(value) && value.indexOf("level_") > -1;
+
 class MetaWidgetGenerator {
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
   private currTemplateWidgets: TemplateWidgets;
   private currViewMetaWidgetIds: string[];
   private data: GeneratorOptions["data"];
-  private dynamicPathMapList: GeneratorOptions["dynamicPathMapList"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
   private gridGap: GeneratorOptions["gridGap"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
@@ -166,7 +172,6 @@ class MetaWidgetGenerator {
     this.containerWidgetId = "";
     this.currViewMetaWidgetIds = [];
     this.data = [];
-    this.dynamicPathMapList = {};
     this.getWidgetCache = props.getWidgetCache;
     this.gridGap = 0;
     this.infiniteScroll = props.infiniteScroll;
@@ -200,7 +205,6 @@ class MetaWidgetGenerator {
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
-    this.dynamicPathMapList = options.dynamicPathMapList;
     this.gridGap = options.gridGap;
     this.infiniteScroll = options.infiniteScroll;
     this.levelData = options.levelData;
@@ -596,29 +600,32 @@ class MetaWidgetGenerator {
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
   ) => {
-    const { index, metaWidgetName, templateWidgetId } = metaWidgetCacheProps;
+    const { index, metaWidgetName } = metaWidgetCacheProps;
     const key = this.getPrimaryKey(index);
-    const dynamicMap = this.dynamicPathMapList[templateWidgetId];
+    const dynamicPaths = [
+      ...(metaWidget.dynamicBindingPathList || []),
+      ...(metaWidget.dynamicTriggerPathList || []),
+    ];
     let referencesEntityDef: Record<string, string> = {};
 
-    if (!dynamicMap) return;
+    if (!dynamicPaths.length) return;
 
-    Object.entries(dynamicMap).forEach(([path, dynamicPathTypes]) => {
+    dynamicPaths.forEach(({ key: path }) => {
       const propertyValue: string = get(metaWidget, path);
       const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
       const js = combineDynamicBindings(jsSnippets, stringSegments);
       const pathTypes = new Set();
 
-      if (dynamicPathTypes.includes(DynamicPathType.CURRENT_ITEM)) {
+      if (hasCurrentItem(propertyValue)) {
         this.addCurrentItemProperty(metaWidget, metaWidgetName);
         pathTypes.add(DynamicPathType.CURRENT_ITEM);
       }
 
-      if (dynamicPathTypes.includes(DynamicPathType.CURRENT_INDEX)) {
+      if (hasCurrentIndex(propertyValue)) {
         pathTypes.add(DynamicPathType.CURRENT_INDEX);
       }
 
-      if (dynamicPathTypes.includes(DynamicPathType.CURRENT_ROW)) {
+      if (hasCurrentRow(propertyValue)) {
         referencesEntityDef = {
           ...referencesEntityDef,
           ...this.getReferencesEntityDefMap(propertyValue, key),
@@ -626,7 +633,7 @@ class MetaWidgetGenerator {
         pathTypes.add(DynamicPathType.CURRENT_ROW);
       }
 
-      if (dynamicPathTypes.includes(DynamicPathType.LEVEL)) {
+      if (hasLevel(propertyValue)) {
         pathTypes.add(DynamicPathType.CURRENT_ROW);
         const levelPaths = propertyValue.match(LEVEL_PATH_REGEX);
 
