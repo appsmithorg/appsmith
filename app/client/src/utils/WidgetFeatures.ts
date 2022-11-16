@@ -319,7 +319,7 @@ export const PropertyPaneConfigTemplates: Record<
   [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: [
     {
       helpText:
-        "Auto Height: Configure the way the widget height react to content changes.",
+        "Auto Height: Configure the way the widget height reacts to content changes.",
       propertyName: "dynamicHeight",
       label: "Height",
       controlType: "DROP_DOWN",
