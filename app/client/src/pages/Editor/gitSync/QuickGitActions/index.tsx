@@ -50,7 +50,6 @@ import {
   TooltipComponent as Tooltip,
 } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type QuickActionButtonProps = {
   className?: string;
@@ -234,9 +233,8 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-  const featureFlags = useSelector(selectFeatureFlags);
 
-  const isTooltipEnabled = !featureFlags.GIT || isInGuidedTour;
+  const isTooltipEnabled = isInGuidedTour;
   const tooltipContent = !isInGuidedTour ? (
     <>
       <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
@@ -248,7 +246,7 @@ function ConnectGitPlaceholder() {
       <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
     </>
   );
-  const isGitConnectionEnabled = featureFlags.GIT && !isInGuidedTour;
+  const isGitConnectionEnabled = !isInGuidedTour;
 
   return (
     <Container>
@@ -303,7 +301,6 @@ export default function QuickGitActions() {
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
   const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const quickActionButtons = getQuickActionButtons({
     commit: () => {
@@ -352,7 +349,7 @@ export default function QuickGitActions() {
     showPullLoadingState,
     changesToCommit,
   });
-  return featureFlags.GIT && isGitConnected ? (
+  return isGitConnected ? (
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (

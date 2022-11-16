@@ -78,7 +78,7 @@ import {
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
-import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -222,7 +222,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
           }),
         );
         if (isPropertyUpdate) {
-          yield put(generateDynamicHeightComputationTree(true));
+          yield put(generateAutoHeightLayoutTreeAction(true, false));
           yield call(openPropertyPaneSaga, replay);
         }
         if (!isPropertyUpdate) {

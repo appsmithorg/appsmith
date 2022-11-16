@@ -7,11 +7,11 @@ import datasourceReducer from "./datasourceReducer";
 import jsActionsReducer from "./jsActionsReducer";
 import jsExecutionsReducer from "./jsExecutionsReducer";
 import metaReducer from "./metaReducer";
-import dynamicHeightLayoutTreeReducer from "./dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
-import canvasLevelsReducer from "./dynamicHeightReducers/canvasLevelsReducer";
 import pageListReducer from "./pageListReducer";
 import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 import widgetConfigReducer from "./widgetConfigReducer";
+import autoHeightLayoutTreeReducer from "./autoHeightReducers/autoHeightLayoutTreeReducer";
+import canvasLevelsReducer from "./autoHeightReducers/canvasLevelsReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
@@ -25,7 +25,7 @@ const entityReducer = combineReducers({
   meta: metaReducer,
   app: appReducer,
   jsActions: jsActionsReducer,
-  dynamicHeightLayoutTree: dynamicHeightLayoutTreeReducer,
+  autoHeightLayoutTree: autoHeightLayoutTreeReducer,
   canvasLevels: canvasLevelsReducer,
 });
 

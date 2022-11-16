@@ -79,6 +79,7 @@ function PropertyPaneView(
     getWidgetPropsForPropertyPaneView,
     equal,
   );
+
   const doActionsExist = useSelector(actionsExist);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {

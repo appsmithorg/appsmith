@@ -58,7 +58,11 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import history from "utils/history";
-import { captureInvalidDynamicBindingPath, isNameValid } from "utils/helpers";
+import {
+  captureInvalidDynamicBindingPath,
+  isNameValid,
+  quickScrollToWidget,
+} from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
@@ -92,8 +96,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
@@ -117,9 +120,13 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
-import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
+import { getSelectedWidgets } from "selectors/ui";
+import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
+import { showModal } from "actions/widgetActions";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -236,6 +243,8 @@ export function* handleFetchedPage({
     yield put(updateCurrentPage(pageId, pageSlug));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
+    // restore selected widgets while loading the page.
+    yield call(restoreSelectedWidgetContext);
 
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
      */
@@ -254,7 +263,7 @@ export function* handleFetchedPage({
 
     // Since new page has new layout, we need to generate a data structure
     // to compute dynamic height based on the new layout.
-    yield put(generateDynamicHeightComputationTree(true));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     if (willPageBeMigrated) {
       yield put(saveLayout());
@@ -344,6 +353,10 @@ export function* fetchPublishedPageSaga(
 
       // dispatch fetch page success
       yield put(fetchPublishedPageSuccess());
+
+      // Since new page has new layout, we need to generate a data structure
+      // to compute dynamic height based on the new layout.
+      yield put(generateAutoHeightLayoutTreeAction(true, true));
 
       /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
        */
@@ -1106,6 +1119,47 @@ export function* generateTemplatePageSaga(
   }
 }
 
+function* restoreSelectedWidgetContext() {
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasWidgetsWithParentId,
+  );
+  if (!selectedWidgets.length) return;
+
+  if (
+    selectedWidgets.length === 1 &&
+    allWidgets[selectedWidgets[0]]?.type === "MODAL_WIDGET"
+  ) {
+    yield put(showModal(selectedWidgets[0], false));
+  } else if (allWidgets[selectedWidgets[0]]?.parentModalId) {
+    yield put(showModal(allWidgets[selectedWidgets[0]]?.parentModalId, false));
+  }
+
+  quickScrollToWidget(selectedWidgets[0]);
+}
+
+function* deleteCanvasCardsStateSaga() {
+  const currentPageId: string = yield select(getCurrentPageId);
+  const state = JSON.parse(
+    localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
+  );
+  delete state[currentPageId];
+  localStorage.setItem(
+    LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE,
+    JSON.stringify(state),
+  );
+}
+
+function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
+  const state = localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE);
+  const stateObject = JSON.parse(state ?? "{}");
+  stateObject[action.payload] = true;
+  localStorage.setItem(
+    LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE,
+    JSON.stringify(stateObject),
+  );
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -1131,5 +1185,10 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
     takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
     takeEvery(ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT, setCustomSlugSaga),
+    takeEvery(ReduxActionTypes.SET_CANVAS_CARDS_STATE, setCanvasCardsStateSaga),
+    takeEvery(
+      ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
+      deleteCanvasCardsStateSaga,
+    ),
   ]);
 }

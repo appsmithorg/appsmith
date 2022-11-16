@@ -57,10 +57,7 @@ class CanvasWidget extends ContainerWidget {
 
   getPageView() {
     let height = 0;
-    const snapRows = getCanvasSnapRows(
-      this.props.bottomRow,
-      this.props.canExtend,
-    );
+    const snapRows = getCanvasSnapRows(this.props.bottomRow, false);
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",

@@ -19,6 +19,7 @@ const StyledRTEditor = styled.div<{
   labelPosition?: LabelPosition;
   isValid?: boolean;
   isDisabled?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }>`
   && {
     width: 100%;
@@ -212,12 +213,16 @@ const StyledRTEditor = styled.div<{
 export const RichTextEditorInputWrapper = styled.div<{
   isValid?: boolean;
   borderRadius: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto; min-height: 200px; }" : ""};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -261,7 +266,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const initialRender = useRef(true);
 
   const toolbarConfig =
-    "insertfile undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' | help";
+    "insertfile undo redo | formatselect | bold italic backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' |help";
 
   const handleEditorChange = useCallback(
     (newValue: string, editor: any) => {
@@ -302,6 +307,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       compactMode={compactMode}
       data-testid="rte-container"
       isDisabled={props.isDisabled}
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       isValid={props.isValid}
       labelPosition={labelPosition}
     >
@@ -322,13 +328,14 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       )}
       <RichTextEditorInputWrapper
         borderRadius={props.borderRadius}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         isValid={props.isValid}
       >
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
           init={{
-            height: "100%",
+            height: isDynamicHeightEnabled ? "auto" : "100%",
             menubar: false,
             toolbar_mode: "sliding",
             forced_root_block: "p",

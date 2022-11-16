@@ -1,6 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { ButtonPlacementTypes } from "components/constants";
 import { updateStyles } from "../propertyUtils";
+import {
+  CodeScannerWidgetProps,
+  ScannerLayout,
+} from "widgets/CodeScannerWidget/constants";
 
 export default [
   {
@@ -14,16 +18,19 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
         updateHook: updateStyles,
-        dependencies: ["iconAlign"],
+        dependencies: ["iconAlign", "scannerLayout"],
         validation: {
           type: ValidationTypes.TEXT,
         },
+        hidden: (props: CodeScannerWidgetProps) =>
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
       },
       {
         propertyName: "iconAlign",
         label: "Position",
         helpText: "Sets the icon alignment of the button",
         controlType: "ICON_TABS",
+        fullWidth: true,
         options: [
           {
             icon: "VERTICAL_LEFT",
@@ -42,11 +49,15 @@ export default [
             allowedValues: ["center", "left", "right"],
           },
         },
+        hidden: (props: CodeScannerWidgetProps) =>
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
       {
         propertyName: "placement",
         label: "Placement",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         helpText: "Sets the space between items",
         options: [
           {
@@ -77,6 +88,9 @@ export default [
             default: ButtonPlacementTypes.CENTER,
           },
         },
+        hidden: (props: CodeScannerWidgetProps) =>
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
     ],
   },
@@ -97,6 +111,9 @@ export default [
             regex: /^(?![<|{{]).+/,
           },
         },
+        hidden: (props: CodeScannerWidgetProps) =>
+          props.scannerLayout === ScannerLayout.ALWAYS_ON,
+        dependencies: ["scannerLayout"],
       },
     ],
   },

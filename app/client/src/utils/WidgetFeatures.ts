@@ -1,14 +1,22 @@
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import {
+  PropertyPaneConfig,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
-import { OverflowTypes } from "widgets/TextWidget/constants";
+import { WidgetConfiguration } from "widgets/constants";
 
 import { AutocompleteDataType } from "./autocomplete/TernServer";
-import EventEmitter from "./EventEmitter";
+import DynamicHeightCallbackHandler from "./CallbackHandler/DynamicHeightCallbackHandler";
+import { CallbackHandlerEventType } from "./CallbackHandler/CallbackHandlerEventType";
 
-export interface WidgetFeatures {
-  dynamicHeight: boolean;
+export enum RegisteredWidgetFeatures {
+  DYNAMIC_HEIGHT = "dynamicHeight",
 }
+
+export type WidgetFeatures = Record<RegisteredWidgetFeatures, boolean>;
 
 export enum DynamicHeight {
   AUTO_HEIGHT = "AUTO_HEIGHT",
@@ -24,11 +32,97 @@ export enum DynamicHeight {
 
    Note: These are added to the widget configs during registration
 */
-export const WidgetFeatureProps = {
-  DYNAMIC_HEIGHT: {
-    minDynamicHeight: 0,
-    maxDynamicHeight: 0,
+export const WidgetFeatureProps: Record<
+  RegisteredWidgetFeatures,
+  Record<string, unknown>
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: {
+    minDynamicHeight: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
+    maxDynamicHeight: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
     dynamicHeight: DynamicHeight.FIXED,
+  },
+};
+
+export const WidgetFeaturePropertyEnhancements: Record<
+  RegisteredWidgetFeatures,
+  (config: WidgetConfiguration) => Record<string, unknown>
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (config: WidgetConfiguration) => {
+    const newProperties: Partial<WidgetProps> = {};
+    if (config.isCanvas) {
+      newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
+      newProperties.shouldScrollContents = true;
+      newProperties.originalTopRow = config.defaults.topRow;
+      newProperties.originalBottomRow = config.defaults.bottomRow;
+    }
+    if (config.defaults.overflow) newProperties.overflow = "NONE";
+    return newProperties;
+  },
+};
+
+function findAndUpdatePropertyPaneControlConfig(
+  config: PropertyPaneConfig[],
+  propertyPaneUpdates: Record<string, Record<string, unknown>>,
+): PropertyPaneConfig[] {
+  return config.map((sectionConfig: PropertyPaneConfig) => {
+    if (
+      Array.isArray(sectionConfig.children) &&
+      sectionConfig.children.length > 0
+    ) {
+      Object.keys(propertyPaneUpdates).forEach((propertyName: string) => {
+        const controlConfigIndex:
+          | number
+          | undefined = sectionConfig.children?.findIndex(
+          (controlConfig: PropertyPaneConfig) =>
+            (controlConfig as PropertyPaneControlConfig).propertyName ===
+            propertyName,
+        );
+
+        if (
+          controlConfigIndex &&
+          controlConfigIndex > -1 &&
+          sectionConfig.children
+        ) {
+          sectionConfig.children[controlConfigIndex] = {
+            ...sectionConfig.children[controlConfigIndex],
+            ...propertyPaneUpdates[propertyName],
+          };
+        }
+      });
+    }
+    return sectionConfig;
+  });
+}
+
+export const WidgetFeaturePropertyPaneEnhancements: Record<
+  RegisteredWidgetFeatures,
+  (config: PropertyPaneConfig[]) => PropertyPaneConfig[]
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (config: PropertyPaneConfig[]) => {
+    function hideWhenDynamicHeightIsEnabled(props: WidgetProps) {
+      return (
+        props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS ||
+        props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
+      );
+    }
+    return findAndUpdatePropertyPaneControlConfig(config, {
+      shouldScrollContents: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
+      },
+      scrollContents: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
+      },
+      fixedFooter: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
+      },
+      overflow: {
+        hidden: hideWhenDynamicHeightIsEnabled,
+        dependencies: ["dynamicHeight"],
+      },
+    });
   },
 };
 
@@ -117,7 +211,8 @@ function updateMinMaxDynamicHeight(
     const maxDynamicHeight = parseInt(props.maxDynamicHeight, 10);
     if (
       isNaN(maxDynamicHeight) ||
-      maxDynamicHeight > props.bottomRow - props.topRow
+      maxDynamicHeight === WidgetHeightLimits.MAX_HEIGHT_IN_ROWS ||
+      maxDynamicHeight <= WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
     ) {
       updates.push({
         propertyPath: "maxDynamicHeight",
@@ -145,22 +240,56 @@ function updateMinMaxDynamicHeight(
     );
   }
 
-  if (
-    (propertyValue === DynamicHeight.AUTO_HEIGHT ||
-      propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
-    props.shouldScrollContents === false
-  ) {
+  if (propertyValue === DynamicHeight.FIXED) {
     updates.push({
-      propertyPath: "shouldScrollContents",
-      propertyValue: true,
+      propertyPath: "originalBottomRow",
+      propertyValue: undefined,
+    });
+    updates.push({
+      propertyPath: "originalTopRow",
+      propertyValue: undefined,
     });
   }
 
-  if (props.type === "TEXT_WIDGET") {
-    updates.push({
-      propertyPath: "overflow",
-      propertyValue: OverflowTypes.NONE,
-    });
+  // The following are updates which apply to specific widgets.
+  if (
+    propertyValue === DynamicHeight.AUTO_HEIGHT ||
+    propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+  ) {
+    if (props.dynamicHeight === DynamicHeight.FIXED) {
+      updates.push({
+        propertyPath: "originalBottomRow",
+        propertyValue: props.bottomRow,
+      });
+      updates.push({
+        propertyPath: "originalTopRow",
+        propertyValue: props.topRow,
+      });
+    }
+    if (!props.shouldScrollContents) {
+      updates.push({
+        propertyPath: "shouldScrollContents",
+        propertyValue: true,
+      });
+    }
+    if (props.overflow !== undefined) {
+      updates.push({
+        propertyPath: "overflow",
+        propertyValue: "NONE",
+      });
+    }
+    if (props.scrollContents === true) {
+      updates.push({
+        propertyPath: "scrollContents",
+        propertyValue: false,
+      });
+    }
+    if (props.fixedFooter === true) {
+      updates.push({
+        propertyPath: "fixedFooter",
+        propertyValue: false,
+      });
+    }
   }
 
   return updates;
@@ -180,104 +309,122 @@ function transformToNumber(
 }
 // TODO FEATURE:(abhinav) Add validations to these properties
 
-export const PropertyPaneConfigTemplates = {
-  DYNAMIC_HEIGHT: {
-    sectionName: "Layout Features",
-    hidden: (props: WidgetProps) => {
-      if (props.type === "TABLE_WIDGET_V2")
-        return !props.serverSidePaginationEnabled;
-      else return false;
+const CONTAINER_SCROLL_HELPER_TEXT =
+  "While editing, this widget may scroll contents to facilitate adding widgets. When published, the widget may not scroll contents";
+
+export const PropertyPaneConfigTemplates: Record<
+  RegisteredWidgetFeatures,
+  PropertyPaneConfig[]
+> = {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: [
+    {
+      helpText:
+        "Auto Height: Configure the way the widget height react to content changes.",
+      propertyName: "dynamicHeight",
+      label: "Height",
+      controlType: "DROP_DOWN",
+      isBindProperty: false,
+      isTriggerProperty: false,
+      dependencies: [
+        "shouldScrollContents",
+        "maxDynamicHeight",
+        "minDynamicHeight",
+        "bottomRow",
+        "topRow",
+        "overflow",
+        "dynamicHeight",
+        "isCanvas",
+      ],
+      updateHook: updateMinMaxDynamicHeight,
+      helperText: (props: WidgetProps) => {
+        return props.isCanvas &&
+          props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
+          ? CONTAINER_SCROLL_HELPER_TEXT
+          : "";
+      },
+      options: [
+        {
+          label: "Auto Height",
+          value: DynamicHeight.AUTO_HEIGHT,
+        },
+        {
+          label: "Auto Height with limits",
+          value: DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
+        },
+        {
+          label: "Fixed",
+          value: DynamicHeight.FIXED,
+        },
+      ],
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
     },
-    children: [
-      {
-        helpText:
-          "Dynamic Height: Configure the way the widget height react to content changes.",
-        propertyName: "dynamicHeight",
-        label: "Height",
-        controlType: "DROP_DOWN",
-        isBindProperty: false,
-        isTriggerProperty: false,
-        dependencies: [
-          "shouldScrollContents",
-          "maxDynamicHeight",
-          "minDynamicHeight",
-          "bottomRow",
-          "topRow",
-        ],
-        updateHook: updateMinMaxDynamicHeight,
-        options: [
-          {
-            label: "Auto Height",
-            value: DynamicHeight.AUTO_HEIGHT,
-          },
-          {
-            label: "Auto Height with limits",
-            value: DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
-          },
-          {
-            label: "Fixed",
-            value: DynamicHeight.FIXED,
-          },
-        ],
+    {
+      propertyName: "minDynamicHeight",
+      onBlur: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
+        );
       },
-      {
-        propertyName: "minDynamicHeight",
-        onBlur: () => {
-          EventEmitter.emit("property_pane_input_blurred", "minDynamicHeight");
-        },
-        onFocus: () => {
-          EventEmitter.emit("property_pane_input_focused", "minDynamicHeight");
-        },
-        label: "Min Height (in rows)",
-        helpText: "Minimum number of rows to occupy irrespective of contents",
-        controlType: "INPUT_TEXT",
-        hidden: hideDynamicHeightPropertyControl,
-        dependencies: ["dynamicHeight", "maxDynamicHeight"],
-        isJSConvertible: false,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        updateHook: transformToNumber,
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: validateMinHeight,
-            expected: {
-              type: "Number of Rows. Less than or equal to Max Height",
-              example: 10,
-              autocompleteDataType: "NUMBER" as AutocompleteDataType,
-            },
+      onFocus: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_FOCUS,
+        );
+      },
+      label: "Min Height (in rows)",
+      helpText: "Minimum number of rows to occupy irrespective of contents",
+      controlType: "INPUT_TEXT",
+      hidden: hideDynamicHeightPropertyControl,
+      dependencies: ["dynamicHeight", "maxDynamicHeight"],
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      updateHook: transformToNumber,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: validateMinHeight,
+          expected: {
+            type: "Number of Rows. Less than or equal to Max Height",
+            example: 10,
+            autocompleteDataType: "NUMBER" as AutocompleteDataType,
           },
         },
       },
-      {
-        propertyName: "maxDynamicHeight",
-        onFocus: () => {
-          EventEmitter.emit("property_pane_input_focused", "maxDynamicHeight");
-        },
-        onBlur: () => {
-          EventEmitter.emit("property_pane_input_blurred", "maxDynamicHeight");
-        },
-        label: "Max Height (in rows)",
-        helpText: "Maximum Height, after which contents will scroll",
-        controlType: "INPUT_TEXT",
-        dependencies: ["dynamicHeight", "minDynamicHeight"],
-        hidden: hideDynamicHeightPropertyControl,
-        updateHook: transformToNumber,
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: validateMaxHeight,
-            expected: {
-              type: "Number of Rows. Greater than or equal to Min. Height",
-              example: 100,
-              autocompleteDataType: "NUMBER" as AutocompleteDataType,
-            },
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
+    },
+    {
+      propertyName: "maxDynamicHeight",
+      onFocus: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
+        );
+      },
+      onBlur: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_BLUR,
+        );
+      },
+      label: "Max Height (in rows)",
+      helpText: "Maximum Height, after which contents will scroll",
+      controlType: "INPUT_TEXT",
+      dependencies: ["dynamicHeight", "minDynamicHeight"],
+      hidden: hideDynamicHeightPropertyControl,
+      updateHook: transformToNumber,
+      validation: {
+        type: ValidationTypes.FUNCTION,
+        params: {
+          fn: validateMaxHeight,
+          expected: {
+            type: "Number of Rows. Greater than or equal to Min. Height",
+            example: 100,
+            autocompleteDataType: "NUMBER" as AutocompleteDataType,
           },
         },
-        isJSConvertible: false,
-        isBindProperty: true,
-        isTriggerProperty: false,
       },
-    ],
-  },
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
+    },
+  ],
 };

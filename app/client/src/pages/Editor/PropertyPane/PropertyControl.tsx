@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useEffect, useRef } from "react";
 import _, { get, isFunction } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
@@ -50,6 +50,13 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
+import { AppState } from "@appsmith/reducers";
+import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
+import {
+  getPropertyControlFocusElement,
+  shouldFocusOnPropertyControl,
+} from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 
 type Props = PropertyPaneControlConfig & {
@@ -62,6 +69,8 @@ const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
 
+  const controlRef = useRef<HTMLDivElement | null>(null);
+
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
     props.dependencies,
@@ -69,6 +78,28 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);
+
+  // get the dataTreePath and apply enhancement if exists
+  let dataTreePath: string | undefined =
+    props.dataTreePath || widgetProperties
+      ? `${widgetProperties.widgetName}.${props.propertyName}`
+      : undefined;
+
+  // using hasDispatchedPropertyFocus to make sure
+  // the component does not select the state after dispatching the action,
+  // which might lead to another rerender and reset the component
+  let hasDispatchedPropertyFocus = false;
+  const shouldFocusPropertyPath: boolean = useSelector(
+    (state: AppState) =>
+      getshouldFocusPropertyPath(
+        state,
+        dataTreePath,
+        hasDispatchedPropertyFocus,
+      ),
+    (before: boolean, after: boolean) => {
+      return hasDispatchedPropertyFocus || before === after;
+    },
+  );
 
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
@@ -81,6 +112,20 @@ const PropertyControl = memo((props: Props) => {
 
   const selectedTheme = useSelector(getSelectedAppTheme);
 
+  useEffect(() => {
+    if (
+      shouldFocusPropertyPath &&
+      shouldFocusOnPropertyControl(controlRef.current)
+    ) {
+      setTimeout(() => {
+        const focusableElement = getPropertyControlFocusElement(
+          controlRef.current,
+        );
+        focusableElement?.scrollIntoView({ block: "center" });
+        focusableElement?.focus();
+      }, 0);
+    }
+  }, [shouldFocusPropertyPath]);
   /**
    * A property's stylesheet value can be fetched in 2 ways
    * 1. If a method is defined on the property config (getStylesheetValue), then
@@ -207,6 +252,7 @@ const PropertyControl = memo((props: Props) => {
         propertyValue,
       );
     }
+
     if (propertiesToUpdate) {
       const allUpdates: Record<string, unknown> = {};
       const allDeletions: string[] = [];
@@ -238,7 +284,6 @@ const PropertyControl = memo((props: Props) => {
           }
         },
       );
-      allUpdates[propertyName] = propertyValue;
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget properties were updated",
@@ -257,6 +302,7 @@ const PropertyControl = memo((props: Props) => {
         updates: {
           modify: allUpdates,
           remove: allDeletions,
+          postUpdateActions: props.postUpdateActions,
         },
         dynamicUpdates: {
           dynamicPropertyPathList: allDynamicPropertyPathUpdate,
@@ -285,6 +331,7 @@ const PropertyControl = memo((props: Props) => {
         widgetId: widgetProperties.widgetId,
         updates: {
           modify,
+          postUpdateActions: props.postUpdateActions,
         },
       };
     }
@@ -373,6 +420,7 @@ const PropertyControl = memo((props: Props) => {
         propertyName,
         propertyValue,
       );
+
       const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] = getOtherWidgetPropertyChanges(
         propertyName,
         propertyValue,
@@ -387,6 +435,7 @@ const PropertyControl = memo((props: Props) => {
           );
         }
       }
+
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
@@ -415,26 +464,28 @@ const PropertyControl = memo((props: Props) => {
     [props.panelConfig, onPropertyChange, props.propertyName],
   );
 
-  // Do not render the control if it needs to be hidden
-  if (
-    (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
-    props.invisible
-  ) {
-    return null;
-  }
-
   const { propertyName } = props;
-  const label = isFunction(props.label)
-    ? props.label(widgetProperties, propertyName)
-    : props.label;
-  const helperText = isFunction(props.helperText)
-    ? props.helperText(widgetProperties)
-    : props.helperText;
 
   if (widgetProperties) {
-    // get the dataTreePath and apply enhancement if exists
-    let dataTreePath: string =
+    // Do not render the control if it needs to be hidden
+    if (
+      (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
+      props.invisible
+    ) {
+      return null;
+    }
+
+    const label = isFunction(props.label)
+      ? props.label(widgetProperties, propertyName)
+      : props.label;
+
+    const helperText = isFunction(props.helperText)
+      ? props.helperText(widgetProperties)
+      : props.helperText;
+
+    dataTreePath =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
+
     if (childWidgetDataTreePathEnhancementFn) {
       dataTreePath = childWidgetDataTreePathEnhancementFn(
         dataTreePath,
@@ -516,6 +567,15 @@ const PropertyControl = memo((props: Props) => {
       return false;
     };
 
+    const handleOnFocus = () => {
+      if (!shouldFocusPropertyPath) {
+        hasDispatchedPropertyFocus = true;
+        setTimeout(() => {
+          dispatch(generateKeyAndSetFocusableField(dataTreePath));
+        }, 0);
+      }
+    };
+
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
     const canDisplayValueInUI = PropertyControlFactory.controlUIToggleValidation.get(
       config.controlType,
@@ -559,15 +619,17 @@ const PropertyControl = memo((props: Props) => {
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-${className} group`}
+          className={`t--property-control-wrapper t--property-control-${className} group`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
+          onFocus={handleOnFocus}
           orientation={
             config.controlType === "SWITCH" && !isDynamic
               ? "HORIZONTAL"
               : "VERTICAL"
           }
+          ref={controlRef}
         >
           <ControlPropertyLabelContainer className="gap-1">
             <PropertyHelpLabel

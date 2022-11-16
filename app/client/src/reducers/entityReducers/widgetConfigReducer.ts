@@ -4,6 +4,7 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetFeatures } from "utils/WidgetFeatures";
 
 const initialState: WidgetConfigReducerState = { config: {} };
 
@@ -35,6 +36,7 @@ export interface WidgetConfig
   isCanvas?: boolean;
   needsMeta?: boolean;
   canvasHeightOffset?: (props: WidgetProps) => number;
+  features?: WidgetFeatures;
 }
 
 export interface WidgetConfigReducerState {

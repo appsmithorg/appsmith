@@ -257,7 +257,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isTriggerProperty: false,
               validation: {
                 type: ValidationTypes.NUMBER,
-                params: { min: 1, natural: true },
+                params: { min: 1, natural: true, passThroughOnZero: false },
               },
               hidden: (props: InputWidgetProps) => {
                 return props.inputType !== InputTypes.TEXT;
@@ -345,6 +345,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Position",
               helpText: "Sets the icon alignment of input field",
               controlType: "ICON_TABS",
+              fullWidth: true,
               options: [
                 {
                   icon: "VERTICAL_LEFT",

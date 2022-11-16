@@ -35,6 +35,10 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import WidgetFactory, {
+  NonSerialisableWidgetConfigs,
+} from "utils/WidgetFactory";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -89,7 +93,10 @@ export const getIsPageSaving = (state: AppState) => {
 };
 
 export const snipingModeSelector = (state: AppState) =>
-  state.ui.editor?.isSnipingMode;
+  state.ui.editor.isSnipingMode;
+
+export const snipingModeBindToSelector = (state: AppState) =>
+  state.ui.editor.snipModeBindTo;
 
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;
@@ -210,13 +217,17 @@ export const getCurrentPageName = createSelector(
 );
 
 export const getCanvasHeightOffset = (
-  state: AppState,
   widgetType: WidgetType,
   props: WidgetProps,
 ) => {
-  const config = state.entities.widgetConfig.config[widgetType];
+  const config:
+    | Record<NonSerialisableWidgetConfigs, unknown>
+    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
   let offset = 0;
-  if (config.canvasHeightOffset) offset = config.canvasHeightOffset(props);
+  if (config?.canvasHeightOffset)
+    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
+      props,
+    );
   return offset;
 };
 
@@ -459,12 +470,16 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
     widgets: CanvasWidgetsReduxState,
   ): {
     occupiedSpaces: {
-      [parentCanvasWidgetId: string]: OccupiedSpace[];
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
     };
     canvasLevelMap: Record<string, number>;
   } => {
     const occupiedSpaces: {
-      [parentCanvasWidgetId: string]: OccupiedSpace[];
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
     } = {};
     // Get all widgets with type "CANVAS_WIDGET" and has children
     // What we're really doing is getting all widgets inside a drop target
@@ -513,6 +528,8 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
                 top: widget.topRow,
                 bottom: widget.bottomRow,
                 right: widget.rightColumn,
+                originalTop: widget.originalTopRow,
+                originalBottom: widget.originalBottomRow,
               });
             }
           });
@@ -717,8 +734,17 @@ export const selectJSCollections = (state: AppState) =>
 export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
-  (canvasWidgets, inPreviewMode) => {
-    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
+  getCurrentPageId,
+  (canvasWidgets, inPreviewMode, pageId) => {
+    const state = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
+    );
+    if (
+      !state[pageId] ||
+      Object.keys(canvasWidgets).length > 1 ||
+      inPreviewMode
+    )
+      return false;
 
     return true;
   },

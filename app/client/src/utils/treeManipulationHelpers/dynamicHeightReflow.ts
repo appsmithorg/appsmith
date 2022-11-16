@@ -1,12 +1,13 @@
-import boxIntersect from "box-intersect";
-// import { difference } from "lodash";
 import log from "loglevel";
+import { areIntersecting } from "utils/WidgetPropsUtils";
 
 export type TreeNode = {
   aboves: string[];
   belows: string[];
   topRow: number;
   bottomRow: number;
+  originalTopRow: number;
+  originalBottomRow: number;
 };
 
 type NodeSpace = {
@@ -14,68 +15,72 @@ type NodeSpace = {
   right: number;
   top: number;
   bottom: number;
+  originalBottom: number;
+  originalTop: number;
   id: string;
 };
-type Box = [number, number, number, number];
 const MAX_BOX_SIZE = 20000;
 
 // Takes all siblings and arranges them in a structure to figure out
 // Which widgets could affect their sibling positions based on changes in height
-export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
+export function generateTree(
+  spaces: NodeSpace[],
+  layoutUpdated: boolean,
+  previousTree: Record<string, TreeNode>,
+): Record<string, TreeNode> {
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
   spaces.sort((a, b) => a.top - b.top); // Sort based on position, top to bottom
-  const boxes: Box[] = spaces.map((space) => [
-    space.left,
-    space.top,
-    space.right,
-    space.bottom + MAX_BOX_SIZE,
-  ]);
+  const _spaces = [...spaces];
 
-  // TODO(abhinav): create an alternative function which uses brute force.
-
-  // boxes.sort((a, b) => a[1] - b[1]);
-
-  const overlaps = boxIntersect(boxes);
-  const { aboveMap, belowMap } = getOverlapMap(overlaps);
+  const aboveMap: Record<string, string[]> = {};
+  const belowMap: Record<string, string[]> = {};
+  for (let i = 0; i < spaces.length - 1; i++) {
+    const _curr = _spaces.shift();
+    if (_curr) {
+      const currentSpace = { ..._curr };
+      currentSpace.bottom += MAX_BOX_SIZE;
+      for (let j = 0; j < _spaces.length; j++) {
+        const comparisionSpace = { ..._spaces[j] };
+        comparisionSpace.bottom += MAX_BOX_SIZE;
+        if (areIntersecting(currentSpace, comparisionSpace)) {
+          aboveMap[comparisionSpace.id] = [
+            ...(aboveMap[comparisionSpace.id] || []),
+            currentSpace.id,
+          ];
+          belowMap[currentSpace.id] = [
+            ...(belowMap[currentSpace.id] || []),
+            comparisionSpace.id,
+          ];
+        }
+      }
+    }
+  }
 
   const tree: Record<string, TreeNode> = {};
   for (let i = 0; i < spaces.length; i++) {
     const space = spaces[i];
+    const bottomRow = Math.floor(space.bottom);
+    const topRow = Math.floor(space.top);
+    let originalTopRow = previousTree[space.id]?.originalTopRow;
+    let originalBottomRow = previousTree[space.id]?.originalBottomRow;
+    if (originalTopRow === undefined || layoutUpdated) {
+      originalTopRow = topRow;
+    }
+    if (originalBottomRow === undefined || layoutUpdated) {
+      originalBottomRow = bottomRow;
+    }
+
     tree[space.id] = {
-      aboves: (aboveMap[i] || []).map((id) => spaces[id].id),
-      belows: (belowMap[i] || []).map((id) => spaces[id].id),
-      topRow: Math.floor(space.top),
-      bottomRow: Math.ceil(space.bottom),
+      aboves: aboveMap[space.id] || [],
+      belows: belowMap[space.id] || [],
+      topRow,
+      bottomRow,
+      originalTopRow,
+      originalBottomRow,
     };
   }
 
   return tree;
-}
-
-// export function generateTreeBruteForce(
-//   spaces: NodeSpace[],
-// ): Record<string, TreeNode> {
-//   spaces.sort((a, b) => a.top - b.top);
-// }
-
-// Gets a list of widgets below and above for each widget
-// Namely, the belowMap and aboveMap respectively.
-function getOverlapMap(arr: [number, number][]) {
-  const belowMap: Record<string, number[]> = {};
-  const aboveMap: Record<string, number[]> = {};
-
-  // Iteration 1
-  for (let i = 0; i < arr.length; i++) {
-    const overlap = arr[i];
-    if (overlap[0] > overlap[1]) {
-      belowMap[overlap[1]] = [...(belowMap[overlap[1]] || []), overlap[0]];
-      aboveMap[overlap[0]] = [...(aboveMap[overlap[0]] || []), overlap[1]];
-    } else {
-      aboveMap[overlap[1]] = [...(aboveMap[overlap[1]] || []), overlap[0]];
-      belowMap[overlap[0]] = [...(belowMap[overlap[0]] || []), overlap[1]];
-    }
-  }
-  return { belowMap, aboveMap };
 }
 
 function getEffectedBoxes(
@@ -123,7 +128,7 @@ export function computeChangeInPositionBasedOnDelta(
   }
 
   const sortedEffectedBoxIds = Object.keys(effectedBoxMap).sort(
-    (a, b) => tree[a].bottomRow - tree[b].bottomRow,
+    (a, b) => tree[a].topRow - tree[b].topRow,
   );
 
   for (const effectedBoxId of sortedEffectedBoxIds) {
@@ -142,6 +147,7 @@ export function computeChangeInPositionBasedOnDelta(
         if (repositionedBoxes[prev[0]]) {
           prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
         }
+
         // If the current box's (next) bottomRow is larger than the previous
         // This (next) box is the bottom most above so far
         if (nextBottomRow > prevBottomRow) return [next];
@@ -149,12 +155,14 @@ export function computeChangeInPositionBasedOnDelta(
         // We have two bottom most boxes
         else if (nextBottomRow === prevBottomRow) {
           if (
+            repositionedBoxes[prev[0]] &&
             repositionedBoxes[prev[0]].bottomRow ===
-            repositionedBoxes[prev[0]].topRow
+              repositionedBoxes[prev[0]].topRow
           ) {
             return prev;
           }
           if (
+            repositionedBoxes[next] &&
             repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
           ) {
             return [next];
@@ -167,6 +175,7 @@ export function computeChangeInPositionBasedOnDelta(
       },
       [],
     );
+
     let _offset;
 
     // for each of the bottom most above boxes.
@@ -175,17 +184,32 @@ export function computeChangeInPositionBasedOnDelta(
       // Or, if this above box itself has changed height
       if (Array.isArray(effectedBoxMap[aboveId]) || delta[aboveId]) {
         // In case the above box has changed heights
-        const _aboveOffset =
-          repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow;
+        const _aboveOffset = repositionedBoxes[aboveId]
+          ? repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow
+          : 0;
+
         // If so far, we haven't got any _offset updates
         // This can happen if this is the first aboveId we're checking
         if (_offset === undefined) _offset = _aboveOffset;
+        const oldSpacing =
+          tree[effectedBoxId].originalTopRow - tree[aboveId].originalBottomRow;
+        const currentSpacing =
+          tree[effectedBoxId].topRow - tree[aboveId].bottomRow;
+
+        let negativeOffset = _aboveOffset;
+        if (oldSpacing < currentSpacing + _aboveOffset) {
+          negativeOffset = oldSpacing + _aboveOffset - currentSpacing;
+        }
+
         // Otherwise, we see which change is larger, a previously computed aboveId
         // or this one. we use the larger, because, this is the delta
         // Larger delta means smaller change if the value is negative, moves up less
         // Larger delta means larger change if the value is positive, moves down more
         // The above is so that the widget doesn't accidentally collide with the above widget.
-        _offset = Math.max(_aboveOffset, _offset);
+        if (_aboveOffset > 0) _offset = Math.max(_aboveOffset, _offset);
+        else if (_aboveOffset < 0) {
+          _offset = Math.min(_aboveOffset, _offset, negativeOffset);
+        }
       } else {
         // Stick to the widget above.
         _offset = 0;

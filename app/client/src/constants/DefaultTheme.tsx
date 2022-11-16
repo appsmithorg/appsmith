@@ -320,9 +320,6 @@ export const BlueprintRadioSwitchGroupTransform = css<{
   optionCount: number;
 }>`
   width: 100%;
-  && {
-    height: auto;
-  }
 
   ${({ alignment, inline, optionCount }) => `
     display: ${
@@ -451,7 +448,6 @@ export type Theme = {
   canvasBottomPadding: number;
   navbarMenuHeight: string;
   navbarMenuLineHeight: string;
-  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -2998,7 +2994,6 @@ export const theme: Theme = {
   },
   pageContentWidth: 1224,
   tabPanelHeight: 34,
-  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,

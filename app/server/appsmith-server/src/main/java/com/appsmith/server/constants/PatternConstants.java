@@ -21,7 +21,7 @@ public class PatternConstants {
      *  - www
      *  - www.
      */
-    public final static String WEBSITE_PATTERN = "^(http://|https://)?(www.)?(([a-z0-9\\-]+)\\.)+([a-z]+)$";
+    public final static String WEBSITE_PATTERN = "^(http://|https://)?(www.)?(([a-z0-9\\-]+)\\.)+([a-z]+)(/)?$";
     /**
      * Valid Email Patterns:
      * - valid@email.com

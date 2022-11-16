@@ -334,10 +334,10 @@ class SelectComponent extends React.Component<
           />
         )}
         <StyledControlGroup
-          compactMode={compactMode}
+          $compactMode={compactMode}
+          $isDisabled={disabled}
+          $labelPosition={labelPosition}
           fill
-          isDisabled={disabled}
-          labelPosition={labelPosition}
         >
           <StyledSingleDropDown
             accentColor={accentColor}

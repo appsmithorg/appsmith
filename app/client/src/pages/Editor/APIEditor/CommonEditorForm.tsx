@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   HTTP_METHOD_OPTIONS,
@@ -28,21 +28,22 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import { TabComponent } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   Button,
   Callout,
   Case,
+  Classes,
   Icon,
   IconSize,
   SearchSnippet,
   Size,
+  TabComponent,
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
-import { Classes, Variant } from "components/ads/common";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
@@ -64,6 +65,8 @@ import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
 import { executeCommandAction } from "../../../actions/apiPaneActions";
+import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
+import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
 
 const Form = styled.form`
   position: relative;
@@ -215,7 +218,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 110px);
+  height: calc(100% - 135px);
   position: relative;
 `;
 export interface CommonFormProps {
@@ -528,8 +531,10 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
  * @returns Editor with respect to which type is using it
  */
 function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
-  const [selectedIndex, setSelectedIndex] = useState(
-    props.defaultTabSelected || 0,
+  const selectedIndex = useSelector(getApiPaneConfigSelectedTabIndex);
+  const setSelectedIndex = useCallback(
+    (index: number) => dispatch(setApiPaneConfigSelectedTabIndex(index)),
+    [],
   );
   const [
     apiBindHelpSectionVisible,

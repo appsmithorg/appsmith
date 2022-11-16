@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 
 import { TextSize } from "constants/WidgetConstants";
-import { countOccurrences } from "workers/helpers";
+import { countOccurrences } from "workers/Evaluation/helpers";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -14,7 +14,6 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
-import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -40,27 +39,25 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "overflow",
             label: "Overflow Text",
             helpText: "Controls the text behavior when length of text exceeds",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
-                label: "Scroll contents",
+                label: "Scroll",
                 value: OverflowTypes.SCROLL,
               },
               {
-                label: "Truncate text",
+                label: "Truncate",
                 value: OverflowTypes.TRUNCATE,
               },
               {
-                label: "No overflow",
+                label: "None",
                 value: OverflowTypes.NONE,
               },
             ],
             defaultValue: OverflowTypes.NONE,
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: WidgetProps) =>
-              isDynamicHeightEnabledForWidget(props),
-            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "isVisible",
@@ -106,6 +103,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontFamily",
             label: "Font Family",
+            helpText: "Controls the font family being used",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -160,6 +158,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontSize",
             label: "Font Size",
+            helpText: "Controls the size of the font used",
             controlType: "DROP_DOWN",
             defaultValue: "1rem",
             options: [
@@ -209,6 +208,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "textColor",
             label: "Text Color",
+            helpText: "Controls the color of the text displayed",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -223,6 +223,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "backgroundColor",
             label: "Background Color",
+            helpText: "Background color of the text added",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -252,6 +253,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "truncateButtonColor",
             label: "Truncate Button Color",
+            helpText: "Controls the color of the truncate button",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -259,7 +261,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                regex: /^(?![<|{{]).+/,
+                regex: /^((?![<|{{]).+){0,1}/,
               },
             },
             dependencies: ["overflow"],
@@ -275,7 +277,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "textAlign",
             label: "Alignment",
+            helpText: "Controls the horizontal alignment of the text",
             controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 icon: "LEFT_ALIGN",
@@ -299,6 +303,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           {
             propertyName: "fontStyle",
             label: "Emphasis",
+            helpText: "Controls the font emphasis of the text displayed",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -364,6 +369,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         ])}
       >
         <TextComponent
+          accentColor={this.props.accentColor}
           backgroundColor={this.props.backgroundColor}
           bottomRow={this.props.bottomRow}
           disableLink={disableLink}
@@ -379,7 +385,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
           topRow={this.props.topRow}
-          truncateButtonColor={this.props.truncateButtonColor}
+          truncateButtonColor={
+            this.props.truncateButtonColor || this.props.accentColor
+          }
           widgetId={this.props.widgetId}
         />
       </WidgetStyleContainer>
@@ -408,6 +416,7 @@ export interface TextStyles {
 }
 
 export interface TextWidgetProps extends WidgetProps, TextStyles {
+  accentColor: string;
   text?: string;
   isLoading: boolean;
   disableLink: boolean;

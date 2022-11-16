@@ -182,9 +182,13 @@ function PaneDrawer(props: PaneDrawerProps) {
     // Close all modals
     if (props.isVisible) {
       showPropertyPane();
-      selectWidget(undefined);
-      focusWidget(undefined);
       dispatch(closeAllModals());
+      // delaying setting select and focus state,
+      // so that the focus history has time to store the selected values
+      setTimeout(() => {
+        selectWidget(undefined);
+        focusWidget(undefined);
+      }, 0);
     }
   }, [dispatch, props.isVisible, selectWidget, showPropertyPane, focusWidget]);
   return <DrawerWrapper {...props}>{props.children}</DrawerWrapper>;

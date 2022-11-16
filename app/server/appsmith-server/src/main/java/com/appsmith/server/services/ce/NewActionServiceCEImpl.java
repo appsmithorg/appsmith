@@ -92,6 +92,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -418,6 +419,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     return Mono.just(savedAction);
                 })
+                .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
@@ -799,7 +801,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                     ActionDTO actionDTO = tuple2.getT2();
                                                     Datasource datasourceFromDb = tuple2.getT3();
 
-                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO.getViewMode(), actionExecutionResult, timeElapsed))
+                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO, actionExecutionResult, timeElapsed))
                                                             .thenReturn(result);
                                                 });
                                     }
@@ -920,7 +922,26 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             param -> {
                                 String pseudoBindingName = param.getPseudoBindingName();
                                 param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
-                                param.setClientDataType(ClientDataType.valueOf(dto.getParamProperties().get(pseudoBindingName).toUpperCase()));
+                                //if the type is not an array e.g. "k1": "string" or "k1": "boolean"
+                                if (dto.getParamProperties().get(pseudoBindingName) instanceof String) {
+                                    param.setClientDataType(ClientDataType.valueOf(String.valueOf(dto.getParamProperties().get(pseudoBindingName)).toUpperCase()));
+                                } else if (dto.getParamProperties().get(pseudoBindingName) instanceof LinkedHashMap) {
+                                    //if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
+                                    LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
+                                            (LinkedHashMap<String, ArrayList>) dto.getParamProperties().get(pseudoBindingName);
+                                    Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet().stream().findFirst();
+                                    if (firstKeyOpt.isPresent()) {
+                                        String firstKey = firstKeyOpt.get();
+                                        param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
+                                        List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
+                                        List<ClientDataType> dataTypesOfArrayElements =
+                                                individualTypes.stream()
+                                                        .map(it -> ClientDataType.valueOf(String.valueOf(it).toUpperCase()))
+                                                        .collect(Collectors.toList());
+                                        param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
+                                    }
+                                }
+
                             }
                     );
                     dto.setParams(params);
@@ -1028,7 +1049,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             NewAction action,
             ActionDTO actionDTO,
             Datasource datasource,
-            Boolean viewMode,
+            ExecuteActionDTO executeActionDto,
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
@@ -1096,7 +1117,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
-                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
+                        newPageService.getNameByPageId(actionDTO.getPageId(), executeActionDto.getViewMode()),
                         pluginService.getById(action.getPluginId())
                 ))
                 .flatMap(tuple -> {
@@ -1106,7 +1127,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
-                    final String appMode = TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
+                    final String appMode = TRUE.equals(executeActionDto.getViewMode()) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
 
                     final Map<String, Object> data = new HashMap<>(Map.of(
                             "username", user.getUsername(),
@@ -1163,13 +1184,26 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
+                    List<Param> paramsList = executeActionDto.getParams();
+                    if (paramsList == null) {
+                        paramsList = new ArrayList<>();
+                    }
+                    String executionRequestQuery = "";
+                    if (actionExecutionResult != null &&
+                            actionExecutionResult.getRequest() != null &&
+                            actionExecutionResult.getRequest().getQuery() != null) {
+                        executionRequestQuery = actionExecutionResult.getRequest().getQuery();
+                    }
+
+                    List<String> executionParams =  paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
                             FieldName.APP_MODE, appMode,
                             FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
                             FieldName.ACTION_EXECUTION_TIME, timeElapsed,
-                            FieldName.ACTION_EXECUTION_REQUEST, request,
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams,
+                            FieldName.ACTION_EXECUTION_QUERY, executionRequestQuery,
                             FieldName.APPLICATION, application,
                             FieldName.PLUGIN, plugin
                     );

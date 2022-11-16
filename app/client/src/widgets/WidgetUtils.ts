@@ -34,6 +34,7 @@ import { DynamicPath } from "utils/DynamicBindingUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import { getLocale } from "utils/helpers";
 
 const punycode = require("punycode/");
 
@@ -229,15 +230,6 @@ export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
       ? Alignment.LEFT
       : Alignment.RIGHT
     : Alignment.CENTER;
-export const escapeSpecialChars = (stringifiedJSONObject: string) => {
-  return stringifiedJSONObject
-    .replace(/\\n/g, "\\\\n") // new line char
-    .replace(/\\b/g, "\\\\b") //
-    .replace(/\\t/g, "\\\\t") // tab
-    .replace(/\\f/g, "\\\\f") //
-    .replace(/\\/g, "\\\\") //
-    .replace(/\\r/g, "\\\\r"); //
-};
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -664,7 +656,13 @@ export interface DynamicnHeightEnabledComponentProps {
  * A utility function to check whether a widget has dynamic height enabled?
  * @param props
  */
-export const isDynamicHeightEnabledForWidget = (props: WidgetProps) => {
+export const isDynamicHeightEnabledForWidget = (
+  props: WidgetProps,
+  withLimits = false,
+) => {
+  if (withLimits) {
+    return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+  }
   return (
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
@@ -740,6 +738,18 @@ export function composePropertyUpdateHook(
       return undefined;
     }
   };
+}
+
+export function getLocaleDecimalSeperator() {
+  return Intl.NumberFormat(getLocale())
+    .format(1.1)
+    .replace(/\p{Number}/gu, "");
+}
+
+export function getLocaleThousandSeparator() {
+  return Intl.NumberFormat(getLocale())
+    .format(11111)
+    .replace(/\p{Number}/gu, "");
 }
 
 interface DropdownOption {

@@ -33,6 +33,7 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
+import { getLocale } from "utils/helpers";
 
 /**
  * All design system component specific logic goes here.
@@ -58,6 +59,7 @@ const InputComponentWrapper = styled((props) => (
       "borderRadius",
       "boxShadow",
       "accentColor",
+      "isDynamicHeightEnabled",
     ])}
   />
 ))<{
@@ -72,6 +74,7 @@ const InputComponentWrapper = styled((props) => (
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   ${labelLayoutStyles}
 
@@ -296,6 +299,9 @@ const InputComponentWrapper = styled((props) => (
       return "flex-start";
     }};
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&&&& { align-items: stretch; }" : ""};
 `;
 
 const StyledNumericInput = styled(NumericInput)`
@@ -331,6 +337,7 @@ const TextInputWrapper = styled.div<{
   accentColor?: string;
   hasError?: boolean;
   disabled?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: flex;
@@ -381,6 +388,9 @@ const TextInputWrapper = styled.div<{
 
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -498,6 +508,8 @@ class BaseInputComponent extends React.Component<
   };
 
   private numericInputComponent = () => {
+    // Get current locale only for the currency widget.
+    const locale = this.props.shouldUseLocale ? getLocale() : undefined;
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
 
@@ -522,6 +534,7 @@ class BaseInputComponent extends React.Component<
         }}
         intent={this.props.intent}
         leftIcon={leftIcon}
+        locale={locale}
         majorStepSize={null}
         minorStepSize={null}
         onBlur={() => this.setFocusState(false)}
@@ -650,6 +663,7 @@ class BaseInputComponent extends React.Component<
         fill
         hasError={isInvalid}
         inputType={inputType}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelTextColor={labelTextColor}
@@ -684,6 +698,7 @@ class BaseInputComponent extends React.Component<
           disabled={this.props.disabled}
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           labelPosition={labelPosition}
         >
           <ErrorTooltip
@@ -762,6 +777,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   boxShadow?: string;
   accentColor?: string;
   errorTooltipBoundary?: string;
+  shouldUseLocale?: boolean;
 }
 
 export default BaseInputComponent;
