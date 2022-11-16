@@ -7,7 +7,6 @@ import styled from "styled-components";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
-  useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -21,6 +20,7 @@ import {
   usePositionedStyles,
 } from "./hooks";
 import { getSnappedValues } from "./utils";
+import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 
 const StyledDynamicHeightOverlay = styled.div<{ isHidden: boolean }>`
   width: 100%;
@@ -70,9 +70,9 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       getParentToOpenSelector(props.widgetId),
     );
     const showTableFilterPane = useShowTableFilterPane();
-    const { setIsResizing } = useWidgetDragResize();
-    const isResizing = useSelector(
-      (state: AppState) => state.ui.widgetDragResize.isResizing,
+    const { setIsAutoHeightWithLimitsChanging } = useAutoHeightUIState();
+    const isAutoHeightWithLimitsChanging = useSelector(
+      (state: AppState) => state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,
     );
 
     const [isMinDotDragging, setIsMinDotDragging] = useState(false);
@@ -97,17 +97,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }, [maxDynamicHeight]);
 
     function onAnyDotStop() {
-      // Tell the Canvas that we've stopped resizing
-      // Put it later in the stack so that other updates like click, are not propagated to the parent container
-      setTimeout(() => {
-        setIsResizing && setIsResizing(false);
-      }, 0);
-      // Tell the Canvas to put the focus back to this widget
-      // By setting the focus, we enable the control buttons on the widget
-      selectWidget &&
-        selectedWidget !== props.widgetId &&
-        parentWidgetToSelect?.widgetId !== props.widgetId &&
-        selectWidget(props.widgetId);
+      setIsAutoHeightWithLimitsChanging &&
+        setIsAutoHeightWithLimitsChanging(false);
+
+      selectWidget && selectWidget(props.widgetId);
 
       if (parentWidgetToSelect) {
         selectWidget &&
@@ -211,7 +204,9 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }
 
     function onAnyDotStart() {
-      setIsResizing && !isResizing && setIsResizing(true);
+      setIsAutoHeightWithLimitsChanging &&
+        !isAutoHeightWithLimitsChanging &&
+        setIsAutoHeightWithLimitsChanging(true);
       selectWidget &&
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
@@ -307,13 +302,14 @@ const DynamicHeightOverlayContainer: React.FC<DynamicHeightOverlayContainerProps
     const widgetId = props.widgetId;
     const {
       isDragging,
+      isResizing,
       lastSelectedWidget: selectedWidget,
       selectedWidgets,
     } = useSelector((state: AppState) => state.ui.widgetDragResize);
 
     const isWidgetSelected = selectedWidget === widgetId;
     const multipleWidgetsSelected = selectedWidgets.length > 1;
-    const isHidden = multipleWidgetsSelected || isDragging;
+    const isHidden = multipleWidgetsSelected || isDragging || isResizing;
 
     if (isWidgetSelected) {
       return <DynamicHeightOverlay isHidden={isHidden} {...props} />;
