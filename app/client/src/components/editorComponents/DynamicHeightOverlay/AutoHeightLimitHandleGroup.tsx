@@ -2,10 +2,10 @@ import React, { useRef } from "react";
 import styled from "styled-components";
 import AutoHeightLimitHandleBorder from "./ui/AutoHeightLimitHandleBorder";
 import { useDrag } from "react-use-gesture";
-import { OVERLAY_COLOR } from "./constants";
 import { heightToRows } from "./utils";
 import AutoHeightLimitHandleLabel from "./ui/AutoHeightLimitHandleLabel";
 import { onDragCallbacksProps, onMouseHoverCallbacksProps } from "./types";
+import AutoHeightLimitHandleDot from "./ui/AutoHeightLimitHandleDot";
 
 const AutoHeightLimitHandleGroupContainer = styled.div`
   position: absolute;
@@ -47,24 +47,6 @@ const AutoHeightLimitHandleContainer = styled.div<
   cursor: ns-resize;
   display: flex;
   align-items: center;
-`;
-
-interface AutoHeightLimitHandleDotProps {
-  isActive: boolean;
-  isDragging: boolean;
-}
-
-const AutoHeightLimitHandleDot = styled.div<AutoHeightLimitHandleDotProps>`
-  position: absolute;
-  left: 50%;
-  border-radius: 50%;
-  width: 7px;
-  height: 7px;
-  transform: translateX(-50%)
-    scale(${(props) => (props.isDragging ? "1.67" : "1")});
-  border: 1px solid ${OVERLAY_COLOR};
-  background-color: ${OVERLAY_COLOR};
-  box-shadow: 0px 0px 0px 2px white;
 `;
 
 interface AutoHeightLimitHandleProps {
