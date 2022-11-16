@@ -83,6 +83,7 @@ export function defaultValueValidation(
     case "TEXT":
     case "PASSWORD":
     case "EMAIL":
+    case "COLOR":
       parsed = value;
       if (!_.isString(parsed)) {
         try {
