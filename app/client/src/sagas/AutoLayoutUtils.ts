@@ -55,6 +55,8 @@ export function* wrapChildren(
       children: [{ id: child.widgetId, align: FlexLayerAlignment.Start }],
       hasFillChild:
         child.responsiveBehavior === ResponsiveBehavior.Fill || false,
+      topRow: 0,
+      bottomRow: 0,
     });
   }
   canvas = { ...canvas, flexLayers };
@@ -295,4 +297,51 @@ function checkIsNotVerticalStack(widget: any): boolean {
     widget.positioning !== undefined &&
     widget.positioning !== Positioning.Vertical
   );
+}
+
+/**
+ *
+ * @param layers : List of affected layers
+ * @param topRow : Top row of the first layer in this list
+ * @returns layers after updating top row and bottom row of each.
+ */
+export function updateLayerRowPositions(
+  layers: FlexLayer[],
+  topRow: number,
+): FlexLayer[] {
+  if (!layers || !layers.length) return layers;
+  let curr: number = topRow;
+  return layers.map((layer: FlexLayer) => {
+    const res: FlexLayer = {
+      ...layer,
+      topRow: curr,
+      bottomRow: curr + (layer.bottomRow - layer.topRow),
+    };
+    curr = res.bottomRow;
+    return res;
+  });
+}
+
+/**
+ *
+ * @param layers : List of affected layers
+ * @param allWidgets : all canvas widgets
+ * returns canvas widgets after updating topRow and bottomRow of all children widgets of the affected layers.
+ */
+export function updateRowsOfLayerChildren(
+  layers: FlexLayer[],
+  allWidgets: CanvasWidgetsReduxState,
+): CanvasWidgetsReduxState {
+  if (!layers || !allWidgets) return allWidgets;
+  const widgets = { ...allWidgets };
+  for (const layer of layers) {
+    for (const child of layer.children) {
+      const widget = { ...widgets[child.id] };
+      const rows = widget.bottomRow - widget.topRow;
+      widget.topRow = layer.topRow;
+      widget.bottomRow = layer.topRow + rows;
+      widgets[child.id] = widget;
+    }
+  }
+  return widgets;
 }

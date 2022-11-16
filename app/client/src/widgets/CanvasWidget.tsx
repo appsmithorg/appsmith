@@ -10,6 +10,8 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import React, { CSSProperties } from "react";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -104,8 +106,6 @@ class CanvasWidget extends ContainerWidget {
               widgetId={props.widgetId}
               widgetName={props.widgetName}
             />
-            {/* 
-            // Removing Canvas Selection and grouping in the POC
             <CanvasSelectionArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
@@ -113,15 +113,15 @@ class CanvasWidget extends ContainerWidget {
               parentId={props.parentId}
               snapRows={snapRows}
               widgetId={props.widgetId}
-            /> */}
+            />
           </>
         )}
-        {/* <WidgetsMultiSelectBox
+        <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
-        /> */}
+        />
         {/* without the wrapping div onClick events are triggered twice */}
         <FlexBoxComponent
           direction={direction}

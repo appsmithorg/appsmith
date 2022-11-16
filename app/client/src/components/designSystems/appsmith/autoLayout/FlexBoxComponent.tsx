@@ -34,6 +34,8 @@ export interface LayerChild {
 export interface FlexLayer {
   children: LayerChild[];
   hasFillChild?: boolean;
+  topRow: number;
+  bottomRow: number;
 }
 
 interface DropPositionProps {
@@ -197,7 +199,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     } = props;
 
     const { element: verticalHighlights } = processIndividualLayer(
-      { children: [], hasFillChild: false },
+      { children: [], hasFillChild: false, topRow: 0, bottomRow: 0 },
       childCount,
       layerIndex,
       map,
@@ -370,6 +372,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     allowEmptyLayer = false,
     isNewLayer = false,
   ) {
+    console.log("$$$$ layer", layer);
     const { children } = layer;
 
     let count = 0;

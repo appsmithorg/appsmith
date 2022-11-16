@@ -21,6 +21,8 @@ import {
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   updateFlexChildColumns,
+  updateLayerRowPositions,
+  updateRowsOfLayerChildren,
   updateSizeOfAllChildren,
 } from "sagas/AutoLayoutUtils";
 
@@ -32,6 +34,7 @@ function* addWidgetAndReorderSaga(
     dropPayload: HighlightInfo;
   }>,
 ) {
+  console.log("#### action payload: ", actionPayload.payload);
   const start = performance.now();
   const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
@@ -45,7 +48,7 @@ function* addWidgetAndReorderSaga(
     );
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
-      reorderAutolayoutChildren,
+      reorderAutoLayoutChildren,
       {
         movedWidgets: [newWidget.newWidgetId],
         index,
@@ -56,6 +59,7 @@ function* addWidgetAndReorderSaga(
         direction,
         layerIndex,
         rowIndex,
+        rows: newWidget.rows,
       },
     );
     let updatedWidgetsAfterResizing = updatedWidgetsOnMove;
@@ -100,7 +104,7 @@ function* autoLayoutReorderSaga(
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
-      reorderAutolayoutChildren,
+      reorderAutoLayoutChildren,
       {
         movedWidgets,
         index,
@@ -111,6 +115,7 @@ function* autoLayoutReorderSaga(
         direction,
         layerIndex,
         rowIndex,
+        rows: 0,
       },
     );
     let updatedWidgetsAfterResizing = updatedWidgets;
@@ -127,7 +132,7 @@ function* autoLayoutReorderSaga(
   }
 }
 
-function* reorderAutolayoutChildren(params: {
+function* reorderAutoLayoutChildren(params: {
   movedWidgets: string[];
   index: number;
   isNewLayer: boolean;
@@ -137,6 +142,7 @@ function* reorderAutolayoutChildren(params: {
   direction: LayoutDirection;
   layerIndex?: number;
   rowIndex: number;
+  rows: number;
 }) {
   const {
     alignment,
@@ -148,6 +154,7 @@ function* reorderAutolayoutChildren(params: {
     movedWidgets,
     parentId,
     rowIndex,
+    rows,
   } = params;
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
@@ -177,6 +184,7 @@ function* reorderAutolayoutChildren(params: {
       selectedWidgets,
       widgets,
       alignment,
+      rows,
     );
 
     // Add the new layer to the flex layers.
@@ -193,7 +201,6 @@ function* reorderAutolayoutChildren(params: {
           updatedWidgets,
           parentId,
           filteredLayers,
-          index,
           layerIndex,
           rowIndex,
         );
@@ -284,9 +291,21 @@ function addNewLayer(
 
   const pos = layerIndex > layers.length ? layers.length : layerIndex;
 
+  const unaffectedLayers: FlexLayer[] = layers.slice(0, pos) || [];
+  const affectedLayers: FlexLayer[] = layers.slice(pos) || [];
+  const topRow: number = unaffectedLayers?.length
+    ? unaffectedLayers.reduce((acc: number, curr: FlexLayer) => {
+        return acc + ((curr.bottomRow || 0) - (curr.topRow || 0));
+      }, 0)
+    : 0;
+  const updatedAffectedRows: FlexLayer[] = updateLayerRowPositions(
+    [newLayer, ...affectedLayers],
+    topRow,
+  );
+  console.log("#### topRow", topRow, affectedLayers, unaffectedLayers);
   const updatedCanvas = {
     ...canvas,
-    flexLayers: [...layers.slice(0, pos), newLayer, ...layers.slice(pos)],
+    flexLayers: [...layers.slice(0, pos), ...updatedAffectedRows],
   };
 
   const updatedWidgets = {
@@ -294,7 +313,15 @@ function addNewLayer(
     [parentId]: updatedCanvas,
   };
 
-  return updatedWidgets;
+  const widgetsAfterUpdatingChildRows = updateRowsOfLayerChildren(
+    updatedAffectedRows,
+    updatedWidgets,
+  );
+  console.log(
+    "#### widgetsAfterUpdatingChildRows",
+    widgetsAfterUpdatingChildRows,
+  );
+  return widgetsAfterUpdatingChildRows;
 }
 
 function updateExistingLayer(
@@ -302,7 +329,6 @@ function updateExistingLayer(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   layers: FlexLayer[],
-  index: number,
   layerIndex = 0,
   rowIndex: number,
 ): CanvasWidgetsReduxState {
@@ -346,6 +372,7 @@ function createFlexLayer(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   alignment: FlexLayerAlignment,
+  rows: number,
 ): FlexLayer {
   let hasFillChild = false;
   const children = [];
@@ -358,7 +385,7 @@ function createFlexLayer(
       children.push({ id, align: alignment });
     }
   }
-  return { children, hasFillChild };
+  return { children, hasFillChild, topRow: 0, bottomRow: rows };
 }
 
 /**
