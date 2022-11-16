@@ -337,7 +337,7 @@ class TabsWidget extends BaseWidget<
       return null;
     }
 
-    childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     childWidgetData.rightColumn = componentWidth;
