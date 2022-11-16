@@ -497,7 +497,7 @@ abstract class BaseWidget<
      * values are not present (which will not be during mount), the widget type is changed to
      * SKELETON_WIDGET.
      *
-     * Note: This is done to retain the old rendering flow without any breaking changes.
+     * Note:- This is done to retain the old rendering flow without any breaking changes.
      * This could be refactored into not changing the widget type but to have a boolean flag.
      */
     if (type === "SKELETON_WIDGET") {
