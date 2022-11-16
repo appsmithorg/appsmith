@@ -3,7 +3,7 @@ import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
 import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
 import { retryPromise } from "utils/AppsmithUtils";
@@ -31,9 +31,9 @@ const Container = styled.div`
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   overflow: auto;
 
-  ${(props) => getTypographyByKey(props, "spacedOutP1")};
+  ${getTypographyByKey("spacedOutP1")};
   [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "spacedOutP1")};
+    ${getTypographyByKey("spacedOutP1")};
   }
 
   img {
@@ -41,13 +41,13 @@ const Container = styled.div`
   }
 
   h1 {
-    ${(props) => getTypographyByKey(props, "docHeader")}
+    ${getTypographyByKey("docHeader")}
     word-break: break-word;
   }
 
   h2,
   h3 {
-    ${(props) => getTypographyByKey(props, "h5")}
+    ${getTypographyByKey("h5")}
     font-weight: 600;
   }
 
@@ -72,7 +72,7 @@ const Container = styled.div`
   }
 
   .documentation-cta {
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${getTypographyByKey("p3")}
     white-space: nowrap;
     background: ${(props) =>
       props.theme.colors.globalSearch.documentationCtaBackground};
@@ -194,7 +194,7 @@ const StyledHitEnterMessageContainer = styled.div`
     `${props.theme.spaces[6]}px ${props.theme.spaces[3]}px`};
   border: 1px solid
     ${(props) => props.theme.colors.globalSearch.snippets.codeContainerBorder};
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${getTypographyByKey("p3")};
 `;
 
 const StyledKey = styled.span`
