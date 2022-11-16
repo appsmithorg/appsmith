@@ -216,7 +216,7 @@ export const CONFIG = {
     widgetName: "List",
     children: [],
     primaryKeys:
-      '{{List2.listData.map((currentItem, currentIndex) => currentItem["id"] )}}',
+      '{{List1.listData.map((currentItem, currentIndex) => currentItem["id"] )}}',
     blueprint: {
       view: [
         {
@@ -353,6 +353,8 @@ export const CONFIG = {
             // List > Canvas > Container > Canvas > Widgets
             const mainCanvas = get(widget, "children.0");
             const containerId = get(widget, "children.0.children.0");
+            const { widgetName } = widget;
+            const primaryKeys = `{{${widgetName}.listData.map((currentItem, currentIndex) => currentItem["id"] )}}`;
 
             const {
               childrenUpdatePropertyMap,
@@ -375,6 +377,11 @@ export const CONFIG = {
                 widgetId: widget.widgetId,
                 propertyName: "mainCanvasId",
                 propertyValue: mainCanvas.widgetId,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "primaryKeys",
+                propertyValue: primaryKeys,
               },
             ];
           },

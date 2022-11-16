@@ -925,10 +925,11 @@ class MetaWidgetGenerator {
       return this.data;
     }
 
+    const startIndex = this.getStartIndex();
+
     if (this.infiniteScroll) {
       if (this.virtualizer) {
         const virtualItems = this.virtualizer.getVirtualItems();
-        const startIndex = virtualItems[0]?.index ?? 0;
         const endIndex = virtualItems[virtualItems.length - 1]?.index ?? 0;
         return this.data.slice(startIndex, endIndex + 1);
       }
@@ -937,7 +938,6 @@ class MetaWidgetGenerator {
     }
 
     if (typeof this.pageNo === "number" && typeof this.pageSize === "number") {
-      const startIndex = this.pageSize * (this.pageNo - 1);
       const endIndex = startIndex + this.pageSize;
       return this.data.slice(startIndex, endIndex);
     }
@@ -1060,8 +1060,10 @@ class MetaWidgetGenerator {
     if (typeof key === "number" || typeof key === "string") {
       return key.toString();
     }
+    const startIndex = this.getStartIndex();
+    const rowIndex = index - startIndex;
+    const data = this.getData()[rowIndex];
 
-    const data = this.getData()[index];
     return hash(data, { algorithm: "md5" });
   };
 
