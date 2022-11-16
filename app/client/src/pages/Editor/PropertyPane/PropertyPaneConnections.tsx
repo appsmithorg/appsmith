@@ -9,6 +9,7 @@ import {
   Dropdown,
   DefaultDropDownValueNodeProps,
   DropdownOption,
+  getTypographyByKey,
   Icon,
   IconSize,
   Text,
@@ -26,7 +27,6 @@ import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { inGuidedTour } from "selectors/onboardingSelectors";
@@ -76,7 +76,7 @@ const SelectedNodeWrapper = styled.div<{
     props.hasError
       ? props.theme.colors.propertyPane.connections.error
       : props.theme.colors.propertyPane.connections.connectionsCount};
-  ${(props) => getTypographyByKey(props, "p3")}
+  ${getTypographyByKey("p3")}
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {
