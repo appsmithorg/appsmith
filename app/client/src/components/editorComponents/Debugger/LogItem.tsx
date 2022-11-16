@@ -16,6 +16,7 @@ import { getLogIcon } from "./helpers";
 import {
   AppIcon,
   Classes,
+  getTypographyByKey,
   Icon,
   IconName,
   IconSize,
@@ -23,7 +24,6 @@ import {
   TextType,
   TooltipComponent,
 } from "design-system";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,
@@ -76,7 +76,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
         : `transform: rotate(0deg); `};
     }
   .debugger-time {
-    ${(props) => getTypographyByKey(props, "h6")}
+    ${getTypographyByKey("h6")}
     line-height: 16px;
     margin-left: 8px;
     margin-right: 18px;
@@ -110,7 +110,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     &.${Severity.WARNING} {
       background-color: ${Colors.WARNING_DEBUGGER_GROUPING_BADGE};
     }
-    ${(props) => getTypographyByKey(props, "u2")}
+    ${getTypographyByKey("u2")}
   }
   .debugger-description {
     display: flex;
@@ -121,7 +121,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
     .debugger-label {
       color: ${(props) => props.theme.colors.debugger.label};
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -132,7 +132,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     }
     .debugger-entity {
       color: ${(props) => props.theme.colors.debugger.entity};
-      ${(props) => getTypographyByKey(props, "h6")}
+      ${getTypographyByKey("h6")}
       margin-left: 6px;
 
       & > span {
@@ -149,13 +149,13 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   .debugger-timetaken {
     color: ${(props) => props.theme.colors.debugger.entity};
     margin-left: 5px;
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${getTypographyByKey("p2")}
     line-height: 19px;
   }
 
   .debugger-entity-link {
     margin-left: auto;
-    ${(props) => getTypographyByKey(props, "btnMedium")}
+    ${getTypographyByKey("btnMedium")}
     color: ${(props) => props.theme.colors.debugger.entityLink};
     text-transform: uppercase;
     cursor: pointer;
@@ -187,7 +187,7 @@ margin-top:${(props) =>
   margin-left: 120px;
 
   .debugger-message {
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${getTypographyByKey("p2")}
     color: ${(props) => props.theme.colors.debugger.message};
     text-decoration-line: underline;
     cursor: pointer;

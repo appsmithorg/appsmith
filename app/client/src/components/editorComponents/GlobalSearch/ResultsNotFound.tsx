@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import NoSearchDataImage from "assets/images/no_search_data.png";
 import { NO_SEARCH_DATA_TEXT } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system";
 import { ReactComponent as DiscordIcon } from "assets/icons/help/discord.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -14,7 +14,7 @@ const Container = styled.div`
   align-items: center;
   flex-direction: column;
 
-  ${(props) => getTypographyByKey(props, "spacedOutP1")}
+  ${getTypographyByKey("spacedOutP1")}
   color: ${(props) => props.theme.colors.globalSearch.emptyStateText};
 
   .no-data-title {
