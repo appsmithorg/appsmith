@@ -15,7 +15,10 @@ interface SearchResultType {
   };
 }
 
-function search(config: PropertyPaneSectionConfig[], searchQuery: string) {
+function search(
+  sectionConfigs: PropertyPaneSectionConfig[],
+  searchQuery: string,
+) {
   const query = searchQuery.toLowerCase();
   const searchResult: SearchResultType = {
     section: {
@@ -27,15 +30,19 @@ function search(config: PropertyPaneSectionConfig[], searchQuery: string) {
       contains: [],
     },
   };
-  for (const conf of config) {
-    const section: any = { ...conf, children: [] };
-    const sectionName = conf.sectionName.toLowerCase();
+  for (const sectionConfig of sectionConfigs) {
+    const sectionConfigCopy: PropertyPaneSectionConfig = {
+      ...sectionConfig,
+      children: [],
+    };
+    const sectionName = sectionConfig.sectionName.toLowerCase();
     let isPropertyStartsWith = false;
     if (sectionName.startsWith(query)) {
-      searchResult.section.startsWith.push(conf);
+      searchResult.section.startsWith.push(sectionConfig);
     } else if (sectionName.includes(query)) {
-      searchResult.section.contains.push(conf);
+      searchResult.section.contains.push(sectionConfig);
     } else {
+      // search through properties
       const childResult: SearchResultType = {
         section: {
           startsWith: [],
@@ -47,7 +54,10 @@ function search(config: PropertyPaneSectionConfig[], searchQuery: string) {
         },
       };
       let isEmpty = true;
-      for (const child of conf.children) {
+      for (const child of sectionConfig.children) {
+        if ((child as PropertyPaneControlConfig).invisible) {
+          continue;
+        }
         if ((child as PropertyPaneControlConfig).label) {
           const label = (child as PropertyPaneControlConfig).label.toLowerCase();
           if (label.startsWith(query)) {
@@ -59,10 +69,8 @@ function search(config: PropertyPaneSectionConfig[], searchQuery: string) {
             childResult.property.contains.push(child);
           }
         } else {
-          // Solve for nested section
+          // search through nested section
           const result = search([child as PropertyPaneSectionConfig], query);
-
-          // matches the section name
           if (result.section.startsWith.length > 0) {
             isEmpty = false;
             isPropertyStartsWith = true;
@@ -73,7 +81,6 @@ function search(config: PropertyPaneSectionConfig[], searchQuery: string) {
             isPropertyStartsWith = false;
             childResult.section.contains.push(...result.section.contains);
           }
-
           if (result.property.startsWith.length > 0) {
             isEmpty = false;
             isPropertyStartsWith = true;
@@ -87,11 +94,11 @@ function search(config: PropertyPaneSectionConfig[], searchQuery: string) {
         }
       }
       if (!isEmpty) {
-        section.children = sortSearchResult(childResult);
+        sectionConfigCopy.children = sortSearchResult(childResult);
         if (isPropertyStartsWith) {
-          searchResult.property.startsWith.push(section);
+          searchResult.property.startsWith.push(sectionConfigCopy);
         } else {
-          searchResult.property.contains.push(section);
+          searchResult.property.contains.push(sectionConfigCopy);
         }
       }
     }
@@ -108,7 +115,7 @@ function sortSearchResult(searchResult: SearchResultType) {
   ];
 }
 
-export function searchProperty(
+export function searchPropertyPaneConfig(
   config: PropertyPaneSectionConfig[],
   searchQuery?: string,
 ) {

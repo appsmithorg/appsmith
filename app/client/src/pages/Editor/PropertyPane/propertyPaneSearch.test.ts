@@ -1,5 +1,5 @@
 import { PropertyPaneSectionConfig } from "constants/PropertyControlConstants";
-import { searchProperty } from "./propertyPaneSearch";
+import { searchPropertyPaneConfig } from "./propertyPaneSearch";
 
 describe("Property configuration search", () => {
   const commonProperties = {
@@ -85,11 +85,11 @@ describe("Property configuration search", () => {
     },
   ];
   it("Should return configuration as it is for empty searchQuery", () => {
-    const result = searchProperty(config, "");
+    const result = searchPropertyPaneConfig(config, "");
     expect(result).toEqual(config);
   });
   it("Validates search for one item", () => {
-    const result = searchProperty(config, "animate");
+    const result = searchPropertyPaneConfig(config, "animate");
     expect(result).toEqual([
       {
         sectionName: "Section One",
@@ -104,11 +104,11 @@ describe("Property configuration search", () => {
     ]);
   });
   it("Validates search for a section", () => {
-    const result = searchProperty(config, "Section One");
+    const result = searchPropertyPaneConfig(config, "Section One");
     expect(result).toEqual(config.slice(0, 1));
   });
   it("Validates search order for multiple matching items from multiple sections", () => {
-    const result = searchProperty(config, "button");
+    const result = searchPropertyPaneConfig(config, "button");
     expect(result).toEqual([
       {
         sectionName: "Section Two",
@@ -143,7 +143,7 @@ describe("Property configuration search", () => {
     ]);
   });
   it("Validates search order for deeply nested items", () => {
-    const result = searchProperty(config, "placement");
+    const result = searchPropertyPaneConfig(config, "placement");
     expect(result).toEqual([
       {
         sectionName: "Section Two",

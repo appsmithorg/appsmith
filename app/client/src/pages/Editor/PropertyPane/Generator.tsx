@@ -14,7 +14,7 @@ import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import { EmptySearchResult } from "./EmptySearchResult";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { searchProperty } from "./propertyPaneSearch";
+import { searchPropertyPaneConfig } from "./propertyPaneSearch";
 import { evaluateHiddenProperty } from "./helpers";
 
 export type PropertyControlsGeneratorProps = {
@@ -83,7 +83,7 @@ const generatePropertyControl = (
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const finalProps = evaluateHiddenProperty(props.config, widgetProps);
-  const searchResults = searchProperty(
+  const searchResults = searchPropertyPaneConfig(
     finalProps as PropertyPaneSectionConfig[],
     props.searchQuery,
   );
