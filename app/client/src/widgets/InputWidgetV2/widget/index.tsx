@@ -201,6 +201,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                   label: "Email",
                   value: "EMAIL",
                 },
+                {
+                  label: "Color",
+                  value: "COLOR",
+                },
               ],
               isBindProperty: false,
               isTriggerProperty: false,

@@ -384,7 +384,13 @@ const TextInputWrapper = styled.div<{
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
 `;
 
-export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
+export type InputHTMLType =
+  | "TEXT"
+  | "NUMBER"
+  | "PASSWORD"
+  | "EMAIL"
+  | "TEL"
+  | "COLOR";
 
 export const isNumberInputType = (inputHTMLType: InputHTMLType = "TEXT") => {
   return inputHTMLType === "NUMBER";
@@ -468,6 +474,8 @@ class BaseInputComponent extends React.Component<
         return "tel";
       case "EMAIL":
         return "email";
+      case "COLOR":
+        return "color";
       default:
         return "text";
     }

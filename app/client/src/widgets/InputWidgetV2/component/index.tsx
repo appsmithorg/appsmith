@@ -14,6 +14,8 @@ const getInputHTMLType = (inputType: InputTypes) => {
       return "EMAIL";
     case "PASSWORD":
       return "PASSWORD";
+    case "COLOR":
+      return "COLOR";
     default:
       return "TEXT";
   }
