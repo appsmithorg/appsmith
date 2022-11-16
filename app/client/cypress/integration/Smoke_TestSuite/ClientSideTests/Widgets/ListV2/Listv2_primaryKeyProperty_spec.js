@@ -1,6 +1,7 @@
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
 const simpleListWithLargeDataDSL = require("../../../../../fixtures/Listv2/simpleListWithLargeData.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const propertyControl = ".t--property-control";
@@ -117,6 +118,38 @@ describe("List v2 - Primary Key property", () => {
 
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
 
+    cy.get(".rc-pagination")
+      .find("a")
+      .contains("2")
+      .click({ force: true });
+
+    cy.get(widgetsPage.containerWidget).should("have.length", 2);
+  });
+
+  it("7. non unique primary key should throw error", () => {
+    cy.openPropertyPane("listwidgetv2");
+
+    // clicking on the primary key dropdown
+    cy.get(`${propertyControl}-primarykey`)
+      .find(".bp3-popover-target")
+      .last()
+      .click({ force: true });
+    cy.wait(250);
+
+    cy.get(".t--dropdown-option")
+      .last()
+      .click({ force: true });
+
+    cy.get(widgetsPage.containerWidget).should("have.length", 2);
+
+    // click on debugger icon
+    cy.get(commonlocators.debugger)
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(".debugger-list").contains("The value at primaryKeys is invalid");
+  });
+
+  it("8. pagination should work for non unique primary key", () => {
     cy.get(".rc-pagination")
       .find("a")
       .contains("2")
