@@ -1,3 +1,4 @@
+import { defaultLibraries, TJSLibrary } from "utils/DynamicBindingUtils";
 import { WorkerErrorTypes } from "workers/common/types";
 import {
   LintWorkerRequest,
@@ -45,7 +46,10 @@ function messageEventListener(fn: typeof eventRequestHandler) {
 function eventRequestHandler({
   method,
   requestData,
-}: LintWorkerRequest): LintTreeResponse | unknown {
+}: {
+  method: LINT_WORKER_ACTIONS;
+  requestData: any;
+}): LintTreeResponse | unknown {
   switch (method) {
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
@@ -55,6 +59,10 @@ function eventRequestHandler({
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
       return lintTreeResponse;
+    }
+    case LINT_WORKER_ACTIONS.UPDATE_LINT_GLOBALS: {
+      defaultLibraries.push(requestData);
+      return;
     }
 
     default: {

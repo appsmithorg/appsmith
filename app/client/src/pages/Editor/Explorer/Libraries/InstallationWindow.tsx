@@ -374,7 +374,7 @@ function InstallationPopoverContent(props: any) {
           </span>
         </div>
         <InstallationProgress />
-        <div className="pl-6 pb-3 pt-4 sticky top-0 z-2 bg-white">
+        <div className="pl-6 pb-3 pt-3 sticky top-0 z-2 bg-white">
           <Text type={TextType.P1} weight={"bold"}>
             {createMessage(customJSLibraryMessages.REC_LIBRARY)}
           </Text>

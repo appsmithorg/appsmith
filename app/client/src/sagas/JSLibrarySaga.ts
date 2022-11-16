@@ -40,6 +40,16 @@ export function* installLibrary(url: string) {
   const [version] = versionMatch ? versionMatch : [];
 
   yield put({
+    type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
+    payload: {
+      name: libraryAccessor,
+      version,
+      url,
+      accessor: libraryAccessor,
+    },
+  });
+
+  yield put({
     type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
     payload: { url, libraryAccessor, version },
   });
