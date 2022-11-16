@@ -89,6 +89,7 @@ type RenderComponentProps = {
   evaluated: {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
+    color: string;
   };
   theme: EditorTheme;
 };
@@ -153,6 +154,31 @@ function DataControlComponent(props: RenderComponentProps) {
           }}
           mode={EditorModes.TEXT_WITH_BINDING}
           placeholder="Series Name"
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
+        />
+      </StyledOptionControlWrapper>
+      <StyledLabel>Series Color</StyledLabel>
+      <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
+        <CodeEditor
+          dataTreePath={`${dataTreePath}.color`}
+          evaluatedValue={evaluated?.color}
+          expected={expectedSeriesName}
+          input={{
+            value: item.color,
+            onChange: (
+              event: React.ChangeEvent<HTMLTextAreaElement> | string,
+            ) => {
+              let value: string = event as string;
+              if (typeof event !== "string") {
+                value = event.target.value;
+              }
+              updateOption(index, "color", value);
+            },
+          }}
+          mode={EditorModes.TEXT_WITH_BINDING}
+          placeholder="Series Color (Hex)"
           size={EditorSize.EXTENDED}
           tabBehaviour={TabBehaviour.INPUT}
           theme={props.theme}

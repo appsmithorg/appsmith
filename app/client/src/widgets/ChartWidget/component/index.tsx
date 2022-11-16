@@ -130,6 +130,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
     const firstKey = Object.keys(chartData)[0] as string;
     let data = get(chartData, `${firstKey}.data`, []) as ChartDataPoint[];
+    const color = get(chartData, `${firstKey}.color`, []) as ChartDataPoint[];
 
     if (!Array.isArray(data)) {
       data = [];
@@ -148,6 +149,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return {
         label: item.x,
         value: item.y,
+        color,
       };
     });
   };
@@ -230,6 +232,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       >> = this.getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
+        color: item.color,
         data: seriesChartData,
       };
     });

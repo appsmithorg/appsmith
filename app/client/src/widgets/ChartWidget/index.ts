@@ -22,6 +22,7 @@ export const CONFIG = {
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",
+        color: "#5d62b6",
         data: [
           {
             x: "Product1",
