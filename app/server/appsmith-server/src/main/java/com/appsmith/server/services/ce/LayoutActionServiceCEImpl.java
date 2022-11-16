@@ -9,6 +9,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -405,6 +406,15 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         Mono<Set<String>> actionNamesInPageMono = newActionService
                 .getUnpublishedActions(params)
+                .flatMap(
+                        actionDTO -> {
+                            if (actionDTO.getPluginType().equals(PluginType.JS) && !StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                return Mono.empty();
+                            } else {
+                                return Mono.just(actionDTO);
+                            }
+                        }
+                )
                 .map(ActionDTO::getValidName)
                 .collect(toSet());
 
