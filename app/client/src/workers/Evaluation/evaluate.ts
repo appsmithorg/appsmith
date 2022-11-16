@@ -18,6 +18,7 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
+import SetupDOM, { DOM_APIS } from "./SetupDOM";
 
 export type EvalResult = {
   result: any;
@@ -75,8 +76,9 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 
 function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
-    if (topLevelWorkerAPIs[key]) continue;
-    if (key === "evaluationVersion" || key === "window") continue;
+    if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
+    if (key === "evaluationVersion" || key === "window" || key === "document")
+      continue;
     if (defaultLibraries.find((lib) => lib.accessor === key)) continue;
     // @ts-expect-error: Types are not available
     delete self[key];
@@ -123,6 +125,7 @@ export function setupEvaluationEnvironment() {
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();
+  SetupDOM();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;

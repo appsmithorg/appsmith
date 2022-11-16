@@ -58,7 +58,7 @@ const Wrapper = styled.div`
     margin-bottom: 16px;
   }
   .search-area {
-    padding: 0 24px;
+    padding: 0 24px 12px;
     .left-icon {
       margin-left: 14px;
       .cs-icon {
@@ -78,7 +78,7 @@ const Wrapper = styled.div`
     .search-CTA {
       display: flex;
       flex-direction: column;
-      margin: 16px 24px 0;
+      margin: 0 24px;
     }
     .search-results {
       .library-card {
@@ -233,21 +233,23 @@ function ProgressTracker({
             <div className="shrink-0">{getStatusIcon(status)}</div>
           )}
         </div>
-        <div className="gap-2 error-card items-start">
-          <Icon name="danger" size={IconSize.XL} />
-          <div className="flex flex-col unsupported gap-1">
-            <div className="header">
-              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
-            </div>
-            <div className="body">
-              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
-            </div>
-            <div className="footer text-xs font-medium gap-2 flex flex-row">
-              <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
-              <a>{createMessage(customJSLibraryMessages.LEARN_MORE)}</a>
+        {status === InstallState.Failed && (
+          <div className="gap-2 error-card items-start">
+            <Icon name="danger" size={IconSize.XL} />
+            <div className="flex flex-col unsupported gap-1">
+              <div className="header">
+                {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
+              </div>
+              <div className="body">
+                {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
+              </div>
+              <div className="footer text-xs font-medium gap-2 flex flex-row">
+                <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
+                <a>{createMessage(customJSLibraryMessages.LEARN_MORE)}</a>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </InstallationProgressWrapper>
   );
@@ -260,7 +262,7 @@ function InstallationProgress() {
   );
   if (urls.length === 0) return null;
   return (
-    <div className="pt-1 ml-6 mr-6">
+    <div className="pt-3 pb-3">
       {urls.map((url, idx) => (
         <ProgressTracker
           addBorder={idx !== 0}
@@ -396,7 +398,7 @@ function InstallationPopoverContent(props: any) {
           </span>
         </div>
         <InstallationProgress />
-        <div className="pl-6 pb-3 pt-3 sticky top-0 z-2 bg-white">
+        <div className="pl-6 pb-3 sticky top-0 z-2 bg-white">
           <Text type={TextType.P1} weight={"bold"}>
             {createMessage(customJSLibraryMessages.REC_LIBRARY)}
           </Text>
@@ -429,8 +431,8 @@ function LibraryCard({
   return (
     <div>
       <div className="library-card" onClick={() => onClick(lib.url)}>
-        <div className="flex flex-row justify-between">
-          <div className="flex flex-row gap-2">
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-row gap-2 items-center">
             <Text type={TextType.P0} weight="bold">
               {lib.name}
             </Text>
