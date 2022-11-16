@@ -57,7 +57,7 @@ const CategoryDisplay = styled.div`
   border: 1px solid
     ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
   margin-right: ${(props) => props.theme.spaces[4]}px;
-  ${getTypographyByKey("categoryBtn")}
+  ${getTypographyByKey("categoryButton")}
   svg {
     cursor: pointer;
     margin-left: ${(props) => `${props.theme.spaces[4]}px`};

@@ -224,7 +224,7 @@ const PlaceholderButton = styled.div`
   padding: ${(props) =>
     `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
   border: solid 1px ${Colors.MERCURY};
-  ${getTypographyByKey("btnSmall")};
+  ${getTypographyByKey("buttonSmall")};
   text-transform: uppercase;
   background-color: ${Colors.ALABASTER_ALT};
   color: ${Colors.GRAY};

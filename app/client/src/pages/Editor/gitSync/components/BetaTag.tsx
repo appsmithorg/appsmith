@@ -9,7 +9,7 @@ const StyledTag = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  ${getTypographyByKey("btnSmall")};
+  ${getTypographyByKey("buttonSmall")};
   border: 1px solid ${Colors.COD_GRAY};
   color: ${Colors.COD_GRAY};
 `;

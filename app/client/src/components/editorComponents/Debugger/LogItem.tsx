@@ -155,7 +155,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   .debugger-entity-link {
     margin-left: auto;
-    ${getTypographyByKey("btnMedium")}
+    ${getTypographyByKey("buttonMedium")}
     color: ${(props) => props.theme.colors.debugger.entityLink};
     text-transform: uppercase;
     cursor: pointer;

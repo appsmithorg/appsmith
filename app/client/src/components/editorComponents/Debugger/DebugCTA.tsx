@@ -23,7 +23,7 @@ import { Colors } from "constants/Colors";
 import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const EVDebugButton = styled.button`
-  ${getTypographyByKey("btnSmall")};
+  ${getTypographyByKey("buttonSmall")};
   display: flex;
   padding: ${(props) => props.theme.spaces[1]}px;
   border: 1px solid

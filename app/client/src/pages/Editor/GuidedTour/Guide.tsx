@@ -108,7 +108,7 @@ const GuideButton = styled(Button)<{ isVisible?: boolean }>`
   padding: ${(props) => props.theme.spaces[0]}px
     ${(props) => props.theme.spaces[6]}px;
   height: 38px;
-  ${getTypographyByKey("btnMedium")};
+  ${getTypographyByKey("buttonMedium")};
   visibility: ${({ isVisible = true }) => (isVisible ? "visible" : "hidden")};
 `;
 

@@ -105,7 +105,7 @@ const FormWrapper = styled.div`
 `;
 
 const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${getTypographyByKey("btnLarge")};
+  ${getTypographyByKey("buttonLarge")};
   color: ${Colors.DOVE_GRAY2};
   margin: 10px 0px;
 `;

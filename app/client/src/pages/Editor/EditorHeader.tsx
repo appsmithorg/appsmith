@@ -153,7 +153,7 @@ const ProfileDropdownContainer = styled.div``;
 const StyledInviteButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
-  ${getTypographyByKey("btnLarge")}
+  ${getTypographyByKey("buttonLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
