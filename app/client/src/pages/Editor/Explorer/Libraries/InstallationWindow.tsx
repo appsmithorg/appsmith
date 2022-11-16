@@ -46,8 +46,9 @@ type TInstallWindowProps = any;
 
 const Wrapper = styled.div`
   display: flex;
-  height: 500px;
+  height: auto;
   width: 400px;
+  max-height: 80vh;
   flex-direction: column;
   .installation-header {
     padding: 24px 24px 0;
@@ -74,7 +75,6 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     overflow: auto;
-    height: 405px;
     .search-CTA {
       display: flex;
       flex-direction: column;
