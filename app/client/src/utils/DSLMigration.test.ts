@@ -682,6 +682,15 @@ const migrations: Migration[] = [
     ],
     version: 69,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2SelectOption",
+      },
+    ],
+    version: 70,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

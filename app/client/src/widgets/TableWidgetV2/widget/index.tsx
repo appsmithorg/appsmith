@@ -1536,7 +1536,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onFilterChangeActionString={column.onFilterUpdate}
             onItemSelect={this.onOptionSelect}
             onOptionSelectActionString={column.onOptionChange}
-            options={column.selectOptions}
+            options={cellProperties.selectOptions}
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}

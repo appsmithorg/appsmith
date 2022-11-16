@@ -86,6 +86,12 @@ function InputText(props: InputTextProp) {
 class ComputeTablePropertyControlV2 extends BaseControl<
   ComputeTablePropertyControlPropsV2
 > {
+  static getBindingPrefix(tableId: string) {
+    return `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( `;
+  }
+
+  static bindingSuffix = `))}}`;
+
   render() {
     const {
       dataTreePath,
@@ -134,22 +140,36 @@ class ComputeTablePropertyControlV2 extends BaseControl<
   }
 
   static getInputComputedValue = (propertyValue: string, tableId: string) => {
-    const value = `${propertyValue.substring(
-      `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( `
-        .length,
-      propertyValue.length - 4,
-    )}`;
-    const stringValue = JSToString(value);
+    const bindingPrefix = ComputeTablePropertyControlV2.getBindingPrefix(
+      tableId,
+    );
 
-    return stringValue;
+    if (propertyValue.includes(bindingPrefix)) {
+      const value = `${propertyValue.substring(
+        bindingPrefix.length,
+        propertyValue.length -
+          ComputeTablePropertyControlV2.bindingSuffix.length,
+      )}`;
+      return JSToString(value);
+    } else {
+      return propertyValue;
+    }
   };
 
   getComputedValue = (value: string, tableId: string) => {
+    if (!isDynamicValue(value)) {
+      return value;
+    }
+
     const stringToEvaluate = stringToJS(value);
+
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( ${stringToEvaluate}))}}`;
+
+    return `${ComputeTablePropertyControlV2.getBindingPrefix(
+      tableId,
+    )}${stringToEvaluate}${ComputeTablePropertyControlV2.bindingSuffix}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

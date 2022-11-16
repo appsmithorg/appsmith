@@ -12,35 +12,38 @@ export default {
       propertyName: "selectOptions",
       helpText: "Options to be shown on the select dropdown",
       label: "Options",
-      controlType: "INPUT_TEXT",
+      controlType: "TABLE_COMPUTE_VALUE",
       isJSConvertible: false,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.ARRAY,
+        type: ValidationTypes.TABLE_PROPERTY,
         params: {
-          unique: ["value"],
-          children: {
-            type: ValidationTypes.OBJECT,
-            params: {
-              required: true,
-              allowedKeys: [
-                {
-                  name: "label",
-                  type: ValidationTypes.TEXT,
-                  params: {
-                    default: "",
-                    requiredKey: true,
+          type: ValidationTypes.ARRAY,
+          params: {
+            unique: ["value"],
+            children: {
+              type: ValidationTypes.OBJECT,
+              params: {
+                required: true,
+                allowedKeys: [
+                  {
+                    name: "label",
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "",
+                      requiredKey: true,
+                    },
                   },
-                },
-                {
-                  name: "value",
-                  type: ValidationTypes.TEXT,
-                  params: {
-                    default: "",
-                    requiredKey: true,
+                  {
+                    name: "value",
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "",
+                      requiredKey: true,
+                    },
                   },
-                },
-              ],
+                ],
+              },
             },
           },
         },
