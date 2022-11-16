@@ -78,7 +78,7 @@ const Wrapper = styled.div`
     .search-CTA {
       display: flex;
       flex-direction: column;
-      margin: 0 24px;
+      margin: 0 24px 12px;
     }
     .search-results {
       .library-card {

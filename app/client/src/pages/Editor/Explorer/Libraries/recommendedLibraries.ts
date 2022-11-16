@@ -28,6 +28,16 @@ export default [
     icon: "https://github.com/supabase.png?s=20",
   },
   {
+    name: "@segment/analytics-next",
+    url:
+      "https://cdn.jsdelivr.net/npm/@segment/analytics-next@1.46.1/dist/umd/index.js",
+    description:
+      "Analytics Next (aka Analytics 2.0) is the latest version of Segment’s JavaScript SDK - enabling you to send your data to any tool without having to learn, test, or use a new API every time.",
+    author: "segmentio",
+    version: "1.46.1",
+    icon: "https://github.com/segmentio.png?s=20",
+  },
+  {
     name: "Mixpanel",
     description: "Isomorphic Javascript client for Supabase",
     author: "supabase",
@@ -83,5 +93,32 @@ export default [
     version: "7.17.3",
     url: "https://browser.sentry-cdn.com/7.17.3/bundle.min.js",
     icon: "https://github.com/getsentry.png?s=20",
+  },
+  {
+    name: "browser-image-compression",
+    url:
+      "https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.0/dist/browser-image-compression.min.js",
+    version: "2.0.0",
+    author: "Donaldcwl",
+    description: "Compress images in the browser",
+    icon: "https://github.com/Donaldcwl.png?s=20",
+  },
+  {
+    name: "crypto-js",
+    url:
+      "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js",
+    description: "JavaScript library of crypto standards.",
+    version: "4.1.1",
+    author: "brix",
+    icon: "https://github.com/brix.png?s=20",
+  },
+  {
+    name: "jsonpath",
+    url: "https://cdn.jsdelivr.net/npm/jsonpath@1.1.1/jsonpath.min.js",
+    description:
+      "Query JavaScript objects with JSONPath expressions. Robust / safe JSONPath engine for Node.js.",
+    version: "1.1.1",
+    author: "dchester",
+    icon: "https://github.com/dchester.png?s=20",
   },
 ];

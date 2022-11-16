@@ -1,4 +1,4 @@
-import { defaultLibraries, TJSLibrary } from "utils/DynamicBindingUtils";
+import { defaultLibraries } from "utils/DynamicBindingUtils";
 import { WorkerErrorTypes } from "workers/common/types";
 import {
   LintWorkerRequest,
