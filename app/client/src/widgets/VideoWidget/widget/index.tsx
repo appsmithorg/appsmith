@@ -191,10 +191,9 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       this.props.playState === "NOT_STARTED"
     ) {
       this._player.current?.seekTo(0);
-      this.props.updateWidgetMetaProperty("playing", false);
-      // if (this.props.autoPlay) {
-      //   this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
-      // }
+      if (this.props.autoPlay) {
+        this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+      }
     }
   }
 
@@ -203,13 +202,13 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
-          // autoplay={autoPlay}
           backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           boxShadowColor={this.props.boxShadowColor}
           controls
           onEnded={() => {
+            this.props.updateWidgetMetaProperty("playing", false);
             this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
               triggerPropertyName: "onEnd",
               dynamicString: onEnd,
@@ -220,28 +219,36 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           }}
           onPause={() => {
             //TODO: We do not want the pause event for onSeek or onEnd.
-            this.props.updateWidgetMetaProperty("playing", false);
-            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
-              triggerPropertyName: "onPause",
-              dynamicString: onPause,
-              event: {
-                type: EventType.ON_VIDEO_PAUSE,
-              },
-            });
+            if (this.props.playing) {
+              this.props.updateWidgetMetaProperty("playing", false);
+              this.props.updateWidgetMetaProperty(
+                "playState",
+                PlayState.PAUSED,
+                {
+                  triggerPropertyName: "onPause",
+                  dynamicString: onPause,
+                  event: {
+                    type: EventType.ON_VIDEO_PAUSE,
+                  },
+                },
+              );
+            }
           }}
           onPlay={() => {
-            this.props.updateWidgetMetaProperty("playing", true);
-            this.props.updateWidgetMetaProperty(
-              "playState",
-              PlayState.PLAYING,
-              {
-                triggerPropertyName: "onPlay",
-                dynamicString: onPlay,
-                event: {
-                  type: EventType.ON_VIDEO_PLAY,
+            if (!this.props.playing) {
+              this.props.updateWidgetMetaProperty("playing", true);
+              this.props.updateWidgetMetaProperty(
+                "playState",
+                PlayState.PLAYING,
+                {
+                  triggerPropertyName: "onPlay",
+                  dynamicString: onPlay,
+                  event: {
+                    type: EventType.ON_VIDEO_PLAY,
+                  },
                 },
-              },
-            );
+              );
+            }
           }}
           player={this._player}
           playing={playing}
