@@ -4,7 +4,7 @@ import { groupBy } from "lodash";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
-import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
+import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "selectors/editorSelectors";
 import { TreeNode } from "utils/autoHeight/constants";
 import { FlattenedWidgetProps } from "widgets/constants";
@@ -13,39 +13,7 @@ import {
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
-
-export function* getChildOfContainerLikeWidget(
-  containerLikeWidget: FlattenedWidgetProps,
-) {
-  // Todo: Abstraction leak (abhinav): This is an abstraction leak
-  // I don't have a better solution right now.
-  // What we're trying to acheive is to skip the canvas which
-  // is not currently visible in the tabs widget.
-  if (containerLikeWidget.type === "TABS_WIDGET") {
-    // Get the current tabs widget meta
-    const tabsMeta: { selectedTabWidgetId: string } | undefined = yield select(
-      getWidgetMetaProps,
-      containerLikeWidget.widgetId,
-    );
-    // If we have a meta for the tabs widget
-    if (tabsMeta) return tabsMeta.selectedTabWidgetId;
-
-    // If there are not meta values for the tabs widget
-    // we get the first tab using the `index`
-    const firstTab = Object.values(
-      containerLikeWidget.tabsObj as Record<
-        string,
-        { widgetId: string; index: number }
-      >,
-    ).find((entry: { widgetId: string; index: number }) => entry.index === 0);
-
-    return firstTab?.widgetId;
-  } else if (Array.isArray(containerLikeWidget.children)) {
-    // First child of a container like widget will be the canvas widget within in
-    // Note: If we have this feature for List Widget, we will need to consider it.
-    return containerLikeWidget.children[0];
-  }
-}
+import { getChildOfContainerLikeWidget } from "./helpers";
 
 export function* dynamicallyUpdateContainersSaga() {
   const start = performance.now();

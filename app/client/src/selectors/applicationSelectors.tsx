@@ -34,6 +34,8 @@ export const getCurrentApplication = (
 };
 export const getApplicationSearchKeyword = (state: AppState) =>
   state.ui.applications.searchKeyword;
+
+// TODO(abhinav): This is a duplicate, we have this in `entitiesSelector`
 export const getAppMode = (state: AppState) => state.entities.app.mode;
 export const getIsDeletingApplication = (state: AppState) =>
   state.ui.applications.deletingApplication;
