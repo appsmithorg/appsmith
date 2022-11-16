@@ -3,6 +3,7 @@ import {
   ReduxAction,
   ReduxActionType,
 } from "@appsmith/constants/ReduxActionConstants";
+import { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
@@ -73,6 +74,15 @@ export const setWidgetDynamicProperty = (
       isDynamic,
       shouldRejectDynamicBindingPathList,
     },
+  };
+};
+
+export const updateMultipleWidgetPropertiesAction = (
+  widgetsToUpdate: UpdateWidgetsPayload,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
+    payload: widgetsToUpdate,
   };
 };
 
