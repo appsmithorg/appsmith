@@ -222,7 +222,7 @@ export const RichTextEditorInputWrapper = styled.div<{
   border-radius: ${({ borderRadius }) => borderRadius};
 
   ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto; min-height: 200px; }" : ""};
+    isDynamicHeightEnabled ? "&& { height: auto; min-height: 192px; }" : ""};
 `;
 
 export interface RichtextEditorComponentProps {
