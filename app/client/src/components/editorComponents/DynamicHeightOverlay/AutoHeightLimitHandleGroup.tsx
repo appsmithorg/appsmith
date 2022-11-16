@@ -42,8 +42,11 @@ const AutoHeightLimitHandleContainer = styled.div<
   display: flex;
   align-items: center;
   width: 100%;
-  height: 6px;
-  transform: translateY(${(props) => props.height}px);
+  height: 13px;
+  transform: translateY(${(props) => props.height - 6}px);
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
 `;
 
 interface AutoHeightLimitHandleDotProps {
@@ -52,15 +55,12 @@ interface AutoHeightLimitHandleDotProps {
 }
 
 const AutoHeightLimitHandleDot = styled.div<AutoHeightLimitHandleDotProps>`
-  align-self: start;
   position: absolute;
   left: 50%;
-  top: -3px;
-  cursor: ns-resize;
   border-radius: 50%;
   width: 7px;
   height: 7px;
-  transform: translate(-50%)
+  transform: translateX(-50%)
     scale(${(props) => (props.isDragging ? "1.67" : "1")});
   border: 1px solid ${OVERLAY_COLOR};
   background-color: ${OVERLAY_COLOR};
@@ -117,6 +117,9 @@ const AutoHeightLimitHandle = ({
       height={height}
       ref={ref}
       {...bindings}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
       onDragStart={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -125,10 +128,6 @@ const AutoHeightLimitHandle = ({
         e.preventDefault();
         e.stopPropagation();
         bindings?.onMouseDown && bindings.onMouseDown(e);
-      }}
-      onMouseUp={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
       }}
       {...onMouseHoverFunctions}
     >
