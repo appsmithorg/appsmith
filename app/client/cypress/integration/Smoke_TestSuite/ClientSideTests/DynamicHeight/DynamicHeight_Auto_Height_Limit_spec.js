@@ -16,8 +16,8 @@ describe("Dynamic Height Width validation with limits", function () {
             "background-color",
             "rgba(243, 43, 139, 0.1)",
         );
-        cy.contains("Min-height: 5 rows");
-        cy.contains("Max-height: 40 rows");
+        cy.contains("Min-Height: 5 rows");
+        cy.contains("Max-Height: 40 rows");
         cy.checkMaxDefaultValue(commonlocators.maxHeight,"40")
         cy.testJsontext(commonlocators.maxHeight, "60");
         cy.get(commonlocators.overlayMax).should("be.visible");
@@ -26,10 +26,10 @@ describe("Dynamic Height Width validation with limits", function () {
             "background-color",
             "rgba(243, 43, 139, 0.1)",
         );
-        cy.contains("Max-height: 60 rows");
+        cy.contains("Max-Height: 60 rows");
         cy.changeLayoutHeight(commonlocators.fixed);
         cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
-        cy.contains("Min-height: 5 rows");
+        cy.contains("Min-Height: 5 rows");
         cy.checkMinDefaultValue(commonlocators.minHeight,"5")
        // cy.checkMaxDefaultValue(commonlocators.maxHeight,"60")
     });
