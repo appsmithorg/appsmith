@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
-import { getTypographyByKey } from "constants/DefaultTheme";
-import { Link } from "design-system";
+import { getTypographyByKey, Link } from "design-system";
 
 export const AuthContainer = styled.section`
   position: absolute;
@@ -36,7 +35,7 @@ export const AuthCard = styled(Card)`
     text-align: center;
     padding: 0;
     margin: 0;
-    ${(props) => getTypographyByKey(props, "cardHeader")}
+    ${getTypographyByKey("cardHeader")}
     color: ${(props) => props.theme.colors.auth.headingText};
   }
   & .form-message-container {
@@ -110,7 +109,7 @@ export const FormActions = styled.div`
 `;
 
 export const SignUpLinkSection = styled.div`
-  ${(props) => getTypographyByKey(props, "cardSubheader")}
+  ${getTypographyByKey("cardSubheader")}
   color: ${(props) => props.theme.colors.auth.text};
   text-align: center;
 `;
