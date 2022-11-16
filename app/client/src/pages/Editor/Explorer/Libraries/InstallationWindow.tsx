@@ -32,6 +32,7 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
+  selectIsLibraryInstalled,
   selectQueuedLibraries,
   selectStatusForURL,
 } from "selectors/entitiesSelector";
@@ -39,6 +40,7 @@ import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "./recommendedLibraries";
+import { AppState } from "ce/reducers";
 
 type TInstallWindowProps = any;
 
@@ -168,29 +170,9 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   flex-direction: column;
   background: var(--appsmith-color-black-50);
   text-overflow: ellipsis;
-  padding: 8px 12px;
-  .progress-container {
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem 1.5rem 0.75rem;
-    gap: 0.5rem;
-    background: var(--appsmith-color-black-50);
-    span {
-      font-size: 12px;
-      font-weight: normal;
-    }
-    .progress-bar {
-      height: 6px;
-      width: 100%;
-      background: #d3d3d3;
-      .completed {
-        height: 6px;
-        background: #03b365;
-        width: 60%;
-      }
-    }
-  }
+  padding: 10px 6px 6px;
   .install-url {
+    padding: 0 18px;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -199,14 +181,35 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     overflow: hidden;
     word-break: break-all;
   }
+  .error-card {
+    display: flex;
+    padding: 10px;
+    flex-direction: row;
+    background: #ffe9e9;
+    .unsupported {
+      line-height: 17px;
+      .header {
+        font-size: 13px;
+        font-weight: 600;
+        color: #393939;
+      }
+      .body {
+        font-size: 12px;
+        font-weight: 400;
+      }
+    }
+  }
 `;
 
-function getStatusIcon(status: InstallState) {
-  if (status === InstallState.Success)
+function getStatusIcon(status: InstallState, isInstalled = false) {
+  if (status === InstallState.Success || isInstalled)
     return <SaveSuccessIcon color={Colors.GREEN} size={18} />;
   if (status === InstallState.Failed)
     return <SaveFailureIcon color={Colors.WARNING_SOLID} size={18} />;
-  return <Spinner />;
+  if (status === InstallState.Queued) return <Spinner />;
+  return (
+    <Icon fillColor={Colors.GRAY} name="download" size={IconSize.MEDIUM} />
+  );
 }
 
 function ProgressTracker({
@@ -223,9 +226,28 @@ function ProgressTracker({
       {[InstallState.Queued, InstallState.Installing].includes(status) && (
         <div className="text-gray-700 text-xs">Installing...</div>
       )}
-      <div className="flex justify-between items-center bg-g gap-2 fw-500 text-sm">
-        <div className="install-url fw-500">{url}</div>
-        <div className="shrink-0">{getStatusIcon(status)}</div>
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center gap-2 fw-500 text-sm">
+          <div className="install-url text-sm font-medium">{url}</div>
+          {status !== InstallState.Failed && (
+            <div className="shrink-0">{getStatusIcon(status)}</div>
+          )}
+        </div>
+        <div className="gap-2 error-card items-start">
+          <Icon name="danger" size={IconSize.XL} />
+          <div className="flex flex-col unsupported gap-1">
+            <div className="header">
+              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
+            </div>
+            <div className="body">
+              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
+            </div>
+            <div className="footer text-xs font-medium gap-2 flex flex-row">
+              <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
+              <a>{createMessage(customJSLibraryMessages.LEARN_MORE)}</a>
+            </div>
+          </div>
+        </div>
       </div>
     </InstallationProgressWrapper>
   );
@@ -364,7 +386,7 @@ function InstallationPopoverContent(props: any) {
             </a>
           </span>
           <span>
-            {createMessage(customJSLibraryMessages.LEARN_MORE)}{" "}
+            {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
             <a
               className="text-primary-500"
               onClick={(e) => openDoc(e, Repo.Unpkg)}
@@ -401,6 +423,9 @@ function LibraryCard({
   onClick: (url: string) => void;
 }) {
   const status = useSelector(selectStatusForURL(lib.url));
+  const isInstalled = useSelector((state: AppState) =>
+    selectIsLibraryInstalled(state, lib.url),
+  );
   return (
     <div>
       <div className="library-card" onClick={() => onClick(lib.url)}>
@@ -415,15 +440,7 @@ function LibraryCard({
               size={IconSize.MEDIUM}
             />
           </div>
-          {status ? (
-            getStatusIcon(status)
-          ) : (
-            <Icon
-              fillColor={Colors.GRAY}
-              name="download"
-              size={IconSize.MEDIUM}
-            />
-          )}
+          {getStatusIcon(status, isInstalled)}
         </div>
         <div className="flex flex-row description">{lib.description}</div>
         <div className="flex flex-row items-center gap-1">
