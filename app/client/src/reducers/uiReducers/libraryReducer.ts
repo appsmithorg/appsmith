@@ -35,20 +35,14 @@ const jsLibraryReducer = createImmerReducer(initialState, {
     state: LibraryState,
     action: ReduxAction<string>,
   ) => {
-    state.installationStatus = {
-      ...state.installationStatus,
-      [action.payload]:
-        state.installationStatus[action.payload] || InstallState.Queued,
-    };
+    state.installationStatus[action.payload] =
+      state.installationStatus[action.payload] || InstallState.Queued;
   },
   [ReduxActionTypes.INSTALL_LIBRARY_START]: (
     state: LibraryState,
     action: ReduxAction<string>,
   ) => {
-    state.installationStatus = {
-      ...state.installationStatus,
-      [action.payload]: InstallState.Queued,
-    };
+    state.installationStatus[action.payload] = InstallState.Queued;
   },
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (
     state: LibraryState,

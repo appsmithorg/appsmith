@@ -722,6 +722,8 @@ export const ReduxActionTypes = {
   UPDATE_WIDGET_AUTO_HEIGHT: "UPDATE_WIDGET_AUTO_HEIGHT",
   SET_LINT_ERRORS: "SET_LINT_ERRORS",
   PROCESS_AUTO_HEIGHT_UPDATES: "PROCESS_AUTO_HEIGHT_UPDATES",
+  LINT_TREE: "LINT_TREE",
+  UPDATE_LINT_GLOBALS: "UPDATE_LINT_GLOBALS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

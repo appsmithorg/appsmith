@@ -99,7 +99,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
-import { lintTreeSaga, lintWorker } from "./LintingSagas";
+import { lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -378,10 +378,13 @@ export function* executeDynamicTriggerRequest(
       );
     }
     if (requestData.type === EVAL_WORKER_ACTIONS.LINT_TREE) {
-      yield spawn(lintTreeSaga, {
-        pathsToLint: requestData.lintOrder,
-        jsUpdates: requestData.jsUpdates,
-        unevalTree: requestData.unevalTree,
+      yield put({
+        type: ReduxActionTypes.LINT_TREE,
+        payload: {
+          pathsToLint: requestData.lintOrder,
+          jsUpdates: requestData.jsUpdates,
+          unevalTree: requestData.unevalTree,
+        },
       });
     }
     if (requestData?.errors) {
