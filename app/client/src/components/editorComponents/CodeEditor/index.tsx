@@ -211,7 +211,7 @@ type State = {
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
-  return props.dataTreePath || props.focusElementName || "";
+  return props.dataTreePath || props.focusElementName || props.input.name || "";
 };
 
 class CodeEditor extends Component<Props, State> {
