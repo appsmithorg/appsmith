@@ -121,7 +121,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW)
     ) {
       dispatch({
-        type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
+        type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
         payload: {
           widgetId: props.widgetId,
           height: 0,

@@ -173,7 +173,7 @@ class TabsWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
             postUpdateActions: [
-              ReduxActionTypes.CHECK_CONTAINERS_FOR_DYNAMIC_HEIGHT,
+              ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
             ],
           },
         ],
@@ -270,8 +270,8 @@ class TabsWidget extends BaseWidget<
   }
 
   callDynamicHeightUpdates = () => {
-    const { checkContainersForDynamicHeight } = this.context;
-    checkContainersForDynamicHeight && checkContainersForDynamicHeight();
+    const { checkContainersForAutoHeight } = this.context;
+    checkContainersForAutoHeight && checkContainersForAutoHeight();
   };
 
   onTabChange = (tabWidgetId: string) => {
@@ -337,7 +337,7 @@ class TabsWidget extends BaseWidget<
       return null;
     }
 
-    childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     childWidgetData.rightColumn = componentWidth;

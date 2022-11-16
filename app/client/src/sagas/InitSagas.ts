@@ -38,7 +38,7 @@ import AppEngine, {
 import AppEngineFactory from "entities/Engine/factory";
 import { ApplicationPagePayload } from "api/ApplicationApi";
 import { updateSlugNamesInURL } from "utils/helpers";
-import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -93,7 +93,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
-    yield put(generateDynamicHeightComputationTree(true, false));
+    yield put(generateAutoHeightLayoutTreeAction(true, false));
     engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);

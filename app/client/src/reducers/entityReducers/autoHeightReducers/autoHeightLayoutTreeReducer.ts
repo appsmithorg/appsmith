@@ -3,23 +3,23 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { TreeNode } from "utils/treeManipulationHelpers/dynamicHeightReflow";
+import { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
 
-export type DynamicHeightLayoutTreePayload = {
+export type AutoHeightLayoutTreePayload = {
   tree: Record<string, TreeNode>;
   canvasLevelMap: Record<string, number>;
 };
 
-export type DynamicHeightLayoutTreeReduxState = {
+export type AutoHeightLayoutTreeReduxState = {
   [widgetId: string]: TreeNode & { level?: number };
 };
-const initialState: DynamicHeightLayoutTreeReduxState = {};
+const initialState: AutoHeightLayoutTreeReduxState = {};
 
-const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_DYNAMIC_HEIGHT_LAYOUT_TREE]: (
-    state: DynamicHeightLayoutTreeReduxState,
-    action: ReduxAction<DynamicHeightLayoutTreePayload>,
+const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
+  [ReduxActionTypes.SET_AUTO_HEIGHT_LAYOUT_TREE]: (
+    state: AutoHeightLayoutTreeReduxState,
+    action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { tree } = action.payload;
     const diff = xor(Object.keys(state), ...Object.keys(tree));
@@ -46,8 +46,6 @@ const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
 
         state[widgetId].topRow = tree[widgetId].topRow;
         state[widgetId].bottomRow = tree[widgetId].bottomRow;
-        state[widgetId].originalBottomRow = tree[widgetId].originalBottomRow;
-        state[widgetId].originalTopRow = tree[widgetId].originalTopRow;
       } else {
         state[widgetId] = tree[widgetId];
       }
@@ -55,4 +53,4 @@ const dynamicHeightLayoutTreeReducer = createImmerReducer(initialState, {
   },
 });
 
-export default dynamicHeightLayoutTreeReducer;
+export default autoHeightLayoutTreeReducer;

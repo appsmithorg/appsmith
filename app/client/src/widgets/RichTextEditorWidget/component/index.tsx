@@ -208,9 +208,6 @@ const StyledRTEditor = styled.div<{
   }
 
   ${labelLayoutStyles}
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { align-items: stretch; }" : ""};
 `;
 
 export const RichTextEditorInputWrapper = styled.div<{
@@ -225,7 +222,7 @@ export const RichTextEditorInputWrapper = styled.div<{
   border-radius: ${({ borderRadius }) => borderRadius};
 
   ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto; min-height: 200px; }" : ""};
+    isDynamicHeightEnabled ? "&& { height: auto; min-height: 192px; }" : ""};
 `;
 
 export interface RichtextEditorComponentProps {

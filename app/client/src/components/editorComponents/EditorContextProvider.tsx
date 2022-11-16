@@ -10,7 +10,6 @@ import {
   deleteWidgetProperty as deletePropertyAction,
   batchUpdateWidgetProperty as batchUpdatePropertyAction,
   BatchPropertyUpdatePayload,
-  updateWidgetDynamicHeightAction,
 } from "actions/controlActions";
 
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
@@ -21,8 +20,11 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
-import { checkContainersForDynamicHeightUpdate } from "actions/dynamicHeightActions";
 
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
@@ -50,8 +52,8 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
-  updateWidgetDynamicHeight?: (widgetId: string, height: number) => void;
-  checkContainersForDynamicHeight?: () => void;
+  updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
+  checkContainersForAutoHeight?: () => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -62,7 +64,7 @@ type EditorContextProviderProps = EditorContextType & {
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
     batchUpdateWidgetProperty,
-    checkContainersForDynamicHeight,
+    checkContainersForAutoHeight,
     children,
     deleteWidgetProperty,
     disableDrag,
@@ -71,7 +73,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
     updateWidget,
-    updateWidgetDynamicHeight,
+    updateWidgetAutoHeight,
     updateWidgetProperty,
   } = props;
 
@@ -87,9 +89,9 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
-      updateWidgetDynamicHeight,
       triggerEvalOnMetaUpdate,
-      checkContainersForDynamicHeight,
+      updateWidgetAutoHeight,
+      checkContainersForAutoHeight,
     }),
     [
       executeAction,
@@ -100,9 +102,9 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
-      updateWidgetDynamicHeight,
       triggerEvalOnMetaUpdate,
-      checkContainersForDynamicHeight,
+      updateWidgetAutoHeight,
+      checkContainersForAutoHeight,
     ],
   );
   return (
@@ -130,9 +132,9 @@ const mapDispatchToProps = {
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
-  updateWidgetDynamicHeight: updateWidgetDynamicHeightAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
-  checkContainersForDynamicHeight: checkContainersForDynamicHeightUpdate,
+  updateWidgetAutoHeight: updateWidgetAutoHeightAction,
+  checkContainersForAutoHeight: checkContainersForAutoHeightAction,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);
