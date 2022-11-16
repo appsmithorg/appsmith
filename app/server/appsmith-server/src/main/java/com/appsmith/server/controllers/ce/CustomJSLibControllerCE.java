@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.CustomJSLibServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,11 +24,11 @@ import java.util.List;
 @Slf4j
 @RequestMapping(Url.CUSTOM_JS_LIB_URL)
 public class CustomJSLibControllerCE {
-    private final CustomJSLibServiceImpl customJSLibService;
+    private final CustomJSLibService customJSLibService;
 
     // TODO: check ActionControllerCE.java redundant params
 
-    public CustomJSLibControllerCE(CustomJSLibServiceImpl customJSLibService) {
+    public CustomJSLibControllerCE(CustomJSLibService customJSLibService) {
         this.customJSLibService = customJSLibService;
     }
 

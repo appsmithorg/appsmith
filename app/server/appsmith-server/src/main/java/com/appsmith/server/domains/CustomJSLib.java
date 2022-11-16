@@ -16,4 +16,13 @@ public class CustomJSLib extends BaseDomain {
     String documentationUrl;
     String version;
     String ternFunctionDefinitions;
+
+    @Override
+    public boolean equals(Object o) {
+        if (! (o instanceof CustomJSLib)) {
+            return false;
+        }
+
+        return ((CustomJSLib) o).getName().equals(this.name) && ((CustomJSLib) o).getVersion().equals(this.version);
+    }
 }

@@ -78,8 +78,9 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
+    // TODO: write migration
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    List<CustomJSLib> installedCustomJSLibs;
+    List<CustomJSLib> installedCustomJSLibs = new ArrayList<>();
 
     GitApplicationMetadata gitApplicationMetadata;
 

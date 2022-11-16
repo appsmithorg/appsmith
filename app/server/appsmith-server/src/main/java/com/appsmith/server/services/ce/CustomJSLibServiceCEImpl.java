@@ -27,7 +27,12 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib) {
         return getAllJSLibsInApplication(applicationId)
-                .map(jsLibs -> jsLibs.add(jsLib))
+                .map(jsLibs -> {
+                    // TODO: check if it already exits
+                    // TODO: add thread lock or use a diff DS like concurrentMap
+                    jsLibs.add(jsLib);
+                    return jsLibs;
+                })
                 .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId, "installedCustomJSLibs",
                         updatedJSLibs))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
@@ -37,7 +42,10 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId,
                                                     @NotNull CustomJSLib jsLib) {
         return getAllJSLibsInApplication(applicationId)
-                .map(jsLibs -> jsLibs.remove(jsLib))
+                .map(jsLibs -> {
+                    jsLibs.remove(jsLib);
+                    return jsLibs;
+                })
                 .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId, "installedCustomJSLibs",
                         updatedJSLibs))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
