@@ -5,14 +5,19 @@ import { createSelector } from "reselect";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeEntity,
+  DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
 import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { generatePropertyKey } from "utils/editorContextUtils";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -224,5 +229,24 @@ export const getIsPropertyPaneVisible = createSelector(
       el &&
       pane.widgetId
     );
+  },
+);
+
+export const getFocusablePropertyPaneField = (state: AppState) =>
+  state.ui.propertyPane.focusedProperty;
+
+export const getShouldFocusPropertyPath = createSelector(
+  [
+    getFocusablePropertyPaneField,
+    getCurrentPageId,
+    (_state: AppState, key: string | undefined) => key,
+  ],
+  (
+    focusableField: string | undefined,
+    pageId: string,
+    key: string | undefined,
+  ): boolean => {
+    const propertyFieldKey = generatePropertyKey(key, pageId);
+    return !!(propertyFieldKey && focusableField === propertyFieldKey);
   },
 );

@@ -37,9 +37,15 @@ import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import { Button, Icon, IconSize, Size, TooltipComponent } from "design-system";
+import {
+  Button,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Size,
+  TooltipComponent,
+} from "design-system";
 import { Profile } from "pages/common/ProfileImage";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -93,7 +99,7 @@ const HeaderWrapper = styled.div`
   box-shadow: none;
   border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
   & .editable-application-name {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
   }
   & ${Profile} {
@@ -147,7 +153,7 @@ const ProfileDropdownContainer = styled.div``;
 const StyledInviteButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
-  ${(props) => getTypographyByKey(props, "btnLarge")}
+  ${getTypographyByKey("btnLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
