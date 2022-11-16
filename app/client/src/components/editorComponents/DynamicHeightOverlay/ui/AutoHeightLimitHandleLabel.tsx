@@ -15,7 +15,8 @@ const AutoHeightLimitHandleLabel = styled.div<AutoHeightLimitHandleLabel>`
   color: #ffffff;
   text-align: center;
   white-space: nowrap;
-  left: 16px;
+  left: 0px;
+  transform: translate(calc(-100% - 4px), -2px);
   display: ${(props) => (props.isActive ? "initial" : "none")};
 `;
 
