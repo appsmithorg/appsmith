@@ -408,6 +408,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .getUnpublishedActions(params)
                 .flatMap(
                         actionDTO -> {
+                            /*
+                                This is unexpected. Every action inside a JS collection should have a collectionId.
+                                But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.
+                                The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
+                                during JS action creation. A detailed RCA is documented here
+                                https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
+                             */
                             if (actionDTO.getPluginType().equals(PluginType.JS) && !StringUtils.hasLength(actionDTO.getCollectionId())) {
                                 return Mono.empty();
                             } else {
