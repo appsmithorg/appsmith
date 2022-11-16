@@ -148,7 +148,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         Assert.notNull(entity.getId(), "The given entity's id must not be null!");
         // Entity is already deleted
         if (entity.isDeleted()) {
-            return Mono.empty();
+            return Mono.just(entity);
         }
 
         entity.setDeleted(true);
