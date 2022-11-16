@@ -67,6 +67,12 @@ const propertyPaneReducer = createReducer(initialState, {
       return { ...state, isNew: action.payload.enable };
     return state;
   },
+  [ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD]: (
+    state: PropertyPaneReduxState,
+    action: ReduxAction<{ path: string }>,
+  ) => {
+    return { ...state, focusedProperty: action.payload.path };
+  },
 });
 
 export interface PropertyPaneReduxState {
@@ -77,6 +83,7 @@ export interface PropertyPaneReduxState {
   isNew: boolean;
   propertyControlId?: string;
   widgetChildProperty?: string;
+  focusedProperty?: string;
 }
 
 export default propertyPaneReducer;
