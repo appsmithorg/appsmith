@@ -138,7 +138,7 @@ export function Login(props: LoginFormProps) {
           </AuthCardNavLink>
         </SignUpLinkSection>
       )}
-      {showError && (
+      {!showError && (
         <FormMessage
           actions={
             !!errorMessage
@@ -154,6 +154,7 @@ export function Login(props: LoginFormProps) {
                 ]
           }
           intent="danger"
+          linkAs={Link}
           message={
             !!errorMessage && errorMessage !== "true"
               ? errorMessage

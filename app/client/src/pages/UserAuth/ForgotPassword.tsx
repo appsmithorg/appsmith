@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { withRouter, RouteComponentProps, Link } from "react-router-dom";
 import {
   change,
   reduxForm,
@@ -109,6 +109,7 @@ export const ForgotPassword = withTheme(
                 },
               ]}
               intent="warning"
+              linkAs={Link}
               message={
                 "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
               }
