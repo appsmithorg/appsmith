@@ -28,6 +28,7 @@ export function EditActionCell(props: RenderEditActionsProps) {
     compactMode,
     fontStyle,
     horizontalAlignment,
+    isCellDisabled,
     isCellVisible,
     isHidden,
     isSelected,
@@ -46,6 +47,7 @@ export function EditActionCell(props: RenderEditActionsProps) {
         compactMode={compactMode}
         fontStyle={fontStyle}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         textColor={textColor}
@@ -62,6 +64,7 @@ export function EditActionCell(props: RenderEditActionsProps) {
       className="cell-wrapper"
       compactMode={compactMode}
       horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       verticalAlignment={verticalAlignment}
