@@ -20,6 +20,7 @@ import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
 import { ACTION_TRIGGER_REGEX } from "../regex";
 import { TreeDropdownOption } from "design-system";
+import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
@@ -47,42 +48,14 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       const dropdownOption = option as TreeDropdownOption;
       const type: ActionType = dropdownOption.type || dropdownOption.value;
       let value = dropdownOption.value;
-      let defaultParams = "";
+      const defaultParams = FIELD_GROUP_CONFIG[type].defaultParams;
       let defaultArgs: Array<any> = [];
-      // TODO - elegant way to write this
       switch (type) {
         case AppsmithFunction.integration:
           value = `${value}.run(() => {}, () => {})`;
           break;
-        case AppsmithFunction.navigateTo:
-          defaultParams = `'', {}, 'SAME_WINDOW'`;
-          break;
         case AppsmithFunction.jsFunction:
           defaultArgs = dropdownOption.args ? dropdownOption.args : [];
-          break;
-        case AppsmithFunction.setInterval:
-          defaultParams = "() => {}, 5000, ''";
-          break;
-        case AppsmithFunction.getGeolocation:
-          defaultParams = "(location) => {}";
-          break;
-        case AppsmithFunction.resetWidget:
-          defaultParams = `"",true`;
-          break;
-        case AppsmithFunction.postWindowMessage:
-          defaultParams = `'', 'window', '*'`;
-          break;
-        case AppsmithFunction.clearInterval:
-        case AppsmithFunction.copyToClipboard:
-        case AppsmithFunction.removeValue:
-          defaultParams = `''`;
-          break;
-        case AppsmithFunction.download:
-          defaultParams = `'', '', ''`;
-          break;
-        case AppsmithFunction.showAlert:
-        case AppsmithFunction.storeValue:
-          defaultParams = `'', ''`;
           break;
         default:
           break;

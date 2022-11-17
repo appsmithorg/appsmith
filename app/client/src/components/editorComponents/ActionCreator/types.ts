@@ -108,6 +108,7 @@ export type AppsmithFunctionConfigType = {
 export type FieldGroupValueType = {
   label: string;
   fields: string[];
+  defaultParams: string;
   value?: string;
   children?: TreeDropdownOption[];
 };
