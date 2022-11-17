@@ -28,9 +28,11 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib) {
         return getAllJSLibsInApplication(applicationId)
                 .map(jsLibs -> {
-                    // TODO: handle case when lib is already installed
                     // TODO: try to convert it into a single update op where reading of list is not required
-                    jsLibs.add(jsLib);
+                    // Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
+                    if (!jsLibs.contains(jsLib)) {
+                        jsLibs.add(jsLib);
+                    }
                     return jsLibs;
                 })
                 .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId, "installedCustomJSLibs",
@@ -44,6 +46,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
         return getAllJSLibsInApplication(applicationId)
                 .map(jsLibs -> {
                     // TODO: try to convert it into a single update op where reading of list is not required
+                    // Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
                     jsLibs.remove(jsLib);
                     return jsLibs;
                 })

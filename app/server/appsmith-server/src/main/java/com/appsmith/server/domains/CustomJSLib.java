@@ -24,9 +24,9 @@ public class CustomJSLib extends BaseDomain {
      * The equality operator has been overridden here so that when two custom JS library objects are compared, they
      * are compared based on their name and version as opposed to Java object reference. At the moment this check
      * helps us to identify which JS library needs to be removed from the list of installed libraries when a user
-     * chooses to uninstall a library.
-     * @param o
-     * @return
+     * chooses to uninstall a library. It also helps us to identify if a library has already been added.
+     * Please note that this comment may have to be updated once the following issue is closed:
+     * https://github.com/appsmithorg/appsmith/issues/18226
      */
     @Override
     public boolean equals(Object o) {
