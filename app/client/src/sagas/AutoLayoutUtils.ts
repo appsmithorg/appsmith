@@ -357,23 +357,37 @@ export function updateColumnsOfLayerChildren(
   allWidgets: CanvasWidgetsReduxState,
   layer: FlexLayer,
   alignment: FlexLayerAlignment,
+  firstAvailableColumn = 0,
 ): CanvasWidgetsReduxState {
   if (!layer || !layer.children || !layer.children.length) return allWidgets;
   const widgets = { ...allWidgets };
+  let startColumn: number = firstAvailableColumn;
+  const totalWidgetColumns: number = layer.children?.reduce(
+    (acc, child) =>
+      acc + widgets[child.id].rightColumn - widgets[child.id].leftColumn,
+    0,
+  );
   for (const child of layer.children) {
     const widget = widgets[child.id];
     if (!widget) continue;
     const columns = widget.rightColumn - widget.leftColumn;
     if (alignment === FlexLayerAlignment.End) {
-      widget.rightColumn = 64;
-      widget.leftColumn = 64 - columns;
+      const left = Math.max(startColumn, 64 - totalWidgetColumns);
+      widget.leftColumn = left;
+      widget.rightColumn = left + columns;
+      startColumn = left + columns;
     } else if (alignment === FlexLayerAlignment.Center) {
-      const center = Math.floor((64 - columns) / 2);
-      widget.leftColumn = center;
-      widget.rightColumn = center + columns;
+      const left: number = Math.max(
+        startColumn,
+        Math.floor((64 - totalWidgetColumns) / 2),
+      );
+      widget.leftColumn = left;
+      widget.rightColumn = left + columns;
+      startColumn = left + columns;
     } else if (alignment === FlexLayerAlignment.Start) {
-      widget.leftColumn = 0;
-      widget.rightColumn = columns;
+      widget.leftColumn = startColumn;
+      widget.rightColumn = startColumn + columns;
+      startColumn += columns;
     }
     widgets[child.id] = widget;
   }
