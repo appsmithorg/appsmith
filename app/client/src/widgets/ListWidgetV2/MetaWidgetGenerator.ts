@@ -50,7 +50,8 @@ export type GeneratorOptions = {
   serverSidePagination: ConstructorProps["serverSidePagination"];
   templateBottomRow: ConstructorProps["templateBottomRow"];
   widgetName: string;
-  selectedIndex: number;
+  selectedRowIndex: number;
+  triggerRowIndex: number;
 };
 
 type ConstructorProps = {
@@ -158,7 +159,7 @@ class MetaWidgetGenerator {
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
   private pageSize?: number;
-  private selectedIndex: number;
+  private selectedRowIndex: number;
   private prevOptions?: GeneratorOptions;
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
@@ -188,7 +189,7 @@ class MetaWidgetGenerator {
     this.onVirtualListScroll = props.onVirtualListScroll;
     this.pageNo = 1;
     this.pageSize = 0;
-    this.selectedIndex = 0;
+    this.selectedRowIndex = 0;
     this.prevTemplateWidgets = {};
     this.prevViewMetaWidgetIds = [];
     this.renderMode = props.renderMode;
@@ -222,7 +223,7 @@ class MetaWidgetGenerator {
     this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
     this.widgetName = options.widgetName;
-    this.selectedIndex = options.selectedIndex;
+    this.selectedRowIndex = options.selectedRowIndex;
     this.currTemplateWidgets = extractTillNestedListWidget(
       options.currTemplateWidgets,
       options.containerParentId,
@@ -365,7 +366,7 @@ class MetaWidgetGenerator {
 
     const generatedSelectedRowMetaWidgets = this.generateSelectedRowMetaWidgets(
       {
-        index: this.selectedIndex,
+        index: this.selectedRowIndex,
         parentId: this.containerParentId,
         templateWidgetId: this.containerWidgetId,
         key: SELECTED_ROW_KEY,
@@ -431,9 +432,7 @@ class MetaWidgetGenerator {
     if (!templateWidget)
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
-    if (!key && typeof rowIndex == "number") {
-      key = this.getPrimaryKey(rowIndex);
-    }
+    key = key ?? this.getPrimaryKey(index);
 
     if (!key) {
       return {
@@ -475,7 +474,9 @@ class MetaWidgetGenerator {
     }
 
     if (isMainContainerWidget) {
-      if (rowIndex) this.updateContainerPosition(metaWidget, rowIndex);
+      if (typeof rowIndex == "number") {
+        this.updateContainerPosition(metaWidget, rowIndex);
+      }
       this.updateContainerBindings(metaWidget, key);
     } else {
       this.addDynamicPathsProperties(metaWidget, metaCacheProps, key);
@@ -553,14 +554,14 @@ class MetaWidgetGenerator {
     index: number,
     rowIndex: number,
   ) => {
-    if (index === this.selectedIndex) {
-      const key = this.getPrimaryKey(rowIndex);
+    if (index === this.selectedRowIndex) {
+      const key = this.getPrimaryKey(index);
       const rowCache = this.generateCacheData(index, rowIndex, key);
       this.setRowCache(SELECTED_ROW_KEY, {
         ...rowCache,
       });
     }
-    if (this.selectedIndex === -1) {
+    if (this.selectedRowIndex === -1) {
       this.clearSelectedRowCache();
     }
   };
@@ -619,7 +620,7 @@ class MetaWidgetGenerator {
   };
 
   private generateWidgetCacheData = (index: number, rowIndex: number) => {
-    const key = this.getPrimaryKey(rowIndex);
+    const key = this.getPrimaryKey(index);
     const rowCache = this.generateCacheData(index, rowIndex, key);
     this.setRowCache(key, {
       ...rowCache,
