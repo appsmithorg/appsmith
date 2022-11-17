@@ -396,6 +396,7 @@ export const useSheetColumnHeaders = () => {
         parameters: {
           sheetName: params.sheetName,
           sheetUrl: params.selectedSpreadsheetUrl,
+          tableHeaderIndex: params.tableHeaderIndex,
         },
         pluginId: params.pluginId,
         requestType: "COLUMNS_SELECTOR",
