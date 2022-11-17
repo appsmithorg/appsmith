@@ -798,9 +798,9 @@ export const isATriggerPath = (
 };
 
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
-  "action cannot be triggered from this field";
+  "Found a reference to {{actionName}} during evaluation. Sync fields cannot execute async framework actions. Please remove any direct/indirect references to {{actionName}} and try again.";
 export const ASYNC_FUNCTION_IN_SYNC_EVAL_ERROR =
-  "Async function cannot be triggered from this field";
+  "Found a Promise() during evaluation. Sync fields cannot execute asynchronous code.";
 class TransformError {
   // Note all regex below groups the async function name
   private errorMessageRegexList = [
@@ -822,7 +822,10 @@ class TransformError {
       if (matchResult) {
         const referencedIdentifier = matchResult[1];
         if (get(this.asyncFunctionsNameMap, referencedIdentifier)) {
-          return `${referencedIdentifier} ${UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR}`;
+          return UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR.replaceAll(
+            "{{actionName}}",
+            referencedIdentifier + "()",
+          );
         }
       }
     }
