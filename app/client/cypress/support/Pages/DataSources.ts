@@ -17,6 +17,7 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
+  private _collapseContainer = ".t--collapse-section-container";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
   private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
@@ -29,6 +30,7 @@ export class DataSources {
   private _testDs = ".t--test-datasource";
   private _saveDs = ".t--save-datasource";
   private _datasourceCard = ".t--datasource";
+  private _editButton = ".t--edit-datasource";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
@@ -106,6 +108,14 @@ export class DataSources {
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
+
+  public AssertViewMode() {
+    this.agHelper.AssertElementExist(this._editButton);
+  }
+
+  public AssertEditMode() {
+    this.agHelper.AssertElementAbsence(this._editButton);
+  }
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -210,6 +220,32 @@ export class DataSources {
     if (waitForToastDisappear)
       this.agHelper.WaitUntilToastDisappear("datasource created");
     else this.agHelper.AssertContains("datasource created");
+  }
+
+  public EditDatasource() {
+    this.agHelper.GetNClick(this._editButton);
+  }
+
+  public ExpandSection(index: number) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .click();
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .find(this.locator._chevronUp)
+      .should("be.visible");
+  }
+
+  public AssertSectionCollapseState(index: number, collapsed = false) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .within(() => {
+        if (collapsed) {
+          cy.get(this.locator._chevronUp).should("not.exist");
+        } else {
+          cy.get(this.locator._chevronUp).should("exist");
+        }
+      });
   }
 
   public NavigateToDSCreateNew() {

@@ -17,6 +17,7 @@ import {
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
+  setDatasourceViewMode,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
@@ -203,6 +204,7 @@ function DatasourceAuth({
       pageId: pageId,
       appId: applicationId,
     });
+    dispatch(setDatasourceViewMode(true));
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
     dispatch(
@@ -217,6 +219,7 @@ function DatasourceAuth({
 
   // Handles Oauth datasource saving
   const handleOauthDatasourceSave = () => {
+    dispatch(setDatasourceViewMode(true));
     dispatch(
       updateDatasource(
         getSanitizedFormData(),

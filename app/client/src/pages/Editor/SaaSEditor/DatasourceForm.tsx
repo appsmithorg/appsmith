@@ -30,6 +30,8 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { isDatasourceInViewMode } from "selectors/ui";
+import { setDatasourceViewMode } from "actions/datasourceActions";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -41,6 +43,7 @@ interface StateProps extends JSONtoFormProps {
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
+  viewMode: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   hiddenHeader?: boolean; // for reconnect modal
   pageId?: string; // for reconnect modal
@@ -48,6 +51,7 @@ interface StateProps extends JSONtoFormProps {
 }
 
 type DatasourceSaaSEditorProps = StateProps &
+  DatasourcePaneFunctions &
   RouteComponentProps<{
     datasourceId: string;
     pageId: string;
@@ -90,11 +94,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       hiddenHeader,
       pageId,
       pluginPackageName,
+      viewMode,
     } = this.props;
 
-    const params: string = location.search;
-    const viewMode =
-      !hiddenHeader && new URLSearchParams(params).get("viewMode");
     return (
       <form
         onSubmit={(e) => {
@@ -113,14 +115,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 category={Category.tertiary}
                 className="t--edit-datasource"
                 onClick={() => {
+                  this.props.setDatasourceViewMode(false);
                   this.props.history.replace(
                     saasEditorDatasourceIdURL({
                       pageId: pageId || "",
                       pluginPackageName,
                       datasourceId,
-                      params: {
-                        viewMode: false,
-                      },
                     }),
                   );
                 }}
@@ -160,6 +160,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasourceId = props.datasourceId || props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
+  const viewMode = isDatasourceInViewMode(state);
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
@@ -184,6 +185,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDeleting: !!datasource?.isDeleting,
     formData: formData,
     formConfig,
+    viewMode: viewMode ?? !props.fromImporting,
     isNewDatasource: datasourcePane.newDatasource === datasourceId,
     pageId: props.pageId || props.match?.params?.pageId,
     pluginImage: getPluginImages(state)[pluginId],
@@ -197,7 +199,19 @@ const mapStateToProps = (state: AppState, props: any) => {
   };
 };
 
-export default connect(mapStateToProps)(
+const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
+  setDatasourceViewMode: (viewMode: boolean) =>
+    dispatch(setDatasourceViewMode(viewMode)),
+});
+
+interface DatasourcePaneFunctions {
+  setDatasourceViewMode: (viewMode: boolean) => void;
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm<Datasource, DatasourceSaaSEditorProps>({
     form: DATASOURCE_SAAS_FORM,
     enableReinitialize: true,

@@ -10,7 +10,7 @@ import {
 } from "selectors/entitiesSelector";
 import {
   switchDatasource,
-  setDatsourceEditorMode,
+  setDatasourceViewMode,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
@@ -35,6 +35,7 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system";
+import { isDatasourceInViewMode } from "selectors/ui";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -74,6 +75,10 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.datasourceId !== prevProps.datasourceId
     ) {
       this.props.switchDatasource(this.props.datasourceId);
+    }
+
+    if (this.props.isNewDatasource && this.props.viewMode) {
+      this.props.setDatasourceViewMode(false);
     }
   }
   componentDidMount() {
@@ -126,7 +131,7 @@ class DataSourceEditor extends React.Component<Props> {
       pluginId,
       pluginImages,
       pluginType,
-      setDatasourceEditorMode,
+      setDatasourceViewMode,
       viewMode,
     } = this.props;
 
@@ -146,7 +151,7 @@ class DataSourceEditor extends React.Component<Props> {
         pageId={pageId}
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
-        setDatasourceEditorMode={setDatasourceEditorMode}
+        setDatasourceViewMode={setDatasourceViewMode}
         viewMode={viewMode && !fromImporting}
       />
     );
@@ -157,6 +162,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const datasourceId = props.datasourceId ?? props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
+  const viewMode = isDatasourceInViewMode(state);
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
@@ -176,8 +182,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === datasourceId,
     pageId: props.pageId ?? props.match?.params?.pageId,
-    viewMode:
-      datasourcePane.viewMode[datasource?.id ?? ""] ?? !props.fromImporting,
+    viewMode: viewMode ?? !props.fromImporting,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
@@ -196,8 +201,8 @@ const mapDispatchToProps = (
     // on reconnect data modal, it shouldn't be redirected to datasource edit page
     dispatch(switchDatasource(id, ownProps.fromImporting));
   },
-  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
-    dispatch(setDatsourceEditorMode({ id, viewMode })),
+  setDatasourceViewMode: (viewMode: boolean) =>
+    dispatch(setDatasourceViewMode(viewMode)),
   openOmnibarReadMore: (text: string) => {
     dispatch(setGlobalSearchQuery(text));
     dispatch(toggleShowGlobalSearchModal());
@@ -206,7 +211,7 @@ const mapDispatchToProps = (
 
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  setDatasourceViewMode: (viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
 }
 

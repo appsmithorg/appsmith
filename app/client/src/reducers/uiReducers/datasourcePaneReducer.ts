@@ -11,7 +11,8 @@ const initialState: DatasourcePaneReduxState = {
   actionRouteInfo: {},
   expandDatasourceId: "",
   newDatasource: "",
-  viewMode: {},
+  viewMode: true,
+  collapsibleState: {},
 };
 
 export interface DatasourcePaneReduxState {
@@ -24,7 +25,8 @@ export interface DatasourcePaneReduxState {
     applicationId: string;
   }>;
   newDatasource: string;
-  viewMode: Record<string, boolean>;
+  viewMode: boolean;
+  collapsibleState: Record<string, boolean>;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -96,14 +98,32 @@ const datasourcePaneReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE]: (
     state: DatasourcePaneReduxState,
-    action: ReduxAction<{ id: string; viewMode: boolean }>,
+    action: ReduxAction<boolean>,
   ) => {
     return {
       ...state,
-      viewMode: {
-        ...state.viewMode,
-        [action.payload.id]: action.payload.viewMode,
+      viewMode: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_COLLAPSIBLE_STATE]: (
+    state: DatasourcePaneReduxState,
+    action: { payload: { key: string; isOpen: boolean } },
+  ) => {
+    return {
+      ...state,
+      collapsibleState: {
+        ...state.collapsibleState,
+        [action.payload.key]: action.payload.isOpen,
       },
+    };
+  },
+  [ReduxActionTypes.SET_ALL_DATASOURCE_COLLAPSIBLE_STATE]: (
+    state: DatasourcePaneReduxState,
+    action: { payload: { [key: string]: boolean } },
+  ) => {
+    return {
+      ...state,
+      collapsibleState: action.payload,
     };
   },
   [ReduxActionTypes.EXPAND_DATASOURCE_ENTITY]: (

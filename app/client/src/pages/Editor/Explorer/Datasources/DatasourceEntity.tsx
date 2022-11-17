@@ -10,7 +10,6 @@ import {
   fetchDatasourceStructure,
   saveDatasourceName,
   expandDatasourceEntity,
-  setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
@@ -55,9 +54,6 @@ const ExplorerDatasourceEntity = React.memo(
           },
         });
       } else {
-        dispatch(
-          setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
-        );
         url = datasourcesEditorIdURL({
           pageId,
           datasourceId: props.datasource.id,
