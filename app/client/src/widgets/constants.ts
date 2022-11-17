@@ -23,7 +23,7 @@ export interface WidgetConfiguration {
   searchTags?: string[];
   canvasHeightOffset?: (props: WidgetProps) => number;
   properties: {
-    config: PropertyPaneConfig[];
+    config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
     styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;
