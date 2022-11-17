@@ -223,7 +223,7 @@ describe("Test JSToString", () => {
 
 describe("Test modalSetter", () => {
   const result = modalSetter("Modal1", "{{closeModal()}}");
-  expect(result).toStrictEqual("{{closeModal('Modal1')}}");
+  expect(result).toStrictEqual("{{closeModal('Modal1');}}");
 });
 
 describe("Test modalGetter", () => {
@@ -234,10 +234,10 @@ describe("Test modalGetter", () => {
 describe("Test textSetter", () => {
   const result = textSetter(
     "google.com",
-    "{{navigateTo('', {},NEW_WINDOW)}}",
+    "{{navigateTo('', {}, NEW_WINDOW)}}",
     0,
   );
-  expect(result).toStrictEqual("{{navigateTo('google.com', {},NEW_WINDOW)}}");
+  expect(result).toStrictEqual("{{navigateTo('google.com', {}, NEW_WINDOW);}}");
 });
 
 describe("Test textGetter", () => {
@@ -266,37 +266,37 @@ describe("Test enumTypeSetter", () => {
   const cases = [
     {
       index: 0,
-      value: "info",
+      value: "'info'",
       input: "{{showAlert('hi')}}",
-      expected: "{{showAlert('hi',info)}}",
+      expected: "{{showAlert('hi', 'info');}}",
       argNum: 1,
     },
     {
       index: 1,
-      value: "info",
+      value: "'info'",
       input: "{{showAlert('hi','error')}}",
-      expected: "{{showAlert('hi',info)}}",
+      expected: "{{showAlert('hi', 'info');}}",
       argNum: 1,
     },
     {
       index: 2,
-      value: "info",
-      input: "{{showAlert(,'')}}",
-      expected: "{{showAlert(,info)}}",
+      value: "'info'",
+      input: "{{showAlert('','')}}",
+      expected: "{{showAlert('', 'info');}}",
       argNum: 1,
     },
     {
       index: 3,
       value: "'NEW_WINDOW'",
       input: "{{navigateTo('', {}, 'SAME_WINDOW')}}",
-      expected: "{{navigateTo('', {},'NEW_WINDOW')}}",
+      expected: "{{navigateTo('', {}, 'NEW_WINDOW');}}",
       argNum: 2,
     },
     {
       index: 4,
       value: "'SAME_WINDOW'",
       input: "{{navigateTo('', {}, 'NEW_WINDOW')}}",
-      expected: "{{navigateTo('', {},'SAME_WINDOW')}}",
+      expected: "{{navigateTo('', {}, 'SAME_WINDOW');}}",
       argNum: 2,
     },
   ];

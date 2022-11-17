@@ -73,7 +73,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: str
                     // add 2 for quotes
                     end: (startPosition) + (changeValue.length + 2),
                 };
-                changedValue = `{{${generate(ast)}}}`;
+                changedValue = `{{${generate(ast).trim()}}}`;
             }
         },
     });
@@ -129,7 +129,7 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
                     // add 2 for quotes
                     end: (startPosition) + (changeValue.length + 2),
                 };
-                changedValue = `{{${generate(ast)}}}`;
+                changedValue = `{{${generate(ast).trim()}}}`;
             }
         },
     });
@@ -179,14 +179,14 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
                 const startPosition = node.callee.end + 1;
                 const newNode: LiteralNode = {
                     type: NodeTypes.Literal,
-                    value: `'${changeValue}'`,
+                    value: `${changeValue}`,
                     raw: String.raw`'${changeValue}'`,
                     start: startPosition,
                     // add 2 for quotes
-                    end: (startPosition) + (changeValue.length + 2),
+                    end: startPosition + (changeValue.length + 2),
                 };
                 node.arguments = [newNode];
-                changedValue = `{{${generate(ast)}}}`;
+                changedValue = `{{${generate(ast).trim()}}}`;
             }
         },
     });
@@ -278,7 +278,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
                 requiredNode.start = startPosition;
                 requiredNode.end = startPosition + changeAction.length;
                 node.callee.arguments[argNum] = requiredNode;
-                requiredQuery = `${generate(ast)}`
+                requiredQuery = `${generate(ast).trim()}`
             }
         },
     });

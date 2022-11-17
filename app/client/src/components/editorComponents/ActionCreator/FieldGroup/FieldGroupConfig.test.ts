@@ -103,19 +103,19 @@ describe("Test Field Group Config", () => {
     {
       index: 13,
       input: AppsmithFunction.getGeolocation,
-      expectedLabel: "Get geolocation",
+      expectedLabel: "Get Geolocation",
       expectedFields: [FieldType.CALLBACK_FUNCTION_FIELD],
     },
     {
       index: 14,
       input: AppsmithFunction.watchGeolocation,
-      expectedLabel: "Watch geolocation",
+      expectedLabel: "Watch Geolocation",
       expectedFields: [],
     },
     {
       index: 15,
       input: AppsmithFunction.stopWatchGeolocation,
-      expectedLabel: "Stop watching geolocation",
+      expectedLabel: "Stop watching Geolocation",
       expectedFields: [],
     },
   ];
