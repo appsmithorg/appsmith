@@ -8,6 +8,8 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
 
 import { AutocompleteDataType } from "./autocomplete/TernServer";
+import { CallbackHandlerEventType } from "./CallbackHandler/CallbackHandlerEventType";
+import DynamicHeightCallbackHandler from "./CallbackHandler/DynamicHeightCallbackHandler";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -307,6 +309,16 @@ export const PropertyPaneConfigTemplates: Record<
     },
     {
       propertyName: "minDynamicHeight",
+      onBlur: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
+        );
+      },
+      onFocus: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_FOCUS,
+        );
+      },
       label: "Min Height (in rows)",
       helpText: "Minimum number of rows to occupy irrespective of contents",
       controlType: "INPUT_TEXT",
@@ -330,6 +342,16 @@ export const PropertyPaneConfigTemplates: Record<
     },
     {
       propertyName: "maxDynamicHeight",
+      onFocus: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
+        );
+      },
+      onBlur: () => {
+        DynamicHeightCallbackHandler.emit(
+          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_BLUR,
+        );
+      },
       label: "Max Height (in rows)",
       helpText: "Maximum Height, after which contents will scroll",
       controlType: "INPUT_TEXT",

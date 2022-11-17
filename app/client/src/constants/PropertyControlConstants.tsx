@@ -89,6 +89,9 @@ export type PropertyPaneControlConfig = {
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;
+
+  onBlur?: () => void;
+  onFocus?: () => void;
 };
 
 type ValidationConfigParams = {
