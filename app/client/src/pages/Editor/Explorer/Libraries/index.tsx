@@ -211,7 +211,6 @@ function JSDependencies() {
       isDefaultExpanded={false}
       isSticky
       name="Libraries"
-      searchKeyword={""}
       step={0}
     >
       {dependencyList}

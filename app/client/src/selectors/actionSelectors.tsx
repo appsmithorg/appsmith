@@ -1,9 +1,13 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
+import { TJSLibrary } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { getDataTree } from "./dataTreeSelectors";
-import { getExistingPageNames } from "./entitiesSelector";
+import {
+  getExistingPageNames,
+  selectInstalledLibraries,
+} from "./entitiesSelector";
 import {
   getErrorForApiName,
   getErrorForJSObjectName,
@@ -19,10 +23,12 @@ export const getUsedActionNames = createSelector(
   getExistingPageNames,
   getDataTree,
   getParentWidget,
+  selectInstalledLibraries,
   (
     pageNames: Record<string, any>,
     dataTree: DataTree,
     parentWidget: FlattenedWidgetProps | undefined,
+    installedLibraries: TJSLibrary[],
   ) => {
     const map: Record<string, boolean> = {};
     // The logic has been copied from Explorer/Entity/Name.tsx Component.
@@ -41,6 +47,9 @@ export const getUsedActionNames = createSelector(
       Object.keys(dataTree).forEach((treeItem: string) => {
         map[treeItem] = true;
       });
+      for (const lib of installedLibraries) {
+        map[lib.accessor] = true;
+      }
     }
 
     return map;
