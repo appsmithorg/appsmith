@@ -254,17 +254,17 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       <StyledDynamicHeightOverlay isHidden={isHidden} style={style ?? styles}>
         <AutoHeightLimitOverlayDisplay
           data-cy="t--auto-height-overlay-min"
+          height={finalMinY}
           isActive={
             isMinDotDragging || isMinDotActive || isPropertyPaneMinFieldFocused
           }
-          maxY={finalMinY}
         />
         <AutoHeightLimitOverlayDisplay
           data-cy="t--auto-height-overlay-max"
+          height={finalMaxY}
           isActive={
             isMaxDotDragging || isMaxDotActive || isPropertyPaneMaxFieldFocused
           }
-          maxY={finalMaxY}
         />
         <AutoHeightLimitHandleGroup
           isMaxDotActive={
