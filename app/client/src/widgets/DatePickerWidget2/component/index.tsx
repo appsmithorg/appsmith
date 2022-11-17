@@ -32,6 +32,20 @@ const StyledControlGroup = styled(ControlGroup)<{
 }>`
   ${labelLayoutStyles}
 
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   &&& {
     .${Classes.INPUT} {
       color: var(--wds-color-text);
