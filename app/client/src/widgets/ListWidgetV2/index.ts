@@ -69,6 +69,9 @@ export const CONFIG = {
       {
         key: "currentViewItems",
       },
+      {
+        key: "primaryKeys",
+      },
     ],
     currentViewItems: "{{[]}}",
     enhancements: {
@@ -78,7 +81,7 @@ export const CONFIG = {
         },
         // TODO: (Ashit) - Remove this enhancement. Probably not required for V2
         updateDataTreePath: (
-          parentProps: ListWidgetProps<WidgetProps>,
+          parentProps: ListWidgetProps,
           dataTreePath: string,
         ) => {
           const pathChunks = dataTreePath.split(".");
@@ -115,6 +118,8 @@ export const CONFIG = {
     ],
     widgetName: "List",
     children: [],
+    primaryKeys:
+      '{{List1.listData.map((currentItem, currentIndex) => currentItem["id"] )}}',
     blueprint: {
       view: [
         {
@@ -251,6 +256,8 @@ export const CONFIG = {
             // List > Canvas > Container > Canvas > Widgets
             const mainCanvas = get(widget, "children.0");
             const containerId = get(widget, "children.0.children.0");
+            const { widgetName } = widget;
+            const primaryKeys = `{{${widgetName}.listData.map((currentItem, currentIndex) => currentItem["id"] )}}`;
 
             const { childrenUpdatePropertyMap } = computeWidgets(
               mainCanvas,
@@ -269,6 +276,11 @@ export const CONFIG = {
                 widgetId: widget.widgetId,
                 propertyName: "mainCanvasId",
                 propertyValue: mainCanvas.widgetId,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "primaryKeys",
+                propertyValue: primaryKeys,
               },
             ];
           },
