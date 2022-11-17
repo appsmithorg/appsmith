@@ -319,12 +319,8 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
     view: ViewTypes.NO_VIEW,
-    getter: () => {
-      return "";
-    },
-    setter: () => {
-      return "";
-    },
+    getter: () => "",
+    setter: () => "",
   },
   [FieldType.ON_ERROR_FIELD]: {
     label: () => "",
