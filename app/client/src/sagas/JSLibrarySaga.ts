@@ -58,9 +58,20 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
     },
   );
 
-  const isValidResponse: boolean = yield validateResponse(response);
-
-  if (!isValidResponse) {
+  try {
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (!isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.INSTALL_LIBRARY_FAILED,
+        payload: url,
+      });
+      Toaster.show({
+        text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
+        variant: Variant.danger,
+      });
+      return;
+    }
+  } catch (e) {
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_FAILED,
       payload: url,
@@ -69,7 +80,6 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
       text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
       variant: Variant.danger,
     });
-    return;
   }
 
   TernServer.updateDef(defs["!name"], defs);
