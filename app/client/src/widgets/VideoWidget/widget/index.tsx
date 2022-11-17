@@ -191,8 +191,13 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       this.props.playState === "NOT_STARTED"
     ) {
       this._player.current?.seekTo(0);
+    }
+
+    if (prevProps.autoPlay !== this.props.autoPlay) {
       if (this.props.autoPlay) {
         this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+      } else {
+        this.props.updateWidgetMetaProperty("playState", PlayState.NOT_STARTED);
       }
     }
   }
