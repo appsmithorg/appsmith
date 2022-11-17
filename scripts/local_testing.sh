@@ -10,10 +10,12 @@ display_help()
   echo "If --local or -l is passed, it will build with local changes"
   echo "---------------------------------------------------------------------------------------"
   echo
-  echo "Syntax: $0 [-h] [-l] [branchName]"
+  echo "Syntax: $0 [-h] [-l] [-r [remote_url]] [branch_name]"
   echo "options:"
-  echo "h     Print this help"
-  echo "local"    Use the local codebase and not git
+  echo "-h     			Print this help"
+  echo "-l or --local    	Use the local codebase and not git"
+  echo "-r or --remote    	Use the branch from a remote repository"
+  echo "For more info please check: https://www.notion.so/appsmith/Test-an-Appsmith-branch-locally-c39ad68aea0d42bf94a149ea22e86820#9cee16c7e2054b5980513ec6f351ace2"
   echo
 }
 
@@ -38,12 +40,28 @@ then
   LOCAL=true
 fi
 
-BRANCH=${1:-release}
+REMOTE=false
+if [[ ($1 == "--remote" || $1 == "-r")]]
+then
+  REMOTE=true
+fi
 
 if [[ ($LOCAL == true) ]]
 then
   pretty_print "Setting up instance with local changes"
+  BRANCH=release
+elif [[ ($REMOTE == true) ]]
+then
+  pretty_print "Setting up instance with remote repository branch ..."	
+  REMOTE_REPOSITORY_URL=$2
+  REMOTE_BRANCH=$3
+  pretty_print "Please ignore if the following error occurs: remote remote_origin_for_local_test already exists."	
+  git remote add remote_origin_for_local_test $REMOTE_REPOSITORY_URL || git remote set-url remote_origin_for_local_test $REMOTE_REPOSITORY_URL
+  git fetch remote_origin_for_local_test 
+  git checkout $REMOTE_BRANCH
+  git pull remote_origin_for_local_test $REMOTE_BRANCH
 else
+  BRANCH=$1
   pretty_print "Setting up instance to run on branch: $BRANCH"
   cd "$(dirname "$0")"/..
   git fetch origin $BRANCH
