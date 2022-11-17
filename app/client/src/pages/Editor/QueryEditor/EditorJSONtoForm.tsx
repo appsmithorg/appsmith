@@ -758,6 +758,11 @@ export function EditorJSONtoForm(props: Props) {
     });
 
   const onResponseTabSelect = (tabKey: string) => {
+    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "QUERY_PANE",
+      });
+    }
     updateActionResponseDisplayFormat({
       id: currentActionConfig?.id || "",
       field: "responseDisplayFormat",

@@ -76,7 +76,7 @@ export default function SharedUserList(props: any) {
     });
 
     const { users } = workspace;
-    return users || [];
+    return users?.filter((user: any) => user.userId) || [];
   }, [userWorkspaces]);
   return (
     <UserImageContainer isMobile={isMobile}>

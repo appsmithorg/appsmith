@@ -1,4 +1,4 @@
-import acorn, { parse, Node, SourceLocation, Options, Comment } from "acorn";
+import { parse, Node, SourceLocation, Options, Comment } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants/ast";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
