@@ -49,6 +49,7 @@ type Options = {
   scrollElement: ConstructorProps["scrollElement"];
   templateBottomRow: ConstructorProps["templateBottomRow"];
   widgetName: string;
+  selectedIndex: number;
 };
 
 type ConstructorProps = {
@@ -74,15 +75,17 @@ type TemplateWidgetStatus = {
 type GenerateMetaWidgetProps = {
   index: number;
   templateWidgetId: string;
-  rowIndex: number;
   parentId: string;
+  key?: string;
+  rowIndex?: number;
 };
 
 type GenerateMetaWidgetChildrenProps = {
   index: number;
   parentId: string;
   templateWidget: FlattenedWidgetProps;
-  rowIndex: number;
+  key?: string;
+  rowIndex?: number;
 };
 
 type GenerateMetaWidget = {
@@ -110,6 +113,8 @@ enum MODIFICATIONS {
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
+const SELECTED_ROW_KEY = "__$SELECTED_ROW_KEY$__";
+
 /**
  * LEVEL_PATH_REGEX gives out following matches:
  * Inputs
@@ -142,6 +147,7 @@ class MetaWidgetGenerator {
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
   private pageSize?: number;
+  private selectedIndex: number;
   private prevOptions?: Options;
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
@@ -171,6 +177,7 @@ class MetaWidgetGenerator {
     this.onVirtualListScroll = props.onVirtualListScroll;
     this.pageNo = 1;
     this.pageSize = 0;
+    this.selectedIndex = 0;
     this.prevTemplateWidgets = {};
     this.prevViewMetaWidgetIds = [];
     this.primaryKey = "";
@@ -204,6 +211,7 @@ class MetaWidgetGenerator {
     this.scrollElement = options.scrollElement;
     this.templateBottomRow = options.templateBottomRow;
     this.widgetName = options.widgetName;
+    this.selectedIndex = options.selectedIndex;
     this.currTemplateWidgets = extractTillNestedListWidget(
       options.currTemplateWidgets,
       options.containerParentId,
@@ -216,12 +224,15 @@ class MetaWidgetGenerator {
     const prevOptions = klona(this.prevOptions);
     this.prevOptions = options;
 
-    this._didUpdate(options, prevOptions);
+    this._didUpdateInfiniteScroll(options, prevOptions);
 
     return this;
   };
 
-  private _didUpdate = (nextOptions: Options, prevOptions?: Options) => {
+  private _didUpdateInfiniteScroll = (
+    nextOptions: Options,
+    prevOptions?: Options,
+  ) => {
     if (!prevOptions?.infiniteScroll && nextOptions.infiniteScroll) {
       // Infinite scroll enabled
       this.initVirtualizer();
@@ -231,13 +242,13 @@ class MetaWidgetGenerator {
     }
   };
 
-  didMount = () => {
+  didMountVirtualizer = () => {
     if (this.infiniteScroll) {
       this.initVirtualizer();
     }
   };
 
-  didUnmount = () => {
+  didUnmountVirtualizer = () => {
     this.unmountVirtualizer();
   };
 
@@ -249,6 +260,8 @@ class MetaWidgetGenerator {
       this.containerParentId
     ];
     let metaWidgets: MetaWidgets = {};
+    let selectedRowMetaWidgets: MetaWidgets = {};
+    const notInViewSelectedRowMetaWidgets: MetaWidgets = {};
 
     // Reset
     this.currViewMetaWidgetIds = [];
@@ -263,6 +276,7 @@ class MetaWidgetGenerator {
         const index = startIndex + rowIndex;
 
         this.generateWidgetCacheData(index, rowIndex);
+        this.generateWidgetCacheDataForSelectedRow(index, rowIndex);
 
         const {
           childMetaWidgets,
@@ -294,14 +308,65 @@ class MetaWidgetGenerator {
 
     this.flushModificationQueue();
 
+    const generatedSelectedRowMetaWidgets = this.generateSelectedRowMetaWidgets(
+      {
+        index: this.selectedIndex,
+        parentId: this.containerParentId,
+        templateWidgetId: this.containerWidgetId,
+        key: SELECTED_ROW_KEY,
+      },
+    );
+    selectedRowMetaWidgets = {
+      ...generatedSelectedRowMetaWidgets.childMetaWidgets,
+    };
+    if (generatedSelectedRowMetaWidgets.metaWidget) {
+      selectedRowMetaWidgets[
+        generatedSelectedRowMetaWidgets.metaWidget.widgetId
+      ] = generatedSelectedRowMetaWidgets.metaWidget;
+    }
+
+    Object.keys(selectedRowMetaWidgets).forEach((widgetIds) => {
+      if (!this.currViewMetaWidgetIds.includes(widgetIds)) {
+        notInViewSelectedRowMetaWidgets[widgetIds] =
+          selectedRowMetaWidgets[widgetIds];
+      }
+    });
+
     return {
-      metaWidgets,
+      metaWidgets: {
+        ...metaWidgets,
+        ...notInViewSelectedRowMetaWidgets,
+      },
       removedMetaWidgetIds,
+    };
+  };
+
+  private generateSelectedRowMetaWidgets = ({
+    index,
+    key,
+    parentId,
+    templateWidgetId,
+  }: Omit<GenerateMetaWidgetProps, "rowIndex">) => {
+    const { childMetaWidgets, metaWidget } = this.generateMetaWidgetRecursively(
+      {
+        index,
+        key,
+        parentId,
+        templateWidgetId,
+      },
+    );
+
+    if (metaWidget) this.hideWidgetFromView(metaWidget);
+
+    return {
+      childMetaWidgets,
+      metaWidget,
     };
   };
 
   private generateMetaWidgetRecursively = ({
     index,
+    key,
     parentId,
     rowIndex,
     templateWidgetId,
@@ -311,7 +376,17 @@ class MetaWidgetGenerator {
     if (!templateWidget)
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
-    const key = this.getPrimaryKey(rowIndex);
+    if (!key && typeof rowIndex == "number") {
+      key = this.getPrimaryKey(rowIndex);
+    }
+
+    if (!key) {
+      return {
+        childMetaWidgets: undefined,
+        metaWidgetId: undefined,
+        metaWidgetName: undefined,
+      };
+    }
     const metaWidget = klona(templateWidget) as MetaWidget;
     const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
 
@@ -331,23 +406,30 @@ class MetaWidgetGenerator {
       metaWidgets: childMetaWidgets,
     } = this.generateMetaWidgetChildren({
       index,
+      key,
       rowIndex,
       templateWidget,
       parentId: metaWidgetId,
     });
 
-    if (!this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key)) {
+    if (
+      !this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key) &&
+      typeof rowIndex == "number"
+    ) {
       return { childMetaWidgets, metaWidgetName, metaWidgetId };
     }
 
     if (isMainContainerWidget) {
-      this.updateContainerPosition(metaWidget, rowIndex);
+      if (rowIndex) this.updateContainerPosition(metaWidget, rowIndex);
       this.updateContainerBindings(metaWidget, key);
     } else {
-      this.addDynamicPathsProperties(metaWidget, metaCacheProps);
+      this.addDynamicPathsProperties(metaWidget, metaCacheProps, key);
     }
 
-    if (templateWidget.type === "LIST_WIDGET_V2") {
+    if (
+      templateWidget.type === "LIST_WIDGET_V2" &&
+      typeof rowIndex == "number"
+    ) {
       this.addLevelData(metaWidget, rowIndex);
     }
 
@@ -372,6 +454,7 @@ class MetaWidgetGenerator {
 
   private generateMetaWidgetChildren = ({
     index,
+    key,
     parentId,
     rowIndex,
     templateWidget,
@@ -389,6 +472,7 @@ class MetaWidgetGenerator {
         parentId,
         templateWidgetId: childWidgetId,
         rowIndex,
+        key,
       });
 
       metaWidgets = {
@@ -410,8 +494,27 @@ class MetaWidgetGenerator {
     };
   };
 
-  private generateWidgetCacheData = (index: number, rowIndex: number) => {
-    const key = this.getPrimaryKey(rowIndex);
+  private generateWidgetCacheDataForSelectedRow = (
+    index: number,
+    rowIndex: number,
+  ) => {
+    if (index === this.selectedIndex) {
+      const key = this.getPrimaryKey(rowIndex);
+      const rowCache = this.generateCacheData(index, rowIndex, key);
+      this.setRowCache(SELECTED_ROW_KEY, {
+        ...rowCache,
+      });
+    }
+    if (this.selectedIndex === -1) {
+      this.clearSelectedRowCache();
+    }
+  };
+
+  private generateCacheData = (
+    index: number,
+    rowIndex: number,
+    key: string,
+  ) => {
     const rowCache = this.getRowCache(key) || {};
     const isClonedRow = this.isClonedRow(index);
     const templateWidgets = Object.values(this.currTemplateWidgets || {}) || [];
@@ -454,10 +557,17 @@ class MetaWidgetGenerator {
         type,
       };
     });
-
-    this.setRowCache(key, {
+    return {
       ...rowCache,
       ...updatedRowCache,
+    };
+  };
+
+  private generateWidgetCacheData = (index: number, rowIndex: number) => {
+    const key = this.getPrimaryKey(rowIndex);
+    const rowCache = this.generateCacheData(index, rowIndex, key);
+    this.setRowCache(key, {
+      ...rowCache,
     });
   };
 
@@ -520,6 +630,10 @@ class MetaWidgetGenerator {
     ]);
   };
 
+  private hideWidgetFromView = (metaWidget: FlattenedWidgetProps) => {
+    set(metaWidget, "hideWidget", true);
+  };
+
   private addLevelData = (metaWidget: MetaWidget, index: number) => {
     const key = this.getPrimaryKey(index);
     const currentIndex = index;
@@ -541,9 +655,9 @@ class MetaWidgetGenerator {
   private addDynamicPathsProperties = (
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
+    key: string,
   ) => {
-    const { metaWidgetName, rowIndex, templateWidgetId } = metaWidgetCacheProps;
-    const key = this.getPrimaryKey(rowIndex);
+    const { metaWidgetName, templateWidgetId } = metaWidgetCacheProps;
     const dynamicMap = this.dynamicPathMapList[templateWidgetId];
     let referencesEntityDef: Record<string, string> = {};
 
@@ -860,6 +974,15 @@ class MetaWidgetGenerator {
     this.setWidgetCache(updatedCache);
   };
 
+  private clearSelectedRowCache = () => {
+    const cache = this.getWidgetCache() || {};
+    const updatedCache = {
+      ...cache,
+      [SELECTED_ROW_KEY]: {},
+    };
+    this.setWidgetCache(updatedCache);
+  };
+
   private getData = () => {
     if (this.infiniteScroll) {
       if (this.virtualizer) {
@@ -879,6 +1002,10 @@ class MetaWidgetGenerator {
     }
 
     return [];
+  };
+
+  private getDataForIndex = (index: number) => {
+    return this.data.slice(index, index + 1);
   };
 
   getStartIndex = () => {
@@ -919,6 +1046,10 @@ class MetaWidgetGenerator {
 
   getContainerParentCache = () => {
     return this.getRowTemplateCache(ROOT_ROW_KEY, ROOT_CONTAINER_PARENT_KEY);
+  };
+
+  getSelectedRowMetaCacheProps = () => {
+    return this.getRowCache(SELECTED_ROW_KEY);
   };
 
   private getReferencesEntityDefMap = (value: string, key: string) => {

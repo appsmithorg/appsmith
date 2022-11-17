@@ -112,7 +112,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
-      selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
+      // selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
     };
@@ -127,6 +127,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       pageNo: 1,
       pageSize: 0,
       currentViewRows: "{{[]}}",
+      selectedRow: "{{{}}}",
       selectedRowIndex: -1,
       triggeredRowIndex: -1,
       selectedRowViewIndex: -1,
@@ -166,7 +167,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
-    this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
+    this.metaWidgetGenerator
+      .withOptions(generatorOptions)
+      .didMountVirtualizer();
 
     if (this.props.infiniteScroll) {
       this.generateMetaWidgets();
@@ -224,9 +227,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     this.setupMetaWidgets(prevProps);
+
+    console.log({
+      getCache: this.getWidgetCache(),
+    });
   }
 
   componentWillUnmount() {
+    this.metaWidgetGenerator.didUnmountVirtualizer();
     this.deleteMetaWidgets();
   }
 
@@ -276,6 +284,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       widgetName: this.props.widgetName,
       pageNo,
       pageSize,
+      selectedIndex: this.props.selectedRowIndex,
     };
   };
 
@@ -565,7 +574,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { currentPage } = this.props;
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
-    this.resetSelectedRowIndexMeta();
+
     this.props.updateWidgetMetaProperty("pageNo", page, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
@@ -582,6 +591,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   ) => {
     this.updateSelectedRowIndexMeta(rowIndex);
     this.updateSelectedViewIndex(rowIndex, viewIndex);
+
+    this.updateSelectedRowMeta(rowIndex, viewIndex);
 
     if (!action) return;
 
@@ -623,6 +634,34 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
+  };
+
+  updateSelectedRowMeta = (rowIndex: number, viewIndex: number) => {
+    const { currentViewRows, selectedRowIndex } = this.props;
+
+    if (rowIndex === selectedRowIndex) {
+      this.resetSelectedRowMeta();
+      return;
+    }
+
+    const selectedRowBinding = `{{ ${
+      currentViewRows.substring(3, currentViewRows.length - 3).split(",")[
+        viewIndex
+      ]
+    } }}`;
+
+    this.context?.syncUpdateWidgetMetaProperty?.(
+      this.props.widgetId,
+      "selectedRow",
+      selectedRowBinding,
+    );
+  };
+  resetSelectedRowMeta = () => {
+    this.context?.syncUpdateWidgetMetaProperty?.(
+      this.props.widgetId,
+      "selectedRow",
+      "{{{}}}",
+    );
   };
 
   updateSelectedViewIndex = (rowIndex: number, viewIndex: number) => {

@@ -129,8 +129,12 @@ export const CONFIG = {
       {
         key: "currentViewRows",
       },
+      {
+        key: "selectedRow",
+      },
     ],
     currentViewRows: "{{[]}}",
+    selectedRow: "{{{}}}",
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
