@@ -73,11 +73,15 @@ export const CONFIG = {
         key: "selectedRow",
       },
       {
+        key: "triggeredRow",
+      },
+      {
         key: "primaryKeys",
       },
     ],
     currentViewRows: "{{[]}}",
     selectedRow: "{{{}}}",
+    triggeredRow: "{{{}}}",
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {

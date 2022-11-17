@@ -108,7 +108,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
-      // selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       items: `{{(() => {${derivedProperties.getItems}})()}}`,
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
     };
@@ -124,6 +123,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       pageSize: 0,
       currentViewRows: "{{[]}}",
       selectedRow: "{{{}}}",
+      triggeredRow: "{{{}}}",
       selectedRowIndex: -1,
       triggeredRowIndex: -1,
       selectedRowViewIndex: -1,
@@ -213,6 +213,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       this.resetSelectedRowIndexMeta();
       this.resetSelectedRowMeta();
       this.resetTriggeredRowIndexMeta();
+      this.resetTriggeredRowMeta();
     }
 
     // TODO
@@ -261,7 +262,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       primaryKeys,
       serverSidePagination = false,
       selectedRowIndex,
-      triggerRowIndex,
+      triggeredRowIndex,
     } = this.props;
     const pageSize = this.pageSize;
 
@@ -281,7 +282,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       pageNo,
       pageSize,
       selectedRowIndex,
-      triggerRowIndex,
+      triggeredRowIndex,
       serverSidePagination,
     };
   };
@@ -618,6 +619,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   onRowClickCapture = (rowIndex: number, viewIndex: number) => {
     this.updateTriggeredRowIndexMeta(rowIndex);
+    this.updateTriggerRowMeta(viewIndex);
     this.props.updateWidgetMetaProperty("triggeredRowViewIndex", viewIndex);
   };
 
@@ -652,10 +654,33 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       selectedRowBinding,
     );
   };
+
+  updateTriggerRowMeta = (viewIndex: number) => {
+    const { currentViewRows } = this.props;
+
+    const triggeredRowBinding = `{{ ${
+      currentViewRows.substring(3, currentViewRows.length - 3).split(",")[
+        viewIndex
+      ]
+    } }}`;
+
+    this.context?.syncUpdateWidgetMetaProperty?.(
+      this.props.widgetId,
+      "triggeredRow",
+      triggeredRowBinding,
+    );
+  };
   resetSelectedRowMeta = () => {
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
       "selectedRow",
+      "{{{}}}",
+    );
+  };
+  resetTriggeredRowMeta = () => {
+    this.context?.syncUpdateWidgetMetaProperty?.(
+      this.props.widgetId,
+      "triggeredRow",
       "{{{}}}",
     );
   };
