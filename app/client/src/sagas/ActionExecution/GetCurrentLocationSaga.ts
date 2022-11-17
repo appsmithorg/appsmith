@@ -30,7 +30,7 @@ const getUserLocation = (options?: PositionOptions) =>
  * return value is a "class" with functions as well and
  * that cant be stored in the data tree
  **/
-const extractGeoLocation = (
+export const extractGeoLocation = (
   location: GeolocationPosition,
 ): GeolocationPosition => {
   const {
@@ -118,8 +118,29 @@ export function* getCurrentLocationSaga(
     const currentLocation = extractGeoLocation(location);
 
     yield put(setUserCurrentGeoLocation(currentLocation));
+
+    if (actionPayload.onSuccess) {
+      yield call(executeAppAction, {
+        dynamicString: actionPayload.onSuccess,
+        callbackData: [currentLocation],
+        event: { type: eventType },
+        triggerPropertyName: triggerMeta.triggerPropertyName,
+        source: triggerMeta.source,
+      });
+    }
+
     return [currentLocation];
   } catch (error) {
+    if (actionPayload.onError) {
+      yield call(executeAppAction, {
+        dynamicString: actionPayload.onError,
+        callbackData: [error],
+        event: { type: eventType },
+        triggerPropertyName: triggerMeta.triggerPropertyName,
+        source: triggerMeta.source,
+      });
+    }
+
     logActionExecutionError(
       (error as Error).message,
       triggerMeta.source,

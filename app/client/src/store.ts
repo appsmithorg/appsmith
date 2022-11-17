@@ -49,6 +49,6 @@ export const testStore = (initialState: Partial<AppState>) =>
     ),
   );
 
-sagaMiddleware.run(rootSaga);
+export const runSagaMiddleware = () => sagaMiddleware.run(rootSaga);
 
 export const useSelector: TypedUseSelectorHook<AppState> = useReduxSelector;
