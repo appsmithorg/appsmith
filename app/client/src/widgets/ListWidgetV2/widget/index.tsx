@@ -2,12 +2,12 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import React, { createRef, RefObject } from "react";
 import { Virtualizer } from "@tanstack/virtual-core";
-import { get, range, omit, isEmpty, floor } from "lodash";
+import { get, range, omit, isEmpty, floor, isEqual } from "lodash";
 import { klona } from "klona";
 
 import derivedProperties from "./parseDerivedProperties";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
-import MetaWidgetGenerator from "../MetaWidgetGenerator";
+import MetaWidgetGenerator, { GeneratorOptions } from "../MetaWidgetGenerator";
 import propertyPaneConfig from "./propertyConfig";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -25,10 +25,7 @@ import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-import {
-  EventType,
-  ExecuteTriggerPayload,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
@@ -42,7 +39,6 @@ export enum DynamicPathType {
   LEVEL = "level",
 }
 export type DynamicPathMap = Record<string, DynamicPathType[]>;
-export type DynamicPathMapList = Record<string, DynamicPathMap>;
 
 export type MetaWidgets = Record<string, MetaWidget>;
 
@@ -92,7 +88,7 @@ const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
   "children.0.children.0.children.0.children";
 
-class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
+class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   componentRef: RefObject<HTMLDivElement>;
   metaWidgetGenerator: MetaWidgetGenerator;
   prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
@@ -134,11 +130,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     };
   }
 
-  constructor(
-    props:
-      | ListWidgetProps<WidgetProps>
-      | Readonly<ListWidgetProps<WidgetProps>>,
-  ) {
+  constructor(props: ListWidgetProps | Readonly<ListWidgetProps>) {
     super(props);
     const { referencedWidgetId, widgetId } = props;
     const isListCloned =
@@ -197,7 +189,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return 1;
   };
 
-  componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
+  componentDidUpdate(prevProps: ListWidgetProps) {
     this.prevFlattenedChildCanvasWidgets =
       prevProps.flattenedChildCanvasWidgets;
 
@@ -217,6 +209,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       }
     }
 
+    if (!isEqual(this.props.primaryKeys, prevProps.primaryKeys)) {
+      this.resetSelectedRowIndexMeta();
+      this.resetSelectedRowMeta();
+      this.resetTriggeredRowIndexMeta();
+    }
+
     // TODO
     if (this.hasTemplateBottomRowChanged()) {
       if (this.virtualizer) {
@@ -234,7 +232,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     this.deleteMetaWidgets();
   }
 
-  setupMetaWidgets = (prevProps?: ListWidgetProps<WidgetProps>) => {
+  setupMetaWidgets = (prevProps?: ListWidgetProps) => {
     // TODO: (ashit) Check for type === SKELETON_WIDGET?
     // Only when infinite scroll is not toggled i.e on !-> off or off !-> on
     if (this.props.infiniteScroll && prevProps?.infiniteScroll) {
@@ -253,14 +251,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   };
 
-  metaWidgetGeneratorOptions = () => {
+  metaWidgetGeneratorOptions = (): GeneratorOptions => {
     const {
-      dynamicPathMapList = {},
       flattenedChildCanvasWidgets = {},
       listData = [],
       mainCanvasId = "",
       mainContainerId = "",
       pageNo,
+      primaryKeys,
+      serverSidePagination = false,
     } = this.props;
     const pageSize = this.pageSize;
 
@@ -269,18 +268,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
       data: listData,
-      dynamicPathMapList,
       gridGap: this.getGridGap(),
       infiniteScroll: this.props.infiniteScroll ?? false,
       levelData: this.props.levelData,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
-      primaryKey: "id",
+      primaryKeys,
       scrollElement: this.componentRef.current,
       templateBottomRow: this.getTemplateBottomRow(),
       widgetName: this.props.widgetName,
       pageNo,
       pageSize,
       selectedIndex: this.props.selectedRowIndex,
+      serverSidePagination,
     };
   };
 
@@ -424,7 +423,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       infiniteScroll,
       listData,
       parentRowSpace,
-      serverSidePaginationEnabled,
+      serverSidePagination,
     } = this.props;
     const spaceTakenByOneContainer = this.getContainerRowHeight();
 
@@ -441,7 +440,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const spaceTakenByAllContainers = spaceTakenByOneContainer * itemsCount;
     const paginationControlsEnabled =
       (spaceTakenByAllContainers > spaceAvailableWithoutPaginationControls ||
-        serverSidePaginationEnabled) &&
+        serverSidePagination) &&
       !infiniteScroll;
 
     const totalAvailableSpace = paginationControlsEnabled
@@ -462,9 +461,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   shouldFireOnPageSizeChange = () => {
-    return (
-      this.props.serverSidePaginationEnabled && this.props.onPageSizeChange
-    );
+    return this.props.serverSidePagination && this.props.onPageSizeChange;
   };
 
   mainMetaCanvasWidget = () => {
@@ -514,7 +511,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param props
    */
-  generateChildrenEntityDefinitions(props: ListWidgetProps<WidgetProps>) {
+  generateChildrenEntityDefinitions(props: ListWidgetProps) {
     const template = props.template;
     const childrenEntityDefinitions: Record<string, any> = {};
 
@@ -552,7 +549,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   // updates the "privateWidgets" field of the List Widget
-  addPrivateWidgetsForChildren(props: ListWidgetProps<WidgetProps>) {
+  addPrivateWidgetsForChildren(props: ListWidgetProps) {
     const privateWidgets: PrivateWidgets = {};
     const listWidgetChildren: WidgetProps[] = get(
       props,
@@ -695,7 +692,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const {
       infiniteScroll = false,
       listData,
-      serverSidePaginationEnabled,
+      serverSidePagination,
     } = this.props;
     const pageSize = this.pageSize;
 
@@ -703,7 +700,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return { shouldPaginate: false, pageSize };
     }
 
-    if (serverSidePaginationEnabled) {
+    if (serverSidePagination) {
       return { shouldPaginate: true, pageSize };
     }
 
@@ -765,34 +762,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     );
   };
 
-  overrideExecuteAction = (triggerPayload: ExecuteTriggerPayload) => {
-    const { id: metaWidgetId } = triggerPayload?.source || {};
-
-    if (metaWidgetId) {
-      const { index } = this.metaWidgetGenerator.getCacheByMetaWidgetId(
-        metaWidgetId,
-      );
-      const { listData = [] } = this.props;
-
-      const globalContext = {
-        currentIndex: index,
-        currentItem: listData[index],
-        ...triggerPayload.globalContext,
-      };
-
-      const payload = {
-        ...triggerPayload,
-        globalContext,
-      };
-
-      super.executeAction(payload);
-    } else {
-      log.error(
-        `LIST_WIDGET_V2 ${this.props.widgetName} - meta widget not found on "executeAction" call`,
-      );
-    }
-  };
-
   overrideBatchUpdateWidgetProperty = (
     metaWidgetId: string,
     updates: BatchPropertyUpdatePayload,
@@ -849,7 +818,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const { componentHeight } = this.getComponentDimensions();
-    const { pageNo, serverSidePaginationEnabled } = this.props;
+    const { pageNo, serverSidePagination } = this.props;
     const { pageSize, shouldPaginate } = this.shouldPaginate();
     const templateHeight =
       this.getTemplateBottomRow() * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -909,14 +878,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         <MetaWidgetContextProvider
           batchUpdateWidgetProperty={this.overrideBatchUpdateWidgetProperty}
           deleteWidgetProperty={this.overrideDeleteWidgetProperty}
-          executeAction={this.overrideExecuteAction}
           updateWidget={this.overrideUpdateWidget}
           updateWidgetProperty={this.overrideUpdateWidgetProperty}
         >
           {this.renderChildren()}
         </MetaWidgetContextProvider>
         {shouldPaginate &&
-          (serverSidePaginationEnabled ? (
+          (serverSidePagination ? (
             <ServerSideListPagination
               nextPageClick={() => this.onPageChange(pageNo + 1)}
               pageNo={this.props.pageNo}
@@ -946,14 +914,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 }
 
-export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
+export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
+  extends WidgetProps {
   accentColor: string;
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
-  dynamicPathMapList?: DynamicPathMapList;
   gridGap?: number;
   infiniteScroll?: boolean;
   level?: number;
@@ -971,6 +939,8 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   selectedRowViewIndex: number;
   triggeredRowIndex: number;
   triggeredRowViewIndex: number;
+  primaryKeys?: (string | number)[];
+  serverSidePagination?: boolean;
 }
 
 export default ListWidget;

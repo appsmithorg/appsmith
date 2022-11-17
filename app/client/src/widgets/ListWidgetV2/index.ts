@@ -1,7 +1,7 @@
 // TODO: Ashit - Add jest test for all the functions
 
 import { klona } from "klona";
-import { get, isString, omit, set } from "lodash";
+import { get } from "lodash";
 import { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
 
 import { WidgetProps } from "widgets/BaseWidget";
@@ -10,56 +10,7 @@ import {
   FlattenedWidgetProps,
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
-import Widget, {
-  DynamicPathMap,
-  DynamicPathMapList,
-  DynamicPathType,
-  ListWidgetProps,
-} from "./widget";
-
-const hasCurrentItem = (value: string) =>
-  isString(value) && value.indexOf("currentItem") > -1;
-const hasCurrentIndex = (value: string) =>
-  isString(value) && value.indexOf("currentIndex") > -1;
-const hasCurrentRow = (value: string) =>
-  isString(value) && value.indexOf("currentRow") > -1;
-const hasLevel = (value: string) =>
-  isString(value) && value.indexOf("level_") > -1;
-
-const getDynamicPathTypesFor = (propertyValue: string) => {
-  const types = [];
-
-  if (hasCurrentItem(propertyValue)) {
-    types.push(DynamicPathType.CURRENT_ITEM);
-  }
-  if (hasCurrentIndex(propertyValue)) {
-    types.push(DynamicPathType.CURRENT_INDEX);
-  }
-  if (hasCurrentRow(propertyValue)) {
-    types.push(DynamicPathType.CURRENT_ROW);
-  }
-  if (hasLevel(propertyValue)) {
-    types.push(DynamicPathType.LEVEL);
-  }
-
-  return types;
-};
-
-// TODO: (Ashit) - Look into dynamicBindingPathList and check those path only?
-// Widget properties that uses "currentItem" in the value.
-const getDynamicPathsMap = (widget: WidgetProps) => {
-  const dynamicPathsMap: DynamicPathMap = {};
-
-  (widget.dynamicBindingPathList || []).forEach(({ key }) => {
-    const propertyValue = widget[key];
-    const dynamicPathTypes = getDynamicPathTypesFor(propertyValue);
-    if (dynamicPathTypes.length) {
-      dynamicPathsMap[key] = dynamicPathTypes;
-    }
-  });
-
-  return dynamicPathsMap;
-};
+import Widget, { ListWidgetProps } from "./widget";
 
 const getLogBlackList = (widget: WidgetProps) => {
   const logBlackList: Record<string, boolean> = {};
@@ -71,18 +22,13 @@ const getLogBlackList = (widget: WidgetProps) => {
   return logBlackList;
 };
 
-// add blacklist to widget and create blacklist update map
-// get internal properties for list
 const computeWidgets = (
   widget: FlattenedWidgetProps,
   widgets: Record<string, FlattenedWidgetProps>,
-  dynamicPathMapList: DynamicPathMapList = {},
   childrenUpdatePropertyMap: UpdatePropertyArgs[] = [],
 ) => {
   const clonedWidget = klona(widget);
   const logBlackList = getLogBlackList(widget);
-
-  dynamicPathMapList[widget.widgetId] = getDynamicPathsMap(widget);
 
   // TODO: (Ashit) - Remove logBlackList when widget moved out of list widget
   clonedWidget.logBlackList = logBlackList;
@@ -96,16 +42,10 @@ const computeWidgets = (
   (widget.children || []).map((child) => {
     const childWidget = typeof child === "string" ? widgets[child] : child;
 
-    computeWidgets(
-      childWidget,
-      widgets,
-      dynamicPathMapList,
-      childrenUpdatePropertyMap,
-    );
+    computeWidgets(childWidget, widgets, childrenUpdatePropertyMap);
   });
 
   return {
-    dynamicPathMapList,
     childrenUpdatePropertyMap,
   };
 };
@@ -132,6 +72,9 @@ export const CONFIG = {
       {
         key: "selectedRow",
       },
+      {
+        key: "primaryKeys",
+      },
     ],
     currentViewRows: "{{[]}}",
     selectedRow: "{{{}}}",
@@ -142,7 +85,7 @@ export const CONFIG = {
         },
         // TODO: (Ashit) - Remove this enhancement. Probably not required for V2
         updateDataTreePath: (
-          parentProps: ListWidgetProps<WidgetProps>,
+          parentProps: ListWidgetProps,
           dataTreePath: string,
         ) => {
           const pathChunks = dataTreePath.split(".");
@@ -155,43 +98,6 @@ export const CONFIG = {
           ).find((w) => w.widgetName === widgetName);
 
           return `${parentProps.widgetName}.template.${templateWidget?.widgetId}.${path}`;
-        },
-        propertyUpdateHook: (
-          parentProps: ListWidgetProps<WidgetProps>,
-          widgetProperties: WidgetProps,
-          propertyPath: string,
-          propertyValue: string,
-          isTriggerProperty: boolean,
-        ) => {
-          if (!parentProps.widgetId) return [];
-
-          let dynamicPathMapList = parentProps.dynamicPathMapList
-            ? klona(parentProps.dynamicPathMapList)
-            : {};
-
-          const dynamicPathTypes = getDynamicPathTypesFor(propertyValue);
-
-          if (!dynamicPathTypes.length) {
-            dynamicPathMapList = omit(
-              dynamicPathMapList,
-              `${widgetProperties.widgetId}.${propertyPath}`,
-            );
-          } else {
-            set(
-              dynamicPathMapList,
-              `${widgetProperties.widgetId}.${propertyPath}`,
-              dynamicPathTypes,
-            );
-          }
-
-          return [
-            {
-              widgetId: parentProps.widgetId,
-              propertyPath: "dynamicPathMapList",
-              propertyValue: dynamicPathMapList,
-              isDynamicTrigger: isTriggerProperty,
-            },
-          ];
         },
       },
     },
@@ -216,6 +122,8 @@ export const CONFIG = {
     ],
     widgetName: "List",
     children: [],
+    primaryKeys:
+      '{{List1.listData.map((currentItem, currentIndex) => currentItem["id"] )}}',
     blueprint: {
       view: [
         {
@@ -352,19 +260,17 @@ export const CONFIG = {
             // List > Canvas > Container > Canvas > Widgets
             const mainCanvas = get(widget, "children.0");
             const containerId = get(widget, "children.0.children.0");
+            const { widgetName } = widget;
+            const primaryKeys = `{{${widgetName}.listData.map((currentItem, currentIndex) => currentItem["id"] )}}`;
 
-            const {
-              childrenUpdatePropertyMap,
-              dynamicPathMapList,
-            } = computeWidgets(mainCanvas, widgets);
+            const { childrenUpdatePropertyMap } = computeWidgets(
+              mainCanvas,
+              widgets,
+            );
 
             return [
               ...childrenUpdatePropertyMap,
-              {
-                widgetId: widget.widgetId,
-                propertyName: "dynamicPathMapList",
-                propertyValue: dynamicPathMapList,
-              },
+
               {
                 widgetId: widget.widgetId,
                 propertyName: "mainContainerId",
@@ -374,6 +280,11 @@ export const CONFIG = {
                 widgetId: widget.widgetId,
                 propertyName: "mainCanvasId",
                 propertyValue: mainCanvas.widgetId,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "primaryKeys",
+                propertyValue: primaryKeys,
               },
             ];
           },

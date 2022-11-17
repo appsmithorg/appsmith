@@ -71,6 +71,9 @@ import PrimaryColumnColorPickerControlV2, {
 import TableInlineEditValidationControlProperty, {
   TableInlineEditValidationControlProps,
 } from "./TableInlineEditValidation";
+import ListComputeControl, {
+  ListComputeControlProps,
+} from "./ListComputeControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -109,6 +112,7 @@ export const PropertyControls = {
   PrimaryColumnColorPickerControlV2,
   SelectDefaultValueControl,
   TableInlineEditValidationControlProperty,
+  ListComputeControl,
 };
 
 export type PropertyControlPropsType =
@@ -130,7 +134,8 @@ export type PropertyControlPropsType =
   | PrimaryColumnDropdownControlProps
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
-  | TableInlineEditValidationControlProps;
+  | TableInlineEditValidationControlProps
+  | ListComputeControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

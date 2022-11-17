@@ -1,12 +1,84 @@
-import { get } from "lodash";
-import { WidgetProps } from "widgets/BaseWidget";
-import { ListWidgetProps } from "../constants";
+import { get, isPlainObject } from "lodash";
 
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { WidgetProps } from "widgets/BaseWidget";
+import { ListWidgetProps } from ".";
+import { getBindingTemplate } from "../constants";
+
+const isValidListData = (
+  value: unknown,
+): value is Exclude<ListWidgetProps["listData"], undefined> => {
+  return Array.isArray(value) && value.length > 0 && isPlainObject(value[0]);
+};
+
+export const primaryColumnValidation = (
+  inputValue: unknown,
+  props: ListWidgetProps,
+  _: any,
+) => {
+  const { listData = [], dynamicPropertyPathList = [] } = props;
+  const isArray = Array.isArray(inputValue);
+  const isJSModeEnabled = Boolean(
+    dynamicPropertyPathList.find((d) => d.key === "primaryKeys"),
+  );
+
+  if (isArray) {
+    if (inputValue.length === 0) {
+      return {
+        isValid: false,
+        parsed: [],
+        messages: ["Primary key cannot be empty"],
+      };
+    }
+
+    const areKeysUnique = _.uniq(inputValue).length === listData.length;
+
+    if (!areKeysUnique) {
+      return {
+        isValid: false,
+        parsed: [], // Empty array as the inputValue is an array type
+        messages: ["Primary keys are not unique."],
+      };
+    }
+  } else {
+    const message = isJSModeEnabled
+      ? "Use currentItem/currentIndex to generate primary key or composite key"
+      : "Select valid option form the primary key list";
+
+    return {
+      isValid: false,
+      parsed: undefined, // undefined as we do not know what the data type of inputValue is so "[]" is not an appropriate value to return
+      messages: [message],
+    };
+  }
+
+  return {
+    isValid: true,
+    parsed: inputValue,
+    messages: [""],
+  };
+};
+
+export const primaryKeyOptions = (props: ListWidgetProps) => {
+  const { widgetName } = props;
+  const listData = props[EVALUATION_PATH]?.evaluatedValues?.listData || [];
+  const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
+
+  if (isValidListData(listData)) {
+    return Object.keys(listData[0]).map((key) => ({
+      label: key,
+      value: `${prefixTemplate} currentItem[${JSON.stringify(
+        key,
+      )}] ${suffixTemplate}`,
+    }));
+  } else {
+    return [];
+  }
+};
 
 const ListWidgetPropertyPaneConfig = [
   {
@@ -27,7 +99,7 @@ const ListWidgetPropertyPaneConfig = [
       {
         helpText:
           "Bind the List.pageNo property in your API and call it onPageChange",
-        propertyName: "serverSidePaginationEnabled",
+        propertyName: "serverSidePagination",
         label: "Server Side Pagination",
         controlType: "SWITCH",
         isBindProperty: false,
@@ -55,6 +127,32 @@ const ListWidgetPropertyPaneConfig = [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        propertyName: "primaryKeys",
+        helpText:
+          "Assign a unique column which improves performance and maintains values across page changes",
+        label: "Primary key",
+        controlType: "DROP_DOWN",
+        dropdownUsePropertyValue: true,
+        customJSControl: "LIST_COMPUTE_CONTROL",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        isJSConvertible: true,
+        dependencies: ["listData"],
+        evaluatedDependencies: ["listData"],
+        options: primaryKeyOptions,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: primaryColumnValidation,
+            expected: {
+              type: "Array<string | number>",
+              example: `["1", "2", "3"]`,
+              autocompleteDataType: AutocompleteDataType.ARRAY,
+            },
+          },
         },
       },
       {
@@ -111,8 +209,8 @@ const ListWidgetPropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled"],
+          !props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
       },
       {
         helpText: "Triggers an action when a list page size is changed",
@@ -123,8 +221,8 @@ const ListWidgetPropertyPaneConfig = [
         isBindProperty: true,
         isTriggerProperty: true,
         hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePaginationEnabled,
-        dependencies: ["serverSidePaginationEnabled"],
+          !props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
       },
     ],
   },

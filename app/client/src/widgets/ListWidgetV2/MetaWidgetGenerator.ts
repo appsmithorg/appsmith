@@ -1,5 +1,6 @@
+import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty } from "lodash";
+import { difference, omit, set, get, isEmpty, isString, without } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -8,16 +9,16 @@ import {
   VirtualizerOptions,
 } from "@tanstack/virtual-core";
 
+import Queue from "./Queue";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { extractTillNestedListWidget } from "./widget/helper";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { generateReactKey } from "utils/generators";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { ListWidgetProps } from "./constants";
 import {
-  DynamicPathMapList,
   DynamicPathType,
   LevelData,
+  ListWidgetProps,
   MetaWidget,
   MetaWidgetCache,
   MetaWidgetCacheProps,
@@ -33,20 +34,20 @@ type TemplateWidgets = ListWidgetProps<
   WidgetProps
 >["flattenedChildCanvasWidgets"];
 
-type Options = {
+export type GeneratorOptions = {
   containerParentId: string;
   containerWidgetId: string;
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
-  dynamicPathMapList: DynamicPathMapList;
   gridGap: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
   pageNo?: number;
   pageSize?: number;
-  primaryKey: string;
+  primaryKeys?: (string | number | undefined)[];
   scrollElement: ConstructorProps["scrollElement"];
+  serverSidePagination: ConstructorProps["serverSidePagination"];
   templateBottomRow: ConstructorProps["templateBottomRow"];
   widgetName: string;
   selectedIndex: number;
@@ -60,6 +61,7 @@ type ConstructorProps = {
   onVirtualListScroll: () => void;
   renderMode: string;
   scrollElement: HTMLDivElement | null;
+  serverSidePagination: boolean;
   setWidgetCache: (data: MetaWidgetCache) => void;
   templateBottomRow: number;
   widgetId: string;
@@ -107,8 +109,9 @@ type VirtualizerOptionsProps = VirtualizerOptions<
   HTMLDivElement
 >;
 
-enum MODIFICATIONS {
+enum MODIFICATION_TYPE {
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
+  UPDATE_PRIMARY_KEY = "UPDATE_PRIMARY_KEY",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -130,43 +133,51 @@ const SELECTED_ROW_KEY = "__$SELECTED_ROW_KEY$__";
 // eslint-disable-next-line prettier/prettier
 const LEVEL_PATH_REGEX = /level_[\$\w]*(\.[a-zA-Z\$\_][\$\w]*)*/gi;
 
+const hasCurrentItem = (value: string) =>
+  isString(value) && value.indexOf("currentItem") > -1;
+const hasCurrentIndex = (value: string) =>
+  isString(value) && value.indexOf("currentIndex") > -1;
+const hasCurrentRow = (value: string) =>
+  isString(value) && value.indexOf("currentRow") > -1;
+const hasLevel = (value: string) =>
+  isString(value) && value.indexOf("level_") > -1;
+
 class MetaWidgetGenerator {
-  private containerParentId: Options["containerParentId"];
-  private containerWidgetId: Options["containerWidgetId"];
+  private containerParentId: GeneratorOptions["containerParentId"];
+  private containerWidgetId: GeneratorOptions["containerWidgetId"];
   private currTemplateWidgets: TemplateWidgets;
   private currViewMetaWidgetIds: string[];
-  private data: Options["data"];
-  private dynamicPathMapList: Options["dynamicPathMapList"];
+  private data: GeneratorOptions["data"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
-  private gridGap: Options["gridGap"];
+  private gridGap: GeneratorOptions["gridGap"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
   private level: ConstructorProps["level"];
-  private levelData: Options["levelData"];
+  private levelData: GeneratorOptions["levelData"];
   private metaIdToCacheMap: Record<string, string>;
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
   private pageSize?: number;
   private selectedIndex: number;
-  private prevOptions?: Options;
+  private prevOptions?: GeneratorOptions;
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
-  private primaryKey: Options["primaryKey"];
+  private primaryKeys: GeneratorOptions["primaryKeys"];
   private renderMode: ConstructorProps["renderMode"];
-  private modificationsQueue: Set<MODIFICATIONS>;
+  private modificationsQueue: Queue<MODIFICATION_TYPE>;
   private scrollElement: ConstructorProps["scrollElement"];
+  private serverSidePagination: ConstructorProps["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
   private templateBottomRow: ConstructorProps["templateBottomRow"];
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
-  private widgetName: Options["widgetName"];
+  private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
     this.containerParentId = "";
     this.containerWidgetId = "";
     this.currViewMetaWidgetIds = [];
     this.data = [];
-    this.dynamicPathMapList = {};
     this.getWidgetCache = props.getWidgetCache;
     this.gridGap = 0;
     this.infiniteScroll = props.infiniteScroll;
@@ -180,10 +191,10 @@ class MetaWidgetGenerator {
     this.selectedIndex = 0;
     this.prevTemplateWidgets = {};
     this.prevViewMetaWidgetIds = [];
-    this.primaryKey = "";
     this.renderMode = props.renderMode;
-    this.modificationsQueue = new Set();
+    this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
     this.scrollElement = props.scrollElement;
+    this.serverSidePagination = props.serverSidePagination;
     this.setWidgetCache = props.setWidgetCache;
     this.templateBottomRow = props.templateBottomRow;
     this.templateWidgetStatus = {
@@ -195,20 +206,20 @@ class MetaWidgetGenerator {
     this.widgetName = "";
   }
 
-  withOptions = (options: Options) => {
+  withOptions = (options: GeneratorOptions) => {
     this.updateModificationsQueue(options);
 
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
-    this.dynamicPathMapList = options.dynamicPathMapList;
     this.gridGap = options.gridGap;
     this.infiniteScroll = options.infiniteScroll;
     this.levelData = options.levelData;
     this.pageNo = options.pageNo;
     this.pageSize = options.pageSize;
-    this.primaryKey = options.primaryKey;
+    this.primaryKeys = options.primaryKeys;
     this.scrollElement = options.scrollElement;
+    this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
     this.widgetName = options.widgetName;
     this.selectedIndex = options.selectedIndex;
@@ -230,8 +241,8 @@ class MetaWidgetGenerator {
   };
 
   private _didUpdateInfiniteScroll = (
-    nextOptions: Options,
-    prevOptions?: Options,
+    nextOptions: GeneratorOptions,
+    prevOptions?: GeneratorOptions,
   ) => {
     if (!prevOptions?.infiniteScroll && nextOptions.infiniteScroll) {
       // Infinite scroll enabled
@@ -250,6 +261,7 @@ class MetaWidgetGenerator {
 
   didUnmountVirtualizer = () => {
     this.unmountVirtualizer();
+    this.resetCache();
   };
 
   generate = () => {
@@ -262,6 +274,40 @@ class MetaWidgetGenerator {
     let metaWidgets: MetaWidgets = {};
     let selectedRowMetaWidgets: MetaWidgets = {};
     const notInViewSelectedRowMetaWidgets: MetaWidgets = {};
+    let resetMetaWidgetIds: string[] = [];
+
+    if (this.modificationsQueue.has(MODIFICATION_TYPE.UPDATE_PRIMARY_KEY)) {
+      /**
+       * On primary key change, why reset cache and not use existing cache remapping new primary key?
+       *
+       * While remapping makes sense when data is coming as client side. To the generator the complete data
+       * is always available to modify all the old primary key related cache to the new primary key
+       *
+       * Eg. [{
+       *  id: "abc",
+       *  uuid: "zxy"
+       * }]
+       *
+       * If primaryKey updates from "id" -> "uuid", the value for all the data items are known therefore a complete
+       * re-mapping can be done.
+       *
+       * But when data is server side then only partial data is known and it is very difficult to modify the cache
+       * as it would be left partially updated and making partially stale. Which may lead to a bad state.
+       *
+       * In order to avoid this a complete cache resetting is done.
+       *
+       * As the cache is completely reset, the widgetIds that were generated previously are
+       * no longer valid and will the deleted. Thus resulting in new meta widgets being generated with same content
+       * but different widgetId. This will lead to unnecessary re-rendering and meta data loss.
+       *
+       * The assumption here is that the primaryKey change is not a high frequency operation and would be only done
+       * in the edit mode.
+       *
+       */
+      resetMetaWidgetIds = this.getAllCachedMetaWidgetIds();
+      this.resetCache();
+      this.prevViewMetaWidgetIds = [];
+    }
 
     // Reset
     this.currViewMetaWidgetIds = [];
@@ -299,10 +345,19 @@ class MetaWidgetGenerator {
       });
     }
 
-    const removedMetaWidgetIds = difference(
-      this.prevViewMetaWidgetIds,
-      this.currViewMetaWidgetIds,
-    );
+    const removedMetaWidgetIds = (() => {
+      const removedFromCurrentView = difference(
+        this.prevViewMetaWidgetIds,
+        this.currViewMetaWidgetIds,
+      );
+
+      const resetWidgetExcludingCurrent = without(
+        resetMetaWidgetIds,
+        ...this.currViewMetaWidgetIds,
+      );
+
+      return [...removedFromCurrentView, ...resetWidgetExcludingCurrent];
+    })();
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
@@ -657,28 +712,31 @@ class MetaWidgetGenerator {
     metaWidgetCacheProps: MetaWidgetCacheProps,
     key: string,
   ) => {
-    const { metaWidgetName, templateWidgetId } = metaWidgetCacheProps;
-    const dynamicMap = this.dynamicPathMapList[templateWidgetId];
+    const { metaWidgetName } = metaWidgetCacheProps;
+    const dynamicPaths = [
+      ...(metaWidget.dynamicBindingPathList || []),
+      ...(metaWidget.dynamicTriggerPathList || []),
+    ];
     let referencesEntityDef: Record<string, string> = {};
 
-    if (!dynamicMap) return;
+    if (!dynamicPaths.length) return;
 
-    Object.entries(dynamicMap).forEach(([path, dynamicPathTypes]) => {
+    dynamicPaths.forEach(({ key: path }) => {
       const propertyValue: string = get(metaWidget, path);
       const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
       const js = combineDynamicBindings(jsSnippets, stringSegments);
       const pathTypes = new Set();
 
-      if (dynamicPathTypes.includes(DynamicPathType.CURRENT_ITEM)) {
+      if (hasCurrentItem(propertyValue)) {
         this.addCurrentItemProperty(metaWidget, metaWidgetName);
         pathTypes.add(DynamicPathType.CURRENT_ITEM);
       }
 
-      if (dynamicPathTypes.includes(DynamicPathType.CURRENT_INDEX)) {
+      if (hasCurrentIndex(propertyValue)) {
         pathTypes.add(DynamicPathType.CURRENT_INDEX);
       }
 
-      if (dynamicPathTypes.includes(DynamicPathType.CURRENT_ROW)) {
+      if (hasCurrentRow(propertyValue)) {
         referencesEntityDef = {
           ...referencesEntityDef,
           ...this.getReferencesEntityDefMap(propertyValue, key),
@@ -686,7 +744,7 @@ class MetaWidgetGenerator {
         pathTypes.add(DynamicPathType.CURRENT_ROW);
       }
 
-      if (dynamicPathTypes.includes(DynamicPathType.LEVEL)) {
+      if (hasLevel(propertyValue)) {
         pathTypes.add(DynamicPathType.CURRENT_ROW);
         const levelPaths = propertyValue.match(LEVEL_PATH_REGEX);
 
@@ -894,17 +952,23 @@ class MetaWidgetGenerator {
     });
   };
 
-  private updateModificationsQueue = (options: Options) => {
+  private updateModificationsQueue = (nextOptions: GeneratorOptions) => {
     if (
-      this.gridGap !== options.gridGap ||
-      this.infiniteScroll != options.infiniteScroll
+      this.gridGap !== nextOptions.gridGap ||
+      this.infiniteScroll != nextOptions.infiniteScroll
     ) {
-      this.modificationsQueue.add(MODIFICATIONS.UPDATE_CONTAINER);
+      this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
+    }
+
+    if (this.primaryKeys !== nextOptions?.primaryKeys) {
+      this.modificationsQueue.add({
+        type: MODIFICATION_TYPE.UPDATE_PRIMARY_KEY,
+      });
     }
   };
 
   private flushModificationQueue = () => {
-    this.modificationsQueue.clear();
+    this.modificationsQueue.flush();
   };
 
   private resetTemplateWidgetStatuses = () => {
@@ -945,7 +1009,7 @@ class MetaWidgetGenerator {
       metaWidgetId && this.prevViewMetaWidgetIds.includes(metaWidgetId);
     const isTemplateWidgetChanged = !unchanged.has(templateWidgetId);
     const containerUpdateRequired = this.modificationsQueue.has(
-      MODIFICATIONS.UPDATE_CONTAINER,
+      MODIFICATION_TYPE.UPDATE_CONTAINER,
     );
     const shouldMainContainerUpdate =
       templateWidgetsAddedOrRemoved || containerUpdateRequired;
@@ -971,7 +1035,7 @@ class MetaWidgetGenerator {
       [key]: rowData,
     };
 
-    this.setWidgetCache(updatedCache);
+    this.setCache(updatedCache);
   };
 
   private clearSelectedRowCache = () => {
@@ -984,10 +1048,15 @@ class MetaWidgetGenerator {
   };
 
   private getData = () => {
+    if (this.serverSidePagination) {
+      return this.data;
+    }
+
+    const startIndex = this.getStartIndex();
+
     if (this.infiniteScroll) {
       if (this.virtualizer) {
         const virtualItems = this.virtualizer.getVirtualItems();
-        const startIndex = virtualItems[0]?.index ?? 0;
         const endIndex = virtualItems[virtualItems.length - 1]?.index ?? 0;
         return this.data.slice(startIndex, endIndex + 1);
       }
@@ -996,7 +1065,6 @@ class MetaWidgetGenerator {
     }
 
     if (typeof this.pageNo === "number" && typeof this.pageSize === "number") {
-      const startIndex = this.pageSize * (this.pageNo - 1);
       const endIndex = startIndex + this.pageSize;
       return this.data.slice(startIndex, endIndex);
     }
@@ -1015,6 +1083,7 @@ class MetaWidgetGenerator {
         return items[0]?.index ?? 0;
       }
     } else if (
+      !this.serverSidePagination &&
       typeof this.pageSize === "number" &&
       typeof this.pageNo === "number"
     ) {
@@ -1042,6 +1111,10 @@ class MetaWidgetGenerator {
 
   private getCache = () => {
     return this.getWidgetCache();
+  };
+
+  private setCache = (data: MetaWidgetCache) => {
+    return this.setWidgetCache(data);
   };
 
   getContainerParentCache = () => {
@@ -1096,8 +1169,10 @@ class MetaWidgetGenerator {
 
   getMetaContainers = () => {
     const containers = { ids: [] as string[], names: [] as string[] };
+    const startIndex = this.getStartIndex();
     this.getData().forEach((_datum, rowIndex) => {
-      const key = this.getPrimaryKey(rowIndex);
+      const index = startIndex + rowIndex;
+      const key = this.getPrimaryKey(index);
       const metaContainer = this.getRowTemplateCache(
         key,
         this.containerWidgetId,
@@ -1119,12 +1194,16 @@ class MetaWidgetGenerator {
   private getContainerWidget = () =>
     this.currTemplateWidgets?.[this.containerWidgetId] as FlattenedWidgetProps;
 
-  private getPrimaryKey = (rowIndex: number) => {
-    // TODO: Make sure a key is always returned from here, either a hash key
-    // or user set.
-    // Appropriate error cases needs to be handled.
+  private getPrimaryKey = (index: number): string => {
+    const key = this?.primaryKeys?.[index];
+    if (typeof key === "number" || typeof key === "string") {
+      return key.toString();
+    }
+    const startIndex = this.getStartIndex();
+    const rowIndex = index - startIndex;
     const data = this.getData()[rowIndex];
-    return String(data[this.primaryKey]);
+
+    return hash(data, { algorithm: "md5" });
   };
 
   getCacheByMetaWidgetId = (metaWidgetId: string) => {
@@ -1145,6 +1224,23 @@ class MetaWidgetGenerator {
     });
 
     return metaWidgets;
+  };
+
+  private getAllCachedMetaWidgetIds = () => {
+    const cache = this.getCache();
+    const metaWidgetIds: string[] = [];
+
+    if (cache) {
+      Object.values(cache).forEach((cacheRow) => {
+        if (cacheRow) {
+          Object.values(cacheRow).forEach((cacheItem) => {
+            metaWidgetIds.push(cacheItem.metaWidgetId);
+          });
+        }
+      });
+    }
+
+    return metaWidgetIds;
   };
 
   private getEntityDefinitionsFor = (widgetType: string) => {
@@ -1186,6 +1282,10 @@ class MetaWidgetGenerator {
         ${widgetsProperties.join(",")}
       }
     `;
+  };
+
+  private resetCache = () => {
+    this.setWidgetCache({});
   };
 
   private initVirtualizer = () => {
