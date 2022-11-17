@@ -1,4 +1,4 @@
-type Stylesheet = {
+export type Stylesheet = {
   [key: string]: {
     [key: string]: string;
   };

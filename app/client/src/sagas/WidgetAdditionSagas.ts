@@ -38,7 +38,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
+import { stylesheet as themeStylesheet } from "constants/ThemeConstants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -46,12 +46,6 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-
-const themePropertiesDefaults = {
-  boxShadow: "none",
-  borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  accentColor: "{{appsmith.theme.colors.primaryColor}}",
-};
 
 type GeneratedWidgetPayload = {
   widgetId: string;
@@ -77,21 +71,9 @@ function* getEntityNames() {
  * @returns
  */
 function* getThemeDefaultConfig(type: string) {
-  const fallbackStylesheet: Record<string, string> = {
-    TABLE_WIDGET_V2: "TABLE_WIDGET",
-  };
+  const stylesheet: Record<string, unknown> = themeStylesheet;
 
-  const stylesheet: Record<string, unknown> = yield select(
-    getSelectedAppThemeStylesheet,
-  );
-
-  if (stylesheet[type]) {
-    return stylesheet[type];
-  } else if (fallbackStylesheet[type] && stylesheet[fallbackStylesheet[type]]) {
-    return stylesheet[fallbackStylesheet[type]];
-  } else {
-    return themePropertiesDefaults;
-  }
+  return stylesheet[type];
 }
 
 function* getChildWidgetProps(

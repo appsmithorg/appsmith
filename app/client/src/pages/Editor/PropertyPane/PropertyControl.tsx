@@ -46,7 +46,6 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
@@ -58,6 +57,7 @@ import {
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { stylesheet as themeStylesheet } from "constants/ThemeConstants";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -110,8 +110,6 @@ const PropertyControl = memo((props: Props) => {
     equal,
   );
 
-  const selectedTheme = useSelector(getSelectedAppTheme);
-
   useEffect(() => {
     if (shouldFocusPropertyPath) {
       // We can get a code editor element as well, which will take time to load
@@ -138,10 +136,8 @@ const PropertyControl = memo((props: Props) => {
    *   theme config and thus it is fetched from there.
    */
   const propertyStylesheetValue = (() => {
-    const widgetStylesheet: AppTheme["stylesheet"][string] = get(
-      selectedTheme,
-      `stylesheet.${widgetProperties.type}`,
-    );
+    const widgetStylesheet: AppTheme["stylesheet"][string] =
+      themeStylesheet[widgetProperties.type];
 
     if (props.getStylesheetValue) {
       return props.getStylesheetValue(
