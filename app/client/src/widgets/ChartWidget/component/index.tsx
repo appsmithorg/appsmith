@@ -130,7 +130,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
     const firstKey = Object.keys(chartData)[0] as string;
     let data = get(chartData, `${firstKey}.data`, []) as ChartDataPoint[];
-    const color = get(chartData, `${firstKey}.color`, []) as ChartDataPoint[];
+    const color = chartData[firstKey] && chartData[firstKey].color;
 
     if (!Array.isArray(data)) {
       data = [];
