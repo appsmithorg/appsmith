@@ -23,7 +23,6 @@ import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
 import _, { isEqual } from "lodash";
-
 import {
   DataTree,
   ENTITY_TYPE,

@@ -42,6 +42,7 @@ import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvas
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
 import { quickScrollToWidget } from "utils/helpers";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { areArraysEqual } from "utils/AppsmithUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
@@ -248,15 +249,34 @@ function* selectWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
   try {
-    const { isMultiSelect, widgetId } = action.payload;
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
     const currentPageId: string = yield select(getCurrentPageId);
-    updateSelectedWidgetsURL(
-      [widgetId],
-      isMultiSelect,
-      currentPageId,
-      selectedWidgets,
-    );
+    let newSelectedWidgets: string[] = [];
+    // let lastSelectedWidget = "";
+    if (action.payload.widgetId === MAIN_CONTAINER_WIDGET_ID) return;
+    if (action.payload.isMultiSelect) {
+      const widgetId = action.payload.widgetId || "";
+      const removeSelection = selectedWidgets.includes(widgetId);
+
+      if (removeSelection) {
+        newSelectedWidgets = selectedWidgets.filter(
+          (each) => each !== widgetId,
+        );
+      } else if (!!widgetId) {
+        newSelectedWidgets = [...selectedWidgets, widgetId];
+      }
+      if (newSelectedWidgets.length > 0) {
+        // lastSelectedWidget = removeSelection ? "" : widgetId;
+      }
+    } else {
+      // state.lastSelectedWidget = action.payload.widgetId;
+      if (!action.payload.widgetId) {
+        newSelectedWidgets = [];
+      } else if (!areArraysEqual(selectedWidgets, [action.payload.widgetId])) {
+        newSelectedWidgets = [action.payload.widgetId];
+      }
+    }
+    updateSelectedWidgetsURL(newSelectedWidgets, true, currentPageId, []);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
