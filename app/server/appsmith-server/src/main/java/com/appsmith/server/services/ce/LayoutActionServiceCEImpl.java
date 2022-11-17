@@ -416,6 +416,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
                              */
                             if (actionDTO.getPluginType().equals(PluginType.JS) && !StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                log.debug("JS Action with Id: {} doesn't have any collection Id under pageId: {}", actionDTO.getId(), pageId);
                                 return Mono.empty();
                             } else {
                                 return Mono.just(actionDTO);
