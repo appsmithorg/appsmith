@@ -61,7 +61,7 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
   );
 
   try {
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
       yield put({
         type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
@@ -82,6 +82,7 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
       text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
       variant: Variant.danger,
     });
+    return;
   }
 
   TernServer.updateDef(defs["!name"], defs);

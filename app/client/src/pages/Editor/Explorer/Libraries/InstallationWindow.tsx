@@ -164,9 +164,8 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   flex-direction: column;
   background: var(--appsmith-color-black-50);
   text-overflow: ellipsis;
-  padding: 10px 6px 6px;
+  padding: 8px 8px 12px;
   .install-url {
-    padding: 0 18px;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -199,7 +198,9 @@ function getStatusIcon(status: InstallState, isInstalled = false) {
   if (status === InstallState.Success || isInstalled)
     return <SaveSuccessIcon color={Colors.GREEN} size={18} />;
   if (status === InstallState.Failed)
-    return <SaveFailureIcon color={Colors.WARNING_SOLID} size={18} />;
+    return (
+      <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
+    );
   if (status === InstallState.Queued) return <Spinner />;
   return <Icon fillColor={Colors.GRAY} name="download" size={IconSize.XL} />;
 }
@@ -218,12 +219,10 @@ function ProgressTracker({
       {[InstallState.Queued, InstallState.Installing].includes(status) && (
         <div className="text-gray-700 text-xs">Installing...</div>
       )}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         <div className="flex justify-between items-center gap-2 fw-500 text-sm">
           <div className="install-url text-sm font-medium">{url}</div>
-          {status !== InstallState.Failed && (
-            <div className="shrink-0">{getStatusIcon(status)}</div>
-          )}
+          <div className="shrink-0">{getStatusIcon(status)}</div>
         </div>
         {status === InstallState.Failed && (
           <div className="gap-2 error-card items-start">
@@ -254,7 +253,7 @@ function InstallationProgress() {
   );
   if (urls.length === 0) return null;
   return (
-    <div className="pt-3 pb-3">
+    <div>
       {urls.map((url, idx) => (
         <ProgressTracker
           addBorder={idx !== 0}
