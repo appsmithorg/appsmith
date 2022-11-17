@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import store from "store";
 
 import BaseWidget from "widgets/BaseWidget";
-import WidgetFactory from "./WidgetFactory";
+import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
@@ -78,7 +78,21 @@ export const configureWidget = (config: WidgetConfiguration) => {
     key: generateReactKey(),
     iconSVG: config.iconSVG,
     isCanvas: config.isCanvas,
+    canvasHeightOffset: config.canvasHeightOffset,
   };
+
+  const nonSerialisableWidgetConfigs: Record<string, unknown> = {};
+  Object.values(NonSerialisableWidgetConfigs).forEach((entry) => {
+    if (_config[entry] !== undefined) {
+      nonSerialisableWidgetConfigs[entry] = _config[entry];
+    }
+    delete _config[entry];
+  });
+
+  WidgetFactory.storeNonSerialisablewidgetConfig(
+    config.type,
+    nonSerialisableWidgetConfigs,
+  );
 
   store.dispatch({
     type: ReduxActionTypes.ADD_WIDGET_CONFIG,

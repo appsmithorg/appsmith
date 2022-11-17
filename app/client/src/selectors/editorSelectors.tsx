@@ -36,6 +36,9 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import WidgetFactory, {
+  NonSerialisableWidgetConfigs,
+} from "utils/WidgetFactory";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -626,11 +629,20 @@ export const showCanvasTopSectionSelector = createSelector(
  * @returns the offset in rows
  */
 export const getCanvasHeightOffset = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   widgetType: WidgetType,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   props: WidgetProps,
 ) => {
-  // Will be implemented in a separate PR
-  return 0;
+  // Get the non serialisable configs for the widget type
+  const config:
+    | Record<NonSerialisableWidgetConfigs, unknown>
+    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
+  let offset = 0;
+  // If this widget has a registered canvasHeightOffset function
+  if (config?.canvasHeightOffset) {
+    // Run the function to get the offset value
+    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
+      props,
+    );
+  }
+  return offset;
 };
