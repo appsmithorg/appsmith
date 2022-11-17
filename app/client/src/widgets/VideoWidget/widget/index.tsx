@@ -182,15 +182,15 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: VideoWidgetProps) {
-    console.log(
-      "LOOK AT ME !!!!!!!!!",
-      `${prevProps.playState} ${this.props.playState}`,
-    );
     if (
       prevProps.playState !== "NOT_STARTED" &&
       this.props.playState === "NOT_STARTED"
     ) {
       this._player.current?.seekTo(0);
+
+      if (this.props.playing) {
+        this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
+      }
     }
 
     if (prevProps.autoPlay !== this.props.autoPlay) {
