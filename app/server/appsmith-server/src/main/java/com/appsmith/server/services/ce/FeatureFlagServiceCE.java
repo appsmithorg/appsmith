@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -30,7 +31,9 @@ public interface FeatureFlagServiceCE {
     /**
      * Fetch all the flags and their values for the current logged in user
      *
-     * @return Mono<Map<String, Boolean>>
+     * @return Mono<Map < String, Boolean>>
      */
     Mono<Map<String, Boolean>> getAllFeatureFlagsForUser();
+
+    Flux<Boolean> testMethod();
 }

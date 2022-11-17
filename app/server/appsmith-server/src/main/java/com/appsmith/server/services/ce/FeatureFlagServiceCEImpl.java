@@ -9,9 +9,11 @@ import org.ff4j.core.FlippingExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 
 public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
@@ -57,5 +59,11 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                         Tuple2::getT1,
                         tuple -> check(tuple.getT1(), tuple.getT2())
                 );
+    }
+
+    @Override
+    public Flux<Boolean> testMethod() {
+
+        return Flux.fromStream(Stream.of(true, true, false, false)).subscribeOn(Schedulers.parallel());
     }
 }
