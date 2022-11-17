@@ -27,7 +27,6 @@ const Container = styled.div<{
   display: flex;
   align-items: ${(props) =>
     props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
-  background: ${(props) => props.cellBackground};
 `;
 
 export type RenderDefaultPropsType = BaseCellComponentProps & {
@@ -37,7 +36,11 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   tableWidth: number;
   isCellEditable: boolean;
   isCellEditMode?: boolean;
-  onCellTextChange: (value: EditableCell["value"], inputValue: string) => void;
+  onCellTextChange: (
+    value: EditableCell["value"],
+    inputValue: string,
+    alias: string,
+  ) => void;
   toggleCellEditMode: (
     enable: boolean,
     rowIndex: number,
@@ -52,6 +55,8 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   isEditableCellValid: boolean;
   validationErrorMessage: string;
   widgetId: string;
+  disabledEditIconMessage: string;
+  isNewRow: boolean;
 };
 
 type editPropertyType = {
@@ -87,15 +92,18 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     columnType,
     compactMode,
     disabledEditIcon,
+    disabledEditIconMessage,
     displayText,
     fontStyle,
     hasUnsavedChanges,
     horizontalAlignment,
+    isCellDisabled,
     isCellEditable,
     isCellEditMode,
     isCellVisible,
     isEditableCellValid,
     isHidden,
+    isNewRow,
     onCellTextChange,
     onSubmitString,
     rowIndex,
@@ -112,7 +120,8 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
 
   const editEvents = useMemo(
     () => ({
-      onChange: onCellTextChange,
+      onChange: (value: EditableCell["value"], inputValue: string) =>
+        onCellTextChange(value, inputValue, alias),
       onDiscard: () =>
         toggleCellEditMode(
           false,
@@ -162,6 +171,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
       <InlineCellEditor
         accentColor={accentColor}
         allowCellWrapping={allowCellWrapping}
+        autoFocus={!isNewRow}
         compactMode={compactMode}
         inputType={
           columnType === ColumnTypes.NUMBER
@@ -173,6 +183,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         onChange={editEvents.onChange}
         onDiscard={editEvents.onDiscard}
         onSave={editEvents.onSave}
+        paddedInput={isNewRow}
         textSize={textSize}
         validationErrorMessage={validationErrorMessage}
         value={value}
@@ -196,9 +207,11 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         columnType={columnType}
         compactMode={compactMode}
         disabledEditIcon={disabledEditIcon}
+        disabledEditIconMessage={disabledEditIconMessage}
         fontStyle={fontStyle}
         hasUnsavedChanges={hasUnsavedChanges}
         horizontalAlignment={horizontalAlignment}
+        isCellDisabled={isCellDisabled}
         isCellEditMode={isCellEditMode}
         isCellEditable={isCellEditable}
         isCellVisible={isCellVisible}

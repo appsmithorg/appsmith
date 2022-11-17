@@ -262,6 +262,12 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.just(new ActionDTO()));
 
         Mockito
+                .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
+                .thenAnswer(invocationOnMock -> {
+                            return Mono.just(actionCollectionDTO.getPageId());
+                });
+
+        Mockito
                 .when(actionCollectionRepository.save(Mockito.any()))
                 .thenAnswer(invocation -> {
                     final ActionCollection argument = (ActionCollection) invocation.getArguments()[0];
@@ -330,6 +336,12 @@ public class ActionCollectionServiceImplTest {
                     final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
                     argument.setId("testActionId");
                     return Mono.just(argument);
+                });
+
+        Mockito
+                .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
+                .thenAnswer(invocationOnMock -> {
+                    return Mono.just(actionCollectionDTO.getPageId());
                 });
 
         Mockito
@@ -490,6 +502,12 @@ public class ActionCollectionServiceImplTest {
                 .when(newPageService
                         .findById(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
+
+        Mockito
+                .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
+                .thenAnswer(invocationOnMock -> {
+                            return Mono.just(actionCollection.getUnpublishedCollection().getPageId());
+                });
 
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
