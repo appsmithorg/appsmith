@@ -71,30 +71,35 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state: WidgetDragResizeState,
     action: ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }>,
   ) => {
-    if (action.payload.widgetId === MAIN_CONTAINER_WIDGET_ID) return;
-    if (action.payload.isMultiSelect) {
-      const widgetId = action.payload.widgetId || "";
-      const removeSelection = state.selectedWidgets.includes(widgetId);
-      if (removeSelection) {
-        state.selectedWidgets = state.selectedWidgets.filter(
-          (each) => each !== widgetId,
-        );
-      } else if (!!widgetId) {
-        state.selectedWidgets = [...state.selectedWidgets, widgetId];
-      }
-      if (state.selectedWidgets.length > 0) {
-        state.lastSelectedWidget = removeSelection ? "" : widgetId;
-      }
+    if (action.payload.widgetId) {
+      state.selectedWidgets = [action.payload.widgetId];
     } else {
-      state.lastSelectedWidget = action.payload.widgetId;
-      if (!action.payload.widgetId) {
-        state.selectedWidgets = [];
-      } else if (
-        !areArraysEqual(state.selectedWidgets, [action.payload.widgetId])
-      ) {
-        state.selectedWidgets = [action.payload.widgetId];
-      }
+      state.selectedWidgets = [];
     }
+    // if (action.payload.widgetId === MAIN_CONTAINER_WIDGET_ID) return;
+    // if (action.payload.isMultiSelect) {
+    //   const widgetId = action.payload.widgetId || "";
+    //   const removeSelection = state.selectedWidgets.includes(widgetId);
+    //   if (removeSelection) {
+    //     state.selectedWidgets = state.selectedWidgets.filter(
+    //       (each) => each !== widgetId,
+    //     );
+    //   } else if (!!widgetId) {
+    //     state.selectedWidgets = [...state.selectedWidgets, widgetId];
+    //   }
+    //   if (state.selectedWidgets.length > 0) {
+    //     state.lastSelectedWidget = removeSelection ? "" : widgetId;
+    //   }
+    // } else {
+    //   state.lastSelectedWidget = action.payload.widgetId;
+    //   if (!action.payload.widgetId) {
+    //     state.selectedWidgets = [];
+    //   } else if (
+    //     !areArraysEqual(state.selectedWidgets, [action.payload.widgetId])
+    //   ) {
+    //     state.selectedWidgets = [action.payload.widgetId];
+    //   }
+    // }
   },
   [ReduxActionTypes.DESELECT_WIDGETS]: (
     state: WidgetDragResizeState,

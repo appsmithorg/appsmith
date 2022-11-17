@@ -15,10 +15,13 @@ export const selectWidgetAction = (
 export const selectWidgetInitAction = (
   widgetId?: string,
   isMultiSelect?: boolean,
-): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
-  type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { widgetId, isMultiSelect },
-});
+): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => {
+  debugger;
+  return {
+    type: ReduxActionTypes.SELECT_WIDGET_INIT,
+    payload: { widgetId, isMultiSelect },
+  };
+};
 
 export const deselectAllInitAction = () => {
   return {
