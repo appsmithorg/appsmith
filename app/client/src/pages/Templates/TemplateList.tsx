@@ -13,16 +13,18 @@ const breakpointColumnsObject = {
 };
 
 const Wrapper = styled.div`
-  padding-right: ${(props) => props.theme.spaces[12]}px;
-  padding-left: ${(props) => props.theme.spaces[12]}px;
+  padding: 0 11px;
+  // padding-right: ${(props) => props.theme.spaces[12]}px;
+  // padding-left: ${(props) => props.theme.spaces[12]}px;
 
   .grid {
     display: flex;
-    margin-left: ${(props) => -props.theme.spaces[9]}px;
+    // margin-left: ${(props) => -props.theme.spaces[9]}px;
   }
 
   .grid_column {
-    padding-left: ${(props) => props.theme.spaces[9]}px;
+    padding: 11px
+    // padding-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 

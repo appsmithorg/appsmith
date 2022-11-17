@@ -181,7 +181,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourceButtonConfiguration,
     datasourceId,
     isSaving: datasources.loading,
-    isDeleting: datasources.isDeleting,
+    isDeleting: !!datasource?.isDeleting,
     formData: formData,
     formConfig,
     isNewDatasource: datasourcePane.newDatasource === datasourceId,

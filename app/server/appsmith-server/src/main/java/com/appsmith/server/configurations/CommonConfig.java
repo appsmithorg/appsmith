@@ -63,7 +63,7 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
-    private String rtsBaseDomain = "http://localhost:8091";
+    private String rtsBaseDomain = "http://127.0.0.1:8091";
 
     private List<String> allowedDomains;
 
