@@ -147,16 +147,14 @@ describe("GlobalSearch", function() {
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(globalSearchLocators.blankDatasource).click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
     cy.get(datasourceLocators.datasourceTitleLocator).click();
     cy.get(`${datasourceLocators.datasourceTitleLocator} input`)
       .clear()
       .type("omnibarApiDatasource", { force: true })
       .blur();
+
+    cy.fillAuthenticatedAPIForm();
+    cy.saveDatasource();
 
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.contains(

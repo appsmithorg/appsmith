@@ -408,11 +408,11 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
   //Click on Authenticated API
   cy.get(apiWidgetslocator.createAuthApiDatasource).click();
   //Verify weather Authenticated API is successfully created.
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
+  // cy.wait("@saveDatasource").should(
+  //   "have.nested.property",
+  //   "response.body.responseMeta.status",
+  //   201,
+  // );
   cy.get(datasourceEditor.datasourceTitleLocator).click();
   cy.get(`${datasourceEditor.datasourceTitleLocator} input`)
     .clear()
