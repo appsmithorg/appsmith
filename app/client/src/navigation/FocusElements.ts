@@ -13,6 +13,7 @@ import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
   getFocusableCodeEditorField,
+  getFocusableFormControlField,
   getSelectedCanvasDebuggerTab,
   getSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
@@ -32,6 +33,7 @@ import {
   getQueryPaneResponseSelectedTab,
 } from "selectors/queryPaneSelectors";
 import {
+  setFocusableFormControlField,
   setQueryPaneConfigSelectedTabIndex,
   setQueryPaneResponsePaneHeight,
   setQueryPaneResponseSelectedTab,
@@ -68,6 +70,7 @@ export enum FocusElement {
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
   QueryPaneResponseTabs = "QueryPaneResponseTabs",
   QueryPaneResponseHeight = "QueryPaneResponseHeight",
+  FormControlField = "FormControlField",
   JSPaneConfigTabs = "JSPaneConfigTabs",
   JSPaneResponseTabs = "JSPaneResponseTabs",
   JSPaneResponseHeight = "JSPaneResponseHeight",
@@ -150,21 +153,27 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.QUERY]: [
     {
-      name: FocusElement.CodeEditor,
-      selector: getFocusableCodeEditorField,
-      setter: setFocusableCodeEditorField,
-    },
-    {
       name: FocusElement.QueryPaneConfigTabs,
       selector: getQueryPaneConfigSelectedTabIndex,
       setter: setQueryPaneConfigSelectedTabIndex,
       defaultValue: 0,
     },
     {
+      name: FocusElement.FormControlField,
+      selector: getFocusableFormControlField,
+      setter: setFocusableFormControlField,
+    },
+    {
       name: FocusElement.QueryPaneResponseTabs,
       selector: getQueryPaneResponseSelectedTab,
       setter: setQueryPaneResponseSelectedTab,
       defaultValue: 0,
+    },
+    {
+      name: FocusElement.QueryPaneResponseHeight,
+      selector: getQueryPaneResponsePaneHeight,
+      setter: setQueryPaneResponsePaneHeight,
+      defaultValue: ActionExecutionResizerHeight,
     },
     {
       name: FocusElement.QueryPaneResponseHeight,

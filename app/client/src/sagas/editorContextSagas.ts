@@ -13,6 +13,7 @@ import {
 } from "actions/editorContextActions";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { setFocusableFormControlField } from "actions/queryPaneActions";
 
 /**
  * This method appends the PageId along with the focusable propertyPath
@@ -30,9 +31,10 @@ function* generateKeyAndSetFocusableEditor(
     window.location.pathname,
     window.location.hash,
   );
+  const ignoredEntities = [FocusEntity.PROPERTY_PANE, FocusEntity.QUERY];
 
   if (propertyFieldKey) {
-    if (entityInfo.entity !== FocusEntity.PROPERTY_PANE) {
+    if (!ignoredEntities.includes(entityInfo.entity)) {
       yield put(setFocusableCodeEditorField(propertyFieldKey));
     }
     yield put(setCodeEditorCursorHistory(propertyFieldKey, cursorPosition));
@@ -78,6 +80,25 @@ function* generateKeyAndSetFocusablePropertyPaneField(
   }
 }
 
+function* generateKeyAndSetFocusableFormControlField(
+  action: ReduxAction<{ path?: string }>,
+) {
+  const currentPageId: string = yield select(getCurrentPageId);
+  const entityInfo = identifyEntityFromPath(
+    window.location.pathname,
+    window.location.hash,
+  );
+
+  const propertyFieldKey = generatePropertyKey(
+    action.payload.path,
+    currentPageId,
+  );
+
+  if (propertyFieldKey && entityInfo.entity !== FocusEntity.DATASOURCE) {
+    yield put(setFocusableFormControlField(propertyFieldKey));
+  }
+}
+
 export default function* editorContextSagas() {
   yield all([
     takeLatest(
@@ -91,6 +112,10 @@ export default function* editorContextSagas() {
     takeLatest(
       ReduxActionTypes.GENERATE_KEY_AND_SET_FOCUSABLE_PROPERTY_FIELD,
       generateKeyAndSetFocusablePropertyPaneField,
+    ),
+    takeLatest(
+      ReduxActionTypes.GENERATE_KEY_AND_SET_FORM_CONTROL_FIELD,
+      generateKeyAndSetFocusableFormControlField,
     ),
   ]);
 }

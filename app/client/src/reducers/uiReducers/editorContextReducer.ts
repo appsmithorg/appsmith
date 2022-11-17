@@ -25,6 +25,7 @@ export type EditorContextState = {
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
   selectedDebuggerTab: string;
+  focusableFormControl?: string;
 };
 
 const initialState: EditorContextState = {
@@ -92,5 +93,13 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: string },
   ) => {
     state.selectedDebuggerTab = action.payload;
+  },
+  [ReduxActionTypes.SET_FOCUSABLE_FORM_CONTROL_FIELD]: (
+    state: EditorContextState,
+    action: {
+      payload: { path: string };
+    },
+  ) => {
+    state.focusableFormControl = action.payload.path;
   },
 });

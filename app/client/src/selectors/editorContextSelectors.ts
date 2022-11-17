@@ -76,6 +76,25 @@ export const getEvaluatedPopupState = createSelector(
   },
 );
 
+export const getFocusableFormControlField = (state: AppState) =>
+  state.ui.editorContext.focusableFormControl;
+
+export const getShouldFocusControlField = createSelector(
+  [
+    getFocusableFormControlField,
+    getCurrentPageId,
+    (_state: AppState, key: string | undefined) => key,
+  ],
+  (
+    focusableField: string | undefined,
+    pageId: string,
+    key: string | undefined,
+  ): boolean => {
+    const formControlKey = generatePropertyKey(key, pageId);
+    return !!(formControlKey && focusableField === formControlKey);
+  },
+);
+
 export const getAllPropertySectionState = (state: AppState) =>
   state.ui.editorContext.propertySectionState;
 

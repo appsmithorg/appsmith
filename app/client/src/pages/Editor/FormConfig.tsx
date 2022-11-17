@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import {
   EvaluationError,
@@ -18,6 +18,11 @@ import { FormIcons } from "icons/FormIcons";
 import { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
+import { getPropertyControlFocusElement } from "utils/editorContextUtils";
+import { AppState } from "@appsmith/reducers";
+import { generateKeyAndSetFocusableFormControlField } from "actions/queryPaneActions";
+import { getShouldFocusControlField } from "selectors/editorContextSelectors";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -59,6 +64,33 @@ interface FormConfigProps extends FormControlProps {
 // props.children will render the form element
 export default function FormConfig(props: FormConfigProps) {
   let top, bottom;
+  const controlRef = useRef<HTMLDivElement | null>(null);
+  const dispatch = useDispatch();
+
+  const handleOnFocus = () => {
+    if (props.config.configProperty) {
+      dispatch(
+        generateKeyAndSetFocusableFormControlField(props.config.configProperty),
+      );
+    }
+  };
+
+  const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
+    getShouldFocusControlField(state, props.config.configProperty),
+  );
+
+  useEffect(() => {
+    if (shouldFocusPropertyPath) {
+      const focusableElement = getPropertyControlFocusElement(
+        controlRef.current,
+      );
+      focusableElement?.scrollIntoView({
+        block: "center",
+        behavior: "smooth",
+      });
+      focusableElement?.focus();
+    }
+  }, [shouldFocusPropertyPath]);
 
   if (props.multipleConfig?.length) {
     top = (
@@ -86,7 +118,11 @@ export default function FormConfig(props: FormConfigProps) {
 
   return (
     <div>
-      <FormConfigWrapper controlType={props.config.controlType}>
+      <FormConfigWrapper
+        controlType={props.config.controlType}
+        onFocus={handleOnFocus}
+        ref={controlRef}
+      >
         {props.config.controlType === "CHECKBOX" ? (
           <>
             {props.children}
