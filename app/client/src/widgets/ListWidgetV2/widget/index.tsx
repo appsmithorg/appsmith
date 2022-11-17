@@ -227,10 +227,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     this.setupMetaWidgets(prevProps);
-
-    console.log({
-      getCache: this.getWidgetCache(),
-    });
   }
 
   componentWillUnmount() {
