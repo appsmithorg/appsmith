@@ -2,21 +2,21 @@ import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
-import { TableIconWrapper } from "./TableStyledWrappers";
-import TableFilterPane from "./TableFilterPane";
+import { TableIconWrapper } from "../../../TableStyledWrappers";
+import TableFilterPane from "./FilterPane";
 
 import {
   ReactTableColumnProps,
   ReactTableFilter,
   OperatorTypes,
-} from "./Constants";
+} from "../../../Constants";
 
 //TODO(abhinav): All of the following imports should not exist in a widget component
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
-import TableAction from "./TableAction";
+import ActionItem from "../ActionItem";
 
 export interface DropdownOption {
   label: string;
@@ -96,7 +96,7 @@ function TableFilters(props: TableFilterProps) {
 
   return (
     <>
-      <TableAction
+      <ActionItem
         borderRadius={props.borderRadius}
         className={className}
         icon="filter"
@@ -104,6 +104,7 @@ function TableFilters(props: TableFilterProps) {
         selected={isTableFilterPaneVisible}
         title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
         titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
+        width={16}
       />
       <TableFilterPane {...props} />
     </>
