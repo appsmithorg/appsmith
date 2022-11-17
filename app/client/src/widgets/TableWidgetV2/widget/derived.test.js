@@ -2068,3 +2068,105 @@ describe("getPageOffset -", () => {
     ).toEqual(10);
   });
 });
+
+describe("validate getUpdatedRow", () => {
+  it("with valid updated row index", () => {
+    const { getUpdatedRow } = derivedProperty;
+    const input = {
+      updatedRowIndex: 1,
+      processedTableData: [
+        { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe1", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+      id: 123,
+      name: "John Doe1",
+      extra: "Extra1",
+    });
+  });
+
+  it("with valid updated row index", () => {
+    const { getUpdatedRow } = derivedProperty;
+    const input = {
+      updatedRowIndex: 0,
+      processedTableData: [
+        { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+      id: 1,
+      name: "Lorem Ipsum",
+      extra: "",
+    });
+  });
+
+  it("with updated row index -1", () => {
+    const { getUpdatedRow } = derivedProperty;
+    const input = {
+      updatedRowIndex: -1,
+      processedTableData: [
+        { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+    });
+  });
+
+  it("with string updated row index", () => {
+    const { getUpdatedRow } = derivedProperty;
+    const input = {
+      updatedRowIndex: "dummyIndex",
+      processedTableData: [
+        { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+    });
+  });
+
+  it("with undefined updated row index", () => {
+    const { getUpdatedRow } = derivedProperty;
+    const input = {
+      updatedRowIndex: undefined,
+      processedTableData: [
+        { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
+        { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
+        { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
+      ],
+    };
+    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+    });
+  });
+
+  it("for removal of non data columns", () => {
+    const { getUpdatedRow } = derivedProperty;
+    const input = {
+      updatedRowIndex: 1,
+      processedTableData: sampleProcessedTableData,
+      primaryColumns: samplePrimaryColumns,
+    };
+
+    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+      step: "#2",
+      task: "Create a query fetch_users with the Mock DB",
+      status: "--",
+    });
+  });
+})
