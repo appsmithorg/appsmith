@@ -114,6 +114,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.DatasourceViewMode,
       selector: isDatasourceInViewMode,
       setter: setDatasourceViewMode,
+      defaultValue: true,
     },
     {
       name: FocusElement.DatasourceAccordions,
