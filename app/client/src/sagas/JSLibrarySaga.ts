@@ -3,6 +3,7 @@ import LibraryApi from "api/LibraryAPI";
 import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import { Toaster, Variant } from "design-system";
@@ -15,6 +16,7 @@ import {
   select,
   take,
   takeEvery,
+  takeLatest,
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TernServer from "utils/autocomplete/TernServer";
@@ -33,7 +35,7 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
 
   if (!status) {
     yield put({
-      type: ReduxActionTypes.INSTALL_LIBRARY_FAILED,
+      type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
       payload: url,
     });
     Toaster.show({
@@ -62,7 +64,7 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
       yield put({
-        type: ReduxActionTypes.INSTALL_LIBRARY_FAILED,
+        type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
         payload: url,
       });
       Toaster.show({
@@ -73,7 +75,7 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
     }
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.INSTALL_LIBRARY_FAILED,
+      type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
       payload: url,
     });
     Toaster.show({
@@ -124,6 +126,55 @@ function* uninstallLibrary(
   }
 }
 
+function* fetchJSLibraries(action: ReduxAction<string>) {
+  const applicationId: string = action.payload;
+
+  try {
+    const response: ApiResponse = yield call(
+      LibraryApi.getLibraries,
+      applicationId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (!isValidResponse) return;
+
+    const libraries = response.data as Array<
+      TJSLibrary & { defs: Record<string, any> }
+    >;
+
+    const success: boolean = yield call(
+      EvalWorker.request,
+      EVAL_WORKER_ACTIONS.SETUP_LIBRARIES,
+      libraries.map((lib) => lib.url),
+    );
+
+    if (!success) {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
+      });
+      return;
+    }
+
+    yield put({
+      type: ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
+      payload: libraries.map((lib) => ({
+        name: lib.name,
+        accessor: lib.accessor,
+        version: lib.version,
+        url: lib.url,
+        docsURL: lib.docsURL,
+      })),
+    });
+
+    for (const lib of libraries) {
+      TernServer.updateDef(lib.defs["!name"], lib.defs);
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
+    });
+  }
+}
+
 function* startInstallationRequestChannel() {
   const queueInstallChannel: ActionPattern<any> = yield actionChannel([
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
@@ -143,6 +194,7 @@ function* startInstallationRequestChannel() {
 export default function*() {
   yield all([
     takeEvery(ReduxActionTypes.UNINSTALL_LIBRARY_INIT, uninstallLibrary),
+    takeLatest(ReduxActionTypes.FETCH_JS_LIBRARIES_INIT, fetchJSLibraries),
     call(startInstallationRequestChannel),
   ]);
 }

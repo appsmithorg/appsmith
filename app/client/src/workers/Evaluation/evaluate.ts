@@ -80,6 +80,7 @@ function resetWorkerGlobalScope() {
     if (key === "evaluationVersion" || key === "window" || key === "document")
       continue;
     if (defaultLibraries.find((lib) => lib.accessor === key)) continue;
+    if (additionalLibrariesNames.indexOf(key) !== -1) continue;
     // @ts-expect-error: Types are not available
     delete self[key];
   }
@@ -99,6 +100,8 @@ export const getScriptType = (
   }
   return scriptType;
 };
+
+export let additionalLibrariesNames: string[] = [];
 
 export const getScriptToEval = (
   userScript: string,
@@ -122,6 +125,7 @@ export function setupEvaluationEnvironment() {
     self[func] = undefined;
   });
   self.window = self;
+  additionalLibrariesNames = [];
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();

@@ -30,6 +30,7 @@ import {
 import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { setFormEvaluationSaga } from "workers/Evaluation/formEval";
 import evaluate, {
+  additionalLibrariesNames,
   evaluateAsync,
   setupEvaluationEnvironment,
 } from "./evaluate";
@@ -386,7 +387,7 @@ function eventRequestHandler({
         isCreateFirstTree,
       } as EvalTreeResponseData;
     }
-    case EVAL_WORKER_ACTIONS.INSTALL_LIBRARY:
+    case EVAL_WORKER_ACTIONS.INSTALL_LIBRARY: {
       const url = requestData;
       const existingKeys = Object.keys(self);
       const defs: any = {};
@@ -413,10 +414,26 @@ function eventRequestHandler({
       defs["!name"] = `LIB/${libraryAccessor}`;
       defs[libraryAccessor] = ternDefinitionGenerator(library);
       return { status: true, defs, libraryAccessor };
-    case EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY:
+    }
+    case EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY: {
       const accessor = requestData;
       delete self[accessor];
       return true;
+    }
+    case EVAL_WORKER_ACTIONS.SETUP_LIBRARIES: {
+      const urls = requestData;
+      const existingKeys = Object.keys(self);
+      try {
+        //@ts-expect-error no types found
+        self.importScripts(...urls);
+        const keysPostInstallation = Object.keys(self);
+        const libraryAccessors = difference(keysPostInstallation, existingKeys);
+        additionalLibrariesNames.push(...libraryAccessors);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
     default: {
       console.error("Action not registered on evalWorker", method);
     }

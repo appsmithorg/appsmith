@@ -21,3 +21,9 @@ export function uninstallLibraryInit(payload: string) {
     payload,
   };
 }
+
+export function clearInstalls() {
+  return {
+    type: ReduxActionTypes.CLEAR_PROCESSED_INSTALLS,
+  };
+}

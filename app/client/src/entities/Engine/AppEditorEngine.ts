@@ -47,6 +47,7 @@ import AppEngine, {
   PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from ".";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -91,6 +92,7 @@ export default class AppEditorEngine extends AppEngine {
   ) {
     const initActionsCalls = [
       fetchPage(toLoadPageId, true),
+      fetchJSLibraries(applicationId),
       fetchActions({ applicationId }, []),
       fetchJSCollections({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),

@@ -2,6 +2,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import { defaultLibraries, TJSLibrary } from "utils/DynamicBindingUtils";
 import {
   ReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
@@ -66,7 +67,7 @@ const jsLibraryReducer = createImmerReducer(initialState, {
       accessor: libraryAccessor,
     });
   },
-  [ReduxActionTypes.INSTALL_LIBRARY_FAILED]: (
+  [ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED]: (
     state: LibraryState,
     action: ReduxAction<string>,
   ) => {
@@ -82,6 +83,14 @@ const jsLibraryReducer = createImmerReducer(initialState, {
         delete state.installationStatus[key];
       }
     }
+  },
+  [ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS]: (
+    state: LibraryState,
+    action: ReduxAction<TJSLibrary[]>,
+  ) => {
+    state.installedLibraries = [...action.payload].concat(
+      state.installedLibraries,
+    );
   },
 });
 

@@ -28,7 +28,6 @@ import ProfileImage from "pages/common/ProfileImage";
 import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
@@ -42,6 +41,7 @@ import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "./recommendedLibraries";
 import { AppState } from "ce/reducers";
 import { TJSLibrary } from "utils/DynamicBindingUtils";
+import { clearInstalls, installLibraryInit } from "actions/JSLibraryActions";
 
 type TInstallWindowProps = any;
 
@@ -51,15 +51,16 @@ const Wrapper = styled.div`
   width: 400px;
   max-height: 80vh;
   flex-direction: column;
+  padding: 0 16px;
   .installation-header {
-    padding: 20px 16px 0;
+    padding: 20px 0 0;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     margin-bottom: 12px;
   }
   .search-area {
-    margin: 0 16px 12px;
+    margin-bottom: 16px;
     .left-icon {
       margin-left: 14px;
       .cs-icon {
@@ -77,7 +78,7 @@ const Wrapper = styled.div`
     flex-direction: column;
     overflow: auto;
     .search-CTA {
-      margin: 0 16px 16px;
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
     }
@@ -85,24 +86,21 @@ const Wrapper = styled.div`
       .library-card {
         cursor: pointer;
         gap: 8px;
-        > div:first-child {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-          padding: 12px 0;
-          margin: 0 24px;
-          border-bottom: 1px solid var(--appsmith-color-black-100);
-        }
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--appsmith-color-black-100);
         &:hover {
-          background-color: var(--appsmith-color-black-100);
+          background-color: var(--appsmith-color-black-50);
         }
         .description {
           overflow: hidden;
           text-overflow: ellipsis;
           display: -webkit-box;
-          -webkit-line-clamp: 3;
+          -webkit-line-clamp: 2;
           font-size: 12px;
-          line-clamp: 3;
+          line-clamp: 2;
           font-weight: 400;
           -webkit-box-orient: vertical;
         }
@@ -110,13 +108,6 @@ const Wrapper = styled.div`
     }
   }
 `;
-
-function installLibraryInit(payload: Partial<TJSLibrary>) {
-  return {
-    type: ReduxActionTypes.INSTALL_LIBRARY_INIT,
-    payload,
-  };
-}
 
 export default function InstallationWindow(props: TInstallWindowProps) {
   const { className, open } = props;
@@ -127,16 +118,14 @@ export default function InstallationWindow(props: TInstallWindowProps) {
     setShow(open);
   }, [open]);
 
+  const clearProcessedInstalls = useCallback(() => {
+    dispatch(clearInstalls());
+  }, [dispatch]);
+
   const closeWindow = useCallback(() => {
     setShow(false);
     clearProcessedInstalls();
-  }, []);
-
-  const clearProcessedInstalls = useCallback(() => {
-    dispatch({
-      type: ReduxActionTypes.CLEAR_PROCESSED_INSTALLS,
-    });
-  }, []);
+  }, [clearProcessedInstalls]);
 
   return (
     <Popover2
@@ -405,7 +394,7 @@ function InstallationPopoverContent(props: any) {
           </span>
         </div>
         <InstallationProgress />
-        <div className="pl-4 pb-2 sticky top-0 z-2 bg-white">
+        <div className="pb-2 sticky top-0 z-2 bg-white">
           <Text type={TextType.P1} weight={"600"}>
             {createMessage(customJSLibraryMessages.REC_LIBRARY)}
           </Text>
@@ -437,21 +426,19 @@ function LibraryCard({
   );
   return (
     <div className="library-card" onClick={() => onClick(lib.url)}>
-      <div>
-        <div className="flex flex-row justify-between items-center">
-          <div className="flex flex-row gap-2 items-center">
-            <Text type={TextType.P0} weight="500">
-              {lib.name}
-            </Text>
-            <Icon fillColor={Colors.GRAY} name="share-2" size={IconSize.XS} />
-          </div>
-          {getStatusIcon(status, isInstalled)}
+      <div className="flex flex-row justify-between items-center">
+        <div className="flex flex-row gap-2 items-center">
+          <Text type={TextType.P0} weight="500">
+            {lib.name}
+          </Text>
+          <Icon fillColor={Colors.GRAY} name="share-2" size={IconSize.XS} />
         </div>
-        <div className="flex flex-row description">{lib.description}</div>
-        <div className="flex flex-row items-center gap-1">
-          <ProfileImage size={20} source={lib.icon} />
-          <Text type={TextType.P3}>{lib.author}</Text>
-        </div>
+        {getStatusIcon(status, isInstalled)}
+      </div>
+      <div className="flex flex-row description">{lib.description}</div>
+      <div className="flex flex-row items-center gap-1">
+        <ProfileImage size={20} source={lib.icon} />
+        <Text type={TextType.P3}>{lib.author}</Text>
       </div>
     </div>
   );

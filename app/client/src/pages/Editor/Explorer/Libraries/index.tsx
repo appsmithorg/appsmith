@@ -13,11 +13,11 @@ import {
   selectInstallationStatus,
   selectLibrariesForExplorer,
 } from "selectors/entitiesSelector";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
+import { uninstallLibraryInit } from "actions/JSLibraryActions";
 
 const Library = styled.li`
   list-style: none;
@@ -96,11 +96,6 @@ const Name = styled.div`
 const Version = styled.span<{ version?: string }>`
   display: ${(props) => (props.version ? "block" : "none")};
 `;
-
-const uninstallLibraryInit = (payload: string) => ({
-  type: ReduxActionTypes.UNINSTALL_LIBRARY_INIT,
-  payload,
-});
 
 const PrimaryCTA = function({ url }: { url: string }) {
   const installationStatus = useSelector(selectInstallationStatus);
