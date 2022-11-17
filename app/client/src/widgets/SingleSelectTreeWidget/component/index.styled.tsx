@@ -621,6 +621,21 @@ export const TreeSelectContainer = styled.div<{
   accentColor: string;
 }>`
   ${labelLayoutStyles}
+
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+  ${({ labelPosition }) => {
+    if (labelPosition === LabelPosition.Left) {
+      return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+    }
+  }}
+  
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {
@@ -678,7 +693,7 @@ export const TreeSelectContainer = styled.div<{
       background-color: var(--wds-color-bg-disabled) !important;
 
       .rc-tree-select-selection-search input {
-        background-color: var(--wds-color-bg-disabled) // color fix for mozilla
+        background-color: var(--wds-color-bg-disabled); // color fix for mozilla
       }
       .rc-tree-select-selection-item {
         color: var(--wds-color-text-disabled);
@@ -716,10 +731,10 @@ export const TreeSelectContainer = styled.div<{
     &:hover {
       .rc-tree-select-selector {
         border: 1.2px solid
-        ${(props) =>
-          props.isValid
-            ? "var(--wds-color-border-hover)"
-            : "var(--wds-color-border-danger-hover)"};
+          ${(props) =>
+            props.isValid
+              ? "var(--wds-color-border-hover)"
+              : "var(--wds-color-border-danger-hover)"};
       }
     }
   }
@@ -953,7 +968,7 @@ export const TreeSelectContainer = styled.div<{
             fill: var(--wds-color-icon);
           }
         }
-      fill: var(--wds-color-icon);
+        fill: var(--wds-color-icon);
       }
     }
     .rc-tree-select-arrow-icon {
