@@ -713,7 +713,7 @@ describe("Table widget inline editing functionality", () => {
     ).should("not.have.css", "height", "42px");
   });
 
-  it.only("26. should check if updatedRowIndex is getting updated for single row update mode", () => {
+  it("26. should check if updatedRowIndex is getting updated for single row update mode", () => {
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
     cy.get(".t--widget-textwidget").should("exist");
     cy.updateCodeInput(
