@@ -56,14 +56,18 @@ export const argsStringToArray = (funcArgs: string): string[] => {
 export const modalSetter = (changeValue: any, currentValue: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
+  console.log("* modalsetter", changeValue, currentValue);
   const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  console.log(setModalName(requiredValue, changeValue, self.evaluationVersion));
   return setModalName(requiredValue, changeValue, self.evaluationVersion);
 };
 
 export const modalGetter = (value: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
+  console.log("* modalgetter", value);
   const requiredValue = getDynamicBindings(value).jsSnippets[0];
+  console.log("* requiredval", requiredValue);
   return getModalName(requiredValue, self.evaluationVersion);
 };
 

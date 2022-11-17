@@ -35,7 +35,7 @@ import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { connect } from "react-redux";
-import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
+import { ACTION_TRIGGER_REGEX } from "./regex";
 import {
   NAVIGATE_TO_TAB_OPTIONS,
   AppsmithFunction,
@@ -45,6 +45,12 @@ import {
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import { isValueValidURL } from "./utils";
+import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
+import {
+  getFuncExpressionAtPosition,
+  getFunction,
+  replaceActionInQuery,
+} from "@shared/ast";
 
 const actionList: {
   label: string;
@@ -78,6 +84,7 @@ function getFieldFromValue(
   let entity;
 
   if (isString(value)) {
+    // TODO - Replace with ast
     const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
     const entityProps = getEntityNameAndPropertyPath(trimmedVal);
     entity = dataTree && dataTree[entityProps.entityName];
@@ -116,6 +123,20 @@ function getFieldFromValue(
   return fields;
 }
 
+function replaceAction(value: string, changeValue: string, argNum: number) {
+  const reqVal = getDynamicBindings(value).jsSnippets[0];
+
+  const reqChangeValue =
+    changeValue === "" ? `() => {}` : `() => ${changeValue}`;
+
+  return `{{${replaceActionInQuery(
+    reqVal,
+    reqChangeValue,
+    argNum,
+    self.evaluationVersion,
+  )}}}`;
+}
+
 function getActionEntityFields(
   fields: any[],
   getParentValue: (changeValue: string) => string,
@@ -128,66 +149,40 @@ function getActionEntityFields(
     getParentValue,
     value,
   });
-  const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+  const requiredValue = getDynamicBindings(value).jsSnippets[0];
 
-  if (matches.length) {
-    const funcArgs = matches[0][2];
-    const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-    const successArg = args[0];
-    const errorArg = args[1];
+  // get the field for onSuccess
+  const successFunction = getFuncExpressionAtPosition(
+    requiredValue,
+    0,
+    self.evaluationVersion,
+  );
+  const successValue = getFunction(successFunction, self.evaluationVersion);
+  const successFields = getFieldFromValue(
+    successValue,
+    activeTabNavigateTo,
+    (changeValue: string) => replaceAction(value, changeValue, 0),
+    dataTree,
+  );
+  successFields[0].label = "onSuccess";
+  fields.push(successFields);
 
-    // get the field for onSuccess
-    let successValue;
-    if (successArg && successArg.length > 0) {
-      successValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
-    }
-    const successFields = getFieldFromValue(
-      successValue,
-      activeTabNavigateTo,
-      (changeValue: string) => {
-        const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-        const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-        const errorArg = args[1] ? args[1][0] : "() => {}";
-        const successArg = changeValue.endsWith(")")
-          ? `() => ${changeValue}`
-          : `() => {}`;
+  // get the field for onError
+  const errorFunction = getFuncExpressionAtPosition(
+    requiredValue,
+    1,
+    self.evaluationVersion,
+  );
+  const errorValue = getFunction(errorFunction, self.evaluationVersion);
+  const errorFields = getFieldFromValue(
+    errorValue,
+    activeTabNavigateTo,
+    (changeValue: string) => replaceAction(value, changeValue, 1),
+    dataTree,
+  );
+  errorFields[0].label = "onError";
+  fields.push(errorFields);
 
-        return value.replace(
-          ACTION_TRIGGER_REGEX,
-          `{{$1(${successArg}, ${errorArg})}}`,
-        );
-      },
-      dataTree,
-    );
-    successFields[0].label = "onSuccess";
-    fields.push(successFields);
-
-    // get the field for onError
-    let errorValue;
-    if (errorArg && errorArg.length > 0) {
-      errorValue = errorArg[1] !== "{}" ? `{{${errorArg[1]}}}` : ""; //errorArg[1] + errorArg[2];
-    }
-    const errorFields = getFieldFromValue(
-      errorValue,
-      activeTabNavigateTo,
-      (changeValue: string) => {
-        const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-        const args = [...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-        const successArg = args[0] ? args[0][0] : "() => {}";
-        const errorArg = changeValue.endsWith(")")
-          ? `() => ${changeValue}`
-          : `() => {}`;
-
-        return value.replace(
-          ACTION_TRIGGER_REGEX,
-          `{{$1(${successArg}, ${errorArg})}}`,
-        );
-      },
-      dataTree,
-    );
-    errorFields[0].label = "onError";
-    fields.push(errorFields);
-  }
   return fields;
 }
 
@@ -199,7 +194,7 @@ function getJsFunctionExecutionFields(
 ) {
   const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
   if (matches.length === 0) {
-    //when format doesn't match, it is function from js object
+    // when format doesn't match, it is function from js object
     fields.push({
       field: FieldType.ACTION_SELECTOR_FIELD,
       getParentValue,

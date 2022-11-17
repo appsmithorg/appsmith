@@ -52,7 +52,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       // TODO - elegant way to write this
       switch (type) {
         case AppsmithFunction.integration:
-          value = `${value}.run`;
+          value = `${value}.run(() => {}, () => {})`;
           break;
         case AppsmithFunction.navigateTo:
           defaultParams = `'', {}, 'SAME_WINDOW'`;
@@ -61,10 +61,10 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           defaultArgs = dropdownOption.args ? dropdownOption.args : [];
           break;
         case AppsmithFunction.setInterval:
-          defaultParams = "() => { \n\t // add code here \n}, 5000, ''";
+          defaultParams = "() => {}, 5000, ''";
           break;
         case AppsmithFunction.getGeolocation:
-          defaultParams = "(location) => { \n\t // add code here \n  }";
+          defaultParams = "(location) => {}";
           break;
         case AppsmithFunction.resetWidget:
           defaultParams = `"",true`;
@@ -346,8 +346,12 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     options: (props: FieldProps) => props.integrationOptions,
     defaultText: "Select Action",
     view: ViewTypes.NO_VIEW,
-    getter: () => "",
-    setter: () => "",
+    getter: () => {
+      return "";
+    },
+    setter: () => {
+      return "";
+    },
   },
   [FieldType.ON_ERROR_FIELD]: {
     label: () => "",

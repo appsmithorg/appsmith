@@ -25,7 +25,7 @@ import { jsObjectDeclaration } from "./jsObject/index";
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
-type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression;
+export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
 interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
@@ -72,7 +72,7 @@ interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
 }
 
-interface ArrowFunctionExpressionNode extends Expression, Function {
+export interface ArrowFunctionExpressionNode extends Expression, Function {
   type: NodeTypes.ArrowFunctionExpression;
 }
 
@@ -94,12 +94,9 @@ export interface LiteralNode extends Node {
   raw: string;
 }
 
-interface CallExpressionNode extends Node {
+export interface CallExpressionNode extends Node {
   type: NodeTypes.CallExpression;
-  callee: {
-    name: string;
-    end: number;
-  };
+  callee: CallExpressionNode | IdentifierNode;
   arguments: ArgumentTypes[];
 }
 
@@ -152,7 +149,7 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
 const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
-const isArrowFunctionExpression = (
+export const isArrowFunctionExpression = (
   node: Node
 ): node is ArrowFunctionExpressionNode => {
   return node.type === NodeTypes.ArrowFunctionExpression;
