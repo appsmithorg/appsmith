@@ -92,6 +92,15 @@ const jsLibraryReducer = createImmerReducer(initialState, {
       state.installedLibraries,
     );
   },
+  [ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS]: (
+    state: LibraryState,
+    action: ReduxAction<TJSLibrary>,
+  ) => {
+    const uLib = action.payload;
+    state.installedLibraries = state.installedLibraries.filter(
+      (lib) => uLib.accessor !== lib.accessor,
+    );
+  },
 });
 
 export default jsLibraryReducer;

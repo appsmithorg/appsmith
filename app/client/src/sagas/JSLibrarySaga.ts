@@ -90,10 +90,15 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
   yield put({
     type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
     payload: {
-      name: libraryAccessor,
-      version,
-      url,
-      accessor: libraryAccessor,
+      libs: [
+        {
+          name: libraryAccessor,
+          version,
+          url,
+          accessor: libraryAccessor,
+        },
+      ],
+      add: true,
     },
   });
 
@@ -110,16 +115,57 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
   });
 }
 
-function* uninstallLibrary(
-  action: ReduxAction<{ accessor: string; name: string; url: string }>,
-) {
+function* uninstallLibrary(action: ReduxAction<TJSLibrary>) {
   const { accessor, name } = action.payload;
-  const success: boolean = yield call(
-    EvalWorker.request,
-    EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY,
-    accessor,
-  );
-  if (!success) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+
+  try {
+    const response: ApiResponse = yield call(
+      LibraryApi.removeLibrary,
+      applicationId,
+      action.payload,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (!isValidResponse) {
+      yield put({
+        type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
+        payload: accessor,
+      });
+      return;
+    }
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
+      payload: {
+        libs: [action.payload],
+        add: true,
+      },
+    });
+
+    const success: boolean = yield call(
+      EvalWorker.request,
+      EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY,
+      accessor,
+    );
+    if (!success) {
+      Toaster.show({
+        text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
+        variant: Variant.danger,
+      });
+    }
+
+    yield put({
+      type: ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,
+      payload: action.payload,
+    });
+
+    Toaster.show({
+      text: createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name),
+      variant: Variant.success,
+    });
+  } catch (e) {
     Toaster.show({
       text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
       variant: Variant.danger,
@@ -154,6 +200,14 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       });
       return;
     }
+
+    yield put({
+      type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
+      payload: {
+        libs: libraries,
+        add: true,
+      },
+    });
 
     yield put({
       type: ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,

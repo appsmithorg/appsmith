@@ -61,7 +61,18 @@ function eventRequestHandler({
       return lintTreeResponse;
     }
     case LINT_WORKER_ACTIONS.UPDATE_LINT_GLOBALS: {
-      defaultLibraries.push(requestData);
+      const { add, libs } = requestData;
+      if (add) {
+        defaultLibraries.push(...libs);
+      } else {
+        for (const lib of libs) {
+          const idx = defaultLibraries.findIndex(
+            (l) => l.accessor === lib.accessor,
+          );
+          if (idx === -1) return;
+          defaultLibraries.splice(idx, 1);
+        }
+      }
       return;
     }
 

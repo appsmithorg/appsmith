@@ -15,7 +15,7 @@ export function installLibraryInit(payload: Partial<TJSLibrary>) {
   };
 }
 
-export function uninstallLibraryInit(payload: string) {
+export function uninstallLibraryInit(payload: TJSLibrary) {
   return {
     type: ReduxActionTypes.UNINSTALL_LIBRARY_INIT,
     payload,

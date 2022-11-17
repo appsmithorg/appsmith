@@ -36,7 +36,6 @@ import {
   selectStatusForURL,
 } from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
-import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "./recommendedLibraries";
 import { AppState } from "ce/reducers";

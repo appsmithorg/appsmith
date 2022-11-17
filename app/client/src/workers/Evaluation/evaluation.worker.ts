@@ -417,7 +417,8 @@ function eventRequestHandler({
     }
     case EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY: {
       const accessor = requestData;
-      delete self[accessor];
+      //@ts-expect-error test
+      self[accessor] = undefined;
       return true;
     }
     case EVAL_WORKER_ACTIONS.SETUP_LIBRARIES: {

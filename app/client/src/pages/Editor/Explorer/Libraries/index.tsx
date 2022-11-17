@@ -18,6 +18,7 @@ import { Collapse } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
 import { uninstallLibraryInit } from "actions/JSLibraryActions";
+import { TJSLibrary } from "utils/DynamicBindingUtils";
 
 const Library = styled.li`
   list-style: none;
@@ -111,13 +112,15 @@ const Version = styled.span<{ version?: string }>`
   margin-right: ${(props) => (props.version ? "8px" : "0")};
 `;
 
-const PrimaryCTA = function({ url }: { url: string }) {
+const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
   const installationStatus = useSelector(selectInstallationStatus);
   const dispatch = useDispatch();
 
+  const url = lib.url as string;
+
   const uninstallLibrary = useCallback(() => {
-    dispatch(uninstallLibraryInit(url));
-  }, [url]);
+    dispatch(uninstallLibraryInit(lib));
+  }, [lib]);
 
   if (installationStatus[url] === InstallState.Queued)
     return (
@@ -175,7 +178,7 @@ function LibraryEntity({ lib }: any) {
         >
           {lib.version}
         </Version>
-        <PrimaryCTA url={lib.url as string} />
+        <PrimaryCTA lib={lib} />
       </div>
       <Collapse className="text-xs" isOpen={isOpen}>
         <div className="content pr-2">
