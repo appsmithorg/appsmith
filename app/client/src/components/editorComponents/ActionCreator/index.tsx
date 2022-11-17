@@ -84,7 +84,6 @@ function getFieldFromValue(
   let entity;
 
   if (isString(value)) {
-    // TODO - Replace with ast
     const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
     const entityProps = getEntityNameAndPropertyPath(trimmedVal);
     entity = dataTree && dataTree[entityProps.entityName];
@@ -124,13 +123,17 @@ function getFieldFromValue(
 }
 
 function replaceAction(value: string, changeValue: string, argNum: number) {
-  const reqVal = getDynamicBindings(value).jsSnippets[0];
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
+  const requiredValue = getDynamicBindings(value).jsSnippets[0];
 
+  // if no action("") then send empty arrow expression
+  // else replace with arrow expression and action selected
   const reqChangeValue =
     changeValue === "" ? `() => {}` : `() => ${changeValue}`;
 
   return `{{${replaceActionInQuery(
-    reqVal,
+    requiredValue,
     reqChangeValue,
     argNum,
     self.evaluationVersion,
@@ -149,9 +152,11 @@ function getActionEntityFields(
     getParentValue,
     value,
   });
+  // requiredValue is value minus the surrounding {{ }}
+  // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(value).jsSnippets[0];
 
-  // get the field for onSuccess
+  // get the fields for onSuccess
   const successFunction = getFuncExpressionAtPosition(
     requiredValue,
     0,
@@ -167,7 +172,7 @@ function getActionEntityFields(
   successFields[0].label = "onSuccess";
   fields.push(successFields);
 
-  // get the field for onError
+  // get the fields for onError
   const errorFunction = getFuncExpressionAtPosition(
     requiredValue,
     1,
