@@ -218,6 +218,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
+        // Adding the Acl Permission, because without this, anyone with access to the datasource can edit it.
         Mono<Datasource> datasourceMono = repository.findById(id, MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
 
@@ -441,6 +442,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
+                // changing the ACL Permission from manage to delete, because manage and delete can be given separately.
                 .findById(id, DELETE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
