@@ -1008,7 +1008,7 @@ const mapStateToProps = (state: AppState, { dataTreePath }: EditorProps) => ({
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
   editorIsFocused: getIsCodeEditorFocused(state, dataTreePath || ""),
-  lintErrors: dataTreePath ? getEntityLintErrors(state, dataTreePath) : [],
+  lintErrors: getEntityLintErrors(state, dataTreePath),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
