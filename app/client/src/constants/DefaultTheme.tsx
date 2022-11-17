@@ -1131,7 +1131,7 @@ type ColorType = {
       fullForm: string;
     };
   };
-  floatingBtn: any;
+  floatingButton: any;
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
   header: {
@@ -2039,7 +2039,7 @@ export const dark: ColorType = {
       fullForm: "#6D6D6D",
     },
   },
-  floatingBtn: {
+  floatingButton: {
     tagBackground: "#e22c2c",
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
@@ -2672,7 +2672,7 @@ export const light: ColorType = {
       fullForm: "#6D6D6D",
     },
   },
-  floatingBtn: {
+  floatingButton: {
     tagBackground: "#e22c2c",
     backgroundColor: lightShades[0],
     iconColor: lightShades[7],
