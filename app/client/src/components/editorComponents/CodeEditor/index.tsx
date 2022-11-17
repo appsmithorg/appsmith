@@ -1048,7 +1048,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  lintErrors: getEntityLintErrors(state, dataTreePath),
+  lintErrors: getEntityLintErrors(state, props.dataTreePath),
   editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
