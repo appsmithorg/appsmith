@@ -1,3 +1,5 @@
+import { ApiResponse } from "api/ApiResponses";
+import LibraryApi from "api/LibraryAPI";
 import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
 import {
   ReduxAction,
@@ -10,19 +12,25 @@ import {
   all,
   call,
   put,
+  select,
   take,
   takeEvery,
 } from "redux-saga/effects";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TernServer from "utils/autocomplete/TernServer";
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
+import { EVAL_WORKER_ACTIONS, TJSLibrary } from "utils/DynamicBindingUtils";
+import { validateResponse } from "./ErrorSagas";
 import { EvalWorker } from "./EvaluationsSaga";
 
-export function* installLibrary(url: string) {
+export function* installLibrary(lib: Partial<TJSLibrary>) {
+  const { name, url } = lib;
   const { defs, libraryAccessor, status } = yield call(
     EvalWorker.request,
     EVAL_WORKER_ACTIONS.INSTALL_LIBRARY,
     url,
   );
+  const applicationId: string = yield select(getCurrentApplicationId);
+
   if (!status) {
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_FAILED,
@@ -34,10 +42,37 @@ export function* installLibrary(url: string) {
     });
     return;
   }
-  TernServer.updateDef(defs["!name"], defs);
-  const versionMatch = url.match(/(?<=@)(\d+\.)(\d+\.)(\d+)/);
 
+  const versionMatch = (url as string).match(/(?<=@)(\d+\.)(\d+\.)(\d+)/);
   const [version] = versionMatch ? versionMatch : [];
+
+  const response: ApiResponse = yield call(
+    LibraryApi.addLibrary,
+    applicationId,
+    {
+      name: name || libraryAccessor,
+      version,
+      accessor: libraryAccessor,
+      defs,
+      url,
+    },
+  );
+
+  const isValidResponse: boolean = yield validateResponse(response);
+
+  if (!isValidResponse) {
+    yield put({
+      type: ReduxActionTypes.INSTALL_LIBRARY_FAILED,
+      payload: url,
+    });
+    Toaster.show({
+      text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
+      variant: Variant.danger,
+    });
+    return;
+  }
+
+  TernServer.updateDef(defs["!name"], defs);
 
   yield put({
     type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
@@ -84,10 +119,12 @@ function* startInstallationRequestChannel() {
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
   ]);
   while (true) {
-    const action: ReduxAction<string> = yield take(queueInstallChannel);
+    const action: ReduxAction<Partial<TJSLibrary>> = yield take(
+      queueInstallChannel,
+    );
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_START,
-      payload: action.payload,
+      payload: action.payload.url,
     });
     yield call(installLibrary, action.payload);
   }

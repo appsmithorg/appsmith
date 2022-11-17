@@ -33,10 +33,11 @@ const initialState = {
 const jsLibraryReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INSTALL_LIBRARY_INIT]: (
     state: LibraryState,
-    action: ReduxAction<string>,
+    action: ReduxAction<Partial<TJSLibrary>>,
   ) => {
-    state.installationStatus[action.payload] =
-      state.installationStatus[action.payload] || InstallState.Queued;
+    const { url } = action.payload;
+    state.installationStatus[url as string] =
+      state.installationStatus[url as string] || InstallState.Queued;
   },
   [ReduxActionTypes.INSTALL_LIBRARY_START]: (
     state: LibraryState,

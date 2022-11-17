@@ -41,6 +41,7 @@ import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "./recommendedLibraries";
 import { AppState } from "ce/reducers";
+import { TJSLibrary } from "utils/DynamicBindingUtils";
 
 type TInstallWindowProps = any;
 
@@ -51,14 +52,14 @@ const Wrapper = styled.div`
   max-height: 80vh;
   flex-direction: column;
   .installation-header {
-    padding: 24px 24px 0;
+    padding: 20px 16px 0;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
   .search-area {
-    padding: 0 24px 12px;
+    margin: 0 16px 12px;
     .left-icon {
       margin-left: 14px;
       .cs-icon {
@@ -76,18 +77,22 @@ const Wrapper = styled.div`
     flex-direction: column;
     overflow: auto;
     .search-CTA {
+      margin: 0 16px 16px;
       display: flex;
       flex-direction: column;
-      margin: 0 24px 12px;
     }
     .search-results {
       .library-card {
-        padding: 12px 24px;
-        display: flex;
-        flex-direction: column;
         cursor: pointer;
         gap: 8px;
-        border-bottom: 1px solid var(--appsmith-color-black-100);
+        > div:first-child {
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          padding: 12px 0;
+          margin: 0 24px;
+          border-bottom: 1px solid var(--appsmith-color-black-100);
+        }
         &:hover {
           background-color: var(--appsmith-color-black-100);
         }
@@ -96,7 +101,7 @@ const Wrapper = styled.div`
           text-overflow: ellipsis;
           display: -webkit-box;
           -webkit-line-clamp: 3;
-          font-size: 13px;
+          font-size: 12px;
           line-clamp: 3;
           font-weight: 400;
           -webkit-box-orient: vertical;
@@ -106,7 +111,7 @@ const Wrapper = styled.div`
   }
 `;
 
-function installLibraryInit(payload: string) {
+function installLibraryInit(payload: Partial<TJSLibrary>) {
   return {
     type: ReduxActionTypes.INSTALL_LIBRARY_INIT,
     payload,
@@ -207,9 +212,7 @@ function getStatusIcon(status: InstallState, isInstalled = false) {
   if (status === InstallState.Failed)
     return <SaveFailureIcon color={Colors.WARNING_SOLID} size={18} />;
   if (status === InstallState.Queued) return <Spinner />;
-  return (
-    <Icon fillColor={Colors.GRAY} name="download" size={IconSize.MEDIUM} />
-  );
+  return <Icon fillColor={Colors.GRAY} name="download" size={IconSize.XL} />;
 }
 
 function ProgressTracker({
@@ -308,8 +311,8 @@ function InstallationPopoverContent(props: any) {
   }, []);
 
   const installLibrary = useCallback(
-    (url?: string) => {
-      url = url || URL;
+    (lib?: Partial<TJSLibrary>) => {
+      const url = lib?.url || URL;
       const isQueued = queuedLibraries.find((libURL) => libURL === url);
       if (isQueued) return;
 
@@ -324,7 +327,12 @@ function InstallationPopoverContent(props: any) {
         });
         return;
       }
-      dispatch(installLibraryInit(url));
+      dispatch(
+        installLibraryInit({
+          url,
+          name: lib?.name,
+        }),
+      );
     },
     [URL, installedLibraries, queuedLibraries],
   );
@@ -332,7 +340,7 @@ function InstallationPopoverContent(props: any) {
   return (
     <Wrapper>
       <div className="installation-header">
-        <Text type={TextType.H2} weight={"bold"}>
+        <Text type={TextType.H1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
         </Text>
         <Icon
@@ -384,10 +392,9 @@ function InstallationPopoverContent(props: any) {
               className="text-primary-500"
               onClick={(e) => openDoc(e, Repo.Unpkg)}
             >
-              UNPKG.
+              UNPKG
             </a>
-          </span>
-          <span>
+            {". "}
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
             <a
               className="text-primary-500"
@@ -398,8 +405,8 @@ function InstallationPopoverContent(props: any) {
           </span>
         </div>
         <InstallationProgress />
-        <div className="pl-6 pb-3 sticky top-0 z-2 bg-white">
-          <Text type={TextType.P1} weight={"bold"}>
+        <div className="pl-4 pb-2 sticky top-0 z-2 bg-white">
+          <Text type={TextType.P1} weight={"600"}>
             {createMessage(customJSLibraryMessages.REC_LIBRARY)}
           </Text>
         </div>
@@ -408,7 +415,7 @@ function InstallationPopoverContent(props: any) {
             <LibraryCard
               key={`${idx}_${lib.name}`}
               lib={lib}
-              onClick={installLibrary}
+              onClick={() => installLibrary(lib)}
             />
           ))}
         </div>
@@ -429,18 +436,14 @@ function LibraryCard({
     selectIsLibraryInstalled(state, lib.url),
   );
   return (
-    <div>
-      <div className="library-card" onClick={() => onClick(lib.url)}>
+    <div className="library-card" onClick={() => onClick(lib.url)}>
+      <div>
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row gap-2 items-center">
-            <Text type={TextType.P0} weight="bold">
+            <Text type={TextType.P0} weight="500">
               {lib.name}
             </Text>
-            <Icon
-              fillColor={Colors.GRAY}
-              name="open-new-tab"
-              size={IconSize.MEDIUM}
-            />
+            <Icon fillColor={Colors.GRAY} name="share-2" size={IconSize.XS} />
           </div>
           {getStatusIcon(status, isInstalled)}
         </div>
