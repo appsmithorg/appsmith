@@ -37,6 +37,7 @@ export default function DateFilter() {
 
   function handleSelection(dateRange: DateRange) {
     const [startDate, endDate] = parseDateFilterInput(dateRange);
+
     dispatch(setAuditLogsDateFilter({ startDate, endDate }));
     dispatch(
       fetchAuditLogsLogsInit({
