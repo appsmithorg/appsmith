@@ -6,7 +6,6 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
-  defaultLibraries,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -30,15 +29,17 @@ import {
 import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { setFormEvaluationSaga } from "workers/Evaluation/formEval";
 import evaluate, {
-  additionalLibrariesNames,
   evaluateAsync,
   setupEvaluationEnvironment,
 } from "./evaluate";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { initiateLinting } from "workers/Linting/utils";
-import difference from "lodash/difference";
-import { ternDefinitionGenerator } from "./ternDefinitionGenerator";
+import {
+  installLibrary,
+  loadLibraries,
+  uninstallLibrary,
+} from "./JSLibrary/messageHandlers";
 
 const CANVAS = "canvas";
 
@@ -388,52 +389,13 @@ function eventRequestHandler({
       } as EvalTreeResponseData;
     }
     case EVAL_WORKER_ACTIONS.INSTALL_LIBRARY: {
-      const url = requestData;
-      const existingKeys = Object.keys(self);
-      const defs: any = {};
-      try {
-        //@ts-expect-error test
-        self.importScripts(url);
-      } catch (e) {
-        return { status: false, defs };
-      }
-      const keysPostInstallation = Object.keys(self);
-      const libraryAccessor = difference(
-        keysPostInstallation,
-        existingKeys,
-      ).pop();
-      if (!libraryAccessor) return { status: true, defs };
-      //@ts-expect-error test
-      const library = self[libraryAccessor];
-      defaultLibraries.push({
-        accessor: libraryAccessor,
-        lib: library,
-        name: libraryAccessor,
-        docsURL: url,
-      });
-      defs["!name"] = `LIB/${libraryAccessor}`;
-      defs[libraryAccessor] = ternDefinitionGenerator(library);
-      return { status: true, defs, libraryAccessor };
+      return installLibrary(requestData);
     }
     case EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY: {
-      const accessor = requestData;
-      //@ts-expect-error test
-      self[accessor] = undefined;
-      return true;
+      return uninstallLibrary(requestData);
     }
-    case EVAL_WORKER_ACTIONS.SETUP_LIBRARIES: {
-      const urls = requestData;
-      const existingKeys = Object.keys(self);
-      try {
-        //@ts-expect-error no types found
-        self.importScripts(...urls);
-        const keysPostInstallation = Object.keys(self);
-        const libraryAccessors = difference(keysPostInstallation, existingKeys);
-        additionalLibrariesNames.push(...libraryAccessors);
-        return true;
-      } catch (e) {
-        return false;
-      }
+    case EVAL_WORKER_ACTIONS.LOAD_LIBRARIES: {
+      return loadLibraries(requestData);
     }
     default: {
       console.error("Action not registered on evalWorker", method);

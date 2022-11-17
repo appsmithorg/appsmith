@@ -190,7 +190,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
 
     const success: boolean = yield call(
       EvalWorker.request,
-      EVAL_WORKER_ACTIONS.SETUP_LIBRARIES,
+      EVAL_WORKER_ACTIONS.LOAD_LIBRARIES,
       libraries.map((lib) => lib.url),
     );
 
