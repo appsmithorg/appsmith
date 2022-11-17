@@ -28,8 +28,8 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
     public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib) {
         return getAllJSLibsInApplication(applicationId)
                 .map(jsLibs -> {
-                    // TODO: check if it already exits
-                    // TODO: add thread lock or use a diff DS like concurrentMap
+                    // TODO: handle case when lib is already installed
+                    // TODO: try to convert it into a single update op where reading of list is not required
                     jsLibs.add(jsLib);
                     return jsLibs;
                 })
@@ -43,6 +43,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
                                                     @NotNull CustomJSLib jsLib) {
         return getAllJSLibsInApplication(applicationId)
                 .map(jsLibs -> {
+                    // TODO: try to convert it into a single update op where reading of list is not required
                     jsLibs.remove(jsLib);
                     return jsLibs;
                 })

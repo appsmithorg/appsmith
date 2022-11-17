@@ -71,6 +71,10 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
+    /**
+     * When `fieldName` is blank, this method will return the entire object. Otherwise, it will return only the value
+     * against the `fieldName` property in the matching object.
+     */
     @Override
     public Mono<T> findByIdAndFieldName(ID id, String fieldName) {
         Assert.notNull(id, "The given id must not be null!");
@@ -103,6 +107,9 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         return this.findById(id);
     }
 
+    /**
+     * This method is supposed to update a single field in an object as opposed to replacing the entire object.
+     */
     @Override
     public Mono<UpdateResult> updateByIdAndFieldName(@NotNull ID id, @NotNull String fieldName, Object value) {
         return ReactiveSecurityContextHolder.getContext()

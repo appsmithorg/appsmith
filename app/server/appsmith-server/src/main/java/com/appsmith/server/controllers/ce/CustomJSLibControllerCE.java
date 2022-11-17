@@ -50,7 +50,9 @@ public class CustomJSLibControllerCE {
 
     @GetMapping("/{applicationId}")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplication(@PathVariable String applicationId,
-                                                                                      @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+                                                                                      @RequestHeader(name =
+                                                                                              FieldName.BRANCH_NAME,
+                                                                                              required = false) String branchName) {
         log.debug("Going to get all JS libs in application: {}, on branch: {}", applicationId, branchName);
         return customJSLibService.getAllJSLibsInApplication(applicationId)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));

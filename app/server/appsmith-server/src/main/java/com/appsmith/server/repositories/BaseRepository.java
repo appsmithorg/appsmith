@@ -5,7 +5,6 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import reactor.core.publisher.Mono;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -37,9 +36,16 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      */
     Mono<Boolean> archiveAllById(List<ID> ids);
 
+    /**
+     * When `fieldName` is blank, this method will return the entire object. Otherwise, it will return only the value
+     * against the `fieldName` property in the matching object.
+     */
     Mono<T> findByIdAndFieldName(ID id, String fieldName);
 
     Mono<T> findByIdAndBranchName(ID id, String branchName);
 
+    /**
+     * This method is supposed to update a single field in an object as opposed to replacing the entire object.
+     */
     Mono<UpdateResult> updateByIdAndFieldName(ID id, String fieldName, Object value);
 }
