@@ -20,6 +20,7 @@ import {
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
+  updateColumnsOfLayerChildren,
   updateFlexChildColumns,
   updateLayerRowPositions,
   updateRowsOfLayerChildren,
@@ -195,6 +196,7 @@ function* reorderAutoLayoutChildren(params: {
           parentId,
           filteredLayers,
           layerIndex,
+          alignment,
         )
       : updateExistingLayer(
           newLayer,
@@ -285,6 +287,7 @@ function addNewLayer(
   parentId: string,
   layers: FlexLayer[],
   layerIndex = 0,
+  alignment: FlexLayerAlignment,
 ): CanvasWidgetsReduxState {
   const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
   const canvas = widgets[parentId];
@@ -317,11 +320,16 @@ function addNewLayer(
     updatedAffectedRows,
     updatedWidgets,
   );
-  console.log(
-    "#### widgetsAfterUpdatingChildRows",
+  const widgetsAfterUpdatingChildColumns = updateColumnsOfLayerChildren(
     widgetsAfterUpdatingChildRows,
+    newLayer,
+    alignment,
   );
-  return widgetsAfterUpdatingChildRows;
+  console.log(
+    "#### widgetsAfterUpdatingChildColumns",
+    widgetsAfterUpdatingChildColumns,
+  );
+  return widgetsAfterUpdatingChildColumns;
 }
 
 function updateExistingLayer(

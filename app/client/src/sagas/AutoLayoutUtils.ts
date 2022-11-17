@@ -345,3 +345,37 @@ export function updateRowsOfLayerChildren(
   }
   return widgets;
 }
+
+/**
+ *
+ * @param allWidgets : all canvas widgets.
+ * @param layer : newly created flex layer.
+ * @param alignment : alignment of the widgets.
+ * @returns canvas widgets after setting the leftColumn and rightColumn of the layer children based on their alignment.
+ */
+export function updateColumnsOfLayerChildren(
+  allWidgets: CanvasWidgetsReduxState,
+  layer: FlexLayer,
+  alignment: FlexLayerAlignment,
+): CanvasWidgetsReduxState {
+  if (!layer || !layer.children || !layer.children.length) return allWidgets;
+  const widgets = { ...allWidgets };
+  for (const child of layer.children) {
+    const widget = widgets[child.id];
+    if (!widget) continue;
+    const columns = widget.rightColumn - widget.leftColumn;
+    if (alignment === FlexLayerAlignment.End) {
+      widget.rightColumn = 64;
+      widget.leftColumn = 64 - columns;
+    } else if (alignment === FlexLayerAlignment.Center) {
+      const center = Math.floor((64 - columns) / 2);
+      widget.leftColumn = center;
+      widget.rightColumn = center + columns;
+    } else if (alignment === FlexLayerAlignment.Start) {
+      widget.leftColumn = 0;
+      widget.rightColumn = columns;
+    }
+    widgets[child.id] = widget;
+  }
+  return widgets;
+}
