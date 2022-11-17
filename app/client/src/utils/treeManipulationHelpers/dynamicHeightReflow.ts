@@ -1,3 +1,4 @@
+import { uniq } from "lodash";
 import log from "loglevel";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 
@@ -90,9 +91,10 @@ function getEffectedBoxes(
 ): string[] {
   const belows = tree[id].belows;
   belows.forEach((belowId) => {
+    getEffectedBoxes(belowId, tree, effectedBoxes);
     (effectedBoxes as string[]).push(belowId);
   });
-  return effectedBoxes;
+  return uniq(effectedBoxes);
 }
 
 // TODO: DEBUG(abhinav): This probably doesn't take in to account the following:
