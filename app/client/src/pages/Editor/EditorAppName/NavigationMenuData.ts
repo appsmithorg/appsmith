@@ -2,8 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
-import { Toaster } from "design-system";
-import { ThemeProp, Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -32,7 +31,7 @@ import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { pageListEditorURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -115,9 +114,7 @@ export const GetNavigationMenuData = ({
     },
   ];
 
-  const featureFlags = useSelector(selectFeatureFlags);
-
-  if (featureFlags.GIT && !isGitConnected) {
+  if (!isGitConnected) {
     deployOptions.push({
       text: createMessage(CONNECT_TO_GIT_OPTION),
       onClick: () => openGitConnectionPopup(),

@@ -68,7 +68,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     }
   });
 
-  it("4. Bind queries to select widget", () => {
+  it.skip("4. Bind queries to select widget", () => {
     for (let i = 1; i <= 10; i++) {
       ee.DragDropWidgetNVerify("selectwidget", i * 50 + 50, i * 50 + 200);
       propPane.UpdatePropertyFieldValue(

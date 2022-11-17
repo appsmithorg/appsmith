@@ -179,6 +179,7 @@ export interface BaseCellProperties {
   borderRadius: string;
   boxShadow: string;
   isCellVisible: boolean;
+  isCellDisabled?: boolean;
 }
 
 export interface CellLayoutProperties
@@ -451,6 +452,7 @@ export type BaseCellComponentProps = {
   fontStyle?: string;
   textColor?: string;
   textSize?: string;
+  isCellDisabled?: boolean;
 };
 
 export enum CheckboxState {
@@ -483,3 +485,10 @@ export const scrollbarOnHoverCSS = `
 `;
 
 export const MULTISELECT_CHECKBOX_WIDTH = 40;
+
+export enum AddNewRowActions {
+  SAVE = "SAVE",
+  DISCARD = "DISCARD",
+}
+
+export const EDITABLE_CELL_PADDING_OFFSET = 8;

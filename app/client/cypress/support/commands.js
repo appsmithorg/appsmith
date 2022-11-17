@@ -1594,15 +1594,17 @@ Cypress.Commands.add("isNotInViewport", (element) => {
 });
 
 Cypress.Commands.add("isInViewport", (element) => {
-  cy.xpath(element).then(($el) => {
-    const bottom = Cypress.$(cy.state("window")).height();
-    const rect = $el[0].getBoundingClientRect();
+  cy.xpath(element)
+    .scrollIntoView()
+    .then(($el) => {
+      const bottom = Cypress.$(cy.state("window")).height();
+      const rect = $el[0].getBoundingClientRect();
 
-    expect(rect.top).not.to.be.greaterThan(bottom);
-    expect(rect.bottom).not.to.be.greaterThan(bottom);
-    expect(rect.top).not.to.be.greaterThan(bottom);
-    expect(rect.bottom).not.to.be.greaterThan(bottom);
-  });
+      expect(rect.top).not.to.be.greaterThan(bottom);
+      expect(rect.bottom).not.to.be.greaterThan(bottom);
+      expect(rect.top).not.to.be.greaterThan(bottom);
+      expect(rect.bottom).not.to.be.greaterThan(bottom);
+    });
 });
 
 Cypress.Commands.add("validateEvaluatedValue", (value) => {
@@ -1684,11 +1686,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   // Set the label position: Auto
   cy.get(".t--button-tab-Auto").click({ force: true });
   // Assert label position: Auto
-  cy.get(containerSelector).should(
-    "have.css",
-    "flex-direction",
-    `${isCompact ? "row" : "column"}`,
-  );
+  cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
   cy.get(".t--button-tab-Top").click({ force: true });

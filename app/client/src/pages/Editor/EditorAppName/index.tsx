@@ -4,21 +4,21 @@ import styled, { withTheme } from "styled-components";
 import { Classes, Menu, Position } from "@blueprintjs/core";
 import { Classes as Popover2Classes, Popover2 } from "@blueprintjs/popover2";
 import { noop } from "lodash";
-
-import { Variant } from "components/ads/common";
 import {
+  CommonComponentProps,
   EditInteractionKind,
+  getTypographyByKey,
   Icon,
   IconSize,
   SavingState,
   Toaster,
+  Variant,
 } from "design-system";
-import { CommonComponentProps, ThemeProp } from "components/ads/common";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
+import { ThemeProp } from "widgets/constants";
 
 type EditorAppNameProps = CommonComponentProps &
   ThemeProp & {
@@ -71,7 +71,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
   }
   &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     display: block;
-    ${(props) => getTypographyByKey(props, "h4")};
+    ${getTypographyByKey("h4")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
     padding: 0 ${(props) => props.theme.spaces[2]}px;
   }
@@ -90,7 +90,7 @@ const StyledMenu = styled(Menu)`
   background: ${(props) =>
     props.theme.colors.navigationMenu.backgroundInactive};
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   border-radius: 0;
   padding: 0;
 
