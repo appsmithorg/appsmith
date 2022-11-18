@@ -96,7 +96,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   prevMetaMainCanvasWidget?: MetaWidget;
   virtualizer?: VirtualizerInstance;
   pageSize: number;
-  selectedRowViewIndex?: number;
 
   /**
    * returns the property pane config of the widget
@@ -126,7 +125,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       triggeredRow: "{{{}}}",
       selectedRowIndex: -1,
       triggeredRowIndex: -1,
-      selectedRowViewIndex: -1,
     };
   }
 
@@ -173,21 +171,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.addPrivateWidgetsForChildren(this.props);
     this.setupMetaWidgets();
   }
-
-  getInfiniteScrollPageNumber = () => {
-    if (this.componentRef.current && this.props.infiniteScroll) {
-      const { scrollTop } = this.componentRef.current;
-      const pageSize = this.pageSize;
-      const containerRowHeight = this.getContainerRowHeight();
-
-      const windowHeight = containerRowHeight * pageSize;
-
-      const pageNo = Math.floor(scrollTop / windowHeight) + 1;
-
-      return pageNo;
-    }
-    return 1;
-  };
 
   componentDidUpdate(prevProps: ListWidgetProps) {
     this.prevFlattenedChildCanvasWidgets =
@@ -587,8 +570,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     action: string | undefined,
   ) => {
     this.updateSelectedRowIndexMeta(rowIndex);
-    this.updateSelectedViewIndex(rowIndex, viewIndex);
-
     this.updateSelectedRowMeta(rowIndex, viewIndex);
 
     if (!action) return;
@@ -619,8 +600,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   onRowClickCapture = (rowIndex: number, viewIndex: number) => {
     this.updateTriggeredRowIndexMeta(rowIndex);
-    this.updateTriggerRowMeta(viewIndex);
-    this.props.updateWidgetMetaProperty("triggeredRowViewIndex", viewIndex);
+    this.updateTriggeredRowMeta(viewIndex);
   };
 
   updateSelectedRowIndexMeta = (rowIndex: number) => {
@@ -655,7 +635,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  updateTriggerRowMeta = (viewIndex: number) => {
+  updateTriggeredRowMeta = (viewIndex: number) => {
     const { currentViewRows } = this.props;
 
     const triggeredRowBinding = `{{ ${
@@ -685,17 +665,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  updateSelectedViewIndex = (rowIndex: number, viewIndex: number) => {
-    let currentViewIndex = -1;
-    if (rowIndex !== this.props.selectedRowIndex) {
-      currentViewIndex = viewIndex;
-    }
-    this.props.updateWidgetMetaProperty(
-      "selectedRowViewIndex",
-      currentViewIndex,
-    );
-  };
-
   updateTriggeredRowIndexMeta = (rowIndex: number) => {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
   };
@@ -705,7 +674,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
   resetTriggeredRowIndexMeta = () => {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
-    this.props.updateWidgetMetaProperty("triggeredRowViewIndex", -1);
   };
 
   getGridGap = () =>
@@ -964,9 +932,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   currentViewRows: string;
   selectedRowIndex: number;
   selectedRow: Record<string, unknown>;
-  selectedRowViewIndex: number;
   triggeredRowIndex: number;
-  triggeredRowViewIndex: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
 }

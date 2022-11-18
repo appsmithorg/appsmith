@@ -326,18 +326,7 @@ class MetaWidgetGenerator {
         const key = this.getPrimaryKey(index);
 
         this.generateWidgetCacheData(index, rowIndex);
-        this.generateWidgetCacheDataForSpecialRow(
-          index,
-          rowIndex,
-          this.selectedRowIndex,
-          SELECTED_ROW_KEY,
-        );
-        this.generateWidgetCacheDataForSpecialRow(
-          index,
-          rowIndex,
-          this.triggeredRowIndex,
-          TRIGGER_ROW_KEY,
-        );
+        this.generateWidgetCacheDataForTriggeredAndSelected(index, rowIndex);
 
         const {
           childMetaWidgets,
@@ -378,31 +367,19 @@ class MetaWidgetGenerator {
 
     this.flushModificationQueue();
 
-    const generatedSelectedRowMetaWidgets = this.generateSpecialRowMetaWidgets({
-      index: this.selectedRowIndex,
-      parentId: this.containerParentId,
-      templateWidgetId: this.containerWidgetId,
-      key: SELECTED_ROW_KEY,
-    });
-    const generatedTriggerRowMetaWidgets = this.generateSpecialRowMetaWidgets({
-      index: this.triggeredRowIndex,
-      parentId: this.containerParentId,
-      templateWidgetId: this.containerWidgetId,
-      key: TRIGGER_ROW_KEY,
-    });
+    const {
+      generatedSelectedRowMetaWidgets,
+      generatedTriggerRowMetaWidgets,
+    } = this.generateSelectedAndTriggeredRowMetaWidget();
 
-    const notInViewSelectedRowMetaWidgets: MetaWidgets = this.getNotInViewRowMetaWidgets(
-      {
-        metaWidget: generatedSelectedRowMetaWidgets.metaWidget,
-        childMetaWidgets: generatedSelectedRowMetaWidgets.childMetaWidgets,
-      },
-    );
-    const notInViewTriggeredRowMetaWidgets: MetaWidgets = this.getNotInViewRowMetaWidgets(
-      {
-        metaWidget: generatedTriggerRowMetaWidgets.metaWidget,
-        childMetaWidgets: generatedTriggerRowMetaWidgets.childMetaWidgets,
-      },
-    );
+    // Using notInView to avoid duplication of the metaWidgets
+    const {
+      notInViewSelectedRowMetaWidgets,
+      notInViewTriggeredRowMetaWidgets,
+    } = this.filterGeneratedWidgetNotInView({
+      generatedSelectedRowMetaWidgets,
+      generatedTriggerRowMetaWidgets,
+    });
 
     return {
       metaWidgets: {
@@ -414,51 +391,72 @@ class MetaWidgetGenerator {
     };
   };
 
-  private generateSpecialRowMetaWidgets = ({
-    index,
-    key,
-    parentId,
-    templateWidgetId,
-  }: Omit<GenerateMetaWidgetProps, "rowIndex">) => {
-    const { childMetaWidgets, metaWidget } = this.generateMetaWidgetRecursively(
+  private filterGeneratedWidgetNotInView = ({
+    generatedSelectedRowMetaWidgets,
+    generatedTriggerRowMetaWidgets,
+  }: {
+    generatedSelectedRowMetaWidgets: GenerateMetaWidget;
+    generatedTriggerRowMetaWidgets: GenerateMetaWidget;
+  }) => {
+    const notInViewSelectedRowMetaWidgets: MetaWidgets = this.getNotInViewGeneratedMetaWidgets(
       {
-        index,
-        key,
-        parentId,
-        templateWidgetId,
+        metaWidget: generatedSelectedRowMetaWidgets.metaWidget,
+        childMetaWidgets: generatedSelectedRowMetaWidgets.childMetaWidgets,
       },
     );
-
-    if (metaWidget) this.hideWidgetFromView(metaWidget);
-
+    const notInViewTriggeredRowMetaWidgets: MetaWidgets = this.getNotInViewGeneratedMetaWidgets(
+      {
+        metaWidget: generatedTriggerRowMetaWidgets.metaWidget,
+        childMetaWidgets: generatedTriggerRowMetaWidgets.childMetaWidgets,
+      },
+    );
     return {
-      childMetaWidgets,
-      metaWidget,
+      notInViewSelectedRowMetaWidgets,
+      notInViewTriggeredRowMetaWidgets,
     };
   };
 
-  private getNotInViewRowMetaWidgets = ({
+  private getNotInViewGeneratedMetaWidgets = ({
     childMetaWidgets,
     metaWidget,
   }: {
     childMetaWidgets: MetaWidgets | undefined;
     metaWidget: MetaWidget | undefined;
   }) => {
-    const notInViewSelectedRowMetaWidgets: MetaWidgets = {};
-    const selectedRowMetaWidgets = {
+    const notInViewMetaWidgets: MetaWidgets = {};
+    const metaWidgets = {
       ...childMetaWidgets,
     };
     if (metaWidget) {
-      selectedRowMetaWidgets[metaWidget.widgetId] = metaWidget;
+      metaWidgets[metaWidget.widgetId] = metaWidget;
     }
 
-    Object.keys(selectedRowMetaWidgets).forEach((widgetIds) => {
+    Object.keys(metaWidgets).forEach((widgetIds) => {
       if (!this.currViewMetaWidgetIds.includes(widgetIds)) {
-        notInViewSelectedRowMetaWidgets[widgetIds] =
-          selectedRowMetaWidgets[widgetIds];
+        notInViewMetaWidgets[widgetIds] = metaWidgets[widgetIds];
       }
     });
-    return notInViewSelectedRowMetaWidgets;
+    return notInViewMetaWidgets;
+  };
+
+  private generateSelectedAndTriggeredRowMetaWidget = () => {
+    const generatedSelectedRowMetaWidgets = this.generateMetaWidgetRecursively({
+      index: this.selectedRowIndex,
+      parentId: this.containerParentId,
+      templateWidgetId: this.containerWidgetId,
+      key: SELECTED_ROW_KEY,
+    });
+    const generatedTriggerRowMetaWidgets = this.generateMetaWidgetRecursively({
+      index: this.triggeredRowIndex,
+      parentId: this.containerParentId,
+      templateWidgetId: this.containerWidgetId,
+      key: TRIGGER_ROW_KEY,
+    });
+
+    return {
+      generatedSelectedRowMetaWidgets,
+      generatedTriggerRowMetaWidgets,
+    };
   };
 
   private generateMetaWidgetRecursively = ({
@@ -471,8 +469,6 @@ class MetaWidgetGenerator {
 
     if (!templateWidget)
       return { metaWidgetId: undefined, metaWidgetName: undefined };
-
-    key = key ?? this.getPrimaryKey(index);
 
     if (!key) {
       return {
@@ -518,10 +514,7 @@ class MetaWidgetGenerator {
       this.addDynamicPathsProperties(metaWidget, metaCacheProps, key);
     }
 
-    if (
-      templateWidget.type === "LIST_WIDGET_V2" &&
-      !SpecialKeys.includes(key)
-    ) {
+    if (templateWidget.type === "LIST_WIDGET_V2") {
       this.addLevelData(metaWidget, rowIndex);
     }
 
@@ -584,22 +577,48 @@ class MetaWidgetGenerator {
     };
   };
 
-  private generateWidgetCacheDataForSpecialRow = (
+  private generateWidgetCacheDataForSpecificIndexAndKey = (
     index: number,
     rowIndex: number,
-    specialIndex: number,
-    specialKey: string,
+    specificIndex: number,
+    specificKey: string,
   ) => {
-    if (index === specialIndex) {
+    if (index === specificIndex) {
       const key = this.getPrimaryKey(index);
       const rowCache = this.generateCacheData(index, rowIndex, key);
-      this.setRowCache(specialKey, {
+      this.setRowCache(specificKey, {
         ...rowCache,
       });
     }
-    if (specialIndex === -1) {
-      this.clearSpecialRowCache(specialKey);
+    if (specificIndex === -1) {
+      this.clearCacheByRow(specificKey);
     }
+  };
+
+  private generateWidgetCacheData = (index: number, rowIndex: number) => {
+    const key = this.getPrimaryKey(index);
+    const rowCache = this.generateCacheData(index, rowIndex, key);
+    this.setRowCache(key, {
+      ...rowCache,
+    });
+  };
+
+  private generateWidgetCacheDataForTriggeredAndSelected = (
+    index: number,
+    rowIndex: number,
+  ) => {
+    this.generateWidgetCacheDataForSpecificIndexAndKey(
+      index,
+      rowIndex,
+      this.selectedRowIndex,
+      SELECTED_ROW_KEY,
+    );
+    this.generateWidgetCacheDataForSpecificIndexAndKey(
+      index,
+      rowIndex,
+      this.triggeredRowIndex,
+      TRIGGER_ROW_KEY,
+    );
   };
 
   private generateCacheData = (
@@ -653,14 +672,6 @@ class MetaWidgetGenerator {
       ...rowCache,
       ...updatedRowCache,
     };
-  };
-
-  private generateWidgetCacheData = (index: number, rowIndex: number) => {
-    const key = this.getPrimaryKey(index);
-    const rowCache = this.generateCacheData(index, rowIndex, key);
-    this.setRowCache(key, {
-      ...rowCache,
-    });
   };
 
   private generateWidgetCacheForContainerParent = (
@@ -720,10 +731,6 @@ class MetaWidgetGenerator {
       "topRight",
       "bottomLeft",
     ]);
-  };
-
-  private hideWidgetFromView = (metaWidget: FlattenedWidgetProps) => {
-    set(metaWidget, "hideWidget", true);
   };
 
   private addLevelData = (metaWidget: MetaWidget, index: number) => {
@@ -1075,7 +1082,7 @@ class MetaWidgetGenerator {
     this.setCache(updatedCache);
   };
 
-  private clearSpecialRowCache = (row: string) => {
+  private clearCacheByRow = (row: string) => {
     const cache = this.getWidgetCache() || {};
     const updatedCache = {
       ...cache,
@@ -1107,10 +1114,6 @@ class MetaWidgetGenerator {
     }
 
     return [];
-  };
-
-  private getDataForIndex = (index: number) => {
-    return this.data.slice(index, index + 1);
   };
 
   getStartIndex = () => {
