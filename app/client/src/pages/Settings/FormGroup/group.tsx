@@ -11,7 +11,7 @@ import Text from "./Text";
 import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import {
   createMessage,
   REDIRECT_URL_TOOLTIP,

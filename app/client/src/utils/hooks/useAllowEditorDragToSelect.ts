@@ -3,7 +3,7 @@ import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 
 export const useAllowEditorDragToSelect = () => {
   // This state tells us whether a `ResizableComponent` is resizing
