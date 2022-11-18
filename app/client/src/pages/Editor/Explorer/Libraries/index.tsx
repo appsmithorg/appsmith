@@ -57,6 +57,17 @@ const Library = styled.li`
     }
   }
 
+  .loading {
+    display: none;
+    width: 30px;
+    height: 36px;
+    background: transparent;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   & .t--open-new-tab {
     position: absolute;
     right: 8px;
@@ -67,7 +78,7 @@ const Library = styled.li`
     display: none;
     width: 30px;
     height: 36px;
-    background: white;
+    background: transparent;
   }
 
   & .t--package-version {
@@ -127,8 +138,8 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
 
   if (installationStatus[url] === InstallState.Queued)
     return (
-      <div className="shrink-0">
-        <Spinner />
+      <div className="loading">
+        <Spinner size={IconSize.MEDIUM} />
       </div>
     );
 

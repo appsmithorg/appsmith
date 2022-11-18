@@ -31,8 +31,6 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     EVAL_WORKER_ACTIONS.INSTALL_LIBRARY,
     url,
   );
-  const name: string = lib.name || accessor[accessor.length - 1];
-  const applicationId: string = yield select(getCurrentApplicationId);
 
   if (!success) {
     yield put({
@@ -45,6 +43,9 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     });
     return;
   }
+
+  const name: string = lib.name || accessor[accessor.length - 1];
+  const applicationId: string = yield select(getCurrentApplicationId);
 
   const versionMatch = (url as string).match(/(?<=@)(\d+\.)(\d+\.)(\d+)/);
   const [version] = versionMatch ? versionMatch : [];
@@ -113,7 +114,10 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     },
   });
   Toaster.show({
-    text: createMessage(customJSLibraryMessages.INSTALLATION_SUCCESSFUL, name),
+    text: createMessage(
+      customJSLibraryMessages.INSTALLATION_SUCCESSFUL,
+      accessor[accessor.length - 1],
+    ),
     variant: Variant.success,
   });
 }
