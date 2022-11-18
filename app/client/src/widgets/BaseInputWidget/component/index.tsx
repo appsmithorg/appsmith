@@ -122,6 +122,11 @@ const InputComponentWrapper = styled((props) => (
           return "max-height: 20px; .bp3-popover-wrapper {max-height: 20px}";
         }
       }};
+
+      ${({ isDynamicHeightEnabled }) =>
+        isDynamicHeightEnabled
+          ? "{ max-height: none; .bp3-popover-wrapper {max-height: none; } }"
+          : ""};
     }
     .currency-type-filter,
     .country-type-filter {
