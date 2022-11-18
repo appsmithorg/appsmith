@@ -18,7 +18,6 @@ export const lintErrorReducer = createImmerReducer(initialState, {
   ) => {
     const { errors } = action.payload;
     for (const entityName of Object.keys(errors)) {
-      if (isEqual(state[entityName], errors[entityName])) continue;
       state[entityName] = errors[entityName];
     }
   },
