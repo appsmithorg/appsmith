@@ -254,7 +254,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the input is focused",
+            helpText: "Triggers an action when the input field receives focus",
             propertyName: "onFocus",
             label: "onFocus",
             controlType: "ACTION_SELECTOR",
@@ -263,8 +263,7 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText:
-              "Triggers an action when the when a user leaves the input field",
+            helpText: "Triggers an action when the input field loses focus",
             propertyName: "onBlur",
             label: "onBlur",
             controlType: "ACTION_SELECTOR",

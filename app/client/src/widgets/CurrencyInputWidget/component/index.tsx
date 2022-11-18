@@ -76,8 +76,6 @@ class CurrencyInputComponent extends React.Component<
           />
         }
         multiline={false}
-        onBlur={this.props.onBlur}
-        onFocus={this.props.onFocus}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.onKeyDown}
         onStep={this.props.onStep}
@@ -100,8 +98,6 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
   allowCurrencyChange?: boolean;
   decimals?: number;
   onCurrencyTypeChange: (code?: string) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
   onStep: (direction: number) => void;
   renderMode: string;
 }

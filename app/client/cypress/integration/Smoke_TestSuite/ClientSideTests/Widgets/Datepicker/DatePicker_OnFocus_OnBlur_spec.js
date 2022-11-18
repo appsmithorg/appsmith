@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("DatePicker Widget Property tests onFocus and onBlur", function() {
-  it("onBlur and onFocus should be triggerd from the datePicker widget", () => {
+  it("onBlur and onFocus should be triggered from the datePicker widget", () => {
     cy.dragAndDropToCanvas("datepickerwidget2", { x: 300, y: 600 });
     cy.openPropertyPane("datepickerwidget2");
 

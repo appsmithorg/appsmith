@@ -440,11 +440,6 @@ class BaseInputComponent extends React.Component<
 
   setFocusState = (isFocused: boolean) => {
     this.props.onFocusChange(isFocused);
-    if (isFocused) {
-      this.props.onFocus?.();
-    } else {
-      this.props.onBlur?.();
-    }
   };
 
   onTextChange = (
@@ -745,8 +740,6 @@ export interface BaseInputComponentProps extends ComponentProps {
   iconAlign?: Omit<Alignment, "center">;
   showError: boolean;
   onFocusChange: (state: boolean) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
   disableNewLineOnPressEnterKey?: boolean;
   onKeyDown?: (
     e:

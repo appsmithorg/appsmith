@@ -81,8 +81,6 @@ class PhoneInputComponent extends React.PureComponent<
         labelWidth={this.props.labelWidth}
         leftIcon={this.getLeftIcon()}
         multiline={false}
-        onBlur={this.props.onBlur}
-        onFocus={this.props.onFocus}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.onKeyDown}
         onValueChange={this.props.onValueChange}
@@ -101,8 +99,6 @@ export interface PhoneInputComponentProps extends BaseInputComponentProps {
   countryCode?: CountryCode;
   onISDCodeChange: (code?: string) => void;
   allowDialCodeChange: boolean;
-  onFocus?: () => void;
-  onBlur?: () => void;
 }
 
 export default PhoneInputComponent;

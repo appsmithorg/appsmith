@@ -33,7 +33,6 @@ const useDropdown = ({
   const [isOpen, setIsOpen] = useState(false);
   const popupContainer = useRef<HTMLElement>(getMainCanvas());
   const selectRef = useRef<BaseSelectRef | null>(null);
-  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     if (!popupContainer.current) {
@@ -56,18 +55,16 @@ const useDropdown = ({
   const getPopupContainer = useCallback(() => popupContainer.current, []);
 
   const handleOnFocus = useCallback(() => {
-    if (!isFocused && onFocus) {
+    if (!isOpen && onFocus) {
       onFocus();
-      setIsFocused(true);
     }
-  }, [onFocus, isFocused]);
+  }, [onFocus, isOpen]);
 
   const handleOnBlur = useCallback(() => {
-    if (isFocused && onBlur) {
+    if (isOpen && onBlur) {
       onBlur();
-      setIsFocused(false);
     }
-  }, [onBlur, isFocused]);
+  }, [onBlur, isOpen]);
 
   // When Dropdown is opened disable scrolling within the app except the list of options
   const onOpen = useCallback(
@@ -88,7 +85,7 @@ const useDropdown = ({
         selectRef.current?.blur();
       }
     },
-    [renderMode, isFocused],
+    [renderMode, handleOnBlur, handleOnFocus],
   );
 
   const closeBackDrop = useCallback(() => {

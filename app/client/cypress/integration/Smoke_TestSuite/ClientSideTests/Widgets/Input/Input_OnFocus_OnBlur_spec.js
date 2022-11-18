@@ -13,7 +13,7 @@ const currencyInputWidget = widgetsPage.currencyInputWidget + " " + "input";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Input Widget Property tests onFocus and onBlur", function() {
-  it("1. onBlur and onFocus should be triggerd from the input widget", () => {
+  it("1. onBlur and onFocus should be triggered from the input widget", () => {
     cy.dragAndDropToCanvas(inputWidgetName, { x: 300, y: 200 });
     cy.openPropertyPane(inputWidgetName);
 
@@ -30,7 +30,7 @@ describe("Input Widget Property tests onFocus and onBlur", function() {
     cy.validateToastMessage("Blurred");
   });
 
-  it("2. onBlur and onFocus should be triggerd from the phone input widget", () => {
+  it("2. onBlur and onFocus should be triggered from the phone input widget", () => {
     cy.dragAndDropToCanvas(phoneInputWidgetName, { x: 300, y: 400 });
     cy.openPropertyPane(phoneInputWidgetName);
 
@@ -47,7 +47,7 @@ describe("Input Widget Property tests onFocus and onBlur", function() {
     cy.validateToastMessage("Blurred");
   });
 
-  it("3. onBlur and onFocus should be triggerd from the currency input widget", () => {
+  it("3. onBlur and onFocus should be triggered from the currency input widget", () => {
     cy.dragAndDropToCanvas(currencyInputWidgetName, { x: 300, y: 600 });
     cy.openPropertyPane(currencyInputWidgetName);
 

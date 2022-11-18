@@ -371,7 +371,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when a select field gets focus",
+            helpText: "Triggers an action when the select field receives focus",
             propertyName: "onFocus",
             label: "onFocus",
             controlType: "ACTION_SELECTOR",
@@ -380,7 +380,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when a user leaves the select field",
+            helpText: "Triggers an action when the select field loses focus",
             propertyName: "onBlur",
             label: "onBlur",
             controlType: "ACTION_SELECTOR",

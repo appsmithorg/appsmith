@@ -344,6 +344,13 @@ class CurrencyInputWidget extends BaseInputWidget<
           "",
         );
         this.props.updateWidgetMetaProperty("text", deFormattedValue);
+        this.props.updateWidgetMetaProperty("isFocused", isFocused, {
+          triggerPropertyName: "onFocus",
+          dynamicString: this.props.onFocus,
+          event: {
+            type: EventType.ON_FOCUS,
+          },
+        });
       } else {
         if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
@@ -352,6 +359,13 @@ class CurrencyInputWidget extends BaseInputWidget<
           );
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
+        this.props.updateWidgetMetaProperty("isFocused", isFocused, {
+          triggerPropertyName: "onBlur",
+          dynamicString: this.props.onBlur,
+          event: {
+            type: EventType.ON_BLUR,
+          },
+        });
       }
     } catch (e) {
       log.error(e);
@@ -437,9 +451,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
-        onBlur={this.onBlur}
         onCurrencyTypeChange={this.onCurrencyTypeChange}
-        onFocus={this.onFocus}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onStep={this.onStep}
@@ -455,28 +467,6 @@ class CurrencyInputWidget extends BaseInputWidget<
     );
   }
 
-  onFocus = () => {
-    if (this.props.onFocus)
-      super.executeAction({
-        triggerPropertyName: "onFocus",
-        dynamicString: this.props.onFocus,
-        event: {
-          type: EventType.ON_FOCUS,
-        },
-      });
-  };
-
-  onBlur = () => {
-    if (this.props.onBlur)
-      super.executeAction({
-        triggerPropertyName: "onBlur",
-        dynamicString: this.props.onBlur,
-        event: {
-          type: EventType.ON_BLUR,
-        },
-      });
-  };
-
   static getWidgetType(): WidgetType {
     return "CURRENCY_INPUT_WIDGET";
   }
@@ -489,8 +479,6 @@ export interface CurrencyInputWidgetProps extends BaseInputWidgetProps {
   allowCurrencyChange?: boolean;
   decimals?: number;
   defaultText?: number;
-  onFocus?: string;
-  onBlur?: string;
 }
 
 export default CurrencyInputWidget;

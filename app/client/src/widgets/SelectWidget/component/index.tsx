@@ -31,7 +31,6 @@ const MAX_RENDER_MENU_ITEMS_HEIGHT = 300;
 interface SelectComponentState {
   activeItemIndex: number | undefined;
   isOpen?: boolean;
-  isFocused?: boolean;
 }
 
 class SelectComponent extends React.Component<
@@ -46,7 +45,6 @@ class SelectComponent extends React.Component<
     // used to show focused item for keyboard up down key interection
     activeItemIndex: -1,
     isOpen: false,
-    isFocused: false,
   };
 
   componentDidMount = () => {
@@ -73,6 +71,11 @@ class SelectComponent extends React.Component<
   };
 
   togglePopoverVisibility = () => {
+    if (this.state.isOpen) {
+      this.handleOnBlur();
+    } else {
+      this.handleOnFocus();
+    }
     this.setState({ isOpen: !this.state.isOpen });
   };
 
@@ -160,15 +163,13 @@ class SelectComponent extends React.Component<
     this.onItemSelect({});
   };
   handleOnFocus = () => {
-    if (!this.state.isFocused && this.props.onFocus) {
+    if (!this.state.isOpen && this.props.onFocus) {
       this.props.onFocus();
-      this.setState({ isFocused: true });
     }
   };
   handleOnBlur = () => {
-    if (this.state.isFocused && this.props.onBlur) {
+    if (this.state.isOpen && this.props.onBlur) {
       this.props.onBlur();
-      this.setState({ isFocused: false });
     }
   };
   handleCloseList = () => {
@@ -408,7 +409,6 @@ class SelectComponent extends React.Component<
               displayText={value.toString()}
               handleCancelClick={this.handleCancelClick}
               hideCancelIcon={this.props.hideCancelIcon}
-              onFocus={this.handleOnFocus}
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
