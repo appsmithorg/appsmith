@@ -63,7 +63,7 @@ type SelectProps = BaseCellComponentProps & {
   autoOpen: boolean;
   columnType: string;
   borderRadius: string;
-  options: DropdownOption[];
+  options?: DropdownOption[];
   onFilterChange: (
     text: string,
     rowIndex: number,

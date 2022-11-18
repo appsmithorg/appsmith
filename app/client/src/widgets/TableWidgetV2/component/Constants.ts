@@ -166,7 +166,7 @@ export interface SelectCellProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
-  selectOptions?: DropdownOption[] | DropdownOption[][];
+  selectOptions?: DropdownOption[];
 }
 
 export interface ImageCellProperties {
