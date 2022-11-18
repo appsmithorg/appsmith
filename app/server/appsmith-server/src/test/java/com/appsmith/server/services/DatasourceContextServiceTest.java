@@ -29,6 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,6 +100,7 @@ public class DatasourceContextServiceTest {
 
         doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", MANAGE_DATASOURCES);
         doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", EXECUTE_DATASOURCES);
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", DELETE_DATASOURCES);
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
         doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
         doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
