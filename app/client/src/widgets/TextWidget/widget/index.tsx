@@ -95,6 +95,14 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      truncateButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
   static getPropertyPaneStyleConfig() {
     return [
       {

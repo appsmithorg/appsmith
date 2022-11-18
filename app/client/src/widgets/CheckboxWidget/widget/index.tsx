@@ -276,6 +276,13 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
   componentDidUpdate(prevProps: CheckboxWidgetProps) {
     if (
       this.props.defaultCheckedState !== prevProps.defaultCheckedState &&

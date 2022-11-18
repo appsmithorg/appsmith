@@ -323,6 +323,13 @@ class RichTextEditorWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,

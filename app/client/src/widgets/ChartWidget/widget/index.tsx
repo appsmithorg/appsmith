@@ -39,6 +39,15 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return styleConfig;
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+    };
+  }
+
   onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {
     this.props.updateWidgetMetaProperty(
       "selectedDataPoint",

@@ -145,6 +145,13 @@ class ProgressBarWidget extends BaseWidget<
     return {};
   }
 
+  static getStylesheetConfig() {
+    return {
+      fillColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
   getPageView() {
     return (
       <ProgressBarComponent

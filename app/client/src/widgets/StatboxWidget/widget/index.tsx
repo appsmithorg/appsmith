@@ -112,6 +112,13 @@ class StatboxWidget extends ContainerWidget {
     ];
   }
 
+  static getStylesheetConfig(): { borderRadius: string; boxShadow: string } {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   static getWidgetType(): WidgetType {
     return "STATBOX_WIDGET";
   }

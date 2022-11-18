@@ -200,6 +200,14 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   getPageView() {
     const {
       borderRadius,

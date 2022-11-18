@@ -153,6 +153,13 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      fillColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }

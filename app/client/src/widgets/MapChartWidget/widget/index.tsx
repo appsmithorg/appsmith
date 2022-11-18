@@ -331,6 +331,14 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return "MAP_CHART_WIDGET";
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+    };
+  }
+
   handleDataPointClick = (evt: any) => {
     const { onDataPointClick } = this.props;
 

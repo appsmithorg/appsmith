@@ -159,6 +159,38 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return [/\.tableData$/];
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        menuButton: {
+          menuColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        iconButton: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        editActions: {
+          saveButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          saveBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          discardBorderRadius:
+            "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+      },
+    };
+  }
+
   /*
    * Function to get the table columns with appropriate render functions
    * based on columnType

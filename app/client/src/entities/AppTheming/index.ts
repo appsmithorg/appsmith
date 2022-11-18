@@ -4,6 +4,23 @@ export type Stylesheet = {
   };
 };
 
+export type AppThemeStylesheet = {
+  [key: string]:
+    | undefined
+    | string
+    | Stylesheet
+    | {
+        [key: string]: string;
+      };
+  childStylesheet?: Stylesheet;
+  resetButtonStyles?: {
+    [key: string]: string;
+  };
+  submitButtonStyles?: {
+    [key: string]: string;
+  };
+};
+
 export type AppTheme = {
   id: string;
   name: string;

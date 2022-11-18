@@ -356,6 +356,14 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,

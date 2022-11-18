@@ -275,6 +275,14 @@ class TabsWidget extends BaseWidget<
     });
   };
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   static getDerivedPropertiesMap() {
     return {
       selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,

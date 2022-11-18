@@ -1,6 +1,5 @@
-import { ButtonGroupWidgetProps } from ".";
-import { AppTheme } from "entities/AppTheming";
 import { get } from "lodash";
+import { ButtonGroupWidgetProps } from ".";
 
 /**
  * this is a getter function to get stylesheet value of the property from the config
@@ -13,7 +12,7 @@ import { get } from "lodash";
 export const getStylesheetValue = (
   props: ButtonGroupWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: AppTheme["stylesheet"][string],
+  widgetStylesheet?: Record<string, any>,
 ) => {
   const propertyName = propertyPath.split(".").slice(-1)[0];
 

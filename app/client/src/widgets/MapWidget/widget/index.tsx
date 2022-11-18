@@ -296,6 +296,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return {};
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   updateCenter = (lat: number, long: number, title?: string) => {
     this.props.updateWidgetMetaProperty("center", { lat, long, title });
   };

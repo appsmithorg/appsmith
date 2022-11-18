@@ -178,6 +178,13 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     return {};
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   getPageView() {
     const { autoPlay, onEnd, onPause, onPlay, url } = this.props;
     return (

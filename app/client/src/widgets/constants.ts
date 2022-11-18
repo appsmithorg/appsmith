@@ -29,6 +29,7 @@ export interface WidgetConfiguration {
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
+    stylesheetConfig?: Record<string, string>;
   };
 }
 

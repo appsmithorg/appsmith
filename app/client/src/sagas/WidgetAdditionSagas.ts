@@ -38,7 +38,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { stylesheet as themeStylesheet } from "constants/ThemeConstants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -71,9 +70,9 @@ function* getEntityNames() {
  * @returns
  */
 function* getThemeDefaultConfig(type: string) {
-  const stylesheet: Record<string, unknown> = themeStylesheet;
+  const stylesheet = WidgetFactory.getWidgetStylesheetConfigMap(type);
 
-  return stylesheet[type];
+  return stylesheet;
 }
 
 function* getChildWidgetProps(

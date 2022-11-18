@@ -108,6 +108,13 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static defaultProps = {
     isOpen: true,
     canEscapeKeyClose: false,

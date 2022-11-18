@@ -481,6 +481,13 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
     if (
       Array.isArray(prevProps.options) &&

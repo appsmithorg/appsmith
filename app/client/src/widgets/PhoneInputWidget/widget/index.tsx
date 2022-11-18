@@ -185,6 +185,14 @@ class PhoneInputWidget extends BaseInputWidget<
     });
   }
 
+  static getStylesheetConfig() {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   getFormattedPhoneNumber(value: string) {
     const countryCode = getCountryCode(this.props.dialCode);
     let formattedValue;

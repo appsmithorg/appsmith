@@ -538,6 +538,18 @@ class ButtonGroupWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        },
+      },
+    };
+  }
+
   handleClick = (onClick: string | undefined, callback: () => void): void => {
     if (onClick) {
       super.executeAction({

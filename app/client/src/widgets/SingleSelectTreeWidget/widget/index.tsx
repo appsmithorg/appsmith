@@ -299,6 +299,14 @@ class SingleSelectTreeWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getPropertyPaneStyleConfig() {
     return [
       {

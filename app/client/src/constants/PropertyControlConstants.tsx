@@ -84,8 +84,8 @@ export type PropertyPaneControlConfig = {
   getStylesheetValue?: (
     props: any,
     propertyPath: string,
-    stylesheet?: AppTheme["stylesheet"][string],
-  ) => AppTheme["stylesheet"][string][string];
+    stylesheet?: Record<string, any>,
+  ) => Record<string, any>;
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;

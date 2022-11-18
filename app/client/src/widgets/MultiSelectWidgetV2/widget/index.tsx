@@ -572,6 +572,14 @@ class MultiSelectWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getDerivedPropertiesMap() {
     return {
       value: `{{this.selectedOptionValues}}`,

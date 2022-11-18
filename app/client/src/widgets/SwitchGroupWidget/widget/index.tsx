@@ -359,6 +359,12 @@ class SwitchGroupWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedValuesArray: "defaultSelectedValues",

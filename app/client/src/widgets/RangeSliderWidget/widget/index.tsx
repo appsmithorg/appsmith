@@ -86,6 +86,12 @@ class RangeSliderWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   onChangeEnd = ([start, end]: [number, number]) => {
     if (this.props.start !== start) {
       this.props.updateWidgetMetaProperty("start", start, {

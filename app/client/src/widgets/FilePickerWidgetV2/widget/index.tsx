@@ -508,6 +508,14 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   /**
    * if uppy is not initialized before, initialize it
    * else setState of uppy instance

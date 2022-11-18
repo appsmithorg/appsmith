@@ -709,6 +709,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   onValueChange = (value: string) => {
     this.props.updateWidgetMetaProperty("text", value, {
       triggerPropertyName: "onTextChanged",

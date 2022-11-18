@@ -36,6 +36,7 @@ import PreviewModeComponent from "components/editorComponents/PreviewModeCompone
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import { AppThemeStylesheet } from "entities/AppTheming";
 
 /***
  * BaseWidget
@@ -78,6 +79,10 @@ abstract class BaseWidget<
   }
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  static getStylesheetConfig(): AppThemeStylesheet {
     return {};
   }
 

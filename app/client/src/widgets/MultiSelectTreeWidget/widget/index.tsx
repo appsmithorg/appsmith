@@ -482,6 +482,14 @@ class MultiSelectTreeWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   componentDidUpdate(prevProps: MultiSelectTreeWidgetProps): void {
     if (
       xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >

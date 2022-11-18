@@ -270,6 +270,12 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      activeColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   valueChangedHandler = (value: number) => {
     this.props.updateWidgetMetaProperty("rate", value, {
       triggerPropertyName: "onRateChanged",

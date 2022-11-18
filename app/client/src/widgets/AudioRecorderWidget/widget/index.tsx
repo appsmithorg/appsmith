@@ -148,6 +148,14 @@ class AudioRecorderWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       blobURL: undefined,

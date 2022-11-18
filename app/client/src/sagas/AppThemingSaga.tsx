@@ -32,7 +32,6 @@ import { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
-import { stylesheet as themeStylesheet } from "constants/ThemeConstants";
 import {
   batchUpdateMultipleWidgetProperties,
   UpdateWidgetPropertyPayload,
@@ -310,7 +309,6 @@ function* resetTheme() {
     );
     const propertiesToUpdate: UpdateWidgetPropertyPayload[] = getPropertiesToUpdateForReset(
       canvasWidgets,
-      themeStylesheet,
     );
 
     if (propertiesToUpdate.length) {

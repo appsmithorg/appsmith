@@ -181,6 +181,13 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
+
   handleUrlChange = (url: string) => {
     if (url && this.props.onURLChanged) {
       super.executeAction({

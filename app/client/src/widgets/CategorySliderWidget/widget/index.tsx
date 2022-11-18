@@ -75,6 +75,12 @@ class CategorySliderWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   getSliderOptions = () => {
     const options = this.props.options || [];
     /** get the stepSize - if we have 4 options stepSize is 25  */

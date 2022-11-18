@@ -213,6 +213,13 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     return {};
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   getPageView() {
     const { maxZoomLevel, objectFit } = this.props;
     return (

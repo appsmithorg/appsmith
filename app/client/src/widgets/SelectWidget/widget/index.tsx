@@ -500,6 +500,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       value: "defaultOptionValue",

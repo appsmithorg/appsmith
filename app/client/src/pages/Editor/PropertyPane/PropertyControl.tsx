@@ -24,6 +24,7 @@ import {
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
+import { TooltipComponent } from "design-system";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   DynamicPath,
@@ -46,18 +47,16 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { TooltipComponent } from "design-system";
-import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
-import { AppTheme } from "entities/AppTheming";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import { AppState } from "@appsmith/reducers";
+import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
-import { stylesheet as themeStylesheet } from "constants/ThemeConstants";
+import WidgetFactory from "utils/WidgetFactory";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -136,8 +135,10 @@ const PropertyControl = memo((props: Props) => {
    *   theme config and thus it is fetched from there.
    */
   const propertyStylesheetValue = (() => {
-    const widgetStylesheet: AppTheme["stylesheet"][string] =
-      themeStylesheet[widgetProperties.type];
+    const widgetStylesheet: Record<
+      string,
+      any
+    > = WidgetFactory.getWidgetStylesheetConfigMap(widgetProperties.type);
 
     if (props.getStylesheetValue) {
       return props.getStylesheetValue(

@@ -38,6 +38,12 @@ class NumberSliderWidget extends BaseWidget<
     return styleConfig;
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   componentDidUpdate(prevProps: NumberSliderWidgetProps) {
     /**
      * If you change the defaultValue from the propertyPane

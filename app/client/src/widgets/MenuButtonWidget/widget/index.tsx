@@ -435,6 +435,14 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      menuColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   menuItemClickHandler = (onClick: string | undefined) => {
     if (onClick) {
       super.executeAction({

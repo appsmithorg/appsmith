@@ -227,6 +227,13 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     ];
   }
 
+  static getStylesheetConfig(): Record<string, any> {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      boxShadow: "none",
+    };
+  }
+
   getPageView() {
     return (
       <SwitchComponent

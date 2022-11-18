@@ -24,6 +24,14 @@ class CodeScannerWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   onCodeDetected = (value: string) => {
     this.props.updateWidgetMetaProperty("value", value, {
       triggerPropertyName: "onCodeDetected",

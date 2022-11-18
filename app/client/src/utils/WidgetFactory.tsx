@@ -12,6 +12,7 @@ import {
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
+import { AppThemeStylesheet } from "entities/AppTheming";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -49,6 +50,7 @@ class WidgetFactory {
     readonly PropertyPaneConfig[]
   > = new Map();
   static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
+  static stylesheetConfigMap: Map<WidgetType, Record<string, any>> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -66,6 +68,7 @@ class WidgetFactory {
     propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
+    stylesheetConfig?: Record<string, any>,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -75,6 +78,8 @@ class WidgetFactory {
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
       loadingProperties &&
         this.loadingProperties.set(widgetType, loadingProperties);
+      stylesheetConfig &&
+        this.stylesheetConfigMap.set(widgetType, stylesheetConfig);
 
       if (propertyPaneConfig) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
@@ -262,6 +267,17 @@ class WidgetFactory {
 
   static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {
     return this.loadingProperties.get(type);
+  }
+
+  static getWidgetStylesheetConfigMap(
+    widgetType: WidgetType,
+  ): AppThemeStylesheet {
+    const map = this.stylesheetConfigMap.get(widgetType);
+    if (!map) {
+      log.error("Widget stylesheet properties not defined: ", widgetType);
+      return {};
+    }
+    return map;
   }
 }
 

@@ -310,6 +310,14 @@ class FormButtonWidget extends ButtonWidget {
     ];
   }
 
+  static getStylesheetConfig() {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   clickWithRecaptcha(token: string) {
     if (this.props.onClick) {
       this.setState({

@@ -198,6 +198,13 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     };
   }
 
+  static getStylesheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getWidgetType(): string {
     return "CAMERA_WIDGET";
   }
