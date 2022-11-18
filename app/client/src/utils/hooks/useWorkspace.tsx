@@ -1,4 +1,4 @@
-import { fetchWorkspace } from "actions/workspaceActions";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";

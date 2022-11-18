@@ -13,6 +13,26 @@ export const setPreviewModeAction = (payload: boolean) => ({
 });
 
 /**
+ * action that sets visibility state of the canvas top section
+ *
+ * @param payload
+ * @returns
+ */
+export const setCanvasCardsState = (payload: string) => ({
+  type: ReduxActionTypes.SET_CANVAS_CARDS_STATE,
+  payload,
+});
+/**
+ * action that deletes/clears the visibility state of the canvas top section
+ *
+ * @param payload
+ * @returns
+ */
+export const deleteCanvasCardsState = () => ({
+  type: ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
+});
+
+/**
  * action that update canvas layout
  *
  * @param width
@@ -37,6 +57,6 @@ export const updateCanvasLayoutAction = (
  * This function was created to add a sync to the entity update and shortcut command being fired to execute any command.
  */
 
-export const startingEntityUpdation = () => ({
+export const startingEntityUpdate = () => ({
   type: ReduxActionTypes.ENTITY_UPDATE_STARTED,
 });

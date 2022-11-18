@@ -387,6 +387,11 @@ function ApiResponseView(props: Props) {
 
   const selectedResponseTab = useSelector(getApiPaneResponseSelectedTab);
   const updateSelectedResponseTab = useCallback((tabKey: string) => {
+    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "API_PANE",
+      });
+    }
     dispatch(setApiPaneResponseSelectedTab(tabKey));
   }, []);
 
