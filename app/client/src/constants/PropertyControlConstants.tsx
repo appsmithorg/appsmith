@@ -94,6 +94,9 @@ export type PropertyPaneControlConfig = {
   postUpdateActions?: ReduxActionType[];
   onBlur?: () => void;
   onFocus?: () => void;
+
+  // Numeric Input Control
+  min?: number;
 };
 
 type ValidationConfigParams = {

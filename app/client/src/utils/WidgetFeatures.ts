@@ -300,10 +300,11 @@ function transformToNumber(
   propertyName: string,
   propertyValue: string,
 ) {
+  const value = parseInt(propertyValue, 10);
   return [
     {
       propertyPath: propertyName,
-      propertyValue: parseInt(propertyValue, 10),
+      propertyValue: Number.isNaN(value) ? 0 : value,
     },
   ];
 }
@@ -360,6 +361,7 @@ export const PropertyPaneConfigTemplates: Record<
     },
     {
       propertyName: "minDynamicHeight",
+      min: 4,
       onBlur: () => {
         DynamicHeightCallbackHandler.emit(
           CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
@@ -376,11 +378,11 @@ export const PropertyPaneConfigTemplates: Record<
       hidden: hideDynamicHeightPropertyControl,
       dependencies: ["dynamicHeight", "maxDynamicHeight"],
       isJSConvertible: false,
-      isBindProperty: true,
+      isBindProperty: false,
       isTriggerProperty: false,
       updateHook: transformToNumber,
       validation: {
-        type: ValidationTypes.FUNCTION,
+        type: ValidationTypes.NUMBER,
         params: {
           fn: validateMinHeight,
           expected: {
@@ -394,6 +396,7 @@ export const PropertyPaneConfigTemplates: Record<
     },
     {
       propertyName: "maxDynamicHeight",
+      min: 4,
       onFocus: () => {
         DynamicHeightCallbackHandler.emit(
           CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
@@ -411,7 +414,7 @@ export const PropertyPaneConfigTemplates: Record<
       hidden: hideDynamicHeightPropertyControl,
       updateHook: transformToNumber,
       validation: {
-        type: ValidationTypes.FUNCTION,
+        type: ValidationTypes.NUMBER,
         params: {
           fn: validateMaxHeight,
           expected: {
@@ -422,7 +425,7 @@ export const PropertyPaneConfigTemplates: Record<
         },
       },
       isJSConvertible: false,
-      isBindProperty: true,
+      isBindProperty: false,
       isTriggerProperty: false,
       postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
     },
