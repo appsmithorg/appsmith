@@ -135,11 +135,10 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
   if (url) {
     //Default libraries will not have url
     return (
-      <div className="delete">
+      <div className="delete" onClick={uninstallLibrary}>
         <Icon
           className="uninstall-library"
           name="trash-outline"
-          onClick={uninstallLibrary}
           size={IconSize.MEDIUM}
         />
       </div>
