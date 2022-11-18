@@ -195,6 +195,10 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
 
 const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
   cursor: help;
+  &&& svg {
+    width: ${TOOLTIP_ICON_SIZE}px;
+    height: ${TOOLTIP_ICON_SIZE}px;
+  }
   &&&:hover {
     svg {
       path {
@@ -293,7 +297,7 @@ const LabelWithTooltip = React.forwardRef<
           position="top"
         >
           <ToolTipIcon
-            color={Colors.SILVER_CHALICE}
+            color={Colors.MIRAGE}
             compact={compact}
             position={position}
           >
