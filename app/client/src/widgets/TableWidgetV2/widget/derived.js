@@ -571,9 +571,11 @@ export default {
        *  have proper row structure with empty string values
        */
       updatedRow = {};
-      Object.keys(rows[0]).forEach((key) => {
-        updatedRow[key] = "";
-      });
+      if (rows && rows[0]) {
+        Object.keys(rows[0]).forEach((key) => {
+          updatedRow[key] = "";
+        });
+      }
     }
 
     const nonDataColumnTypes = [

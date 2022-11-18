@@ -2100,9 +2100,9 @@ describe("validate getUpdatedRow", () => {
     });
   });
 
-  it("should check that with updated row index -1, it returns an object with empty string values", () => {
+  it("should check that it returns empty values when updateRowIndex is invalid or -1", () => {
     const { getUpdatedRow } = derivedProperty;
-    const input = {
+    const input1 = {
       updatedRowIndex: -1,
       processedTableData: [
         { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
@@ -2110,16 +2110,7 @@ describe("validate getUpdatedRow", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
-    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
-
-  it("should check that with string updated row index, it returns an object with empty string values", () => {
-    const { getUpdatedRow } = derivedProperty;
-    const input = {
+    const input2 = {
       updatedRowIndex: "dummyIndex",
       processedTableData: [
         { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
@@ -2127,16 +2118,8 @@ describe("validate getUpdatedRow", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
-    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
-      id: "",
-      name: "",
-      extra: "",
-    });
-  });
 
-  it("should check that with undefined updated row index, it returns an object with empty string values", () => {
-    const { getUpdatedRow } = derivedProperty;
-    const input = {
+    const input3 = {
       updatedRowIndex: undefined,
       processedTableData: [
         { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
@@ -2144,7 +2127,19 @@ describe("validate getUpdatedRow", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
-    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+    expect(getUpdatedRow(input1, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+    });
+
+    expect(getUpdatedRow(input2, moment, _)).toStrictEqual({
+      id: "",
+      name: "",
+      extra: "",
+    });
+
+    expect(getUpdatedRow(input3, moment, _)).toStrictEqual({
       id: "",
       name: "",
       extra: "",
