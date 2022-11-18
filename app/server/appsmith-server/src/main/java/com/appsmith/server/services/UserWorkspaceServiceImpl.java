@@ -97,7 +97,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
         // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
         if (!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
             return permissionGroupUnassignedMono.then(userGroupMono)
-                    .map(userGroup -> WorkspaceMemberInfoDTO.builder().username(userGroup.getName()).name(userGroup.getName()).build());
+                    .map(userGroup -> WorkspaceMemberInfoDTO.builder().userGroupId(userGroup.getId()).name(userGroup.getName()).build());
         }
 
         // Get the new permission group
