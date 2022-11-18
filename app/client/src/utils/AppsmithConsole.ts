@@ -26,7 +26,7 @@ function log(ev: Log) {
       entityType: ev.source?.type,
     });
   }
-  dispatchAction(debuggerLogInit(ev));
+  dispatchAction(debuggerLogInit([ev]));
 }
 
 function getTimeStamp() {
@@ -82,26 +82,30 @@ function error(
   });
 }
 
+interface addErrorArg {
+  payload: LogActionPayload;
+  severity?: Severity;
+  category?: LOG_CATEGORY;
+}
+
 // This is used to add an error to the errors tab
-function addError(
-  payload: LogActionPayload,
-  severity = Severity.ERROR,
-  category = LOG_CATEGORY.PLATFORM_GENERATED,
-) {
-  dispatchAction(
-    addErrorLogInit({
-      ...payload,
-      severity: severity,
-      timestamp: getTimeStamp(),
-      category,
-      occurrenceCount: 1,
-    }),
-  );
+function addError(args: addErrorArg[]) {
+  const refinedArgs = args.map((arg) => ({
+    ...arg.payload,
+    severity: arg.severity ?? Severity.ERROR,
+    timestamp: getTimeStamp(),
+    occurrenceCount: 1,
+    category: arg.category ?? LOG_CATEGORY.PLATFORM_GENERATED,
+  }));
+
+  dispatchAction(addErrorLogInit(refinedArgs));
 }
 
 // This is used to remove an error from the errors tab
-function deleteError(id: string, analytics?: Log["analytics"]) {
-  dispatchAction(deleteErrorLogInit(id, analytics));
+function deleteError(
+  errorPayload: { id: string; analytics?: Log["analytics"] }[],
+) {
+  dispatchAction(deleteErrorLogInit(errorPayload));
 }
 
 export default {

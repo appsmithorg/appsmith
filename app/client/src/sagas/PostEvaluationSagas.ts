@@ -21,7 +21,7 @@ import {
   getEvalErrorPath,
   getEvalValuePath,
 } from "utils/DynamicBindingUtils";
-import { find, get, some } from "lodash";
+import { find, get, isEmpty, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -54,6 +54,8 @@ function logLatestEvalPropertyErrors(
   dataTree: DataTree,
   evaluationOrder: Array<string>,
 ) {
+  const errorsToAdd = [];
+  const errorsToDelete = [];
   const updatedDebuggerErrors: Record<string, Log> = {
     ...currentDebuggerErrors,
   };
@@ -145,8 +147,8 @@ function logLatestEvalPropertyErrors(
             !isJSAction(entity) ||
             (isJSAction(entity) && propertyPath === "body")
           ) {
-            AppsmithConsole.addError(
-              {
+            errorsToAdd.push({
+              payload: {
                 id: debuggerKey,
                 logType: isWarning
                   ? LOG_TYPE.EVAL_WARNING
@@ -168,14 +170,20 @@ function logLatestEvalPropertyErrors(
                 },
                 analytics: analyticsData,
               },
-              isWarning ? Severity.WARNING : Severity.ERROR,
-            );
+              severity: isWarning ? Severity.WARNING : Severity.ERROR,
+            });
           }
         } else if (debuggerKey in updatedDebuggerErrors) {
-          AppsmithConsole.deleteError(debuggerKey);
+          errorsToDelete.push({ id: debuggerKey });
         }
       }
     }
+  }
+  if (!isEmpty(errorsToAdd)) {
+    AppsmithConsole.addError(errorsToAdd);
+  }
+  if (!isEmpty(errorsToDelete)) {
+    AppsmithConsole.deleteError(errorsToDelete);
   }
 }
 
@@ -376,23 +384,27 @@ export function* handleJSFunctionExecutionErrorLog(
   errors: any[],
 ) {
   errors.length
-    ? AppsmithConsole.addError({
-        id: `${collectionId}-${action.id}`,
-        logType: LOG_TYPE.EVAL_ERROR,
-        text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
-          action.name
-        }`,
-        messages: errors.map((error) => ({
-          message: error.errorMessage || error.message,
-          type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
-          subType: error.errorType,
-        })),
-        source: {
-          id: action.id,
-          name: `${collectionName}.${action.name}`,
-          type: ENTITY_TYPE.JSACTION,
-          propertyPath: `${collectionName}.${action.name}`,
+    ? AppsmithConsole.addError([
+        {
+          payload: {
+            id: `${collectionId}-${action.id}`,
+            logType: LOG_TYPE.EVAL_ERROR,
+            text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
+              action.name
+            }`,
+            messages: errors.map((error) => ({
+              message: error.errorMessage || error.message,
+              type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
+              subType: error.errorType,
+            })),
+            source: {
+              id: action.id,
+              name: `${collectionName}.${action.name}`,
+              type: ENTITY_TYPE.JSACTION,
+              propertyPath: `${collectionName}.${action.name}`,
+            },
+          },
         },
-      })
-    : AppsmithConsole.deleteError(`${collectionId}-${action.id}`);
+      ])
+    : AppsmithConsole.deleteError([{ id: `${collectionId}-${action.id}` }]);
 }
