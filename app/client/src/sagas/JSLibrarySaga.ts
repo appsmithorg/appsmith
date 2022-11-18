@@ -24,16 +24,17 @@ import { EVAL_WORKER_ACTIONS, TJSLibrary } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { EvalWorker } from "./EvaluationsSaga";
 
-export function* installLibrary(lib: Partial<TJSLibrary>) {
-  const { name, url } = lib;
-  const { defs, libraryAccessor, status } = yield call(
+export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
+  const { url } = lib;
+  const { accessor, defs, success } = yield call(
     EvalWorker.request,
     EVAL_WORKER_ACTIONS.INSTALL_LIBRARY,
     url,
   );
+  const name: string = lib.name || accessor[accessor.length - 1];
   const applicationId: string = yield select(getCurrentApplicationId);
 
-  if (!status) {
+  if (!success) {
     yield put({
       type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
       payload: url,
@@ -52,9 +53,9 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
     LibraryApi.addLibrary,
     applicationId,
     {
-      name: name || libraryAccessor,
+      name,
       version,
-      accessor: libraryAccessor,
+      accessor,
       defs,
       url,
     },
@@ -92,10 +93,10 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
     payload: {
       libs: [
         {
-          name: libraryAccessor,
+          name,
           version,
           url,
-          accessor: libraryAccessor,
+          accessor,
         },
       ],
       add: true,
@@ -104,18 +105,20 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
 
   yield put({
     type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
-    payload: { url, libraryAccessor, version, name: name || libraryAccessor },
+    payload: {
+      url,
+      accessor,
+      version,
+      name,
+    },
   });
   Toaster.show({
-    text: createMessage(
-      customJSLibraryMessages.INSTALLATION_SUCCESSFUL,
-      libraryAccessor,
-    ),
+    text: createMessage(customJSLibraryMessages.INSTALLATION_SUCCESSFUL, name),
     variant: Variant.success,
   });
 }
 
-function* uninstallLibrary(action: ReduxAction<TJSLibrary>) {
+function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
   const { accessor, name } = action.payload;
   const applicationId: string = yield select(getCurrentApplicationId);
 
@@ -140,7 +143,7 @@ function* uninstallLibrary(action: ReduxAction<TJSLibrary>) {
       type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
       payload: {
         libs: [action.payload],
-        add: true,
+        add: false,
       },
     });
 
@@ -247,13 +250,13 @@ function* startInstallationRequestChannel() {
       type: ReduxActionTypes.INSTALL_LIBRARY_START,
       payload: action.payload.url,
     });
-    yield call(installLibrary, action.payload);
+    yield call(installLibrarySaga, action.payload);
   }
 }
 
 export default function*() {
   yield all([
-    takeEvery(ReduxActionTypes.UNINSTALL_LIBRARY_INIT, uninstallLibrary),
+    takeEvery(ReduxActionTypes.UNINSTALL_LIBRARY_INIT, uninstallLibrarySaga),
     takeLatest(ReduxActionTypes.FETCH_JS_LIBRARIES_INIT, fetchJSLibraries),
     call(startInstallationRequestChannel),
   ]);

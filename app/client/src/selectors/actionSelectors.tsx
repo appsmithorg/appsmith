@@ -47,8 +47,11 @@ export const getUsedActionNames = createSelector(
       Object.keys(dataTree).forEach((treeItem: string) => {
         map[treeItem] = true;
       });
-      for (const lib of installedLibraries) {
-        map[lib.accessor] = true;
+      const libAccessors = ([] as string[]).concat(
+        ...installedLibraries.map((lib) => lib.accessor),
+      );
+      for (const accessor of libAccessors) {
+        map[accessor] = true;
       }
     }
 

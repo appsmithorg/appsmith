@@ -1,0 +1,62 @@
+import difference from "lodash/difference";
+import { JSLibraries, libraryReservedNames } from "utils/DynamicBindingUtils";
+import { ternDefinitionGenerator } from "../JSLibrary/ternDefinitionGenerator";
+import { EvalWorkerRequest } from "../types";
+
+export function installLibrary(request: EvalWorkerRequest) {
+  const { requestData } = request;
+  const url = requestData;
+  const currentEnvKeys = Object.keys(self);
+  const defs: any = {};
+  try {
+    //@ts-expect-error test
+    self.importScripts(url);
+  } catch (e) {
+    return { success: false, defs };
+  }
+  const accessor = difference(Object.keys(self), currentEnvKeys) as Array<
+    string
+  >;
+  if (accessor.length === 0) return { status: true, defs, accessor };
+  const name = accessor[accessor.length - 1];
+  for (const acc of accessor) {
+    libraryReservedNames.add(acc);
+  }
+  defs["!name"] = `LIB/${name}`;
+  for (const key of accessor) {
+    //@ts-expect-error no types
+    defs[key] = ternDefinitionGenerator(self[key]);
+  }
+  return { success: true, defs, accessor };
+}
+
+export function uninstallLibrary(request: EvalWorkerRequest) {
+  const { requestData } = request;
+  const accessor = requestData;
+  for (const key of accessor) {
+    //@ts-expect-error test
+    self[key] = undefined;
+    libraryReservedNames.delete(key);
+  }
+  return true;
+}
+
+export function loadLibraries(request: EvalWorkerRequest) {
+  //Add types
+  const { requestData } = request;
+  const urls = requestData.map((lib: any) => lib.url);
+  const keysBefore = Object.keys(self);
+  try {
+    //@ts-expect-error no types found
+    self.importScripts(...urls);
+    const keysAfter = Object.keys(self);
+    const newKeys = difference(keysAfter, keysBefore);
+    for (const key of newKeys) {
+      libraryReservedNames.add(key);
+    }
+    JSLibraries.push(...requestData);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}

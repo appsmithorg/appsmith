@@ -279,7 +279,11 @@ export function getLintingErrors(
     globalData[dataKey] = true;
   }
   // Jshint shouldn't throw errors for additional libraries
-  JSLibraries.forEach((lib) => (globalData[lib.accessor] = true));
+  const libAccessors = ([] as string[]).concat(
+    ...JSLibraries.map((lib) => lib.accessor),
+  );
+  libAccessors.forEach((accessor) => (globalData[accessor] = true));
+
   // JSHint shouldn't throw errors for supported web apis
   Object.keys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),

@@ -81,10 +81,10 @@ function resetWorkerGlobalScope() {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     if (key === "evaluationVersion" || key === "window" || key === "document")
       continue;
-    if (JSLibraries.find((lib) => lib.accessor === key)) continue;
-    if (libraryReservedNames.find((name) => name === key)) continue;
+    if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
+    if (libraryReservedNames.has(key)) continue;
     // @ts-expect-error: Types are not available
-    delete self[key];
+    self[key] = undefined;
   }
 }
 

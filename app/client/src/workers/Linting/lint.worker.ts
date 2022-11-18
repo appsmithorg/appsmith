@@ -1,3 +1,4 @@
+import { isEqual } from "lodash";
 import { JSLibraries } from "utils/DynamicBindingUtils";
 import { WorkerErrorTypes } from "workers/common/types";
 import {
@@ -66,7 +67,9 @@ function eventRequestHandler({
         JSLibraries.push(...libs);
       } else {
         for (const lib of libs) {
-          const idx = JSLibraries.findIndex((l) => l.accessor === lib.accessor);
+          const idx = JSLibraries.findIndex((l) =>
+            isEqual(l.accessor.sort(), lib.accessor.sort()),
+          );
           if (idx === -1) return;
           JSLibraries.splice(idx, 1);
         }

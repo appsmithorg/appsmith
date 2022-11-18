@@ -32,12 +32,7 @@ export function ternDefinitionGenerator(obj: Record<string, any>) {
     return Object.keys(obj || {}).reduce((acc, key) => {
       acc[key] = acc[key] || {};
       acc[key] = {
-        "!type":
-          typeof obj[key] === "function"
-            ? "fn()"
-            : typeof obj[key] === "boolean"
-            ? "bool"
-            : typeof obj[key],
+        "!type": getTernDocType(obj[key]),
       };
       return acc;
     }, {} as any);

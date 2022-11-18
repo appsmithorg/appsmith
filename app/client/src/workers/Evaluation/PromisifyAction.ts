@@ -15,7 +15,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { dataTreeEvaluator } from "workers/Evaluation/evaluation.worker";
+import { dataTreeEvaluator } from "./handlers/evalTree";
 
 export const promisifyAction = (
   workerRequestId: string,

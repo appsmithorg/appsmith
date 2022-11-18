@@ -7,6 +7,12 @@ import {
 export function resetJSLibraries() {
   JSLibraries.length = 0;
   JSLibraries.push(...defaultLibraries);
-  libraryReservedNames.length = 0;
-  libraryReservedNames.push(...defaultLibraries.map((lib) => lib.name));
+  const defaultLibraryAccessors = defaultLibraries.map(
+    (lib) => lib.accessor[0],
+  );
+  for (const key of libraryReservedNames) {
+    if (!defaultLibraryAccessors.includes(key)) {
+      libraryReservedNames.delete(key);
+    }
+  }
 }

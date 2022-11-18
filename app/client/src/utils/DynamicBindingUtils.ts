@@ -155,34 +155,34 @@ export type TJSLibrary = {
   version?: string;
   docsURL: string;
   name: string;
-  accessor: string;
+  accessor: string[];
   lib?: any;
   url?: string;
 };
 export const defaultLibraries: TJSLibrary[] = [
   {
-    accessor: "_",
+    accessor: ["_"],
     lib: _,
     version: lodashVersion,
     docsURL: `https://lodash.com/docs/${lodashVersion}`,
     name: "lodash",
   },
   {
-    accessor: "moment",
+    accessor: ["moment"],
     lib: moment,
     version: moment.version,
     docsURL: `https://momentjs.com/docs/`,
     name: "moment",
   },
   {
-    accessor: "xmlParser",
+    accessor: ["xmlParser"],
     lib: parser,
     version: "3.17.5",
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
     name: "xmlParser",
   },
   {
-    accessor: "forge",
+    accessor: ["forge"],
     // We are removing some functionalities of node-forge because they wont
     // work in the worker thread
     lib: _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
@@ -193,7 +193,9 @@ export const defaultLibraries: TJSLibrary[] = [
 ];
 
 export const JSLibraries = [...defaultLibraries];
-export const libraryReservedNames = defaultLibraries.map((lib) => lib.name);
+export const libraryReservedNames = new Set(
+  ...defaultLibraries.map((lib) => lib.accessor[0]),
+);
 /**
  * creates dynamic list of constants based on
  * current list of extra libraries i.e lodash("_"), moment etc
@@ -201,7 +203,7 @@ export const libraryReservedNames = defaultLibraries.map((lib) => lib.name);
  */
 export const defaultLibraryNames = defaultLibraries.reduce(
   (prev: Record<string, string>, curr) => {
-    prev[curr.accessor] = curr.accessor;
+    prev[curr.accessor[0]] = curr.accessor[0];
     return prev;
   },
   {},

@@ -6,6 +6,7 @@ import {
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
+import { isEqual } from "lodash";
 
 export enum InstallState {
   Queued,
@@ -29,6 +30,7 @@ const initialState = {
       accessor: lib.accessor,
     };
   }),
+  reservedNames: [],
 };
 
 const jsLibraryReducer = createImmerReducer(initialState, {
@@ -49,22 +51,23 @@ const jsLibraryReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (
     state: LibraryState,
     action: ReduxAction<{
-      libraryAccessor: string;
+      accessor: string[];
       url: string;
       version: string;
     }>,
   ) => {
-    const { libraryAccessor, url, version } = action.payload;
+    const { accessor, url, version } = action.payload;
+    const name = accessor[accessor.length - 1] as string;
     const recommendedLibrary = recommendedLibraries.find(
       (lib) => lib.url === url,
     );
     state.installationStatus[url] = InstallState.Success;
     state.installedLibraries.unshift({
-      name: recommendedLibrary?.name || libraryAccessor,
+      name: recommendedLibrary?.name || name,
       docsURL: recommendedLibrary?.url || url,
       version: recommendedLibrary?.version || version,
       url,
-      accessor: libraryAccessor,
+      accessor,
     });
   },
   [ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED]: (
@@ -96,7 +99,7 @@ const jsLibraryReducer = createImmerReducer(initialState, {
   ) => {
     const uLib = action.payload;
     state.installedLibraries = state.installedLibraries.filter(
-      (lib) => uLib.accessor !== lib.accessor,
+      (lib) => !isEqual(uLib.accessor.sort(), lib.accessor.sort()),
     );
   },
   [ReduxActionTypes.FETCH_APPLICATION_SUCCESS]: (state: LibraryState) => {
