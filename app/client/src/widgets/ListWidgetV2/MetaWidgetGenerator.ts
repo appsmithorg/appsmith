@@ -1161,10 +1161,6 @@ class MetaWidgetGenerator {
     return this.getRowTemplateCache(ROOT_ROW_KEY, ROOT_CONTAINER_PARENT_KEY);
   };
 
-  getSelectedRowMetaCacheProps = () => {
-    return this.getRowCache(SELECTED_ROW_KEY);
-  };
-
   private getReferencesEntityDefMap = (value: string, key: string) => {
     const metaWidgetsMap = this.getRowCacheByTemplateWidgetName(key);
 

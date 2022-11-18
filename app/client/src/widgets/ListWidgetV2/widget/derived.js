@@ -19,26 +19,6 @@ export default {
     const selectedItem = { ...items[selectedRowIndex] };
     return selectedItem;
   },
-  //
-  getSelectedRow: (props, moment, _) => {
-    const selectedRowViewIndex =
-      props.selectedRowViewIndex === undefined ||
-      Number.isNaN(parseInt(props.selectedRowViewIndex))
-        ? -1
-        : parseInt(props.selectedRowViewIndex);
-    const rows = props.currentViewRows || [];
-
-    if (selectedRowViewIndex === -1) {
-      const emptyRow = { ...rows[0] };
-      Object.keys(emptyRow).forEach((key) => {
-        emptyRow[key] = "";
-      });
-      return emptyRow;
-    }
-
-    const currentSelectedRow = { ...rows[selectedRowViewIndex] };
-    return currentSelectedRow;
-  },
   // this is just a patch for #7520
   getChildAutoComplete: (props, moment, _) => {
     const data = [...props.listData];

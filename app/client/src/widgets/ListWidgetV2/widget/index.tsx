@@ -551,7 +551,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   }
 
   onPageChange = (page: number) => {
-    const { currentPage } = this.props;
+    const currentPage = this.props.pageNo;
+
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
 
