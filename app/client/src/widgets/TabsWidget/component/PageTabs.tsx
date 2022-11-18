@@ -2,8 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { get } from "lodash";
 import { isEllipsisActive } from "utils/helpers";
-import { TooltipComponent } from "design-system";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey, TooltipComponent } from "design-system";
 
 import { useSelector } from "react-redux";
 
@@ -44,7 +43,7 @@ const StyleTabText = styled.div<{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  ${(props) => getTypographyByKey(props, "h6")}
+  ${getTypographyByKey("h6")}
   color: ${(props) => getComplementaryGrayscaleColor(props.backgroundColor)};
   font-weight: normal;
   height: 32px;
