@@ -181,7 +181,10 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     };
   }
 
+  //TODO: (Rishab) When we have the new list widget, we need to make the playstate as a derived propery.
+  //TODO: (Balaji) Can we have dynamic default value that accepts current widget values and determines the default value.
   componentDidUpdate(prevProps: VideoWidgetProps) {
+    //for resetWidget
     if (
       prevProps.playState !== "NOT_STARTED" &&
       this.props.playState === "NOT_STARTED"
@@ -193,6 +196,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       }
     }
 
+    //when auto play values changes
     if (prevProps.autoPlay !== this.props.autoPlay) {
       if (this.props.autoPlay) {
         this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
