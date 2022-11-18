@@ -18,6 +18,7 @@ import styled, { useTheme } from "styled-components";
 import {
   Button,
   Category,
+  getTypographyByKey,
   LabelContainer,
   Size,
   TextInput,
@@ -37,7 +38,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
@@ -90,7 +91,7 @@ const Row = styled.div`
 `;
 
 const SectionTitle = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   color: ${Colors.CHARCOAL};
   display: inline-flex;
 
