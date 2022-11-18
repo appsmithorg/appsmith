@@ -726,6 +726,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get(PROPERTY_SELECTOR.onClick)
       .find(".t--js-toggle")
       .click();
+    cy.updateCodeInput(".t--property-control-label", "Reset");
     cy.updateCodeInput(
       PROPERTY_SELECTOR.onClick,
       `{{resetWidget("Table1",true)}}`,
@@ -751,7 +752,7 @@ describe("Table widget inline editing functionality", () => {
     // case 4: check if the updateRowIndex is -1 when widget is reset
     cy.editTableCell(0, 1);
     cy.enterTableCellValue(0, 1, "#13").type("{enter}");
-    cy.contains("Submit").click({ force: true });
+    cy.contains("Reset").click({ force: true });
     cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
     // case 5: check if the updatedRowIndex changes to -1 when the table data changes.
@@ -764,7 +765,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
   });
 
-  it("27. should check if updatedRowIndex is getting updated for multi row update mode", () => {
+  it.only("27. should check if updatedRowIndex is getting updated for multi row update mode", () => {
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
     cy.get(".t--widget-textwidget").should("exist");
     cy.updateCodeInput(
@@ -777,6 +778,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get(PROPERTY_SELECTOR.onClick)
       .find(".t--js-toggle")
       .click();
+    cy.updateCodeInput(".t--property-control-label", "Reset");
     cy.updateCodeInput(
       PROPERTY_SELECTOR.onClick,
       `{{resetWidget("Table1",true)}}`,
@@ -796,13 +798,15 @@ describe("Table widget inline editing functionality", () => {
     // case 2: check if the updateRowIndex is -1 when widget is reset
     cy.editTableCell(0, 1);
     cy.enterTableCellValue(0, 1, "#13").type("{enter}");
-    cy.contains("Submit").click({ force: true });
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", 1);
+    cy.contains("Reset").click({ force: true });
     cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
     // case 3: check if the updatedRowIndex changes to -1 when the table data changes.
     cy.wait(1000);
     cy.editTableCell(0, 2);
     cy.enterTableCellValue(0, 2, "#14").type("{enter}");
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", 2);
     cy.openPropertyPane("tablewidgetv2");
     cy.get(widgetsPage.tabedataField).type("{backspace}");
     cy.wait(300);

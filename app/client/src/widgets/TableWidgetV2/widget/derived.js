@@ -560,17 +560,6 @@ export default {
 
     const rows = props.filteredTableData || props.processedTableData || [];
     const primaryColumns = props.primaryColumns;
-    const nonDataColumnTypes = [
-      "editActions",
-      "button",
-      "iconButton",
-      "menuButton",
-    ];
-    const nonDataColumnAliases = primaryColumns
-      ? Object.values(primaryColumns)
-          .filter((column) => nonDataColumnTypes.includes(column.columnType))
-          .map((column) => column.alias)
-      : [];
     let updatedRow;
 
     if (index > -1) {
@@ -586,6 +575,18 @@ export default {
         updatedRow[key] = "";
       });
     }
+
+    const nonDataColumnTypes = [
+      "editActions",
+      "button",
+      "iconButton",
+      "menuButton",
+    ];
+    const nonDataColumnAliases = primaryColumns
+      ? Object.values(primaryColumns)
+          .filter((column) => nonDataColumnTypes.includes(column.columnType))
+          .map((column) => column.alias)
+      : [];
 
     const keysToBeOmitted = [
       "__originalIndex__",

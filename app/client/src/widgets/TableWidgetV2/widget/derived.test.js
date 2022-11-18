@@ -2070,9 +2070,9 @@ describe("getPageOffset -", () => {
 });
 
 describe("validate getUpdatedRow", () => {
-  it("with valid updated row index", () => {
+  it("should check that valid updated row index returns the valid value", () => {
     const { getUpdatedRow } = derivedProperty;
-    const input = {
+    const input1 = {
       updatedRowIndex: 1,
       processedTableData: [
         { id: 1234, name: "Jim Doe", extra: "", __originalIndex__: 0 },
@@ -2080,31 +2080,27 @@ describe("validate getUpdatedRow", () => {
         { id: 123, name: "John Doe1", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
-    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
-      id: 123,
-      name: "John Doe1",
-      extra: "Extra1",
-    });
-  });
-
-  it("with valid updated row index", () => {
-    const { getUpdatedRow } = derivedProperty;
-    const input = {
+    const input2 = {
       updatedRowIndex: 0,
       processedTableData: [
         { id: 1, name: "Lorem Ipsum", extra: "", __originalIndex__: 0 },
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
-    };
-    expect(getUpdatedRow(input, moment, _)).toStrictEqual({
+    }
+    expect(getUpdatedRow(input1, moment, _)).toStrictEqual({
+      id: 123,
+      name: "John Doe1",
+      extra: "Extra1",
+    });
+    expect(getUpdatedRow(input2, moment, _)).toStrictEqual({
       id: 1,
       name: "Lorem Ipsum",
       extra: "",
     });
   });
 
-  it("with updated row index -1", () => {
+  it("should check that with updated row index -1, it returns an object with empty string values", () => {
     const { getUpdatedRow } = derivedProperty;
     const input = {
       updatedRowIndex: -1,
@@ -2121,7 +2117,7 @@ describe("validate getUpdatedRow", () => {
     });
   });
 
-  it("with string updated row index", () => {
+  it("should check that with string updated row index, it returns an object with empty string values", () => {
     const { getUpdatedRow } = derivedProperty;
     const input = {
       updatedRowIndex: "dummyIndex",
@@ -2138,7 +2134,7 @@ describe("validate getUpdatedRow", () => {
     });
   });
 
-  it("with undefined updated row index", () => {
+  it("should check that with undefined updated row index, it returns an object with empty string values", () => {
     const { getUpdatedRow } = derivedProperty;
     const input = {
       updatedRowIndex: undefined,
@@ -2155,7 +2151,7 @@ describe("validate getUpdatedRow", () => {
     });
   });
 
-  it("for removal of non data columns", () => {
+  it("should check that it removes non data columns", () => {
     const { getUpdatedRow } = derivedProperty;
     const input = {
       updatedRowIndex: 1,
