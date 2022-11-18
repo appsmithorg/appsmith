@@ -310,7 +310,7 @@ export function CustomURLSlug(props: CustomURLSlugProp) {
           />
           {page.customSlug && (
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               onClick={resetCustomSlug}
               tag="button"
               text="reset to default"

@@ -246,7 +246,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
         </Wrapper>
 
         <StyledPropertyPaneButton
-          category={Category.tertiary}
+          category={Category.secondary}
           icon="plus"
           onClick={this.addOption}
           size={Size.medium}
