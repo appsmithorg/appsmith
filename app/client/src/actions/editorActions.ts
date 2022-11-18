@@ -57,6 +57,6 @@ export const updateCanvasLayoutAction = (
  * This function was created to add a sync to the entity update and shortcut command being fired to execute any command.
  */
 
-export const startingEntityUpdation = () => ({
+export const startingEntityUpdate = () => ({
   type: ReduxActionTypes.ENTITY_UPDATE_STARTED,
 });

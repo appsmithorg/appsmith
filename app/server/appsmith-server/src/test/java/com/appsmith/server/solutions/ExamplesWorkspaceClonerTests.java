@@ -717,6 +717,7 @@ public class ExamplesWorkspaceClonerTests {
                     return applicationPageService.addPageToApplication(app, page, false)
                             .then(layoutActionService.createSingleAction(newPageAction))
                             .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction))
                             .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
                 })
                 .map(tuple2 -> {
