@@ -7,6 +7,7 @@ import {
   Button,
   Category,
   DialogComponent as Dialog,
+  getTypographyByKey,
   Size,
   Text,
   TextType,
@@ -21,7 +22,6 @@ import {
   GEN_CRUD_SUCCESS_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import {
   ProgressiveImage,
@@ -38,7 +38,7 @@ const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
   display: flex;
   justify-content: center;
-  ${(props) => getTypographyByKey(props, "h1")}
+  ${getTypographyByKey("h1")}
 `;
 
 const ActionButtonWrapper = styled.div`

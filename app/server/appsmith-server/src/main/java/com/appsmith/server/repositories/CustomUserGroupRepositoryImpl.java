@@ -2,7 +2,9 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.QUserGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -45,6 +47,19 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
                 null,
                 NO_RECORD_LIMIT
         );
+    }
+
+    @Override
+    public Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId) {
+        Criteria idCriteria = where(fieldName(QUserGroup.userGroup.id)).is(id);
+        Criteria tenantIdCriteria = where(fieldName(QUserGroup.userGroup.tenantId)).is(tenantId);
+
+        Criteria andCriteria = new Criteria();
+        andCriteria.andOperator(idCriteria, tenantIdCriteria, notDeleted());
+
+        Query query = new Query();
+        query.addCriteria(andCriteria);
+        return mongoOperations.findOne(query, UserGroup.class);
     }
 
     @Override

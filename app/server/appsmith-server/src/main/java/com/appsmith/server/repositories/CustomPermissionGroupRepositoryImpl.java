@@ -43,6 +43,14 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
     }
 
     @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(String userGroupId, String workspaceId,
+                                                                                AclPermission permission) {
+        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds)).in(userGroupId);
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).is(workspaceId);
+        return queryAll(List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria), permission);
+    }
+
+    @Override
     public Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission) {
         Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
         return queryAll(

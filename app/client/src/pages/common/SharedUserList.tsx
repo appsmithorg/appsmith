@@ -6,7 +6,7 @@ import { useSelector } from "store";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
 import { ScrollIndicator } from "design-system";
-import { WorkspaceUser } from "constants/workspaceConstants";
+import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
@@ -76,7 +76,7 @@ export default function SharedUserList(props: any) {
     });
 
     const { users } = workspace;
-    return users || [];
+    return users?.filter((user: any) => user.userId) || [];
   }, [userWorkspaces]);
   return (
     <UserImageContainer isMobile={isMobile}>

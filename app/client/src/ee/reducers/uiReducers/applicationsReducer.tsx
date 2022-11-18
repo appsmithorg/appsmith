@@ -8,7 +8,10 @@ import {
   handlers as CE_handlers,
   ApplicationsReduxState,
 } from "ce/reducers/uiReducers/applicationsReducer";
-import { Workspaces, WorkspaceUser } from "constants/workspaceConstants";
+import {
+  Workspaces,
+  WorkspaceUser,
+} from "@appsmith/constants/workspaceConstants";
 import { createReducer } from "utils/ReducerUtils";
 
 const handlers = {

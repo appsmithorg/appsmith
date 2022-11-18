@@ -75,7 +75,13 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 1, natural: true },
+              params: {
+                min: 1,
+                max: 100,
+                default: 1,
+                natural: true,
+                passThroughOnZero: false,
+              },
             },
             hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
             dependencies: ["isIndeterminate"],

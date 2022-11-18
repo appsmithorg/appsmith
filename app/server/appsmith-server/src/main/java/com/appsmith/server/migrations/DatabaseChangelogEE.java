@@ -11,6 +11,7 @@ import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -19,10 +20,12 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,6 +34,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -117,7 +121,7 @@ public class DatabaseChangelogEE {
         Index userEmailEventCompoundIndex = makeIndex("event", "user.email", "timestamp").named("userEmail_event_compound_index");
         ensureIndexes(mongockTemplate, AuditLog.class, userEmailEventCompoundIndex);
     }
-    
+
     @ChangeSet(order = "004", id = "add-brand-tenant-configuration", author = "")
     public void addBrandTenantConfiguration(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils) {
         Query tenantQuery = new Query();
@@ -147,6 +151,45 @@ public class DatabaseChangelogEE {
                 .build();
         Query query = new Query(where("policies.permission").ne(READ_PERMISSION_GROUPS));
         Update update = new Update().addToSet("policies", policy);
+        mongockTemplate.updateMulti(query, update, PermissionGroup.class);
+    }
+
+    @ChangeSet(order = "006", id = "introduce-missing-permissions", author = "")
+    public void addMissingPermissionsToExistingObjects(MongockTemplate mongockTemplate) {
+
+        // Find al the administrator permission groups and give make public to the default workspace
+        Query adminPermissionGroupQuery = new Query().addCriteria(where("name").regex("^Administrator - .*"));
+        adminPermissionGroupQuery.fields().include("_id", "defaultWorkspaceId");
+        List<PermissionGroup> permissionGroups = mongockTemplate.find(adminPermissionGroupQuery, PermissionGroup.class);
+
+        permissionGroups.forEach(permissionGroup -> {
+            String defaultWorkspaceId = permissionGroup.getDefaultWorkspaceId();
+            if (defaultWorkspaceId != null) {
+
+                Policy makePublicPolicy = Policy.builder()
+                        .permission("makePublic:workspaceApplications")
+                        .permissionGroups(Set.of(permissionGroup.getId()))
+                        .build();
+                Query workspaceQuery = new Query().addCriteria(where("id").is(defaultWorkspaceId));
+
+                mongockTemplate.updateFirst(workspaceQuery, new Update().addToSet("policies", makePublicPolicy), Workspace.class);
+            }
+        });
+    }
+
+    @ChangeSet(order = "007", id = "remove-internal-permission-group-read-permission", author = "")
+    public void removeReadPermissionForInternalPermissionGroups(MongockTemplate mongockTemplate) {
+        Criteria userManagementPgCriteria = where("name").regex(" User Management$");
+        Criteria publicPermissionGroupPgCriteria = where("name").is(PUBLIC_PERMISSION_GROUP);
+
+        Criteria interestingPermissionGroupCriteria = new Criteria().orOperator(userManagementPgCriteria, publicPermissionGroupPgCriteria);
+
+        Criteria readPgCriteria = where("policies.permission").is("read:permissionGroups");
+
+        Query query = new Query(interestingPermissionGroupCriteria.andOperator(readPgCriteria));
+
+        Update update = new Update().set("policies.$.permissionGroups", Set.of());
+
         mongockTemplate.updateMulti(query, update, PermissionGroup.class);
     }
 

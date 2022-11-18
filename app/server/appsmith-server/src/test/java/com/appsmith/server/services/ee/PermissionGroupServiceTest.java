@@ -60,7 +60,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class PermissionGroupServiceTest {
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -207,7 +207,7 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(listMono)
                 .assertNext(list -> {
                     // 3 default roles per user (user@test, api_user created in setup) + 1 super admin role
-                    assertThat(list.size()).isEqualTo(11);
+                    assertThat(list.size()).isEqualTo(7);
 
                     // Assert that instance admin roles are returned
                     Optional<PermissionGroupInfoDTO> pgiDTO = list.stream()
@@ -220,19 +220,19 @@ public class PermissionGroupServiceTest {
                     Set<PermissionGroupInfoDTO> administratorPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(ADMINISTRATOR))
                             .collect(Collectors.toSet());
-                    assertThat(administratorPgiDTOs).hasSize(3);
+                    assertThat(administratorPgiDTOs).hasSize(2);
                     administratorPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
                     Set<PermissionGroupInfoDTO> developerPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(DEVELOPER))
                             .collect(Collectors.toSet());
-                    assertThat(developerPgiDTOs).hasSize(3);
+                    assertThat(developerPgiDTOs).hasSize(2);
                     developerPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
                     Set<PermissionGroupInfoDTO> viewersPgiDTOs = list.stream()
                             .filter(permissionGroupInfoDTO -> permissionGroupInfoDTO.getName().startsWith(VIEWER))
                             .collect(Collectors.toSet());
-                    assertThat(viewersPgiDTOs).hasSize(3);
+                    assertThat(viewersPgiDTOs).hasSize(2);
                     viewersPgiDTOs.forEach(pgiDTO1 -> assertThat(pgiDTO1.isAutoCreated()).isTrue());
 
                     // Assert that user permissions is returned for all the permission groups
@@ -620,8 +620,15 @@ public class PermissionGroupServiceTest {
 
         userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 
+        /**
+         * Updating the test case below and separating the User and UserGroup role association update,
+         * because of the latest changes which throw error if the Already Existing permissions are added again
+         * or permissions from the same workspace are added.
+         */
+
         // Now associate the created workspcae default role, createdPermissionGroup1 and createdPermissionGroup2 with the groups and users and remove
         // createdPermissionGroup3 from the groups and users
+        updateRoleAssociationDTO.setUsers(Set.of());
 
         updateRoleAssociationDTO.setRolesAdded(
                 Set.of(
@@ -636,6 +643,17 @@ public class PermissionGroupServiceTest {
                         new PermissionGroupCompactDTO(createdPermissionGroup3.getId(), createdPermissionGroup3.getName())
                 )
         );
+
+        userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
+
+        updateRoleAssociationDTO.setGroups(Set.of());
+        updateRoleAssociationDTO.setUsers(
+                Set.of(new UserCompactDTO(usertest.getId(), usertest.getEmail(), usertest.getName())));
+        updateRoleAssociationDTO.setRolesAdded(
+                Set.of(
+                        new PermissionGroupCompactDTO(createdPermissionGroup1.getId(), createdPermissionGroup1.getName()),
+                        new PermissionGroupCompactDTO(createdPermissionGroup2.getId(), createdPermissionGroup2.getName())
+                ));
 
         userAndAccessManagementService.changeRoleAssociations(updateRoleAssociationDTO).block();
 

@@ -154,6 +154,10 @@ public class FieldName {
     public static final String ACTION_EXECUTION_REQUEST_PARAMS = "actionExecutionRequestParams";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String ENVIRONMENT_VARIABLE = "environmentVariable";
+    public static final String ENVIRONMENT_VARIABLE_ID = "environmentVariableId";
+    public static final String ENVIRONMENT_ID = "environmentId";
+    public static final String ENVIRONMENT = "environment";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
     public static final String LOGGED_IN = "logged_in";

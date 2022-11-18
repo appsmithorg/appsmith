@@ -30,12 +30,16 @@ const CheckboxWrapper = styled.div`
   }
 
   .design-system-checkbox {
-    display: unset;
+    > div {
+      display: none;
+    }
 
     span {
-      left: -8px;
+      top: 0px;
+      left: 50%;
       width: 16px;
       height: 16px;
+      transform: translate(-50%, 0);
 
       &:after {
         width: 5px;
@@ -48,7 +52,6 @@ const CheckboxWrapper = styled.div`
 const StyledTable = styled.table`
   width: 100%;
   text-align: left;
-  // margin: 30px 0;
   border-collapse: separate;
   border-spacing: 0;
   table-layout: fixed;
@@ -91,7 +94,6 @@ const StyledTable = styled.table`
         text-align: center;
 
         label {
-          display: unset;
           padding: 0;
           top: 8px;
 
@@ -133,7 +135,6 @@ const ResourceCellWrapper = styled.div`
   display: flex;
   align-items: center;
   height: 36px;
-  // gap: 12px;
 
   .remixicon-icon {
     height: 24px;

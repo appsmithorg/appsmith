@@ -299,8 +299,7 @@ public class WorkspaceResourcesTest {
                     BaseView createdWorkspaceView = topData.getEntities().stream().filter(entity -> entity.getId().equals(createdWorkspace.getId())).findFirst().get();
                     assertThat(createdWorkspaceView.getName().equals(createdWorkspace.getName()));
                     // assert that all the permissions in this view are present and all of them are turned on for this workspace
-                    // TODO : Setting make public permission to be turned off till this workspace level permission gets added to all the workspaces
-                    List<Integer> perms = List.of(1, 1, 1, 1, 0, 1);
+                    List<Integer> perms = List.of(1, 1, 1, 1, 1, 1);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka application
                     assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
@@ -458,8 +457,7 @@ public class WorkspaceResourcesTest {
                     BaseView createdWorkspaceView = topData.getEntities().stream().filter(entity -> entity.getId().equals(createdWorkspace.getId())).findFirst().get();
                     assertThat(createdWorkspaceView.getName().equals(createdWorkspace.getName()));
 
-                    // TODO : create execute all datasources permission in workspace and assert that it is enabled in the permissions below
-                    List<Integer> perms = List.of(0, 1, 1, 1, 1);
+                    List<Integer> perms = List.of(1, 1, 1, 1, 1);
                     assertThat(createdWorkspaceView.getEnabled()).isEqualTo(perms);
                     // Only kind of child present in workspace in this tab : aka header
                     assertThat(createdWorkspaceView.getChildren().size()).isEqualTo(1);
@@ -479,8 +477,7 @@ public class WorkspaceResourcesTest {
                     assertThat(createdDatasourceView.getId()).isEqualTo(createdDatasource.getId());
                     assertThat(((DatasourceResourceDTO) createdDatasourceView).getPluginId()).isEqualTo(createdDatasource.getPluginId());
                     // assert that all the permissions in this view are present and all of them are turned on for this datasource
-                    // TODO : introduce create actions permission for datasources and introduce the same for all.
-                    perms = List.of(1, 0, 1, 1, 1);
+                    perms = List.of(1, 1, 1, 1, 1);
                     assertThat(createdDatasourceView.getEnabled()).isEqualTo(perms);
                     // There are no children for datasource
                     assertThat(createdDatasourceView.getChildren()).isNull();

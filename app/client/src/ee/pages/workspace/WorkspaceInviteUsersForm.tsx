@@ -75,7 +75,7 @@ import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
 import UserApi from "@appsmith/api/UserApi";
-import { fetchWorkspace } from "actions/workspaceActions";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 /*import { selectFeatureFlags } from "selectors/usersSelectors";*/
 import { getAppsmithConfigs } from "@appsmith/configs";

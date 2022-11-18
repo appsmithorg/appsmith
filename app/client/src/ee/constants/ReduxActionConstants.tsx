@@ -203,6 +203,18 @@ export const ReduxActionTypes = {
    * to save space in redux-store
    */
   RESET_AUDIT_LOGS: "RESET_AUDIT_LOGS",
+  /** FETCH_ENVIRONMENT_INIT
+   * Initiated environment fetch
+   */
+  FETCH_ENVIRONMENT_INIT: "FETCH_ENVIRONMENT_INIT",
+  /** FETCH_ENVIRONMENT_SUCCESS
+   * Successfully fetched environment
+   */
+  FETCH_ENVIRONMENT_SUCCESS: "FETCH_ENVIRONMENT_SUCCESS",
+  /** FETCH_ENVIRONMENT_FAILED
+   * Failed to fetch environment
+   */
+  FETCH_ENVIRONMENT_FAILED: "FETCH_ENVIRONMENT_FAILED",
 };
 
 export const ReduxActionErrorTypes = {

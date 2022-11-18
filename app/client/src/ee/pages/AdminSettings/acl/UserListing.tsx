@@ -49,6 +49,10 @@ export const CellContainer = styled.div`
   display: flex;
   align-items: baseline;
 
+  &.user-email-column > span {
+    text-decoration: underline;
+  }
+
   .user-icons {
     margin-right 8px;
     cursor: initial;
@@ -169,7 +173,10 @@ export function UserListing() {
               selected: cellProps.cell.row.original.id,
             })}
           >
-            <CellContainer data-testid="user-listing-userCell">
+            <CellContainer
+              className="user-email-column"
+              data-testid="user-listing-userCell"
+            >
               <ProfileImage
                 className="user-icons"
                 size={20}
