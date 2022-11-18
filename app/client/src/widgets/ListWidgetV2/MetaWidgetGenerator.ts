@@ -79,16 +79,14 @@ type GenerateMetaWidgetProps = {
   index: number;
   templateWidgetId: string;
   parentId: string;
-  key?: string;
-  rowIndex?: number;
+  key: string;
 };
 
 type GenerateMetaWidgetChildrenProps = {
   index: number;
   parentId: string;
   templateWidget: FlattenedWidgetProps;
-  key?: string;
-  rowIndex?: number;
+  key: string;
 };
 
 type GenerateMetaWidget = {
@@ -119,6 +117,7 @@ const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const SELECTED_ROW_KEY = "__$SELECTED_ROW_KEY$__";
 const TRIGGER_ROW_KEY = "__$TRIGGER_ROW_KEY$__";
+const SpecialKeys = [SELECTED_ROW_KEY, TRIGGER_ROW_KEY];
 
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -324,6 +323,7 @@ class MetaWidgetGenerator {
 
       indices.forEach((rowIndex) => {
         const index = startIndex + rowIndex;
+        const key = this.getPrimaryKey(index);
 
         this.generateWidgetCacheData(index, rowIndex);
         this.generateWidgetCacheDataForSpecialRow(
@@ -346,7 +346,7 @@ class MetaWidgetGenerator {
           index,
           parentId: this.containerParentId,
           templateWidgetId: this.containerWidgetId,
-          rowIndex,
+          key,
         });
 
         metaWidgets = {
@@ -465,7 +465,6 @@ class MetaWidgetGenerator {
     index,
     key,
     parentId,
-    rowIndex,
     templateWidgetId,
   }: GenerateMetaWidgetProps): GenerateMetaWidget => {
     const templateWidget = this.currTemplateWidgets?.[templateWidgetId];
@@ -493,7 +492,7 @@ class MetaWidgetGenerator {
       };
     }
 
-    const { metaWidgetId, metaWidgetName } = metaCacheProps || {};
+    const { metaWidgetId, metaWidgetName, rowIndex } = metaCacheProps || {};
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
 
     const {
@@ -502,20 +501,16 @@ class MetaWidgetGenerator {
     } = this.generateMetaWidgetChildren({
       index,
       key,
-      rowIndex,
       templateWidget,
       parentId: metaWidgetId,
     });
 
-    if (
-      !this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key) &&
-      typeof rowIndex == "number"
-    ) {
+    if (!this.shouldGenerateMetaWidgetFor(templateWidget.widgetId, key)) {
       return { childMetaWidgets, metaWidgetName, metaWidgetId };
     }
 
     if (isMainContainerWidget) {
-      if (typeof rowIndex == "number") {
+      if (!SpecialKeys.includes(key)) {
         this.updateContainerPosition(metaWidget, rowIndex);
       }
       this.updateContainerBindings(metaWidget, key);
@@ -525,7 +520,7 @@ class MetaWidgetGenerator {
 
     if (
       templateWidget.type === "LIST_WIDGET_V2" &&
-      typeof rowIndex == "number"
+      !SpecialKeys.includes(key)
     ) {
       this.addLevelData(metaWidget, rowIndex);
     }
@@ -553,7 +548,6 @@ class MetaWidgetGenerator {
     index,
     key,
     parentId,
-    rowIndex,
     templateWidget,
   }: GenerateMetaWidgetChildrenProps) => {
     const children: string[] = [];
@@ -568,7 +562,6 @@ class MetaWidgetGenerator {
         index,
         parentId,
         templateWidgetId: childWidgetId,
-        rowIndex,
         key,
       });
 
