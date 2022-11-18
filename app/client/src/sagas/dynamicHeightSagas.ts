@@ -815,14 +815,13 @@ export function* dynamicallyUpdateContainersSaga() {
             Array.isArray(canvasWidget.children) &&
             canvasWidget.children.length > 0
           ) {
-            maxBottomRow = canvasWidget.children.reduce(
-              (prev: number, next: string) => {
+            maxBottomRow = canvasWidget.children
+              .filter((widgetId) => !stateWidgets[widgetId].detachFromLayout)
+              .reduce((prev: number, next: string) => {
                 if (dynamicHeightLayoutTree[next].bottomRow > prev)
                   return dynamicHeightLayoutTree[next].bottomRow;
                 return prev;
-              },
-              0,
-            );
+              }, 0);
             maxBottomRow += GridDefaults.CANVAS_EXTENSION_OFFSET;
             // For widgets like Tabs Widget, some of the height is occupied by the
             // tabs themselves, the child canvas as a result has less number of rows available
