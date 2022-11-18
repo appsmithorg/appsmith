@@ -123,10 +123,12 @@ function eventRequestHandler({
       const {
         evalOrder,
         nonDynamicFieldValidationOrder,
+        unEvalUpdates,
       } = dataTreeEvaluator.setupUpdateTree(dataTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
+        unEvalUpdates,
       );
       const evalTree = dataTreeEvaluator.evalTree;
       const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
@@ -334,6 +336,7 @@ function eventRequestHandler({
           const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
             evalOrder,
             nonDynamicFieldValidationOrder,
+            unEvalUpdates,
           );
           dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
           evalMetaUpdates = JSON.parse(

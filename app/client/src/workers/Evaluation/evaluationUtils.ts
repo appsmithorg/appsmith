@@ -18,8 +18,8 @@ import {
   DataTreeJSAction,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
-import _, { get, set } from "lodash";
-import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import _, { get, isEqual, set } from "lodash";
+import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
@@ -727,15 +727,48 @@ export const overrideWidgetProperties = (params: {
   value: unknown;
   currentTree: DataTree;
   evalMetaUpdates: EvalMetaUpdates;
+  isNew: boolean;
 }) => {
-  const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
+  const {
+    currentTree,
+    entity,
+    evalMetaUpdates,
+    isNew,
+    propertyPath,
+    value,
+  } = params;
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
+    let pathsToNotOverride: string[] = [];
+
+    // if it's a newly added widget and its meta is not the default, then don't override meta and corresponding fields
+    if (
+      isNew &&
+      !isEqual(
+        entity.meta,
+        WidgetFactory.getWidgetMetaPropertiesMap(entity.type),
+      )
+    ) {
+      const validOverridingPropertyPaths = [...overridingPropertyPaths];
+      const metaPaths = validOverridingPropertyPaths.filter(
+        (path) => path.split(".")[0] === "meta",
+      );
+      pathsToNotOverride = [...metaPaths];
+      metaPaths.forEach((path) => {
+        if (entity.overridingPropertyPaths.hasOwnProperty(path)) {
+          pathsToNotOverride = [
+            ...pathsToNotOverride,
+            ...entity.overridingPropertyPaths[path],
+          ];
+        }
+      });
+    }
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
+      if (pathsToNotOverride.includes(overriddenPropertyPath)) return;
       _.set(
         currentTree,
         [entity.widgetName, ...overriddenPropertyPathArray],
