@@ -49,6 +49,8 @@ export const testStore = (initialState: Partial<AppState>) =>
     ),
   );
 
+// We don't want to run the saga middleware in tests, so exporting it from here
+// And running it only when the app runs
 export const runSagaMiddleware = () => sagaMiddleware.run(rootSaga);
 
 export const useSelector: TypedUseSelectorHook<AppState> = useReduxSelector;
