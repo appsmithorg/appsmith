@@ -113,6 +113,10 @@ enum MODIFICATION_TYPE {
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
+const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
+  LIST_WIDGET_V2: ["currentViewItems"],
+};
+
 /**
  * LEVEL_PATH_REGEX gives out following matches:
  * Inputs
@@ -578,11 +582,23 @@ class MetaWidgetGenerator {
     ]);
   };
 
+  /**
+   *
+   * levelData provides 2 information to the child list widget.
+   * 1. parent list widget's currentRow, currentItem and complete row's cache
+   *  This helps child widget to fill in information where level_1 or level_2 property is used.
+   * 2. provides auto-complete information.
+   *  In the derived property of the List widget, the childAutoComplete property uses the currentItem and currentRow
+   *  to define the autocomplete suggestions.
+   */
   private addLevelData = (metaWidget: MetaWidget, index: number) => {
     const key = this.getPrimaryKey(index);
+    const data = this.getData();
     const currentIndex = index;
     const currentItem = `{{${this.widgetName}.listData[${index}]}}`;
-    const currentRowCache = this.getRowCacheByTemplateWidgetName(key);
+    const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
+    const metaContainers = this.getMetaContainers();
+    const metaContainerName = metaContainers.names[0];
 
     metaWidget.levelData = {
       ...this.levelData,
@@ -590,8 +606,27 @@ class MetaWidgetGenerator {
         currentIndex,
         currentItem,
         currentRowCache,
+        autocomplete: {
+          currentItem: data?.[0],
+          // Uses any one of the row's container present on the List widget to
+          // get the object of current row for autocomplete
+          currentRow: `{{${metaContainerName}.data}}`,
+        },
       },
     };
+
+    // We want autocomplete helper objects to be present only for Edit mode
+    // as in View mode it's useless.
+    if (this.renderMode !== RenderModes.PAGE) {
+      const levels = Object.keys(metaWidget.levelData);
+
+      levels.forEach((level) => {
+        metaWidget.dynamicBindingPathList = [
+          ...(metaWidget.dynamicBindingPathList || []),
+          { key: `levelData.${level}.autocomplete.currentRow` },
+        ];
+      });
+    }
 
     metaWidget.level = this.level + 1;
   };
@@ -994,7 +1029,7 @@ class MetaWidgetGenerator {
   };
 
   private getReferencesEntityDefMap = (value: string, key: string) => {
-    const metaWidgetsMap = this.getRowCacheByTemplateWidgetName(key);
+    const metaWidgetsMap = this.getRowCacheGroupByTemplateWidgetName(key);
 
     // All the template widget names
     const templateWidgetNames = Object.keys(metaWidgetsMap);
@@ -1022,7 +1057,7 @@ class MetaWidgetGenerator {
     return dependantBinding;
   };
 
-  private getRowCacheByTemplateWidgetName = (key: string) => {
+  private getRowCacheGroupByTemplateWidgetName = (key: string) => {
     // Get all meta widgets for a key
     const metaWidgetsRowCache = this.getRowCache(key) || {};
     // For all the meta widgets, create a map between the template widget name and
@@ -1114,12 +1149,15 @@ class MetaWidgetGenerator {
   private getEntityDefinitionsFor = (widgetType: string) => {
     const config = get(entityDefinitions, widgetType);
     const entityDefinition = typeof config === "function" ? config({}) : config;
+    const blacklistedKeys = ["!doc", "!url"].concat(
+      BLACKLISTED_ENTITY_DEFINITION[widgetType] || [],
+    );
 
-    return Object.keys(omit(entityDefinition, ["!doc", "!url"]));
+    return Object.keys(omit(entityDefinition, blacklistedKeys));
   };
 
-  private getPropertiesOfWidget = (widgetName: string, type: string) => {
-    const entityDefinitions = this.getEntityDefinitionsFor(type);
+  private getPropertiesOfWidget = (widgetName: string, widgetType: string) => {
+    const entityDefinitions = this.getEntityDefinitionsFor(widgetType);
 
     return entityDefinitions
       .map((definition) => `${definition}: ${widgetName}.${definition}`)
