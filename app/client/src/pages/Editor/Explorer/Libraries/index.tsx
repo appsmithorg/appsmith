@@ -47,9 +47,12 @@ const Library = styled.li`
       display: flex;
       align-items: center;
       justify-content: center;
-      background: black;
-      .uninstall-library {
-        color: white;
+      background: transparent;
+      &:hover {
+        background: black;
+        .uninstall-library {
+          color: white;
+        }
       }
     }
   }
