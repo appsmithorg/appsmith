@@ -2,6 +2,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { LintError } from "utils/DynamicBindingUtils";
 import { createImmerReducer } from "utils/ReducerUtils";
 import { SetLintErrorsAction } from "actions/lintingActions";
+import { isEqual } from "lodash";
 
 export interface LintErrors {
   [entityName: string]: LintError[];
@@ -17,6 +18,7 @@ export const lintErrorReducer = createImmerReducer(initialState, {
   ) => {
     const { errors } = action.payload;
     for (const entityName of Object.keys(errors)) {
+      if (isEqual(state[entityName], errors[entityName])) continue;
       state[entityName] = errors[entityName];
     }
   },
