@@ -97,8 +97,8 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("complete uid :" + updatedName);
       updatedName = uid.replace(/-/g, "_").slice(1, 15);
       cy.log("sliced id :" + updatedName);
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
+      ee.RenameEntityFromExplorer(datasourceName, updatedName);
+      //cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.wait(1000);
       ee.ActionContextMenuByEntityName(updatedName, "Delete", "Are you sure?");
       cy.wait(1000);
@@ -109,6 +109,7 @@ describe("Entity explorer tests related to copy query", function() {
         409,
       );
     });
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name")
       .contains("Query1")
       .click();
