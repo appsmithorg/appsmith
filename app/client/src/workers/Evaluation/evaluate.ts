@@ -2,7 +2,8 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  defaultLibraries,
+  JSLibraries,
+  libraryReservedNames,
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
@@ -19,6 +20,7 @@ import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
 import SetupDOM, { DOM_APIS } from "./SetupDOM";
+import { resetJSLibraries } from "./JSLibrary";
 
 export type EvalResult = {
   result: any;
@@ -79,8 +81,8 @@ function resetWorkerGlobalScope() {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     if (key === "evaluationVersion" || key === "window" || key === "document")
       continue;
-    if (defaultLibraries.find((lib) => lib.accessor === key)) continue;
-    if (additionalLibrariesNames.indexOf(key) !== -1) continue;
+    if (JSLibraries.find((lib) => lib.accessor === key)) continue;
+    if (libraryReservedNames.find((name) => name === key)) continue;
     // @ts-expect-error: Types are not available
     delete self[key];
   }
@@ -113,8 +115,9 @@ export const getScriptToEval = (
 };
 
 export function setupEvaluationEnvironment() {
+  resetJSLibraries();
   ///// Adding extra libraries separately
-  defaultLibraries.forEach((library) => {
+  JSLibraries.forEach((library) => {
     // @ts-expect-error: Types are not available
     self[library.accessor] = library.lib;
   });

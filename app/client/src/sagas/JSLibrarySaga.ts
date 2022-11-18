@@ -104,7 +104,7 @@ export function* installLibrary(lib: Partial<TJSLibrary>) {
 
   yield put({
     type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
-    payload: { url, libraryAccessor, version },
+    payload: { url, libraryAccessor, version, name: name || libraryAccessor },
   });
   Toaster.show({
     text: createMessage(
@@ -191,7 +191,12 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     const success: boolean = yield call(
       EvalWorker.request,
       EVAL_WORKER_ACTIONS.LOAD_LIBRARIES,
-      libraries.map((lib) => lib.url),
+      libraries.map((lib) => ({
+        name: lib.name,
+        version: lib.version,
+        url: lib.url,
+        accessor: lib.accessor,
+      })),
     );
 
     if (!success) {

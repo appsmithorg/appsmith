@@ -1,6 +1,9 @@
 import difference from "lodash/difference";
-import { defaultLibraries } from "utils/DynamicBindingUtils";
-import { additionalLibrariesNames } from "../evaluate";
+import {
+  JSLibraries,
+  libraryReservedNames,
+  TJSLibrary,
+} from "utils/DynamicBindingUtils";
 import { ternDefinitionGenerator } from "./ternDefinitionGenerator";
 
 export function installLibrary(requestData: string) {
@@ -14,11 +17,14 @@ export function installLibrary(requestData: string) {
     return { status: false, defs };
   }
   const keysPostInstallation = Object.keys(self);
-  const libraryAccessor = difference(keysPostInstallation, existingKeys).pop();
-  if (!libraryAccessor) return { status: true, defs };
+  const reservedNames = difference(keysPostInstallation, existingKeys);
+  const libraryAccessor = reservedNames.pop();
+  if (!libraryAccessor) return { status: true, defs, reservedNames };
+
+  libraryReservedNames.push(...reservedNames);
   //@ts-expect-error test
   const library = self[libraryAccessor];
-  defaultLibraries.push({
+  JSLibraries.push({
     accessor: libraryAccessor,
     lib: library,
     name: libraryAccessor,
@@ -26,7 +32,7 @@ export function installLibrary(requestData: string) {
   });
   defs["!name"] = `LIB/${libraryAccessor}`;
   defs[libraryAccessor] = ternDefinitionGenerator(library);
-  return { status: true, defs, libraryAccessor };
+  return { status: true, defs, libraryAccessor, reservedNames };
 }
 
 export function uninstallLibrary(requestData: string) {
@@ -36,15 +42,19 @@ export function uninstallLibrary(requestData: string) {
   return true;
 }
 
-export function loadLibraries(requestData: string[]) {
-  const urls = requestData;
-  const existingKeys = Object.keys(self);
+export function loadLibraries(requestData: TJSLibrary[]) {
+  const urls = requestData.map((lib) => lib.url);
+  const keysBeforeInstallation = Object.keys(self);
   try {
     //@ts-expect-error no types found
     self.importScripts(...urls);
     const keysPostInstallation = Object.keys(self);
-    const libraryAccessors = difference(keysPostInstallation, existingKeys);
-    additionalLibrariesNames.push(...libraryAccessors);
+    const reservedNames = difference(
+      keysPostInstallation,
+      keysBeforeInstallation,
+    );
+    libraryReservedNames.push(...reservedNames);
+    JSLibraries.push(...requestData);
     return true;
   } catch (e) {
     return false;

@@ -1,4 +1,4 @@
-import { defaultLibraries } from "utils/DynamicBindingUtils";
+import { JSLibraries } from "utils/DynamicBindingUtils";
 import { WorkerErrorTypes } from "workers/common/types";
 import {
   LintWorkerRequest,
@@ -63,14 +63,12 @@ function eventRequestHandler({
     case LINT_WORKER_ACTIONS.UPDATE_LINT_GLOBALS: {
       const { add, libs } = requestData;
       if (add) {
-        defaultLibraries.push(...libs);
+        JSLibraries.push(...libs);
       } else {
         for (const lib of libs) {
-          const idx = defaultLibraries.findIndex(
-            (l) => l.accessor === lib.accessor,
-          );
+          const idx = JSLibraries.findIndex((l) => l.accessor === lib.accessor);
           if (idx === -1) return;
-          defaultLibraries.splice(idx, 1);
+          JSLibraries.splice(idx, 1);
         }
       }
       return;

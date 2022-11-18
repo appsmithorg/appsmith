@@ -159,7 +159,6 @@ export type TJSLibrary = {
   lib?: any;
   url?: string;
 };
-
 export const defaultLibraries: TJSLibrary[] = [
   {
     accessor: "_",
@@ -192,6 +191,9 @@ export const defaultLibraries: TJSLibrary[] = [
     name: "forge",
   },
 ];
+
+export const JSLibraries = [...defaultLibraries];
+export const libraryReservedNames = defaultLibraries.map((lib) => lib.name);
 /**
  * creates dynamic list of constants based on
  * current list of extra libraries i.e lodash("_"), moment etc
