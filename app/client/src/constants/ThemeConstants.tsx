@@ -162,7 +162,3 @@ export const THEMING_BORDER_RADIUS = {
 };
 
 export const DEFAULT_BOXSHADOW = "none";
-
-export const stylesheet: {
-  [key: string]: any;
-} = {};

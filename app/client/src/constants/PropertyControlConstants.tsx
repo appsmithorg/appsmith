@@ -6,7 +6,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { AppTheme } from "entities/AppTheming";
+import { AppThemeStylesheet } from "entities/AppTheming";
 import { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
@@ -84,8 +84,8 @@ export type PropertyPaneControlConfig = {
   getStylesheetValue?: (
     props: any,
     propertyPath: string,
-    stylesheet?: Record<string, any>,
-  ) => Record<string, any>;
+    stylesheet?: AppThemeStylesheet,
+  ) => AppThemeStylesheet[string];
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;
