@@ -2,6 +2,11 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import {
+  checkContainersForAutoHeightAction,
+  generateAutoHeightLayoutTreeAction,
+  setAutoHeightLayoutTreeAction,
+} from "actions/autoHeightActions";
 import { UpdateWidgetDynamicHeightPayload } from "actions/controlActions";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import {
@@ -9,29 +14,34 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import { APP_MODE } from "entities/App";
 import { groupBy, uniq } from "lodash";
 import log from "loglevel";
+import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
+import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 import {
   CanvasWidgetsReduxState,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   all,
+  debounce,
   put,
   select,
   takeEvery,
   takeLatest,
-  debounce,
 } from "redux-saga/effects";
 import {
   getCanvasHeightOffset,
   getOccupiedSpacesGroupedByParentCanvas,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { getAppMode } from "selectors/entitiesSelector";
 import {
-  getCanvasLevelMap,
   getAutoHeightLayoutTree,
+  getCanvasLevelMap,
 } from "selectors/widgetReflowSelectors";
+import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import {
   computeChangeInPositionBasedOnDelta,
   generateTree,
@@ -44,16 +54,6 @@ import {
   isDynamicHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
 import { getWidgetMetaProps, getWidgets } from "./selectors";
-import { getAppMode } from "selectors/entitiesSelector";
-import { APP_MODE } from "entities/App";
-import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-import {
-  checkContainersForAutoHeightAction,
-  generateAutoHeightLayoutTreeAction,
-  setAutoHeightLayoutTreeAction,
-} from "actions/autoHeightActions";
-import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
-import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 
 export function* getMinHeightBasedOnChildren(
   widgetId: string,
@@ -65,7 +65,18 @@ export function* getMinHeightBasedOnChildren(
   const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
     getAutoHeightLayoutTree,
   );
-  const { children = [] } = stateWidgets[widgetId];
+  const { children = [], parentId } = stateWidgets[widgetId];
+  if (!children.length && parentId) {
+    const { parentRowSpace } = stateWidgets[parentId];
+    // (ToDo: Ankur & Abhinav) doing this computation and not just returning bottomRow
+    // coz of the follow up code that does the computation over minHeight returned.
+    // may be there is a better way of doing this.
+    return (
+      (stateWidgets[widgetId].bottomRow -
+        GridDefaults.CANVAS_EXTENSION_OFFSET) /
+      parentRowSpace
+    );
+  }
   // For each child widget id.
   for (const childWidgetId of children) {
     // If we've changed the widget's bottomRow via computations
@@ -815,14 +826,13 @@ export function* dynamicallyUpdateContainersSaga() {
             Array.isArray(canvasWidget.children) &&
             canvasWidget.children.length > 0
           ) {
-            maxBottomRow = canvasWidget.children.reduce(
-              (prev: number, next: string) => {
+            maxBottomRow = canvasWidget.children
+              .filter((widgetId) => !stateWidgets[widgetId].detachFromLayout)
+              .reduce((prev: number, next: string) => {
                 if (dynamicHeightLayoutTree[next].bottomRow > prev)
                   return dynamicHeightLayoutTree[next].bottomRow;
                 return prev;
-              },
-              0,
-            );
+              }, 0);
             maxBottomRow += GridDefaults.CANVAS_EXTENSION_OFFSET;
             // For widgets like Tabs Widget, some of the height is occupied by the
             // tabs themselves, the child canvas as a result has less number of rows available
