@@ -2,12 +2,12 @@ import { Template } from "api/TemplatesApi";
 import React from "react";
 import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import DatasourceChip from "../DatasourceChip";
 import { Colors } from "constants/Colors";
 import {
   Button,
   FontWeight,
+  getTypographyByKey,
   IconPositions,
   Size,
   Text,
@@ -63,7 +63,7 @@ export const StyledDatasourceChip = styled(DatasourceChip)`
     width: 25px;
   }
   span {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     color: ${Colors.EBONY_CLAY};
   }
 `;

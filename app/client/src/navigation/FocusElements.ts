@@ -12,11 +12,11 @@ import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   getAllPropertySectionState,
-  getFocusableField,
+  getFocusableCodeEditorField,
   getSelectedCanvasDebuggerTab,
   getSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
-import { setFocusableField } from "actions/editorContextActions";
+import { setFocusableCodeEditorField } from "actions/editorContextActions";
 import { getSelectedWidgets } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -44,10 +44,12 @@ import {
 } from "actions/jsPaneActions";
 import {
   setAllPropertySectionState,
+  setFocusablePropertyPaneField,
   setSelectedPropertyTabIndex,
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import { PluginPackageName } from "entities/Action";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
@@ -59,6 +61,7 @@ export enum FocusElement {
   JSPaneConfigTabs = "JSPaneConfigTabs",
   JSPaneResponseTabs = "JSPaneResponseTabs",
   JSPaneResponseHeight = "JSPaneResponseHeight",
+  CodeEditor = "CodeEditor",
   PropertyField = "PropertyField",
   PropertySections = "PropertySections",
   PropertyTabs = "PropertyTabs",
@@ -93,13 +96,14 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.CanvasDebuggerTabs,
       selector: getSelectedCanvasDebuggerTab,
       setter: setCanvasDebuggerSelectedTab,
+      defaultValue: 0,
     },
   ],
   [FocusEntity.JS_OBJECT]: [
     {
-      name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      name: FocusElement.CodeEditor,
+      selector: getFocusableCodeEditorField,
+      setter: setFocusableCodeEditorField,
     },
     {
       name: FocusElement.JSPaneConfigTabs,
@@ -111,6 +115,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.JSPaneResponseTabs,
       selector: getJSPaneResponseSelectedTab,
       setter: setJsPaneResponseSelectedTab,
+      defaultValue: 0,
     },
     {
       name: FocusElement.JSPaneResponseHeight,
@@ -121,9 +126,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.QUERY]: [
     {
-      name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      name: FocusElement.CodeEditor,
+      selector: getFocusableCodeEditorField,
+      setter: setFocusableCodeEditorField,
     },
     {
       name: FocusElement.QueryPaneConfigTabs,
@@ -153,15 +158,15 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
     {
       name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
     },
   ],
   [FocusEntity.API]: [
     {
-      name: FocusElement.PropertyField,
-      selector: getFocusableField,
-      setter: setFocusableField,
+      name: FocusElement.CodeEditor,
+      selector: getFocusableCodeEditorField,
+      setter: setFocusableCodeEditorField,
     },
     {
       name: FocusElement.ApiPaneConfigTabs,
@@ -178,6 +183,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.ApiPaneResponseTabs,
       selector: getApiPaneResponseSelectedTab,
       setter: setApiPaneResponseSelectedTab,
+      defaultValue: 0,
     },
     {
       name: FocusElement.ApiPaneResponseHeight,

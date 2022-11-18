@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import { SearchInput, SearchVariant } from "design-system";
+import { getTypographyByKey, SearchInput, SearchVariant } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -29,7 +29,6 @@ import {
   getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
 import { getAllApplications } from "actions/applicationActions";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
@@ -70,7 +69,7 @@ export const TemplateListWrapper = styled.div`
 `;
 
 export const ResultsCount = styled.div`
-  ${(props) => getTypographyByKey(props, "h1")}
+  ${getTypographyByKey("h1")}
   color: ${Colors.CODE_GRAY};
   margin-top: ${(props) => props.theme.spaces[5]}px;
   margin-left: ${(props) => props.theme.spaces[12] - 8}px;
