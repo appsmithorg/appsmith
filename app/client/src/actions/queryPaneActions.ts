@@ -4,23 +4,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 
-export const createQueryRequest = (payload: Partial<Action>) => {
-  return {
-    type: ReduxActionTypes.CREATE_QUERY_INIT,
-    payload,
-  };
-};
-
-export const initQueryPane = (
-  pluginType: string,
-  urlId?: string,
-): ReduxAction<{ pluginType: string; id?: string }> => {
-  return {
-    type: ReduxActionTypes.INIT_QUERY_PANE,
-    payload: { id: urlId, pluginType },
-  };
-};
-
 export const changeQuery = (
   id: string,
   newQuery?: boolean,
@@ -35,3 +18,24 @@ export const changeQuery = (
     payload: { id, newQuery, action },
   };
 };
+
+export const setQueryPaneConfigSelectedTabIndex: (
+  payload: number,
+) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_QUERY_PANE_CONFIG_SELECTED_TAB,
+  payload: { selectedTabIndex: payload },
+});
+
+export const setQueryPaneResponseSelectedTab: (
+  payload: string,
+) => ReduxAction<{ selectedTab: string }> = (payload: string) => ({
+  type: ReduxActionTypes.SET_QUERY_PANE_RESPONSE_SELECTED_TAB,
+  payload: { selectedTab: payload },
+});
+
+export const setQueryPaneResponsePaneHeight: (
+  payload: number,
+) => ReduxAction<{ height: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT,
+  payload: { height: payload },
+});

@@ -306,38 +306,26 @@ describe("Table widget inline editing functionality", () => {
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Custom")
-      .click();
+    cy.get(".t--button-tab-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("task");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Row level")
-      .click();
+    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Custom")
-      .click();
+    cy.get(".t--button-tab-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("step");
     cy.makeColumnEditable("task");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Row level")
-      .click();
+    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
@@ -700,11 +688,11 @@ describe("Table widget inline editing functionality", () => {
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "40px");
+    ).should("have.css", "height", "32px");
     cy.enterTableCellValue(0, 0, "this is a very long cell value");
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "40px");
+    ).should("have.css", "height", "32px");
   });
 
   it("25. should check that grows taller when text wrapping is enabled", () => {
@@ -717,10 +705,10 @@ describe("Table widget inline editing functionality", () => {
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "42px");
+    ).should("have.css", "height", "34px");
     cy.enterTableCellValue(0, 0, "this is a very long cell value");
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("not.have.css", "height", "42px");
+    ).should("not.have.css", "height", "34px");
   });
 });

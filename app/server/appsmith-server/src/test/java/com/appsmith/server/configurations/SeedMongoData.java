@@ -1,11 +1,12 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
@@ -13,15 +14,17 @@ import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PageRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.UserService;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -32,8 +35,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,7 +69,9 @@ public class SeedMongoData {
                            ReactiveMongoTemplate mongoTemplate,
                            TenantRepository tenantRepository,
                            UserService userService,
-                           CommonConfig commonConfig) {
+                           CommonConfig commonConfig,
+                           PermissionGroupRepository permissionGroupRepository,
+                           PolicyUtils policyUtils) {
 
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
@@ -133,10 +140,10 @@ public class SeedMongoData {
                 .build();
 
         Object[][] userData = {
-                {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, Set.of(readTestUserPolicy, userManageWorkspacePolicy)},
-                {"api_user", API_USER_EMAIL, UserState.ACTIVATED, Set.of(userManageWorkspacePolicy, readApiUserPolicy, manageApiUserPolicy)},
-                {"admin test", ADMIN_USER_EMAIL, UserState.ACTIVATED, Set.of(readAdminUserPolicy, userManageWorkspacePolicy)},
-                {"developer test", DEV_USER_EMAIL, UserState.ACTIVATED, Set.of(readDevUserPolicy, userManageWorkspacePolicy)},
+                {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readTestUserPolicy, userManageWorkspacePolicy))},
+                {"api_user", API_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(userManageWorkspacePolicy, readApiUserPolicy, manageApiUserPolicy))},
+                {"admin test", ADMIN_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readAdminUserPolicy, userManageWorkspacePolicy))},
+                {"developer test", DEV_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readDevUserPolicy, userManageWorkspacePolicy))},
         };
         Object[][] workspaceData = {
                 {"Spring Test Workspace", "appsmith-spring-test.com", "appsmith.com", "spring-test-workspace",
@@ -160,7 +167,7 @@ public class SeedMongoData {
                 {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 
-        // Seed the plugin data into the DB 
+        // Seed the plugin data into the DB
         Flux<Plugin> pluginFlux = Flux.just(pluginData)
                 .map(array -> {
                     log.debug("Creating the plugins");
@@ -184,14 +191,29 @@ public class SeedMongoData {
                 .cache();
 
         Flux<User> userFlux = Flux.just(userData)
-                .map(array -> {
+                .flatMap(array -> {
                     log.debug("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
                     user.setEmail((String) array[1]);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
-                    return user;
+                    return userRepository.save(user);
+                })
+                .flatMap(user -> {
+                    PermissionGroup permissionGroupUser = new PermissionGroup();
+                    permissionGroupUser.setPermissions(Set.of(new Permission(user.getId(), MANAGE_USERS)));
+                    permissionGroupUser.setName(user.getId() + "User Name");
+                    permissionGroupUser.setAssignedToUserIds(Set.of(user.getId()));
+                    return permissionGroupRepository.save(permissionGroupUser)
+                            .flatMap(savedPermissionGroup -> {
+                                Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                                        user.getId());
+
+                                User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, user);
+
+                                return userRepository.save(updatedWithPolicies);
+                            });
                 })
                 .collectList()
                 .zipWith(defaultTenantId)
@@ -266,7 +288,8 @@ public class SeedMongoData {
                                         log.debug("Saved the workspace to user. User: {}", u);
                                         return u;
                                     });
-                        }));
+                        })
+                );
 
         Query workspaceNameQuery = new Query(where("slug").is(workspaceData[0][3]));
         Mono<Workspace> workspaceByNameMono = mongoTemplate.findOne(workspaceNameQuery, Workspace.class)
@@ -308,14 +331,7 @@ public class SeedMongoData {
                             .flatMap(pageRepository::save)
                     )
                     .blockLast();
-            // Create user@appsmith.com using UserService
-            if(!commonConfig.isSignupDisabled()) {
-                User newUser = new User();
-                newUser.setEmail("user@appsmith.com");
-                newUser.setPassword("new-user-test-password");
-                userService.create(newUser).block();
-            }
         };
-        
+
     }
 }

@@ -32,6 +32,7 @@ import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import { getLocale } from "utils/helpers";
 
 const punycode = require("punycode/");
 
@@ -227,15 +228,6 @@ export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
       ? Alignment.LEFT
       : Alignment.RIGHT
     : Alignment.CENTER;
-export const escapeSpecialChars = (stringifiedJSONObject: string) => {
-  return stringifiedJSONObject
-    .replace(/\\n/g, "\\\\n") // new line char
-    .replace(/\\b/g, "\\\\b") //
-    .replace(/\\t/g, "\\\\t") // tab
-    .replace(/\\f/g, "\\\\f") //
-    .replace(/\\/g, "\\\\") //
-    .replace(/\\r/g, "\\\\r"); //
-};
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -699,6 +691,18 @@ export function composePropertyUpdateHook(
       return undefined;
     }
   };
+}
+
+export function getLocaleDecimalSeperator() {
+  return Intl.NumberFormat(getLocale())
+    .format(1.1)
+    .replace(/\p{Number}/gu, "");
+}
+
+export function getLocaleThousandSeparator() {
+  return Intl.NumberFormat(getLocale())
+    .format(11111)
+    .replace(/\p{Number}/gu, "");
 }
 
 interface DropdownOption {

@@ -6,7 +6,7 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import {
   PERMISSION_TYPE,
   isPermitted,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import {
   getCurrentApplication,
   getCurrentPageId,

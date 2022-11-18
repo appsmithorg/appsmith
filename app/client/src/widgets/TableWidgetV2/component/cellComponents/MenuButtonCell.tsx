@@ -15,6 +15,7 @@ interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
 function MenuButton({
   borderRadius,
   boxShadow,
+  compactMode,
   iconAlign,
   iconName,
   isCompact,
@@ -45,6 +46,7 @@ function MenuButton({
       <MenuButtonTableComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
+        compactMode={compactMode}
         iconAlign={iconAlign}
         iconName={iconName}
         isCompact={isCompact}
@@ -83,6 +85,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
     compactMode,
     fontStyle,
     horizontalAlignment,
+    isCellDisabled,
     isCellVisible,
     isHidden,
     textColor,
@@ -97,6 +100,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}

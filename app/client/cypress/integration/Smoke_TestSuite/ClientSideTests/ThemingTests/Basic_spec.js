@@ -553,7 +553,7 @@ describe("App Theming funtionality", function() {
       .eq(1)
       .invoke("css", "background-color")
       .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(246, 246, 246)");
+        expect(backgroudColor).to.eq("rgb(248, 250, 252)");
       });
 
     //#endregion

@@ -33,7 +33,7 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Mono<Datasource> populateHintMessages(Datasource datasource);
 
-    Mono<Datasource> update(String datasourceId, Datasource datasource, Boolean isServerRefreshedUpdate);
+    Mono<Datasource> update(String datasourceId, Datasource datasource, Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission);
 

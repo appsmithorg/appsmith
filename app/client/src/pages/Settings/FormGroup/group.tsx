@@ -17,7 +17,7 @@ import {
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { CalloutV2 } from "design-system";
-import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
+import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
 import Dropdown from "./Dropdown";

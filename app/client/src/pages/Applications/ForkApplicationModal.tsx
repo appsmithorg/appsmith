@@ -2,7 +2,10 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
-import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
 import {

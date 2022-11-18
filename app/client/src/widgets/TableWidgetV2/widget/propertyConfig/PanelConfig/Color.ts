@@ -58,6 +58,7 @@ export default {
     {
       propertyName: "cellBackground",
       label: "Cell Background",
+      helpText: "Changes the background color of the cell",
       controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -77,6 +78,7 @@ export default {
     {
       propertyName: "textColor",
       label: "Text Color",
+      helpText: "Controls the color of text in the column",
       controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
