@@ -5,49 +5,53 @@ import { EvalWorkerRequest } from "../types";
 
 export function installLibrary(request: EvalWorkerRequest) {
   const { requestData } = request;
-  const url = requestData;
-  const currentEnvKeys = Object.keys(self);
-  //@ts-expect-error test
-  const unsetKeys = currentEnvKeys.filter((key) => self[key] === undefined);
   const defs: any = {};
   try {
+    const url = requestData;
+    const currentEnvKeys = Object.keys(self);
+    //@ts-expect-error test
+    const unsetKeys = currentEnvKeys.filter((key) => self[key] === undefined);
     //@ts-expect-error test
     self.importScripts(url);
+    const accessor = difference(Object.keys(self), currentEnvKeys) as Array<
+      string
+    >;
+    if (accessor.length === 0) {
+      for (const key of unsetKeys) {
+        //@ts-expect-error test
+        if (!self[key]) continue;
+        accessor.push(key);
+      }
+    }
+    if (accessor.length === 0) return { status: true, defs, accessor };
+    const name = accessor[accessor.length - 1];
+    for (const acc of accessor) {
+      libraryReservedNames.add(acc);
+    }
+    defs["!name"] = `LIB/${name}`;
+    for (const key of accessor) {
+      //@ts-expect-error no types
+      defs[key] = makeTernDefs(self[key]);
+    }
+    return { success: true, defs, accessor };
   } catch (e) {
     return { success: false, defs };
   }
-  const accessor = difference(Object.keys(self), currentEnvKeys) as Array<
-    string
-  >;
-  if (accessor.length === 0) {
-    for (const key of unsetKeys) {
-      //@ts-expect-error test
-      if (!self[key]) continue;
-      accessor.push(key);
-    }
-  }
-  if (accessor.length === 0) return { status: true, defs, accessor };
-  const name = accessor[accessor.length - 1];
-  for (const acc of accessor) {
-    libraryReservedNames.add(acc);
-  }
-  defs["!name"] = `LIB/${name}`;
-  for (const key of accessor) {
-    //@ts-expect-error no types
-    defs[key] = makeTernDefs(self[key]);
-  }
-  return { success: true, defs, accessor };
 }
 
 export function uninstallLibrary(request: EvalWorkerRequest) {
   const { requestData } = request;
   const accessor = requestData;
-  for (const key of accessor) {
-    //@ts-expect-error test
-    self[key] = undefined;
-    libraryReservedNames.delete(key);
+  try {
+    for (const key of accessor) {
+      //@ts-expect-error test
+      self[key] = undefined;
+      libraryReservedNames.delete(key);
+    }
+    return true;
+  } catch (e) {
+    return false;
   }
-  return true;
 }
 
 export function loadLibraries(request: EvalWorkerRequest) {

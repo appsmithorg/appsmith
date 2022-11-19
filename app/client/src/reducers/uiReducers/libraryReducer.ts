@@ -99,7 +99,7 @@ const jsLibraryReducer = createImmerReducer(initialState, {
   ) => {
     const uLib = action.payload;
     state.installedLibraries = state.installedLibraries.filter(
-      (lib) => !isEqual(uLib.accessor.sort(), lib.accessor.sort()),
+      (lib) => uLib.url !== lib.url,
     );
   },
   [ReduxActionTypes.FETCH_APPLICATION_SUCCESS]: (state: LibraryState) => {

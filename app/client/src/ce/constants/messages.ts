@@ -1309,6 +1309,8 @@ export const customJSLibraryMessages = {
     `Unfortunately, this library cannot be supported due to platform limitations. Please try installing a different library.`,
   LEARN_MORE: () => `Learn more`,
   REPORT_ISSUE: () => `Report issue`,
+  AUTOCOMPLETE_FAILED: (name: string) =>
+    `Code completion for ${name} will not work.`,
 };
 
 export const USAGE_AND_BILLING = {

@@ -78,15 +78,21 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse || !response.data) {
       log.debug("Install API failed");
-      return handleInstallationFailure(url as string, accessor);
+      yield call(handleInstallationFailure, url as string, accessor);
+      return;
     }
   } catch (e) {
-    return handleInstallationFailure(url as string, accessor);
+    yield call(handleInstallationFailure, url as string, accessor);
+    return;
   }
 
   try {
     TernServer.updateDef(defs["!name"], defs);
   } catch (e) {
+    Toaster.show({
+      text: createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
+      variant: Variant.info,
+    });
     log.debug("Failed to update Tern defs", e);
   }
 
