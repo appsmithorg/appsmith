@@ -263,7 +263,7 @@ function Description(props: Props) {
   if (!activeItemType || !activeItem) return null;
   const Component = descriptionByType[activeItemType];
   return (
-    <Container>
+    <Container data-cy="description">
       <Component item={activeItem} query={props.query} />
     </Container>
   );
