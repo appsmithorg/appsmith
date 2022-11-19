@@ -1,12 +1,14 @@
 import difference from "lodash/difference";
 import { JSLibraries, libraryReservedNames } from "utils/DynamicBindingUtils";
-import { ternDefinitionGenerator } from "../JSLibrary/ternDefinitionGenerator";
+import { makeTernDefs } from "../JSLibrary/ternDefinitionGenerator";
 import { EvalWorkerRequest } from "../types";
 
 export function installLibrary(request: EvalWorkerRequest) {
   const { requestData } = request;
   const url = requestData;
   const currentEnvKeys = Object.keys(self);
+  //@ts-expect-error test
+  const unsetKeys = currentEnvKeys.filter((key) => self[key] === undefined);
   const defs: any = {};
   try {
     //@ts-expect-error test
@@ -17,6 +19,13 @@ export function installLibrary(request: EvalWorkerRequest) {
   const accessor = difference(Object.keys(self), currentEnvKeys) as Array<
     string
   >;
+  if (accessor.length === 0) {
+    for (const key of unsetKeys) {
+      //@ts-expect-error test
+      if (!self[key]) continue;
+      accessor.push(key);
+    }
+  }
   if (accessor.length === 0) return { status: true, defs, accessor };
   const name = accessor[accessor.length - 1];
   for (const acc of accessor) {
@@ -25,7 +34,7 @@ export function installLibrary(request: EvalWorkerRequest) {
   defs["!name"] = `LIB/${name}`;
   for (const key of accessor) {
     //@ts-expect-error no types
-    defs[key] = ternDefinitionGenerator(self[key]);
+    defs[key] = makeTernDefs(self[key]);
   }
   return { success: true, defs, accessor };
 }

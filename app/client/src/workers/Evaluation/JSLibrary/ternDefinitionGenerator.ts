@@ -1,45 +1,3 @@
-export function ternDefinitionGenerator(obj: Record<string, any>) {
-  const cachedObjs: any = [];
-  const cachedValues: any = [];
-  const def = {};
-  const protoDef = {};
-  function generate(obj: Record<string, any>, def: Record<string, any>) {
-    const keys = Object.keys(obj);
-    for (const key of keys) {
-      const cached = cachedObjs.findIndex((c: any) => c == obj[key]);
-      if (cached > -1) {
-        def[key] = cachedValues[cached];
-        continue;
-      } else if (typeof obj[key] === "object") {
-        def[key] = {};
-        generate(obj[key], def[key]);
-      } else if (typeof obj[key] === "function") {
-        def[key] = {};
-        generate(obj[key], def[key]);
-      } else {
-        def[key] = {
-          "!type": getTernDocType(obj[key]),
-        };
-      }
-      cachedObjs.push(obj[key]);
-      cachedValues.push(def[key]);
-    }
-  }
-  try {
-    generate(obj, def);
-    generate(obj.prototype, protoDef);
-  } catch (e) {
-    return Object.keys(obj || {}).reduce((acc, key) => {
-      acc[key] = acc[key] || {};
-      acc[key] = {
-        "!type": getTernDocType(obj[key]),
-      };
-      return acc;
-    }, {} as any);
-  }
-  return { ...def, prototype: protoDef };
-}
-
 function getTernDocType(obj: any) {
   const type = typeof obj;
   switch (type) {
@@ -56,4 +14,102 @@ function getTernDocType(obj: any) {
     default:
       return "?";
   }
+}
+
+const ignoredKeys = ["constructor", "WINDOW", "window", "self"];
+
+export function makeTernDefs(obj: any) {
+  const defs: Record<string, unknown> = {};
+  const parentType = typeof obj;
+  let canAddMore = true;
+
+  const cachedDefs: any = [];
+  const visitedReferences: any = [];
+
+  if (!obj || (parentType !== "object" && parentType !== "function")) {
+    defs["!type"] = getTernDocType(obj);
+    return defs;
+  }
+  const queue = Object.keys(obj as any)
+    .filter((key) => !ignoredKeys.includes(key))
+    .map((key) => [key, obj, defs]);
+
+  visitedReferences.push(obj);
+  cachedDefs.push(defs);
+
+  if (parentType === "function") {
+    defs["!type"] = "fn()";
+    const prototypeKeys = obj.prototype
+      ? Object.keys(obj.prototype).filter((key) => !ignoredKeys.includes(key))
+      : [];
+    if (prototypeKeys.length) {
+      defs.prototype = {};
+      visitedReferences.push(obj.prototype);
+      cachedDefs.push(defs.prototype);
+      queue.push(
+        ...prototypeKeys.map((key) => [key, obj.prototype, defs.prototype]),
+      );
+    }
+  }
+
+  while (queue.length) {
+    if (canAddMore) {
+      canAddMore = queue.length < 200;
+    }
+    const [current, src, target] = queue.shift() as any;
+    const type = typeof src[current];
+    if (src[current] && type === "object") {
+      if (visitedReferences.includes(src[current])) {
+        target[current] = cachedDefs[visitedReferences.indexOf(src[current])];
+        continue;
+      }
+      target[current] = {};
+      visitedReferences.push(src[current]);
+      cachedDefs.push(target[current]);
+      canAddMore &&
+        queue.push(
+          ...Object.keys(src[current])
+            .filter((key) => !ignoredKeys.includes(key))
+            .map((key) => [key, src[current], target[current]]),
+        );
+    } else if (type === "function") {
+      if (visitedReferences.includes(src[current])) {
+        target[current] = cachedDefs[visitedReferences.indexOf(src[current])];
+        continue;
+      }
+      target[current] = {
+        "!type": "fn()",
+      };
+      visitedReferences.push(src[current]);
+      cachedDefs.push(target[current]);
+      const prototypeKeys = src[current].prototype
+        ? Object.keys(src[current].prototype).filter(
+            (key) => !ignoredKeys.includes(key),
+          )
+        : [];
+      if (prototypeKeys.length) {
+        target[current].prototype = {};
+        canAddMore &&
+          queue.push(
+            ...prototypeKeys.map((key) => [
+              key,
+              src[current].prototype,
+              target[current].prototype,
+            ]),
+          );
+      }
+      canAddMore &&
+        queue.push(
+          ...Object.keys(src[current])
+            .filter((key) => !ignoredKeys.includes(key))
+            .map((key) => [key, src[current], target[current]]),
+        );
+    } else {
+      target[current] = {
+        "!type": getTernDocType(src[current]),
+      };
+    }
+  }
+
+  return defs;
 }
