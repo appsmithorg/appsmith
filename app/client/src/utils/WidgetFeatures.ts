@@ -378,11 +378,11 @@ export const PropertyPaneConfigTemplates: Record<
       hidden: hideDynamicHeightPropertyControl,
       dependencies: ["dynamicHeight", "maxDynamicHeight"],
       isJSConvertible: false,
-      isBindProperty: false,
+      isBindProperty: true,
       isTriggerProperty: false,
       updateHook: transformToNumber,
       validation: {
-        type: ValidationTypes.NUMBER,
+        type: ValidationTypes.FUNCTION,
         params: {
           fn: validateMinHeight,
           expected: {
@@ -414,7 +414,7 @@ export const PropertyPaneConfigTemplates: Record<
       hidden: hideDynamicHeightPropertyControl,
       updateHook: transformToNumber,
       validation: {
-        type: ValidationTypes.NUMBER,
+        type: ValidationTypes.FUNCTION,
         params: {
           fn: validateMaxHeight,
           expected: {
@@ -425,7 +425,7 @@ export const PropertyPaneConfigTemplates: Record<
         },
       },
       isJSConvertible: false,
-      isBindProperty: false,
+      isBindProperty: true,
       isTriggerProperty: false,
       postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
     },
