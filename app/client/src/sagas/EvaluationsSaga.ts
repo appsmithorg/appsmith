@@ -117,10 +117,11 @@ const evalWorker = new GracefulWorkerService(
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-function* evaluateTreeSaga(
+export function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay = true,
   requiresLinting = false,
+  forceEvaluation = false,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
@@ -143,6 +144,7 @@ function* evaluateTreeSaga(
     shouldReplay,
     allActionValidationConfig,
     requiresLinting: isEditMode && requiresLinting,
+    forceEvaluation,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(

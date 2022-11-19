@@ -43,6 +43,7 @@ export default function(request: EvalWorkerRequest) {
 
   const {
     allActionValidationConfig,
+    forceEvaluation,
     requiresLinting,
     shouldReplay,
     theme,
@@ -76,7 +77,7 @@ export default function(request: EvalWorkerRequest) {
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
       dataTree = dataTreeResponse.evalTree;
       dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
-    } else if (dataTreeEvaluator.hasCyclicalDependency) {
+    } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
         dataTreeEvaluator.setAllActionValidationConfig(
@@ -171,6 +172,7 @@ export default function(request: EvalWorkerRequest) {
         type: EvalErrorTypes.UNKNOWN_ERROR,
         message: (error as Error).message,
       });
+      // eslint-disable-next-line
       console.error(error);
     }
     dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);

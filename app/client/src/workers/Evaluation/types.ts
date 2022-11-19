@@ -28,6 +28,7 @@ export interface EvalTreeRequestData {
     [actionId: string]: ActionValidationConfigMap;
   };
   requiresLinting: boolean;
+  forceEvaluation: boolean;
 }
 export interface EvalTreeResponseData {
   dataTree: DataTree;

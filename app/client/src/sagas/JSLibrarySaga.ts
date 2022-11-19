@@ -22,7 +22,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import TernServer from "utils/autocomplete/TernServer";
 import { EVAL_WORKER_ACTIONS, TJSLibrary } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
-import { EvalWorker } from "./EvaluationsSaga";
+import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 
 function* handleInstallationFailure(url: string, accessor?: string[]) {
@@ -111,6 +111,8 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     },
   });
 
+  yield call(evaluateTreeSaga, [], false, true, true);
+
   yield put({
     type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
     payload: {
@@ -170,6 +172,8 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
         variant: Variant.danger,
       });
     }
+
+    yield call(evaluateTreeSaga, [], false, true, true);
 
     yield put({
       type: ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,
