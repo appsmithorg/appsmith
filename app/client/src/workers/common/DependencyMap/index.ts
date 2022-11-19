@@ -730,18 +730,7 @@ export const updateDependencyMap = ({
   }
 
   if (didUpdateValidationDependencyMap) {
-    // This is being called purely to test for new circular dependencies that might have been added
-    dataTreeEvalRef.sortedValidationDependencies = dataTreeEvalRef.sortDependencies(
-      dataTreeEvalRef.validationDependencyMap,
-      translatedDiffs,
-    );
-
-    dataTreeEvalRef.inverseValidationDependencyMap = dataTreeEvalRef.getInverseDependencyTree(
-      {
-        dependencyMap: dataTreeEvalRef.validationDependencyMap,
-        sortedDependencies: dataTreeEvalRef.sortedValidationDependencies,
-      },
-    );
+    dataTreeEvalRef.generateInverseValidationDependency();
   }
 
   const updateChangedDependenciesStop = performance.now();

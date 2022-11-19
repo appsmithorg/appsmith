@@ -138,7 +138,6 @@ export default class DataTreeEvaluator {
    * Maintains dependency of paths to re-validate on evaluation of particular property path.
    */
   validationDependencyMap: DependencyMap = {};
-  sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: DependencyMap = {};
   public hasCyclicalDependency = false;
   constructor(
@@ -217,9 +216,7 @@ export default class DataTreeEvaluator {
     const sortDependenciesStartTime = performance.now();
     // Sort
     this.sortedDependencies = this.sortDependencies(this.dependencyMap);
-    this.sortedValidationDependencies = this.sortDependencies(
-      validationDependencyMap,
-    );
+
     const sortDependenciesEndTime = performance.now();
 
     const inverseDependencyGenerationStartTime = performance.now();
@@ -228,10 +225,9 @@ export default class DataTreeEvaluator {
       dependencyMap,
       sortedDependencies: this.sortedDependencies,
     });
-    this.inverseValidationDependencyMap = this.getInverseDependencyTree({
-      dependencyMap: validationDependencyMap,
-      sortedDependencies: this.sortedValidationDependencies,
-    });
+
+    this.generateInverseValidationDependency();
+
     const inverseDependencyGenerationEndTime = performance.now();
 
     const secondCloneStartTime = performance.now();
@@ -1247,6 +1243,28 @@ export default class DataTreeEvaluator {
     );
     // Remove any paths that do not exist in the data tree anymore
     return difference(completeSortOrder, removedPaths);
+  }
+
+  generateInverseValidationDependency() {
+    const inverseValidationDependencyMap: DependencyMap = {};
+
+    Object.entries(this.validationDependencyMap).forEach(
+      ([node, dependentNodesArray]) => {
+        dependentNodesArray.forEach((dependentNode) => {
+          //
+          const dependentNodeSet = new Set(
+            inverseValidationDependencyMap[dependentNode] || [],
+          );
+
+          dependentNodeSet.add(node);
+
+          inverseValidationDependencyMap[dependentNode] = [...dependentNodeSet];
+        });
+      },
+    );
+
+    this.inverseValidationDependencyMap = inverseValidationDependencyMap;
+    this.logs.push({ inverseValidationDependencyMap });
   }
 
   getInverseDependencyTree(
