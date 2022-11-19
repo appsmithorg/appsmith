@@ -23,6 +23,25 @@ import TernServer from "utils/autocomplete/TernServer";
 import { EVAL_WORKER_ACTIONS, TJSLibrary } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { EvalWorker } from "./EvaluationsSaga";
+import log from "loglevel";
+
+function* handleInstallationFailure(url: string, accessor?: string[]) {
+  if (accessor) {
+    yield call(
+      EvalWorker.request,
+      EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY,
+      accessor,
+    );
+  }
+  Toaster.show({
+    text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
+    variant: Variant.danger,
+  });
+  yield put({
+    type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
+    payload: url,
+  });
+}
 
 export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const { url } = lib;
@@ -33,15 +52,8 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   );
 
   if (!success) {
-    yield put({
-      type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
-      payload: url,
-    });
-    Toaster.show({
-      text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
-      variant: Variant.danger,
-    });
-    return;
+    log.debug("Failed to install locally");
+    return handleInstallationFailure(url as string);
   }
 
   const name: string = lib.name || accessor[accessor.length - 1];
@@ -50,7 +62,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const versionMatch = (url as string).match(/(?<=@)(\d+\.)(\d+\.)(\d+)/);
   const [version] = versionMatch ? versionMatch : [];
 
-  const response: ApiResponse = yield call(
+  const response: ApiResponse<boolean> = yield call(
     LibraryApi.addLibrary,
     applicationId,
     {
@@ -64,30 +76,19 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
 
   try {
     const isValidResponse: boolean = yield validateResponse(response, false);
-    if (!isValidResponse) {
-      yield put({
-        type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
-        payload: url,
-      });
-      Toaster.show({
-        text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
-        variant: Variant.danger,
-      });
-      return;
+    if (!isValidResponse || !response.data) {
+      log.debug("Install API failed");
+      return handleInstallationFailure(url as string, accessor);
     }
   } catch (e) {
-    yield put({
-      type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
-      payload: url,
-    });
-    Toaster.show({
-      text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
-      variant: Variant.danger,
-    });
-    return;
+    return handleInstallationFailure(url as string, accessor);
   }
 
-  TernServer.updateDef(defs["!name"], defs);
+  try {
+    TernServer.updateDef(defs["!name"], defs);
+  } catch (e) {
+    log.debug("Failed to update Tern defs", e);
+  }
 
   yield put({
     type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
@@ -113,6 +114,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
       name,
     },
   });
+
   Toaster.show({
     text: createMessage(
       customJSLibraryMessages.INSTALLATION_SUCCESSFUL,
