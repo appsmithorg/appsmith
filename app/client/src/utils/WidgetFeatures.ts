@@ -408,7 +408,7 @@ export const PropertyPaneConfigTemplates: Record<
         );
       },
       label: "Max Height (in rows)",
-      helpText: "Maximum Height, after which contents will scroll",
+      helpText: "Maximum Height, after which contents will scroll.",
       controlType: "NUMERIC_INPUT",
       dependencies: ["dynamicHeight", "minDynamicHeight"],
       hidden: hideDynamicHeightPropertyControl,
