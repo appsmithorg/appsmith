@@ -97,6 +97,8 @@ const Library = styled.li`
     display: flex;
     align-items: center;
     gap: 4px;
+    width: 100%;
+    overflow: hidden;
     .accessor {
       padding: 2px 8px;
       flex-grow: 1;
@@ -105,6 +107,7 @@ const Library = styled.li`
       background: white;
       display: flex;
       height: 26px;
+      width: calc(100% - 80px);
       justify-content: space-between;
       align-items: center;
       color: ${Colors.ENTERPRISE_DARK};
@@ -197,7 +200,8 @@ function LibraryEntity({ lib }: any) {
         <div className="content pr-2">
           Available as{" "}
           <div className="accessor">
-            {lib.accessor} <CopyIcon onClick={copyToClipboard} />
+            {lib.accessor[lib.accessor.length - 1]}{" "}
+            <CopyIcon onClick={copyToClipboard} />
           </div>
         </div>
       </Collapse>

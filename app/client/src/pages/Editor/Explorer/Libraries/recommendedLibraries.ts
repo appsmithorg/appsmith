@@ -66,7 +66,7 @@ export default [
     description: "PDF Document creation from JavaScript",
     author: "MrRio",
     version: "2.5.1",
-    url: "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.js",
+    url: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
     icon: "https://github.com/MrRio.png?s=20",
   },
   {
