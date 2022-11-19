@@ -311,7 +311,7 @@ function transformToNumber(
 // TODO FEATURE:(abhinav) Add validations to these properties
 
 const CONTAINER_SCROLL_HELPER_TEXT =
-  "While editing, this widget may scroll contents to facilitate adding widgets. When published, the widget may not scroll contents";
+  "While editing, this widget may scroll contents to facilitate adding widgets. When published, the widget may not scroll contents.";
 
 export const PropertyPaneConfigTemplates: Record<
   RegisteredWidgetFeatures,
