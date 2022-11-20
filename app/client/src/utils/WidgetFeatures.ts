@@ -79,7 +79,7 @@ function findAndUpdatePropertyPaneControlConfig(
         );
 
         if (
-          controlConfigIndex &&
+          controlConfigIndex !== undefined &&
           controlConfigIndex > -1 &&
           sectionConfig.children
         ) {
@@ -300,13 +300,31 @@ function transformToNumber(
   propertyName: string,
   propertyValue: string,
 ) {
-  const value = parseInt(propertyValue, 10);
-  return [
-    {
-      propertyPath: propertyName,
-      propertyValue: Number.isNaN(value) ? 0 : value,
-    },
-  ];
+  // console.log("Dynamic Height: Transforming number:", propertyValue);
+  let value = parseInt(propertyValue, 10);
+  if (Number.isNaN(value)) {
+    value = props[propertyName];
+  }
+  const propertiesToUpdate = [];
+  // if (propertyName === "minDynamicHeight") {
+  //   if (value < WidgetHeightLimits.MIN_HEIGHT_IN_ROWS)
+  //     value = WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+  //   if (props.maxDynamicHeight < value) {
+  //     value = props.minDynamicHeight;
+  //   }
+  // }
+  // if (propertyName === "maxDynamicHeight") {
+  //   if (value < WidgetHeightLimits.MIN_HEIGHT_IN_ROWS)
+  //     value = WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+  //   if (props.minDynamicHeight > value) {
+  //     value = props.maxDynamicHeight;
+  //   }
+  // }
+  propertiesToUpdate.push({
+    propertyPath: propertyName,
+    propertyValue: value,
+  });
+  return propertiesToUpdate;
 }
 // TODO FEATURE:(abhinav) Add validations to these properties
 
@@ -361,7 +379,7 @@ export const PropertyPaneConfigTemplates: Record<
     },
     {
       propertyName: "minDynamicHeight",
-      min: 4,
+      min: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
       onBlur: () => {
         DynamicHeightCallbackHandler.emit(
           CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
@@ -376,7 +394,7 @@ export const PropertyPaneConfigTemplates: Record<
       helpText: "Minimum number of rows to occupy irrespective of contents",
       controlType: "NUMERIC_INPUT",
       hidden: hideDynamicHeightPropertyControl,
-      dependencies: ["dynamicHeight", "maxDynamicHeight"],
+      dependencies: ["dynamicHeight", "maxDynamicHeight", "minDynamicHeight"],
       isJSConvertible: false,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -396,7 +414,7 @@ export const PropertyPaneConfigTemplates: Record<
     },
     {
       propertyName: "maxDynamicHeight",
-      min: 4,
+      min: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
       onFocus: () => {
         DynamicHeightCallbackHandler.emit(
           CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
@@ -410,7 +428,7 @@ export const PropertyPaneConfigTemplates: Record<
       label: "Max Height (in rows)",
       helpText: "Maximum Height, after which contents will scroll.",
       controlType: "NUMERIC_INPUT",
-      dependencies: ["dynamicHeight", "minDynamicHeight"],
+      dependencies: ["dynamicHeight", "minDynamicHeight", "maxDynamicHeight"],
       hidden: hideDynamicHeightPropertyControl,
       updateHook: transformToNumber,
       validation: {

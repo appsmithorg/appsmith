@@ -59,6 +59,7 @@ import { getWidgetMetaProps, getWidgets } from "./selectors";
 export function* getMinHeightBasedOnChildren(
   widgetId: string,
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
+  ignoreParent = false,
 ) {
   let minHeightInRows = 0;
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
@@ -67,7 +68,7 @@ export function* getMinHeightBasedOnChildren(
     getAutoHeightLayoutTree,
   );
   const { children = [], parentId } = stateWidgets[widgetId];
-  if (parentId) {
+  if (parentId && !ignoreParent) {
     let parentHeightInRows =
       stateWidgets[parentId].bottomRow - stateWidgets[parentId].topRow;
     if (changesSoFar.hasOwnProperty(parentId)) {
@@ -393,6 +394,7 @@ export function* updateWidgetDynamicHeightSaga() {
               const minPossibleHeight: number = yield getMinHeightBasedOnChildren(
                 parentCanvasWidget.widgetId,
                 changesSoFar,
+                true,
               );
 
               minHeightInRows = Math.max(minPossibleHeight, minHeightInRows);
