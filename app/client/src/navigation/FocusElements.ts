@@ -224,5 +224,10 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setApiPaneResponsePaneHeight,
       defaultValue: ActionExecutionResizerHeight,
     },
+    {
+      name: FocusElement.FormControlField,
+      selector: getFocusableFormControlField,
+      setter: setFocusableFormControlField,
+    },
   ],
 };
