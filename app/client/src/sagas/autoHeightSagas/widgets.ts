@@ -25,6 +25,9 @@ import {
   getMinHeightBasedOnChildren,
   shouldWidgetsCollapse,
 } from "./helpers";
+import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
 
 /**
  * Saga to update a widget's auto height
@@ -519,9 +522,9 @@ export function* updateWidgetAutoHeightSaga() {
     // Push all updates to the CanvasWidgetsReducer.
     // Note that we're not calling `UPDATE_LAYOUT`
     // as we don't need to trigger an eval
-    yield put(updateMultipleWidgetProperties(widgetsToUpdate));
+    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
     resetAutoHeightUpdateQueue();
-    yield put(generateDynamicHeightComputationTree(false, false));
+    yield put(generateAutoHeightLayoutTreeAction(false, false));
   }
 
   log.debug(
@@ -529,26 +532,4 @@ export function* updateWidgetAutoHeightSaga() {
     performance.now() - start,
     "ms",
   );
-}
-
-// TODO(abhinav): Remove these when these are added via another PR.
-function generateDynamicHeightComputationTree(
-  arg0: boolean,
-  arg1: boolean,
-): any {
-  throw new Error("Function not implemented.");
-}
-function updateMultipleWidgetProperties(
-  widgetsToUpdate: Record<
-    string,
-    Array<{ propertyPath: string; propertyValue: unknown }>
-  >,
-): any {
-  throw new Error("Function not implemented.");
-}
-function computeChangeInPositionBasedOnDelta(
-  autoHeightLayoutTree: Record<string, TreeNode>,
-  delta: Record<string, number>,
-) {
-  throw new Error("Function not implemented.");
 }

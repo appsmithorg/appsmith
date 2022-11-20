@@ -620,6 +620,94 @@ export const showCanvasTopSectionSelector = createSelector(
   },
 );
 
+export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
+  getWidgets,
+  (
+    widgets: CanvasWidgetsReduxState,
+  ): {
+    occupiedSpaces: {
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
+    };
+    canvasLevelMap: Record<string, number>;
+  } => {
+    const occupiedSpaces: {
+      [parentCanvasWidgetId: string]: Array<
+        OccupiedSpace & { originalTop: number; originalBottom: number }
+      >;
+    } = {};
+    // Get all widgets with type "CANVAS_WIDGET" and has children
+    // What we're really doing is getting all widgets inside a drop target
+    const canvasWidgets: FlattenedWidgetProps[] = Object.values(widgets).filter(
+      (widget) => widget.type === "CANVAS_WIDGET",
+    );
+
+    // Levels signify how deeply nested a canvas is.
+    // For example, the main canvas is always at level 0, if a container exists on the canvas
+    // Then the canvas within this container will be level 1, and so on.
+    const canvasLevelMap: Record<string, number> = {};
+
+    // If we have any canvas widgets
+    if (canvasWidgets) {
+      // Iterate through the list of canvas widgets
+      canvasWidgets.forEach((canvasWidget: FlattenedWidgetProps) => {
+        // Set the canvas widget id
+        const canvasWidgetId = canvasWidget.widgetId;
+
+        // Get the nesting level of this Canvas:
+        let parentId = canvasWidget.parentId;
+        let level = 0;
+        while (parentId) {
+          const parent = widgets[parentId];
+          if (parent.type === "CANVAS_WIDGET") {
+            level++;
+            // If we've already computed the level of the ancestor (parent.widgetId),
+            // then this canvas widget's level is the ancestor level + level
+            if (canvasLevelMap.hasOwnProperty(parent.widgetId)) {
+              canvasLevelMap[canvasWidget.widgetId] =
+                canvasLevelMap[parent.widgetId] + level;
+              break;
+            }
+          }
+          parentId = parent.parentId;
+        }
+        canvasLevelMap[canvasWidget.widgetId] = level;
+        // Initialise the occupied spaces with an empty array
+        occupiedSpaces[canvasWidgetId] = [];
+        // If this canvas widget has children
+        if (canvasWidget.children && canvasWidget.children.length > 0) {
+          // Iterate through all children
+          canvasWidget.children.forEach((childWidgetId: string) => {
+            // Get the widget props
+            const widget = widgets[childWidgetId];
+            // If the widget is not detached from layout, which means
+            // They actually exist by being displayed within the canvas
+            // (unlike a modal widget or another canvas widget)
+            if (!widget.detachFromLayout) {
+              // Add the occupied space co-ordinates to the initialised array
+              occupiedSpaces[canvasWidgetId].push({
+                id: widget.widgetId,
+                parentId: canvasWidgetId,
+                left: widget.leftColumn,
+                top: widget.topRow,
+                bottom: widget.bottomRow,
+                right: widget.rightColumn,
+                originalTop: widget.originalTopRow,
+                originalBottom: widget.originalBottomRow,
+              });
+            }
+          });
+        }
+      });
+    }
+
+    // Return the occupied spaces and the canvas levels.
+    // In an empty canvas occupied spaces will be like so: { "0": [] }
+    return { occupiedSpaces, canvasLevelMap };
+  },
+);
+
 /**
  * This returns the number of rows which is not occupied by a Canvas Widget within
  * a parent container like widget of type widgetType
