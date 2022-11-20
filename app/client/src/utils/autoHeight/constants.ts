@@ -14,3 +14,5 @@ export type NodeSpace = {
   bottom: number;
   id: string;
 };
+
+export const MAX_BOX_SIZE = 20000;

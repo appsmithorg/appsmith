@@ -27,6 +27,7 @@ import {
 } from "./helpers";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
 
 /**
  * Saga to update a widget's auto height
@@ -531,15 +532,4 @@ export function* updateWidgetAutoHeightSaga() {
     performance.now() - start,
     "ms",
   );
-}
-
-// // TODO(abhinav): Remove these when these are added via another PR.
-
-function computeChangeInPositionBasedOnDelta(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  autoHeightLayoutTree: Record<string, TreeNode>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  delta: Record<string, number>,
-) {
-  throw new Error("Function not implemented.");
 }
