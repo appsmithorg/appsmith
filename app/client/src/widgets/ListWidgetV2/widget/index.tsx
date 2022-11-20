@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import React, { createRef, RefObject } from "react";
 import { Virtualizer } from "@tanstack/virtual-core";
-import { get, range, omit, isEmpty, floor, isEqual } from "lodash";
+import { get, range, omit, isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
 import derivedProperties from "./parseDerivedProperties";
@@ -192,11 +192,11 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       }
     }
 
-    if (!isEqual(this.props.primaryKeys, prevProps.primaryKeys)) {
-      this.resetSelectedRowIndexMeta();
-      this.resetSelectedRowMeta();
-      this.resetTriggeredRowIndexMeta();
-      this.resetTriggeredRowMeta();
+    if (this.props.primaryKeys === prevProps.primaryKeys) {
+      this.resetSelectedRowIndex();
+      this.resetSelectedRow();
+      this.resetTriggeredRowIndex();
+      this.resetTriggeredRow();
     }
 
     // TODO
@@ -570,8 +570,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     viewIndex: number,
     action: string | undefined,
   ) => {
-    this.updateSelectedRowIndexMeta(rowIndex);
-    this.updateSelectedRowMeta(rowIndex, viewIndex);
+    this.updateSelectedRowIndex(rowIndex);
+    this.updateSelectedRow(rowIndex, viewIndex);
 
     if (!action) return;
 
@@ -600,26 +600,26 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
 
   onRowClickCapture = (rowIndex: number, viewIndex: number) => {
-    this.updateTriggeredRowIndexMeta(rowIndex);
-    this.updateTriggeredRowMeta(viewIndex);
+    this.updateTriggeredRowIndex(rowIndex);
+    this.updateTriggeredRow(viewIndex);
   };
 
-  updateSelectedRowIndexMeta = (rowIndex: number) => {
+  updateSelectedRowIndex = (rowIndex: number) => {
     const { selectedRowIndex } = this.props;
 
     if (rowIndex === selectedRowIndex) {
-      this.resetSelectedRowIndexMeta();
+      this.resetSelectedRowIndex();
       return;
     }
 
     this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
   };
 
-  updateSelectedRowMeta = (rowIndex: number, viewIndex: number) => {
+  updateSelectedRow = (rowIndex: number, viewIndex: number) => {
     const { currentViewRows, selectedRowIndex } = this.props;
 
     if (rowIndex === selectedRowIndex) {
-      this.resetSelectedRowMeta();
+      this.resetSelectedRow();
       return;
     }
 
@@ -636,7 +636,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  updateTriggeredRowMeta = (viewIndex: number) => {
+  updateTriggeredRow = (viewIndex: number) => {
     const { currentViewRows } = this.props;
 
     const triggeredRowBinding = `{{ ${
@@ -651,14 +651,14 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       triggeredRowBinding,
     );
   };
-  resetSelectedRowMeta = () => {
+  resetSelectedRow = () => {
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
       "selectedRow",
       "{{{}}}",
     );
   };
-  resetTriggeredRowMeta = () => {
+  resetTriggeredRow = () => {
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
       "triggeredRow",
@@ -666,14 +666,14 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  updateTriggeredRowIndexMeta = (rowIndex: number) => {
+  updateTriggeredRowIndex = (rowIndex: number) => {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
   };
 
-  resetSelectedRowIndexMeta = () => {
+  resetSelectedRowIndex = () => {
     this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
   };
-  resetTriggeredRowIndexMeta = () => {
+  resetTriggeredRowIndex = () => {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
   };
 

@@ -375,4 +375,6 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .first()
       .should("have.text", "2");
   });
+
+  // TODO: (Tolulope) Add a test for infinite scroll once it's ready to be shipped
 });
