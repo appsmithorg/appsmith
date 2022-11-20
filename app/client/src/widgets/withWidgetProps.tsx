@@ -24,6 +24,7 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -128,8 +129,14 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         },
       });
       return null;
+    } else if (
+      !widgetProps.isVisible &&
+      renderMode !== RenderModes.PAGE &&
+      renderMode !== RenderModes.PREVIEW &&
+      widgetProps.topRow === widgetProps.bottomRow
+    ) {
+      dispatch(checkContainersForAutoHeightAction());
     }
-
     // We don't render invisible widgets in view mode
     // True, but we need this information to re-arrange widgets in view mode.
     // We may create an HOC for dynamicheight updates, such that, this info
