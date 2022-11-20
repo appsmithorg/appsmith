@@ -826,14 +826,9 @@ export function* dynamicallyUpdateContainersSaga() {
             maxBottomRow = maxDynamicHeightInRows;
           }
 
-          if (
-            maxBottomRow !== bottomRow - topRow ||
-            (maxBottomRow === 0 && !shouldCollapse)
-          ) {
-            if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
-              updates[parentContainerWidget.widgetId] =
-                maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-            }
+          if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
+            updates[parentContainerWidget.widgetId] =
+              maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
           }
         }
       }

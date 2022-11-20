@@ -117,6 +117,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return null;
     }
 
+    // We don't render invisible widgets in view mode
+    // True, but we need this information to re-arrange widgets in view mode.
+    // We may create an HOC for dynamicheight updates, such that, this info
+    // doesn't need to go all the way to the BaseWidget.
+
     if (
       !widgetProps.isVisible &&
       (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW)
@@ -138,10 +143,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     ) {
       dispatch(checkContainersForAutoHeightAction());
     }
-    // We don't render invisible widgets in view mode
-    // True, but we need this information to re-arrange widgets in view mode.
-    // We may create an HOC for dynamicheight updates, such that, this info
-    // doesn't need to go all the way to the BaseWidget.
 
     return <WrappedWidget {...widgetProps} />;
   }
