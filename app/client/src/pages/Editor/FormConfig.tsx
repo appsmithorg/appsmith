@@ -23,7 +23,6 @@ import { getPropertyControlFocusElement } from "utils/editorContextUtils";
 import { AppState } from "@appsmith/reducers";
 import { generateKeyAndSetFocusableFormControlField } from "actions/queryPaneActions";
 import { getShouldFocusControlField } from "selectors/editorContextSelectors";
-import { useLocation } from "react-router";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -67,7 +66,6 @@ export default function FormConfig(props: FormConfigProps) {
   let top, bottom;
   const controlRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch();
-  const location = useLocation();
 
   const handleOnFocus = () => {
     if (props.config.configProperty) {
@@ -82,20 +80,18 @@ export default function FormConfig(props: FormConfigProps) {
   );
 
   useEffect(() => {
-    const focusableElement = getPropertyControlFocusElement(controlRef.current);
     if (shouldFocusPropertyPath) {
+      const focusableElement = getPropertyControlFocusElement(
+        controlRef.current,
+      );
       focusableElement?.scrollIntoView({
         block: "center",
         behavior: "smooth",
       });
       focusableElement?.focus();
-    } else {
-      // Blurring because shouldFocusPropertyPath is momentarily true when it should be false
-      focusableElement?.blur();
     }
     // Using location pathname to rerender when same fields are focused in two different entitites
-  }, [shouldFocusPropertyPath, location.pathname]);
-
+  }, [shouldFocusPropertyPath]);
   if (props.multipleConfig?.length) {
     top = (
       <div style={{ display: "flex" }}>

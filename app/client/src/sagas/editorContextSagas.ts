@@ -14,6 +14,7 @@ import {
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { setFocusableFormControlField } from "actions/queryPaneActions";
+import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
 
 /**
  * This method appends the PageId along with the focusable propertyPath
@@ -88,9 +89,12 @@ function* generateKeyAndSetFocusableFormControlField(
     window.location.pathname,
     window.location.hash,
   );
+  // To focus input fields of same identifiers of different api/queries
+  // we need a different reference since the value is the same.
+  const actionId = getActionIdFromURL();
 
   const propertyFieldKey = generatePropertyKey(
-    action.payload.path,
+    (actionId || "") + action.payload.path,
     currentPageId,
   );
 
