@@ -50,6 +50,7 @@ import Skeleton from "./Skeleton";
 import { CSSProperties } from "styled-components";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { DynamicHeightContainerWrapper } from "./DynamicHeightContainerWrapper";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /***
  * BaseWidget
@@ -193,7 +194,7 @@ abstract class BaseWidget<
     We're not using `updateWidgetProperty`, because, the workflow differs
     We will be computing properties of all widgets which are effected by
     this change.
-    @param height number: Height of the widget's contents in pixels 
+    @param height number: Height of the widget's contents in pixels
     @return void
 
     TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
@@ -376,6 +377,7 @@ abstract class BaseWidget<
         modify: modifyObj,
         postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
       });
+      AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
     };
 
     const onMaxHeightSet = (height: number) =>

@@ -39,6 +39,7 @@ import WidgetFactory, {
   NonSerialisableWidgetConfigs,
 } from "utils/WidgetFactory";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -367,6 +368,11 @@ const getWidgetSpacesForContainer = (
   widgets: FlattenedWidgetProps[],
 ): WidgetSpace[] => {
   return widgets.map((widget) => {
+    const fixedHeight =
+      widget.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS ||
+      widget.dynamicHeight === DynamicHeight.AUTO_HEIGHT
+        ? widget.bottomRow - widget.topRow
+        : undefined;
     const occupiedSpace: WidgetSpace = {
       id: widget.widgetId,
       parentId: containerWidgetId,
@@ -375,6 +381,7 @@ const getWidgetSpacesForContainer = (
       bottom: widget.bottomRow,
       right: widget.rightColumn,
       type: widget.type,
+      fixedHeight,
     };
     return occupiedSpace;
   });
