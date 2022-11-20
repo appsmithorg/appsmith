@@ -32,6 +32,17 @@ import ListPagination, {
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
 
+const getCurrentViewRowsBindingTemplate = () => ({
+  prefix: "{{[",
+  suffix: "]}}",
+});
+
+const removeTemplateFromCurrentViewRowsBinding = (binding: string) => {
+  const { prefix, suffix } = getCurrentViewRowsBindingTemplate();
+
+  return binding.substring(prefix.length, binding.length - suffix.length);
+};
+
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
   CURRENT_INDEX = "currentIndex",
@@ -192,7 +203,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       }
     }
 
-    if (this.props.primaryKeys === prevProps.primaryKeys) {
+    if (this.props.primaryKeys !== prevProps.primaryKeys) {
       this.resetSelectedRowIndex();
       this.resetSelectedRow();
       this.resetTriggeredRowIndex();
@@ -339,10 +350,12 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       names: currMetaContainerNames,
     } = this.metaWidgetGenerator.getMetaContainers();
 
+    const { prefix, suffix } = getCurrentViewRowsBindingTemplate();
+
     if (!equal(this.prevMetaContainerNames, currMetaContainerNames)) {
-      const currentViewRowsBinding = `{{[${currMetaContainerNames.map(
+      const currentViewRowsBinding = `${prefix}${currMetaContainerNames.map(
         (name) => `${name}.data`,
-      )}]}}`;
+      )}${suffix}`;
 
       // This doesn't trigger another evaluation
       this.context?.syncUpdateWidgetMetaProperty?.(
@@ -623,11 +636,13 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       return;
     }
 
-    const selectedRowBinding = `{{ ${
-      currentViewRows.substring(3, currentViewRows.length - 3).split(",")[
-        viewIndex
-      ]
-    } }}`;
+    const currentViewContainers = removeTemplateFromCurrentViewRowsBinding(
+      currentViewRows,
+    );
+
+    const selectedContainer = currentViewContainers.split(",")[viewIndex];
+
+    const selectedRowBinding = `{{ ${selectedContainer} }}`;
 
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
@@ -639,11 +654,13 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   updateTriggeredRow = (viewIndex: number) => {
     const { currentViewRows } = this.props;
 
-    const triggeredRowBinding = `{{ ${
-      currentViewRows.substring(3, currentViewRows.length - 3).split(",")[
-        viewIndex
-      ]
-    } }}`;
+    const currentViewContainers = removeTemplateFromCurrentViewRowsBinding(
+      currentViewRows,
+    );
+
+    const triggeredContainer = currentViewContainers.split(",")[viewIndex];
+
+    const triggeredRowBinding = `{{ ${triggeredContainer} }}`;
 
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
@@ -651,6 +668,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       triggeredRowBinding,
     );
   };
+
   resetSelectedRow = () => {
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
@@ -658,6 +676,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       "{{{}}}",
     );
   };
+
   resetTriggeredRow = () => {
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
