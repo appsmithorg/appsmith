@@ -9,6 +9,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -405,6 +406,23 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         Mono<Set<String>> actionNamesInPageMono = newActionService
                 .getUnpublishedActions(params)
+                .flatMap(
+                        actionDTO -> {
+                            /*
+                                This is unexpected. Every action inside a JS collection should have a collectionId.
+                                But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.
+                                The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
+                                during JS action creation. A detailed RCA is documented here
+                                https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
+                             */
+                            if (actionDTO.getPluginType().equals(PluginType.JS) && !StringUtils.hasLength(actionDTO.getCollectionId())) {
+                                log.debug("JS Action with Id: {} doesn't have any collection Id under pageId: {}", actionDTO.getId(), pageId);
+                                return Mono.empty();
+                            } else {
+                                return Mono.just(actionDTO);
+                            }
+                        }
+                )
                 .map(ActionDTO::getValidName)
                 .collect(toSet());
 
