@@ -43,6 +43,7 @@ export class ApiPage {
   _saveAsDS = ".t--store-as-datasource";
   _responseStatus = ".t--response-status-code";
   private _blankGraphqlAPI = "span:contains('New Blank GraphQL API')";
+  public _responseTabHeader = "[data-cy=t--tab-headers]";
 
   CreateApi(
     apiName = "",
@@ -268,6 +269,10 @@ export class ApiPage {
       });
   }
 
+  SwitchToResponseTab(tabIdentifier: string) {
+    cy.get(tabIdentifier).click();
+  }
+
   public SelectAPIVerb(verb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH") {
     cy.get(this._apiVerbDropdown).click();
     cy.xpath(this._verbToSelect(verb))
@@ -285,11 +290,7 @@ export class ApiPage {
       .click({ force: true });
   }
 
-  CreateAndFillGraphqlApi(
-    url: string,
-    apiName = "",
-    queryTimeout = 10000
-  ) {
+  CreateAndFillGraphqlApi(url: string, apiName = "", queryTimeout = 10000) {
     this.CreateGraphqlApi(apiName);
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
