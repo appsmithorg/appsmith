@@ -130,10 +130,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       });
       return null;
     } else if (
-      !widgetProps.isVisible &&
-      renderMode !== RenderModes.PAGE &&
-      renderMode !== RenderModes.PREVIEW &&
-      widgetProps.topRow === widgetProps.bottomRow
+      (!widgetProps.isVisible &&
+        renderMode !== RenderModes.PAGE &&
+        renderMode !== RenderModes.PREVIEW &&
+        widgetProps.topRow === widgetProps.bottomRow) ||
+      (widgetProps.topRow === widgetProps.bottomRow && children)
     ) {
       dispatch(checkContainersForAutoHeightAction());
     }

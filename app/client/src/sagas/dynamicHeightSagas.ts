@@ -771,10 +771,13 @@ export function* dynamicallyUpdateContainersSaga() {
             parentContainerWidget.detachFromLayout &&
             parentContainerWidget.height
           ) {
-            maxBottomRow = Math.ceil(
+            topRow = 0;
+            bottomRow = Math.ceil(
               parentContainerWidget.height /
                 GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
             );
+
+            maxBottomRow = bottomRow;
           }
 
           if (
