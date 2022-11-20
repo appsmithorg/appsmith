@@ -8,7 +8,7 @@ import renderer from "react-test-renderer";
 const onHeightUpdate = jest.fn();
 
 describe("<AutoHeightContainer />", () => {
-  it("should wrap the children in a div whose height is auto.", async () => {
+  it("should wrap the children in a div whose height is auto", async () => {
     const tree = renderer
       .create(
         <AutoHeightContainer
