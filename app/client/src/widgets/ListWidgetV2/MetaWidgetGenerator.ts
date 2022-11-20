@@ -47,11 +47,11 @@ export type GeneratorOptions = {
   pageSize?: number;
   primaryKeys?: (string | number | undefined)[];
   scrollElement: ConstructorProps["scrollElement"];
+  selectedRowIndex: number;
   serverSidePagination: ConstructorProps["serverSidePagination"];
   templateBottomRow: ConstructorProps["templateBottomRow"];
-  widgetName: string;
-  selectedRowIndex: number;
   triggeredRowIndex: number;
+  widgetName: string;
 };
 
 type ConstructorProps = {
@@ -190,13 +190,12 @@ class MetaWidgetGenerator {
     this.onVirtualListScroll = props.onVirtualListScroll;
     this.pageNo = 1;
     this.pageSize = 0;
-    this.selectedRowIndex = -1;
-    this.triggeredRowIndex = -1;
     this.prevTemplateWidgets = {};
     this.prevViewMetaWidgetIds = [];
     this.renderMode = props.renderMode;
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
     this.scrollElement = props.scrollElement;
+    this.selectedRowIndex = -1;
     this.serverSidePagination = props.serverSidePagination;
     this.setWidgetCache = props.setWidgetCache;
     this.templateBottomRow = props.templateBottomRow;
@@ -206,6 +205,7 @@ class MetaWidgetGenerator {
       removed: new Set(),
       unchanged: new Set(),
     };
+    this.triggeredRowIndex = -1;
     this.widgetName = "";
   }
 
@@ -222,9 +222,9 @@ class MetaWidgetGenerator {
     this.pageSize = options.pageSize;
     this.primaryKeys = options.primaryKeys;
     this.scrollElement = options.scrollElement;
+    this.selectedRowIndex = options.selectedRowIndex;
     this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
-    this.widgetName = options.widgetName;
     this.selectedRowIndex = options.selectedRowIndex;
     this.triggeredRowIndex = options.triggeredRowIndex;
 

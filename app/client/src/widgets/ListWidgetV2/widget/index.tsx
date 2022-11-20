@@ -43,6 +43,8 @@ const removeTemplateFromCurrentViewRowsBinding = (binding: string) => {
   return binding.substring(prefix.length, binding.length - suffix.length);
 };
 
+const MINIMUM_ROW_GAP = -8;
+
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
   CURRENT_INDEX = "currentIndex",
@@ -578,19 +580,15 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     });
   };
 
-  onRowClick = (
-    rowIndex: number,
-    viewIndex: number,
-    action: string | undefined,
-  ) => {
+  onRowClick = (rowIndex: number, viewIndex: number) => {
     this.updateSelectedRowIndex(rowIndex);
     this.updateSelectedRow(rowIndex, viewIndex);
 
-    if (!action) return;
+    if (!this.props.onRowClick) return;
 
     try {
       const rowData = this.props.listData?.[rowIndex];
-      const { jsSnippets } = getDynamicBindings(action);
+      const { jsSnippets } = getDynamicBindings(this.props.onRowClick);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{${next}}} `;
       }, "");
@@ -698,7 +696,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
 
   getGridGap = () =>
-    this.props.gridGap && this.props.gridGap >= -8 ? this.props.gridGap : 0;
+    this.props.gridGap && this.props.gridGap >= MINIMUM_ROW_GAP
+      ? this.props.gridGap
+      : 0;
 
   /**
    * 400
@@ -730,17 +730,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return { shouldPaginate, pageSize };
   };
 
-  getRowIndex = (index: number) => {
-    const { pageNo } = this.props;
-    const pageSize = this.pageSize;
+  getRowIndex = (viewIndex: number) => {
     const startIndex = this.metaWidgetGenerator.getStartIndex();
-    let calculatedSelectedRowIndex = pageSize * (pageNo - 1) + index;
-
-    if (this.props.infiniteScroll) {
-      calculatedSelectedRowIndex = startIndex + index;
-    }
-
-    return calculatedSelectedRowIndex;
+    return startIndex + viewIndex;
   };
 
   renderChildren = () => {
@@ -757,20 +749,16 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         // child.shouldScrollContents = true;
         child.canExtend = true;
         child.children = child.children?.map((container, viewIndex) => {
-          const calculatedSelectedRowIndex = this.getRowIndex(viewIndex);
+          const rowIndex = this.getRowIndex(viewIndex);
           return {
             ...container,
-            selected: selectedRowIndex === calculatedSelectedRowIndex,
+            selected: selectedRowIndex === rowIndex,
             onClick: (e: React.MouseEvent<HTMLElement>) => {
               e.stopPropagation();
-              this.onRowClick(
-                calculatedSelectedRowIndex,
-                viewIndex,
-                this.props.onRowClick,
-              );
+              this.onRowClick(rowIndex, viewIndex);
             },
             onClickCapture: () => {
-              this.onRowClickCapture(calculatedSelectedRowIndex, viewIndex);
+              this.onRowClickCapture(rowIndex, viewIndex);
             },
           };
         });
