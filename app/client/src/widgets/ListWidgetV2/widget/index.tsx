@@ -692,6 +692,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   resetSelectedRowIndex = () => {
     this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
   };
+
   resetTriggeredRowIndex = () => {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
   };
@@ -729,7 +730,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return { shouldPaginate, pageSize };
   };
 
-  getContainerIndex = (index: number) => {
+  getRowIndex = (index: number) => {
     const { pageNo } = this.props;
     const pageSize = this.pageSize;
     const startIndex = this.metaWidgetGenerator.getStartIndex();
@@ -755,8 +756,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         child.rightColumn = componentWidth;
         // child.shouldScrollContents = true;
         child.canExtend = true;
-        child.children = child.children?.map((container, index) => {
-          const calculatedSelectedRowIndex = this.getContainerIndex(index);
+        child.children = child.children?.map((container, viewIndex) => {
+          const calculatedSelectedRowIndex = this.getRowIndex(viewIndex);
           return {
             ...container,
             selected: selectedRowIndex === calculatedSelectedRowIndex,
@@ -764,12 +765,12 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
               e.stopPropagation();
               this.onRowClick(
                 calculatedSelectedRowIndex,
-                index,
+                viewIndex,
                 this.props.onRowClick,
               );
             },
             onClickCapture: () => {
-              this.onRowClickCapture(calculatedSelectedRowIndex, index);
+              this.onRowClickCapture(calculatedSelectedRowIndex, viewIndex);
             },
           };
         });

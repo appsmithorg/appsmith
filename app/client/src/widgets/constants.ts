@@ -60,7 +60,6 @@ export type CanvasWidgetStructure = Pick<
   children?: CanvasWidgetStructure[];
   selected?: boolean;
   onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
-  index?: number;
 };
 
 export enum FileDataTypes {
