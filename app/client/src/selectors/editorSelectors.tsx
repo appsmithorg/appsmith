@@ -35,6 +35,10 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import WidgetFactory, {
+  NonSerialisableWidgetConfigs,
+} from "utils/WidgetFactory";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -600,8 +604,17 @@ export const selectJSCollections = (state: AppState) =>
 export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
-  (canvasWidgets, inPreviewMode) => {
-    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
+  getCurrentPageId,
+  (canvasWidgets, inPreviewMode, pageId) => {
+    const state = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
+    );
+    if (
+      !state[pageId] ||
+      Object.keys(canvasWidgets).length > 1 ||
+      inPreviewMode
+    )
+      return false;
 
     return true;
   },
@@ -707,6 +720,17 @@ export const getCanvasHeightOffset = (
   widgetType: WidgetType,
   props: WidgetProps,
 ) => {
-  // Will be implemented in a separate PR
-  return 0;
+  // Get the non serialisable configs for the widget type
+  const config:
+    | Record<NonSerialisableWidgetConfigs, unknown>
+    | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
+  let offset = 0;
+  // If this widget has a registered canvasHeightOffset function
+  if (config?.canvasHeightOffset) {
+    // Run the function to get the offset value
+    offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
+      props,
+    );
+  }
+  return offset;
 };

@@ -24,6 +24,7 @@ import {
   isSortableMigration,
   migrateTableWidgetIconButtonVariant,
   migrateTableWidgetV2Validation,
+  migrateTableWidgetV2ValidationBinding,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -63,6 +64,7 @@ import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskin
 import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
+import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1127,6 +1129,16 @@ export const transformDSL = (
 
   if (currentDSL.version === 64) {
     currentDSL = migrateRateWidgetDisabledState(currentDSL);
+    currentDSL.version = 65;
+  }
+
+  if (currentDSL.version === 65) {
+    currentDSL = migrateCodeScannerLayout(currentDSL);
+    currentDSL.version = 66;
+  }
+
+  if (currentDSL.version === 66) {
+    currentDSL = migrateTableWidgetV2ValidationBinding(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

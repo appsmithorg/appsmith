@@ -3,8 +3,15 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system";
-import { Classes } from "components/ads/common";
+import {
+  Classes,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import InspectElement from "assets/images/InspectElement.svg";
 import { ReactComponent as LongArrowSVG } from "assets/images/long-arrow-right.svg";
 import {
@@ -18,9 +25,7 @@ import {
 import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getTypographyByKey, thinScrollbar } from "constants/DefaultTheme";
-import { TooltipComponent as Tooltip } from "design-system";
-import { Text, TextType } from "design-system";
+import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 
@@ -48,7 +53,7 @@ const ConnectionsContainer = styled.span`
       ${(props) => props.theme.colors.actionSidePane.connectionBorder};
     padding: ${(props) => props.theme.spaces[0] + 2}px
       ${(props) => props.theme.spaces[1]}px;
-    ${(props) => getTypographyByKey(props, "p3")}
+    ${getTypographyByKey("p3")}
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -99,7 +104,7 @@ const Wrapper = styled.div`
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
     .connection-type {
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
     }
   }
 

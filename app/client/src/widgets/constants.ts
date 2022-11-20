@@ -1,6 +1,7 @@
 import { IconNames } from "@blueprintjs/icons";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import { Theme } from "constants/DefaultTheme";
 import { omit } from "lodash";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -20,6 +21,7 @@ export interface WidgetConfiguration {
   needsMeta?: boolean;
   features?: WidgetFeatures;
   searchTags?: string[];
+  canvasHeightOffset?: (props: WidgetProps) => number;
   properties: {
     config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
@@ -264,3 +266,7 @@ export const dateFormatOptions = [
     value: "MM/DD/YY",
   },
 ];
+
+export type ThemeProp = {
+  theme: Theme;
+};

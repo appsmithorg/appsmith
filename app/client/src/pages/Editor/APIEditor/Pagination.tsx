@@ -5,13 +5,12 @@ import styled from "constants/DefaultTheme";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import { Button, Category, Size, Text, TextType } from "design-system";
+import { Button, Category, Classes, Size, Text, TextType } from "design-system";
 import {
   CodeEditorBorder,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { GifPlayer } from "design-system";
-import { Classes } from "components/ads/common";
 import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
 import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";
 import lightmodeThumbnail from "assets/icons/gifs/lightmode_thumbnail.png";

@@ -35,11 +35,17 @@ import {
 } from "selectors/applicationSelectors";
 import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import { Button, Icon, IconSize, Size, TooltipComponent } from "design-system";
+import {
+  Button,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Size,
+  TooltipComponent,
+} from "design-system";
 import { Profile } from "pages/common/ProfileImage";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -51,8 +57,8 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 import { retryPromise } from "utils/AppsmithUtils";
-import { fetchUsersForWorkspace } from "actions/workspaceActions";
-import { WorkspaceUser } from "constants/workspaceConstants";
+import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import {
@@ -93,7 +99,7 @@ const HeaderWrapper = styled.div`
   box-shadow: none;
   border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
   & .editable-application-name {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
   }
   & ${Profile} {
@@ -147,7 +153,7 @@ const ProfileDropdownContainer = styled.div``;
 const StyledInviteButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
-  ${(props) => getTypographyByKey(props, "btnLarge")}
+  ${getTypographyByKey("btnLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
@@ -285,11 +291,9 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  const featureFlags = useSelector(selectFeatureFlags);
-
   const handleClickDeploy = useCallback(
     (fromDeploy?: boolean) => {
-      if (featureFlags.GIT && isGitConnected) {
+      if (isGitConnected) {
         dispatch(showConnectGitModal());
         AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
           source: fromDeploy
@@ -300,7 +304,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         handlePublish();
       }
     },
-    [featureFlags.GIT, dispatch, handlePublish],
+    [dispatch, handlePublish],
   );
 
   /**

@@ -14,6 +14,11 @@ export type CarouselTrigger = {
 export type Carousel = {
   triggers: CarouselTrigger[];
   targets: any[];
+  design:
+    | "split-left-trigger"
+    | "split-right-trigger"
+    | "trigger-contains-target"
+    | "no-target";
 };
 
 export type Footer = {

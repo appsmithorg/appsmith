@@ -25,6 +25,8 @@ import {
   getMinHeightBasedOnChildren,
   shouldWidgetsCollapse,
 } from "./helpers";
+import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 /**
  * Saga to update a widget's auto height
@@ -519,9 +521,9 @@ export function* updateWidgetAutoHeightSaga() {
     // Push all updates to the CanvasWidgetsReducer.
     // Note that we're not calling `UPDATE_LAYOUT`
     // as we don't need to trigger an eval
-    yield put(updateMultipleWidgetProperties(widgetsToUpdate));
+    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
     resetAutoHeightUpdateQueue();
-    yield put(generateDynamicHeightComputationTree(false, false));
+    yield put(generateAutoHeightLayoutTreeAction(false, false));
   }
 
   log.debug(
@@ -531,24 +533,8 @@ export function* updateWidgetAutoHeightSaga() {
   );
 }
 
-// TODO(abhinav): Remove these when these are added via another PR.
-function generateDynamicHeightComputationTree(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  arg0: boolean,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  arg1: boolean,
-): any {
-  throw new Error("Function not implemented.");
-}
-function updateMultipleWidgetProperties(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  widgetsToUpdate: Record<
-    string,
-    Array<{ propertyPath: string; propertyValue: unknown }>
-  >,
-): any {
-  throw new Error("Function not implemented.");
-}
+// // TODO(abhinav): Remove these when these are added via another PR.
+
 function computeChangeInPositionBasedOnDelta(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   autoHeightLayoutTree: Record<string, TreeNode>,
