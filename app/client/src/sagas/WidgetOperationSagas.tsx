@@ -1540,6 +1540,7 @@ function* pasteWidgetSaga(
               /**
                * If new parent is a vertical stack, then update flex layers.
                */
+              // TODO: Preet - add check for main container's positioning.
               if (
                 pastingIntoWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
                 pastingIntoWidget.positioning === Positioning.Vertical ||
