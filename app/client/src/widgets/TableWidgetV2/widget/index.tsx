@@ -12,6 +12,7 @@ import _, {
   xorWith,
   isEmpty,
   union,
+  isObject,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -2059,7 +2060,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   hasInvalidColumnCell = () => {
-    return Object.values(this.props.isEditableCellsValid).some((d) => !d);
+    if (isObject(this.props.isEditableCellsValid)) {
+      return Object.values(this.props.isEditableCellsValid).some((d) => !d);
+    } else {
+      return false;
+    }
   };
 
   updateNewRowValues = (
