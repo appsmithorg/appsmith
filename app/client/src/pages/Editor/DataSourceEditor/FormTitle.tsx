@@ -57,7 +57,22 @@ function FormTitle(props: FormTitleProps) {
     (name: string) => {
       const datasourcesNames: Record<string, any> = {};
       datasources
-        .filter((datasource) => datasource.id !== currentDatasource?.id)
+        // in case of REST API and Authenticated GraphQL API, when user clicks on save as datasource
+        // we first need to update the action and then redirect to action page,
+        // for that reason we need temporary datasource data to exist in store till action is updated,
+        // if temp datasource data is there, then duplicate name issue occurs
+        // hence added extra condition for REST and GraphQL.
+        .filter(
+          (datasource) =>
+            datasource.id !== currentDatasource?.id &&
+            !(
+              datasource.name === currentDatasource?.name &&
+              ["REST API", "Authenticated GraphQL API"].includes(
+                (datasource as any).pluginName,
+              ) &&
+              datasource.pluginId === currentDatasource?.pluginId
+            ),
+        )
         .map((datasource) => {
           datasourcesNames[datasource.name] = datasource;
         });

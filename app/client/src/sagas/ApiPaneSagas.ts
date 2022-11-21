@@ -82,7 +82,10 @@ import {
   integrationEditorURL,
 } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
+import {
+  CreateDatasourceSuccessAction,
+  removeTempDatasource,
+} from "actions/datasourceActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -564,9 +567,18 @@ function* handleDatasourceCreatedSaga(
       }),
     );
 
+    // we need to wait for action to be updated with respective datasource,
+    // before redirecting back to action page, hence added take operator to
+    // wait for update action to be complete.
+    yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+
     yield put({
       type: ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE,
     });
+
+    // temp datasource data is deleted here, because we need temp data before
+    // redirecting to api page, otherwise it will lead to invalid url page
+    yield put(removeTempDatasource());
   }
 
   const { redirect } = actionPayload;

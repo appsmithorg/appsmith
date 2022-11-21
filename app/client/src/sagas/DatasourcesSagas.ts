@@ -759,7 +759,11 @@ function* createDatasourceFromFormSaga(
         },
       });
 
-      yield put(removeTempDatasource());
+      // for all datasources, except for REST and GraphQL, need to delete temp datasource data
+      // as soon as possible, for REST and GraphQL it is getting deleted in APIPaneSagas.ts
+      if (!actionRouteInfo.apiId) {
+        yield put(removeTempDatasource());
+      }
 
       // updating form initial values to latest data, so that next time when form is opened
       // isDirty will use updated initial values data to compare actual values with
