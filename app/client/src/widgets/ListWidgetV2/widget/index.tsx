@@ -201,6 +201,18 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
           },
         });
       }
+      if (this.props.listData && this.shouldUpdatePageNumber()) {
+        const totalPages = Math.ceil(
+          this.props.listData.length / this.pageSize,
+        );
+        this.props.updateWidgetMetaProperty("pageNo", totalPages, {
+          triggerPropertyName: "onPageChange",
+          dynamicString: this.props.onPageChange,
+          event: {
+            type: EventType.ON_PREV_PAGE,
+          },
+        });
+      }
     }
 
     if (this.props.primaryKeys !== prevProps.primaryKeys) {
@@ -462,6 +474,20 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   shouldFireOnPageSizeChange = () => {
     return this.props.serverSidePagination && this.props.onPageSizeChange;
+  };
+
+  shouldUpdatePageNumber = () => {
+    if (
+      this.props.listData &&
+      !this.props.infiniteScroll &&
+      !this.props.serverSidePagination
+    ) {
+      const totalPages = Math.ceil(this.props.listData?.length / this.pageSize);
+
+      return totalPages < this.props.pageNo ? true : false;
+    }
+
+    return false;
   };
 
   mainMetaCanvasWidget = () => {
