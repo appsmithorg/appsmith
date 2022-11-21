@@ -97,6 +97,9 @@ export function Login(props: LoginFormProps) {
   const location = useLocation();
   const socialLoginList = ThirdPartyLoginRegistry.get();
   const queryParams = new URLSearchParams(location.search);
+  const invalidCredsForgotPasswordLinkText = createMessage(
+    LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+  );
   let showError = false;
   let errorMessage = "";
   const currentUser = useSelector(getCurrentUser);
@@ -145,10 +148,12 @@ export function Login(props: LoginFormProps) {
               ? []
               : [
                   {
-                    url: FORGOT_PASSWORD_URL,
-                    text: createMessage(
-                      LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+                    linkElement: (
+                      <Link to={FORGOT_PASSWORD_URL}>
+                        {invalidCredsForgotPasswordLinkText}
+                      </Link>
                     ),
+                    text: invalidCredsForgotPasswordLinkText,
                     intent: "success",
                   },
                 ]

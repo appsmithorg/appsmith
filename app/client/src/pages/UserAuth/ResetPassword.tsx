@@ -96,10 +96,13 @@ export function ResetPassword(props: ResetPasswordProps) {
   let message = "";
   let messageActions: MessageAction[] | undefined = undefined;
   if (showExpiredMessage || showInvalidMessage) {
+    const messageActionText = createMessage(
+      RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+    );
     messageActions = [
       {
-        url: FORGOT_PASSWORD_URL,
-        text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
+        linkElement: <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>,
+        text: messageActionText,
         intent: "primary",
       },
     ];
@@ -112,11 +115,14 @@ export function ResetPassword(props: ResetPasswordProps) {
   }
 
   if (showSuccessMessage) {
+    const messageActionText = createMessage(
+      RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+    );
     message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
-        url: AUTH_LOGIN_URL,
-        text: createMessage(RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK),
+        linkElement: <Link to={AUTH_LOGIN_URL}>{messageActionText}</Link>,
+        text: messageActionText,
         intent: "success",
       },
     ];
@@ -130,10 +136,15 @@ export function ResetPassword(props: ResetPasswordProps) {
           createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK).toLowerCase(),
         )
     ) {
+      const messageActionText = createMessage(
+        RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+      );
       messageActions = [
         {
-          url: FORGOT_PASSWORD_URL,
-          text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
+          linkElement: (
+            <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>
+          ),
+          text: messageActionText,
           intent: "primary",
         },
       ];
@@ -147,7 +158,6 @@ export function ResetPassword(props: ResetPasswordProps) {
         : "lightSuccess",
     message,
     actions: messageActions,
-    linkAs: Link,
   };
 
   if (showInvalidMessage || showExpiredMessage) {
