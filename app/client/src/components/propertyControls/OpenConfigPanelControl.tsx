@@ -22,10 +22,8 @@ const OpenNextPannelButton = styled(StyledPropertyPaneButton)`
   flex-grow: 1;
 `;
 
-class OpenNextPanelWithButtonControl extends BaseControl<
-  OpenNextPanelWithButtonControlProps
-> {
-  constructor(props: OpenNextPanelWithButtonControlProps) {
+class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
+  constructor(props: OpenConfigPanelControlProps) {
     super(props);
   }
 
@@ -66,11 +64,11 @@ class OpenNextPanelWithButtonControl extends BaseControl<
   }
 }
 
-export interface OpenNextPanelWithButtonControlProps extends ControlProps {
+export interface OpenConfigPanelControlProps extends ControlProps {
   buttonConfig: {
     icon: string;
     label: string;
   };
 }
 
-export default OpenNextPanelWithButtonControl;
+export default OpenConfigPanelControl;
