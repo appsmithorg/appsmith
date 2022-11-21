@@ -76,6 +76,7 @@ describe("Video Widget Functionality", function() {
   });
 
   it("Resets video widget on button click", function() {
+    cy.testCodeMirror(testdata.videoUrl2);
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");
     cy.widgetText(
@@ -88,10 +89,14 @@ describe("Video Widget Functionality", function() {
     cy.selectWidgetForReset("Video1");
     cy.openPropertyPane("videowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait(1000);
+    cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.get(widgetsPage.widgetBtn).click({ force: true });
-    cy.get(`${widgetsPage.videoWidget} video`)
-      .its("currentTime")
-      .should(0);
+    cy.wait(1000);
+    cy.get(`${widgetsPage.videoWidget} video`).then(($video) => {
+      const video = $video.get(0);
+      expect(video.currentTime).to.equal(0);
+    });
   });
 
   afterEach(() => {

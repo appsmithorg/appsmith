@@ -66,9 +66,13 @@ describe("Audio Widget Functionality", function() {
     cy.selectWidgetForReset("Audio1");
     cy.openPropertyPane("audiowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
+    cy.wait(1000);
+    cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.get(widgetsPage.widgetBtn).click({ force: true });
-    cy.get(`${widgetsPage.audioWidget} audio`)
-      .its("currentTime")
-      .should(0);
+    cy.wait(1000);
+    cy.get(`${widgetsPage.audioWidget} audio`).then(($audio) => {
+      const audio = $audio.get(0);
+      expect(audio.currentTime).to.equal(0);
+    });
   });
 });
