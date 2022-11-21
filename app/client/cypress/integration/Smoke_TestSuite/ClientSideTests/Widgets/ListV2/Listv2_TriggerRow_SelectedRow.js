@@ -135,6 +135,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
           },
           Input1: {
             text: "",
+            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -167,6 +168,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
           },
           Input1: {
             text: "",
+            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -236,6 +238,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
           },
           Input1: {
             text: "",
+            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -268,6 +271,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
           },
           Input1: {
             text: "",
+            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,
@@ -357,6 +361,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
           },
           Input1: {
             text: "",
+            inputText: "",
             isValid: true,
             isVisible: true,
             isDisabled: false,

@@ -121,7 +121,6 @@ const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const SELECTED_ROW_KEY = "__$SELECTED_ROW_KEY$__";
 const TRIGGER_ROW_KEY = "__$TRIGGER_ROW_KEY$__";
-const SpecialKeys = [SELECTED_ROW_KEY, TRIGGER_ROW_KEY];
 
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -522,6 +521,24 @@ class MetaWidgetGenerator {
     };
   };
 
+  private generateWidgetCacheDataForTriggeredAndSelected = (
+    index: number,
+    rowIndex: number,
+  ) => {
+    this.generateWidgetCacheDataForSpecificIndexAndKey(
+      index,
+      rowIndex,
+      this.selectedRowIndex,
+      SELECTED_ROW_KEY,
+    );
+    this.generateWidgetCacheDataForSpecificIndexAndKey(
+      index,
+      rowIndex,
+      this.triggeredRowIndex,
+      TRIGGER_ROW_KEY,
+    );
+  };
+
   private generateWidgetCacheDataForSpecificIndexAndKey = (
     index: number,
     rowIndex: number,
@@ -546,24 +563,6 @@ class MetaWidgetGenerator {
     this.setRowCache(key, {
       ...rowCache,
     });
-  };
-
-  private generateWidgetCacheDataForTriggeredAndSelected = (
-    index: number,
-    rowIndex: number,
-  ) => {
-    this.generateWidgetCacheDataForSpecificIndexAndKey(
-      index,
-      rowIndex,
-      this.selectedRowIndex,
-      SELECTED_ROW_KEY,
-    );
-    this.generateWidgetCacheDataForSpecificIndexAndKey(
-      index,
-      rowIndex,
-      this.triggeredRowIndex,
-      TRIGGER_ROW_KEY,
-    );
   };
 
   private generateCacheData = (
