@@ -145,6 +145,7 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
+  private cachedRowKey: Set<string>;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
   private currDeletedWidgetIds: Set<string>;
@@ -176,11 +177,9 @@ class MetaWidgetGenerator {
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
   private widgetName: GeneratorOptions["widgetName"];
-  private selectedRowMetaWidgetIds: string[];
-  private prevSelectedRowIndex: number;
-  private cachedRowKey: Set<string>;
 
   constructor(props: ConstructorProps) {
+    this.cachedRowKey = new Set();
     this.containerParentId = "";
     this.containerWidgetId = "";
     this.currDeletedWidgetIds = new Set();
@@ -213,9 +212,6 @@ class MetaWidgetGenerator {
     };
     this.triggeredRowIndex = -1;
     this.widgetName = "";
-    this.selectedRowMetaWidgetIds = [];
-    this.prevSelectedRowIndex = -1;
-    this.cachedRowKey = new Set();
   }
 
   withOptions = (options: GeneratorOptions) => {
@@ -367,8 +363,6 @@ class MetaWidgetGenerator {
 
     this.flushModificationQueue();
 
-    this.prevSelectedRowIndex = this.selectedRowIndex;
-
     return {
       metaWidgets,
       removedMetaWidgetIds,
@@ -423,20 +417,6 @@ class MetaWidgetGenerator {
         this.cachedRowKey.add(key);
       }
     });
-  };
-
-  private cacheTriggerRowIndex = () => {
-    if (this.triggeredRowIndex === this.prevSelectedRowIndex) {
-      return;
-    }
-    if (this.selectedRowIndex !== -1) {
-      const key = this.getPrimaryKey(this.selectedRowIndex);
-      this.cachedRowKey.add(key);
-    }
-    if (this.prevSelectedRowIndex !== -1) {
-      const prevKey = this.getPrimaryKey(this.prevSelectedRowIndex);
-      this.cachedRowKey.delete(prevKey);
-    }
   };
 
   private generateMetaWidgetRecursively = ({
@@ -597,6 +577,7 @@ class MetaWidgetGenerator {
         type,
       };
     });
+
     this.setRowCache(key, {
       ...rowCache,
       ...updatedRowCache,
