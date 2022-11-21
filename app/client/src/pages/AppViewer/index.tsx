@@ -93,32 +93,6 @@ function AppViewer(props: Props) {
   /**
    * initializes the widgets factory and registers all widgets
    */
-  const appID = useSelector(getCurrentApplicationId) as string;
-  const isJsonString = function(str: string) {
-    try {
-      JSON.parse(str);
-    } catch (e) {
-      return false;
-    }
-    return true;
-  };
-  const messageHandler = (event: MessageEvent) => {
-    if (event.currentTarget !== window) return;
-    if (event.type !== "message") return;
-    if (!isValidDomain(event.origin)) return;
-    if (appID == "") return;
-    if (!isJsonString(event.data)) return;
-    const appStoreName = getAppStoreName(appID, branch);
-    const storageKeys = JSON.parse(localStorage.getItem(appStoreName) || "{}");
-    const data = JSON.parse(event.data);
-    for (const key in data) {
-      storageKeys[key] = data[key];
-    }
-    const storeString = JSON.stringify(storageKeys);
-    localStorage.setItem(appStoreName, storeString);
-  };
-
-  window.addEventListener("message", messageHandler);
   useEffect(() => {
     editorInitializer().then(() => {
       setRegistered(true);
@@ -283,31 +257,4 @@ function AppViewer(props: Props) {
     </ThemeProvider>
   );
 }
-
-function isValidDomain(domain: string): boolean {
-  const regex1 = new RegExp("/(.+?)[.]manabie.com$");
-  const regex2 = new RegExp("/(.+?)[.]web.app$");
-  const regex3 = new RegExp("/(.+?)[.]manabie.io$");
-  const regex4 = new RegExp("/(.+?)[.]manabie.net$");
-  if (
-    (window.location.origin == "http://localhost" ||
-      window.location.origin ==
-        "https://appsmith.local-green.manabie.io:31600" ||
-      regex3.test(window.location.origin)) &&
-    domain.indexOf("localhost") > -1
-  ) {
-    return true;
-  }
-
-  if (
-    regex1.test(domain) ||
-    regex2.test(domain) ||
-    regex3.test(domain) ||
-    regex4.test(domain)
-  ) {
-    return true;
-  }
-  return false;
-}
-
 export default withRouter(Sentry.withProfiler(AppViewer));
