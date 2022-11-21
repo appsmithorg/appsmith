@@ -1,5 +1,6 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
+import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 
 export const migrateMenuButtonWidgetButtonProperties = (
   currentDSL: DSLWidget,
@@ -20,17 +21,11 @@ export const migrateMenuButtonWidgetButtonProperties = (
 };
 
 export const migrateMenuButtonDynamicItems = (currentDSL: DSLWidget) => {
-  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === "MENU_BUTTON_WIDGET") {
-      if (!child.menuItemsSource) {
-        child.menuItemsSource = "STATIC";
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (widget.type === "MENU_BUTTON_WIDGET") {
+      if (!widget.menuItemsSource) {
+        widget.menuItemsSource = "STATIC";
       }
-    } else if (child.children && child.children.length > 0) {
-      child = migrateMenuButtonDynamicItems(child);
     }
-
-    return child;
   });
-
-  return currentDSL;
 };
