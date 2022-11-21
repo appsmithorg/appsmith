@@ -171,6 +171,13 @@ rm -f "$nginx_access_log" "$nginx_error_log"
 
 nginx_dev_conf="$working_dir/nginx.dev.conf"
 
+# Rare case, if this file doesn't exist, and the `docker run` command
+# (from further below) the script runs, then it'll auto-create a _directory_
+# at this path, breaking this script after that.
+rm -rf "$nginx_dev_conf"
+
+worker_connections=1024
+
 echo "
 worker_processes  1;
 
@@ -179,7 +186,7 @@ error_log $nginx_error_log info;
 $(if [[ $run_as == nginx ]]; then echo "pid $nginx_pid;"; fi)
 
 events {
-    worker_connections  1024;
+    worker_connections $worker_connections;
 }
 
 http {
@@ -294,9 +301,13 @@ if [[ -f $nginx_pid ]]; then
     # different for different systems. It introduces too many unknowns, with little value.
     # So we build a temp config, just to have a predictable value for the `pid` directive.
     temp_nginx_conf="$working_dir/temp.nginx.conf"
-    echo "pid $nginx_pid; events { worker_connections  1024; }" > "$temp_nginx_conf"
-    nginx -c "$temp_nginx_conf" -s quit
-    rm "$nginx_pid" "$temp_nginx_conf"
+    echo "pid $nginx_pid; events { worker_connections $worker_connections; }" > "$temp_nginx_conf"
+    if ! nginx -c "$temp_nginx_conf" -s quit; then
+      echo "Failed to stop nginx. This is _probably_ okay, and things should work fine." >&2
+      echo "  If not, try running 'lsof -iTCP:80 -sTCP:LISTEN -nPt | xargs kill', and then re-run this script." >&2
+    fi
+    # The above stop command will delete the pid file, but we still do this to ensure it really is gone.
+    rm -f "$nginx_pid" "$temp_nginx_conf"
     unset temp_nginx_conf
 fi
 

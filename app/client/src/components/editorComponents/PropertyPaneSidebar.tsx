@@ -23,6 +23,7 @@ import { getAppThemingStack } from "selectors/appThemingSelectors";
 import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
+import { quickScrollToWidget } from "utils/helpers";
 
 type Props = {
   width: number;
@@ -82,6 +83,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     if (!isSnipingMode) {
       //update url hash with the selectedWidget
       dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
+      if (selectedWidgetIds.length === 1) {
+        quickScrollToWidget(selectedWidgetIds[0]);
+      }
     }
   }, [selectedWidgetIds]);
 

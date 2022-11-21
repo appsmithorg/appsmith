@@ -69,9 +69,10 @@ import ComputeTablePropertyControlV2, {
 import PrimaryColumnColorPickerControlV2, {
   PrimaryColumnColorPickerControlPropsV2,
 } from "components/propertyControls/PrimaryColumnColorPickerControlV2";
-import TableInlineEditValidationControlProperty, {
+import TableInlineEditValidationControl, {
   TableInlineEditValidationControlProps,
-} from "./TableInlineEditValidation";
+} from "./TableInlineEditValidationControl";
+import TableInlineEditValidPropertyControl from "./TableInlineEditValidPropertyControl";
 import MenuButtonDynamicItemsControl, {
   MenuButtonDynamicItemsControlProps,
 } from "components/propertyControls/MenuButtonDynamicItemsControl";
@@ -114,7 +115,8 @@ export const PropertyControls = {
   PrimaryColumnColorPickerControl,
   PrimaryColumnColorPickerControlV2,
   SelectDefaultValueControl,
-  TableInlineEditValidationControlProperty,
+  TableInlineEditValidationControl,
+  TableInlineEditValidPropertyControl,
 };
 
 export type PropertyControlPropsType =

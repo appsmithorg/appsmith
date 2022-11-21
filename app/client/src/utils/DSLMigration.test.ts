@@ -20,6 +20,7 @@ import * as mapChartReskinningMigrations from "./migrations/MapChartReskinningMi
 import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { originalDSLForDSLMigrations } from "./testDSLs";
 import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
+import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
 
 type Migration = {
   functionLookup: {
@@ -637,11 +638,29 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
+        moduleObj: codeScannerWidgetMigrations,
+        functionName: "migrateCodeScannerLayout",
+      },
+    ],
+    version: 65,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2ValidationBinding",
+      },
+    ],
+    version: 66,
+  },
+  {
+    functionLookup: [
+      {
         moduleObj: menuButtonWidgetMigrations,
         functionName: "migrateMenuButtonDynamicItems",
       },
     ],
-    version: 65,
+    version: 67,
   },
 ];
 
