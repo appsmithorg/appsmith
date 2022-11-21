@@ -264,7 +264,8 @@ public class LayoutActionServiceTest {
                     updates.setDatasource(datasource);
 
                     // Save updated configuration and re-compute on page load actions.
-                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 .flatMap(savedAction -> layoutActionService.deleteUnpublishedAction(savedAction.getId())) // Delete action
                 .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false)); // Get page info
@@ -326,7 +327,8 @@ public class LayoutActionServiceTest {
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
-                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(unreferencedAction))
                 .flatMap(savedAction -> {
@@ -335,7 +337,8 @@ public class LayoutActionServiceTest {
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
-                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
                 .flatMap(savedAction -> {
@@ -346,7 +349,8 @@ public class LayoutActionServiceTest {
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(d2);
-                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 // fetch the unpublished page
                 .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
@@ -487,7 +491,8 @@ public class LayoutActionServiceTest {
                     ds.getDatasourceConfiguration().setUrl("http://localhost");
                     ds.setPluginId(datasource.getPluginId());
                     updates.setDatasource(ds);
-                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 });
 
         StepVerifier
@@ -752,7 +757,8 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
 
                     // Save updated configuration and re-compute on page load actions.
-                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 }).block();
         ActionDTO createdAction3 = layoutActionService.createSingleAction(action3)
                 .flatMap(savedAction -> {
@@ -762,7 +768,8 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
 
                     // Save updated configuration and re-compute on page load actions.
-                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates)
+                            .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 }).block();
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
@@ -1138,6 +1145,38 @@ public class LayoutActionServiceTest {
         assertNotNull(changedLayoutDTO.getLayoutOnLoadActionErrors());
         assertEquals(0, changedLayoutDTO.getLayoutOnLoadActionErrors().size());
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void jsActionWithoutCollectionIdShouldBeIgnoredDuringNameChecking() {
+        ActionDTO firstAction = new ActionDTO();
+        firstAction.setPluginType(PluginType.JS);
+        firstAction.setName("foo");
+        firstAction.setFullyQualifiedName("testCollection.foo");
+        firstAction.setCollectionId("collectionId");
+
+        ActionDTO secondAction = new ActionDTO();
+        secondAction.setPluginType(PluginType.JS);
+        secondAction.setName("bar");
+        secondAction.setFullyQualifiedName("testCollection.bar");
+        secondAction.setCollectionId(null);
+
+
+        Mockito.doReturn(Flux.just(firstAction, secondAction)).when(newActionService).getUnpublishedActions(Mockito.any());
+
+        ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
+        mockActionCollectionDTO.setName("testCollection");
+        mockActionCollectionDTO.setActions(List.of(firstAction, secondAction));
+
+        Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
+                .thenReturn(Flux.just(mockActionCollectionDTO));
+
+        Mono<Boolean> nameAllowedMono = layoutActionService.isNameAllowed(testPage.getId(), testPage.getLayouts().get(0).getId(), "testCollection.bar");
+
+        StepVerifier.create(nameAllowedMono)
+                .assertNext(Assertions::assertTrue)
+                .verifyComplete();
     }
 
 }

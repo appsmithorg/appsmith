@@ -25,7 +25,7 @@ describe("Canvas context widget selection", function() {
     agHelper.RefreshPage();
   });
 
-  it("widget should be selected while switching back and forth between pages", function() {
+  it("1. Widget should be selected while switching back and forth between pages", function() {
     //select widget in page1
     ee.SelectEntityByName("Camera1", "Widgets");
 
@@ -54,7 +54,7 @@ describe("Canvas context widget selection", function() {
     cy.isInViewport(`//*[@id="${dsl.dsl.children[0].widgetId}"]`);
   });
 
-  it("widget should be selected while switching back to page from API pane", function() {
+  it("2. Widget should be selected while switching back to page from API pane", function() {
     //select widget in page1
     ee.SelectEntityByName("Camera1", "Widgets");
 
@@ -77,7 +77,7 @@ describe("Canvas context widget selection", function() {
     //cy.isInViewport(`//*[@id="${dsl.dsl.children[0].widgetId}"]`);
   });
 
-  it("multiple widgets should be selected while switching back and forth between pages", function() {
+  it("3. Multiple widgets should be selected while switching back and forth between pages", function() {
     //select widgets in page1
     ee.SelectEntityByName("Camera1", "Widgets", true);
     ee.SelectEntityByName("Button1", "Widgets", true);
@@ -103,7 +103,7 @@ describe("Canvas context widget selection", function() {
     cy.get(`.t--multi-selection-box`).should("have.length", 1);
   });
 
-  it("multiple widgets should be selected while switching back to page from API pane", function() {
+  it("4. Multiple widgets should be selected while switching back to page from API pane", function() {
     //select widgets in page1
     ee.SelectEntityByName("Camera1", "Widgets", true);
     ee.SelectEntityByName("Button1", "Widgets", true);
@@ -124,7 +124,7 @@ describe("Canvas context widget selection", function() {
     cy.get(`.t--multi-selection-box`).should("have.length", 1);
   });
 
-  it("Modal widget should be selected and open while switching back and forth between pages", function() {
+  it("5. Modal widget should be selected and open while switching back and forth between pages", function() {
     //select widget in page1
     ee.SelectEntityByName("Modal1", "Widgets");
 
@@ -149,7 +149,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Modal1");
   });
 
-  it("Modal widget should be selected and open while switching back to page from API pane", function() {
+  it("6. Modal widget should be selected and open while switching back to page from API pane", function() {
     //select widget in page1
     ee.SelectEntityByName("Modal1", "Widgets");
 
@@ -170,7 +170,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Modal1");
   });
 
-  it("widget inside modal should be selected and modal should be open while switching back and forth between pages", function() {
+  it("7. Widget inside modal should be selected and modal should be open while switching back and forth between pages", function() {
     //select widget in page1
     ee.SelectEntityInModal("Modal1", "Widgets");
 
@@ -197,7 +197,7 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Text1");
   });
 
-  it("widget inside modal should be selected and modal should be open while switching back to page from API pane", function() {
+  it("8. Widget inside modal should be selected and modal should be open while switching back to page from API pane", function() {
     //select widget in page1
     ee.SelectEntityInModal("Modal1", "Widgets");
 

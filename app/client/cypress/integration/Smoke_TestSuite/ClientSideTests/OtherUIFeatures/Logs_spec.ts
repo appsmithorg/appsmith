@@ -56,6 +56,7 @@ describe("Debugger logs", function() {
     agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
     debuggerHelper.ClickDebuggerIcon();
+    agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(logString);
   });
 
