@@ -42,10 +42,7 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -257,10 +254,7 @@ function ActionSidebar({
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canEditPage = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGES,
-  );
+  const canEditPage = hasManagePagePermission(pagePermissions);
 
   const showSuggestedWidgets =
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;

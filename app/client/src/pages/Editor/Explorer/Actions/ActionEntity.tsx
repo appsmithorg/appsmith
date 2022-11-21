@@ -15,8 +15,8 @@ import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeleteActionPermission,
+  hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
@@ -62,15 +62,9 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const actionPermissions = action.userPermissions || [];
 
-  const canDeleteAction = isPermitted(
-    actionPermissions,
-    PERMISSION_TYPE.DELETE_ACTIONS,
-  );
+  const canDeleteAction = hasDeleteActionPermission(actionPermissions);
 
-  const canManageAction = isPermitted(
-    actionPermissions,
-    PERMISSION_TYPE.MANAGE_ACTIONS,
-  );
+  const canManageAction = hasManageActionPermission(actionPermissions);
 
   const contextMenu = (
     <ActionEntityContextMenu

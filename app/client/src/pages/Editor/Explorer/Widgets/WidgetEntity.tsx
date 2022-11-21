@@ -13,10 +13,7 @@ import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
@@ -95,10 +92,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGES,
-  );
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
   const {
     isWidgetSelected,

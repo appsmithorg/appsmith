@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export enum PERMISSION_TYPE {
   /* Workspace permissions */
   CREATE_WORKSPACE = "createWorkspaces:tenant",
@@ -54,3 +55,26 @@ export const isPermitted = (
   }
   return permissions.includes(type);
 };
+
+export const hasCreateDatasourcePermission = (_permissions?: string[]) => true;
+
+export const hasManageDatasourcePermission = (_permissions?: string[]) => true;
+
+export const hasDeleteDatasourcePermission = (_permissions?: string[]) => true;
+
+export const hasCreateDatasourceActionPermission = (_permissions?: string[]) =>
+  true;
+
+export const hasCreatePagePermission = (_permissions?: string[]) => true;
+
+export const hasManagePagePermission = (_permissions?: string[]) => true;
+
+export const hasDeletePagePermission = (_permissions?: string[]) => true;
+
+export const hasCreateActionPermission = (_permissions?: string[]) => true;
+
+export const hasManageActionPermission = (_permissions?: string[]) => true;
+
+export const hasDeleteActionPermission = (_permissions?: string[]) => true;
+
+export const hasExecuteActionPermission = (_permissions?: string[]) => true;

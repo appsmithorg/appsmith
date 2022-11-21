@@ -18,8 +18,8 @@ import {
 } from "@appsmith/constants/messages";
 import { AppState } from "@appsmith/reducers";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeleteDatasourcePermission,
+  hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { TreeDropdownOption } from "design-system";
 import { getDatasource } from "selectors/entitiesSelector";
@@ -49,30 +49,30 @@ export function DataSourceContextMenu(props: {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canDeleteDatasource = isPermitted(
+  const canDeleteDatasource = hasDeleteDatasourcePermission(
     datasourcePermissions,
-    PERMISSION_TYPE.DELETE_DATASOURCES,
   );
 
-  const canManageDatasource = isPermitted(
+  const canManageDatasource = hasManageDatasourcePermission(
     datasourcePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const treeOptions = [
     {
       value: "refresh",
+      className: "t--datasource-refresh",
       onSelect: dispatchRefresh,
       label: createMessage(CONTEXT_REFRESH),
     },
     canManageDatasource && {
       value: "rename",
+      className: "t--datasource-rename",
       onSelect: editDatasourceName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
     canDeleteDatasource && {
       confirmDelete: confirmDelete,
-      className: "t--apiFormDeleteBtn single-select",
+      className: "t--apiFormDeleteBtn single-select t--datasource-delete",
       value: "delete",
       onSelect: () => {
         confirmDelete ? dispatchDelete() : setConfirmDelete(true);
@@ -84,7 +84,7 @@ export function DataSourceContextMenu(props: {
     },
   ].filter(Boolean);
 
-  return (
+  return treeOptions.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
@@ -95,7 +95,7 @@ export function DataSourceContextMenu(props: {
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 export default DataSourceContextMenu;

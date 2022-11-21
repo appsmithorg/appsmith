@@ -12,10 +12,7 @@ import { DatasourceTable } from "entities/Datasource";
 import { Colors } from "constants/Colors";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
@@ -64,9 +61,8 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const canManageDatasources = isPermitted(
+  const canManageDatasources = hasManageDatasourcePermission(
     datasourcePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const lightningMenu = canManageDatasources ? (

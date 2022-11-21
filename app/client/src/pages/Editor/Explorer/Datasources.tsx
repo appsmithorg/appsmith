@@ -37,8 +37,8 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { AppState } from "@appsmith/reducers";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasCreateDatasourcePermission,
+  hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 
 const ShowAll = styled.div`
@@ -67,9 +67,8 @@ const Datasources = React.memo(() => {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = isPermitted(
+  const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
   const addDatasource = useCallback(() => {
@@ -97,9 +96,8 @@ const Datasources = React.memo(() => {
       appWideDS.concat(datasourceSuggestions).map((datasource: Datasource) => {
         const datasourcePermissions = datasource.userPermissions || [];
 
-        const canManageDatasource = isPermitted(
+        const canManageDatasource = hasManageDatasourcePermission(
           datasourcePermissions,
-          PERMISSION_TYPE.MANAGE_DATASOURCES,
         );
         return (
           <ExplorerDatasourceEntity

@@ -111,7 +111,7 @@ export function WidgetContextMenu(props: {
 
     optionTree.push(option);
   }
-  return (
+  return optionTree.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
@@ -121,7 +121,7 @@ export function WidgetContextMenu(props: {
       selectedValue=""
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 WidgetContextMenu.displayName = "WidgetContextMenu";

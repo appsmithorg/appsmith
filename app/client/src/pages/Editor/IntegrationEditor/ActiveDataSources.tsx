@@ -11,10 +11,7 @@ import {
   createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
 } from "@appsmith/constants/messages";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const QueryHomePage = styled.div`
@@ -67,9 +64,8 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = isPermitted(
+  const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
   if (dataSources.length === 0) {

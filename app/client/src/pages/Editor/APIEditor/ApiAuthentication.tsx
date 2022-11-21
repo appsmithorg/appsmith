@@ -19,8 +19,8 @@ import {
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasCreateDatasourcePermission,
+  hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
@@ -86,16 +86,14 @@ function ApiAuthentication(props: Props): JSX.Element {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = isPermitted(
+  const canCreateDatasource = hasCreateDatasourcePermission(
     userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_DATASOURCES,
   );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
-  const canManageDatasource = isPermitted(
+  const canManageDatasource = hasManageDatasourcePermission(
     datasourcePermissions,
-    PERMISSION_TYPE.MANAGE_DATASOURCES,
   );
 
   const isEnabled =

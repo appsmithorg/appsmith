@@ -37,8 +37,8 @@ import {
 import { ApplicationVersion } from "actions/applicationActions";
 import { AppState } from "@appsmith/reducers";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeletePagePermission,
+  hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { noop } from "utils/AppsmithUtils";
 
@@ -154,15 +154,9 @@ function PageListItem(props: PageListItemProps) {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGES,
-  );
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
-  const canDeletePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.DELETE_PAGES,
-  );
+  const canDeletePages = hasDeletePagePermission(pagePermissions);
 
   return (
     <Container>
