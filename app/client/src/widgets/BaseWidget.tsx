@@ -48,8 +48,8 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { CSSProperties } from "styled-components";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { DynamicHeightContainerWrapper } from "./DynamicHeightContainerWrapper";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 
 /***
  * BaseWidget
@@ -421,12 +421,12 @@ abstract class BaseWidget<
     }
     if (isDynamicHeightEnabledForWidget(this.props)) {
       return (
-        <DynamicHeightContainerWrapper
+        <AutoHeightContainerWrapper
           onUpdateDynamicHeight={this.updateDynamicHeight}
           widgetProps={this.props}
         >
           {this.getPageView()}
-        </DynamicHeightContainerWrapper>
+        </AutoHeightContainerWrapper>
       );
     }
 
@@ -481,12 +481,12 @@ abstract class BaseWidget<
     let content = this.getPageView();
     if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
       content = (
-        <DynamicHeightContainerWrapper
+        <AutoHeightContainerWrapper
           onUpdateDynamicHeight={(height) => this.updateDynamicHeight(height)}
           widgetProps={this.props}
         >
           {content}
-        </DynamicHeightContainerWrapper>
+        </AutoHeightContainerWrapper>
       );
     }
     return this.addErrorBoundary(content);
