@@ -94,15 +94,7 @@ export function saveResolvedFunctionsAndJSUpdates(
         parsedObject.forEach((parsedElement) => {
           if (isTypeOfFunction(parsedElement.type)) {
             try {
-              const { result } = evaluateSync(
-                parsedElement.value,
-                unEvalDataTree,
-                {},
-                true,
-                undefined,
-                undefined,
-                true,
-              );
+              const result = eval(parsedElement.value);
               if (!!result) {
                 let params: Array<{ key: string; value: unknown }> = [];
 
