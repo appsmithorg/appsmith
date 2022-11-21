@@ -11,7 +11,9 @@ import { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
-  ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
+  ReduxActionTypes.FETCH_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  ,
 ];
 
 export const LINT_REDUX_ACTIONS = {
