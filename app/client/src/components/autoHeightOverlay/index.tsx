@@ -74,10 +74,14 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     const [isMinDotDragging, setIsMinDotDragging] = useState(false);
     const [isMaxDotDragging, setIsMaxDotDragging] = useState(false);
 
-    const [maxY, setMaxY] = useState(maxDynamicHeight * 10);
+    const [maxY, setMaxY] = useState(
+      maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    );
     const [maxdY, setMaxdY] = useState(0);
 
-    const [minY, setMinY] = useState(minDynamicHeight * 10);
+    const [minY, setMinY] = useState(
+      minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    );
     const [mindY, setMindY] = useState(0);
 
     const finalMaxY = maxY + maxdY;
@@ -91,7 +95,7 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     // } = useMaxMinPropertyPaneFieldsFocused();
 
     useEffect(() => {
-      setMaxY(maxDynamicHeight * 10);
+      setMaxY(maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
     }, [maxDynamicHeight]);
 
     function onAnyDotStop() {
@@ -159,7 +163,7 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     }
 
     useEffect(() => {
-      setMinY(minDynamicHeight * 10);
+      setMinY(minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
     }, [minDynamicHeight]);
 
     function onMinUpdate(dx: number, dy: number) {
