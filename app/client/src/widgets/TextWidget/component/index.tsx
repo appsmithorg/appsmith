@@ -352,6 +352,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             >
               <Interweave
                 content={text}
+                filters={[new LinkFilter()]}
                 matchers={
                   disableLink
                     ? []
