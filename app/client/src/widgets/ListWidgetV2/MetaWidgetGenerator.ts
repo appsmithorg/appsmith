@@ -78,8 +78,8 @@ type TemplateWidgetStatus = {
 type GenerateMetaWidgetProps = {
   index: number;
   templateWidgetId: string;
-  parentId: string;
   rowIndex: number;
+  parentId: string;
 };
 
 type GenerateMetaWidgetChildrenProps = {
@@ -94,6 +94,11 @@ type GeneratedMetaWidget = {
   metaWidgetName?: string;
   childMetaWidgets?: MetaWidgets;
   metaWidget?: MetaWidget;
+};
+
+type CachedRows = {
+  prevCachedRows: Set<string>;
+  currCachedRows: Set<string>;
 };
 
 type LevelProperty = {
@@ -145,10 +150,9 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
-  private cachedRowKey: Set<string>;
+  private cachedRowKey: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
-  private currDeletedWidgetIds: Set<string>;
   private currTemplateWidgets: TemplateWidgets;
   private currViewMetaWidgetIds: string[];
   private data: GeneratorOptions["data"];
@@ -179,10 +183,12 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
-    this.cachedRowKey = new Set();
+    this.cachedRowKey = {
+      prevCachedRows: new Set(),
+      currCachedRows: new Set(),
+    };
     this.containerParentId = "";
     this.containerWidgetId = "";
-    this.currDeletedWidgetIds = new Set();
     this.currViewMetaWidgetIds = [];
     this.data = [];
     this.getWidgetCache = props.getWidgetCache;
@@ -230,7 +236,6 @@ class MetaWidgetGenerator {
     this.selectedRowIndex = options.selectedRowIndex;
     this.serverSidePagination = options.serverSidePagination;
     this.templateBottomRow = options.templateBottomRow;
-    this.selectedRowIndex = options.selectedRowIndex;
     this.triggeredRowIndex = options.triggeredRowIndex;
     this.widgetName = options.widgetName;
 
@@ -250,6 +255,14 @@ class MetaWidgetGenerator {
 
     return this;
   };
+
+  // private clearCachedRows = () => {
+  //   this.cachedRowKey.clear();
+  // };
+
+  // private getIndexAndClearCache = () => {
+
+  // }
 
   private _didUpdate = (
     nextOptions: GeneratorOptions,
@@ -359,6 +372,10 @@ class MetaWidgetGenerator {
       resetMetaWidgetIds,
     );
 
+    this.cachedRowKey.prevCachedRows = new Set(
+      this.cachedRowKey.currCachedRows,
+    );
+
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
     this.flushModificationQueue();
@@ -371,22 +388,34 @@ class MetaWidgetGenerator {
 
   private getMetaWidgetIdsInCachedRows = () => {
     const templateWidget = this.currTemplateWidgets?.[this.containerWidgetId];
-    const metaWidgetIds: string[] = [];
+    const cachedMetaWidgetIds: string[] = [];
+    const removedCachedMetaWidgetIds: string[] = [];
 
-    if (!templateWidget || !this.cachedRowKey.size) return metaWidgetIds;
-
-    this.cachedRowKey.forEach((key) => {
+    this.cachedRowKey.prevCachedRows.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
       Object.values(metaCacheProps).forEach((cache) => {
-        metaWidgetIds.push(cache.metaWidgetId);
+        removedCachedMetaWidgetIds.push(cache.metaWidgetId);
       });
     });
 
-    return metaWidgetIds;
+    if (!templateWidget || !this.cachedRowKey.currCachedRows.size)
+      return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
+
+    this.cachedRowKey.currCachedRows.forEach((key) => {
+      const metaCacheProps = this.getRowCache(key) ?? {};
+      Object.values(metaCacheProps).forEach((cache) => {
+        cachedMetaWidgetIds.push(cache.metaWidgetId);
+      });
+    });
+
+    return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
   };
 
   private getRemovedMetaWidgetIds = (resetMetaWidgetIds: string[]) => {
-    const metaWidgetIdsInCachedRows = this.getMetaWidgetIdsInCachedRows();
+    const {
+      cachedMetaWidgetIds,
+      removedCachedMetaWidgetIds,
+    } = this.getMetaWidgetIdsInCachedRows();
 
     const removedWidgets = difference(
       this.prevViewMetaWidgetIds,
@@ -403,7 +432,11 @@ class MetaWidgetGenerator {
       ...resetWidgetExcludingCurrent,
     ]);
 
-    metaWidgetIdsInCachedRows.forEach((widgetId) => {
+    removedCachedMetaWidgetIds.forEach((widgetId) => {
+      removedFromCurrentView.add(widgetId);
+    });
+
+    cachedMetaWidgetIds.forEach((widgetId) => {
       removedFromCurrentView.delete(widgetId);
     });
 
@@ -411,10 +444,11 @@ class MetaWidgetGenerator {
   };
 
   private cacheRowIndices = (indices: number[]) => {
+    this.cachedRowKey.currCachedRows.clear();
     indices.forEach((index) => {
-      if (this.selectedRowIndex !== -1) {
+      if (index !== -1) {
         const key = this.getPrimaryKey(index);
-        this.cachedRowKey.add(key);
+        this.cachedRowKey.currCachedRows.add(key);
       }
     });
   };
@@ -434,7 +468,6 @@ class MetaWidgetGenerator {
 
     const metaWidget = klona(templateWidget) as MetaWidget;
     const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
-
     if (!metaCacheProps) {
       return {
         childMetaWidgets: undefined,
