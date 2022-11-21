@@ -79,14 +79,14 @@ type GenerateMetaWidgetProps = {
   index: number;
   templateWidgetId: string;
   parentId: string;
-  key: string;
+  rowIndex: number;
 };
 
 type GenerateMetaWidgetChildrenProps = {
   index: number;
   parentId: string;
   templateWidget: FlattenedWidgetProps;
-  key: string;
+  rowIndex: number;
 };
 
 type GeneratedMetaWidget = {
@@ -107,6 +107,10 @@ type VirtualizerOptionsProps = VirtualizerOptions<
   HTMLDivElement,
   HTMLDivElement
 >;
+
+type AddDynamicPathsPropertiesOptions = {
+  excludedPaths?: string[];
+};
 
 enum MODIFICATION_TYPE {
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
@@ -326,7 +330,6 @@ class MetaWidgetGenerator {
 
       indices.forEach((rowIndex) => {
         const index = startIndex + rowIndex;
-        const key = this.getPrimaryKey(index);
 
         this.generateWidgetCacheData(index, rowIndex);
         this.generateWidgetCacheDataForTriggeredAndSelected(index, rowIndex);
@@ -338,7 +341,7 @@ class MetaWidgetGenerator {
           index,
           parentId: this.containerParentId,
           templateWidgetId: this.containerWidgetId,
-          key,
+          rowIndex,
         });
 
         metaWidgets = {
@@ -407,8 +410,8 @@ class MetaWidgetGenerator {
 
   private generateMetaWidgetRecursively = ({
     index,
-    key,
     parentId,
+    rowIndex,
     templateWidgetId,
   }: GenerateMetaWidgetProps): GeneratedMetaWidget => {
     const templateWidget = this.currTemplateWidgets?.[templateWidgetId];
@@ -416,13 +419,8 @@ class MetaWidgetGenerator {
     if (!templateWidget)
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
-    if (!key) {
-      return {
-        childMetaWidgets: undefined,
-        metaWidgetId: undefined,
-        metaWidgetName: undefined,
-      };
-    }
+    const key = this.getPrimaryKey(index);
+
     const metaWidget = klona(templateWidget) as MetaWidget;
     const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
 
@@ -434,7 +432,7 @@ class MetaWidgetGenerator {
       };
     }
 
-    const { metaWidgetId, metaWidgetName, rowIndex } = metaCacheProps || {};
+    const { metaWidgetId, metaWidgetName } = metaCacheProps || {};
     const isMainContainerWidget = templateWidgetId === this.containerWidgetId;
 
     const {
@@ -442,7 +440,7 @@ class MetaWidgetGenerator {
       metaWidgets: childMetaWidgets,
     } = this.generateMetaWidgetChildren({
       index,
-      key,
+      rowIndex,
       templateWidget,
       parentId: metaWidgetId,
     });
@@ -452,12 +450,13 @@ class MetaWidgetGenerator {
     }
 
     if (isMainContainerWidget) {
-      if (!SpecialKeys.includes(key)) {
-        this.updateContainerPosition(metaWidget, rowIndex);
-      }
+      this.updateContainerPosition(metaWidget, rowIndex);
       this.updateContainerBindings(metaWidget, key);
+      this.addDynamicPathsProperties(metaWidget, metaCacheProps, {
+        excludedPaths: ["data"],
+      });
     } else {
-      this.addDynamicPathsProperties(metaWidget, metaCacheProps, key);
+      this.addDynamicPathsProperties(metaWidget, metaCacheProps);
     }
 
     if (templateWidget.type === "LIST_WIDGET_V2") {
@@ -485,8 +484,8 @@ class MetaWidgetGenerator {
 
   private generateMetaWidgetChildren = ({
     index,
-    key,
     parentId,
+    rowIndex,
     templateWidget,
   }: GenerateMetaWidgetChildrenProps) => {
     const children: string[] = [];
@@ -501,7 +500,7 @@ class MetaWidgetGenerator {
         index,
         parentId,
         templateWidgetId: childWidgetId,
-        key,
+        rowIndex,
       });
 
       metaWidgets = {
@@ -700,9 +699,11 @@ class MetaWidgetGenerator {
   private addDynamicPathsProperties = (
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
-    key: string,
+    options: AddDynamicPathsPropertiesOptions = {},
   ) => {
-    const { metaWidgetName } = metaWidgetCacheProps;
+    const { index, metaWidgetName } = metaWidgetCacheProps;
+    const { excludedPaths = [] } = options;
+    const key = this.getPrimaryKey(index);
     const dynamicPaths = [
       ...(metaWidget.dynamicBindingPathList || []),
       ...(metaWidget.dynamicTriggerPathList || []),
@@ -712,6 +713,8 @@ class MetaWidgetGenerator {
     if (!dynamicPaths.length) return;
 
     dynamicPaths.forEach(({ key: path }) => {
+      if (excludedPaths.includes(path)) return;
+
       const propertyValue: string = get(metaWidget, path);
       const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
       const js = combineDynamicBindings(jsSnippets, stringSegments);

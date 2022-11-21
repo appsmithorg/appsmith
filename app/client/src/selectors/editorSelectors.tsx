@@ -35,6 +35,7 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 
@@ -91,7 +92,10 @@ export const getIsPageSaving = (state: AppState) => {
 };
 
 export const snipingModeSelector = (state: AppState) =>
-  state.ui.editor?.isSnipingMode;
+  state.ui.editor.isSnipingMode;
+
+export const snipingModeBindToSelector = (state: AppState) =>
+  state.ui.editor.snipModeBindTo;
 
 export const getPageSavingError = (state: AppState) => {
   return state.ui.editor.loadingStates.savingError;
@@ -637,8 +641,17 @@ export const selectJSCollections = (state: AppState) =>
 export const showCanvasTopSectionSelector = createSelector(
   getCanvasWidgets,
   previewModeSelector,
-  (canvasWidgets, inPreviewMode) => {
-    if (Object.keys(canvasWidgets).length > 1 || inPreviewMode) return false;
+  getCurrentPageId,
+  (canvasWidgets, inPreviewMode, pageId) => {
+    const state = JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
+    );
+    if (
+      !state[pageId] ||
+      Object.keys(canvasWidgets).length > 1 ||
+      inPreviewMode
+    )
+      return false;
 
     return true;
   },

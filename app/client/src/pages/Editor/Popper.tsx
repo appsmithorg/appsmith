@@ -16,6 +16,7 @@ export type PopperProps = {
   parentElement?: Element | null;
   zIndex: number;
   isOpen: boolean;
+  borderRadius?: string;
   themeMode?: ThemeMode;
   targetNode?: Element;
   children: JSX.Element | null;
@@ -31,6 +32,7 @@ export type PopperProps = {
   isDraggable?: boolean;
   disablePopperEvents?: boolean;
   cypressSelectorDragHandle?: string;
+  portalContainer?: Element;
   position?: {
     top: number;
     left: number;
@@ -39,9 +41,12 @@ export type PopperProps = {
   // DraggableNode?: any;
 };
 
-const PopperWrapper = styled.div<{ zIndex: number }>`
+const PopperWrapper = styled.div<{ zIndex: number; borderRadius?: string }>`
   z-index: ${(props) => props.zIndex};
   position: absolute;
+  border-radius: ${(props) => props.borderRadius || "0"};
+  box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
 `;
 
 const DragHandleBlock = styled.div`
@@ -178,10 +183,14 @@ export default (props: PopperProps) => {
   ]);
   return createPortal(
     props.isOpen && (
-      <PopperWrapper ref={contentRef} zIndex={props.zIndex}>
+      <PopperWrapper
+        borderRadius={props.borderRadius}
+        ref={contentRef}
+        zIndex={props.zIndex}
+      >
         {props.children}
       </PopperWrapper>
     ),
-    document.body,
+    props.portalContainer ? props.portalContainer : document.body,
   );
 };

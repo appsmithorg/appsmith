@@ -155,6 +155,8 @@ export const entityDefinitions = {
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
     pageOffset: generateTypeDef(widget.pageOffset),
+    newRow: generateTypeDef(widget.newRow),
+    isAddRowInProgress: "bool",
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -581,6 +583,11 @@ export const entityDefinitions = {
       "!doc": "The text value of the input",
       "!url": "https://docs.appsmith.com/widget-reference/input",
     },
+    inputText: {
+      "!type": "string",
+      "!doc": "The unformatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
@@ -748,6 +755,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Store key value data locally",
     "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
+  removeValue: {
+    "!doc": "Remove key value data locally",
+    "!type": "fn(key: string) -> +Promise[:t=[!0.<i>.:t]]",
+  },
+  clearStore: {
+    "!doc": "Clear all key value data locally",
+    "!type": "fn() -> +Promise[:t=[!0.<i>.:t]]",
+  },
   download: {
     "!doc": "Download anything as a file",
     "!type":
@@ -769,6 +784,11 @@ export const GLOBAL_FUNCTIONS = {
   clearInterval: {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
+  },
+  postWindowMessage: {
+    "!doc":
+      "Establish cross-origin communication between Window objects/page and iframes",
+    "!type": "fn(message: unknown, source: string, targetOrigin: string)",
   },
 };
 

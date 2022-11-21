@@ -42,6 +42,10 @@ describe("Table Widget V2 and Navigate to functionality validation", function() 
       commonlocators.tableV2Inner,
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
+    cy.focused().blur();
+    cy.get(widgetsPage.tableOnRowSelect)
+      .scrollIntoView()
+      .should("be.visible");
     cy.get(widgetsPage.tableOnRowSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()

@@ -156,8 +156,6 @@ export const CONFIG = {
                     dragDisabled: true,
                     isDeletable: false,
                     disallowCopy: true,
-                    disablePropertyPane: true,
-                    openParentPropertyPane: true,
                     children: [],
                     blueprint: {
                       view: [

@@ -248,25 +248,6 @@ const ListWidgetPropertyPaneConfig = [
         },
       },
       {
-        propertyName: "itemBackgroundColor",
-        label: "Item Background Color",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        defaultValue: "#FFFFFF",
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            expected: {
-              type: "Color name | hex code",
-              example: "#FFFFFF",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-      },
-      {
         helpText: "Spacing between items in Pixels",
         placeholderText: "0",
         propertyName: "gridGap",

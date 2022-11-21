@@ -93,7 +93,7 @@ describe("Switch column type funtionality test", () => {
       cy.get(selector + " div").should(
         "have.css",
         "background-color",
-        "rgb(128, 0, 128)",
+        "rgb(102, 0, 102)",
       );
     });
   });

@@ -29,7 +29,8 @@ const PROPERTIES = {
         propertyName: "alignWidget",
         helpText: "Sets the position of the field",
         label: "Position",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         options: [

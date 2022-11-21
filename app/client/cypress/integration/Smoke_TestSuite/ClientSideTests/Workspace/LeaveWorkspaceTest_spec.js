@@ -53,12 +53,7 @@ describe("Leave workspace test spec", function() {
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.visit("/applications");
-      cy.openWorkspaceOptionsPopup(newWorkspaceName);
-      cy.get(homePage.workspaceNamePopoverContent)
-        .find("a")
-        .should("have.length", 1)
-        .first()
-        .contains("Leave Workspace");
+      cy.leaveWorkspace(newWorkspaceName);
     });
   });
 });

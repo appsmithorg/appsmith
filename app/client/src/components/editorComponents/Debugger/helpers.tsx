@@ -1,7 +1,7 @@
 import { Log, LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system";
 import {
   createMessage,
   OPEN_THE_DEBUGGER,
@@ -13,7 +13,7 @@ import {
   matchApiPath,
   matchQueryPath,
 } from "constants/routes";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { modText } from "utils/helpers";
 import { union } from "lodash";
 
@@ -24,11 +24,11 @@ const BlankStateWrapper = styled.div`
   justify-content: center;
   align-items: center;
   color: ${(props) => props.theme.colors.debugger.blankState.color};
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
 
   .debugger-shortcut {
     color: ${(props) => props.theme.colors.debugger.blankState.shortcut};
-    ${(props) => getTypographyByKey(props, "h5")}
+    ${getTypographyByKey("h5")}
   }
 `;
 

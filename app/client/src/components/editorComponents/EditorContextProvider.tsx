@@ -37,6 +37,10 @@ import {
 } from "reducers/entityReducers/metaWidgetsReducer";
 import { RenderMode, RenderModes } from "constants/WidgetConstants";
 
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
@@ -64,6 +68,8 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
+  checkContainersForAutoHeight?: () => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
   // TODO (ashit) - Use generics instead of unknown
   setWidgetCache?: (widgetId: string, data: unknown) => void;
@@ -88,6 +94,8 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "setWidgetCache",
   "syncUpdateWidgetMetaProperty",
   "triggerEvalOnMetaUpdate",
+  "updateWidgetAutoHeight",
+  "checkContainersForAutoHeight",
 ];
 
 const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
@@ -183,6 +191,8 @@ const mapDispatchToProps = {
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
+  updateWidgetAutoHeight: updateWidgetAutoHeightAction,
+  checkContainersForAutoHeight: checkContainersForAutoHeightAction,
   modifyMetaWidgets,
   deleteMetaWidgets,
 };

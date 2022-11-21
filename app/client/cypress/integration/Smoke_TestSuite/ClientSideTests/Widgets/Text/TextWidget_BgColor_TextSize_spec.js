@@ -90,6 +90,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
 
     //Check if the typed size HEADING2 is reflecting in the background color and in the evaluated value
     cy.updateCodeInput(".t--property-control-fontsize", "18px");
+    cy.focused().blur();
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
@@ -99,7 +100,6 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
 
     //Check for if the text size changes to default size when set to blank in JS mode:
     cy.updateCodeInput(".t--property-control-fontsize", "");
-
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "font-size",
