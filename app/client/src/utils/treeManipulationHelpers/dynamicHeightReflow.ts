@@ -1,4 +1,3 @@
-import { uniq } from "lodash";
 import log from "loglevel";
 import { areIntersecting } from "utils/boxHelpers";
 
@@ -88,13 +87,17 @@ function getEffectedBoxes(
   id: string,
   tree: Record<string, TreeNode>,
   effectedBoxes = [],
+  processedNodes: { [key: string]: boolean } = {},
 ): string[] {
   const belows = tree[id].belows;
   belows.forEach((belowId) => {
-    getEffectedBoxes(belowId, tree, effectedBoxes);
-    (effectedBoxes as string[]).push(belowId);
+    if (!processedNodes[belowId]) {
+      getEffectedBoxes(belowId, tree, effectedBoxes, processedNodes);
+      (effectedBoxes as string[]).push(belowId);
+      processedNodes[belowId] = true;
+    }
   });
-  return uniq(effectedBoxes);
+  return effectedBoxes;
 }
 
 // TODO: DEBUG(abhinav): This probably doesn't take in to account the following:
