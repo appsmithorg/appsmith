@@ -84,7 +84,7 @@ export function DataSourceContextMenu(props: {
     },
   ].filter(Boolean);
 
-  return (
+  return treeOptions.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
@@ -95,7 +95,7 @@ export function DataSourceContextMenu(props: {
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 export default DataSourceContextMenu;

@@ -62,11 +62,6 @@ export const useFilteredFileOperations = (query = "") => {
     userWorkspacePermissions,
   );
 
-  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
-    ...userWorkspacePermissions,
-    ...pagePermissions,
-  ]);
-
   return useMemo(() => {
     let fileOperations: any =
       (canCreateActions &&
@@ -80,10 +75,21 @@ export const useFilteredFileOperations = (query = "") => {
     const otherFilteredDS = otherDS.filter((ds: Datasource) =>
       ds.name.toLowerCase().includes(query.toLowerCase()),
     );
+
+    const showCreateQuery = [
+      ...filteredAppWideDS,
+      ...otherFilteredDS,
+    ].some((ds: Datasource) =>
+      hasCreateDatasourceActionPermission([
+        ...(ds.userPermissions ?? []),
+        ...pagePermissions,
+      ]),
+    );
+
     if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        canCreateDatasourceActions && {
+        showCreateQuery && {
           title: "CREATE A QUERY",
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
@@ -92,33 +98,43 @@ export const useFilteredFileOperations = (query = "") => {
     if (filteredAppWideDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        ...(canCreateDatasourceActions
-          ? filteredAppWideDS.map((ds) => ({
-              title: `New ${ds.name} Query`,
-              shortTitle: `${ds.name} Queryssss`,
-              desc: `Create a query in ${ds.name}`,
-              pluginId: ds.pluginId,
-              kind: SEARCH_ITEM_TYPES.actionOperation,
-              action: (pageId: string, from: EventLocation) =>
-                createNewQueryAction(pageId, from, ds.id),
-            }))
-          : []),
+        ...filteredAppWideDS.map((ds) =>
+          hasCreateDatasourceActionPermission([
+            ...(ds.userPermissions ?? []),
+            ...pagePermissions,
+          ])
+            ? {
+                title: `New ${ds.name} Query`,
+                shortTitle: `${ds.name} Queryssss`,
+                desc: `Create a query in ${ds.name}`,
+                pluginId: ds.pluginId,
+                kind: SEARCH_ITEM_TYPES.actionOperation,
+                action: (pageId: string, from: EventLocation) =>
+                  createNewQueryAction(pageId, from, ds.id),
+              }
+            : null,
+        ),
       ];
     }
     if (otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        ...(canCreateDatasourceActions
-          ? otherFilteredDS.map((ds) => ({
-              title: `New ${ds.name} Query`,
-              shortTitle: `${ds.name} Queryddd`,
-              desc: `Create a query in ${ds.name}`,
-              kind: SEARCH_ITEM_TYPES.actionOperation,
-              pluginId: ds.pluginId,
-              action: (pageId: string, from: EventLocation) =>
-                createNewQueryAction(pageId, from, ds.id),
-            }))
-          : []),
+        ...otherFilteredDS.map((ds) =>
+          hasCreateDatasourceActionPermission([
+            ...(ds.userPermissions ?? []),
+            ...pagePermissions,
+          ])
+            ? {
+                title: `New ${ds.name} Query`,
+                shortTitle: `${ds.name} Queryddd`,
+                desc: `Create a query in ${ds.name}`,
+                kind: SEARCH_ITEM_TYPES.actionOperation,
+                pluginId: ds.pluginId,
+                action: (pageId: string, from: EventLocation) =>
+                  createNewQueryAction(pageId, from, ds.id),
+              }
+            : null,
+        ),
       ];
     }
     fileOperations = [

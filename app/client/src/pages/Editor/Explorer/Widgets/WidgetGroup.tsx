@@ -96,7 +96,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
             mainText={createMessage(EMPTY_WIDGET_MAIN_TEXT)}
           />
         )}
-      {widgets?.children && widgets?.children?.length > 0 && (
+      {widgets?.children && widgets?.children?.length > 0 && canManagePages && (
         <AddEntity
           action={props.addWidgetsFn}
           entityId={pageId + "_widgets_add_new_datasource"}

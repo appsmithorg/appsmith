@@ -169,7 +169,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     },
   ].filter(Boolean);
 
-  return (
+  return optionsTree.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
@@ -180,7 +180,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 export default ActionEntityContextMenu;

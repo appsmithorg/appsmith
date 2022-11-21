@@ -147,7 +147,7 @@ export function PageContextMenu(props: {
       },
   ].filter(Boolean);
 
-  return (
+  return optionsTree?.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
@@ -158,7 +158,7 @@ export function PageContextMenu(props: {
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 export default PageContextMenu;
