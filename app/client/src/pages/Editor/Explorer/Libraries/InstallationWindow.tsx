@@ -42,7 +42,11 @@ import { AppState } from "ce/reducers";
 import { TJSLibrary } from "utils/DynamicBindingUtils";
 import { clearInstalls, installLibraryInit } from "actions/JSLibraryActions";
 
-type TInstallWindowProps = any;
+type TInstallWindowProps = {
+  onOpen: (open: boolean) => void;
+  open: boolean;
+  className: string;
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -109,7 +113,7 @@ const Wrapper = styled.div`
 `;
 
 export default function InstallationWindow(props: TInstallWindowProps) {
-  const { className, open } = props;
+  const { className, onOpen, open } = props;
   const [show, setShow] = useState(open);
   const dispatch = useDispatch();
 
@@ -120,6 +124,11 @@ export default function InstallationWindow(props: TInstallWindowProps) {
   const clearProcessedInstalls = useCallback(() => {
     dispatch(clearInstalls());
   }, [dispatch]);
+
+  const openWindow = useCallback(() => {
+    onOpen(true);
+    setShow(true);
+  }, []);
 
   const closeWindow = useCallback(() => {
     setShow(false);
@@ -149,7 +158,7 @@ export default function InstallationWindow(props: TInstallWindowProps) {
       >
         <EntityAddButton
           className={`${className} ${show ? "selected" : ""}`}
-          onClick={() => setShow(true)}
+          onClick={openWindow}
         />
       </Tooltip>
     </Popover2>

@@ -214,6 +214,8 @@ function JSDependencies() {
   const dependencyList = libraries.map((lib) => (
     <LibraryEntity key={lib.name} lib={lib} />
   ));
+  const [isWindowOpen, openWindow] = React.useState(false);
+
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
@@ -221,11 +223,13 @@ function JSDependencies() {
       customAddButton={
         <InstallationWindow
           className={`${EntityClassNames.ADD_BUTTON} group libraries h-100`}
+          onOpen={openWindow}
+          open={false}
         />
       }
       entityId="library_section"
       icon={null}
-      isDefaultExpanded={false}
+      isDefaultExpanded={isWindowOpen}
       isSticky
       name="Libraries"
       step={0}

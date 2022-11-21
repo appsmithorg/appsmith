@@ -19,7 +19,6 @@ function messageEventListener(e: MessageEvent<EvalWorkerRequest>) {
     });
   } catch (e) {
     console.error(e);
-    // we don't want to log dataTree because it is huge.
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { dataTree, ...rest } = requestData;
     self.postMessage({

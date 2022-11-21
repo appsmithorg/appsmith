@@ -24,6 +24,8 @@ import { EVAL_WORKER_ACTIONS, TJSLibrary } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
+import { APP_MODE } from "entities/App";
+import { getAppMode } from "selectors/applicationSelectors";
 
 function* handleInstallationFailure(url: string, accessor?: string[]) {
   if (accessor) {
@@ -59,7 +61,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const name: string = lib.name || accessor[accessor.length - 1];
   const applicationId: string = yield select(getCurrentApplicationId);
 
-  const versionMatch = (url as string).match(/(?<=@)(\d+\.)(\d+\.)(\d+)/);
+  const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
   const [version] = versionMatch ? versionMatch : [];
 
   const response: ApiResponse<boolean> = yield call(
@@ -194,7 +196,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
 
 function* fetchJSLibraries(action: ReduxAction<string>) {
   const applicationId: string = action.payload;
-
+  const mode: APP_MODE = yield select(getAppMode);
   try {
     const response: ApiResponse = yield call(
       LibraryApi.getLibraries,
@@ -225,13 +227,19 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       return;
     }
 
-    yield put({
-      type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
-      payload: {
-        libs: libraries,
-        add: true,
-      },
-    });
+    if (mode === APP_MODE.EDIT) {
+      //Add error handler here
+      for (const lib of libraries) {
+        TernServer.updateDef(lib.defs["!name"], lib.defs);
+      }
+      yield put({
+        type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
+        payload: {
+          libs: libraries,
+          add: true,
+        },
+      });
+    }
 
     yield put({
       type: ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
@@ -243,10 +251,6 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
         docsURL: lib.docsURL,
       })),
     });
-
-    for (const lib of libraries) {
-      TernServer.updateDef(lib.defs["!name"], lib.defs);
-    }
   } catch (e) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,

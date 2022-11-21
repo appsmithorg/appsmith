@@ -284,7 +284,7 @@ export function* evaluateAndExecuteDynamicTrigger(
     const { requestData } = yield take(isFinishedChannel);
     log.debug({ requestData, eventType, triggerMeta, dynamicTrigger });
 
-    if (requestData.finished) {
+    if (requestData?.finished) {
       keepAlive = false;
 
       const { result } = requestData;
@@ -342,7 +342,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       isFinishedChannel.close();
       return result;
     }
-    yield call(evalErrorHandler, requestData.errors);
+    yield call(evalErrorHandler, requestData?.errors || []);
     isFinishedChannel.close();
   }
 }
