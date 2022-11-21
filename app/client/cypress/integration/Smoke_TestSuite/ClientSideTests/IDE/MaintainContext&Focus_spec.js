@@ -140,9 +140,9 @@ describe("MaintainContext&Focus", function() {
 
   it("7. Check if selected tab on right tab persists", () => {
     ee.SelectEntityByName("Rest_Api_1");
-    apiPage.SelectRightPaneTab("Connections");
+    apiPage.SelectRightPaneTab("connections");
     ee.SelectEntityByName("SQL_Query");
     ee.SelectEntityByName("Rest_Api_1");
-    apiPage.AssertRightPaneSelectedTab("Connections");
+    apiPage.AssertRightPaneSelectedTab("connections");
   });
 });

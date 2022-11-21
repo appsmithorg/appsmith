@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
-type RightPaneTabs = "Datasources" | "Connections";
+type RightPaneTabs = "datasources" | "connections";
 
 export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;

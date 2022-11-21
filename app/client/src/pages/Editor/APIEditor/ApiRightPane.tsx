@@ -247,7 +247,7 @@ function ApiRightPane(props: any) {
           selectedIndex={isUndefined(selectedTab) ? 0 : selectedTab}
           tabs={[
             {
-              key: "Datasources",
+              key: "datasources",
               title: "Datasources",
               panelComponent:
                 props.datasources && props.datasources.length > 0 ? (
@@ -324,7 +324,7 @@ function ApiRightPane(props: any) {
                 ),
             },
             {
-              key: "Connections",
+              key: "connections",
               title: "Connections",
               panelComponent: (
                 <SomeWrapper>
