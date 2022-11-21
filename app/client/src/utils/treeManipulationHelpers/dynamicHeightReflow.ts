@@ -1,6 +1,6 @@
 import { uniq } from "lodash";
 import log from "loglevel";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 
 export type TreeNode = {
   aboves: string[];
