@@ -7,17 +7,31 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Map;
+import java.util.Set;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 public class CustomJSLib extends BaseDomain {
+    /* Library name */
     String name;
-    String accessor;
+
+    /* These are the namespaces under which the library functions reside. User would access lib methods like
+    `accessor.method` */
+    Set<String> accessor;
+
+    /* Library UMD src url */
     String url;
+
+    /* Library documentation page URL */
     String docsUrl;
+
+    /* Library version */
     String version;
+
+    /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
+    feature i.e. the function name showing up as suggestion when user has partially typed it. */
     Map<String, Object> defs;
 
     /**
@@ -34,6 +48,7 @@ public class CustomJSLib extends BaseDomain {
             return false;
         }
 
-        return ((CustomJSLib) o).getName().equals(this.name) && ((CustomJSLib) o).getVersion().equals(this.version);
+        // TODO: add comment
+        return ((CustomJSLib) o).getAccessor().equals(this.accessor);
     }
 }

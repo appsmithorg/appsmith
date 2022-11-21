@@ -12,9 +12,12 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
+import java.util.Comparator;
 import java.util.List;
 
 public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository, Application, String> implements CustomJSLibServiceCE {
+    private static final String INSTALLED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "installedCustomJSLibs";
+
     public CustomJSLibServiceCEImpl(Scheduler scheduler,
                                     Validator validator,
                                     MongoConverter mongoConverter,
@@ -35,8 +38,8 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
                     }
                     return jsLibs;
                 })
-                .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId, "installedCustomJSLibs",
-                        updatedJSLibs))
+                .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId,
+                        INSTALLED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibs))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
@@ -50,14 +53,18 @@ public class CustomJSLibServiceCEImpl extends BaseService<ApplicationRepository,
                     jsLibs.remove(jsLib);
                     return jsLibs;
                 })
-                .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId, "installedCustomJSLibs",
-                        updatedJSLibs))
+                .flatMap(updatedJSLibs -> repository.updateByIdAndFieldName(applicationId,
+                        INSTALLED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibs))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
     public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId) {
-        return repository.findByIdAndFieldName(applicationId, "installedCustomJSLibs")
-                .map(Application::getInstalledCustomJSLibs);
+        return repository.findByIdAndFieldName(applicationId, INSTALLED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS)
+                .map(Application::getInstalledCustomJSLibs)
+                .map(libs -> {
+                    libs.sort(Comparator.comparing(CustomJSLib::getName));
+                    return libs;
+                });
     }
 }
