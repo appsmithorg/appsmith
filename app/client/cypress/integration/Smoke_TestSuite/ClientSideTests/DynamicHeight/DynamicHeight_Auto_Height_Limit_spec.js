@@ -8,29 +8,37 @@ describe("Dynamic Height Width validation with limits", function () {
         cy.openPropertyPane("containerwidget");
         cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
         cy.wait(3000); //for dsl to settle
-        cy.checkMinDefaultValue(commonlocators.minHeight,"4")
-        cy.testJsontext(commonlocators.minHeight, "5");
-        cy.get(commonlocators.overlayMin).should("be.visible");
-        cy.get(commonlocators.overlayMin).should(
+        //cy.checkMinDefaultValue(commonlocators.minHeight,"4")
+        //cy.testJsontext(commonlocators.minHeight, "5");
+        //cy.get(commonlocators.overlayMin).should("be.visible");
+        cy.get("[data-cy='t--auto-height-overlay-handles-min']").trigger("mouseover");
+        cy.contains("Min-Height: 4 rows");
+        cy.get("[data-cy='t--auto-height-overlay-handles-min']").should("be.visible");
+        cy.get("[data-cy='t--auto-height-overlay-handles-min'] div").eq(0).should(
+            "have.css",
+            "background-color",
+            "rgb(243, 43, 139)",
+        );
+        /*cy.get(commonlocators.overlayMin).should(
             "have.css",
             "background-color",
             "rgba(243, 43, 139, 0.1)",
-        );
-        cy.contains("Min-Height: 5 rows");
+        );*/
+        cy.get("[data-cy='t--auto-height-overlay-handles-max']").trigger("mouseover");
         cy.contains("Max-Height: 40 rows");
-        cy.checkMaxDefaultValue(commonlocators.maxHeight,"40")
-        cy.testJsontext(commonlocators.maxHeight, "60");
-        cy.get(commonlocators.overlayMax).should("be.visible");
-        cy.get(commonlocators.overlayMax).should(
+        //cy.checkMaxDefaultValue(commonlocators.maxHeight,"40")
+        //cy.testJsontext(commonlocators.maxHeight, "60");
+        cy.get("[data-cy='t--auto-height-overlay-handles-max']").should("be.visible");
+        cy.get("[data-cy='t--auto-height-overlay-handles-max'] div").eq(0).should(
             "have.css",
             "background-color",
-            "rgba(243, 43, 139, 0.1)",
+            "rgb(243, 43, 139)",
         );
-        cy.contains("Max-Height: 60 rows");
+        //cy.contains("Max-Height: 60 rows");
         cy.changeLayoutHeight(commonlocators.fixed);
         cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
-        cy.contains("Min-Height: 5 rows");
-        cy.checkMinDefaultValue(commonlocators.minHeight,"5")
+        //cy.contains("Min-Height: 5 rows");
+        //cy.checkMinDefaultValue(commonlocators.minHeight,"5")
        // cy.checkMaxDefaultValue(commonlocators.maxHeight,"60")
     });
 });
