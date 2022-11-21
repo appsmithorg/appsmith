@@ -83,7 +83,7 @@ export const useFilteredFileOperations = (query = "") => {
     if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
       fileOperations = [
         ...fileOperations,
-        true && {
+        canCreateDatasourceActions && {
           title: "CREATE A QUERY",
           kind: SEARCH_ITEM_TYPES.sectionTitle,
         },
