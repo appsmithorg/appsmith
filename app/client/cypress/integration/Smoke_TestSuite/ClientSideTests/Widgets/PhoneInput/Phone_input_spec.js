@@ -38,7 +38,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "1234567890:AF:+93");
     cy.get(".t--input-country-code-change").should("contain", "🇦🇫+93");
 
-    cy.get(".t--property-control-allowcountrycodechange label")
+    cy.get(".t--property-control-changecountrycode label")
       .last()
       .click({ force: true });
     cy.get(".t--input-country-code-change")

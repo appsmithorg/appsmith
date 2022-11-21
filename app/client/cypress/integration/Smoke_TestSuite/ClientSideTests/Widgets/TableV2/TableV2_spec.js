@@ -117,4 +117,13 @@ describe("Table Widget V2 Functionality", function() {
       expect(tabValue).not.to.be.equal("Tobias Funke");
     });
   });
+
+  it("5. should check that adding cyclic dependency in the table doesn't crash the app", () => {
+    cy.get(publish.backToEditor).click();
+    cy.openPropertyPane("tablewidgetv2");
+
+    cy.updateCodeInput(".t--property-control-defaultselectedrow", `{{Table1}}`);
+
+    cy.get(".t--widget-tablewidgetv2").should("exist");
+  });
 });

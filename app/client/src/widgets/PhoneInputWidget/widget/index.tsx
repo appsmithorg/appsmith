@@ -113,7 +113,7 @@ class PhoneInputWidget extends BaseInputWidget<
             },
             {
               propertyName: "allowDialCodeChange",
-              label: "Allow Country Code Change",
+              label: "Change Country Code",
               helpText: "Search by country",
               controlType: "SWITCH",
               isJSConvertible: true,
