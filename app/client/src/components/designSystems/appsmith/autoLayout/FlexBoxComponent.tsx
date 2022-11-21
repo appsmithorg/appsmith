@@ -101,16 +101,12 @@ export const DropPosition = styled.div<{
   display: ${({ isDragging }) => (isDragging ? "block" : "none")};
   align-self: stretch;
   opacity: 0;
-  transition: 100ms ease-in-out;
 `;
 
 export const NewLayerStyled = styled.div<{
   isDragging: boolean;
 }>`
   width: 100%;
-  > div {
-    transition: 500ms ease-in-out;
-  }
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {

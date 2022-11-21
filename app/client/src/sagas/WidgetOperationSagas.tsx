@@ -141,6 +141,15 @@ import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { updateChildrenSize } from "./AutoLayoutUtils";
+import {
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "components/constants";
+import {
+  FlexLayer,
+  LayerChild,
+} from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1335,6 +1344,7 @@ function* pasteWidgetSaga(
 
     if (canvasId) pastingIntoWidgetId = canvasId;
   }
+  const pastingIntoWidget = widgets[pastingIntoWidgetId];
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
@@ -1512,9 +1522,79 @@ function* pasteWidgetSaga(
             // to include this new copied widget's id in the parent's children
             let parentChildren = [widget.widgetId];
             const widgetChildren = widgets[pastingParentId].children;
+            let flexLayers: FlexLayer[] = pastingIntoWidget.flexLayers || [];
+
             if (widgetChildren && Array.isArray(widgetChildren)) {
-              // Add the new child to existing children
-              parentChildren = parentChildren.concat(widgetChildren);
+              // Add the new child to existing children after it's original siblings position.
+
+              const originalWidgetId: string = widgetList[i].widgetId;
+              const originalWidgetIndex: number = widgetChildren.indexOf(
+                originalWidgetId,
+              );
+              parentChildren = [
+                ...widgetChildren.slice(0, originalWidgetIndex + 1),
+                ...parentChildren,
+                ...widgetChildren.slice(originalWidgetIndex + 1),
+              ];
+
+              /**
+               * If new parent is a vertical stack, then update flex layers.
+               */
+              if (
+                pastingIntoWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
+                pastingIntoWidget.positioning === Positioning.Vertical ||
+                (pastingIntoWidget.type === "CANVAS_WIDGET" &&
+                  pastingIntoWidget.parentId &&
+                  widgets[pastingIntoWidget.parentId].positioning ===
+                    Positioning.Vertical)
+              ) {
+                if (widgets[originalWidgetId].parentId !== pastingParentId) {
+                  flexLayers = [
+                    ...flexLayers,
+                    {
+                      children: [
+                        {
+                          id: widget.widgetId,
+                          align: FlexLayerAlignment.Start,
+                        },
+                      ],
+                      hasFillChild:
+                        widget.responsiveBehavior === ResponsiveBehavior.Fill,
+                    },
+                  ];
+                } else {
+                  let rowIndex = -1,
+                    alignment = FlexLayerAlignment.Start;
+                  const flexLayerIndex = flexLayers.findIndex(
+                    (layer: FlexLayer) => {
+                      const temp = layer.children.findIndex(
+                        (child: LayerChild) => child.id === originalWidgetId,
+                      );
+                      if (temp > -1) {
+                        rowIndex = temp;
+                        alignment = layer.children[temp].align;
+                      }
+                      return temp > -1;
+                    },
+                  );
+                  if (flexLayerIndex > -1 && rowIndex > -1) {
+                    let selectedLayer = flexLayers[flexLayerIndex];
+                    selectedLayer = {
+                      children: [
+                        ...selectedLayer.children.slice(0, rowIndex + 1),
+                        { id: widget.widgetId, align: alignment },
+                        ...selectedLayer.children.slice(rowIndex + 1),
+                      ],
+                      hasFillChild: selectedLayer.hasFillChild,
+                    };
+                    flexLayers = [
+                      ...flexLayers.slice(0, flexLayerIndex),
+                      selectedLayer,
+                      ...flexLayers.slice(flexLayerIndex + 1),
+                    ];
+                  }
+                }
+              }
             }
             const parentBottomRow = getParentBottomRowAfterAddingWidget(
               widgets[pastingParentId],
@@ -1527,6 +1607,7 @@ function* pasteWidgetSaga(
                 ...widgets[pastingParentId],
                 bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
+                flexLayers: flexLayers,
               },
             };
             // If the copied widget's boundaries exceed the parent's
