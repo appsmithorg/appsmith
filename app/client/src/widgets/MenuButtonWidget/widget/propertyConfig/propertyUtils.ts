@@ -1,20 +1,14 @@
 import { MenuButtonWidgetProps, MenuItemsSource } from "../../constants";
-import { getSourceDataKeys } from "../helper";
 
 export const updateMenuItemsSource = (
   props: MenuButtonWidgetProps,
   propertyPath: string,
-  propertyValue: any,
-): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
   const propertiesToUpdate: Array<{
     propertyPath: string;
-    propertyValue: any;
-  }> = [
-    {
-      propertyPath,
-      propertyValue,
-    },
-  ];
+    propertyValue: unknown;
+  }> = [];
   const isMenuItemsSourceChangedFromStaticToDynamic =
     props.menuItemsSource === MenuItemsSource.STATIC &&
     propertyValue === MenuItemsSource.DYNAMIC;
@@ -27,7 +21,7 @@ export const updateMenuItemsSource = (
       });
       propertiesToUpdate.push({
         propertyPath: "sourceDataKeys",
-        propertyValue: getSourceDataKeys(props),
+        propertyValue: [],
       });
     }
 
