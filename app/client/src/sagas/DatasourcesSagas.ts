@@ -7,7 +7,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { change, initialize } from "redux-form";
+import { change, getFormValues, initialize } from "redux-form";
 import _, { merge, isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import {
@@ -841,6 +841,24 @@ function* formValueChangeSaga(
   }
   if (form !== DATASOURCE_DB_FORM) return;
   if (field === "name") return;
+  yield all([call(updateDraftsSaga)]);
+}
+
+function* updateDraftsSaga() {
+  const values: Record<string, unknown> = yield select(
+    getFormValues(DATASOURCE_DB_FORM),
+  );
+
+  if (!values.id) return;
+  const datasource: Datasource | undefined = yield select(
+    getDatasource,
+    // @ts-expect-error: values is of type unknown
+    values.id,
+  );
+  if (!equal(values, datasource)) {
+    // @ts-expect-error: values is of type unknown
+    yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.DATASOURCE));
+  }
 }
 
 function* storeAsDatasourceSaga() {
