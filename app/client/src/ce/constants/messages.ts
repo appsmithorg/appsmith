@@ -1181,6 +1181,7 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
+export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
 export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
@@ -1292,12 +1293,24 @@ export const ALERT_STYLE_OPTIONS = [
 
 export const customJSLibraryMessages = {
   ADD_JS_LIBRARY: () => "Add JS Libraries",
-  REC_LIBRARY: () => "RECOMMENDED LIBRARIES",
+  REC_LIBRARY: () => "Recommended Libraries",
   INSTALLATION_SUCCESSFUL: (accessor: string) =>
     `Installation Successful. You can access the library via ${accessor}`,
   INSTALLATION_FAILED: () => "Installation failed",
   INSTALLED_ALREADY: (accessor: string) =>
     `This library is installed already. You could access it via ${accessor}.`,
+  UNINSTALL_FAILED: (name: string) =>
+    `Couldn't uninstall ${name}. Please try again after sometime.`,
+  UNINSTALL_SUCCESS: (accessor: string) =>
+    `${accessor} is uninstalled successfully.`,
+  LEARN_MORE_DESC: () => "Learn more about Custom JS Libraries",
+  UNSUPPORTED_LIB: () => `Library is unsupported`,
+  UNSUPPORTED_LIB_DESC: () =>
+    `Unfortunately, this library cannot be supported due to platform limitations. Please try installing a different library.`,
+  LEARN_MORE: () => `Learn more`,
+  REPORT_ISSUE: () => `Report issue`,
+  AUTOCOMPLETE_FAILED: (name: string) =>
+    `Code completion for ${name} will not work.`,
 };
 
 export const USAGE_AND_BILLING = {

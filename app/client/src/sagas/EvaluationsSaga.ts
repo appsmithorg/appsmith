@@ -99,7 +99,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
-import { lintTreeSaga, lintWorker } from "./LintingSagas";
+import { lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -117,10 +117,11 @@ const evalWorker = new GracefulWorkerService(
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
-function* evaluateTreeSaga(
+export function* evaluateTreeSaga(
   postEvalActions?: Array<AnyReduxAction>,
   shouldReplay = true,
   requiresLinting = false,
+  forceEvaluation = false,
 ) {
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
@@ -143,6 +144,7 @@ function* evaluateTreeSaga(
     shouldReplay,
     allActionValidationConfig,
     requiresLinting: isEditMode && requiresLinting,
+    forceEvaluation,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -282,7 +284,7 @@ export function* evaluateAndExecuteDynamicTrigger(
     const { requestData } = yield take(isFinishedChannel);
     log.debug({ requestData, eventType, triggerMeta, dynamicTrigger });
 
-    if (requestData.finished) {
+    if (requestData?.finished) {
       keepAlive = false;
 
       const { result } = requestData;
@@ -340,7 +342,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       isFinishedChannel.close();
       return result;
     }
-    yield call(evalErrorHandler, requestData.errors);
+    yield call(evalErrorHandler, requestData?.errors || []);
     isFinishedChannel.close();
   }
 }
@@ -378,10 +380,13 @@ export function* executeDynamicTriggerRequest(
       );
     }
     if (requestData.type === EVAL_WORKER_ACTIONS.LINT_TREE) {
-      yield spawn(lintTreeSaga, {
-        pathsToLint: requestData.lintOrder,
-        jsUpdates: requestData.jsUpdates,
-        unevalTree: requestData.unevalTree,
+      yield put({
+        type: ReduxActionTypes.LINT_TREE,
+        payload: {
+          pathsToLint: requestData.lintOrder,
+          jsUpdates: requestData.jsUpdates,
+          unevalTree: requestData.unevalTree,
+        },
       });
     }
     if (requestData?.errors) {

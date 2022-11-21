@@ -10,13 +10,13 @@ import {
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { get, set, isNil, has } from "lodash";
-import { Workspace } from "constants/workspaceConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
-import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { defaultLibraryNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -210,12 +210,6 @@ export const flashElementsById = (
     setTimeout(() => {
       const el = document.getElementById(id);
 
-      el?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "center",
-      });
-
       if (el) flashElement(el, flashTimeout, flashClass);
     }, timeout);
   });
@@ -231,11 +225,29 @@ export const quickScrollToWidget = (widgetId?: string) => {
 
   setTimeout(() => {
     const el = document.getElementById(widgetId);
-    if (el) {
-      el.scrollIntoView({ block: "center" });
+    const canvas = document.getElementById("canvas-viewport");
+
+    if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
     }
-  }, 0);
+  }, 200);
 };
+
+// Checks if the element in a container is visible or not.
+// Can be used to decide if scroll is needed
+function isElementVisibleInContainer(
+  element: HTMLElement,
+  container: HTMLElement,
+) {
+  const elementRect = element.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  return (
+    elementRect.top >= containerRect.top &&
+    elementRect.left >= containerRect.left &&
+    elementRect.bottom <= containerRect.bottom &&
+    elementRect.right <= containerRect.right
+  );
+}
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed
@@ -396,7 +408,7 @@ export const isNameValid = (
     has(DATA_TREE_KEYWORDS, name) ||
     has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
     has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
-    has(extraLibrariesNames, name) ||
+    has(defaultLibraryNames, name) ||
     has(invalidNames, name)
   );
 };

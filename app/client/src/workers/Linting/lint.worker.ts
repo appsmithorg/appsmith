@@ -1,3 +1,5 @@
+import { isEqual } from "lodash";
+import { JSLibraries } from "utils/DynamicBindingUtils";
 import { WorkerErrorTypes } from "workers/common/types";
 import {
   LintWorkerRequest,
@@ -45,7 +47,10 @@ function messageEventListener(fn: typeof eventRequestHandler) {
 function eventRequestHandler({
   method,
   requestData,
-}: LintWorkerRequest): LintTreeResponse | unknown {
+}: {
+  method: LINT_WORKER_ACTIONS;
+  requestData: any;
+}): LintTreeResponse | unknown {
   switch (method) {
     case LINT_WORKER_ACTIONS.LINT_TREE: {
       const lintTreeResponse: LintTreeResponse = { errors: {} };
@@ -55,6 +60,21 @@ function eventRequestHandler({
         lintTreeResponse.errors = lintErrors;
       } catch (e) {}
       return lintTreeResponse;
+    }
+    case LINT_WORKER_ACTIONS.UPDATE_LINT_GLOBALS: {
+      const { add, libs } = requestData;
+      if (add) {
+        JSLibraries.push(...libs);
+      } else {
+        for (const lib of libs) {
+          const idx = JSLibraries.findIndex((l) =>
+            isEqual(l.accessor.sort(), lib.accessor.sort()),
+          );
+          if (idx === -1) return;
+          JSLibraries.splice(idx, 1);
+        }
+      }
+      return;
     }
 
     default: {

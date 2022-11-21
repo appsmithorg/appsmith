@@ -1,6 +1,6 @@
-import React, { useCallback } from "react";
+import React, { MutableRefObject, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, Spinner } from "design-system";
+import { Icon, IconSize, Spinner, Toaster, Variant } from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
 import {
@@ -13,32 +13,59 @@ import {
   selectInstallationStatus,
   selectLibrariesForExplorer,
 } from "selectors/entitiesSelector";
-import { extraLibraries } from "utils/DynamicBindingUtils";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-
-const defaultLibraries = extraLibraries.map((lib) => lib.displayName);
+import { InstallState } from "reducers/uiReducers/libraryReducer";
+import { Collapse } from "@blueprintjs/core";
+import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import useClipboard from "utils/hooks/useClipboard";
+import { uninstallLibraryInit } from "actions/JSLibraryActions";
+import { TJSLibrary } from "utils/DynamicBindingUtils";
 
 const Library = styled.li`
   list-style: none;
+  flex-direction: column;
   color: ${Colors.GRAY_700};
   font-weight: 400;
-  gap: 0.5rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  padding: 8px 12px 8px 20px;
   position: relative;
+  line-height: 17px;
+  padding-left: 8px;
+
+  > div:first-child {
+    height: 36px;
+  }
+
   &:hover {
-    background: ${Colors.ALABASTER_ALT};
+    background: ${Colors.SEA_SHELL};
 
     & .t--open-new-tab {
       display: block;
     }
 
-    & .uninstall-library {
-      display: block;
+    & .delete {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      &:hover {
+        background: black;
+        .uninstall-library {
+          color: white;
+        }
+      }
     }
+  }
+
+  .loading {
+    display: none;
+    width: 30px;
+    height: 36px;
+    background: transparent;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   & .t--open-new-tab {
@@ -47,80 +74,148 @@ const Library = styled.li`
     display: none;
   }
 
-  & .uninstall-library {
+  .delete {
     display: none;
+    width: 30px;
+    height: 36px;
+    background: transparent;
   }
 
   & .t--package-version {
     display: block;
     font-size: 12px;
   }
+  .open-collapse {
+    transform: rotate(90deg);
+  }
+
+  .content {
+    font-size: 12px;
+    font-weight: 400;
+    padding: 4px 8px;
+    color: ${Colors.GRAY_700};
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    overflow: hidden;
+    .accessor {
+      padding: 2px 8px;
+      flex-grow: 1;
+      border: 1px solid #b3b3b3;
+      font-size: 12px;
+      background: white;
+      display: flex;
+      height: 26px;
+      width: calc(100% - 80px);
+      justify-content: space-between;
+      align-items: center;
+      color: ${Colors.ENTERPRISE_DARK};
+    }
+  }
 `;
 const Name = styled.div`
-  width: calc(100% - 36px);
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
   word-break: break-all;
+  line-height: 17px;
 `;
 const Version = styled.span<{ version?: string }>`
   display: ${(props) => (props.version ? "block" : "none")};
+  margin-right: ${(props) => (props.version ? "8px" : "0")};
 `;
 
-const uninstallLibraryInit = (payload: string) => ({
-  type: ReduxActionTypes.UNINSTALL_LIBRARY_INIT,
-  payload,
-});
-
-const PrimaryCTA = function({ name }: { name: string }) {
+const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
   const installationStatus = useSelector(selectInstallationStatus);
   const dispatch = useDispatch();
 
-  const uninstallLibrary = useCallback(() => {
-    dispatch(uninstallLibraryInit(name));
-  }, [name]);
+  const url = lib.url as string;
 
-  if (installationStatus.hasOwnProperty(name))
+  const uninstallLibrary = useCallback(() => {
+    dispatch(uninstallLibraryInit(lib));
+  }, [lib]);
+
+  if (installationStatus[url] === InstallState.Queued)
     return (
-      <div className="shrink-0">
-        <Spinner />
+      <div className="loading">
+        <Spinner size={IconSize.MEDIUM} />
       </div>
     );
 
-  if (!defaultLibraries.includes(name))
+  if (url) {
+    //Default libraries will not have url
     return (
-      <Icon
-        className="uninstall-library"
-        name="trash-outline"
-        onClick={uninstallLibrary}
-        size={IconSize.MEDIUM}
-      />
+      <div className="delete" onClick={uninstallLibrary}>
+        <Icon
+          className="uninstall-library"
+          name="trash-outline"
+          size={IconSize.MEDIUM}
+        />
+      </div>
     );
+  }
 
   return null;
 };
 
-function JSDependencies() {
+function LibraryEntity({ lib }: any) {
   const openDocs = (name: string, url: string) => () => window.open(url, name);
-  const libraries = useSelector(selectLibrariesForExplorer);
-  const dependencyList = libraries.map((lib) => {
-    return (
-      <Library
-        key={lib.displayName}
-        onClick={openDocs(lib.displayName, lib.docsURL)}
-      >
-        <Name>{lib.displayName}</Name>
-        <Version className="t--package-version" version={lib.version}>
+  const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const write = useClipboard(propertyRef);
+
+  const copyToClipboard = useCallback(() => {
+    write(lib.accessor);
+    Toaster.show({
+      text: "Copied to clipboard",
+      variant: Variant.success,
+    });
+  }, [lib.accessor]);
+
+  const [isOpen, open] = React.useState(false);
+  return (
+    <Library>
+      <div className="flex flex-row items-center h-full">
+        <Icon
+          className={isOpen ? "open-collapse" : ""}
+          fillColor={Colors.GREY_7}
+          name="right-arrow-2"
+          onClick={() => open(!isOpen)}
+          size={IconSize.XXXL}
+        />
+        <Name>{lib.name}</Name>
+        <Version
+          className="t--package-version"
+          onClick={openDocs(lib.name, lib.docsURL)}
+          version={lib.version}
+        >
           {lib.version}
         </Version>
-        {/* <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} /> */}
-        <PrimaryCTA name={lib.displayName} />
-      </Library>
-    );
-  });
+        <PrimaryCTA lib={lib} />
+      </div>
+      <Collapse className="text-xs" isOpen={isOpen}>
+        <div className="content pr-2">
+          Available as{" "}
+          <div className="accessor">
+            {lib.accessor[lib.accessor.length - 1]}{" "}
+            <CopyIcon onClick={copyToClipboard} />
+          </div>
+        </div>
+      </Collapse>
+    </Library>
+  );
+}
+
+function JSDependencies() {
+  const libraries = useSelector(selectLibrariesForExplorer);
+  const dependencyList = libraries.map((lib) => (
+    <LibraryEntity key={lib.name} lib={lib} />
+  ));
+  const [isWindowOpen, openWindow] = React.useState(false);
+
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
@@ -128,14 +223,15 @@ function JSDependencies() {
       customAddButton={
         <InstallationWindow
           className={`${EntityClassNames.ADD_BUTTON} group libraries h-100`}
+          onOpen={openWindow}
+          open={false}
         />
       }
       entityId="library_section"
       icon={null}
-      isDefaultExpanded={false}
+      isDefaultExpanded={isWindowOpen}
       isSticky
       name="Libraries"
-      searchKeyword={""}
       step={0}
     >
       {dependencyList}

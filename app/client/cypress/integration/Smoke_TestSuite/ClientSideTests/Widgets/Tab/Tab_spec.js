@@ -167,6 +167,19 @@ describe("Tab widget test", function() {
       .contains("Aditya")
       .should("have.class", "is-selected");
   });
+  it("Validates Total Number Of Tabs Displayed In The Property Pane", () => {
+    cy.get(Layoutpage.tabNumber).should("have.text", "2 tabs");
+  });
+  it("Validates Total Number Of Tabs Displayed In The Property Pane After Adding A Tab", () => {
+    cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.get(Layoutpage.tabNumber).should("have.text", "3 tabs");
+  });
+  it("Validates Total Number Of Tabs Displayed In The Property Pane After Deleting A Tab", () => {
+    cy.get(Layoutpage.tabDelete)
+      .eq(1)
+      .click({ force: true });
+    cy.get(Layoutpage.tabNumber).should("have.text", "2 tabs");
+  });
 });
 
 afterEach(() => {

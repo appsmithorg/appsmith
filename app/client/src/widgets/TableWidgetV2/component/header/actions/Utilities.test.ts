@@ -1,37 +1,5 @@
-import { ColumnTypes } from "../constants";
-import {
-  sortTableFunction,
-  transformTableDataIntoCsv,
-} from "./CommonUtilities";
-import { TableColumnProps } from "./Constants";
-
-describe("TableUtilities", () => {
-  it("works as expected for sort table rows", () => {
-    const filteredTableData: Array<Record<string, unknown>> = [
-      {
-        url: "https://www.google.com",
-      },
-      {
-        url: "https://www.amazon.com",
-      },
-    ];
-    const expected: Array<Record<string, unknown>> = [
-      {
-        url: "https://www.amazon.com",
-      },
-      {
-        url: "https://www.google.com",
-      },
-    ];
-    const sortedTableData = sortTableFunction(
-      filteredTableData,
-      ColumnTypes.URL,
-      "url",
-      true,
-    );
-    expect(sortedTableData).toStrictEqual(expected);
-  });
-});
+import { transformTableDataIntoCsv } from "./Utilities";
+import { TableColumnProps } from "../../Constants";
 
 describe("TransformTableDataIntoArrayOfArray", () => {
   const columns: TableColumnProps[] = [

@@ -21,6 +21,10 @@ import {
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
@@ -48,6 +52,8 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
+  checkContainersForAutoHeight?: () => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -58,6 +64,7 @@ type EditorContextProviderProps = EditorContextType & {
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
     batchUpdateWidgetProperty,
+    checkContainersForAutoHeight,
     children,
     deleteWidgetProperty,
     disableDrag,
@@ -66,6 +73,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
     updateWidget,
+    updateWidgetAutoHeight,
     updateWidgetProperty,
   } = props;
 
@@ -82,6 +90,8 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
+      updateWidgetAutoHeight,
+      checkContainersForAutoHeight,
     }),
     [
       executeAction,
@@ -93,6 +103,8 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
+      updateWidgetAutoHeight,
+      checkContainersForAutoHeight,
     ],
   );
   return (
@@ -121,6 +133,8 @@ const mapDispatchToProps = {
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
+  updateWidgetAutoHeight: updateWidgetAutoHeightAction,
+  checkContainersForAutoHeight: checkContainersForAutoHeightAction,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

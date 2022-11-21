@@ -1,6 +1,11 @@
-import { createReducer } from "utils/ReducerUtils";
-import { extraLibraries, ExtraLibrary } from "utils/DynamicBindingUtils";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { createImmerReducer } from "utils/ReducerUtils";
+import { defaultLibraries, TJSLibrary } from "utils/DynamicBindingUtils";
+import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ce/constants/ReduxActionConstants";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 
 export enum InstallState {
   Queued,
@@ -11,90 +16,93 @@ export enum InstallState {
 
 export type LibraryState = {
   installationStatus: Record<string, InstallState>;
-  installedLibraries: {
-    displayName: string;
-    docsURL: string;
-    version?: string;
-    accessor: string;
-  }[];
+  installedLibraries: TJSLibrary[];
 };
 
 const initialState = {
   installationStatus: {},
-  installedLibraries: extraLibraries.map((lib: ExtraLibrary) => {
+  installedLibraries: defaultLibraries.map((lib: TJSLibrary) => {
     return {
-      displayName: lib.displayName,
+      name: lib.name,
       docsURL: lib.docsURL,
       version: lib.version,
+      accessor: lib.accessor,
     };
   }),
+  reservedNames: [],
 };
 
-const jsLibraryReducer = createReducer(initialState, {
-  [ReduxActionTypes.INSTALL_LIBRARY_INIT]: (state, action) => {
-    return {
-      ...state,
-      installationStatus: {
-        ...state.installationStatus,
-        [action.payload]:
-          state.installationStatus[action.payload] || InstallState.Queued,
-      },
-    };
+const jsLibraryReducer = createImmerReducer(initialState, {
+  [ReduxActionTypes.INSTALL_LIBRARY_INIT]: (
+    state: LibraryState,
+    action: ReduxAction<Partial<TJSLibrary>>,
+  ) => {
+    const { url } = action.payload;
+    state.installationStatus[url as string] =
+      state.installationStatus[url as string] || InstallState.Queued;
   },
-  [ReduxActionTypes.INSTALL_LIBRARY_START]: (state, action) => {
-    return {
-      ...state,
-      installationStatus: {
-        ...state.installationStatus,
-        [action.payload]: InstallState.Installing,
-      },
-    };
+  [ReduxActionTypes.INSTALL_LIBRARY_START]: (
+    state: LibraryState,
+    action: ReduxAction<string>,
+  ) => {
+    state.installationStatus[action.payload] = InstallState.Queued;
   },
-  [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (state, action) => {
-    const { libraryAccessor, url } = action.payload;
-    return {
-      ...state,
-      installationStatus: {
-        ...state.installationStatus,
-        [url]: InstallState.Success,
-      },
-      installedLibraries: [
-        {
-          displayName: url,
-          docsURL: url,
-          version: "",
-          accessor: libraryAccessor,
-        },
-        ...state.installedLibraries,
-      ],
-    };
-  },
-  [ReduxActionTypes.INSTALL_LIBRARY_FAILED]: (state, action) => {
-    return {
-      ...state,
-      installationStatus: {
-        ...state.installationStatus,
-        [action.payload]: InstallState.Success,
-      },
-    };
-  },
-  [ReduxActionTypes.CLEAR_PROCESSED_INSTALLS]: (state) => {
-    const installationStatus = Object.keys(state.installationStatus).reduce(
-      (acc, key) => {
-        if (
-          [InstallState.Queued, InstallState.Installing].includes(
-            state.installationStatus[key],
-          )
-        )
-          acc[key] = state.installationStatus[key];
-        return acc;
-      },
-      {} as any,
+  [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: (
+    state: LibraryState,
+    action: ReduxAction<{
+      accessor: string[];
+      url: string;
+      version: string;
+    }>,
+  ) => {
+    const { accessor, url, version } = action.payload;
+    const name = accessor[accessor.length - 1] as string;
+    const recommendedLibrary = recommendedLibraries.find(
+      (lib) => lib.url === url,
     );
-    return {
-      ...state,
-      installationStatus,
-    };
+    state.installationStatus[url] = InstallState.Success;
+    state.installedLibraries.unshift({
+      name: recommendedLibrary?.name || name,
+      docsURL: recommendedLibrary?.url || url,
+      version: recommendedLibrary?.version || version,
+      url,
+      accessor,
+    });
+  },
+  [ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED]: (
+    state: LibraryState,
+    action: ReduxAction<string>,
+  ) => {
+    state.installationStatus[action.payload] = InstallState.Failed;
+  },
+  [ReduxActionTypes.CLEAR_PROCESSED_INSTALLS]: (state: LibraryState) => {
+    for (const key in state.installationStatus) {
+      if (
+        [InstallState.Success, InstallState.Failed].includes(
+          state.installationStatus[key],
+        )
+      ) {
+        delete state.installationStatus[key];
+      }
+    }
+  },
+  [ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS]: (
+    state: LibraryState,
+    action: ReduxAction<TJSLibrary[]>,
+  ) => {
+    state.installedLibraries.unshift(...action.payload);
+  },
+  [ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS]: (
+    state: LibraryState,
+    action: ReduxAction<TJSLibrary>,
+  ) => {
+    const uLib = action.payload;
+    state.installedLibraries = state.installedLibraries.filter(
+      (lib) => uLib.url !== lib.url,
+    );
+  },
+  [ReduxActionTypes.FETCH_APPLICATION_SUCCESS]: (state: LibraryState) => {
+    state.installedLibraries = [...defaultLibraries];
   },
 });
 

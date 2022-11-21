@@ -2,7 +2,8 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  extraLibraries,
+  JSLibraries,
+  libraryReservedNames,
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
@@ -18,6 +19,8 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
+import SetupDOM, { DOM_APIS } from "./SetupDOM";
+import { resetJSLibraries } from "./JSLibrary";
 
 export type EvalResult = {
   result: any;
@@ -75,11 +78,13 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 
 function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
-    if (topLevelWorkerAPIs[key]) continue;
-    if (key === "evaluationVersion") continue;
-    if (extraLibraries.find((lib) => lib.accessor === key)) continue;
+    if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
+    if (key === "evaluationVersion" || key === "window" || key === "document")
+      continue;
+    if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
+    if (libraryReservedNames.has(key)) continue;
     // @ts-expect-error: Types are not available
-    delete self[key];
+    self[key] = undefined;
   }
 }
 
@@ -98,6 +103,8 @@ export const getScriptType = (
   return scriptType;
 };
 
+export let additionalLibrariesNames: string[] = [];
+
 export const getScriptToEval = (
   userScript: string,
   type: EvaluationScriptType,
@@ -108,8 +115,9 @@ export const getScriptToEval = (
 };
 
 export function setupEvaluationEnvironment() {
+  resetJSLibraries();
   ///// Adding extra libraries separately
-  extraLibraries.forEach((library) => {
+  JSLibraries.forEach((library) => {
     // @ts-expect-error: Types are not available
     self[library.accessor] = library.lib;
   });
@@ -119,9 +127,12 @@ export function setupEvaluationEnvironment() {
     // @ts-expect-error: Types are not available
     self[func] = undefined;
   });
+  self.window = self;
+  additionalLibrariesNames = [];
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();
+  SetupDOM();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;

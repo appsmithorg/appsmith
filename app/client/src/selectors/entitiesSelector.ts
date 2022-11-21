@@ -30,6 +30,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -50,10 +51,6 @@ export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
 
 export const getMockDatasources = (state: AppState): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
-};
-
-export const getIsDeletingDatasource = (state: AppState): boolean => {
-  return state.entities.datasources.isDeleting;
 };
 
 export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
@@ -851,18 +848,44 @@ export const selectInstallationStatus = (state: AppState) =>
   state.ui.libraries.installationStatus;
 export const selectInstalledLibraries = (state: AppState) =>
   state.ui.libraries.installedLibraries;
+export const selectStatusForURL = (url: string) =>
+  createSelector(selectInstallationStatus, (statusMap) => {
+    return statusMap[url];
+  });
+export const selectIsLibraryInstalled = createSelector(
+  [selectInstalledLibraries, (_: AppState, url: string) => url],
+  (installedLibraries, url) => {
+    return !!installedLibraries.find((lib) => lib.url === url);
+  },
+);
+
+export const selectQueuedLibraries = createSelector(
+  selectInstallationStatus,
+  (statusMap) => {
+    return Object.keys(statusMap).filter(
+      (url) => statusMap[url] === InstallState.Queued,
+    );
+  },
+);
 
 export const selectLibrariesForExplorer = createSelector(
   selectInstalledLibraries,
   selectInstallationStatus,
   (libs, libStatus) => {
     const queuedInstalls = Object.keys(libStatus)
-      .filter((key) => libStatus[key] !== InstallState.Success)
-      .map((lib) => ({
-        displayName: lib,
-        docsURL: lib,
-        version: "",
-      }));
+      .filter((key) => libStatus[key] === InstallState.Queued)
+      .map((url) => {
+        const recommendedLibrary = recommendedLibraries.find(
+          (lib) => lib.url === url,
+        );
+        return {
+          name: recommendedLibrary?.name || url,
+          docsURL: recommendedLibrary?.url || url,
+          version: recommendedLibrary?.version || "",
+          url: recommendedLibrary?.url || url,
+          accessor: "",
+        };
+      });
     return [...queuedInstalls, ...libs];
   },
 );

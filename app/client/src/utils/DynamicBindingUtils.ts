@@ -146,57 +146,64 @@ export enum EVAL_WORKER_ACTIONS {
   INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
   INSTALL_LIBRARY = "INSTALL_LIBRARY",
+  UNINSTALL_LIBRARY = "UNINSTALL_LIBRARY",
+  LOAD_LIBRARIES = "LOAD_LIBRARIES",
   LINT_TREE = "LINT_TREE",
 }
 
-export type ExtraLibrary = {
+export type TJSLibrary = {
   version?: string;
   docsURL: string;
-  displayName: string;
-  accessor: string;
-  lib: any;
+  name: string;
+  accessor: string[];
+  lib?: any;
+  url?: string;
 };
-
-export const extraLibraries: ExtraLibrary[] = [
+export const defaultLibraries: TJSLibrary[] = [
   {
-    accessor: "_",
+    accessor: ["_"],
     lib: _,
     version: lodashVersion,
     docsURL: `https://lodash.com/docs/${lodashVersion}`,
-    displayName: "lodash",
+    name: "lodash",
   },
   {
-    accessor: "moment",
+    accessor: ["moment"],
     lib: moment,
     version: moment.version,
     docsURL: `https://momentjs.com/docs/`,
-    displayName: "moment",
+    name: "moment",
   },
   {
-    accessor: "xmlParser",
+    accessor: ["xmlParser"],
     lib: parser,
     version: "3.17.5",
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
-    displayName: "xmlParser",
+    name: "xmlParser",
   },
   {
-    accessor: "forge",
+    accessor: ["forge"],
     // We are removing some functionalities of node-forge because they wont
     // work in the worker thread
     lib: _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
     version: "1.3.0",
     docsURL: "https://github.com/digitalbazaar/forge",
-    displayName: "forge",
+    name: "forge",
   },
 ];
+
+export const JSLibraries = [...defaultLibraries];
+export const libraryReservedNames = new Set(
+  ...defaultLibraries.map((lib) => lib.accessor[0]),
+);
 /**
  * creates dynamic list of constants based on
  * current list of extra libraries i.e lodash("_"), moment etc
  * to be used in widget and entity name validations
  */
-export const extraLibrariesNames = extraLibraries.reduce(
+export const defaultLibraryNames = defaultLibraries.reduce(
   (prev: Record<string, string>, curr) => {
-    prev[curr.accessor] = curr.accessor;
+    prev[curr.accessor[0]] = curr.accessor[0];
     return prev;
   },
   {},

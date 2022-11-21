@@ -28,31 +28,42 @@ import ProfileImage from "pages/common/ProfileImage";
 import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
+  selectIsLibraryInstalled,
+  selectQueuedLibraries,
+  selectStatusForURL,
 } from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
-import SaveFailureIcon from "remixicon-react/ErrorWarningFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
+import recommendedLibraries from "./recommendedLibraries";
+import { AppState } from "ce/reducers";
+import { TJSLibrary } from "utils/DynamicBindingUtils";
+import { clearInstalls, installLibraryInit } from "actions/JSLibraryActions";
 
-type TInstallWindowProps = any;
+type TInstallWindowProps = {
+  onOpen: (open: boolean) => void;
+  open: boolean;
+  className: string;
+};
 
 const Wrapper = styled.div`
   display: flex;
-  height: 500px;
+  height: auto;
   width: 400px;
+  max-height: 80vh;
   flex-direction: column;
+  padding: 0 16px;
   .installation-header {
-    padding: 24px 24px 0;
+    padding: 20px 0 0;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
   .search-area {
-    padding: 0 24px;
+    margin-bottom: 16px;
     .left-icon {
       margin-left: 14px;
       .cs-icon {
@@ -69,37 +80,40 @@ const Wrapper = styled.div`
     display: flex;
     flex-direction: column;
     overflow: auto;
-    height: 405px;
     .search-CTA {
+      margin-bottom: 16px;
       display: flex;
       flex-direction: column;
-      margin: 16px 24px 0;
     }
     .search-results {
       .library-card {
-        padding: 12px 24px;
-        display: flex;
-        flex-direction: column;
         cursor: pointer;
         gap: 8px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
         border-bottom: 1px solid var(--appsmith-color-black-100);
         &:hover {
-          background-color: var(--appsmith-color-black-100);
+          background-color: var(--appsmith-color-black-50);
+        }
+        .description {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          font-size: 12px;
+          line-clamp: 2;
+          font-weight: 400;
+          -webkit-box-orient: vertical;
         }
       }
     }
   }
 `;
 
-function installLibraryInit(payload: string) {
-  return {
-    type: ReduxActionTypes.INSTALL_LIBRARY_INIT,
-    payload,
-  };
-}
-
 export default function InstallationWindow(props: TInstallWindowProps) {
-  const { className, open } = props;
+  const { className, onOpen, open } = props;
   const [show, setShow] = useState(open);
   const dispatch = useDispatch();
 
@@ -107,16 +121,19 @@ export default function InstallationWindow(props: TInstallWindowProps) {
     setShow(open);
   }, [open]);
 
+  const clearProcessedInstalls = useCallback(() => {
+    dispatch(clearInstalls());
+  }, [dispatch]);
+
+  const openWindow = useCallback(() => {
+    onOpen(true);
+    setShow(true);
+  }, []);
+
   const closeWindow = useCallback(() => {
     setShow(false);
     clearProcessedInstalls();
-  }, []);
-
-  const clearProcessedInstalls = useCallback(() => {
-    dispatch({
-      type: ReduxActionTypes.CLEAR_PROCESSED_INSTALLS,
-    });
-  }, []);
+  }, [clearProcessedInstalls]);
 
   return (
     <Popover2
@@ -141,7 +158,7 @@ export default function InstallationWindow(props: TInstallWindowProps) {
       >
         <EntityAddButton
           className={`${className} ${show ? "selected" : ""}`}
-          onClick={() => setShow(true)}
+          onClick={openWindow}
         />
       </Tooltip>
     </Popover2>
@@ -153,31 +170,9 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     props.addBorder ? `1px solid var(--appsmith-color-black-300)` : "none"};
   display: flex;
   flex-direction: column;
-  background: var(--appsmith-color-black-100);
+  background: var(--appsmith-color-black-50);
   text-overflow: ellipsis;
-  padding: 8px 12px;
-  margin: 0 24px;
-  .progress-container {
-    display: flex;
-    flex-direction: column;
-    padding: 0.5rem 1.5rem 0.75rem;
-    gap: 0.5rem;
-    background: var(--appsmith-color-black-50);
-    span {
-      font-size: 12px;
-      font-weight: normal;
-    }
-    .progress-bar {
-      height: 6px;
-      width: 100%;
-      background: #d3d3d3;
-      .completed {
-        height: 6px;
-        background: #03b365;
-        width: 60%;
-      }
-    }
-  }
+  padding: 8px 8px 12px;
   .install-url {
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -187,41 +182,101 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
     overflow: hidden;
     word-break: break-all;
   }
+  .error-card {
+    display: flex;
+    padding: 10px;
+    flex-direction: row;
+    background: #ffe9e9;
+    .unsupported {
+      line-height: 17px;
+      .header {
+        font-size: 13px;
+        font-weight: 600;
+        color: #393939;
+      }
+      .body {
+        font-size: 12px;
+        font-weight: 400;
+      }
+    }
+  }
 `;
 
-function getStatusIcon(status: InstallState) {
-  if (status === InstallState.Success)
+function getStatusIcon(status: InstallState, isInstalled = false) {
+  if (status === InstallState.Success || isInstalled)
     return <SaveSuccessIcon color={Colors.GREEN} size={18} />;
   if (status === InstallState.Failed)
-    return <SaveFailureIcon color={Colors.WARNING_SOLID} size={18} />;
-  return <Spinner />;
+    return (
+      <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
+    );
+  if (status === InstallState.Queued) return <Spinner />;
+  return <Icon fillColor={Colors.GRAY} name="download" size={IconSize.XL} />;
+}
+
+function ProgressTracker({
+  addBorder,
+  status,
+  url,
+}: {
+  addBorder: boolean;
+  status: InstallState;
+  url: string;
+}) {
+  return (
+    <InstallationProgressWrapper addBorder={addBorder}>
+      {[InstallState.Queued, InstallState.Installing].includes(status) && (
+        <div className="text-gray-700 text-xs">Installing...</div>
+      )}
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-between items-center gap-2 fw-500 text-sm">
+          <div className="install-url text-sm font-medium">{url}</div>
+          <div className="shrink-0">{getStatusIcon(status)}</div>
+        </div>
+        {status === InstallState.Failed && (
+          <div className="gap-2 error-card items-start">
+            <Icon name="danger" size={IconSize.XL} />
+            <div className="flex flex-col unsupported gap-1">
+              <div className="header">
+                {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
+              </div>
+              <div className="body">
+                {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
+              </div>
+              <div className="footer text-xs font-medium gap-2 flex flex-row">
+                <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
+                <a>{createMessage(customJSLibraryMessages.LEARN_MORE)}</a>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </InstallationProgressWrapper>
+  );
 }
 
 function InstallationProgress() {
   const installStatusMap = useSelector(selectInstallationStatus);
-  // const application = useSelector(getCurrentApplication);
-  const urls = Object.keys(installStatusMap);
+  const urls = Object.keys(installStatusMap).filter(
+    (url) => !recommendedLibraries.find((lib) => lib.url === url),
+  );
   if (urls.length === 0) return null;
   return (
-    <>
+    <div>
       {urls.map((url, idx) => (
-        <InstallationProgressWrapper
+        <ProgressTracker
           addBorder={idx !== 0}
-          key={`${url}_${idx}_${installStatusMap[url]}`}
-        >
-          {[InstallState.Queued, InstallState.Installing].includes(
-            installStatusMap[url],
-          ) && <div className="text-gray-700 text-xs">Installing...</div>}
-          <div className="flex justify-between items-center bg-g gap-2 fw-500 text-sm">
-            <div className="install-url fw-500">{url}</div>
-            <div className="shrink-0">
-              {getStatusIcon(installStatusMap[url])}
-            </div>
-          </div>
-        </InstallationProgressWrapper>
+          key={`${url}_${idx}`}
+          status={installStatusMap[url]}
+          url={url}
+        />
       ))}
-    </>
+    </div>
   );
+}
+
+enum Repo {
+  Unpkg,
+  JsDelivr,
 }
 
 function InstallationPopoverContent(props: any) {
@@ -230,14 +285,15 @@ function InstallationPopoverContent(props: any) {
   const [isValid, setIsValid] = useState(true);
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
+  const queuedLibraries = useSelector(selectQueuedLibraries);
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
   }, []);
 
-  const openDoc = useCallback((e, repo: string) => {
+  const openDoc = useCallback((e, repo: Repo) => {
     e.preventDefault();
-    if (repo === "UNPKG") return window.open("https://unpkg.com");
+    if (repo === Repo.Unpkg) return window.open("https://unpkg.com");
     window.open("https://www.jsdelivr.com/");
   }, []);
 
@@ -251,31 +307,36 @@ function InstallationPopoverContent(props: any) {
   }, []);
 
   const installLibrary = useCallback(
-    (index?: number) => {
-      if (!index) {
-        const libFound = installedLibraries.find(
-          (lib) => lib.displayName === URL,
-        );
-        if (libFound) {
-          Toaster.show({
-            text: createMessage(
-              customJSLibraryMessages.INSTALLED_ALREADY,
-              libFound.accessor,
-            ),
-            variant: Variant.info,
-          });
-          return;
-        }
-        dispatch(installLibraryInit(URL));
+    (lib?: Partial<TJSLibrary>) => {
+      const url = lib?.url || URL;
+      const isQueued = queuedLibraries.find((libURL) => libURL === url);
+      if (isQueued) return;
+
+      const libInstalled = installedLibraries.find((lib) => lib.url === url);
+      if (libInstalled) {
+        Toaster.show({
+          text: createMessage(
+            customJSLibraryMessages.INSTALLED_ALREADY,
+            libInstalled.accessor,
+          ),
+          variant: Variant.info,
+        });
+        return;
       }
+      dispatch(
+        installLibraryInit({
+          url,
+          name: lib?.name,
+        }),
+      );
     },
-    [URL, installedLibraries],
+    [URL, installedLibraries, queuedLibraries],
   );
 
   return (
     <Wrapper>
       <div className="installation-header">
-        <Text type={TextType.H2} weight={"bold"}>
+        <Text type={TextType.H1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
         </Text>
         <Icon
@@ -318,61 +379,74 @@ function InstallationPopoverContent(props: any) {
             Explore libraries on{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, "JSDELIVR")}
+              onClick={(e) => openDoc(e, Repo.JsDelivr)}
             >
               jsDelivr
             </a>{" "}
             or{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, "UNPKG")}
+              onClick={(e) => openDoc(e, Repo.Unpkg)}
             >
-              UNPKG.
+              UNPKG
+            </a>
+            {". "}
+            {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
+            <a
+              className="text-primary-500"
+              onClick={(e) => openDoc(e, Repo.Unpkg)}
+            >
+              here.
             </a>
           </span>
-          <span>Learn more about Custom JS Libraries here.</span>
         </div>
         <InstallationProgress />
-        <div className="pl-6 pb-3 pt-4 sticky top-0 z-2 bg-white">
-          <Text type={TextType.P1} weight={"bold"}>
+        <div className="pb-2 sticky top-0 z-2 bg-white">
+          <Text type={TextType.P1} weight={"600"}>
             {createMessage(customJSLibraryMessages.REC_LIBRARY)}
           </Text>
         </div>
         <div className="search-results">
-          {new Array(20).fill(0).map((_, idx) => (
-            <div className="library-card" key={idx}>
-              <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-2">
-                  <Text type={TextType.P0} weight="bold">
-                    angular-aria
-                  </Text>
-                  <Icon
-                    fillColor={Colors.GRAY}
-                    name="open-new-tab"
-                    size={IconSize.MEDIUM}
-                  />
-                </div>
-                <Icon
-                  fillColor={Colors.GRAY}
-                  name="download"
-                  size={IconSize.MEDIUM}
-                />
-              </div>
-              <div className="flex flex-row">
-                <Text type={TextType.P2}>
-                  AngularJS module for common ARIA attributes that convey state
-                  or semantic information about the application for users of
-                  assistive technologies.
-                </Text>
-              </div>
-              <div className="flex flex-row items-center gap-1">
-                <ProfileImage size={20} />
-                <Text type={TextType.P3}>Arun</Text>
-              </div>
-            </div>
+          {recommendedLibraries.map((lib, idx) => (
+            <LibraryCard
+              key={`${idx}_${lib.name}`}
+              lib={lib}
+              onClick={() => installLibrary(lib)}
+            />
           ))}
         </div>
       </div>
     </Wrapper>
+  );
+}
+
+function LibraryCard({
+  lib,
+  onClick,
+}: {
+  lib: any;
+  onClick: (url: string) => void;
+}) {
+  const status = useSelector(selectStatusForURL(lib.url));
+  const isInstalled = useSelector((state: AppState) =>
+    selectIsLibraryInstalled(state, lib.url),
+  );
+  return (
+    <div className="library-card" onClick={() => onClick(lib.url)}>
+      <div className="flex flex-row justify-between items-center">
+        <div className="flex flex-row gap-2 items-center">
+          <Text type={TextType.P0} weight="500">
+            {lib.name}
+          </Text>
+          <Icon fillColor={Colors.GRAY} name="share-2" size={IconSize.XS} />
+        </div>
+        {getStatusIcon(status, isInstalled)}
+      </div>
+      <div className="flex flex-row description">{lib.description}</div>
+      <div className="flex flex-row items-center gap-1">
+        <ProfileImage size={20} source={lib.icon} />
+        <Text type={TextType.P3}>{lib.author}</Text>
+      </div>
+    </div>
   );
 }

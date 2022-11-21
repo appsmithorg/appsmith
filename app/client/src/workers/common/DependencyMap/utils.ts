@@ -5,7 +5,7 @@ import {
   EvalError,
   DependencyMap,
   getDynamicBindings,
-  extraLibrariesNames,
+  defaultLibraryNames,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
@@ -207,7 +207,7 @@ const invalidEntityIdentifiers: Record<string, unknown> = {
   ...JAVASCRIPT_KEYWORDS,
   ...APPSMITH_GLOBAL_FUNCTIONS,
   ...DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-  ...extraLibrariesNames,
+  ...defaultLibraryNames,
 };
 
 export function listEntityDependencies(
