@@ -36,6 +36,7 @@ export function DynamicHeightContainerWrapper(
       maxDynamicHeight={maxDynamicHeight}
       minDynamicHeight={minDynamicHeight}
       onHeightUpdate={onHeightUpdate}
+      widgetProps={widgetProps}
     >
       {children}
     </DynamicHeightContainer>

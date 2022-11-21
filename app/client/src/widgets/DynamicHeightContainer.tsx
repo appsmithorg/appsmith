@@ -2,6 +2,7 @@ import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { WidgetProps } from "./BaseWidget";
 
 const StyledDynamicHeightContainer = styled.div<{ isOverflow?: boolean }>`
   overflow-y: ${(props) => (props.isOverflow ? "auto" : "unset")};
@@ -14,6 +15,7 @@ interface DynamicHeightContainerProps {
   minDynamicHeight: number;
   dynamicHeight: string;
   onHeightUpdate: (height: number) => void;
+  widgetProps?: WidgetProps;
 }
 
 export default function DynamicHeightContainer({
@@ -22,6 +24,7 @@ export default function DynamicHeightContainer({
   maxDynamicHeight,
   minDynamicHeight,
   onHeightUpdate,
+  widgetProps,
 }: PropsWithChildren<DynamicHeightContainerProps>) {
   const isAutoHeightWithLimits =
     dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
@@ -59,9 +62,12 @@ export default function DynamicHeightContainer({
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
+    const backgroundColor = widgetProps?.backgroundColor;
+
     return (
       <StyledDynamicHeightContainer
         isOverflow={maxDynamicHeight < expectedHeightInRows}
+        style={{ backgroundColor }}
       >
         <div ref={ref} style={{ height: "auto" }}>
           {children}
