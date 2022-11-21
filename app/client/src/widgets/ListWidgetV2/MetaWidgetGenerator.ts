@@ -555,17 +555,6 @@ class MetaWidgetGenerator {
 
   private generateWidgetCacheData = (index: number, rowIndex: number) => {
     const key = this.getPrimaryKey(index);
-    const rowCache = this.generateCacheData(index, rowIndex, key);
-    this.setRowCache(key, {
-      ...rowCache,
-    });
-  };
-
-  private generateCacheData = (
-    index: number,
-    rowIndex: number,
-    key: string,
-  ) => {
     const rowCache = this.getRowCache(key) || {};
     const isClonedRow = this.isClonedRow(index);
     const templateWidgets = Object.values(this.currTemplateWidgets || {}) || [];
@@ -608,10 +597,10 @@ class MetaWidgetGenerator {
         type,
       };
     });
-    return {
+    this.setRowCache(key, {
       ...rowCache,
       ...updatedRowCache,
-    };
+    });
   };
 
   private generateWidgetCacheForContainerParent = (
@@ -1070,10 +1059,6 @@ class MetaWidgetGenerator {
 
   getVirtualListHeight = () => {
     return this.virtualizer?.getTotalSize?.();
-  };
-
-  getVirtualItemsSize = () => {
-    return this.virtualizer?.getVirtualItems().length;
   };
 
   private getRowTemplateCache = (key: string, templateWidgetId: string) => {
