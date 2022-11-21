@@ -106,6 +106,18 @@ const Container = styled.div`
       background: transparent !important;
     }
   }
+
+  object {
+    width: 100%;
+    height: 280px;
+  }
+
+  ul,
+  ol {
+    list-style: revert;
+    padding: revert;
+    margin: revert;
+  }
 `;
 
 const StyledDocumentationDescription = styled.div`
@@ -250,9 +262,8 @@ function Description(props: Props) {
 
   if (!activeItemType || !activeItem) return null;
   const Component = descriptionByType[activeItemType];
-
   return (
-    <Container>
+    <Container data-cy="description">
       <Component item={activeItem} query={props.query} />
     </Container>
   );

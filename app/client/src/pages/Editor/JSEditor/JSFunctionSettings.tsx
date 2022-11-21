@@ -15,6 +15,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type SettingsHeadingProps = {
   text: string;
@@ -140,10 +141,20 @@ function SettingsItem({ action }: SettingsItemProps) {
   const onChangeExecuteOnPageLoad = (value: string) => {
     setExecuteOnPageLoad(value);
     updateProperty(value === "true", "executeOnLoad");
+
+    AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
+      toggleSetting: "ON_PAGE_LOAD",
+      toggleValue: value,
+    });
   };
   const onChangeConfirmBeforeExecute = (value: string) => {
     setConfirmBeforeExecute(value);
     updateProperty(value === "true", "confirmBeforeExecute");
+
+    AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
+      toggleSetting: "CONFIRM_BEFORE_RUN",
+      toggleValue: value,
+    });
   };
 
   return (
