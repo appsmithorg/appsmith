@@ -61,6 +61,11 @@ const GroupBody = styled.div`
     }
   }
   &&&& {
+    // TagInput in design system has a right margin
+    .tag-input > div {
+      margin: 0;
+    }
+
     .tag-input .${Classes.TAG_INPUT} {
       box-shadow: none;
     }
@@ -69,6 +74,10 @@ const GroupBody = styled.div`
       color: ${Colors.GRAY_700};
       background-color: ${Colors.GRAY_200};
       ${(props) => getTypographyByKey(props, "h5")}
+      // Cursor on close icon need to be a pointer
+      svg:hover {
+        cursor: pointer;
+      }
     }
 
     .tag-input .${Classes.TAG_INPUT}.${Classes.ACTIVE} {

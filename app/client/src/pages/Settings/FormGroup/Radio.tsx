@@ -73,12 +73,6 @@ const RadioWrapper = styled.div<{ index: number }>`
   }
 `;
 
-const StyledRadio = styled(Radio)`
-  input:checked ~ .checkbox {
-    border-color: ${(props) => props.backgroundColor};
-  }
-`;
-
 const SuffixWrapper = styled.div`
   display: inline-flex;
   align-items: center;
@@ -125,7 +119,7 @@ function RadioFieldWrapper(
 
         return (
           <RadioWrapper index={index} key={item.value}>
-            <StyledRadio backgroundColor={Colors.GREY_900}>
+            <Radio>
               {item.label}
               <input
                 checked={isSelected}
@@ -177,7 +171,7 @@ function RadioFieldWrapper(
                   </Popover2>
                 )}
               </SuffixWrapper>
-            </StyledRadio>
+            </Radio>
             {item.node && isSelected && item.nodeInputPath && (
               <NodeWrapper className={item.nodeParentClass}>
                 <Text color={Colors.GRAY_700} type={TextType.P3}>
