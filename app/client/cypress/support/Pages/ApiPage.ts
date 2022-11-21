@@ -47,6 +47,7 @@ export class ApiPage {
   _saveAsDS = ".t--store-as-datasource";
   _responseStatus = ".t--response-status-code";
   private _blankGraphqlAPI = "span:contains('New Blank GraphQL API')";
+  public _responseTabHeader = "[data-cy=t--tab-headers]";
 
   CreateApi(
     apiName = "",
@@ -281,6 +282,10 @@ export class ApiPage {
         cy.log("Key value in api response is :" + apiResp);
         cy.wrap(apiResp).as("apiResp");
       });
+  }
+
+  SwitchToResponseTab(tabIdentifier: string) {
+    cy.get(tabIdentifier).click();
   }
 
   public SelectAPIVerb(verb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH") {
