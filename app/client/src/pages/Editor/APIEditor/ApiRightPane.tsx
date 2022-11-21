@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import {
   Classes,
@@ -23,6 +23,7 @@ import { datasourcesEditorIdURL } from "RouteBuilder";
 import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
+import isUndefined from "lodash/isUndefined";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -221,6 +222,12 @@ function ApiRightPane(props: any) {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));
   }, []);
 
+  useEffect(() => {
+    // Switch to connections tab only initially after successfully run get stored value
+    // otherwise
+    if (!!props.hasResponse && isUndefined(selectedTab)) setSelectedTab(1);
+  }, [props.hasResponse]);
+
   // array of datasources with the current action's datasource first, followed by the rest.
   const sortedDatasources = useMemo(
     () =>
@@ -237,7 +244,7 @@ function ApiRightPane(props: any) {
         <TabComponent
           cypressSelector={"api-right-pane"}
           onSelect={setSelectedTab}
-          selectedIndex={selectedTab}
+          selectedIndex={isUndefined(selectedTab) ? 0 : selectedTab}
           tabs={[
             {
               key: "Datasources",

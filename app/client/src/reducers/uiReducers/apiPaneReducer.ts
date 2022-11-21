@@ -20,7 +20,6 @@ const initialState: ApiPaneReduxState = {
   selectedConfigTabIndex: 0,
   selectedResponseTab: "",
   responseTabHeight: ActionExecutionResizerHeight,
-  selectedRightPaneTab: 0,
 };
 
 export interface ApiPaneReduxState {
@@ -35,7 +34,7 @@ export interface ApiPaneReduxState {
   selectedConfigTabIndex: number;
   selectedResponseTab: string;
   responseTabHeight: number;
-  selectedRightPaneTab: number;
+  selectedRightPaneTab?: number;
 }
 
 const apiPaneReducer = createReducer(initialState, {
