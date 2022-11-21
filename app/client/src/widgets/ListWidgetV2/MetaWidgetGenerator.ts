@@ -150,7 +150,7 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
-  private cachedRowKey: CachedRows;
+  private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
   private currTemplateWidgets: TemplateWidgets;
@@ -183,7 +183,7 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
-    this.cachedRowKey = {
+    this.cachedRows = {
       prevCachedRows: new Set(),
       currCachedRows: new Set(),
     };
@@ -238,7 +238,6 @@ class MetaWidgetGenerator {
     this.templateBottomRow = options.templateBottomRow;
     this.triggeredRowIndex = options.triggeredRowIndex;
     this.widgetName = options.widgetName;
-
     this.currTemplateWidgets = extractTillNestedListWidget(
       options.currTemplateWidgets,
       options.containerParentId,
@@ -255,14 +254,6 @@ class MetaWidgetGenerator {
 
     return this;
   };
-
-  // private clearCachedRows = () => {
-  //   this.cachedRowKey.clear();
-  // };
-
-  // private getIndexAndClearCache = () => {
-
-  // }
 
   private _didUpdate = (
     nextOptions: GeneratorOptions,
@@ -372,9 +363,7 @@ class MetaWidgetGenerator {
       resetMetaWidgetIds,
     );
 
-    this.cachedRowKey.prevCachedRows = new Set(
-      this.cachedRowKey.currCachedRows,
-    );
+    this.cachedRows.prevCachedRows = new Set(this.cachedRows.currCachedRows);
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
@@ -391,17 +380,17 @@ class MetaWidgetGenerator {
     const cachedMetaWidgetIds: string[] = [];
     const removedCachedMetaWidgetIds: string[] = [];
 
-    this.cachedRowKey.prevCachedRows.forEach((key) => {
+    this.cachedRows.prevCachedRows.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
       Object.values(metaCacheProps).forEach((cache) => {
         removedCachedMetaWidgetIds.push(cache.metaWidgetId);
       });
     });
 
-    if (!templateWidget || !this.cachedRowKey.currCachedRows.size)
+    if (!templateWidget || !this.cachedRows.currCachedRows.size)
       return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
 
-    this.cachedRowKey.currCachedRows.forEach((key) => {
+    this.cachedRows.currCachedRows.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
       Object.values(metaCacheProps).forEach((cache) => {
         cachedMetaWidgetIds.push(cache.metaWidgetId);
@@ -417,7 +406,7 @@ class MetaWidgetGenerator {
       removedCachedMetaWidgetIds,
     } = this.getMetaWidgetIdsInCachedRows();
 
-    const removedWidgets = difference(
+    const removedWidgetsFromView = difference(
       this.prevViewMetaWidgetIds,
       this.currViewMetaWidgetIds,
     );
@@ -428,7 +417,7 @@ class MetaWidgetGenerator {
     );
 
     const removedFromCurrentView = new Set<string>([
-      ...removedWidgets,
+      ...removedWidgetsFromView,
       ...resetWidgetExcludingCurrent,
     ]);
 
@@ -444,11 +433,11 @@ class MetaWidgetGenerator {
   };
 
   private cacheRowIndices = (indices: number[]) => {
-    this.cachedRowKey.currCachedRows.clear();
+    this.cachedRows.currCachedRows.clear();
     indices.forEach((index) => {
       if (index !== -1) {
         const key = this.getPrimaryKey(index);
-        this.cachedRowKey.currCachedRows.add(key);
+        this.cachedRows.currCachedRows.add(key);
       }
     });
   };
