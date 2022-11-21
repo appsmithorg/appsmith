@@ -222,7 +222,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
           }),
         );
         if (isPropertyUpdate) {
-          yield put(generateAutoHeightLayoutTreeAction(true, false));
+          // yield put(generateAutoHeightLayoutTreeAction(true, false));
           yield call(openPropertyPaneSaga, replay);
         }
         if (!isPropertyUpdate) {

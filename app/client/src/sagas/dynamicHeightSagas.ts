@@ -43,11 +43,9 @@ import {
   getCanvasLevelMap,
 } from "selectors/widgetReflowSelectors";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-import {
-  computeChangeInPositionBasedOnDelta,
-  generateTree,
-  TreeNode,
-} from "utils/treeManipulationHelpers/dynamicHeightReflow";
+import { TreeNode } from "utils/autoHeight/constants";
+import { generateTree } from "utils/autoHeight/generateTree";
+import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
 import { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxDynamicHeight,
@@ -178,6 +176,11 @@ export function* updateWidgetDynamicHeightSaga() {
   // Initialise all the widgets we will be updating
   const widgetsToUpdate: UpdateWidgetsPayload = {};
 
+  // Get the tree data structure we will be using to compute updates
+  const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
+    getAutoHeightLayoutTree,
+  );
+
   // Initialise all expected updates
   const expectedUpdates: Array<{
     widgetId: string;
@@ -223,19 +226,24 @@ export function* updateWidgetDynamicHeightSaga() {
       }
 
       const expectedHeightInRows = Math.ceil(
-        newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
-          (widget.bottomRow - widget.topRow),
+        newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
+
+      const treeLayoutData = dynamicHeightLayoutTree[widget.widgetId];
+
+      const currentHeightInRows =
+        treeLayoutData.bottomRow - treeLayoutData.topRow;
 
       // Push the updates into the initialised array.
       expectedUpdates.push({
         widgetId,
         expectedHeightinPx: newHeightInPixels,
-        expectedChangeInHeightInRows: expectedHeightInRows,
-        currentTopRow: widget.topRow,
-        currentBottomRow: widget.bottomRow,
+        expectedChangeInHeightInRows:
+          expectedHeightInRows - currentHeightInRows,
+        currentTopRow: treeLayoutData.topRow,
+        currentBottomRow: treeLayoutData.bottomRow,
         expectedBottomRow: Math.ceil(
-          widget.topRow +
+          treeLayoutData.topRow +
             newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         ),
         parentId: widget.parentId,
@@ -302,11 +310,6 @@ export function* updateWidgetDynamicHeightSaga() {
         parentCanvasWidgetId,
       ]);
     }
-
-    // Get the tree data structure we will be using to compute updates
-    const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
-      getAutoHeightLayoutTree,
-    );
 
     // Initialise a list of changes so far.
     // This contains a map of widgetIds with their new topRow and bottomRow
@@ -637,7 +640,6 @@ export function* updateWidgetDynamicHeightSaga() {
     // as we don't need to trigger an eval
     yield put(updateMultipleWidgetProperties(widgetsToUpdate));
     dynamicHeightUpdateWidgets = {};
-    yield put(generateAutoHeightLayoutTreeAction(false, false));
   }
 
   log.debug(
