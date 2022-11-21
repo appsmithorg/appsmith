@@ -468,8 +468,7 @@ export function* updateWidgetDynamicHeightSaga() {
                 widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
                   {
                     propertyPath: "bottomRow",
-                    propertyValue:
-                      minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                    propertyValue: minHeightInRows,
                   },
                   {
                     propertyPath: "height",
