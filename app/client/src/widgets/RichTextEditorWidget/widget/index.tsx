@@ -9,6 +9,8 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 import showdown from "showdown";
 
 export enum RTEFormats {
@@ -384,6 +386,7 @@ class RichTextEditorWidget extends BaseWidget<
             )
           }
           isDisabled={this.props.isDisabled}
+          isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}
           isValid={this.props.isValid}

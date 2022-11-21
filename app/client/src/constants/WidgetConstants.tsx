@@ -34,13 +34,15 @@ export type RenderMode =
   | "COMPONENT_PANE"
   | "CANVAS"
   | "PAGE"
-  | "CANVAS_SELECTED";
+  | "CANVAS_SELECTED"
+  | "PREVIEW";
 
 export const RenderModes: { [id: string]: RenderMode } = {
   COMPONENT_PANE: "COMPONENT_PANE",
   CANVAS: "CANVAS",
   PAGE: "PAGE",
   CANVAS_SELECTED: "CANVAS_SELECTED",
+  PREVIEW: "PREVIEW",
 };
 
 export const CSSUnits: { [id: string]: CSSUnit } = {
@@ -82,6 +84,13 @@ export const GridDefaults = {
   VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET: 5,
   MAIN_CANVAS_EXTENSION_OFFSET: 8,
 };
+
+export const WidgetHeightLimits = {
+  MAX_HEIGHT_IN_ROWS: 9000,
+  MIN_HEIGHT_IN_ROWS: 4,
+};
+
+export const CANVAS_MIN_HEIGHT = 380;
 
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionally so it take cares of itself).
@@ -138,6 +147,7 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+  height: false,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {

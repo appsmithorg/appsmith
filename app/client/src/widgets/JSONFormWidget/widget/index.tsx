@@ -29,6 +29,12 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { GridDefaults } from "constants/WidgetConstants";
+import {
+  getWidgetMaxDynamicHeight,
+  getWidgetMinDynamicHeight,
+  isDynamicHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -92,6 +98,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
+  formRef = React.createRef<HTMLDivElement>();
 
   state = {
     resetObserverCallback: noop,
@@ -130,6 +137,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -143,6 +151,35 @@ class JSONFormWidget extends BaseWidget<
       this.state.metaInternalFieldState,
       schema,
     );
+    let height = this.formRef?.current?.scrollHeight || 0;
+
+    if (isDynamicHeightEnabledForWidget(this.props)) {
+      const maxDynamicHeight = getWidgetMaxDynamicHeight(this.props);
+      const minDynamicHeight = getWidgetMinDynamicHeight(this.props);
+      const footerHeight = 80; // TODO(abhinav): Get it from the component. Check with Ashit
+
+      if (
+        maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT <
+        height + footerHeight
+      ) {
+        height =
+          maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
+          footerHeight;
+      } else if (
+        minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT >
+        height + footerHeight
+      ) {
+        height =
+          minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
+          footerHeight;
+      }
+      const totalHeight = footerHeight + height;
+      const { componentHeight } = this.getComponentDimensions();
+
+      if (height && Math.abs(componentHeight - totalHeight) > 0) {
+        this.updateDynamicHeight(totalHeight);
+      }
+    }
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {
@@ -388,6 +425,7 @@ class JSONFormWidget extends BaseWidget<
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
+        ref={this.formRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}

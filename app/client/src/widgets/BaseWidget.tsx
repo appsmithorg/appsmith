@@ -5,10 +5,12 @@
  */
 import {
   CSSUnit,
+  GridDefaults,
   PositionType,
   RenderMode,
   RenderModes,
   WidgetType,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
 import { get, memoize } from "lodash";
@@ -33,9 +35,22 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import {
+  getWidgetMaxDynamicHeight,
+  getWidgetMinDynamicHeight,
+  isDynamicHeightEnabledForWidget,
+  isDynamicHeightWithLimitsEnabledForWidget,
+  shouldUpdateDynamicHeight,
+} from "./WidgetUtils";
+import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
+import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import { CSSProperties } from "styled-components";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { DynamicHeightContainerWrapper } from "./DynamicHeightContainerWrapper";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /***
  * BaseWidget
@@ -173,6 +188,29 @@ abstract class BaseWidget<
     const { resetChildrenMetaProperty } = this.context;
     if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
+
+  /*
+    This method calls the action to update widget height
+    We're not using `updateWidgetProperty`, because, the workflow differs
+    We will be computing properties of all widgets which are effected by
+    this change.
+    @param height number: Height of the widget's contents in pixels
+    @return void
+
+    TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
+    This is for performance. We don't want unnecessary code to run
+  */
+  updateDynamicHeight = (height: number): void => {
+    const shouldUpdate = shouldUpdateDynamicHeight(this.props, height);
+    const { updateWidgetAutoHeight } = this.context;
+    if (updateWidgetAutoHeight) {
+      const { widgetId } = this.props;
+
+      const paddedHeight = height + WIDGET_PADDING * 2;
+
+      shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
+    }
+  };
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -324,6 +362,45 @@ abstract class BaseWidget<
     );
   }
 
+  addDynamicHeightOverlay(content: ReactNode, style?: CSSProperties) {
+    const onBatchUpdate = (height: number, propertiesToUpdate?: string[]) => {
+      if (propertiesToUpdate === undefined) {
+        propertiesToUpdate = ["minDynamicHeight", "maxDynamicHeight"];
+      }
+      const modifyObj: Record<string, unknown> = {};
+      propertiesToUpdate.forEach((propertyName) => {
+        modifyObj[propertyName] = Math.floor(
+          height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+      });
+      this.batchUpdateWidgetProperty({
+        modify: modifyObj,
+        postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
+      });
+      AnalyticsUtil.logEvent("AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE", modifyObj);
+    };
+
+    const onMaxHeightSet = (height: number) =>
+      onBatchUpdate(height, ["maxDynamicHeight"]);
+
+    const onMinHeightSet = (height: number) =>
+      onBatchUpdate(height, ["minDynamicHeight"]);
+
+    return (
+      <>
+        <DynamicHeightOverlay
+          {...this.props}
+          batchUpdate={onBatchUpdate}
+          maxDynamicHeight={getWidgetMaxDynamicHeight(this.props)}
+          minDynamicHeight={getWidgetMinDynamicHeight(this.props)}
+          onMaxHeightSet={onMaxHeightSet}
+          onMinHeightSet={onMinHeightSet}
+          style={style}
+        />
+        {content}
+      </>
+    );
+  }
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -333,16 +410,28 @@ abstract class BaseWidget<
      * values are not present (which will not be during mount), the widget type is changed to
      * SKELETON_WIDGET.
      *
-     * Note: This is done to retain the old rendering flow without any breaking changes.
+     * Note:- This is done to retain the old rendering flow without any breaking changes.
      * This could be refactored into not changing the widget type but to have a boolean flag.
      */
     if (type === "SKELETON_WIDGET") {
       return <Skeleton />;
     }
 
-    return renderMode === RenderModes.CANVAS
-      ? this.getCanvasView()
-      : this.getPageView();
+    if (renderMode === RenderModes.CANVAS) {
+      return this.getCanvasView();
+    }
+    if (isDynamicHeightEnabledForWidget(this.props)) {
+      return (
+        <DynamicHeightContainerWrapper
+          onUpdateDynamicHeight={this.updateDynamicHeight}
+          widgetProps={this.props}
+        >
+          {this.getPageView()}
+        </DynamicHeightContainerWrapper>
+      );
+    }
+
+    return this.getPageView();
   };
 
   private getWidgetView(): ReactNode {
@@ -358,11 +447,16 @@ abstract class BaseWidget<
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
+          if (isDynamicHeightWithLimitsEnabledForWidget(this.props)) {
+            content = this.addDynamicHeightOverlay(content);
+          }
         }
+
         return content;
 
       // return this.getCanvasView();
       case RenderModes.PAGE:
+      case RenderModes.PREVIEW:
         content = this.getWidgetComponent();
         if (this.props.isVisible) {
           content = this.addErrorBoundary(content);
@@ -370,6 +464,11 @@ abstract class BaseWidget<
             content = this.makePositioned(content);
           }
           return content;
+        } else {
+          // When widgets are invisible in view mode, they should not take up space.
+          // We're sending an update that sets the widget to have zero height,
+          // this should make sure that widgets below this invisible widget move up
+          // this.updateDynamicHeight(0);
         }
         return null;
       default:
@@ -380,7 +479,17 @@ abstract class BaseWidget<
   abstract getPageView(): ReactNode;
 
   getCanvasView(): ReactNode {
-    const content = this.getPageView();
+    let content = this.getPageView();
+    if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
+      content = (
+        <DynamicHeightContainerWrapper
+          onUpdateDynamicHeight={(height) => this.updateDynamicHeight(height)}
+          widgetProps={this.props}
+        >
+          {content}
+        </DynamicHeightContainerWrapper>
+      );
+    }
     return this.addErrorBoundary(content);
   }
 
@@ -447,6 +556,7 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
+  height?: number;
 };
 
 export interface WidgetPositionProps extends WidgetRowCols {
@@ -477,6 +587,7 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+  height: false,
 };
 
 export const WIDGET_DISPLAY_PROPS = {

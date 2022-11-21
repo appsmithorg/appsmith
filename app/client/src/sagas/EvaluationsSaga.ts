@@ -99,6 +99,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
+import { dynamicallyUpdateContainersSaga } from "./dynamicHeightSagas";
 import { lintTreeSaga, lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,
@@ -134,7 +135,6 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree,
     widgetTypeConfigMap,
@@ -218,6 +218,8 @@ function* evaluateTreeSaga(
     );
 
     yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+  } else {
+    yield call(dynamicallyUpdateContainersSaga);
   }
 
   yield put(setDependencyMap(dependencies));

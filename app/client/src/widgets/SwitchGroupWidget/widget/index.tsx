@@ -1,6 +1,6 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { xor } from "lodash";
+import { isString, xor } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
@@ -12,6 +12,7 @@ import SwitchGroupComponent, { OptionProps } from "../component";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -427,6 +428,15 @@ class SwitchGroupWidget extends BaseWidget<
 
     const { componentHeight } = this.getComponentDimensions();
 
+    // TODO(abhinav): Not sure why we have to do this.
+    // Check with the App Viewers Pod
+    let _options = options;
+    if (isString(options)) {
+      try {
+        _options = JSON.parse(options as string);
+      } catch (e) {}
+    }
+
     return (
       <SwitchGroupComponent
         accentColor={accentColor}
@@ -435,6 +445,7 @@ class SwitchGroupWidget extends BaseWidget<
         disabled={isDisabled}
         height={componentHeight}
         inline={isInline}
+        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
@@ -443,7 +454,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelTextSize={labelTextSize}
         labelWidth={this.getLabelWidth()}
         onChange={this.handleSwitchStateChange}
-        options={options}
+        options={_options}
         required={isRequired}
         selected={selectedValues}
         valid={isValid}
