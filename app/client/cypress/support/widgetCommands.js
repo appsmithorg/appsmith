@@ -1306,9 +1306,8 @@ Cypress.Commands.add(
   "readTabledataPublish",
   (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGoOneLeveDeeper ? "div" : ""
-    }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGoOneLeveDeeper ? "div" : ""
+      }`;
     const tabVal = cy.get(selector).invoke("text");
     return tabVal;
   },
@@ -1323,9 +1322,8 @@ Cypress.Commands.add("readTableV2dataPublish", (rowNum, colNum) => {
 Cypress.Commands.add(
   "readTabledataValidateCSS",
   (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGotOneLeveDeeper ? "div" : ""
-    }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGotOneLeveDeeper ? "div" : ""
+      }`;
     cy.get(selector).should("have.css", cssProperty, cssValue);
   },
 );
@@ -1461,8 +1459,8 @@ Cypress.Commands.add(
     if (toChange) {
       cy.xpath(
         "//p[text()='" +
-          ddTitle +
-          "']/parent::label/following-sibling::div/div/div",
+        ddTitle +
+        "']/parent::label/following-sibling::div/div/div",
       ).click(); //to expand the dropdown
       cy.xpath('//span[contains(text(),"' + newValue + '")]')
         .last()
@@ -1580,4 +1578,65 @@ Cypress.Commands.add("moveToContentTab", () => {
   cy.get(commonlocators.propertyContent)
     .first()
     .click({ force: true });
+});
+
+Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .eq(index)
+    .scrollIntoView()
+    .trigger("mouseover", { force: true })
+    .wait(500);
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
+    .eq(index)
+    .scrollIntoView()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("changeLayoutHeight", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(locator)
+    .click({ force: true });
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(locator)
+    .click({ force: true });
+});
+
+Cypress.Commands.add("checkMinDefaultValue", (endp, value) => {
+  cy.get(".cm-m-null")
+    .first()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      cy.log(someText);
+      expect(someText).to.equal(value);
+    });
+});
+
+Cypress.Commands.add("checkMaxDefaultValue", (endp, value) => {
+  cy.get(".cm-m-null")
+    .last()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      cy.log(someText);
+      expect(someText).to.equal(value);
+    });
 });
