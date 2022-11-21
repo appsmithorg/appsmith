@@ -6,7 +6,6 @@ import {
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import { isEqual } from "lodash";
 
 export enum InstallState {
   Queued,
