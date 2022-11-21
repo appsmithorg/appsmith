@@ -19,20 +19,26 @@ export default {
     const selectedItem = { ...items[selectedRowIndex] };
     return selectedItem;
   },
-  // this is just a patch for #7520
+  //
   getChildAutoComplete: (props, moment, _) => {
-    const data = [...props.listData];
+    const currentItem = props.listData?.[0] ?? {};
+    const currentRow = props.currentViewItems?.[0];
 
-    const structure =
-      Array.isArray(data) && data.length > 0
-        ? Object.assign(
-            {},
-            ...Object.keys(data[0]).map((key) => ({
-              [key]: "",
-            })),
-          )
-        : {};
-    return { currentItem: structure, currentIndex: "" };
+    const autocomplete = { currentItem, currentIndex: 0, currentRow };
+
+    if (props.levelData) {
+      const levels = Object.keys(props.levelData);
+
+      levels.forEach((level) => {
+        autocomplete[level] = {
+          currentIndex: 0,
+          currentItem: props.levelData[level].autocomplete.currentItem,
+          currentRow: props.levelData[level].autocomplete.currentRow,
+        };
+      });
+    }
+
+    return autocomplete;
   },
   //
 };

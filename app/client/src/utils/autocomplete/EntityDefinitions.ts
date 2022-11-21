@@ -431,7 +431,7 @@ export const entityDefinitions = {
     listData: generateTypeDef(widget.listData, extraDefsToDefine),
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
-    currentViewRows: generateTypeDef(widget.currentViewRows),
+    currentViewRows: generateTypeDef(widget.currentViewRows, extraDefsToDefine),
     selectedRowIndex: "number",
     triggeredRowIndex: "number",
   }),
