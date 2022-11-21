@@ -45,10 +45,7 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -208,10 +205,10 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateDatasourceActions = isPermitted(
-    [...datasourcePermissions, ...pagePermissions],
-    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTIONS],
-  );
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 

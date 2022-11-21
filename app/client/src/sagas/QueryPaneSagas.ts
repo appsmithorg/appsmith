@@ -70,10 +70,7 @@ import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { validateResponse } from "./ErrorSagas";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -166,7 +163,7 @@ function* formValueChangeSaga(
     const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
     const hasRouteChanged = field === "id";
 
-    if (!isPermitted(values.userPermissions, PERMISSION_TYPE.MANAGE_ACTIONS)) {
+    if (!hasManageActionPermission(values.userPermissions)) {
       yield validateResponse({
         status: 403,
         resourceType: values?.pluginType,

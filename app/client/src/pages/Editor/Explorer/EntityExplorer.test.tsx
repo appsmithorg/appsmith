@@ -14,12 +14,21 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import * as permissionUtils from "@appsmith/utils/permissionHelpers";
+import userEvent from "@testing-library/user-event";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
 pushState.mockImplementation((state: any, title: any, url: any) => {
   window.document.title = title;
   window.location.pathname = url;
+});
+
+jest.mock("@appsmith/utils/permissionHelpers", () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual("@appsmith/utils/permissionHelpers"),
+  };
 });
 
 describe("Entity Explorer tests", () => {
@@ -41,19 +50,12 @@ describe("Entity Explorer tests", () => {
 
   it("checks datasources section in explorer", () => {
     store.dispatch({
-      type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
-      payload: {
-        userPermissions: [
-          "create:datasources",
-          "manage:datasources",
-          "delete:datasources",
-        ],
-      },
-    });
-    store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
     });
+    jest
+      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .mockReturnValue(true);
     store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
@@ -62,20 +64,50 @@ describe("Entity Explorer tests", () => {
   });
   it("should hide create datasources section in explorer if the user don't have valid permissions", () => {
     store.dispatch({
-      type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
-      payload: {
-        userPermissions: ["manage:datasources", "delete:datasources"],
-      },
-    });
-    store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
     });
+    jest
+      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .mockReturnValue(false);
     store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
       4,
     );
+    const addDatasourceEntity = document.getElementById(
+      "entity-add_new_datasource",
+    );
+    expect(addDatasourceEntity).toBeNull();
+  });
+  it("should hide delete & edit of datasource if the user don't have valid permissions", async () => {
+    store.dispatch({
+      type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      payload: mockDatasources,
+    });
+    jest
+      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .mockReturnValue(true);
+    jest
+      .spyOn(permissionUtils, "hasManageDatasourcePermission")
+      .mockReturnValue(false);
+    jest
+      .spyOn(permissionUtils, "hasDeleteDatasourcePermission")
+      .mockReturnValue(false);
+    store.dispatch(updateCurrentPage("pageId"));
+    const { container } = render(<Datasources />);
+    const target = container.getElementsByClassName("t--context-menu");
+    await userEvent.click(target[2]);
+    const deleteOption = document.getElementsByClassName(
+      "t--datasource-delete",
+    );
+    const editOption = document.getElementsByClassName("t--datasource-rename");
+    const refreshOption = document.getElementsByClassName(
+      "t--datasource-refresh",
+    );
+    expect(deleteOption.length).toBe(0);
+    expect(editOption.length).toBe(0);
+    expect(refreshOption.length).toBe(1);
   });
   it("Should render Widgets tree in entity explorer", () => {
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
@@ -276,4 +308,25 @@ describe("Entity Explorer tests", () => {
     expect(highlighted.length).toBe(1);
     expect(active.length).toBe(1);
   });
+  // it("checks queries/js sections in explorer", async () => {
+  //   store.dispatch({
+  //     type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+  //     payload: mockApiDatas,
+  //   });
+  //   store.dispatch({
+  //     type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+  //     payload: mockJsActions,
+  //   });
+  //   jest
+  //     .spyOn(entitiesSelectors, "selectFilesForExplorer")
+  //     .mockImplementation(mockEntitiesFilesSelector);
+  //   jest
+  //     .spyOn(permissionUtils, "hasCreateActionPermission")
+  //     .mockReturnValue(true);
+  //   store.dispatch(updateCurrentPage("pageId"));
+  //   const { container, debug } = render(<Files />);
+  //   const entities = container.getElementsByClassName("t--entity-item");
+  //   debug(entities[2]);
+  //   expect(container.getElementsByClassName("t--entity").length).toBe(5);
+  // });
 });

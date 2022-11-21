@@ -10,10 +10,7 @@ import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
 
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 
 const ConnectedText = styled.div`
@@ -58,15 +55,15 @@ function Connected() {
 
   const datasourcePermissions = datasource?.userPermissions || [];
 
-  const currentFormConfig: Array<any> =
-    datasourceFormConfigs[datasource?.pluginId ?? ""];
-
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateDatasourceActions = isPermitted(
-    [...datasourcePermissions, ...pagePermissions],
-    [PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS, PERMISSION_TYPE.CREATE_ACTIONS],
-  );
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
+
+  const currentFormConfig: Array<any> =
+    datasourceFormConfigs[datasource?.pluginId ?? ""];
 
   return (
     <Wrapper>

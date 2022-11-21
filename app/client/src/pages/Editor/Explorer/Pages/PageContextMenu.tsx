@@ -25,8 +25,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasDeletePagePermission,
+  hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
 
@@ -100,15 +100,9 @@ export function PageContextMenu(props: {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canManagePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGES,
-  );
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
-  const canDeletePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.DELETE_PAGES,
-  );
+  const canDeletePages = hasDeletePagePermission(pagePermissions);
 
   const optionsTree = [
     canManagePages && {
@@ -153,7 +147,7 @@ export function PageContextMenu(props: {
       },
   ].filter(Boolean);
 
-  return (
+  return optionsTree?.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
@@ -164,7 +158,7 @@ export function PageContextMenu(props: {
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 export default PageContextMenu;

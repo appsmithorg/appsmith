@@ -31,10 +31,7 @@ import {
 } from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -88,10 +85,7 @@ export default function ExplorerSubMenu({
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.CREATE_ACTIONS,
-  );
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
 
   useEffect(() => {
     setQuery("");

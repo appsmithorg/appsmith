@@ -50,8 +50,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import {
-  isPermitted,
-  PERMISSION_TYPE,
+  hasCreatePagePermission,
+  hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
 
@@ -194,15 +194,9 @@ function Pages() {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreatePages = isPermitted(
-    userAppPermissions,
-    PERMISSION_TYPE.CREATE_PAGES,
-  );
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
-  const canManagePages = isPermitted(
-    pagePermissions,
-    PERMISSION_TYPE.MANAGE_PAGES,
-  );
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
   const pageElements = useMemo(
     () =>
