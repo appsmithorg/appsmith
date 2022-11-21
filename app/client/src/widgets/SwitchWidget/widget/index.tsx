@@ -38,6 +38,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Right", value: LabelPosition.Right },
             ],
+            defaultValue: LabelPosition.Left,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

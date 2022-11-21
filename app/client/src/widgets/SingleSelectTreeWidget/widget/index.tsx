@@ -154,6 +154,7 @@ class SingleSelectTreeWidget extends BaseWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

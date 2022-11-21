@@ -214,6 +214,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               { label: "Top", value: LabelPosition.Top },
               { label: "Auto", value: LabelPosition.Auto },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
