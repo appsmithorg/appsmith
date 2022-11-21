@@ -11,11 +11,7 @@ import {
   createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
 } from "@appsmith/constants/messages";
-import {
-  hasCreateDatasourcePermission,
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const QueryHomePage = styled.div`
