@@ -253,7 +253,14 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     });
 
     return (
-      <StyledAutoHeightOverlay isHidden={isHidden} style={style ?? styles}>
+      <StyledAutoHeightOverlay
+        isHidden={isHidden}
+        onClick={(e) => {
+          // avoid DropTarget handleFocus
+          e.stopPropagation();
+        }}
+        style={style ?? styles}
+      >
         <AutoHeightLimitOverlayDisplay
           data-cy="t--auto-height-overlay-min"
           height={finalMinY}
