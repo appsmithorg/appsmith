@@ -15,7 +15,7 @@ import {
   fetchWorkspace,
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
-} from "actions/workspaceActions";
+} from "@appsmith/actions/workspaceActions";
 import {
   Classes as AppClass,
   Dropdown,
@@ -28,13 +28,13 @@ import {
   TextType,
 } from "design-system";
 import styled from "styled-components";
-import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
-import { WorkspaceUser } from "constants/workspaceConstants";
+import { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   MEMBERS_TAB_TITLE,
@@ -47,7 +47,7 @@ export type PageProps = RouteComponentProps<{
   searchValue?: string;
 };
 
-const MembersWrapper = styled.div<{
+export const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
   ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
@@ -125,7 +125,7 @@ const MembersWrapper = styled.div<{
   }
 `;
 
-const UserCardContainer = styled.div`
+export const UserCardContainer = styled.div`
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -134,7 +134,7 @@ const UserCardContainer = styled.div`
   margin: auto;
 `;
 
-const UserCard = styled(Card)`
+export const UserCard = styled(Card)`
   display: flex;
   flex-direction: column;
   box-shadow: none;
@@ -194,7 +194,7 @@ const UserCard = styled(Card)`
   }
 `;
 
-const EachUser = styled.div`
+export const EachUser = styled.div`
   display: flex;
   align-items: center;
 
@@ -208,13 +208,13 @@ const EachUser = styled.div`
   }
 `;
 
-const DeleteIcon = styled(Icon)`
+export const DeleteIcon = styled(Icon)`
   position: absolute;
   top: ${(props) => props.theme.spaces[9]}px;
   right: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const NoResultsText = styled.div`
+export const NoResultsText = styled.div`
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
@@ -335,29 +335,17 @@ export default function MemberSettings(props: PageProps) {
       accessor: "users",
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;
-        const isUserGroup = member.hasOwnProperty("users");
         return (
           <EachUser>
-            {isUserGroup ? (
-              <>
-                <Icon
-                  className="user-icons"
-                  name="group-line"
-                  size={IconSize.XXL}
-                />
-                <HighlightText highlight={searchValue} text={member.name} />
-              </>
-            ) : (
-              <>
-                <ProfileImage
-                  className="user-icons"
-                  size={20}
-                  source={`/api/v1/users/photo/${member.username}`}
-                  userName={member.username}
-                />
-                <HighlightText highlight={searchValue} text={member.username} />
-              </>
-            )}
+            <>
+              <ProfileImage
+                className="user-icons"
+                size={20}
+                source={`/api/v1/users/photo/${member.username}`}
+                userName={member.username}
+              />
+              <HighlightText highlight={searchValue} text={member.username} />
+            </>
           </EachUser>
         );
       },
@@ -469,38 +457,23 @@ export default function MemberSettings(props: PageProps) {
                   (role: any) => role.value === member.permissionGroupName,
                 ) || roles[0];
               const isOwner = member.username === currentUser?.username;
-              const isUserGroup = member.hasOwnProperty("users");
               return (
                 <UserCard key={index}>
-                  {isUserGroup ? (
-                    <>
-                      <Icon
-                        className="user-icons"
-                        name="group-line"
-                        size={IconSize.XXL}
-                      />
-                      <HighlightText
-                        highlight={searchValue}
-                        text={member.name}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <ProfileImage
-                        className="avatar"
-                        size={71}
-                        source={`/api/${USER_PHOTO_URL}/${member.username}`}
-                        userName={member.username}
-                      />
-                      <HighlightText
-                        highlight={searchValue}
-                        text={member.username}
-                      />
-                      <Text className="user-email" type={TextType.P1}>
-                        {member.username}
-                      </Text>
-                    </>
-                  )}
+                  <>
+                    <ProfileImage
+                      className="avatar"
+                      size={71}
+                      source={`/api/${USER_PHOTO_URL}/${member.username}`}
+                      userName={member.username}
+                    />
+                    <HighlightText
+                      highlight={searchValue}
+                      text={member.username}
+                    />
+                    <Text className="user-email" type={TextType.P1}>
+                      {member.username}
+                    </Text>
+                  </>
                   {isOwner && (
                     <Text className="user-role" type={TextType.P1}>
                       {member.permissionGroupName}
