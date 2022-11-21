@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -29,6 +30,14 @@ public class DBAuth extends AuthenticationDTO {
     @Encrypted
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     String password;
+
+    @JsonProperty
+    public boolean isPasswordExists() {
+        if (StringUtils.hasLength(password)) {
+            return true;
+        }
+        return false;
+    }
 
     String databaseName;
 }
