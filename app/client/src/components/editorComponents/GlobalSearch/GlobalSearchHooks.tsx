@@ -76,17 +76,17 @@ export const useFilteredFileOperations = (query = "") => {
       ds.name.toLowerCase().includes(query.toLowerCase()),
     );
 
-    const showCreateQuery = [
-      ...filteredAppWideDS,
-      ...otherFilteredDS,
-    ].some((ds: Datasource) =>
-      hasCreateDatasourceActionPermission([
-        ...(ds.userPermissions ?? []),
-        ...pagePermissions,
-      ]),
-    );
-
     if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
+      const showCreateQuery = [
+        ...filteredAppWideDS,
+        ...otherFilteredDS,
+      ].some((ds: Datasource) =>
+        hasCreateDatasourceActionPermission([
+          ...(ds.userPermissions ?? []),
+          ...pagePermissions,
+        ]),
+      );
+
       fileOperations = [
         ...fileOperations,
         showCreateQuery && {
