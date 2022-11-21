@@ -4,7 +4,7 @@ import {
   getWidgetMinDynamicHeight,
 } from "./WidgetUtils";
 import DynamicHeightContainer from "./DynamicHeightContainer";
-import React, { ReactNode, useEffect } from "react";
+import React, { ReactNode } from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
 import { GridDefaults } from "constants/WidgetConstants";
 
@@ -43,6 +43,7 @@ export function DynamicHeightContainerWrapper(
       minDynamicHeight={minDynamicHeight}
       onHeightUpdate={onHeightUpdate}
       widgetHeightInPixels={widgetHeightInPixels}
+      widgetProps={widgetProps}
     >
       {children}
     </DynamicHeightContainer>

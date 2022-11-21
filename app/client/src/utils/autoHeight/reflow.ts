@@ -174,7 +174,6 @@ export function computeChangeInPositionBasedOnDelta(
         // Test this.
         // Let's take in to account the old spacing between the effected box and bottom most above box
         // when the layout was last updated.
-
         const negativeOffset = getNegativeOffset(tree, effectedBoxId, aboveId);
         _offset = negativeOffset;
       }

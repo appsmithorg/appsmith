@@ -43,7 +43,6 @@ import {
   shouldUpdateDynamicHeight,
 } from "./WidgetUtils";
 import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
-import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
