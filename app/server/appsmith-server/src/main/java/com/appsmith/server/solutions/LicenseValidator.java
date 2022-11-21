@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +46,7 @@ public class LicenseValidator {
         }
 
         Boolean isValid = configService.getInstanceId()
-                .flatMap(instanceId -> WebClient.create(
+                .flatMap(instanceId -> WebClientUtils.create(
                                     cloudServicesConfig.getBaseUrl() + "/api/v1/license/check"
                             )
                             .post()
