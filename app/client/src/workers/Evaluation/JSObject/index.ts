@@ -4,7 +4,7 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import evaluateSync, { isFunctionAsync } from "workers/Evaluation/evaluate";
+import { isFunctionAsync } from "workers/Evaluation/evaluate";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -71,7 +71,6 @@ export function saveResolvedFunctionsAndJSUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
   entity: DataTreeJSAction,
   jsUpdates: Record<string, JSUpdate>,
-  unEvalDataTree: DataTree,
   entityName: string,
 ) {
   const correctFormat = regex.test(entity.body);
@@ -217,7 +216,6 @@ export function parseJSActions(
           dataTreeEvalRef,
           entity,
           jsUpdates,
-          unEvalDataTree,
           entityName,
         );
       }
@@ -232,7 +230,6 @@ export function parseJSActions(
         dataTreeEvalRef,
         entity,
         jsUpdates,
-        unEvalDataTree,
         entityName,
       );
     });
