@@ -24,6 +24,7 @@ import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "pages/Editor/AppSettingsPane";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { appendSelectedWidgetToUrl } from "actions/widgetSelectionActions";
+import { quickScrollToWidget } from "utils/helpers";
 
 type Props = {
   width: number;
@@ -83,6 +84,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     if (!isSnipingMode) {
       //update url hash with the selectedWidget
       dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
+      if (selectedWidgetIds.length === 1) {
+        quickScrollToWidget(selectedWidgetIds[0]);
+      }
     }
   }, [selectedWidgetIds]);
 

@@ -56,7 +56,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system";
 import { APP_MODE } from "entities/App";
-import { Workspace, Workspaces } from "constants/workspaceConstants";
+import { Workspace, Workspaces } from "@appsmith/constants/workspaceConstants";
 import { AppIconName } from "design-system";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
@@ -618,6 +618,12 @@ export function* forkApplicationSaga(
         payload: {
           workspaceId: action.payload.workspaceId,
           application,
+        },
+      });
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
+        payload: {
+          id: action.payload.workspaceId,
         },
       });
       const pageURL = builderURL({
