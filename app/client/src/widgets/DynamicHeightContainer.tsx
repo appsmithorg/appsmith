@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
@@ -14,6 +14,7 @@ interface DynamicHeightContainerProps {
   minDynamicHeight: number;
   dynamicHeight: string;
   onHeightUpdate: (height: number) => void;
+  widgetHeightInPixels: number;
 }
 
 export default function DynamicHeightContainer({
@@ -22,18 +23,19 @@ export default function DynamicHeightContainer({
   maxDynamicHeight,
   minDynamicHeight,
   onHeightUpdate,
+  widgetHeightInPixels,
 }: PropsWithChildren<DynamicHeightContainerProps>) {
   const isAutoHeightWithLimits =
     dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
 
-  const [expectedHeight, setExpectedHeight] = useState(0);
+  const expectedHeight = useRef(0);
 
   const ref = useRef<HTMLDivElement>(null);
 
   const observer = React.useRef(
     new ResizeObserver((entries) => {
       const height = entries[0].contentRect.height;
-      setExpectedHeight(height);
+      expectedHeight.current = height;
       onHeightUpdate(height);
     }),
   );
@@ -51,12 +53,25 @@ export default function DynamicHeightContainer({
   }, [observer]);
 
   useEffect(() => {
-    onHeightUpdate(expectedHeight);
+    onHeightUpdate(expectedHeight.current);
   }, [minDynamicHeight, maxDynamicHeight]);
+
+  useEffect(() => {
+    if (
+      widgetHeightInPixels !==
+      Math.ceil(
+        (expectedHeight.current + WIDGET_PADDING * 2) /
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      ) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+    ) {
+      onHeightUpdate(expectedHeight.current);
+    }
+  }, [widgetHeightInPixels]);
 
   if (isAutoHeightWithLimits) {
     const expectedHeightInRows = Math.ceil(
-      expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      expectedHeight.current / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
     return (

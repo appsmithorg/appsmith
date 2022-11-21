@@ -124,7 +124,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     if (
       !widgetProps.isVisible &&
-      (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW)
+      (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW) &&
+      widgetProps.bottomRow !== widgetProps.topRow
     ) {
       dispatch({
         type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
@@ -133,7 +134,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           height: 0,
         },
       });
-      return null;
     } else if (
       (!widgetProps.isVisible &&
         renderMode !== RenderModes.PAGE &&

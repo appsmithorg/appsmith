@@ -4,8 +4,9 @@ import {
   getWidgetMinDynamicHeight,
 } from "./WidgetUtils";
 import DynamicHeightContainer from "./DynamicHeightContainer";
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect } from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export type DynamicHeightWrapperProps = {
   widgetProps: WidgetProps;
@@ -22,6 +23,7 @@ export function DynamicHeightContainerWrapper(
   if (isCanvas) return <>{children}</>;
 
   const onHeightUpdate = (height: number) => {
+    if (height === 0) return;
     requestAnimationFrame(() => {
       props.onUpdateDynamicHeight(height);
     });
@@ -30,12 +32,17 @@ export function DynamicHeightContainerWrapper(
   const maxDynamicHeight = getWidgetMaxDynamicHeight(widgetProps);
   const minDynamicHeight = getWidgetMinDynamicHeight(widgetProps);
 
+  const widgetHeightInPixels =
+    (widgetProps.bottomRow - widgetProps.topRow) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
   return (
     <DynamicHeightContainer
       dynamicHeight={widgetProps.dynamicHeight}
       maxDynamicHeight={maxDynamicHeight}
       minDynamicHeight={minDynamicHeight}
       onHeightUpdate={onHeightUpdate}
+      widgetHeightInPixels={widgetHeightInPixels}
     >
       {children}
     </DynamicHeightContainer>
