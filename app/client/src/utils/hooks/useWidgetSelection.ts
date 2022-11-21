@@ -13,6 +13,7 @@ export const useWidgetSelection = () => {
   return {
     selectWidget: useCallback(
       (widgetId?: string, isMultiSelect?: boolean) => {
+        debugger;
         dispatch(selectWidgetInitAction(widgetId, isMultiSelect));
       },
       [dispatch],

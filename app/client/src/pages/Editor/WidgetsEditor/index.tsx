@@ -56,20 +56,6 @@ function WidgetsEditor() {
     }
   }, [currentPageName, currentPageId]);
 
-  // navigate to widget
-  useEffect(() => {
-    if (
-      !isFetchingPage &&
-      window.location.hash.length > 0 &&
-      !guidedTourEnabled
-    ) {
-      const widgetIdFromURLHash = window.location.hash.slice(1);
-      quickScrollToWidget(widgetIdFromURLHash);
-      if (document.getElementById(widgetIdFromURLHash))
-        selectWidget(widgetIdFromURLHash);
-    }
-  }, [isFetchingPage, selectWidget, guidedTourEnabled]);
-
   const allowDragToSelect = useAllowEditorDragToSelect();
 
   const handleWrapperClick = useCallback(() => {
