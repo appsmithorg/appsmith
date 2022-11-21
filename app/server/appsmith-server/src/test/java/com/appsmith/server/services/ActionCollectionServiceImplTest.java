@@ -503,6 +503,9 @@ public class ActionCollectionServiceImplTest {
                         .findById(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(newPage));
 
+        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+                .thenReturn(Mono.just(modifiedActionCollection));
+
         Mockito
                 .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
