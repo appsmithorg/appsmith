@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { OVERLAY_COLOR } from "../constants";
 
 interface AutoHeightLimitHandleDotProps {
-  isActive: boolean;
   isDragging: boolean;
 }
 
