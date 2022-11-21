@@ -18,7 +18,7 @@ import {
   DataTreeJSAction,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
-import _, { get, isEqual, set } from "lodash";
+import _, { find, get, isEqual, set } from "lodash";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -698,6 +698,33 @@ export const getAllPrivateWidgetsInDataTree = (
   return privateWidgets;
 };
 
+export const widgetPathsNotToOverride = (
+  isNewWidget: boolean,
+  entity: DataTreeWidget,
+  propertyPath: string,
+) => {
+  let pathsNotToOverride: string[] = [];
+  const overridingPropertyPaths = entity.overridingPropertyPaths[propertyPath];
+  if (
+    isNewWidget &&
+    !isEqual(entity.meta, WidgetFactory.getWidgetMetaPropertiesMap(entity.type))
+  ) {
+    const metaPaths = overridingPropertyPaths.filter(
+      (path) => path.split(".")[0] === "meta",
+    );
+    pathsNotToOverride = [...metaPaths];
+    metaPaths.forEach((path) => {
+      if (entity.overridingPropertyPaths.hasOwnProperty(path)) {
+        pathsNotToOverride = [
+          ...pathsNotToOverride,
+          ...entity.overridingPropertyPaths[path],
+        ];
+      }
+    });
+  }
+  return pathsNotToOverride;
+};
+
 export const getDataTreeWithoutPrivateWidgets = (
   dataTree: DataTree,
 ): DataTree => {
@@ -727,13 +754,13 @@ export const overrideWidgetProperties = (params: {
   value: unknown;
   currentTree: DataTree;
   evalMetaUpdates: EvalMetaUpdates;
-  isNew: boolean;
+  isNewWidget: boolean;
 }) => {
   const {
     currentTree,
     entity,
     evalMetaUpdates,
-    isNew,
+    isNewWidget,
     propertyPath,
     value,
   } = params;
@@ -741,34 +768,14 @@ export const overrideWidgetProperties = (params: {
   if (propertyPath in entity.overridingPropertyPaths) {
     const overridingPropertyPaths =
       entity.overridingPropertyPaths[propertyPath];
-    let pathsToNotOverride: string[] = [];
-
-    // if it's a newly added widget and its meta is not the default, then don't override meta and corresponding fields
-    if (
-      isNew &&
-      !isEqual(
-        entity.meta,
-        WidgetFactory.getWidgetMetaPropertiesMap(entity.type),
-      )
-    ) {
-      const validOverridingPropertyPaths = [...overridingPropertyPaths];
-      const metaPaths = validOverridingPropertyPaths.filter(
-        (path) => path.split(".")[0] === "meta",
-      );
-      pathsToNotOverride = [...metaPaths];
-      metaPaths.forEach((path) => {
-        if (entity.overridingPropertyPaths.hasOwnProperty(path)) {
-          pathsToNotOverride = [
-            ...pathsToNotOverride,
-            ...entity.overridingPropertyPaths[path],
-          ];
-        }
-      });
-    }
-
+    const pathsNotToOverride = widgetPathsNotToOverride(
+      isNewWidget,
+      entity,
+      propertyPath,
+    );
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
-      if (pathsToNotOverride.includes(overriddenPropertyPath)) return;
+      if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
       _.set(
         currentTree,
         [entity.widgetName, ...overriddenPropertyPathArray],
@@ -827,4 +834,11 @@ export const isATriggerPath = (
   propertyPath: string,
 ) => {
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
+};
+
+export const isNewEntity = (updates: DataTreeDiff[], entityName: string) => {
+  return !!find(updates, {
+    event: DataTreeDiffEvent.NEW,
+    payload: { propertyPath: entityName },
+  });
 };
