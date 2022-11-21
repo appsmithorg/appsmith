@@ -460,9 +460,6 @@ export function* updateWidgetDynamicHeightSaga() {
                 parentId: parentContainerLikeWidget.parentId,
               };
 
-              console.log("Dynamic Height: parentcontainer widget:", {
-                expectedUpdate,
-              });
               // If this widget is actually removed from the layout
               // For example, if this is a ModalWidget
               // We need to make sure that we change properties other than bottomRow and topRow
@@ -814,10 +811,6 @@ export function* dynamicallyUpdateContainersSaga() {
             maxBottomRow = originalBottomRow - originalTopRow;
           }
 
-          console.log("Dynamic Height: Container computations:", {
-            maxBottomRow,
-            parentContainerWidget,
-          });
           // Get the boundaries for possible min and max dynamic height.
           const minDynamicHeightInRows = getWidgetMinDynamicHeight(
             parentContainerWidget,
