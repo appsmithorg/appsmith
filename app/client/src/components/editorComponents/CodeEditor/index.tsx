@@ -52,11 +52,15 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
+import {
+  bindingMarker,
+  entityMarker,
+  NAVIGATE_TO_ATTRIBUTE,
+} from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { ScrollIndicator } from "design-system";
+import { Button, ScrollIndicator, Toaster } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -67,16 +71,15 @@ import {
   getEvalValuePath,
 } from "utils/DynamicBindingUtils";
 import {
+  addEventToHighlightedElement,
   getInputValue,
   isActionEntity,
   isWidgetEntity,
-  removeNewLineChars,
-  addEventToHighlightedElement,
   removeEventFromHighlightedElement,
+  removeNewLineChars,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
-import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
@@ -89,13 +92,13 @@ import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
-  LintTooltipDirection,
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
+  LintTooltipDirection,
 } from "./constants";
 import {
-  getAutoIndentShortcutKey,
   autoIndentCode,
+  getAutoIndentShortcutKey,
 } from "./utils/autoIndentUtils";
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
@@ -111,6 +114,12 @@ import {
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
+import {
+  EntityNavigationData,
+  getEntitiesForNavigation,
+} from "selectors/navigationSelectors";
+import history from "utils/history";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -216,7 +225,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker],
+    marking: [bindingMarker, entityMarker],
     hinting: [bindingHint, commandsHelper],
   };
   // this is the higlighted element for any highlighted text in the codemirror
@@ -263,6 +272,15 @@ class CodeEditor extends Component<Props, State> {
           lintOnChange: false,
         },
         tabindex: -1,
+        // Used to disable multiple cursors on the editor
+        // when command/ctrl click is done
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        configureMouse: () => {
+          return {
+            addNew: false,
+          };
+        },
       };
 
       const gutters = new Set<string>();
@@ -334,6 +352,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
+        editor.on("mousedown", this.handleClick);
 
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
@@ -341,7 +360,11 @@ class CodeEditor extends Component<Props, State> {
           editor.setSize("100%", "100%");
         }
 
-        CodeEditor.updateMarkings(editor, this.props.marking);
+        CodeEditor.updateMarkings(
+          editor,
+          this.props.marking,
+          this.props.entitiesForNavigation,
+        );
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
@@ -437,7 +460,11 @@ class CodeEditor extends Component<Props, State> {
         // handles case when inputValue changes from a truthy to a falsy value
         this.editor.setValue("");
       }
-      CodeEditor.updateMarkings(this.editor, this.props.marking);
+      CodeEditor.updateMarkings(
+        this.editor,
+        this.props.marking,
+        this.props.entitiesForNavigation,
+      );
     });
   }
 
@@ -539,6 +566,37 @@ class CodeEditor extends Component<Props, State> {
       return helper(editor, dynamicData);
     });
   }
+
+  handleClick = (cm: CodeMirror.Editor, event: MouseEvent) => {
+    // Event targets are html elements that have node methods
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (event.target.hasAttribute(NAVIGATE_TO_ATTRIBUTE)) {
+      if (event.ctrlKey || event.metaKey) {
+        // Event targets are html elements that have node methods
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const entityToNavigate = event.target.attributes.getNamedItem(
+          NAVIGATE_TO_ATTRIBUTE,
+        ).value;
+
+        const navigationData = this.props.entitiesForNavigation[
+          entityToNavigate
+        ];
+        history.push(navigationData.url, { directNavigation: true });
+
+        // TODO fix the widget navigation issue to remove this
+        if (navigationData.type === ENTITY_TYPE.WIDGET) {
+          this.props.selectWidget(navigationData.id);
+        }
+      } else {
+        Toaster.show({
+          type: "info",
+          text: "Click while pressing cmd/ctrl key to navigate",
+        });
+      }
+    }
+  };
 
   handleCustomGutter = (lineNumber: number | null, isFocused = false) => {
     const { customGutter } = this.props;
@@ -688,7 +746,11 @@ class CodeEditor extends Component<Props, State> {
       this.props.input.onChange(value);
     }
     if (this.editor) {
-      CodeEditor.updateMarkings(this.editor, this.props.marking);
+      CodeEditor.updateMarkings(
+        this.editor,
+        this.props.marking,
+        this.props.entitiesForNavigation,
+      );
     }
   };
 
@@ -833,8 +895,9 @@ class CodeEditor extends Component<Props, State> {
   static updateMarkings = (
     editor: CodeMirror.Editor,
     marking: Array<MarkHelper>,
+    entityNavigationData: EntityNavigationData,
   ) => {
-    marking.forEach((helper) => helper(editor));
+    marking.forEach((helper) => helper(editor, entityNavigationData));
   };
 
   updatePropertyValue(value: string, cursor?: number) {
@@ -1054,6 +1117,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     getEditorIdentifier(props),
   ),
+  entitiesForNavigation: getEntitiesForNavigation(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1062,6 +1126,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(generateKeyAndSetCodeEditorLastFocus(payload)),
+  selectWidget: (widgetId: string) =>
+    dispatch(selectWidgetInitAction(widgetId, false)),
 });
 
 export default Sentry.withProfiler(

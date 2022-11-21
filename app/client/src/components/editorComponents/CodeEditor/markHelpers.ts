@@ -39,3 +39,33 @@ export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
     }
   });
 };
+
+export const NAVIGATE_TO_ATTRIBUTE = "data-navigate-to";
+
+export const entityMarker: MarkHelper = (
+  editor: CodeMirror.Editor,
+  entityNavigationData,
+) => {
+  editor.eachLine((line: CodeMirror.LineHandle) => {
+    const lineNo = editor.getLineNumber(line) || 0;
+    const tokens = editor.getLineTokens(lineNo);
+    tokens.forEach((token) => {
+      if (token.string in entityNavigationData) {
+        const data = entityNavigationData[token.string];
+        editor.markText(
+          { ch: token.start, line: lineNo },
+          { ch: token.end, line: lineNo },
+          {
+            className: "navigable-entity-highlight",
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            attributes: {
+              [NAVIGATE_TO_ATTRIBUTE]: `${data.name}`,
+            },
+            atomic: false,
+          },
+        );
+      }
+    });
+  });
+};
