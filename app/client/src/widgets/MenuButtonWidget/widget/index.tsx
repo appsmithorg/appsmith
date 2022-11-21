@@ -34,7 +34,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
       if (this.props.menuItemsSource === MenuItemsSource.DYNAMIC) {
         config.globalContext = {
-          currentItem: this.props.sourceData?.[index]
+          currentItem: this.props.sourceData
             ? this.props.sourceData[index]
             : {},
           currentIndex: index,
@@ -71,9 +71,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           return configureMenuItems.config[propertyName][index];
         }
 
-        return configureMenuItems.config[propertyName]
-          ? configureMenuItems.config[propertyName]
-          : null;
+        return configureMenuItems.config[propertyName] ?? null;
       };
 
       const visibleItems = sourceData
