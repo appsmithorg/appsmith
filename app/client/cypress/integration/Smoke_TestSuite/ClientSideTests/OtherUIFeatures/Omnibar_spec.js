@@ -198,7 +198,7 @@ describe("Omnibar functionality test cases", () => {
       .wait(2000);
     cy.url().should(
       "eq",
-      "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
+      "https://docs.appsmith.com/core-concepts/connecting-to-data-sources/",
     ); // => true
     cy.go(-1);
   });
