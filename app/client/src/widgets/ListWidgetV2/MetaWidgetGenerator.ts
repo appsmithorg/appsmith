@@ -106,6 +106,10 @@ type VirtualizerOptionsProps = VirtualizerOptions<
   HTMLDivElement
 >;
 
+type AddDynamicPathsPropertiesOptions = {
+  excludedPaths?: string[];
+};
+
 enum MODIFICATION_TYPE {
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
   UPDATE_PRIMARY_KEY = "UPDATE_PRIMARY_KEY",
@@ -401,6 +405,9 @@ class MetaWidgetGenerator {
     if (isMainContainerWidget) {
       this.updateContainerPosition(metaWidget, rowIndex);
       this.updateContainerBindings(metaWidget, key);
+      this.addDynamicPathsProperties(metaWidget, metaCacheProps, {
+        excludedPaths: ["data"],
+      });
     } else {
       this.addDynamicPathsProperties(metaWidget, metaCacheProps);
     }
@@ -599,8 +606,10 @@ class MetaWidgetGenerator {
   private addDynamicPathsProperties = (
     metaWidget: MetaWidget,
     metaWidgetCacheProps: MetaWidgetCacheProps,
+    options: AddDynamicPathsPropertiesOptions = {},
   ) => {
     const { index, metaWidgetName } = metaWidgetCacheProps;
+    const { excludedPaths = [] } = options;
     const key = this.getPrimaryKey(index);
     const dynamicPaths = [
       ...(metaWidget.dynamicBindingPathList || []),
@@ -611,6 +620,8 @@ class MetaWidgetGenerator {
     if (!dynamicPaths.length) return;
 
     dynamicPaths.forEach(({ key: path }) => {
+      if (excludedPaths.includes(path)) return;
+
       const propertyValue: string = get(metaWidget, path);
       const { jsSnippets, stringSegments } = getDynamicBindings(propertyValue);
       const js = combineDynamicBindings(jsSnippets, stringSegments);
