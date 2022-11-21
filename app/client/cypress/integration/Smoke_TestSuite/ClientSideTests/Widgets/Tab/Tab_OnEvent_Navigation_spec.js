@@ -1,6 +1,7 @@
 const LayoutPage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tabsWidgetReset.json");
+const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
 describe("Tabs widget on change of selection navigation usecases", function () {
     before(() => {
@@ -28,5 +29,7 @@ describe("Tabs widget on change of selection navigation usecases", function () {
         cy.url().should('include', 'appsmith');
         cy.go('back');
         cy.get(".t--page-switch-tab:contains('Tab 3')").should("be.visible");
+        //cy.get(publishPage.backToEditor).click({ force: true });
     });
+
 });
