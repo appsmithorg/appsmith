@@ -19,6 +19,24 @@ export const initializeAnalyticsAndTrackers = () => {
       window.Sentry = Sentry;
       Sentry.init({
         ...appsmithConfigs.sentry,
+        beforeSend(event) {
+          if (
+            event.exception &&
+            Array.isArray(event.exception.values) &&
+            event.exception.values[0].value &&
+            event.exception.values[0].type === "ChunkLoadError"
+          ) {
+            // Only log ChunkLoadErrors after the 2 retires
+            if (
+              !event.exception.values[0].value.includes(
+                "failed after 2 retries",
+              )
+            ) {
+              return null;
+            }
+          }
+          return event;
+        },
         beforeBreadcrumb(breadcrumb) {
           if (
             breadcrumb.category === "console" &&
