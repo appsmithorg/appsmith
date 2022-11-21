@@ -299,7 +299,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
-  it.only("11. should check that save/discard column is added/removed when inline save option is changed", () => {
+  it("11. should check that save/discard column is added/removed when inline save option is changed", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
@@ -688,11 +688,11 @@ describe("Table widget inline editing functionality", () => {
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "40px");
+    ).should("have.css", "height", "32px");
     cy.enterTableCellValue(0, 0, "this is a very long cell value");
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "40px");
+    ).should("have.css", "height", "32px");
   });
 
   it("25. should check that grows taller when text wrapping is enabled", () => {
@@ -705,10 +705,10 @@ describe("Table widget inline editing functionality", () => {
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "42px");
+    ).should("have.css", "height", "34px");
     cy.enterTableCellValue(0, 0, "this is a very long cell value");
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("not.have.css", "height", "42px");
+    ).should("not.have.css", "height", "34px");
   });
 });
