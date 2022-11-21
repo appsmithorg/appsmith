@@ -62,6 +62,8 @@ app.get("/", (_, res) => {
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
 
+server.headersTimeout = 61000;
+server.keepAliveTimeout = 60000;
 // Run the server
 server.listen(PORT, () => {
   log.info(`RTS version ${buildVersion} running at http://localhost:${PORT}`);
