@@ -37,12 +37,6 @@ const getCurrentViewRowsBindingTemplate = () => ({
   suffix: "]}}",
 });
 
-const removeTemplateFromCurrentViewRowsBinding = (binding: string) => {
-  const { prefix, suffix } = getCurrentViewRowsBindingTemplate();
-
-  return binding.substring(prefix.length, binding.length - suffix.length);
-};
-
 const MINIMUM_ROW_GAP = -8;
 
 export enum DynamicPathType {
@@ -604,9 +598,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     });
   };
 
-  onRowClick = (rowIndex: number, viewIndex: number) => {
+  onRowClick = (rowIndex: number) => {
     this.updateSelectedRowIndex(rowIndex);
-    this.updateSelectedRow(rowIndex, viewIndex);
+    this.updateSelectedRow(rowIndex);
 
     if (!this.props.onRowClick) return;
 
@@ -634,9 +628,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     }
   };
 
-  onRowClickCapture = (rowIndex: number, viewIndex: number) => {
+  onRowClickCapture = (rowIndex: number) => {
     this.updateTriggeredRowIndex(rowIndex);
-    this.updateTriggeredRow(viewIndex);
+    this.updateTriggeredRow(rowIndex);
   };
 
   updateSelectedRowIndex = (rowIndex: number) => {
@@ -650,21 +644,21 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
   };
 
-  updateSelectedRow = (rowIndex: number, viewIndex: number) => {
-    const { currentViewRows, selectedRowIndex } = this.props;
+  updateSelectedRow = (rowIndex: number) => {
+    const { selectedRowIndex } = this.props;
 
     if (rowIndex === selectedRowIndex) {
       this.resetSelectedRow();
       return;
     }
 
-    const currentViewContainers = removeTemplateFromCurrentViewRowsBinding(
-      currentViewRows,
+    const triggeredContainer = this.metaWidgetGenerator.getRowContainerWidgetName(
+      rowIndex,
     );
 
-    const selectedContainer = currentViewContainers.split(",")[viewIndex];
-
-    const selectedRowBinding = `{{ ${selectedContainer} }}`;
+    const selectedRowBinding = triggeredContainer
+      ? `{{ ${triggeredContainer}.data }}`
+      : "{{{}}}";
 
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
@@ -673,16 +667,14 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  updateTriggeredRow = (viewIndex: number) => {
-    const { currentViewRows } = this.props;
-
-    const currentViewContainers = removeTemplateFromCurrentViewRowsBinding(
-      currentViewRows,
+  updateTriggeredRow = (rowIndex: number) => {
+    const triggeredContainer = this.metaWidgetGenerator.getRowContainerWidgetName(
+      rowIndex,
     );
 
-    const triggeredContainer = currentViewContainers.split(",")[viewIndex];
-
-    const triggeredRowBinding = `{{ ${triggeredContainer} }}`;
+    const triggeredRowBinding = triggeredContainer
+      ? `{{ ${triggeredContainer}.data }}`
+      : "{{{}}}";
 
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
@@ -779,10 +771,10 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
             selected: selectedRowIndex === rowIndex,
             onClick: (e: React.MouseEvent<HTMLElement>) => {
               e.stopPropagation();
-              this.onRowClick(rowIndex, viewIndex);
+              this.onRowClick(rowIndex);
             },
             onClickCapture: () => {
-              this.onRowClickCapture(rowIndex, viewIndex);
+              this.onRowClickCapture(rowIndex);
             },
           };
         });

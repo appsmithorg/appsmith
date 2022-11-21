@@ -119,8 +119,6 @@ enum MODIFICATION_TYPE {
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
-const SELECTED_ROW_KEY = "__$SELECTED_ROW_KEY$__";
-const TRIGGER_ROW_KEY = "__$TRIGGER_ROW_KEY$__";
 
 /**
  * LEVEL_PATH_REGEX gives out following matches:
@@ -178,6 +176,9 @@ class MetaWidgetGenerator {
   private templateWidgetStatus: TemplateWidgetStatus;
   private virtualizer?: VirtualizerInstance;
   private widgetName: GeneratorOptions["widgetName"];
+  private selectedRowMetaWidgetIds: string[];
+  private prevSelectedRowIndex: number;
+  private cachedRowKey: Set<string>;
 
   constructor(props: ConstructorProps) {
     this.containerParentId = "";
@@ -212,6 +213,9 @@ class MetaWidgetGenerator {
     };
     this.triggeredRowIndex = -1;
     this.widgetName = "";
+    this.selectedRowMetaWidgetIds = [];
+    this.prevSelectedRowIndex = -1;
+    this.cachedRowKey = new Set();
   }
 
   withOptions = (options: GeneratorOptions) => {
@@ -331,7 +335,6 @@ class MetaWidgetGenerator {
         const index = startIndex + rowIndex;
 
         this.generateWidgetCacheData(index, rowIndex);
-        this.generateWidgetCacheDataForTriggeredAndSelected(index, rowIndex);
 
         const {
           childMetaWidgets,
@@ -354,57 +357,86 @@ class MetaWidgetGenerator {
       });
     }
 
-    const removedMetaWidgetIds = (() => {
-      const removedFromCurrentView = difference(
-        this.prevViewMetaWidgetIds,
-        this.currViewMetaWidgetIds,
-      );
+    this.cacheRowIndices([this.selectedRowIndex, this.triggeredRowIndex]);
 
-      const resetWidgetExcludingCurrent = without(
-        resetMetaWidgetIds,
-        ...this.currViewMetaWidgetIds,
-      );
-
-      return [...removedFromCurrentView, ...resetWidgetExcludingCurrent];
-    })();
-
-    this.currDeletedWidgetIds = new Set(removedMetaWidgetIds);
+    const removedMetaWidgetIds = this.getRemovedMetaWidgetIds(
+      resetMetaWidgetIds,
+    );
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
     this.flushModificationQueue();
 
-    this.removeSelectedAndTriggeredRowFromDeletedWidgets();
+    this.prevSelectedRowIndex = this.selectedRowIndex;
 
     return {
       metaWidgets,
-      removedMetaWidgetIds: Array.from(this.currDeletedWidgetIds),
+      removedMetaWidgetIds,
     };
   };
 
-  private removeSelectedAndTriggeredRowFromDeletedWidgets = () => {
-    this.removeSpecificRowFromDeletedWidgets(SELECTED_ROW_KEY);
-    this.removeSpecificRowFromDeletedWidgets(TRIGGER_ROW_KEY);
+  private getMetaWidgetIdsInCachedRows = () => {
+    const templateWidget = this.currTemplateWidgets?.[this.containerWidgetId];
+    const metaWidgetIds: string[] = [];
+
+    if (!templateWidget || !this.cachedRowKey.size) return metaWidgetIds;
+
+    this.cachedRowKey.forEach((key) => {
+      const metaCacheProps = this.getRowCache(key) ?? {};
+      Object.values(metaCacheProps).forEach((cache) => {
+        metaWidgetIds.push(cache.metaWidgetId);
+      });
+    });
+
+    return metaWidgetIds;
   };
 
-  private removeSpecificRowFromDeletedWidgets = (key: string) => {
-    const templateWidget = this.currTemplateWidgets?.[this.containerWidgetId];
+  private getRemovedMetaWidgetIds = (resetMetaWidgetIds: string[]) => {
+    const metaWidgetIdsInCachedRows = this.getMetaWidgetIdsInCachedRows();
 
-    if (!templateWidget) return;
+    const removedWidgets = difference(
+      this.prevViewMetaWidgetIds,
+      this.currViewMetaWidgetIds,
+    );
 
-    if (!key) {
-      return;
-    }
-    const metaCacheProps = this.getRowCache(key);
+    const resetWidgetExcludingCurrent = without(
+      resetMetaWidgetIds,
+      ...this.currViewMetaWidgetIds,
+    );
 
-    if (!metaCacheProps) {
-      return;
-    }
-    Object.values(metaCacheProps).forEach((cache) => {
-      if (this.currDeletedWidgetIds.has(cache.metaWidgetId)) {
-        this.currDeletedWidgetIds.delete(cache.metaWidgetId);
+    const removedFromCurrentView = new Set<string>([
+      ...removedWidgets,
+      ...resetWidgetExcludingCurrent,
+    ]);
+
+    metaWidgetIdsInCachedRows.forEach((widgetId) => {
+      removedFromCurrentView.delete(widgetId);
+    });
+
+    return Array.from(removedFromCurrentView);
+  };
+
+  private cacheRowIndices = (indices: number[]) => {
+    indices.forEach((index) => {
+      if (this.selectedRowIndex !== -1) {
+        const key = this.getPrimaryKey(index);
+        this.cachedRowKey.add(key);
       }
     });
+  };
+
+  private cacheTriggerRowIndex = () => {
+    if (this.triggeredRowIndex === this.prevSelectedRowIndex) {
+      return;
+    }
+    if (this.selectedRowIndex !== -1) {
+      const key = this.getPrimaryKey(this.selectedRowIndex);
+      this.cachedRowKey.add(key);
+    }
+    if (this.prevSelectedRowIndex !== -1) {
+      const prevKey = this.getPrimaryKey(this.prevSelectedRowIndex);
+      this.cachedRowKey.delete(prevKey);
+    }
   };
 
   private generateMetaWidgetRecursively = ({
@@ -519,42 +551,6 @@ class MetaWidgetGenerator {
       children,
       metaWidgets,
     };
-  };
-
-  private generateWidgetCacheDataForTriggeredAndSelected = (
-    index: number,
-    rowIndex: number,
-  ) => {
-    this.generateWidgetCacheDataForSpecificIndexAndKey(
-      index,
-      rowIndex,
-      this.selectedRowIndex,
-      SELECTED_ROW_KEY,
-    );
-    this.generateWidgetCacheDataForSpecificIndexAndKey(
-      index,
-      rowIndex,
-      this.triggeredRowIndex,
-      TRIGGER_ROW_KEY,
-    );
-  };
-
-  private generateWidgetCacheDataForSpecificIndexAndKey = (
-    index: number,
-    rowIndex: number,
-    specificIndex: number,
-    specificKey: string,
-  ) => {
-    if (index === specificIndex) {
-      const key = this.getPrimaryKey(index);
-      const rowCache = this.generateCacheData(index, rowIndex, key);
-      this.setRowCache(specificKey, {
-        ...rowCache,
-      });
-    }
-    if (specificIndex === -1) {
-      this.clearCacheByRow(specificKey);
-    }
   };
 
   private generateWidgetCacheData = (index: number, rowIndex: number) => {
@@ -1030,15 +1026,6 @@ class MetaWidgetGenerator {
     this.setCache(updatedCache);
   };
 
-  private clearCacheByRow = (row: string) => {
-    const cache = this.getWidgetCache() || {};
-    const updatedCache = {
-      ...cache,
-      [row]: {},
-    };
-    this.setWidgetCache(updatedCache);
-  };
-
   private getData = () => {
     if (this.serverSidePagination) {
       return this.data;
@@ -1266,6 +1253,15 @@ class MetaWidgetGenerator {
         ${widgetsProperties.join(",")}
       }
     `;
+  };
+
+  getRowContainerWidgetName = (index: number) => {
+    if (index === -1) {
+      return;
+    }
+    const key = this.getPrimaryKey(index);
+    return this.getRowTemplateCache(key, this.containerWidgetId)
+      ?.metaWidgetName;
   };
 
   private resetCache = () => {
