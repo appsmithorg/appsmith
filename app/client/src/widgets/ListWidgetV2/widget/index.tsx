@@ -170,9 +170,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
-    this.metaWidgetGenerator
-      .withOptions(generatorOptions)
-      .didMountVirtualizer();
+    this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
 
     if (this.props.infiniteScroll) {
       this.generateMetaWidgets();
@@ -225,7 +223,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   }
 
   componentWillUnmount() {
-    this.metaWidgetGenerator.didUnmountVirtualizer();
+    this.metaWidgetGenerator.didUnmount();
     this.deleteMetaWidgets();
   }
 

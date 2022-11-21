@@ -89,7 +89,7 @@ type GenerateMetaWidgetChildrenProps = {
   key: string;
 };
 
-type GenerateMetaWidget = {
+type GeneratedMetaWidget = {
   metaWidgetId?: string;
   metaWidgetName?: string;
   childMetaWidgets?: MetaWidgets;
@@ -146,6 +146,7 @@ const hasLevel = (value: string) =>
 class MetaWidgetGenerator {
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
+  private currDeletedWidgetIds: Set<string>;
   private currTemplateWidgets: TemplateWidgets;
   private currViewMetaWidgetIds: string[];
   private data: GeneratorOptions["data"];
@@ -178,6 +179,7 @@ class MetaWidgetGenerator {
   constructor(props: ConstructorProps) {
     this.containerParentId = "";
     this.containerWidgetId = "";
+    this.currDeletedWidgetIds = new Set();
     this.currViewMetaWidgetIds = [];
     this.data = [];
     this.getWidgetCache = props.getWidgetCache;
@@ -227,6 +229,7 @@ class MetaWidgetGenerator {
     this.templateBottomRow = options.templateBottomRow;
     this.selectedRowIndex = options.selectedRowIndex;
     this.triggeredRowIndex = options.triggeredRowIndex;
+    this.widgetName = options.widgetName;
 
     this.currTemplateWidgets = extractTillNestedListWidget(
       options.currTemplateWidgets,
@@ -240,12 +243,12 @@ class MetaWidgetGenerator {
     const prevOptions = klona(this.prevOptions);
     this.prevOptions = options;
 
-    this._didUpdateInfiniteScroll(options, prevOptions);
+    this._didUpdate(options, prevOptions);
 
     return this;
   };
 
-  private _didUpdateInfiniteScroll = (
+  private _didUpdate = (
     nextOptions: GeneratorOptions,
     prevOptions?: GeneratorOptions,
   ) => {
@@ -258,13 +261,13 @@ class MetaWidgetGenerator {
     }
   };
 
-  didMountVirtualizer = () => {
+  didMount = () => {
     if (this.infiniteScroll) {
       this.initVirtualizer();
     }
   };
 
-  didUnmountVirtualizer = () => {
+  didUnmount = () => {
     this.unmountVirtualizer();
     this.resetCache();
   };
@@ -363,100 +366,43 @@ class MetaWidgetGenerator {
       return [...removedFromCurrentView, ...resetWidgetExcludingCurrent];
     })();
 
+    this.currDeletedWidgetIds = new Set(removedMetaWidgetIds);
+
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
     this.flushModificationQueue();
 
-    const {
-      generatedSelectedRowMetaWidgets,
-      generatedTriggerRowMetaWidgets,
-    } = this.generateSelectedAndTriggeredRowMetaWidget();
-
-    // Using notInView to avoid duplication of the metaWidgets
-    const {
-      notInViewSelectedRowMetaWidgets,
-      notInViewTriggeredRowMetaWidgets,
-    } = this.filterGeneratedWidgetNotInView({
-      generatedSelectedRowMetaWidgets,
-      generatedTriggerRowMetaWidgets,
-    });
+    this.removeSelectedAndTriggeredRowFromDeletedWidgets();
 
     return {
-      metaWidgets: {
-        ...metaWidgets,
-        ...notInViewSelectedRowMetaWidgets,
-        ...notInViewTriggeredRowMetaWidgets,
-      },
-      removedMetaWidgetIds,
+      metaWidgets,
+      removedMetaWidgetIds: Array.from(this.currDeletedWidgetIds),
     };
   };
 
-  private filterGeneratedWidgetNotInView = ({
-    generatedSelectedRowMetaWidgets,
-    generatedTriggerRowMetaWidgets,
-  }: {
-    generatedSelectedRowMetaWidgets: GenerateMetaWidget;
-    generatedTriggerRowMetaWidgets: GenerateMetaWidget;
-  }) => {
-    const notInViewSelectedRowMetaWidgets: MetaWidgets = this.getNotInViewGeneratedMetaWidgets(
-      {
-        metaWidget: generatedSelectedRowMetaWidgets.metaWidget,
-        childMetaWidgets: generatedSelectedRowMetaWidgets.childMetaWidgets,
-      },
-    );
-    const notInViewTriggeredRowMetaWidgets: MetaWidgets = this.getNotInViewGeneratedMetaWidgets(
-      {
-        metaWidget: generatedTriggerRowMetaWidgets.metaWidget,
-        childMetaWidgets: generatedTriggerRowMetaWidgets.childMetaWidgets,
-      },
-    );
-    return {
-      notInViewSelectedRowMetaWidgets,
-      notInViewTriggeredRowMetaWidgets,
-    };
+  private removeSelectedAndTriggeredRowFromDeletedWidgets = () => {
+    this.removeSpecificRowFromDeletedWidgets(SELECTED_ROW_KEY);
+    this.removeSpecificRowFromDeletedWidgets(TRIGGER_ROW_KEY);
   };
 
-  private getNotInViewGeneratedMetaWidgets = ({
-    childMetaWidgets,
-    metaWidget,
-  }: {
-    childMetaWidgets: MetaWidgets | undefined;
-    metaWidget: MetaWidget | undefined;
-  }) => {
-    const notInViewMetaWidgets: MetaWidgets = {};
-    const metaWidgets = {
-      ...childMetaWidgets,
-    };
-    if (metaWidget) {
-      metaWidgets[metaWidget.widgetId] = metaWidget;
+  private removeSpecificRowFromDeletedWidgets = (key: string) => {
+    const templateWidget = this.currTemplateWidgets?.[this.containerWidgetId];
+
+    if (!templateWidget) return;
+
+    if (!key) {
+      return;
     }
+    const metaCacheProps = this.getRowCache(key);
 
-    Object.keys(metaWidgets).forEach((widgetIds) => {
-      if (!this.currViewMetaWidgetIds.includes(widgetIds)) {
-        notInViewMetaWidgets[widgetIds] = metaWidgets[widgetIds];
+    if (!metaCacheProps) {
+      return;
+    }
+    Object.values(metaCacheProps).forEach((cache) => {
+      if (this.currDeletedWidgetIds.has(cache.metaWidgetId)) {
+        this.currDeletedWidgetIds.delete(cache.metaWidgetId);
       }
     });
-    return notInViewMetaWidgets;
-  };
-
-  private generateSelectedAndTriggeredRowMetaWidget = () => {
-    const generatedSelectedRowMetaWidgets = this.generateMetaWidgetRecursively({
-      index: this.selectedRowIndex,
-      parentId: this.containerParentId,
-      templateWidgetId: this.containerWidgetId,
-      key: SELECTED_ROW_KEY,
-    });
-    const generatedTriggerRowMetaWidgets = this.generateMetaWidgetRecursively({
-      index: this.triggeredRowIndex,
-      parentId: this.containerParentId,
-      templateWidgetId: this.containerWidgetId,
-      key: TRIGGER_ROW_KEY,
-    });
-
-    return {
-      generatedSelectedRowMetaWidgets,
-      generatedTriggerRowMetaWidgets,
-    };
   };
 
   private generateMetaWidgetRecursively = ({
@@ -464,7 +410,7 @@ class MetaWidgetGenerator {
     key,
     parentId,
     templateWidgetId,
-  }: GenerateMetaWidgetProps): GenerateMetaWidget => {
+  }: GenerateMetaWidgetProps): GeneratedMetaWidget => {
     const templateWidget = this.currTemplateWidgets?.[templateWidgetId];
 
     if (!templateWidget)
