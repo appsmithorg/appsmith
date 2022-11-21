@@ -603,10 +603,12 @@ function* batchUpdateWidgetPropertySaga(
   // Save the layout
   yield put(updateAndSaveLayout(widgets, { shouldReplay }));
 
-  yield put({
-    type: updatedWidgetAndActionsToDispatch.actionToDispatch,
-    payload: { widgetId },
-  });
+  if (updatedWidgetAndActionsToDispatch.actionToDispatch) {
+    yield put({
+      type: updatedWidgetAndActionsToDispatch.actionToDispatch,
+      payload: { widgetId },
+    });
+  }
 }
 
 function* batchUpdateMultipleWidgetsPropertiesSaga(
@@ -653,11 +655,14 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
       updatedWidgetIds,
     }),
   );
+
   for (const updatedWidgetAndActions of updatedWidgetsAndActionsToDispatch) {
-    yield put({
-      type: updatedWidgetAndActions.actionToDispatch,
-      payload: { widgetId: updatedWidgetAndActions.updatedWidget.widgetId },
-    });
+    if (updatedWidgetAndActions.actionToDispatch) {
+      yield put({
+        type: updatedWidgetAndActions.actionToDispatch,
+        payload: { widgetId: updatedWidgetAndActions.updatedWidget.widgetId },
+      });
+    }
   }
 }
 
