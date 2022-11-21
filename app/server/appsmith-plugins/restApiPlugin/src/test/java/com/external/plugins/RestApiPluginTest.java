@@ -26,6 +26,7 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import net.minidev.json.JSONObject;
@@ -42,6 +43,7 @@ import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -131,21 +133,10 @@ public class RestApiPluginTest {
     @Test
     public void testExecuteApiWithPaginationForPreviousUrl() {
 
-        String url = "https://mock-api.appsmith.com/users?pageSize=1&page=3&mock_filter=abc 11";
         String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
         String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
 
-        // TODO :: will it change ?
-        String actionId = "6363b463274d262e00edc1c5";
-
-        Param param = new Param();
-        param.setKey(url);
-        param.setValue(url);
-        param.setClientDataType(ClientDataType.STRING);
-        param.setPseudoBindingName("k0");
-
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setActionId(actionId);
         executeActionDTO.setPaginationField(PaginationField.PREV);
         executeActionDTO.setViewMode(Boolean.FALSE);
 
@@ -187,6 +178,65 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode body = (JsonNode) result.getBody();
                     assertEquals(3,body.size());
+                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
+                    assertEquals(previousUrl,mainUrl);
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForPreviousEncodedUrl() {
+
+        String previousUrl = "https%3A%2F%2Fmock-api.appsmith.com%2Fusers%3FpageSize%3D1%26page%3D2%26mock_filter%3Dabc%2011";
+        String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.PREV);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://mock-api.appsmith.com");
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode body = (JsonNode) result.getBody();
+                    assertEquals(3,body.size());
+                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
+                    assertEquals(URLDecoder.decode(previousUrl,StandardCharsets.UTF_8),mainUrl);
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(HttpMethod.GET, request.getHttpMethod());
                 })
@@ -197,21 +247,10 @@ public class RestApiPluginTest {
     @Test
     public void testExecuteApiWithPaginationForNextUrl() {
 
-        String url = "https://mock-api.appsmith.com/users?pageSize=1&page=3&mock_filter=abc 11";
         String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
         String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
 
-        // TODO :: will it change ?
-        String actionId = "6363b463274d262e00edc1c5";
-
-        Param param = new Param();
-        param.setKey(url);
-        param.setValue(url);
-        param.setClientDataType(ClientDataType.STRING);
-        param.setPseudoBindingName("k0");
-
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setActionId(actionId);
         executeActionDTO.setPaginationField(PaginationField.NEXT);
         executeActionDTO.setViewMode(Boolean.FALSE);
 
@@ -253,6 +292,65 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode body = (JsonNode) result.getBody();
                     assertEquals(3,body.size());
+                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
+                    assertEquals(nextUrl,mainUrl);
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForNextEncodedUrl() {
+
+        String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = "https%3A%2F%2Fmock-api.appsmith.com%2Fusers%3FpageSize%3D1%26page%3D4%26mock_filter%3Dabc%2011";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://mock-api.appsmith.com");
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode body = (JsonNode) result.getBody();
+                    assertEquals(3,body.size());
+                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
+                    assertEquals(URLDecoder.decode(nextUrl,StandardCharsets.UTF_8),mainUrl);
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(HttpMethod.GET, request.getHttpMethod());
                 })

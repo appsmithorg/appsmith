@@ -197,22 +197,24 @@ public class RestApiPlugin extends BasePlugin {
                 if (actionConfiguration.getNext() == null) {
                     datasourceConfiguration.setUrl(null);
                 } else {
-                    datasourceConfiguration.setUrl(encodeUrl(actionConfiguration.getNext()));
+                    datasourceConfiguration.setUrl(decodeUrlAndEncodeQueryParams(actionConfiguration.getNext()));
                 }
             } else if (PaginationField.PREV.equals(paginationField)) {
-                datasourceConfiguration.setUrl(encodeUrl(actionConfiguration.getPrev()));
+                datasourceConfiguration.setUrl(decodeUrlAndEncodeQueryParams(actionConfiguration.getPrev()));
             }
 
             return datasourceConfiguration;
         }
 
-        private String encodeUrl(String inputUrl) {
+        private String decodeUrlAndEncodeQueryParams(String inputUrl) {
 
-            String[] urlParts = inputUrl.split("\\?");
+            String decodedUrl = URLDecoder.decode(inputUrl,StandardCharsets.UTF_8);
+
+            String[] urlParts = decodedUrl.split("\\?");
             if (urlParts.length == 2) {
                 return urlParts[0] + "?" + encodeQueryParameters(urlParts[1]);
             } else  {
-                return inputUrl;
+                return decodedUrl;
             }
         }
 
@@ -227,7 +229,10 @@ public class RestApiPlugin extends BasePlugin {
                     if (responseBuilder.length() != 0) {
                         responseBuilder.append("&");
                     }
-                    responseBuilder.append(keyValue[0]).append("=").append(URLEncoder.encode(keyValue[1], StandardCharsets.UTF_8));
+                    responseBuilder
+                            .append(URLEncoder.encode(keyValue[0],StandardCharsets.UTF_8))
+                            .append("=")
+                            .append(URLEncoder.encode(keyValue[1], StandardCharsets.UTF_8));
                 }
             }
 
