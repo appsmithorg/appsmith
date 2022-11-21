@@ -42,7 +42,6 @@ import {
   isDynamicHeightWithLimitsEnabledForWidget,
   shouldUpdateDynamicHeight,
 } from "./WidgetUtils";
-import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
@@ -50,6 +49,7 @@ import { CSSProperties } from "styled-components";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { DynamicHeightContainerWrapper } from "./DynamicHeightContainerWrapper";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 
 /***
  * BaseWidget
@@ -387,7 +387,7 @@ abstract class BaseWidget<
 
     return (
       <>
-        <DynamicHeightOverlay
+        <AutoHeightOverlayContainer
           {...this.props}
           batchUpdate={onBatchUpdate}
           maxDynamicHeight={getWidgetMaxDynamicHeight(this.props)}

@@ -14,15 +14,11 @@ import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import AutoHeightLimitHandleGroup from "./AutoHeightLimitHandleGroup";
 import AutoHeightLimitOverlayDisplay from "./ui/AutoHeightLimitOverlayDisplay";
-import {
-  useHoverState,
-  useMaxMinPropertyPaneFieldsFocused,
-  usePositionedStyles,
-} from "./hooks";
+import { useHoverState, usePositionedStyles } from "./hooks";
 import { getSnappedValues } from "./utils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 
-const StyledDynamicHeightOverlay = styled.div<{ isHidden: boolean }>`
+const StyledAutoHeightOverlay = styled.div<{ isHidden: boolean }>`
   width: 100%;
   height: 100%;
   position: absolute;
@@ -36,7 +32,7 @@ interface MinMaxHeightProps {
   minDynamicHeight: number;
 }
 
-interface DynamicHeightOverlayContainerProps
+interface AutoHeightOverlayContainerProps
   extends MinMaxHeightProps,
     WidgetProps {
   batchUpdate: (height: number) => void;
@@ -45,11 +41,11 @@ interface DynamicHeightOverlayContainerProps
   style?: CSSProperties;
 }
 
-interface DynamicHeightOverlayProps extends DynamicHeightOverlayContainerProps {
+interface AutoHeightOverlayProps extends AutoHeightOverlayContainerProps {
   isHidden: boolean;
 }
 
-const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
+const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
   ({
     batchUpdate,
     isHidden,
@@ -87,10 +83,12 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const finalMaxY = maxY + maxdY;
     const finalMinY = minY + mindY;
 
-    const {
-      isPropertyPaneMaxFieldFocused,
-      isPropertyPaneMinFieldFocused,
-    } = useMaxMinPropertyPaneFieldsFocused();
+    // to be included when min and max fields are
+    // added back to the property pane
+    // const {
+    //   isPropertyPaneMaxFieldFocused,
+    //   isPropertyPaneMinFieldFocused,
+    // } = useMaxMinPropertyPaneFieldsFocused();
 
     useEffect(() => {
       setMaxY(maxDynamicHeight * 10);
@@ -251,29 +249,21 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     });
 
     return (
-      <StyledDynamicHeightOverlay isHidden={isHidden} style={style ?? styles}>
+      <StyledAutoHeightOverlay isHidden={isHidden} style={style ?? styles}>
         <AutoHeightLimitOverlayDisplay
           data-cy="t--auto-height-overlay-min"
-          isActive={
-            isMinDotDragging || isMinDotActive || isPropertyPaneMinFieldFocused
-          }
-          maxY={finalMinY}
+          height={finalMinY}
+          isActive={isMinDotDragging || isMinDotActive}
         />
         <AutoHeightLimitOverlayDisplay
           data-cy="t--auto-height-overlay-max"
-          isActive={
-            isMaxDotDragging || isMaxDotActive || isPropertyPaneMaxFieldFocused
-          }
-          maxY={finalMaxY}
+          height={finalMaxY}
+          isActive={isMaxDotDragging || isMaxDotActive}
         />
         <AutoHeightLimitHandleGroup
-          isMaxDotActive={
-            isMaxDotDragging || isMaxDotActive || isPropertyPaneMaxFieldFocused
-          }
+          isMaxDotActive={isMaxDotDragging || isMaxDotActive}
           isMaxDotDragging={isMaxDotDragging}
-          isMinDotActive={
-            isMinDotDragging || isMinDotActive || isPropertyPaneMinFieldFocused
-          }
+          isMinDotActive={isMinDotDragging || isMinDotActive}
           isMinDotDragging={isMinDotDragging}
           maxY={finalMaxY}
           minY={finalMinY}
@@ -292,12 +282,12 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           }}
           onMinLimitMouseHoverCallbacks={minHoverFns}
         />
-      </StyledDynamicHeightOverlay>
+      </StyledAutoHeightOverlay>
     );
   },
 );
 
-const DynamicHeightOverlayContainer: React.FC<DynamicHeightOverlayContainerProps> = memo(
+const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> = memo(
   (props) => {
     const widgetId = props.widgetId;
     const {
@@ -312,11 +302,11 @@ const DynamicHeightOverlayContainer: React.FC<DynamicHeightOverlayContainerProps
     const isHidden = multipleWidgetsSelected || isDragging || isResizing;
 
     if (isWidgetSelected) {
-      return <DynamicHeightOverlay isHidden={isHidden} {...props} />;
+      return <AutoHeightOverlay isHidden={isHidden} {...props} />;
     }
 
     return null;
   },
 );
 
-export default DynamicHeightOverlayContainer;
+export default AutoHeightOverlayContainer;

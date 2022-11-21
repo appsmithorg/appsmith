@@ -114,7 +114,7 @@ const AutoHeightLimitHandle = ({
       {...onMouseHoverFunctions}
     >
       <AutoHeightLimitHandleBorder isActive={isActive} />
-      <AutoHeightLimitHandleDot isActive={isActive} isDragging={isDragging} />
+      <AutoHeightLimitHandleDot isDragging={isDragging} />
       {!isColliding ? (
         <AutoHeightLimitHandleLabel isActive={isActive}>
           {label}: {heightToRows(height)} rows
