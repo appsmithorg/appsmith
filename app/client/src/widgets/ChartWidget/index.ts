@@ -20,6 +20,7 @@ export const CONFIG = {
     allowScroll: false,
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",
@@ -96,7 +97,6 @@ export const CONFIG = {
       },
     },
   },
-  responsiveBehavior: ResponsiveBehavior.Fill,
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
     default: Widget.getDefaultPropertiesMap(),
