@@ -529,7 +529,7 @@ function ApiResponseView(props: Props) {
                 folding
                 height={"100%"}
                 input={{
-                  value: response?.body
+                  value: !isEmpty(responseHeaders)
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
