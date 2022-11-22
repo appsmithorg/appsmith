@@ -119,12 +119,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // We don't render invisible widgets in view mode
     // True, but we need this information to re-arrange widgets in view mode.
-    // We may create an HOC for dynamicheight updates, such that, this info
+    // We may create an HOC for autoHeight updates, such that, this info
     // doesn't need to go all the way to the BaseWidget.
 
     if (
       !widgetProps.isVisible &&
-      (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW)
+      (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW) &&
+      widgetProps.bottomRow !== widgetProps.topRow
     ) {
       dispatch({
         type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
@@ -135,11 +136,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       });
       return null;
     } else if (
-      (!widgetProps.isVisible &&
-        renderMode !== RenderModes.PAGE &&
-        renderMode !== RenderModes.PREVIEW &&
-        widgetProps.topRow === widgetProps.bottomRow) ||
-      (widgetProps.topRow === widgetProps.bottomRow && children)
+      !widgetProps.isVisible &&
+      renderMode !== RenderModes.PAGE &&
+      renderMode !== RenderModes.PREVIEW &&
+      widgetProps.topRow === widgetProps.bottomRow
     ) {
       dispatch(checkContainersForAutoHeightAction());
     }

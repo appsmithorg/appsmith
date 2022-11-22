@@ -595,7 +595,7 @@ export function* getPropertiesUpdatedWidget(
 ) {
   const { dynamicUpdates, updates, widgetId } = updatesObj;
 
-  const { modify = {}, remove = [], postUpdateActions, triggerPaths } = updates;
+  const { modify = {}, remove = [], postUpdateAction, triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
@@ -642,7 +642,7 @@ export function* getPropertiesUpdatedWidget(
   // I couldn't find it, so here it is.
   return {
     updatedWidget: purgeOrphanedDynamicPaths(widget),
-    actionsToDispatch: postUpdateActions,
+    actionToDispatch: postUpdateAction,
   };
 }
 
@@ -657,7 +657,7 @@ function* batchUpdateWidgetPropertySaga(
   }
   const updatedWidgetAndActionsToDispatch: {
     updatedWidget: WidgetProps;
-    actionsToDispatch?: ReduxActionType[];
+    actionToDispatch?: ReduxActionType;
   } = yield call(getPropertiesUpdatedWidget, action.payload);
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = {
@@ -671,12 +671,10 @@ function* batchUpdateWidgetPropertySaga(
   );
   // Save the layout
   yield put(updateAndSaveLayout(widgets, { shouldReplay }));
-  const uniqueActions = uniq(
-    updatedWidgetAndActionsToDispatch.actionsToDispatch,
-  );
-  for (const actionType of uniqueActions) {
+  if (updatedWidgetAndActionsToDispatch.actionToDispatch) {
     yield put({
-      type: actionType,
+      type: updatedWidgetAndActionsToDispatch.actionToDispatch,
+      payload: { widgetId },
     });
   }
 }
@@ -689,7 +687,7 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const updatedWidgetsAndActionsToDispatch: Array<{
     updatedWidget: WidgetProps;
-    actionsToDispatch?: ReduxActionType[];
+    actionToDispatch?: ReduxActionType;
   }> = yield all(
     updatesArray.map((eachUpdate) => {
       return call(getPropertiesUpdatedWidget, eachUpdate);
@@ -726,10 +724,10 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
     }),
   );
   for (const updatedWidgetAndActions of updatedWidgetsAndActionsToDispatch) {
-    const uniqueActions = uniq(updatedWidgetAndActions.actionsToDispatch);
-    for (const actionType of uniqueActions) {
+    if (updatedWidgetAndActions.actionToDispatch) {
       yield put({
-        type: actionType,
+        type: updatedWidgetAndActions.actionToDispatch,
+        payload: { widgetId: updatedWidgetAndActions.updatedWidget.widgetId },
       });
     }
   }

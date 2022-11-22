@@ -306,7 +306,7 @@ const PropertyControl = memo((props: Props) => {
         updates: {
           modify: allUpdates,
           remove: allDeletions,
-          postUpdateActions: props.postUpdateActions,
+          postUpdateAction: props.postUpdateAction,
         },
         dynamicUpdates: {
           dynamicPropertyPathList: allDynamicPropertyPathUpdate,
@@ -335,7 +335,7 @@ const PropertyControl = memo((props: Props) => {
         widgetId: widgetProperties.widgetId,
         updates: {
           modify,
-          postUpdateActions: props.postUpdateActions,
+          postUpdateAction: props.postUpdateAction,
         },
       };
     }

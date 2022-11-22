@@ -1,5 +1,5 @@
 import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 
@@ -14,6 +14,7 @@ interface AutoHeightContainerProps {
   minDynamicHeight: number;
   isAutoHeightWithLimits: boolean;
   onHeightUpdate: (height: number) => void;
+  widgetHeightInPixels: number;
   widgetProps?: WidgetProps;
 }
 
@@ -27,6 +28,7 @@ export default function AutoHeightContainer({
   maxDynamicHeight,
   minDynamicHeight,
   onHeightUpdate,
+  widgetHeightInPixels,
   widgetProps,
 }: PropsWithChildren<AutoHeightContainerProps>) {
   const [expectedHeight, setExpectedHeight] = useState(0);
@@ -56,6 +58,19 @@ export default function AutoHeightContainer({
   useEffect(() => {
     onHeightUpdate(expectedHeight);
   }, [minDynamicHeight, maxDynamicHeight]);
+
+  useEffect(() => {
+    if (
+      widgetHeightInPixels !==
+      Math.ceil(
+        Math.ceil(expectedHeight + WIDGET_PADDING * 2) /
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      ) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+    ) {
+      onHeightUpdate(expectedHeight);
+    }
+  }, [widgetHeightInPixels]);
 
   if (isAutoHeightWithLimits) {
     const expectedHeightInRows = Math.ceil(

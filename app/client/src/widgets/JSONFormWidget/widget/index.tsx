@@ -31,9 +31,9 @@ import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContaine
 import { convertSchemaItemToFormData } from "../helper";
 import { GridDefaults } from "constants/WidgetConstants";
 import {
-  getWidgetMaxDynamicHeight,
-  getWidgetMinDynamicHeight,
-  isDynamicHeightEnabledForWidget,
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
+  isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
@@ -153,9 +153,9 @@ class JSONFormWidget extends BaseWidget<
     );
     let height = this.formRef?.current?.scrollHeight || 0;
 
-    if (isDynamicHeightEnabledForWidget(this.props)) {
-      const maxDynamicHeight = getWidgetMaxDynamicHeight(this.props);
-      const minDynamicHeight = getWidgetMinDynamicHeight(this.props);
+    if (isAutoHeightEnabledForWidget(this.props)) {
+      const maxDynamicHeight = getWidgetMaxAutoHeight(this.props);
+      const minDynamicHeight = getWidgetMinAutoHeight(this.props);
       const footerHeight = 80; // TODO(abhinav): Get it from the component. Check with Ashit
 
       if (
@@ -177,7 +177,7 @@ class JSONFormWidget extends BaseWidget<
       const { componentHeight } = this.getComponentDimensions();
 
       if (height && Math.abs(componentHeight - totalHeight) > 0) {
-        this.updateDynamicHeight(totalHeight);
+        this.updateAutoHeight(totalHeight);
       }
     }
   }

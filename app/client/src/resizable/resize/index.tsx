@@ -8,11 +8,11 @@ import PerformanceTracker, {
 import { ReflowDirection } from "reflow/reflowTypes";
 import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 
-const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
+const ResizeWrapper = styled(animated.div)<{ $prevents: boolean }>`
   display: block;
   & {
     * {
-      pointer-events: ${(props) => !props.prevents && "none"};
+      pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
 `;
@@ -343,8 +343,8 @@ export const Resizable = forwardRef(function Resizable(
     >
       {(_props) => (
         <ResizeWrapper
+          $prevents={pointerEvents}
           className={props.className}
-          prevents={pointerEvents}
           ref={ref}
           style={_props}
         >

@@ -99,7 +99,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
-import { dynamicallyUpdateContainersSaga } from "./dynamicHeightSagas";
+import { dynamicallyUpdateContainersSaga } from "./autoHeightSagas/containers";
 import { lintTreeSaga, lintWorker } from "./LintingSagas";
 import {
   EvalTreeRequestData,

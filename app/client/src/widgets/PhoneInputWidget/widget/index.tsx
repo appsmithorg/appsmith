@@ -30,7 +30,7 @@ import {
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -338,7 +338,7 @@ class PhoneInputWidget extends BaseInputWidget<
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
-        isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
