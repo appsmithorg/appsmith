@@ -261,8 +261,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       pageNo,
       primaryKeys,
       serverSidePagination = false,
-      selectedRowIndex,
-      triggeredRowIndex,
     } = this.props;
     const pageSize = this.pageSize;
 
@@ -284,8 +282,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       widgetName: this.props.widgetName,
       pageNo,
       pageSize,
-      selectedRowIndex,
-      triggeredRowIndex,
       serverSidePagination,
     };
   };
