@@ -38,7 +38,11 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
-import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
+import {
+  ButtonStyleTypes,
+  ButtonVariantTypes,
+  LabelPosition,
+} from "components/constants";
 import { Colors } from "constants/Colors";
 import {
   migrateModalIconButtonWidget,
@@ -1106,6 +1110,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 66) {
     currentDSL = migrateTableWidgetV2ValidationBinding(currentDSL);
+    currentDSL.version = 67;
+  }
+
+  if (currentDSL.version === 67) {
+    currentDSL = migrateLabelPosition(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -1116,6 +1125,23 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   return currentDSL;
 };
+
+function migrateLabelPosition(currentDSL: DSLWidget) {
+  if (
+    currentDSL.type === "PHONE_INPUT_WIDGET" ||
+    currentDSL.type === "CURRENCY_INPUT_WIDGET"
+  ) {
+    if (currentDSL.labelPosition === undefined) {
+      currentDSL.labelPosition = LabelPosition.Left;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateLabelPosition(child),
+    );
+  }
+  return currentDSL;
+}
 
 export const migrateButtonVariant = (currentDSL: DSLWidget) => {
   if (
