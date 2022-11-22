@@ -65,8 +65,6 @@ import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskin
 // import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
-import { traverseDSLAndMigrate } from "./WidgetMigrationUtils";
-import { WidgetProps } from "widgets/BaseWidget";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
 
 /**
