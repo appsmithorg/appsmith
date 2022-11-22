@@ -75,8 +75,7 @@ export const FlexContainer = styled.div<{
     overflow?.indexOf("wrap") > -1 ? overflow : "nowrap"};
 
   width: 100%;
-  height: ${({ isMainContainer, stretchHeight }) =>
-    isMainContainer || stretchHeight ? "100%" : "auto"};
+  height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
 
   overflow: hidden;
   overflow-y: ${({ isMainContainer, isMobile }) =>
