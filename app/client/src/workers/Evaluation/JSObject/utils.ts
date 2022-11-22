@@ -29,7 +29,7 @@ export const updateJSCollectionInUnEvalTree = (
     functionsList.push(action);
   });
 
-  const oldConfig = Object.getPrototypeOf(jsCollection);
+  const oldConfig = Object.getPrototypeOf(jsCollection) as DataTreeJSAction;
 
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
@@ -191,7 +191,7 @@ export const removeFunctionsAndVariableJSCollection = (
   unEvalTree: DataTree,
   entity: DataTreeJSAction,
 ) => {
-  const oldConfig = Object.getPrototypeOf(entity);
+  const oldConfig = Object.getPrototypeOf(entity) as DataTreeJSAction;
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
   Object.keys(entity.meta).forEach((action) => {

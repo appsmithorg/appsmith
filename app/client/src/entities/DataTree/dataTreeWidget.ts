@@ -9,8 +9,8 @@ import {
   OverridingPropertyPaths,
   OverridingPropertyType,
   PropertyOverrideDependency,
-  UnEvalTreeWidget,
   WidgetEntityConfig,
+  UnEvalTreeWidget,
 } from "./dataTreeFactory";
 import { setOverridingProperty } from "./utils";
 

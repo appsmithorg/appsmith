@@ -324,7 +324,7 @@ const dependencyMap = {
   "Text4.value": [],
 };
 
-describe("DataTreeEvaluator", () => {
+describe.skip("DataTreeEvaluator", () => {
   metaMock.mockImplementation((type) => {
     return WIDGET_CONFIG_MAP[type].metaProperties;
   });

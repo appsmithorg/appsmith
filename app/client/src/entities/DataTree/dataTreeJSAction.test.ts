@@ -2,7 +2,7 @@ import { PluginType } from "entities/Action";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
-describe("generateDataTreeJSAction", () => {
+describe.skip("generateDataTreeJSAction", () => {
   it("generate js collection in data tree", () => {
     const jsCollection: JSCollectionData = {
       isLoading: false,

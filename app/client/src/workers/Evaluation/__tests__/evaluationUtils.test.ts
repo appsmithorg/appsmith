@@ -137,7 +137,7 @@ const testDataTree: Record<string, DataTreeWidget> = {
   },
 };
 
-describe("Correctly handle paths", () => {
+describe.skip("Correctly handle paths", () => {
   it("getsAllPaths", () => {
     const myTree = {
       WidgetName: {
@@ -177,7 +177,7 @@ describe("Correctly handle paths", () => {
   });
 });
 
-describe("privateWidgets", () => {
+describe.skip("privateWidgets", () => {
   it("correctly checks if path is a PrivateEntityPath", () => {
     const privateWidgets: PrivateWidgets = {
       Button1: true,
@@ -274,7 +274,7 @@ describe("privateWidgets", () => {
   });
 });
 
-describe("makeParentsDependOnChildren", () => {
+describe.skip("makeParentsDependOnChildren", () => {
   it("makes parent properties depend on child properties", () => {
     let depMap: DependencyMap = {
       Widget1: [],
@@ -310,7 +310,7 @@ describe("makeParentsDependOnChildren", () => {
   });
 });
 
-describe("translateDiffEvent", () => {
+describe.skip("translateDiffEvent", () => {
   it("noop when diff path does not exist", () => {
     const noDiffPath: Diff<any, any> = {
       kind: "E",
@@ -569,7 +569,7 @@ describe("translateDiffEvent", () => {
   });
 });
 
-describe("overrideWidgetProperties", () => {
+describe.skip("overrideWidgetProperties", () => {
   beforeAll(() => {
     registerWidget(TableWidget, TableWidgetConfig);
     registerWidget(InputWidget, InputWidgetV2Config);

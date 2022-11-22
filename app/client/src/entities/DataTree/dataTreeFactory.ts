@@ -95,7 +95,7 @@ export interface JSActionEntityConfig {
 }
 
 export interface JSActionEvalTree {
-  [propName: string]: unknown;
+  [propName: string]: any;
   body: string;
 }
 export interface UnEvalTreeJSAction extends JSActionEvalTree {
@@ -129,35 +129,40 @@ export type PropertyOverrideDependency = Record<
   }
 >;
 
-export interface WidgetEntityConfig
-  extends Partial<WidgetProps>,
-    Omit<WidgetConfigProps, "widgetName" | "rows" | "columns"> {
+export type WidgetConfig = {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
   validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
-  privateWidgets: PrivateWidgets;
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
+  privateWidgets: PrivateWidgets;
+  meta: Record<string, unknown>;
+};
+export interface WidgetEntityConfig
+  extends Partial<WidgetProps>,
+    Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
+    WidgetConfig {
   defaultMetaProps: Array<string>;
   type: string;
 }
 
-export type WidgetEvalTree = Partial<WidgetProps>;
+export interface WidgetEvalTree extends Partial<WidgetProps> {
+  meta: Record<string, unknown>;
+}
 
 export interface UnEvalTreeWidget extends WidgetEvalTree {
   __config__: WidgetEntityConfig;
 }
 
-export type DataTreeWidget = WidgetEvalTree & WidgetEntityConfig;
+export interface DataTreeWidget extends WidgetProps, WidgetConfig {}
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
-  __config__: Record<string, unknown>;
 }
 export type DataTreeObjectEntity =
   | DataTreeAction
@@ -165,10 +170,21 @@ export type DataTreeObjectEntity =
   | DataTreeWidget
   | DataTreeAppsmith;
 
-export type DataTreeEntity = DataTreeObjectEntity | Page[] | ActionDispatcher;
+export type DataTreeEntity = DataTreeObjectEntity | ActionDispatcher;
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
+};
+
+export type UnEvalTreeEntityObject =
+  | UnEvalTreeAction
+  | UnEvalTreeJSAction
+  | UnEvalTreeWidget;
+
+export type UnEvalTreeEntity = UnEvalTreeEntityObject | DataTreeAppsmith;
+
+export type UnEvalTree = {
+  [entityName: string]: UnEvalTreeEntity;
 };
 
 type DataTreeSeed = {
@@ -200,8 +216,8 @@ export class DataTreeFactory {
     theme,
     widgets,
     widgetsMeta,
-  }: DataTreeSeed): DataTree {
-    const dataTree: DataTree = {};
+  }: DataTreeSeed): UnEvalTree {
+    const dataTree: UnEvalTree = {};
     const start = performance.now();
     const startActions = performance.now();
 

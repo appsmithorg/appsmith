@@ -3,7 +3,8 @@
 import {
   DataTree,
   DataTreeEntity,
-  DataTreeObjectEntity,
+  UnEvalTree,
+  UnEvalTreeEntityObject,
 } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
@@ -46,7 +47,7 @@ export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
 
-function createNewEntity(entity: DataTreeObjectEntity) {
+function createNewEntity(entity: UnEvalTreeEntityObject) {
   const newObj = Object.create(entity.__config__ || null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { __config__, ...rest } = entity;
@@ -54,12 +55,18 @@ function createNewEntity(entity: DataTreeObjectEntity) {
   return newObj;
 }
 
-function createUnEvalTree(unevalTree: DataTree) {
+function createUnEvalTree(unevalTree: UnEvalTree) {
   const newUnEvalTree: DataTree = {};
 
-  Object.entries(unevalTree).forEach(([key, entity]) => {
-    newUnEvalTree[key] = createNewEntity(entity as DataTreeObjectEntity);
-  });
+  for (const entityName of Object.keys(unevalTree)) {
+    const entity = unevalTree[entityName];
+    if (!Object.hasOwn(entity, "__config__")) continue;
+
+    newUnEvalTree[entityName] = createNewEntity(
+      entity as UnEvalTreeEntityObject,
+    );
+  }
+
   return newUnEvalTree;
 }
 

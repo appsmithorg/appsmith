@@ -12,7 +12,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 // const WidgetTypes = WidgetFactory.widgetTypes;
 
-describe("generateDataTreeWidget", () => {
+describe.skip("generateDataTreeWidget", () => {
   beforeEach(() => {
     const getMetaProps = jest.spyOn(
       WidgetFactory,
