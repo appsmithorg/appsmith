@@ -176,8 +176,12 @@ class JSONFormWidget extends BaseWidget<
       const totalHeight = footerHeight + height;
       const { componentHeight } = this.getComponentDimensions();
 
-      if (height && Math.abs(componentHeight - totalHeight) > 0) {
-        this.updateAutoHeight(totalHeight);
+      const expectedHeightInPixels =
+        Math.ceil(totalHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+      if (height && Math.abs(componentHeight - expectedHeightInPixels) > 0) {
+        this.updateAutoHeight(expectedHeightInPixels);
       }
     }
   }

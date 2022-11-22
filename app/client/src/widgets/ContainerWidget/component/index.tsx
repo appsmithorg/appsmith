@@ -85,7 +85,6 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
 }
 
 function ContainerComponent(props: ContainerComponentProps) {
-  // useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
   return props.widgetId === MAIN_CONTAINER_WIDGET_ID ? (
     <ContainerComponentWrapper {...props} />
   ) : (

@@ -88,6 +88,8 @@ export function* dynamicallyUpdateContainersSaga() {
             maxBottomRow = bottomRow;
           }
 
+          let canvasBottomRow = canvasWidget.bottomRow;
+
           if (
             Array.isArray(canvasWidget.children) &&
             canvasWidget.children.length > 0
@@ -100,6 +102,8 @@ export function* dynamicallyUpdateContainersSaga() {
                 return prev;
               }, 0);
             maxBottomRow += GridDefaults.CANVAS_EXTENSION_OFFSET;
+            canvasBottomRow = maxBottomRow + 0;
+
             // For widgets like Tabs Widget, some of the height is occupied by the
             // tabs themselves, the child canvas as a result has less number of rows available
             // To accommodate for this, we need to increase the new height by the offset amount.
@@ -135,7 +139,10 @@ export function* dynamicallyUpdateContainersSaga() {
             maxBottomRow = maxDynamicHeightInRows;
           }
 
-          if (maxBottomRow !== bottomRow - topRow) {
+          if (
+            maxBottomRow !== bottomRow - topRow ||
+            canvasBottomRow !== canvasWidget.bottomRow
+          ) {
             if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
               updates[parentContainerWidget.widgetId] =
                 maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -145,6 +152,8 @@ export function* dynamicallyUpdateContainersSaga() {
       }
     }
   }
+
+  console.log("Dynamic Height: ", { updates });
 
   if (Object.keys(updates).length > 0) {
     // TODO(abhinav): Make sure there are no race conditions or scenarios where these updates are not considered.

@@ -128,6 +128,7 @@ export function* updateWidgetAutoHeightSaga() {
       // For widgets like Modal Widget. (Rather this assumes that it is only the modal widget which needs a change)
       const newHeight = updates[widgetId];
 
+      // Setting the height and dimensions of the Modal Widget
       widgetsToUpdate[widgetId] = [
         {
           propertyPath: "height",
@@ -142,6 +143,7 @@ export function* updateWidgetAutoHeightSaga() {
           propertyValue: widget.topRow,
         },
       ];
+      // Setting the child canvas widget's dimensions in the Modal Widget
       if (Array.isArray(widget.children) && widget.children.length === 1) {
         widgetsToUpdate[widget.children[0]] = [
           {
@@ -333,8 +335,12 @@ export function* updateWidgetAutoHeightSaga() {
                 },
               ];
 
-              const layoutData =
+              let layoutData =
                 dynamicHeightLayoutTree[parentContainerLikeWidget.widgetId];
+
+              if (layoutData === undefined) {
+                layoutData = parentContainerLikeWidget;
+              }
 
               // Convert this change into the standard expected update format.
               const expectedUpdate = {
@@ -353,8 +359,6 @@ export function* updateWidgetAutoHeightSaga() {
               // For example, if this is a ModalWidget
               // We need to make sure that we change properties other than bottomRow and topRow
               // In this case we're updating minHeight and height as well.
-
-              // TODO(abhinav): Why do we need another offset for Modal widget particularly.
               if (parentContainerLikeWidget.detachFromLayout) {
                 // DRY this
                 widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
