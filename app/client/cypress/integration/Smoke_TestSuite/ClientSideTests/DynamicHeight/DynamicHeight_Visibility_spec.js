@@ -33,7 +33,7 @@ describe("Dynamic Height Width validation for Visibility", function() {
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")
           .then((tnewheight) => {
-            expect(theight).to.equal(tnewheight);
+            expect(theight).to.not.equal(tnewheight);
             cy.get("label:Contains('On')").should("not.exist");
             cy.get("label:Contains('Off')").should("be.visible");
             cy.get(".bp3-control-indicator").click({ force: true });
