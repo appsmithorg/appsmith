@@ -1,17 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
-
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
+import { StyledSwitch } from "widgets/SwitchWidget/component";
+import { ThemeProp } from "widgets/constants";
 import {
   LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "design-system";
-import { StyledSwitch } from "widgets/SwitchWidget/component";
-import { ThemeProp } from "widgets/constants";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;
@@ -21,6 +20,7 @@ export interface SwitchGroupContainerProps {
 export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
   ${labelLayoutStyles}
   & .${LABEL_CONTAINER_CLASS} {
+    align-self: center;
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
@@ -37,9 +37,12 @@ export interface InputContainerProps {
 }
 
 export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
-  ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
-  border: 1px solid transparent;
+  ${BlueprintRadioSwitchGroupTransform};
+
+  .bp3-switch {
+    width: auto;
+  }
+
   ${({ theme, valid }) =>
     !valid &&
     `
@@ -66,6 +69,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     onChange,
     options,
@@ -90,6 +94,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           inline={inline}
           optionCount={optionCount}
           position={labelPosition}
@@ -142,6 +147,7 @@ export interface SwitchGroupComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
+  labelTooltip?: string;
   widgetId: string;
   height: number;
   accentColor: string;

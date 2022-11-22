@@ -1,11 +1,11 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
-import { RadioOption } from "../constants";
 import { RadioGroup, Radio, Alignment, Classes } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
+import { RadioOption } from "../constants";
 import {
   LabelWithTooltip,
   labelLayoutStyles,
@@ -19,7 +19,9 @@ export interface RadioGroupContainerProps {
 
 export const RadioGroupContainer = styled.div<RadioGroupContainerProps>`
   ${labelLayoutStyles}
+
   & .${LABEL_CONTAINER_CLASS} {
+    align-self: center;
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
@@ -37,7 +39,6 @@ export interface StyledRadioGroupProps {
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
 
   .${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
@@ -74,6 +75,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     loading,
     onRadioSelectionChange,
@@ -106,6 +108,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           inline={inline}
           loading={loading}
           optionCount={optionCount}
@@ -160,6 +163,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
+  labelTooltip?: string;
   widgetId: string;
   height?: number;
   accentColor: string;
