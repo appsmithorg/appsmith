@@ -13,7 +13,7 @@ export enum MenuItemsSource {
   DYNAMIC = "DYNAMIC",
 }
 
-export interface MenuItems {
+export interface MenuItem {
   widgetId: string;
   id: string;
   index: number;
@@ -50,8 +50,8 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<string, MenuItems>;
-  getVisibleItems: () => Array<MenuItems>;
+  menuItems: Record<string, MenuItem>;
+  getVisibleItems: () => Array<MenuItem>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius: ButtonBorderRadius;
@@ -70,8 +70,8 @@ export interface MenuButtonComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<string, MenuItems>;
-  getVisibleItems: () => Array<MenuItems>;
+  menuItems: Record<string, MenuItem>;
+  getVisibleItems: () => Array<MenuItem>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius: string;
@@ -92,8 +92,8 @@ export interface MenuButtonComponentProps {
 }
 
 export interface PopoverContentProps {
-  menuItems: Record<string, MenuItems>;
-  getVisibleItems: () => Array<MenuItems>;
+  menuItems: Record<string, MenuItem>;
+  getVisibleItems: () => Array<MenuItem>;
   onItemClicked: (onClick: string | undefined, index: number) => void;
   isCompact?: boolean;
   borderRadius?: string;

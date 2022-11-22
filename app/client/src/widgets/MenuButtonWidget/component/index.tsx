@@ -5,7 +5,7 @@ import {
   Button,
   Icon,
   Menu,
-  MenuItem,
+  MenuItem as BMenuItem,
   Classes as BClasses,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
@@ -33,7 +33,7 @@ import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import {
   MenuButtonComponentProps,
-  MenuItems,
+  MenuItem,
   PopoverContentProps,
 } from "../constants";
 import { ThemeProp } from "widgets/constants";
@@ -182,7 +182,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       : ""}
 `;
 
-const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+const BaseMenuItem = styled(BMenuItem)<ThemeProp & BaseStyleProps>`
   font-family: var(--wds-font-family);
 
   ${({ backgroundColor, theme }) =>
@@ -246,7 +246,7 @@ function PopoverContent(props: PopoverContentProps) {
 
   if (!visibleItems?.length) return <StyledMenu />;
 
-  const listItems = visibleItems.map((item: MenuItems, index: number) => {
+  const listItems = visibleItems.map((item: MenuItem, index: number) => {
     const {
       backgroundColor,
       iconAlign,
