@@ -94,7 +94,7 @@ import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -125,7 +125,7 @@ function* evaluateTreeSaga(
   const allActionValidationConfig: {
     [actionId: string]: ActionValidationConfigMap;
   } = yield select(getAllActionValidationConfig);
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
+  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const theme: AppTheme = yield select(getSelectedAppTheme);
   const appMode: APP_MODE | undefined = yield select(getAppMode);

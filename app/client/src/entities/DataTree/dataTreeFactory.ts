@@ -56,9 +56,9 @@ export interface ActionEntityEvalTree {
     | Record<string, unknown>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   responseMeta: {
-    statusCode: string | undefined;
+    statusCode?: string;
     isExecutionSuccess: boolean;
-    headers: unknown;
+    headers?: unknown;
   };
 }
 
@@ -170,7 +170,7 @@ export type DataTreeObjectEntity =
   | DataTreeWidget
   | DataTreeAppsmith;
 
-export type DataTreeEntity = DataTreeObjectEntity | ActionDispatcher;
+export type DataTreeEntity = DataTreeObjectEntity;
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;

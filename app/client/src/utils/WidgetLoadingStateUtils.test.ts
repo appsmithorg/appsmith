@@ -1,6 +1,8 @@
 import { PluginType } from "entities/Action";
 import {
+  DataTree,
   DataTreeAction,
+  DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
   ENTITY_TYPE,
@@ -12,7 +14,7 @@ import {
 } from "utils/WidgetLoadingStateUtils";
 import WidgetFactory from "./WidgetFactory";
 
-const JS_object_tree: DataTreeJSAction = {
+const JS_object_tree: Partial<DataTreeJSAction> = {
   pluginType: PluginType.JS,
   name: "",
   ENTITY_TYPE: ENTITY_TYPE.JSACTION,
@@ -121,7 +123,7 @@ const Table_tree: DataTreeWidget = {
   meta: {},
 };
 
-const baseDataTree = {
+const baseDataTree = ({
   JS_file: { ...JS_object_tree, name: "JS_file" },
   Select1: { ...Select_tree, name: "Select1" },
   Select2: { ...Select_tree, name: "Select2" },
@@ -131,7 +133,7 @@ const baseDataTree = {
   Query2: { ...Query_tree, name: "Query2" },
   Query3: { ...Query_tree, name: "Query3" },
   Api1: { ...Api_tree, name: "Api1" },
-};
+} as unknown) as DataTree;
 
 describe("Widget loading state utils", () => {
   describe("findLoadingEntites", () => {
@@ -264,8 +266,14 @@ describe("Widget loading state utils", () => {
         ["Query1"],
         {
           ...baseDataTree,
-          JS_file1: { ...JS_object_tree, name: "JS_file1" },
-          JS_file2: { ...JS_object_tree, name: "JS_file2" },
+          JS_file1: ({
+            ...JS_object_tree,
+            name: "JS_file1",
+          } as unknown) as DataTreeEntity,
+          JS_file2: ({
+            ...JS_object_tree,
+            name: "JS_file2",
+          } as unknown) as DataTreeEntity,
         },
         {
           "Query1.config": ["Query1"],

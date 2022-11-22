@@ -60,6 +60,8 @@ function createUnEvalTree(unevalTree: UnEvalTree) {
 
   for (const entityName of Object.keys(unevalTree)) {
     const entity = unevalTree[entityName];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     if (!Object.hasOwn(entity, "__config__")) continue;
 
     newUnEvalTree[entityName] = createNewEntity(

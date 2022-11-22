@@ -169,6 +169,7 @@ const generateDataTreeWidgetWithoutMeta = (
       privateWidgets: {
         ...widget.privateWidgets,
       },
+      meta: {},
       propertyOverrideDependency,
       overridingPropertyPaths,
       type: widget.type,
