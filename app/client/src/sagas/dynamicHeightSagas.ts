@@ -58,13 +58,12 @@ export function* getMinHeightBasedOnChildren(
   widgetId: string,
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
   ignoreParent = false,
+  tree: AutoHeightLayoutTreeReduxState,
 ) {
   let minHeightInRows = 0;
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
-    getAutoHeightLayoutTree,
-  );
+
   const { children = [], parentId } = stateWidgets[widgetId];
   if (parentId && !ignoreParent) {
     let parentHeightInRows =
@@ -90,7 +89,7 @@ export function* getMinHeightBasedOnChildren(
     // We ignore widgets like ModalWidget which don't occupy parent's space.
     // detachFromLayout helps us identify such widgets
     if (detachFromLayout) continue;
-    const { bottomRow, topRow } = dynamicHeightLayoutTree[childWidgetId];
+    const { bottomRow, topRow } = tree[childWidgetId];
 
     if (changesSoFar.hasOwnProperty(childWidgetId)) {
       const collapsing =
@@ -161,26 +160,13 @@ export function* updateWidgetDynamicHeightSaga() {
 
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
 
-  if (!shouldCollapse) {
-    yield put(generateAutoHeightLayoutTreeAction(false, false));
-  }
-
-  log.debug(
-    "Dynamic height: Computing debounced: ",
-    { updates },
-    { timeStamp: performance.now() },
-  );
+  const { tree: dynamicHeightLayoutTree } = yield getLayoutTree(false);
 
   // Get all widgets from canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   // Initialise all the widgets we will be updating
   const widgetsToUpdate: UpdateWidgetsPayload = {};
-
-  // Get the tree data structure we will be using to compute updates
-  const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
-    getAutoHeightLayoutTree,
-  );
 
   // Initialise all expected updates
   const expectedUpdates: Array<{
@@ -253,7 +239,6 @@ export function* updateWidgetDynamicHeightSaga() {
     } else if (widget) {
       // For widgets like Modal Widget. (Rather this assumes that it is only the modal widget which needs a change)
       const newHeight = updates[widgetId];
-      const newHeightInRows = newHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
       widgetsToUpdate[widgetId] = [
         {
@@ -262,13 +247,29 @@ export function* updateWidgetDynamicHeightSaga() {
         },
         {
           propertyPath: "bottomRow",
-          propertyValue: widget.topRow + newHeightInRows,
+          propertyValue: widget.topRow + newHeight,
         },
         {
           propertyPath: "topRow",
           propertyValue: widget.topRow,
         },
       ];
+      if (Array.isArray(widget.children) && widget.children.length === 1) {
+        widgetsToUpdate[widget.children[0]] = [
+          {
+            propertyPath: "minHeight",
+            propertyValue: newHeight,
+          },
+          {
+            propertyPath: "bottomRow",
+            propertyValue: newHeight,
+          },
+          {
+            propertyPath: "topRow",
+            propertyValue: 0,
+          },
+        ];
+      }
     }
   }
 
@@ -394,20 +395,16 @@ export function* updateWidgetDynamicHeightSaga() {
               // This cannot be [], because we came to this point due to an update
               // caused by one of the children.
 
-              const minPossibleHeight: number = yield getMinHeightBasedOnChildren(
+              let minPossibleHeight: number = yield getMinHeightBasedOnChildren(
                 parentCanvasWidget.widgetId,
                 changesSoFar,
                 true,
+                dynamicHeightLayoutTree,
               );
 
-              minHeightInRows = Math.max(minPossibleHeight, minHeightInRows);
-
               // Add extra rows, this is to accommodate for padding and margins in the parent
-              minHeightInRows =
-                minHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET;
-
-              // Setting this in a variable, as this will be the total scroll height in the canvas.
-              const maxBottomRow = minHeightInRows + 0;
+              minPossibleHeight =
+                minPossibleHeight + GridDefaults.CANVAS_EXTENSION_OFFSET;
 
               // For widgets like Tabs Widget, some of the height is occupied by the
               // tabs themselves, the child canvas as a result has less number of rows available
@@ -416,7 +413,11 @@ export function* updateWidgetDynamicHeightSaga() {
                 parentContainerLikeWidget.type,
                 parentContainerLikeWidget,
               );
-              minHeightInRows += canvasHeightOffset;
+              minPossibleHeight += canvasHeightOffset;
+              minHeightInRows = Math.max(minPossibleHeight, minHeightInRows);
+
+              // Setting this in a variable, as this will be the total scroll height in the canvas.
+              const maxBottomRow = minHeightInRows + 0;
 
               // Make sure we're not overflowing the max height bounds
               const maxDynamicHeight = getWidgetMaxDynamicHeight(
@@ -543,6 +544,8 @@ export function* updateWidgetDynamicHeightSaga() {
     const maxPossibleCanvasHeight: number = yield getMinHeightBasedOnChildren(
       MAIN_CONTAINER_WIDGET_ID,
       changesSoFar,
+      false,
+      dynamicHeightLayoutTree,
     );
 
     maxCanvasHeight = Math.max(
@@ -605,8 +608,15 @@ export function* updateWidgetDynamicHeightSaga() {
             let canvasHeight: number = yield getMinHeightBasedOnChildren(
               childWidgetId,
               changesSoFar,
+              false,
+              dynamicHeightLayoutTree,
             );
             canvasHeight += GridDefaults.CANVAS_EXTENSION_OFFSET;
+            const canvasHeightOffset: number = getCanvasHeightOffset(
+              containerLikeWidget.type,
+              containerLikeWidget,
+            );
+            canvasHeight -= canvasHeightOffset;
             const propertyUpdates = [
               {
                 propertyPath: "minHeight",
@@ -639,6 +649,7 @@ export function* updateWidgetDynamicHeightSaga() {
     // as we don't need to trigger an eval
     yield put(updateMultipleWidgetProperties(widgetsToUpdate));
     dynamicHeightUpdateWidgets = {};
+    yield put(generateAutoHeightLayoutTreeAction(false, false));
   }
 
   log.debug(
@@ -666,12 +677,7 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
   }
 }
 
-function* generateTreeForDynamicHeightComputations(
-  action: ReduxAction<{
-    shouldCheckContainersForDynamicHeightUpdates: boolean;
-    layoutUpdated: boolean;
-  }>,
-) {
+function* getLayoutTree(layoutUpdated: boolean) {
   const start = performance.now();
 
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
@@ -689,13 +695,29 @@ function* generateTreeForDynamicHeightComputations(
     if (occupiedSpaces[canvasWidgetId].length > 0) {
       const treeForThisCanvas = generateTree(
         occupiedSpaces[canvasWidgetId],
-        !shouldCollapse && action.payload.layoutUpdated,
+        !shouldCollapse && layoutUpdated,
         previousTree,
       );
       tree = Object.assign({}, tree, treeForThisCanvas);
     }
   }
+  log.debug(
+    "Dynamic Height: Tree generation took:",
+    performance.now() - start,
+    "ms",
+  );
+  return { canvasLevelMap, tree };
+}
 
+function* generateTreeForDynamicHeightComputations(
+  action: ReduxAction<{
+    shouldCheckContainersForDynamicHeightUpdates: boolean;
+    layoutUpdated: boolean;
+  }>,
+) {
+  const { canvasLevelMap, tree } = yield getLayoutTree(
+    action.payload.layoutUpdated,
+  );
   yield put(setAutoHeightLayoutTreeAction(tree, canvasLevelMap));
   const { shouldCheckContainersForDynamicHeightUpdates } = action.payload;
 
@@ -706,12 +728,8 @@ function* generateTreeForDynamicHeightComputations(
     });
     yield put(checkContainersForAutoHeightAction());
   }
-  // TODO IMPLEMENT:(abhinav): Push this analytics to sentry|segment?
-  log.debug(
-    "Dynamic Height: Tree generation took:",
-    performance.now() - start,
-    "ms",
-  );
+
+  return tree;
 }
 
 export function* dynamicallyUpdateContainersSaga() {
@@ -805,8 +823,8 @@ export function* dynamicallyUpdateContainersSaga() {
           } else if (
             !shouldCollapse &&
             topRow === bottomRow &&
-            originalBottomRow &&
-            originalTopRow
+            originalBottomRow !== undefined &&
+            originalTopRow !== undefined
           ) {
             maxBottomRow = originalBottomRow - originalTopRow;
           }
@@ -828,9 +846,11 @@ export function* dynamicallyUpdateContainersSaga() {
             maxBottomRow = maxDynamicHeightInRows;
           }
 
-          if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
-            updates[parentContainerWidget.widgetId] =
-              maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+          if (maxBottomRow !== bottomRow - topRow) {
+            if (!updates.hasOwnProperty(parentContainerWidget.widgetId)) {
+              updates[parentContainerWidget.widgetId] =
+                maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+            }
           }
         }
       }

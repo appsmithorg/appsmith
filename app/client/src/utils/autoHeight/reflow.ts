@@ -1,4 +1,5 @@
-import { pushToArray } from "utils/helpers";
+import { uniq } from "lodash";
+import { concatWithArray, pushToArray } from "utils/helpers";
 import { TreeNode } from "./constants";
 
 /**
@@ -89,6 +90,31 @@ export function getNearestAbove(
   }, []);
 }
 
+function getAllEffectedBoxes(
+  effectorBoxId: string,
+  tree: Record<string, TreeNode>,
+  effectedBoxes: string[],
+) {
+  let _processed: string[] = [...effectedBoxes];
+  let _effectedBoxes: string[] = tree[effectorBoxId].belows;
+  let index = 0;
+  let belowId = _effectedBoxes[index];
+  while (belowId) {
+    if (_processed.indexOf(belowId) === -1) {
+      _effectedBoxes = concatWithArray(
+        tree[belowId].belows,
+        _effectedBoxes,
+        true,
+      ) as string[];
+      _processed = pushToArray(belowId, _processed) as string[];
+    }
+    index++;
+    belowId = _effectedBoxes[index];
+  }
+
+  return uniq([...effectedBoxes, ..._effectedBoxes]);
+}
+
 // This function computes the new positions for boxes based on the boxes which have changed height
 // delta: a map of boxes with change in heights
 // tree: a layout tree which contains the current state of the boxes.
@@ -101,7 +127,7 @@ export function computeChangeInPositionBasedOnDelta(
     { topRow: number; bottomRow: number }
   > = {};
 
-  const effectedBoxMap: Record<string, number[]> = {};
+  let effectedBoxes: string[] = [];
 
   // For each box which has changed height (box delta)
   for (const boxId in delta) {
@@ -110,12 +136,7 @@ export function computeChangeInPositionBasedOnDelta(
 
     // We simply take all the boxes which are below this box from the tree
     // and add the delta to the effectedBoxMap where the key is the below boxId from the tree
-    tree[boxId].belows.forEach((effectedId) => {
-      effectedBoxMap[effectedId] = pushToArray(
-        delta[boxId],
-        effectedBoxMap[effectedId],
-      ) as number[];
-    });
+    effectedBoxes = getAllEffectedBoxes(boxId, tree, effectedBoxes);
 
     // Add this box's delta to the repositioning, as this won't show up in the effectedBoxMap
     repositionedBoxes[boxId] = {
@@ -125,24 +146,25 @@ export function computeChangeInPositionBasedOnDelta(
   }
 
   // Sort the effected box ids, this is to make sure we compute from top to bottom.
-  const sortedEffectedBoxIds = Object.keys(effectedBoxMap).sort(
+  const sortedEffectedBoxIds = effectedBoxes.sort(
     (a, b) => tree[a].topRow - tree[b].topRow,
   );
 
   // For each of the boxes which have been effected
   for (const effectedBoxId of sortedEffectedBoxIds) {
-    let _offset;
+    let _offset = 0;
     const bottomMostAboves = getNearestAbove(
       tree,
       effectedBoxId,
       repositionedBoxes,
     );
+
     // for each of the bottom most above boxes.
     // Note: There can be more than one if two above widgets have the same bottomrow
     for (const aboveId of bottomMostAboves) {
       // If the above box has been effected by another box change height
       // Or, if this above box itself has changed height
-      if (Array.isArray(effectedBoxMap[aboveId]) || delta[aboveId]) {
+      if (effectedBoxes.includes(aboveId) || delta[aboveId]) {
         // In case the above box has changed heights
         const _aboveOffset = repositionedBoxes[aboveId]
           ? repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow
@@ -177,15 +199,6 @@ export function computeChangeInPositionBasedOnDelta(
         const negativeOffset = getNegativeOffset(tree, effectedBoxId, aboveId);
         _offset = negativeOffset;
       }
-    }
-
-    // If _offset is not defined, this means that this box is the topmost box
-    if (_offset === undefined) {
-      // The effectedBoxId is the topmost box, so the _offset will most likely always be 0
-      _offset = effectedBoxMap[effectedBoxId].reduce(
-        (prev, next) => prev + next,
-        0,
-      );
     }
 
     // Finally update the repositioned box with the _offset.

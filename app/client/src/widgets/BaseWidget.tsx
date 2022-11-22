@@ -200,12 +200,17 @@ abstract class BaseWidget<
     This is for performance. We don't want unnecessary code to run
   */
   updateDynamicHeight = (height: number): void => {
-    const shouldUpdate = shouldUpdateDynamicHeight(this.props, height);
+    const paddedHeight =
+      Math.ceil(
+        Math.ceil(height + WIDGET_PADDING * 2) /
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      ) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+    const shouldUpdate = shouldUpdateDynamicHeight(this.props, paddedHeight);
+
     const { updateWidgetAutoHeight } = this.context;
     if (updateWidgetAutoHeight) {
       const { widgetId } = this.props;
-
-      const paddedHeight = height + WIDGET_PADDING * 2;
 
       shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
     }
