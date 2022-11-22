@@ -173,7 +173,7 @@ function CanvasContainer() {
         mouseDownHandler(e, false),
       );
     } else {
-      const ele: any = document.getElementById("main-canvas-container");
+      const ele: any = document.getElementById("canvas-viewport");
       ele.style.width = "inherit";
     }
   }, [appLayout, isPreviewMode, currentPageId]);
