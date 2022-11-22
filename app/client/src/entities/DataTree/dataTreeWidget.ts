@@ -20,6 +20,7 @@ const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
   dataTreeWidgetWithoutMetaProps: DataTreeWidget;
+  overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
 } => {
   const derivedProps: any = {};
@@ -68,6 +69,7 @@ const generateDataTreeWidgetWithoutMeta = (
     // Do not log errors for the derived property bindings
     blockedDerivedProps[propertyName] = true;
   });
+  const overridingMetaPropsMap: Record<string, boolean> = {};
 
   Object.entries(defaultProps).forEach(
     ([propertyName, defaultPropertyName]) => {
@@ -93,6 +95,7 @@ const generateDataTreeWidgetWithoutMeta = (
           type: OverridingPropertyType.META,
         });
       }
+      overridingMetaPropsMap[propertyName] = true;
     },
   );
 
@@ -156,6 +159,7 @@ const generateDataTreeWidgetWithoutMeta = (
   );
   return {
     dataTreeWidgetWithoutMetaProps,
+    overridingMetaPropsMap,
     defaultMetaProps,
   };
 };
@@ -186,9 +190,20 @@ export const generateDataTreeWidget = (
   const {
     dataTreeWidgetWithoutMetaProps: dataTreeWidget,
     defaultMetaProps,
+    overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
 
-  const meta = _.merge({}, widgetMetaProps);
+  const overridingMetaProps: Record<string, unknown> = {};
+
+  //overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
+  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+    if (overridingMetaPropsMap[key]) {
+      overridingMetaProps[key] =
+        key in widgetMetaProps ? widgetMetaProps[key] : value;
+    }
+  });
+
+  const meta = _.merge({}, overridingMetaProps, widgetMetaProps);
 
   // if meta property's value is defined in widgetMetaProps then use that else set meta property to default metaProperty value.
   const mergedProperties = _.merge({}, defaultMetaProps, widgetMetaProps);
@@ -200,5 +215,6 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
+  dataTreeWidget["metaProps"] = widgetMetaProps;
   return dataTreeWidget;
 };
