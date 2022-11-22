@@ -225,15 +225,17 @@ public class RestApiPlugin extends BasePlugin {
 
             for (String queryParam : queryParamArray) {
                 String[] keyValue = queryParam.split("=");
-                if (keyValue.length == 2) {
-                    if (responseBuilder.length() != 0) {
+
+                String key = keyValue.length > 0 ? keyValue[0] : "";
+                String value = keyValue.length > 1 ? keyValue[1] : "";
+
+                if (responseBuilder.length() != 0) {
                         responseBuilder.append("&");
                     }
-                    responseBuilder
-                            .append(URLEncoder.encode(keyValue[0],StandardCharsets.UTF_8))
-                            .append("=")
-                            .append(URLEncoder.encode(keyValue[1], StandardCharsets.UTF_8));
-                }
+                responseBuilder
+                        .append(URLEncoder.encode(key,StandardCharsets.UTF_8))
+                        .append("=")
+                        .append(URLEncoder.encode(value, StandardCharsets.UTF_8));
             }
 
             return responseBuilder.toString();
