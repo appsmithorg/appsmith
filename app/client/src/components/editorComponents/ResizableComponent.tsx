@@ -15,7 +15,7 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import Resizable from "resizable/resizenreflow";
 import { omit, get } from "lodash";
@@ -53,6 +53,7 @@ import {
 } from "selectors/widgetSelectors";
 import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -63,6 +64,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 ) {
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
+  const dispatch = useDispatch();
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -233,6 +235,20 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget && !isLastSelected && selectWidget(props.widgetId);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
+    // If resizing a fill widget, then convert it to a hug widget.
+    if (props.responsiveBehavior === ResponsiveBehavior.Fill)
+      dispatch(
+        batchUpdateMultipleWidgetProperties([
+          {
+            widgetId: props.widgetId,
+            updates: {
+              modify: {
+                responsiveBehavior: ResponsiveBehavior.Hug,
+              },
+            },
+          },
+        ]),
+      );
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,
@@ -241,7 +257,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const disabledHorizontalHandles =
     props.isFlexChild &&
     props.responsiveBehavior === ResponsiveBehavior.Fill &&
-    props.direction === LayoutDirection.Vertical
+    props.direction === LayoutDirection.Vertical &&
+    false
       ? ["left", "right", "bottomLeft", "bottomRight", "topLeft", "topRight"]
       : [];
   const handles = useMemo(() => {

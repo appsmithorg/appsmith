@@ -239,7 +239,6 @@ const PropertyControl = memo((props: Props) => {
   );
   const onBatchUpdatePropertiesOfMultipleWidgets = useCallback(
     (updatesArray: UpdateWidgetPropertyPayload[]) => {
-      console.log("#### updates", updatesArray);
       dispatch(batchUpdateMultipleWidgetProperties(updatesArray));
     },
     [],
