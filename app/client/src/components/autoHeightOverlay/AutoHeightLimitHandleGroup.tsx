@@ -73,23 +73,20 @@ const AutoHeightLimitHandle = ({
   const ref = useRef<HTMLDivElement>(null);
   const { onStart, onStop, onUpdate } = onDragCallbacks;
 
-  const bind = useDrag(
-    (state) => {
-      if (state.first) {
-        onStart();
-        return;
-      }
+  const bind = useDrag((state) => {
+    if (state.first) {
+      onStart();
+      return;
+    }
 
-      if (state.last) {
-        onStop();
-        return;
-      }
-      const [mx, my] = state.movement;
+    if (state.last) {
+      onStop();
+      return;
+    }
+    const [mx, my] = state.movement;
 
-      onUpdate(mx, my);
-    },
-    { axis: "y" },
-  );
+    onUpdate(mx, my);
+  });
 
   const bindings = bind();
 
@@ -114,7 +111,7 @@ const AutoHeightLimitHandle = ({
       {...onMouseHoverFunctions}
     >
       <AutoHeightLimitHandleBorder isActive={isActive} />
-      <AutoHeightLimitHandleDot isActive={isActive} isDragging={isDragging} />
+      <AutoHeightLimitHandleDot isDragging={isDragging} />
       {!isColliding ? (
         <AutoHeightLimitHandleLabel isActive={isActive}>
           {label}: {heightToRows(height)} rows
