@@ -278,7 +278,7 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
     {},
   );
   for (const item in sortedLogs) {
-    const logType = (item as unknown) as LOG_TYPE;
+    const logType = Number(item);
     const payload = sortedLogs[item];
     switch (logType) {
       case LOG_TYPE.WIDGET_UPDATE:
