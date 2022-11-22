@@ -17,7 +17,7 @@ describe("Preview mode functionality", function() {
 
   it("checks if widgets can be selected or not", function() {
     // in preview mode, entity explorer and property pane are not visible
-    const selector = `.t--draggable-buttonwidget`;
+    const selector = `.t--widget-buttonwidget`;
     cy.wait(500);
     cy.get(selector)
       .first()

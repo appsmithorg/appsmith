@@ -32,10 +32,7 @@ import {
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
 import { GridDefaults } from "constants/WidgetConstants";
@@ -60,7 +57,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { updateWidget } = useContext(EditorContext);
 
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -241,11 +237,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props]);
 
   const isEnabled =
-    !isDragging &&
-    isWidgetFocused &&
-    !props.resizeDisabled &&
-    !isSnipingMode &&
-    !isPreviewMode;
+    !isDragging && isWidgetFocused && !props.resizeDisabled && !isSnipingMode;
 
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
