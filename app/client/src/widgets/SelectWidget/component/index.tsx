@@ -72,9 +72,9 @@ class SelectComponent extends React.Component<
 
   togglePopoverVisibility = () => {
     if (this.state.isOpen) {
-      this.handleOnBlur();
+      this.handleOnDropdownClose();
     } else {
-      this.handleOnFocus();
+      this.handleOnDropdownOpen();
     }
     this.setState({ isOpen: !this.state.isOpen });
   };
@@ -162,14 +162,14 @@ class SelectComponent extends React.Component<
     event.stopPropagation();
     this.onItemSelect({});
   };
-  handleOnFocus = () => {
-    if (!this.state.isOpen && this.props.onFocus) {
-      this.props.onFocus();
+  handleOnDropdownOpen = () => {
+    if (!this.state.isOpen && this.props.onDropdownOpen) {
+      this.props.onDropdownOpen();
     }
   };
-  handleOnBlur = () => {
-    if (this.state.isOpen && this.props.onBlur) {
-      this.props.onBlur();
+  handleOnDropdownClose = () => {
+    if (this.state.isOpen && this.props.onDropdownClose) {
+      this.props.onDropdownClose();
     }
   };
   handleCloseList = () => {
@@ -180,7 +180,7 @@ class SelectComponent extends React.Component<
         this.props.options[this.props.selectedIndex],
       );
     } else {
-      this.handleOnBlur();
+      this.handleOnDropdownClose();
       /**
        * Clear the search input on closing the widget
        * and when serverSideFiltering is off
@@ -445,8 +445,8 @@ export interface SelectComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   value?: string | number;
   label?: string | number;
   filterText?: string;

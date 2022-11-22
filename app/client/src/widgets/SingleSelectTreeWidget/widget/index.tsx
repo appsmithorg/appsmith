@@ -295,18 +295,18 @@ class SingleSelectTreeWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the select field receives focus",
-            propertyName: "onFocus",
-            label: "onFocus",
+            helpText: "Triggers an action when the dropdown opens",
+            propertyName: "onDropdownOpen",
+            label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the select field loses focus",
-            propertyName: "onBlur",
-            label: "onBlur",
+            helpText: "Triggers an action when the dropdown closes",
+            propertyName: "onDropdownClose",
+            label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -507,9 +507,9 @@ class SingleSelectTreeWidget extends BaseWidget<
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
-        onBlur={this.onBlur}
         onChange={this.onOptionChange}
-        onFocus={this.onFocus}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
@@ -535,25 +535,25 @@ class SingleSelectTreeWidget extends BaseWidget<
     });
   };
 
-  onFocus = () => {
-    if (this.props.onFocus) {
+  onDropdownOpen = () => {
+    if (this.props.onDropdownOpen) {
       super.executeAction({
-        triggerPropertyName: "onFocus",
-        dynamicString: this.props.onFocus,
+        triggerPropertyName: "onDropdownOpen",
+        dynamicString: this.props.onDropdownOpen,
         event: {
-          type: EventType.ON_FOCUS,
+          type: EventType.ON_DROPDOWN_OPEN,
         },
       });
     }
   };
 
-  onBlur = () => {
-    if (this.props.onBlur) {
+  onDropdownClose = () => {
+    if (this.props.onDropdownClose) {
       super.executeAction({
-        triggerPropertyName: "onBlur",
-        dynamicString: this.props.onBlur,
+        triggerPropertyName: "onDropdownClose",
+        dynamicString: this.props.onDropdownClose,
         event: {
-          type: EventType.ON_BLUR,
+          type: EventType.ON_DROPDOWN_CLOSE,
         },
       });
     }
@@ -577,8 +577,8 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   options?: DropdownOption[];
   flattenedOptions?: DropdownOption[];
   onOptionChange: string;
-  onFocus?: string;
-  onBlur?: string;
+  onDropdownOpen?: string;
+  onDropdownClose?: string;
   defaultOptionValue: string;
   isRequired: boolean;
   isLoading: boolean;

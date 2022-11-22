@@ -44,8 +44,8 @@ export interface TreeSelectProps
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
-  onFocus?: () => void;
-  onBlur?: () => void;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   labelStyle?: string;
   compactMode: boolean;
   dropDownWidth: number;
@@ -121,9 +121,9 @@ function SingleSelectTreeComponent({
   labelTextSize,
   labelWidth,
   loading,
-  onBlur,
   onChange,
-  onFocus,
+  onDropdownClose,
+  onDropdownOpen,
   options,
   placeholder,
   renderMode,
@@ -149,8 +149,8 @@ function SingleSelectTreeComponent({
   } = useDropdown({
     inputRef,
     renderMode,
-    onFocus,
-    onBlur,
+    onDropdownOpen,
+    onDropdownClose,
   });
 
   // treeDefaultExpandAll is uncontrolled after first render,

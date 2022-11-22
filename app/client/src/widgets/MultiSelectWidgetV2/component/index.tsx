@@ -60,6 +60,8 @@ export interface MultiSelectProps
   accentColor?: string;
   onFocus?: () => void;
   onBlur?: () => void;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   renderMode?: RenderMode;
 }
 
@@ -85,10 +87,10 @@ function MultiSelectComponent({
   labelTextSize,
   labelWidth,
   loading,
-  onBlur,
   onChange,
+  onDropdownClose,
+  onDropdownOpen,
   onFilterChange,
-  onFocus,
   options,
   placeholder,
   renderMode,
@@ -116,8 +118,8 @@ function MultiSelectComponent({
   } = useDropdown({
     inputRef,
     renderMode,
-    onFocus,
-    onBlur,
+    onDropdownOpen,
+    onDropdownClose,
   });
 
   // SelectAll if all options are in Value

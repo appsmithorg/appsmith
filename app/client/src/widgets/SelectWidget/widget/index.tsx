@@ -371,18 +371,18 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the select field receives focus",
-            propertyName: "onFocus",
-            label: "onFocus",
+            helpText: "Triggers an action when the dropdown opens",
+            propertyName: "onDropdownOpen",
+            label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the select field loses focus",
-            propertyName: "onBlur",
-            label: "onBlur",
+            helpText: "Triggers an action when the dropdown closes",
+            propertyName: "onDropdownClose",
+            label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -600,9 +600,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
-        onBlur={this.onBlur}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
         onFilterChange={this.onFilterChange}
-        onFocus={this.onFocus}
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
@@ -663,25 +663,25 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     }
   };
 
-  onFocus = () => {
-    if (this.props.onFocus) {
+  onDropdownOpen = () => {
+    if (this.props.onDropdownOpen) {
       super.executeAction({
-        triggerPropertyName: "onFocus",
-        dynamicString: this.props.onFocus,
+        triggerPropertyName: "onDropdownOpen",
+        dynamicString: this.props.onDropdownOpen,
         event: {
-          type: EventType.ON_FOCUS,
+          type: EventType.ON_DROPDOWN_OPEN,
         },
       });
     }
   };
 
-  onBlur = () => {
-    if (this.props.onBlur) {
+  onDropdownClose = () => {
+    if (this.props.onDropdownClose) {
       super.executeAction({
-        triggerPropertyName: "onBlur",
-        dynamicString: this.props.onBlur,
+        triggerPropertyName: "onDropdownClose",
+        dynamicString: this.props.onDropdownClose,
         event: {
-          type: EventType.ON_BLUR,
+          type: EventType.ON_DROPDOWN_CLOSE,
         },
       });
     }
@@ -701,8 +701,8 @@ export interface SelectWidgetProps extends WidgetProps {
   selectedIndex?: number;
   options?: DropdownOption[];
   onOptionChange?: string;
-  onFocus?: string;
-  onBlur?: string;
+  onDropdownOpen?: string;
+  onDropdownClose?: string;
   defaultOptionValue?: any;
   value?: any;
   label?: any;
