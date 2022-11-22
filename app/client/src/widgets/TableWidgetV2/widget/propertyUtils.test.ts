@@ -6,6 +6,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnAliasValidation,
+  updateAliasOnLabelChange,
 } from "./propertyUtils";
 import _ from "lodash";
 import { ColumnTypes, TableWidgetProps } from "../constants";
@@ -452,5 +453,52 @@ describe("uniqueColumnAliasValidation", () => {
       parsed: "column1",
       messages: [""],
     });
+  });
+});
+
+describe("updateAliasOnLabelChange", () => {
+  it("should generate correct array for propertyToUpdate", () => {
+    expect(
+      updateAliasOnLabelChange(
+        {} as TableWidgetProps,
+        "primaryColumns.customColumn1.label",
+        "customColumn12",
+      ),
+    ).toEqual([
+      {
+        propertyPath: "primaryColumns.customColumn1.alias",
+        propertyValue: "customColumn12",
+      },
+    ]);
+  });
+
+  it("should generate empty array for propertyToUpdate when the column is not a custom column", () => {
+    expect(
+      updateAliasOnLabelChange(
+        {} as TableWidgetProps,
+        "primaryColumns.resume_url.label",
+        "customColumn12",
+      ),
+    ).toEqual([]);
+  });
+
+  it("should generate empty array for propertyToUpdate when label property is not being changed", () => {
+    expect(
+      updateAliasOnLabelChange(
+        {} as TableWidgetProps,
+        "primaryColumns.customColumn1.notlabel",
+        "customColumn12",
+      ),
+    ).toEqual([]);
+  });
+
+  it("should generate proper array for propertyToUpdate for any custom column", () => {
+    expect(
+      updateAliasOnLabelChange(
+        {} as TableWidgetProps,
+        "primaryColumns.customColumn12345.label",
+        "customColumn12",
+      ),
+    ).toEqual([]);
   });
 });
