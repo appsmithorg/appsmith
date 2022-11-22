@@ -42,8 +42,6 @@ import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
-import { getAppStoreName } from "constants/AppConstants";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
