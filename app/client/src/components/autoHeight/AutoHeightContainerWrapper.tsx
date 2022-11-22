@@ -8,7 +8,6 @@ import {
   getWidgetMinAutoHeight,
 } from "widgets/WidgetUtils";
 import AutoHeightContainer from "./AutoHeightContainer";
-import { GridDefaults } from "constants/WidgetConstants";
 
 export type AutoHeightWrapperProps = {
   widgetProps: WidgetProps;
