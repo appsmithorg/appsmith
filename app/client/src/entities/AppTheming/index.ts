@@ -4,7 +4,9 @@ export type Stylesheet = {
   };
 };
 
-export type AppThemeStylesheet = {
+export type AppThemeStylesheet<
+  T extends Stylesheet = Record<string, never>
+> = T & {
   [key: string]:
     | undefined
     | string
@@ -13,12 +15,6 @@ export type AppThemeStylesheet = {
         [key: string]: string;
       };
   childStylesheet?: Stylesheet;
-  resetButtonStyles?: {
-    [key: string]: string;
-  };
-  submitButtonStyles?: {
-    [key: string]: string;
-  };
 };
 
 export type ButtonStyles = {
