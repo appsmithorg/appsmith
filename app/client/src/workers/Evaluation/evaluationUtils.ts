@@ -18,8 +18,8 @@ import {
   DataTreeJSAction,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
-import _, { find, get, isEqual, set } from "lodash";
-import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import _, { find, get, isEmpty, set } from "lodash";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
@@ -705,10 +705,8 @@ export const widgetPathsNotToOverride = (
 ) => {
   let pathsNotToOverride: string[] = [];
   const overridingPropertyPaths = entity.overridingPropertyPaths[propertyPath];
-  if (
-    isNewWidget &&
-    !isEqual(entity.meta, WidgetFactory.getWidgetMetaPropertiesMap(entity.type))
-  ) {
+
+  if (isNewWidget && !isEmpty(entity.meta)) {
     const metaPaths = overridingPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
