@@ -166,6 +166,7 @@ export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
+  __config__: Record<string, unknown>;
 }
 export type DataTreeObjectEntity =
   | DataTreeAction

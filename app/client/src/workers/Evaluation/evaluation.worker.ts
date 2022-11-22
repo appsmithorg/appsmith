@@ -1,6 +1,11 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeAppsmith,
+  DataTreeEntity,
+  DataTreeObjectEntity,
+} from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -11,6 +16,7 @@ import {
   CrashingError,
   DataTreeDiff,
   getSafeToRenderDataTree,
+  isAppsmithEntity,
   removeFunctions,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -41,6 +47,22 @@ const CANVAS = "canvas";
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
+
+function createNewEntity(entity: DataTreeObjectEntity) {
+  const newObj = Object.create(entity.__config__ || null);
+  const { __config__, ...rest } = entity;
+  Object.assign(newObj, rest) as DataTreeEntity;
+  return newObj;
+}
+
+function createUnEvalTree(unevalTree: DataTree) {
+  const newUnEvalTree: DataTree = {};
+  // check for entity.__config__
+  Object.entries(unevalTree).forEach(([key, entity]) => {
+    newUnEvalTree[key] = createNewEntity(entity as DataTreeObjectEntity);
+  });
+  return newUnEvalTree;
+}
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(fn: typeof eventRequestHandler) {
@@ -238,10 +260,13 @@ function eventRequestHandler({
         requiresLinting,
         shouldReplay,
         theme,
-        unevalTree,
+        unevalTree: __unevalTree__,
         widgets,
         widgetTypeConfigMap,
       } = requestData as EvalTreeRequestData;
+
+      const unevalTree = createUnEvalTree(__unevalTree__);
+
       try {
         if (!dataTreeEvaluator) {
           isCreateFirstTree = true;
@@ -251,6 +276,7 @@ function eventRequestHandler({
             widgetTypeConfigMap,
             allActionValidationConfig,
           );
+
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
           );
