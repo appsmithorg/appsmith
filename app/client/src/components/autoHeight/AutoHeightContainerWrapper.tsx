@@ -1,4 +1,3 @@
-import { GridDefaults } from "constants/WidgetConstants";
 import React, { ReactNode } from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -31,9 +30,6 @@ function AutoHeightContainerWrapper(props: AutoHeightWrapperProps) {
   const maxDynamicHeight = getWidgetMaxAutoHeight(widgetProps);
   const minDynamicHeight = getWidgetMinAutoHeight(widgetProps);
 
-  const widgetHeightInPixels =
-    (widgetProps.bottomRow - widgetProps.topRow) *
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const isAutoHeightWithLimits =
     widgetProps.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
 
@@ -43,7 +39,6 @@ function AutoHeightContainerWrapper(props: AutoHeightWrapperProps) {
       maxDynamicHeight={maxDynamicHeight}
       minDynamicHeight={minDynamicHeight}
       onHeightUpdate={onHeightUpdate}
-      widgetHeightInPixels={widgetHeightInPixels}
       widgetProps={widgetProps}
     >
       {children}

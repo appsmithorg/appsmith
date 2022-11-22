@@ -16,7 +16,6 @@ describe("<AutoHeightContainer />", () => {
           maxDynamicHeight={0}
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
-          widgetHeightInPixels={200}
         >
           <div data-testid="test" />
         </AutoHeightContainer>,
@@ -33,7 +32,6 @@ describe("<AutoHeightContainer />", () => {
           maxDynamicHeight={0}
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
-          widgetHeightInPixels={200}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
@@ -55,7 +53,6 @@ describe("<AutoHeightContainer />", () => {
           maxDynamicHeight={0}
           minDynamicHeight={0}
           onHeightUpdate={onHeightUpdate}
-          widgetHeightInPixels={200}
         >
           <div data-testid="test" />
         </AutoHeightContainer>
