@@ -1,5 +1,3 @@
-import { uniq } from "lodash";
-import { concatWithArray, pushToArray } from "utils/helpers";
 import { TreeNode } from "./constants";
 
 /**
@@ -93,26 +91,18 @@ export function getNearestAbove(
 function getAllEffectedBoxes(
   effectorBoxId: string,
   tree: Record<string, TreeNode>,
-  effectedBoxes: string[],
-) {
-  let _processed: string[] = [...effectedBoxes];
-  let _effectedBoxes: string[] = tree[effectorBoxId].belows;
-  let index = 0;
-  let belowId = _effectedBoxes[index];
-  while (belowId) {
-    if (_processed.indexOf(belowId) === -1) {
-      _effectedBoxes = concatWithArray(
-        tree[belowId].belows,
-        _effectedBoxes,
-        true,
-      ) as string[];
-      _processed = pushToArray(belowId, _processed) as string[];
+  effectedBoxes: string[] = [],
+  _processed: { [key: string]: boolean } = {},
+): string[] {
+  const belows = tree[effectorBoxId].belows;
+  belows.forEach((belowId) => {
+    if (!_processed[belowId]) {
+      getAllEffectedBoxes(belowId, tree, effectedBoxes, _processed);
+      (effectedBoxes as string[]).push(belowId);
+      _processed[belowId] = true;
     }
-    index++;
-    belowId = _effectedBoxes[index];
-  }
-
-  return uniq([...effectedBoxes, ..._effectedBoxes]);
+  });
+  return effectedBoxes;
 }
 
 // This function computes the new positions for boxes based on the boxes which have changed height
@@ -129,6 +119,10 @@ export function computeChangeInPositionBasedOnDelta(
 
   let effectedBoxes: string[] = [];
 
+  // This value stores all the effectedBoxes that have already been computed,
+  // So that it doesn't repeat itself while computing the effectedBoxes
+  const _processed = {};
+
   // For each box which has changed height (box delta)
   for (const boxId in delta) {
     // Create an effectedBoxMap, which contains the changes for each of the boxes effected by the delta of this box
@@ -136,7 +130,7 @@ export function computeChangeInPositionBasedOnDelta(
 
     // We simply take all the boxes which are below this box from the tree
     // and add the delta to the effectedBoxMap where the key is the below boxId from the tree
-    effectedBoxes = getAllEffectedBoxes(boxId, tree, effectedBoxes);
+    effectedBoxes = getAllEffectedBoxes(boxId, tree, effectedBoxes, _processed);
 
     // Add this box's delta to the repositioning, as this won't show up in the effectedBoxMap
     repositionedBoxes[boxId] = {
