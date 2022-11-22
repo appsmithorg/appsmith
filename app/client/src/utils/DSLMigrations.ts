@@ -69,6 +69,8 @@ import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskin
 // import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
+import { traverseDSLAndMigrate } from "./WidgetMigrationUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1127,20 +1129,16 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 };
 
 function migrateLabelPosition(currentDSL: DSLWidget) {
-  if (
-    currentDSL.type === "PHONE_INPUT_WIDGET" ||
-    currentDSL.type === "CURRENCY_INPUT_WIDGET"
-  ) {
-    if (currentDSL.labelPosition === undefined) {
-      currentDSL.labelPosition = LabelPosition.Left;
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (
+      widget.type === "PHONE_INPUT_WIDGET" ||
+      widget.type === "CURRENCY_INPUT_WIDGET"
+    ) {
+      if (widget.labelPosition === undefined) {
+        widget.labelPosition = LabelPosition.Left;
+      }
     }
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateLabelPosition(child),
-    );
-  }
-  return currentDSL;
+  });
 }
 
 export const migrateButtonVariant = (currentDSL: DSLWidget) => {
