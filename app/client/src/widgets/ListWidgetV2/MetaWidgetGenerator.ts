@@ -397,6 +397,13 @@ class MetaWidgetGenerator {
     return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
   };
 
+  /**
+   * The removed widgets are
+   * 1. The removed widgets from view i.e diff from previous View and Current View
+   * 2. The resetWidgets i.e when Primary Keys changes and caches are cleared
+   * 3. The previously cached rows that are not in the current view
+   */
+
   private getRemovedMetaWidgetIds = (resetMetaWidgetIds: string[]) => {
     const {
       cachedMetaWidgetIds,
