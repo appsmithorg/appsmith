@@ -244,8 +244,8 @@ describe("Table Widget V2 Functionality", function() {
     });
   });
 
-  it("5. should check that adding cyclic dependency in the table doesn't crash the app", () => {
-    cy.get(publish.backToEditor).click();
+  it("7. should check that adding cyclic dependency in the table doesn't crash the app", () => {
+    //cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidgetv2");
 
     cy.updateCodeInput(".t--property-control-defaultselectedrow", `{{Table1}}`);
