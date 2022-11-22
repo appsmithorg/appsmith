@@ -5,6 +5,7 @@ import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -77,6 +78,11 @@ public class OAuth2 extends AuthenticationDTO {
     String resource;
 
     boolean useSelfSignedCert = false;
+
+    @Override
+    protected String getSecret() {
+        return clientSecret;
+    }
 
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {

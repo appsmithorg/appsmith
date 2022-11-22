@@ -3,6 +3,7 @@ package com.appsmith.external.models;
 import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.helpers.PluginUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,4 +24,10 @@ public class BasicAuth extends AuthenticationDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Encrypted
     String password;
+
+
+    @Override
+    protected String getSecret() {
+        return password;
+    }
 }
