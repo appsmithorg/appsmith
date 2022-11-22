@@ -1,5 +1,8 @@
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import { DataTreeAction, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  ENTITY_TYPE,
+  UnEvalTreeAction,
+} from "entities/DataTree/dataTreeFactory";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
@@ -10,7 +13,7 @@ export const generateDataTreeAction = (
   action: ActionData,
   editorConfig: any[],
   dependencyConfig: DependencyMap = {},
-): DataTreeAction => {
+): UnEvalTreeAction => {
   let dynamicBindingPathList: DynamicPath[] = [];
   let datasourceUrl = "";
 

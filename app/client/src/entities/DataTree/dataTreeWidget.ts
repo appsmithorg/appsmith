@@ -5,11 +5,11 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import {
-  DataTreeWidget,
   ENTITY_TYPE,
   OverridingPropertyPaths,
   OverridingPropertyType,
   PropertyOverrideDependency,
+  UnEvalTreeWidget,
   WidgetEntityConfig,
 } from "./dataTreeFactory";
 import { setOverridingProperty } from "./utils";
@@ -20,7 +20,7 @@ import { setOverridingProperty } from "./utils";
 const generateDataTreeWidgetWithoutMeta = (
   widget: FlattenedWidgetProps,
 ): {
-  dataTreeWidgetWithoutMetaProps: DataTreeWidget;
+  dataTreeWidgetWithoutMetaProps: UnEvalTreeWidget;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
   entityConfig: WidgetEntityConfig;

@@ -60,7 +60,6 @@ export interface ActionEntityEvalTree {
     isExecutionSuccess: boolean;
     headers: unknown;
   };
-  __config__: ActionEntityConfig;
 }
 
 export interface ActionEntityConfig {
@@ -77,8 +76,10 @@ export interface ActionEntityConfig {
   name: string;
   datasourceUrl: string;
 }
-
-export type DataTreeAction = ActionEntityEvalTree;
+export interface UnEvalTreeAction extends ActionEntityEvalTree {
+  __config__: ActionEntityConfig;
+}
+export type DataTreeAction = ActionEntityEvalTree & ActionEntityConfig;
 
 export interface JSActionEntityConfig {
   meta: Record<string, MetaArgs>;
@@ -96,10 +97,12 @@ export interface JSActionEntityConfig {
 export interface JSActionEvalTree {
   [propName: string]: unknown;
   body: string;
+}
+export interface UnEvalTreeJSAction extends JSActionEvalTree {
   __config__: JSActionEntityConfig;
 }
 
-export type DataTreeJSAction = JSActionEvalTree;
+export type DataTreeJSAction = JSActionEvalTree & JSActionEntityConfig;
 
 export interface MetaArgs {
   arguments: Variable[];
@@ -126,19 +129,6 @@ export type PropertyOverrideDependency = Record<
   }
 >;
 
-// export interface DataTreeWidget extends WidgetProps {
-//   bindingPaths: Record<string, EvaluationSubstitutionType>;
-//   reactivePaths: Record<string, EvaluationSubstitutionType>;
-//   triggerPaths: Record<string, boolean>;
-//   validationPaths: Record<string, ValidationConfig>;
-//   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
-//   logBlackList: Record<string, true>;
-//   propertyOverrideDependency: PropertyOverrideDependency;
-//   overridingPropertyPaths: OverridingPropertyPaths;
-//   privateWidgets: PrivateWidgets;
-//   meta: Record<string, unknown>;
-// }
-
 export interface WidgetEntityConfig
   extends Partial<WidgetProps>,
     Omit<WidgetConfigProps, "widgetName" | "rows" | "columns"> {
@@ -155,12 +145,13 @@ export interface WidgetEntityConfig
   type: string;
 }
 
-export type DataTreeWidget = WidgetEvalTree;
+export type WidgetEvalTree = Partial<WidgetProps>;
 
-export interface WidgetEvalTree extends Partial<WidgetProps> {
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
+export interface UnEvalTreeWidget extends WidgetEvalTree {
   __config__: WidgetEntityConfig;
 }
+
+export type DataTreeWidget = WidgetEvalTree & WidgetEntityConfig;
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
@@ -198,19 +189,6 @@ export type DataTreeEntityConfig =
   | JSActionEntityConfig
   | DataTreeAppsmith;
 
-export type EntityConfigCollection = {
-  [entityName: string]: DataTreeEntityConfig;
-};
-
-export type EvalTreeEntity =
-  | JSActionEvalTree
-  | ActionEntityEvalTree
-  | WidgetEvalTree
-  | DataTreeAppsmith;
-
-export type EvalTree = {
-  [entityName: string]: EvalTreeEntity;
-};
 export class DataTreeFactory {
   static create({
     actions,

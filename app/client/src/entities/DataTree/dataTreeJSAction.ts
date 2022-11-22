@@ -1,7 +1,7 @@
 import {
-  DataTreeJSAction,
   ENTITY_TYPE,
   MetaArgs,
+  UnEvalTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -11,7 +11,7 @@ const reg = /this\./g;
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
-): DataTreeJSAction => {
+): UnEvalTreeJSAction => {
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
