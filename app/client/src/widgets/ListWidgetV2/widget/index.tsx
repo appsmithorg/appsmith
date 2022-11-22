@@ -635,8 +635,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   getCachedRowIndexes = () => {
     const cachedRowIndexes = new Set<number>();
 
-    cachedRowIndexes.add(this.props.selectedRowIndex);
-    cachedRowIndexes.add(this.props.triggeredRowIndex);
+    cachedRowIndexes.add(this.props.selectedRowIndex ?? -1);
+    cachedRowIndexes.add(this.props.triggeredRowIndex ?? -1);
 
     return Array.from(cachedRowIndexes);
   };
@@ -966,9 +966,9 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   pageNo: number;
   pageSize: number;
   currentViewRows: string;
-  selectedRowIndex: number;
+  selectedRowIndex?: number;
   selectedRow: Record<string, unknown>;
-  triggeredRowIndex: number;
+  triggeredRowIndex?: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
 }
