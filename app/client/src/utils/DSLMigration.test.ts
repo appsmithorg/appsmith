@@ -21,6 +21,7 @@ import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { originalDSLForDSLMigrations } from "./testDSLs";
 import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
 import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
+import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
 
 type Migration = {
   functionLookup: {
@@ -652,6 +653,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 66,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateLabelPosition,
+        functionName: "migrateLabelPosition",
+      },
+    ],
+    version: 67,
   },
 ];
 

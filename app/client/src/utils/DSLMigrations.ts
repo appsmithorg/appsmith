@@ -38,11 +38,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
-import {
-  ButtonStyleTypes,
-  ButtonVariantTypes,
-  LabelPosition,
-} from "components/constants";
+import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
   migrateModalIconButtonWidget,
@@ -71,6 +67,7 @@ import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigration
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { traverseDSLAndMigrate } from "./WidgetMigrationUtils";
 import { WidgetProps } from "widgets/BaseWidget";
+import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1127,18 +1124,6 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   return currentDSL;
 };
-
-function migrateLabelPosition(currentDSL: DSLWidget) {
-  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
-    if (
-      (widget.type === "PHONE_INPUT_WIDGET" ||
-        widget.type === "CURRENCY_INPUT_WIDGET") &&
-      widget.labelPosition === undefined
-    ) {
-      widget.labelPosition = LabelPosition.Left;
-    }
-  });
-}
 
 export const migrateButtonVariant = (currentDSL: DSLWidget) => {
   if (
