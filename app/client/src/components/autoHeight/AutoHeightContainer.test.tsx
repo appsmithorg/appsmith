@@ -22,7 +22,7 @@ describe("<AutoHeightContainer />", () => {
         </AutoHeightContainer>,
       )
       .toJSON();
-    expect(tree).toHaveStyleRule("height", "auto");
+    expect(tree).toHaveStyleRule("height", "auto !important");
   });
 
   describe("when isAutoHeightWithLimits is false.", () => {
