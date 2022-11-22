@@ -65,6 +65,16 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
   const [version] = versionMatch ? versionMatch : [];
 
+  let stringifiedDefs = "";
+
+  try {
+    stringifiedDefs = JSON.stringify(defs);
+  } catch (e) {
+    stringifiedDefs = JSON.stringify({
+      "!name": `LIB/${accessor[accessor.length - 1]}`,
+    });
+  }
+
   const response: ApiResponse<boolean> = yield call(
     LibraryApi.addLibrary,
     applicationId,
@@ -72,7 +82,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
       name,
       version,
       accessor,
-      defs,
+      defs: stringifiedDefs,
       url,
     },
   );
@@ -207,9 +217,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) return;
 
-    const libraries = response.data as Array<
-      TJSLibrary & { defs: Record<string, any> }
-    >;
+    const libraries = response.data as Array<TJSLibrary & { defs: string }>;
 
     const success: boolean = yield call(
       EvalWorker.request,
@@ -232,7 +240,8 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     if (mode === APP_MODE.EDIT) {
       //Add error handler here
       for (const lib of libraries) {
-        TernServer.updateDef(lib.defs["!name"], lib.defs);
+        const defs = JSON.parse(lib.defs);
+        TernServer.updateDef(defs["!name"], defs);
       }
       yield put({
         type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
