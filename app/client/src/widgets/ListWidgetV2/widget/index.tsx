@@ -266,7 +266,10 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     } = this.props;
     const pageSize = this.pageSize;
 
+    const cacheRowIndexes = this.getCachedRowIndexes();
+
     return {
+      cacheIndexArr: cacheRowIndexes,
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
@@ -633,6 +636,15 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.updateTriggeredRow(rowIndex);
   };
 
+  getCachedRowIndexes = () => {
+    const cachedRowIndexes = new Set<number>();
+
+    cachedRowIndexes.add(this.props.selectedRowIndex);
+    cachedRowIndexes.add(this.props.triggeredRowIndex);
+
+    return Array.from(cachedRowIndexes);
+  };
+
   updateSelectedRowIndex = (rowIndex: number) => {
     const { selectedRowIndex } = this.props;
 
@@ -766,8 +778,11 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         child.canExtend = true;
         child.children = child.children?.map((container, viewIndex) => {
           const rowIndex = this.getRowIndex(viewIndex);
+          const focused =
+            this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
           return {
             ...container,
+            focused,
             selected: selectedRowIndex === rowIndex,
             onClick: (e: React.MouseEvent<HTMLElement>) => {
               e.stopPropagation();

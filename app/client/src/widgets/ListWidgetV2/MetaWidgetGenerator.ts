@@ -35,6 +35,7 @@ type TemplateWidgets = ListWidgetProps<
 >["flattenedChildCanvasWidgets"];
 
 export type GeneratorOptions = {
+  cacheIndexArr: number[];
   containerParentId: string;
   containerWidgetId: string;
   currTemplateWidgets: TemplateWidgets;
@@ -97,8 +98,8 @@ type GeneratedMetaWidget = {
 };
 
 type CachedRows = {
-  prevCachedRows: Set<string>;
-  currCachedRows: Set<string>;
+  prev: Set<string>;
+  curr: Set<string>;
 };
 
 type LevelProperty = {
@@ -152,6 +153,7 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
+  private cacheIndexArr: number[];
   private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
@@ -185,9 +187,10 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
+    this.cacheIndexArr = [];
     this.cachedRows = {
-      prevCachedRows: new Set(),
-      currCachedRows: new Set(),
+      prev: new Set(),
+      curr: new Set(),
     };
     this.containerParentId = "";
     this.containerWidgetId = "";
@@ -225,6 +228,7 @@ class MetaWidgetGenerator {
   withOptions = (options: GeneratorOptions) => {
     this.updateModificationsQueue(options);
 
+    this.cacheIndexArr = options.cacheIndexArr;
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
@@ -359,13 +363,13 @@ class MetaWidgetGenerator {
       });
     }
 
-    this.cacheRowIndices([this.selectedRowIndex, this.triggeredRowIndex]);
+    this.cacheRowIndices(this.cacheIndexArr);
 
     const removedMetaWidgetIds = this.getRemovedMetaWidgetIds(
       resetMetaWidgetIds,
     );
 
-    this.cachedRows.prevCachedRows = new Set(this.cachedRows.currCachedRows);
+    this.cachedRows.prev = new Set(this.cachedRows.curr);
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
@@ -378,21 +382,20 @@ class MetaWidgetGenerator {
   };
 
   private getMetaWidgetIdsInCachedRows = () => {
-    const templateWidget = this.currTemplateWidgets?.[this.containerWidgetId];
     const cachedMetaWidgetIds: string[] = [];
     const removedCachedMetaWidgetIds: string[] = [];
 
-    this.cachedRows.prevCachedRows.forEach((key) => {
+    this.cachedRows.prev.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
       Object.values(metaCacheProps).forEach((cache) => {
         removedCachedMetaWidgetIds.push(cache.metaWidgetId);
       });
     });
 
-    if (!templateWidget || !this.cachedRows.currCachedRows.size)
+    if (!this.cachedRows.curr.size)
       return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
 
-    this.cachedRows.currCachedRows.forEach((key) => {
+    this.cachedRows.curr.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
       Object.values(metaCacheProps).forEach((cache) => {
         cachedMetaWidgetIds.push(cache.metaWidgetId);
@@ -424,7 +427,8 @@ class MetaWidgetGenerator {
     ]);
 
     removedCachedMetaWidgetIds.forEach((widgetId) => {
-      removedFromCurrentView.add(widgetId);
+      if (!this.currViewMetaWidgetIds.includes(widgetId))
+        removedFromCurrentView.add(widgetId);
     });
 
     cachedMetaWidgetIds.forEach((widgetId) => {
@@ -435,11 +439,11 @@ class MetaWidgetGenerator {
   };
 
   private cacheRowIndices = (indices: number[]) => {
-    this.cachedRows.currCachedRows.clear();
+    this.cachedRows.curr.clear();
     indices.forEach((index) => {
-      if (index !== -1) {
+      if (index !== -1 && isFinite(index)) {
         const key = this.getPrimaryKey(index);
-        this.cachedRows.currCachedRows.add(key);
+        this.cachedRows.curr.add(key);
       }
     });
   };

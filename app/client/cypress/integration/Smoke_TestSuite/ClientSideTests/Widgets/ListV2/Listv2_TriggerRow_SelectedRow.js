@@ -1,7 +1,6 @@
 const dsl = require("../../../../../fixtures/Listv2/ListWithInputForSelectedAndTriggerRow.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
