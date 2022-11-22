@@ -388,6 +388,7 @@ export const asyncTagUnevalTree: DataTree = {
         arguments: [],
         isAsync: false,
         confirmBeforeExecute: false,
+        body: "myFun1: () => {\n\t\treturn JSObject2.callApi();\n\t}",
       },
     },
     bindingPaths: {
@@ -426,6 +427,7 @@ export const asyncTagUnevalTree: DataTree = {
         arguments: [],
         isAsync: false,
         confirmBeforeExecute: false,
+        body: "callApi: () => {\n\t\treturn Api1.run()\n\t}",
       },
     },
     bindingPaths: {

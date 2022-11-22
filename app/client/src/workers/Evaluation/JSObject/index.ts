@@ -1,4 +1,8 @@
-import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeJSAction,
+  DataTreeAppsmith,
+} from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -15,6 +19,7 @@ import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
+import { APP_MODE } from "entities/App";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -181,6 +186,44 @@ export function saveResolvedFunctionsAndJSUpdates(
   return jsUpdates;
 }
 
+export function viewModeSaveResolvedFunctionsAndJSUpdates(
+  dataTreeEvalRef: DataTreeEvaluator,
+  entity: DataTreeJSAction,
+  jsUpdates: Record<string, JSUpdate>,
+  entityName: string,
+) {
+  try {
+    delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
+    delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
+    const jsActions = entity.meta;
+    //think about adding variables as currentJSCollectionState
+    Object.keys(jsActions).forEach((jsAction: any) => {
+      try {
+        const result = eval(jsActions[jsAction].body);
+        if (!!result) {
+          const functionString = jsActions[jsAction].body;
+
+          set(
+            dataTreeEvalRef.resolvedFunctions,
+            `${entityName}.${jsAction}`,
+            result,
+          );
+          set(
+            dataTreeEvalRef.currentJSCollectionState,
+            `${entityName}.${jsAction}`,
+            functionString,
+          );
+        }
+      } catch {
+        // in case we need to handle error state
+      }
+    });
+  } catch (e) {
+    //if we need to push error as popup in case
+  }
+  return jsUpdates;
+}
+
 export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
@@ -188,39 +231,70 @@ export function parseJSActions(
   oldUnEvalTree?: DataTree,
 ) {
   let jsUpdates: Record<string, JSUpdate> = {};
-  if (!!differences && !!oldUnEvalTree) {
-    differences.forEach((diff) => {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-        diff.payload.propertyPath,
-      );
+  const appsmithObj = unEvalDataTree.appsmith as DataTreeAppsmith;
+  const isEditMode = appsmithObj.mode === APP_MODE.EDIT ? true : false;
+  if (!isEditMode) {
+    Object.keys(unEvalDataTree).forEach((entityName) => {
       const entity = unEvalDataTree[entityName];
-
       if (!isJSAction(entity)) {
-        return false;
+        return;
       }
+      jsUpdates = viewModeSaveResolvedFunctionsAndJSUpdates(
+        dataTreeEvalRef,
+        entity,
+        jsUpdates,
+        entityName,
+      );
+    });
+  } else {
+    if (!!differences && !!oldUnEvalTree) {
+      differences.forEach((diff) => {
+        const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+          diff.payload.propertyPath,
+        );
+        const entity = unEvalDataTree[entityName];
 
-      if (diff.event === DataTreeDiffEvent.DELETE) {
-        // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
-        if (
-          dataTreeEvalRef.currentJSCollectionState &&
-          dataTreeEvalRef.currentJSCollectionState[diff.payload.propertyPath]
-        ) {
-          delete dataTreeEvalRef.currentJSCollectionState[
-            diff.payload.propertyPath
-          ];
+        if (!isJSAction(entity)) {
+          return false;
         }
-        if (
-          dataTreeEvalRef.resolvedFunctions &&
-          dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath]
-        ) {
-          delete dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath];
-        }
-      }
 
-      if (
-        (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
-        (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
-      ) {
+        if (diff.event === DataTreeDiffEvent.DELETE) {
+          // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
+          if (
+            dataTreeEvalRef.currentJSCollectionState &&
+            dataTreeEvalRef.currentJSCollectionState[diff.payload.propertyPath]
+          ) {
+            delete dataTreeEvalRef.currentJSCollectionState[
+              diff.payload.propertyPath
+            ];
+          }
+          if (
+            dataTreeEvalRef.resolvedFunctions &&
+            dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath]
+          ) {
+            delete dataTreeEvalRef.resolvedFunctions[diff.payload.propertyPath];
+          }
+        }
+
+        if (
+          (diff.event === DataTreeDiffEvent.EDIT && propertyPath === "body") ||
+          (diff.event === DataTreeDiffEvent.NEW && propertyPath === "")
+        ) {
+          jsUpdates = saveResolvedFunctionsAndJSUpdates(
+            dataTreeEvalRef,
+            entity,
+            jsUpdates,
+            unEvalDataTree,
+            entityName,
+          );
+        }
+      });
+    } else {
+      Object.keys(unEvalDataTree).forEach((entityName) => {
+        const entity = unEvalDataTree[entityName];
+        if (!isJSAction(entity)) {
+          return;
+        }
         jsUpdates = saveResolvedFunctionsAndJSUpdates(
           dataTreeEvalRef,
           entity,
@@ -228,41 +302,26 @@ export function parseJSActions(
           unEvalDataTree,
           entityName,
         );
-      }
-    });
-  } else {
-    Object.keys(unEvalDataTree).forEach((entityName) => {
-      const entity = unEvalDataTree[entityName];
-      if (!isJSAction(entity)) {
-        return;
-      }
-      jsUpdates = saveResolvedFunctionsAndJSUpdates(
-        dataTreeEvalRef,
-        entity,
-        jsUpdates,
-        unEvalDataTree,
-        entityName,
-      );
+      });
+    }
+    Object.keys(jsUpdates).forEach((entityName) => {
+      const parsedBody = jsUpdates[entityName].parsedBody;
+      if (!parsedBody) return;
+      parsedBody.actions = parsedBody.actions.map((action) => {
+        return {
+          ...action,
+          isAsync: isFunctionAsync(
+            action.parsedFunction,
+            unEvalDataTree,
+            dataTreeEvalRef.resolvedFunctions,
+            dataTreeEvalRef.logs,
+          ),
+          // parsedFunction - used only to determine if function is async
+          parsedFunction: undefined,
+        } as ParsedJSSubAction;
+      });
     });
   }
-
-  Object.keys(jsUpdates).forEach((entityName) => {
-    const parsedBody = jsUpdates[entityName].parsedBody;
-    if (!parsedBody) return;
-    parsedBody.actions = parsedBody.actions.map((action) => {
-      return {
-        ...action,
-        isAsync: isFunctionAsync(
-          action.parsedFunction,
-          unEvalDataTree,
-          dataTreeEvalRef.resolvedFunctions,
-          dataTreeEvalRef.logs,
-        ),
-        // parsedFunction - used only to determine if function is async
-        parsedFunction: undefined,
-      } as ParsedJSSubAction;
-    });
-  });
   return { jsUpdates };
 }
 

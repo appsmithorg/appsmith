@@ -72,6 +72,7 @@ export const updateJSCollectionInUnEvalTree = (
           arguments: action.arguments,
           isAsync: false,
           confirmBeforeExecute: false,
+          body: action.body,
         };
 
         const data = get(
