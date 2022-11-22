@@ -1131,12 +1131,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 function migrateLabelPosition(currentDSL: DSLWidget) {
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
     if (
-      widget.type === "PHONE_INPUT_WIDGET" ||
-      widget.type === "CURRENCY_INPUT_WIDGET"
+      (widget.type === "PHONE_INPUT_WIDGET" ||
+        widget.type === "CURRENCY_INPUT_WIDGET") &&
+      widget.labelPosition === undefined
     ) {
-      if (widget.labelPosition === undefined) {
-        widget.labelPosition = LabelPosition.Left;
-      }
+      widget.labelPosition = LabelPosition.Left;
     }
   });
 }
