@@ -775,3 +775,88 @@ export const flat = (array: DropdownOption[]) => {
   });
   return result;
 };
+
+// TODO: ADD_TEST(abhinav): Write a unit test
+export function shouldUpdateDynamicHeight(
+  props: WidgetProps,
+  expectedHeight: number,
+): boolean {
+  // The current height in pixels of the widget
+  const currentHeightInRows = props.bottomRow - props.topRow;
+  const expectedHeightInRows = Math.ceil(
+    expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+
+  const canWidgetCollapse = false;
+
+  // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
+  // then we need to compute.
+  // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
+  // Does this widget have dynamic height enabled
+  const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(props);
+
+  // console.log("Dynamic height should update?::", {
+  //   isDynamicHeightEnabled,
+  //   name: this.props.widgetName,
+  //   canWidgetCollapse,
+  //   expectedHeight,
+  //   expectedHeightInRows,
+  //   currentHeightInRows,
+  // });
+  // Run the following pieces of code only if dynamic height is enabled
+  if (!isDynamicHeightEnabled) return false;
+
+  if (
+    canWidgetCollapse &&
+    expectedHeightInRows === 0 &&
+    currentHeightInRows === 0
+  )
+    return true;
+
+  const maxDynamicHeightInRows = getWidgetMaxDynamicHeight(props);
+
+  let minDynamicHeightInRows = getWidgetMinDynamicHeight(props);
+
+  if (canWidgetCollapse && expectedHeight === 0) {
+    minDynamicHeightInRows = 0;
+  }
+  // If current height is less than the expected height
+  // We're trying to see if we can increase the height
+  if (currentHeightInRows < expectedHeightInRows) {
+    // If we're not already at the max height, we can increase height
+    if (
+      maxDynamicHeightInRows >= currentHeightInRows &&
+      Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
+    ) {
+      return true;
+    }
+  }
+
+  // If current height is greater than expected height
+  // We're trying to see if we can reduce the height
+  if (currentHeightInRows > expectedHeightInRows) {
+    // If our attempt to reduce does not go below the min possible height
+    // We can safely reduce the height
+    if (
+      minDynamicHeightInRows <= expectedHeightInRows &&
+      Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
+    ) {
+      return true;
+    }
+  }
+
+  // If current height is more than the maxDynamicHeightInRows
+  // We're trying to see if we can decrease the height
+  if (currentHeightInRows > maxDynamicHeightInRows) {
+    return true;
+  }
+
+  // The widget height should always be at least minDynamicHeightInRows
+  if (currentHeightInRows !== minDynamicHeightInRows) {
+    return true;
+  }
+
+  // Since the conditions to change height already return true
+  // If we reach this point, we don't have to change height
+  return false;
+}

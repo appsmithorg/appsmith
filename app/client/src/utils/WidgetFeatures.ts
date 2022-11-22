@@ -4,13 +4,8 @@ import {
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
-
-import { AutocompleteDataType } from "./autocomplete/TernServer";
-import DynamicHeightCallbackHandler from "./CallbackHandler/DynamicHeightCallbackHandler";
-import { CallbackHandlerEventType } from "./CallbackHandler/CallbackHandlerEventType";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -79,7 +74,7 @@ function findAndUpdatePropertyPaneControlConfig(
         );
 
         if (
-          controlConfigIndex &&
+          controlConfigIndex !== undefined &&
           controlConfigIndex > -1 &&
           sectionConfig.children
         ) {
@@ -135,54 +130,6 @@ export function hideDynamicHeightPropertyControl(props: WidgetProps) {
   return props.dynamicHeight !== DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
 }
 
-function validateMinHeight(value: unknown, props: WidgetProps) {
-  const _value: number = parseInt(value as string, 10);
-  const _maxHeight: number = parseInt(props.maxDynamicHeight as string, 10);
-
-  if (isNaN(_value) || _value < 4) {
-    return {
-      isValid: false,
-      messages: [`Value should be a positive integer greater than 4`],
-      parsed: 4,
-    };
-  } else if (_value > _maxHeight) {
-    return {
-      isValid: false,
-      messages: [`Value should be less than or equal Max. Height`],
-      parsed: _maxHeight || 4,
-    };
-  }
-
-  return {
-    isValid: true,
-    parsed: _value,
-    messages: [],
-  };
-}
-
-function validateMaxHeight(value: unknown, props: WidgetProps) {
-  const _value: number = parseInt(value as string, 10);
-  const _minHeight: number = parseInt(props.minDynamicHeight as string, 10);
-
-  if (isNaN(_value) || _value < 4) {
-    return {
-      isValid: false,
-      messages: [`Value should be a positive integer greater than 4`],
-      parsed: 100,
-    };
-  } else if (_value < _minHeight) {
-    return {
-      isValid: false,
-      messages: [`Value should be greater than or equal Min. Height`],
-      parsed: _minHeight || 4,
-    };
-  }
-  return {
-    isValid: true,
-    parsed: _value,
-    messages: [],
-  };
-}
 // TODO (abhinav): ADD_UNIT_TESTS
 function updateMinMaxDynamicHeight(
   props: WidgetProps,
@@ -295,19 +242,6 @@ function updateMinMaxDynamicHeight(
   return updates;
 }
 
-function transformToNumber(
-  props: WidgetProps,
-  propertyName: string,
-  propertyValue: string,
-) {
-  const value = parseInt(propertyValue, 10);
-  return [
-    {
-      propertyPath: propertyName,
-      propertyValue: Number.isNaN(value) ? 0 : value,
-    },
-  ];
-}
 // TODO FEATURE:(abhinav) Add validations to these properties
 
 const CONTAINER_SCROLL_HELPER_TEXT =
@@ -357,76 +291,6 @@ export const PropertyPaneConfigTemplates: Record<
           value: DynamicHeight.FIXED,
         },
       ],
-      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
-    },
-    {
-      propertyName: "minDynamicHeight",
-      min: 4,
-      onBlur: () => {
-        DynamicHeightCallbackHandler.emit(
-          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_BLUR,
-        );
-      },
-      onFocus: () => {
-        DynamicHeightCallbackHandler.emit(
-          CallbackHandlerEventType.MIN_HEIGHT_LIMIT_FOCUS,
-        );
-      },
-      label: "Min Height (in rows)",
-      helpText: "Minimum number of rows to occupy irrespective of contents",
-      controlType: "NUMERIC_INPUT",
-      hidden: hideDynamicHeightPropertyControl,
-      dependencies: ["dynamicHeight", "maxDynamicHeight"],
-      isJSConvertible: false,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      updateHook: transformToNumber,
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fn: validateMinHeight,
-          expected: {
-            type: "Number of Rows. Less than or equal to Max Height",
-            example: 10,
-            autocompleteDataType: "NUMBER" as AutocompleteDataType,
-          },
-        },
-      },
-      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
-    },
-    {
-      propertyName: "maxDynamicHeight",
-      min: 4,
-      onFocus: () => {
-        DynamicHeightCallbackHandler.emit(
-          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_FOCUS,
-        );
-      },
-      onBlur: () => {
-        DynamicHeightCallbackHandler.emit(
-          CallbackHandlerEventType.MAX_HEIGHT_LIMIT_BLUR,
-        );
-      },
-      label: "Max Height (in rows)",
-      helpText: "Maximum Height, after which contents will scroll.",
-      controlType: "NUMERIC_INPUT",
-      dependencies: ["dynamicHeight", "minDynamicHeight"],
-      hidden: hideDynamicHeightPropertyControl,
-      updateHook: transformToNumber,
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          fn: validateMaxHeight,
-          expected: {
-            type: "Number of Rows. Greater than or equal to Min. Height",
-            example: 100,
-            autocompleteDataType: "NUMBER" as AutocompleteDataType,
-          },
-        },
-      },
-      isJSConvertible: false,
-      isBindProperty: true,
-      isTriggerProperty: false,
       postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
     },
   ],

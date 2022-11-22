@@ -40,16 +40,16 @@ import {
   getWidgetMinDynamicHeight,
   isDynamicHeightEnabledForWidget,
   isDynamicHeightWithLimitsEnabledForWidget,
+  shouldUpdateDynamicHeight,
 } from "./WidgetUtils";
-import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
-import log from "loglevel";
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { CSSProperties } from "styled-components";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { DynamicHeightContainerWrapper } from "./DynamicHeightContainerWrapper";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import AutoHeightOverlayContainer from "components/autoHeightOverlay";
+import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
 
 /***
  * BaseWidget
@@ -199,107 +199,17 @@ abstract class BaseWidget<
     TODO (abhinav): Make sure that this isn't called for scenarios which do not require it
     This is for performance. We don't want unnecessary code to run
   */
-  updateDynamicHeight(height: number): void {
-    const shouldUpdate = this.shouldUpdateDynamicHeight(height);
+  updateDynamicHeight = (height: number): void => {
+    const shouldUpdate = shouldUpdateDynamicHeight(this.props, height);
     const { updateWidgetAutoHeight } = this.context;
     if (updateWidgetAutoHeight) {
       const { widgetId } = this.props;
-      log.debug(
-        "updateDynamicHeight: computing debounced:",
-        this.props.widgetId,
-        this.props.widgetName,
-        height,
-        shouldUpdate,
-        this.props.isCanvas,
-      );
+
       const paddedHeight = height + WIDGET_PADDING * 2;
 
       shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
     }
-  }
-
-  // TODO: ADD_TEST(abhinav): Write a unit test
-  shouldUpdateDynamicHeight(expectedHeight: number): boolean {
-    // The current height in pixels of the widget
-    const currentHeightInRows = this.props.bottomRow - this.props.topRow;
-    const expectedHeightInRows = Math.ceil(
-      expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-    );
-
-    const canWidgetCollapse = false;
-    if (this.props.isCanvas) return false;
-
-    // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
-    // then we need to compute.
-    // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
-    // Does this widget have dynamic height enabled
-    const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
-
-    // console.log("Dynamic height should update?::", {
-    //   isDynamicHeightEnabled,
-    //   name: this.props.widgetName,
-    //   canWidgetCollapse,
-    //   expectedHeight,
-    //   expectedHeightInRows,
-    //   currentHeightInRows,
-    // });
-    // Run the following pieces of code only if dynamic height is enabled
-    if (!isDynamicHeightEnabled) return false;
-
-    if (
-      canWidgetCollapse &&
-      expectedHeightInRows === 0 &&
-      currentHeightInRows === 0
-    )
-      return true;
-
-    const maxDynamicHeightInRows = getWidgetMaxDynamicHeight(this.props);
-
-    let minDynamicHeightInRows = getWidgetMinDynamicHeight(this.props);
-
-    if (canWidgetCollapse && expectedHeight === 0) {
-      minDynamicHeightInRows = 0;
-    }
-    // If current height is less than the expected height
-    // We're trying to see if we can increase the height
-    if (currentHeightInRows < expectedHeightInRows) {
-      // If we're not already at the max height, we can increase height
-      if (
-        maxDynamicHeightInRows >= currentHeightInRows &&
-        Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
-      ) {
-        return true;
-      }
-    }
-
-    // If current height is greater than expected height
-    // We're trying to see if we can reduce the height
-    if (currentHeightInRows > expectedHeightInRows) {
-      // If our attempt to reduce does not go below the min possible height
-      // We can safely reduce the height
-      if (
-        minDynamicHeightInRows <= expectedHeightInRows &&
-        Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
-      ) {
-        return true;
-      }
-    }
-
-    // If current height is more than the maxDynamicHeightInRows
-    // We're trying to see if we can decrease the height
-    if (currentHeightInRows > maxDynamicHeightInRows) {
-      return true;
-    }
-
-    // The widget height should always be at least minDynamicHeightInRows
-    if (currentHeightInRows !== minDynamicHeightInRows) {
-      return true;
-    }
-
-    // Since the conditions to change height already return true
-    // If we reach this point, we don't have to change height
-    return false;
-  }
+  };
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -477,7 +387,7 @@ abstract class BaseWidget<
 
     return (
       <>
-        <DynamicHeightOverlay
+        <AutoHeightOverlayContainer
           {...this.props}
           batchUpdate={onBatchUpdate}
           maxDynamicHeight={getWidgetMaxDynamicHeight(this.props)}
@@ -511,12 +421,12 @@ abstract class BaseWidget<
     }
     if (isDynamicHeightEnabledForWidget(this.props)) {
       return (
-        <DynamicHeightContainerWrapper
+        <AutoHeightContainerWrapper
           onUpdateDynamicHeight={this.updateDynamicHeight}
           widgetProps={this.props}
         >
           {this.getPageView()}
-        </DynamicHeightContainerWrapper>
+        </AutoHeightContainerWrapper>
       );
     }
 
@@ -571,12 +481,12 @@ abstract class BaseWidget<
     let content = this.getPageView();
     if (isDynamicHeightEnabledForWidget(this.props) && !this.props.isCanvas) {
       content = (
-        <DynamicHeightContainerWrapper
+        <AutoHeightContainerWrapper
           onUpdateDynamicHeight={(height) => this.updateDynamicHeight(height)}
           widgetProps={this.props}
         >
           {content}
-        </DynamicHeightContainerWrapper>
+        </AutoHeightContainerWrapper>
       );
     }
     return this.addErrorBoundary(content);

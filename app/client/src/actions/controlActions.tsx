@@ -119,8 +119,3 @@ export interface DeleteWidgetPropertyPayload {
   widgetId: string;
   propertyPaths: string[];
 }
-
-export interface UpdateWidgetDynamicHeightPayload {
-  widgetId: string;
-  height: number;
-}
