@@ -134,6 +134,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           height: 0,
         },
       });
+      return null;
     } else if (
       !widgetProps.isVisible &&
       renderMode !== RenderModes.PAGE &&
