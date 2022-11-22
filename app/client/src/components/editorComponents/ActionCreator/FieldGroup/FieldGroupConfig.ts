@@ -113,7 +113,9 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
       FieldType.DELAY_FIELD,
       FieldType.ID_FIELD,
     ],
-    defaultParams: "() => {}, 5000, ''",
+    defaultParams: `() => {
+      // add code here
+    }, 5000, ''`,
   },
   [AppsmithFunction.clearInterval]: {
     label: createMessage(CLEAR_INTERVAL),
@@ -123,7 +125,9 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.getGeolocation]: {
     label: createMessage(GET_GEO_LOCATION),
     fields: [FieldType.CALLBACK_FUNCTION_FIELD],
-    defaultParams: "(location) => {}",
+    defaultParams: `(location) => {
+      // add code here
+    }`,
   },
   [AppsmithFunction.watchGeolocation]: {
     label: createMessage(WATCH_GEO_LOCATION),

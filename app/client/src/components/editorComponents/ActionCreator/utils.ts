@@ -8,6 +8,7 @@ import {
   setModalName,
   setTextArgumentAtPosition,
   setEnumArgumentAtPosition,
+  setCallbackFunctionField,
 } from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
@@ -122,6 +123,21 @@ export const enumTypeGetter = (
     requiredValue,
     argNum,
     defaultValue,
+    self.evaluationVersion,
+  );
+};
+
+export const callBackFieldSetter = (
+  changeValue: any,
+  currentValue: string,
+  argNum: number,
+): string => {
+  const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  const requiredChangeValue = getDynamicBindings(changeValue).jsSnippets[0];
+  return setCallbackFunctionField(
+    requiredValue,
+    requiredChangeValue,
+    argNum,
     self.evaluationVersion,
   );
 };

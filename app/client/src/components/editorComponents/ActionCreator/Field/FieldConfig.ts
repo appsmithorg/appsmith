@@ -15,12 +15,15 @@ import {
   modalSetter,
   textGetter,
   textSetter,
+  callBackFieldSetter,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
 import { ACTION_TRIGGER_REGEX } from "../regex";
 import { TreeDropdownOption } from "design-system";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
+import { getFuncExpressionAtPosition } from "@shared/ast";
+import { getDynamicBindings } from "../../../../utils/DynamicBindingUtils";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {
@@ -175,10 +178,16 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     defaultText: "",
     options: () => null,
     getter: (value: string) => {
-      return textGetter(value, 0);
+      const requiredValue = getDynamicBindings(value).jsSnippets[0];
+      const funcExpr = getFuncExpressionAtPosition(
+        requiredValue,
+        0,
+        self.evaluationVersion,
+      );
+      return `{{${funcExpr}}}`;
     },
     setter: (value, currentValue) => {
-      return textSetter(value, currentValue, 0);
+      return callBackFieldSetter(value, currentValue, 0);
     },
     view: ViewTypes.TEXT_VIEW,
   },
