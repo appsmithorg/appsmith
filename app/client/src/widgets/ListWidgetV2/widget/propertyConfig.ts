@@ -1,6 +1,7 @@
 import { get, isPlainObject } from "lodash";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -79,7 +80,7 @@ export const primaryKeyOptions = (props: ListWidgetProps) => {
   }
 };
 
-const PropertyPaneConfig = [
+const ListWidgetPropertyPaneConfig = [
   {
     sectionName: "General",
     children: [
@@ -171,9 +172,9 @@ const PropertyPaneConfig = [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when a grid list item is clicked",
-        propertyName: "onListItemClick",
-        label: "onListItemClick",
+        helpText: "Triggers an action when a row is clicked",
+        propertyName: "onRowClick",
+        label: "onRowClick",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
         isBindProperty: true,
@@ -194,6 +195,7 @@ const PropertyPaneConfig = [
                 [key]: "",
               })),
             ),
+            currentIndex: 0,
           };
         },
         dependencies: ["listData"],
@@ -279,6 +281,6 @@ const PropertyPaneConfig = [
       },
     ],
   },
-];
+] as PropertyPaneConfig[];
 
-export { PropertyPaneConfig as default };
+export { ListWidgetPropertyPaneConfig as default };

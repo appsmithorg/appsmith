@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   getSelectedItem: (props, moment, _) => {
-    const selectedItemIndex =
-      props.selectedItemIndex === undefined ||
-      Number.isNaN(parseInt(props.selectedItemIndex))
+    const selectedRowIndex =
+      props.selectedRowIndex === undefined ||
+      Number.isNaN(parseInt(props.selectedRowIndex))
         ? -1
-        : parseInt(props.selectedItemIndex);
+        : parseInt(props.selectedRowIndex);
     const items = props.listData || [];
 
-    if (selectedItemIndex === -1) {
+    if (selectedRowIndex === -1) {
       const emptyRow = { ...items[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
@@ -16,7 +16,7 @@ export default {
       return emptyRow;
     }
 
-    const selectedItem = { ...items[selectedItemIndex] };
+    const selectedItem = { ...items[selectedRowIndex] };
     return selectedItem;
   },
   //

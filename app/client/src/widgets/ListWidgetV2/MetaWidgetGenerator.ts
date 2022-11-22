@@ -35,6 +35,7 @@ type TemplateWidgets = ListWidgetProps<
 >["flattenedChildCanvasWidgets"];
 
 export type GeneratorOptions = {
+  cacheIndexArr: number[];
   containerParentId: string;
   containerWidgetId: string;
   currTemplateWidgets: TemplateWidgets;
@@ -87,11 +88,16 @@ type GenerateMetaWidgetChildrenProps = {
   rowIndex: number;
 };
 
-type GenerateMetaWidget = {
+type GeneratedMetaWidget = {
   metaWidgetId?: string;
   metaWidgetName?: string;
   childMetaWidgets?: MetaWidgets;
   metaWidget?: MetaWidget;
+};
+
+type CachedRows = {
+  prev: Set<string>;
+  curr: Set<string>;
 };
 
 type LevelProperty = {
@@ -120,7 +126,6 @@ const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
   LIST_WIDGET_V2: ["currentViewItems"],
 };
-
 /**
  * LEVEL_PATH_REGEX gives out following matches:
  * Inputs
@@ -146,6 +151,8 @@ const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
 class MetaWidgetGenerator {
+  private cacheIndexArr: number[];
+  private cachedRows: CachedRows;
   private containerParentId: GeneratorOptions["containerParentId"];
   private containerWidgetId: GeneratorOptions["containerWidgetId"];
   private currTemplateWidgets: TemplateWidgets;
@@ -176,6 +183,11 @@ class MetaWidgetGenerator {
   private widgetName: GeneratorOptions["widgetName"];
 
   constructor(props: ConstructorProps) {
+    this.cacheIndexArr = [];
+    this.cachedRows = {
+      prev: new Set(),
+      curr: new Set(),
+    };
     this.containerParentId = "";
     this.containerWidgetId = "";
     this.currViewMetaWidgetIds = [];
@@ -210,6 +222,7 @@ class MetaWidgetGenerator {
   withOptions = (options: GeneratorOptions) => {
     this.updateModificationsQueue(options);
 
+    this.cacheIndexArr = options.cacheIndexArr;
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
@@ -342,19 +355,13 @@ class MetaWidgetGenerator {
       });
     }
 
-    const removedMetaWidgetIds = (() => {
-      const removedFromCurrentView = difference(
-        this.prevViewMetaWidgetIds,
-        this.currViewMetaWidgetIds,
-      );
+    this.cacheRowIndices(this.cacheIndexArr);
 
-      const resetWidgetExcludingCurrent = without(
-        resetMetaWidgetIds,
-        ...this.currViewMetaWidgetIds,
-      );
+    const removedMetaWidgetIds = this.getRemovedMetaWidgetIds(
+      resetMetaWidgetIds,
+    );
 
-      return [...removedFromCurrentView, ...resetWidgetExcludingCurrent];
-    })();
+    this.cachedRows.prev = new Set(this.cachedRows.curr);
 
     this.prevViewMetaWidgetIds = [...this.currViewMetaWidgetIds];
 
@@ -366,21 +373,95 @@ class MetaWidgetGenerator {
     };
   };
 
+  private getMetaWidgetIdsInCachedRows = () => {
+    const cachedMetaWidgetIds: string[] = [];
+    const removedCachedMetaWidgetIds: string[] = [];
+
+    this.cachedRows.prev.forEach((key) => {
+      const metaCacheProps = this.getRowCache(key) ?? {};
+      Object.values(metaCacheProps).forEach((cache) => {
+        removedCachedMetaWidgetIds.push(cache.metaWidgetId);
+      });
+    });
+
+    if (!this.cachedRows.curr.size)
+      return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
+
+    this.cachedRows.curr.forEach((key) => {
+      const metaCacheProps = this.getRowCache(key) ?? {};
+      Object.values(metaCacheProps).forEach((cache) => {
+        cachedMetaWidgetIds.push(cache.metaWidgetId);
+      });
+    });
+
+    return { cachedMetaWidgetIds, removedCachedMetaWidgetIds };
+  };
+
+  /**
+   * The removed widgets are
+   * 1. The removed widgets from view i.e diff from previous View and Current View
+   * 2. The resetWidgets i.e when Primary Keys changes and caches are cleared
+   * 3. The previously cached rows that are not in the current view
+   */
+
+  private getRemovedMetaWidgetIds = (resetMetaWidgetIds: string[]) => {
+    const {
+      cachedMetaWidgetIds,
+      removedCachedMetaWidgetIds,
+    } = this.getMetaWidgetIdsInCachedRows();
+
+    const removedWidgetsFromView = difference(
+      this.prevViewMetaWidgetIds,
+      this.currViewMetaWidgetIds,
+    );
+
+    const resetWidgetExcludingCurrent = without(
+      resetMetaWidgetIds,
+      ...this.currViewMetaWidgetIds,
+    );
+
+    const removedFromCurrentView = new Set<string>([
+      ...removedWidgetsFromView,
+      ...resetWidgetExcludingCurrent,
+    ]);
+
+    removedCachedMetaWidgetIds.forEach((widgetId) => {
+      if (!this.currViewMetaWidgetIds.includes(widgetId))
+        removedFromCurrentView.add(widgetId);
+    });
+
+    cachedMetaWidgetIds.forEach((widgetId) => {
+      removedFromCurrentView.delete(widgetId);
+    });
+
+    return Array.from(removedFromCurrentView);
+  };
+
+  private cacheRowIndices = (indices: number[]) => {
+    this.cachedRows.curr.clear();
+    indices.forEach((index) => {
+      if (index !== -1 && isFinite(index)) {
+        const key = this.getPrimaryKey(index);
+        this.cachedRows.curr.add(key);
+      }
+    });
+  };
+
   private generateMetaWidgetRecursively = ({
     index,
     parentId,
     rowIndex,
     templateWidgetId,
-  }: GenerateMetaWidgetProps): GenerateMetaWidget => {
+  }: GenerateMetaWidgetProps): GeneratedMetaWidget => {
     const templateWidget = this.currTemplateWidgets?.[templateWidgetId];
 
     if (!templateWidget)
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
     const key = this.getPrimaryKey(index);
+
     const metaWidget = klona(templateWidget) as MetaWidget;
     const metaCacheProps = this.getRowTemplateCache(key, templateWidgetId);
-
     if (!metaCacheProps) {
       return {
         childMetaWidgets: undefined,
@@ -998,7 +1079,7 @@ class MetaWidgetGenerator {
     return [];
   };
 
-  private getStartIndex = () => {
+  getStartIndex = () => {
     if (this.infiniteScroll) {
       if (this.virtualizer) {
         const items = this.virtualizer.getVirtualItems();
@@ -1199,6 +1280,15 @@ class MetaWidgetGenerator {
         ${widgetsProperties.join(",")}
       }
     `;
+  };
+
+  getRowContainerWidgetName = (index: number) => {
+    if (index === -1) {
+      return;
+    }
+    const key = this.getPrimaryKey(index);
+    return this.getRowTemplateCache(key, this.containerWidgetId)
+      ?.metaWidgetName;
   };
 
   private resetCache = () => {
