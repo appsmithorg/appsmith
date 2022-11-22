@@ -14,7 +14,6 @@ describe("Form reset functionality", function() {
       .should("have.class", "selected-row");
     cy.wait(2000);
     cy.get(".rc-select-selection-overflow").click({ force: true });
-
     cy.dropdownMultiSelectDynamic("Option 1");
     cy.dropdownMultiSelectDynamic("Option 2");
     cy.dropdownMultiSelectDynamic("Option 3");
