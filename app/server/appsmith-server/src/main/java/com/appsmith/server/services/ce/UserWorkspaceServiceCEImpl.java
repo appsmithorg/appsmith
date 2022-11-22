@@ -148,7 +148,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
                 .single()
                 .flatMap(permissionGroup -> {
-                    if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {
+                    if (this.isLastAdminRoleEntity(permissionGroup)) {
                         return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
                     }
                     return Mono.just(permissionGroup);
@@ -319,7 +319,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS));
     }
 
-    private Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {
+    protected Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {
         return new Comparator<>() {
             @Override
             public int compare(WorkspaceMemberInfoDTO o1, WorkspaceMemberInfoDTO o2) {
@@ -333,6 +333,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return permissionGroupSortOrder;
                 }
 
+                if (o1.getUsername() == null || o2.getUsername() == null)
+                    return o1.getName().compareTo(o2.getName());
                 return o1.getUsername().compareTo(o2.getUsername());
             }
 
@@ -346,5 +348,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 }
             }
         };
+    }
+
+    @Override
+    public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
+        return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
+                && permissionGroup.getAssignedToUserIds().size() == 1;
     }
 }

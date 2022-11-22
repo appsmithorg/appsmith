@@ -89,6 +89,7 @@ public enum AppsmithError {
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR(400, 4038, "The last admin cannot be removed from the workspace", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_CRUD_PAGE_REQUEST(400, 4039, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH(400, 4040, "This operation is not supported for remote branch {0}. Please use local branches only to proceed", AppsmithErrorAction.DEFAULT, "Unsupported Operation!", ErrorType.BAD_REQUEST, null),
+    ROLES_FROM_SAME_WORKSPACE(400, 4041, "Roles for the same Workspace provided or already exists.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Please try again later.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +
