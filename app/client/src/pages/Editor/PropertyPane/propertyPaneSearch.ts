@@ -15,6 +15,31 @@ interface SearchResultType {
   };
 }
 
+function match(text: string, searchQuery: string) {
+  const regEx = new RegExp(`\\b${searchQuery}.*\\b`, "i");
+  let matchPosition = text.search(regEx);
+  if (matchPosition < 0) {
+    // if no match found, see if it matches by splitting the camel case properties such as 'onClick'
+    const caseBreakdown = text.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+    matchPosition = caseBreakdown.search(regEx);
+  }
+  if (matchPosition === 0) {
+    return {
+      startsWith: true,
+      contains: false,
+    };
+  } else if (matchPosition > 0) {
+    return {
+      startsWith: false,
+      contains: true,
+    };
+  }
+  return {
+    startsWith: false,
+    contains: false,
+  };
+}
+
 function search(
   sectionConfigs: PropertyPaneSectionConfig[],
   searchQuery: string,
@@ -35,11 +60,12 @@ function search(
       ...sectionConfig,
       children: [],
     };
-    const sectionName = sectionConfig.sectionName.toLowerCase();
+    const sectionName = sectionConfig.sectionName;
     let isPropertyStartsWith = false;
-    if (sectionName.startsWith(query)) {
+    const sectionNameMatch = match(sectionName, query);
+    if (sectionNameMatch.startsWith) {
       searchResult.section.startsWith.push(sectionConfig);
-    } else if (sectionName.includes(query)) {
+    } else if (sectionNameMatch.contains) {
       searchResult.section.contains.push(sectionConfig);
     } else {
       // search through properties
@@ -59,12 +85,13 @@ function search(
           continue;
         }
         if ((child as PropertyPaneControlConfig).label) {
-          const label = (child as PropertyPaneControlConfig).label.toLowerCase();
-          if (label.startsWith(query)) {
+          const label = (child as PropertyPaneControlConfig).label;
+          const labelMatch = match(label, query);
+          if (labelMatch.startsWith) {
             isEmpty = false;
             isPropertyStartsWith = true;
             childResult.property.startsWith.push(child);
-          } else if (label.includes(query)) {
+          } else if (labelMatch.contains) {
             isEmpty = false;
             childResult.property.contains.push(child);
           }
