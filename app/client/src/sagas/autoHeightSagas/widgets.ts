@@ -46,7 +46,6 @@ import { getLayoutTree } from "./layoutTree";
  */
 export function* updateWidgetAutoHeightSaga() {
   const updates = getAutoHeightUpdateQueue();
-  console.log("Dynamic Height: ", { updates });
   const start = performance.now();
 
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
