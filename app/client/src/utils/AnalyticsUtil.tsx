@@ -263,6 +263,7 @@ export type EventName =
   | "JS_OBJECT_CREATED"
   | "JS_OBJECT_FUNCTION_ADDED"
   | "JS_OBJECT_FUNCTION_RUN"
+  | "JS_OBJECT_SETTINGS_CHANGED"
   | "SHOW_BINDINGS_TRIGGERED"
   | "BINDING_COPIED"
   | AUDIT_LOGS_EVENT_NAMES;
@@ -338,8 +339,8 @@ class AnalyticsUtil {
           const n = document.createElement("script");
           n.type = "text/javascript";
           n.async = !0;
-          n.src =
-            "https://a.appsmith.com/analytics.js/v1/" + t + "/analytics.min.js";
+          // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
+          n.src = "https://a.appsmith.com/reroute/" + t + "/main.js";
           const a: any = document.getElementsByTagName("script")[0];
           a.parentNode.insertBefore(n, a);
           analytics._loadOptions = e;
