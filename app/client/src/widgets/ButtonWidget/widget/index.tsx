@@ -105,9 +105,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       },
       {
         sectionName: "Validation",
-        hidden: (props: ButtonWidgetProps, propertyPath: string) => {
-          return !props.isVisible;
-        },
         children: [
           {
             propertyName: "googleRecaptchaKey",
