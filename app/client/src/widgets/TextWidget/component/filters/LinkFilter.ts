@@ -9,14 +9,6 @@ class LinkFilter extends Filter {
 
     return value;
   }
-
-  node(name: string, node: HTMLElement): HTMLElement {
-    if (name === "a") {
-      node.setAttribute("target", "_blank");
-    }
-
-    return node;
-  }
 }
 
 export default LinkFilter;
