@@ -18,12 +18,6 @@ export const getReflowSelector = (widgetId: string) => {
   });
 };
 
-export const getAutoHeightLayoutTree = (state: AppState) =>
-  state.entities.autoHeightLayoutTree;
-
-export const getCanvasLevelMap = (state: AppState) =>
-  state.entities.canvasLevels;
-
 export const getIsReflowEffectedSelector = (
   widgetId: string | undefined,
   reflowed: boolean,

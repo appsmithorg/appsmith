@@ -1,10 +1,11 @@
+import { GridDefaults } from "constants/WidgetConstants";
 import React, { ReactNode } from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
-  getWidgetMaxDynamicHeight,
-  getWidgetMinDynamicHeight,
+  getWidgetMaxAutoHeight,
+  getWidgetMinAutoHeight,
 } from "widgets/WidgetUtils";
 import AutoHeightContainer from "./AutoHeightContainer";
 import { GridDefaults } from "constants/WidgetConstants";
@@ -28,8 +29,8 @@ function AutoHeightContainerWrapper(props: AutoHeightWrapperProps) {
     });
   };
 
-  const maxDynamicHeight = getWidgetMaxDynamicHeight(widgetProps);
-  const minDynamicHeight = getWidgetMinDynamicHeight(widgetProps);
+  const maxDynamicHeight = getWidgetMaxAutoHeight(widgetProps);
+  const minDynamicHeight = getWidgetMinAutoHeight(widgetProps);
 
   const widgetHeightInPixels =
     (widgetProps.bottomRow - widgetProps.topRow) *

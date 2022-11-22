@@ -32,16 +32,13 @@ import {
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
-import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import {
   isCurrentWidgetFocused,
@@ -61,7 +58,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { updateWidget } = useContext(EditorContext);
 
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
   const showTableFilterPane = useShowTableFilterPane();
@@ -145,7 +141,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       right: newRowCols.rightColumn,
     };
 
-    if (isDynamicHeightEnabledForWidget(props)) {
+    if (isAutoHeightEnabledForWidget(props)) {
       canResizeVertically = false;
       resizedPositions.top = props.topRow;
       resizedPositions.bottom = props.bottomRow;
@@ -247,12 +243,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props]);
 
   const isEnabled =
-    !isDragging &&
-    isWidgetFocused &&
-    !props.resizeDisabled &&
-    !isSnipingMode &&
-    !isPreviewMode;
-
+    !isDragging && isWidgetFocused && !props.resizeDisabled && !isSnipingMode;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -284,8 +275,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   );
 
   const isVerticalResizeEnabled = useMemo(() => {
-    return !isDynamicHeightEnabledForWidget(props) && isEnabled;
-  }, [props, isDynamicHeightEnabledForWidget, isEnabled]);
+    return !isAutoHeightEnabledForWidget(props) && isEnabled;
+  }, [props, isAutoHeightEnabledForWidget, isEnabled]);
 
   return (
     <Resizable

@@ -91,7 +91,7 @@ export type PropertyPaneControlConfig = {
   // Alternatively, create a new structure
   options?: any;
   // The following should ideally be used internally
-  postUpdateActions?: ReduxActionType[];
+  postUpdateAction?: ReduxActionType;
   onBlur?: () => void;
   onFocus?: () => void;
 

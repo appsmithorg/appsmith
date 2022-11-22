@@ -119,7 +119,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // We don't render invisible widgets in view mode
     // True, but we need this information to re-arrange widgets in view mode.
-    // We may create an HOC for dynamicheight updates, such that, this info
+    // We may create an HOC for autoHeight updates, such that, this info
     // doesn't need to go all the way to the BaseWidget.
 
     if (

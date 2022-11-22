@@ -10,6 +10,10 @@ describe("Dynamic Height Width validation for Visibility", function() {
     cy.wait(3000);
     cy.openPropertyPane("containerwidget");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+    cy.openPropertyPaneWithIndex("inputwidgetv2", 0);
+    cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+    cy.openPropertyPaneWithIndex("inputwidgetv2", 1);
+    cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((theight) => {
@@ -18,7 +22,6 @@ describe("Dynamic Height Width validation for Visibility", function() {
           .invoke("css", "height")
           .then((tnewheight) => {
             expect(theight).to.equal(tnewheight);
-            //cy.get("label:Contains('OFF')").should("be.visible");
             cy.get("label:Contains('On')").should("not.be.enabled");
           });
       });
@@ -31,8 +34,11 @@ describe("Dynamic Height Width validation for Visibility", function() {
           .invoke("css", "height")
           .then((tnewheight) => {
             expect(theight).to.equal(tnewheight);
-            cy.get("label:Contains('On')").should("not.be.enabled");
-            //cy.get("label:Contains('Off')").should("be.visible");
+            cy.get("label:Contains('On')").should("not.exist");
+            cy.get("label:Contains('Off')").should("be.visible");
+            cy.get(".bp3-control-indicator").click({ force: true });
+            cy.get("label:Contains('Off')").should("not.exist");
+            cy.get("label:Contains('On')").should("be.visible");
           });
       });
   });

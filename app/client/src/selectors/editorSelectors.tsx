@@ -39,7 +39,7 @@ import WidgetFactory, {
   NonSerialisableWidgetConfigs,
 } from "utils/WidgetFactory";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -217,18 +217,30 @@ export const getCurrentPageName = createSelector(
       ?.pageName,
 );
 
+/**
+ * This returns the number of rows which is not occupied by a Canvas Widget within
+ * a parent container like widget of type widgetType
+ * For example, the Tabs Widget takes 4 rows for the tabs
+ * @param widgetType Type of widget
+ * @param props Widget properties
+ * @returns the offset in rows
+ */
 export const getCanvasHeightOffset = (
   widgetType: WidgetType,
   props: WidgetProps,
 ) => {
+  // Get the non serialisable configs for the widget type
   const config:
     | Record<NonSerialisableWidgetConfigs, unknown>
     | undefined = WidgetFactory.nonSerialisableWidgetConfigMap.get(widgetType);
   let offset = 0;
-  if (config?.canvasHeightOffset)
+  // If this widget has a registered canvasHeightOffset function
+  if (config?.canvasHeightOffset) {
+    // Run the function to get the offset value
     offset = (config.canvasHeightOffset as (props: WidgetProps) => number)(
       props,
     );
+  }
   return offset;
 };
 
@@ -368,11 +380,10 @@ const getWidgetSpacesForContainer = (
   widgets: FlattenedWidgetProps[],
 ): WidgetSpace[] => {
   return widgets.map((widget) => {
-    const fixedHeight =
-      widget.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS ||
-      widget.dynamicHeight === DynamicHeight.AUTO_HEIGHT
-        ? widget.bottomRow - widget.topRow
-        : undefined;
+    const hasAutoHeight = isAutoHeightEnabledForWidget(widget);
+    const fixedHeight = hasAutoHeight
+      ? widget.bottomRow - widget.topRow
+      : undefined;
     const occupiedSpace: WidgetSpace = {
       id: widget.widgetId,
       parentId: containerWidgetId,

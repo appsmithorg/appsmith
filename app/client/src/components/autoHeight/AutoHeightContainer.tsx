@@ -63,7 +63,7 @@ export default function AutoHeightContainer({
     if (
       widgetHeightInPixels !==
       Math.ceil(
-        (expectedHeight.current + WIDGET_PADDING * 2) /
+        Math.ceil(expectedHeight.current + WIDGET_PADDING * 2) /
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       ) *
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT

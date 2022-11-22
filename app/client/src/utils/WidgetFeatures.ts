@@ -291,7 +291,7 @@ export const PropertyPaneConfigTemplates: Record<
           value: DynamicHeight.FIXED,
         },
       ],
-      postUpdateActions: [ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT],
+      postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
     },
   ],
 };
