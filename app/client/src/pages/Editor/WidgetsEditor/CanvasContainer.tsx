@@ -109,7 +109,7 @@ function CanvasContainer() {
     if (!isPreviewMode && appLayout?.type === "FLUID") {
       const smallestWidth = layoutConfigurations.MOBILE.minWidth;
       // Query the element
-      const ele: any = document.getElementById("main-canvas-container");
+      const ele: any = document.getElementById("canvas-viewport");
       const initialWidth = ele.offsetWidth;
       // The current position of mouse
       let x = 0;
