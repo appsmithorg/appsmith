@@ -159,4 +159,5 @@ export class CommonLocators {
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
   _debuggerList = ".debugger-list";
+  _omnibarDescription = "[data-cy='description']";
 }
