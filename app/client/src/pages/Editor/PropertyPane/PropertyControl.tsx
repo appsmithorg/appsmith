@@ -58,6 +58,7 @@ import {
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { ReduxAction } from "ce/constants/ReduxActionConstants";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
