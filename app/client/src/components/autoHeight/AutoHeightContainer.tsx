@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
+import React, { PropsWithChildren, useEffect, useRef } from "react";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -31,14 +31,14 @@ export default function AutoHeightContainer({
   widgetHeightInPixels,
   widgetProps,
 }: PropsWithChildren<AutoHeightContainerProps>) {
-  const [expectedHeight, setExpectedHeight] = useState(0);
+  const expectedHeight = useRef(0);
 
   const ref = useRef<HTMLDivElement>(null);
 
   const observer = React.useRef(
     new ResizeObserver((entries) => {
       const height = entries[0].contentRect.height;
-      setExpectedHeight(height);
+      expectedHeight.current = height;
       onHeightUpdate(height);
     }),
   );
@@ -56,25 +56,25 @@ export default function AutoHeightContainer({
   }, []);
 
   useEffect(() => {
-    onHeightUpdate(expectedHeight);
+    onHeightUpdate(expectedHeight.current);
   }, [minDynamicHeight, maxDynamicHeight]);
 
   useEffect(() => {
     if (
       widgetHeightInPixels !==
       Math.ceil(
-        Math.ceil(expectedHeight + WIDGET_PADDING * 2) /
+        Math.ceil(expectedHeight.current + WIDGET_PADDING * 2) /
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       ) *
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT
     ) {
-      onHeightUpdate(expectedHeight);
+      onHeightUpdate(expectedHeight.current);
     }
   }, [widgetHeightInPixels]);
 
   if (isAutoHeightWithLimits) {
     const expectedHeightInRows = Math.ceil(
-      expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+      expectedHeight.current / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
     const backgroundColor = widgetProps?.backgroundColor;

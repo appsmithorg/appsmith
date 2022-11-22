@@ -1306,8 +1306,9 @@ Cypress.Commands.add(
   "readTabledataPublish",
   (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGoOneLeveDeeper ? "div" : ""
-      }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
+      !shouldNotGoOneLeveDeeper ? "div" : ""
+    }`;
     const tabVal = cy.get(selector).invoke("text");
     return tabVal;
   },
@@ -1322,8 +1323,9 @@ Cypress.Commands.add("readTableV2dataPublish", (rowNum, colNum) => {
 Cypress.Commands.add(
   "readTabledataValidateCSS",
   (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGotOneLeveDeeper ? "div" : ""
-      }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
+      !shouldNotGotOneLeveDeeper ? "div" : ""
+    }`;
     cy.get(selector).should("have.css", cssProperty, cssValue);
   },
 );
@@ -1459,8 +1461,8 @@ Cypress.Commands.add(
     if (toChange) {
       cy.xpath(
         "//p[text()='" +
-        ddTitle +
-        "']/parent::label/following-sibling::div/div/div",
+          ddTitle +
+          "']/parent::label/following-sibling::div/div/div",
       ).click(); //to expand the dropdown
       cy.xpath('//span[contains(text(),"' + newValue + '")]')
         .last()
@@ -1602,8 +1604,7 @@ Cypress.Commands.add("changeLayoutHeight", (locator) => {
   cy.get(".t--property-control-height .remixicon-icon")
     .should("be.visible")
     .click({ force: true });
-  cy.get(locator)
-    .click({ force: true });
+  cy.get(locator).click({ force: true });
   cy.wait("@updateLayout").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1615,8 +1616,7 @@ Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
   cy.get(".t--property-control-height .remixicon-icon")
     .should("be.visible")
     .click({ force: true });
-  cy.get(locator)
-    .click({ force: true });
+  cy.get(locator).click({ force: true });
 });
 
 Cypress.Commands.add("checkMinDefaultValue", (endp, value) => {
