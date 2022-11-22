@@ -6,7 +6,6 @@ import {
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   DataTree,
   DataTreeFactory,
@@ -86,24 +85,7 @@ export const getWidgetEvalValues = createSelector(
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-  (tree: DataTree, actions: ActionDataState) => {
-    //js actions needs to be added
-    const cachedResponses: Record<string, any> = {};
-    if (actions && actions.length) {
-      actions.forEach((action) => {
-        if (!(action.config.name in tree) && action.config.cacheResponse) {
-          try {
-            cachedResponses[action.config.name] = JSON.parse(
-              action.config.cacheResponse,
-            );
-          } catch (e) {
-            cachedResponses[action.config.name] = action.config.cacheResponse;
-          }
-        }
-      });
-    }
+  (tree: DataTree) => {
     return tree;
   },
 );

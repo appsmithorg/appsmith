@@ -11,14 +11,13 @@ import {
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
 } from "selectors/debuggerSelectors";
 import { matchBuilderPath } from "constants/routes";
-import { TooltipComponent } from "design-system";
+import { getTypographyByKey, TooltipComponent } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 
 function Debugger() {
@@ -40,7 +39,7 @@ const TriggerContainer = styled.div<{
 
   .debugger-count {
     color: ${Colors.WHITE};
-    ${(props) => getTypographyByKey(props, "btnSmall")}
+    ${getTypographyByKey("btnSmall")}
     height: 16px;
     width: 16px;
     background-color: ${(props) =>

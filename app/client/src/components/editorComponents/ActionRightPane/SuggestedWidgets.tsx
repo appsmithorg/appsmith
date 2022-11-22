@@ -1,10 +1,9 @@
-import { getTypographyByKey } from "constants/DefaultTheme";
 import React, { memo } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
-import { TooltipComponent as Tooltip } from "design-system";
+import { getTypographyByKey, TooltipComponent as Tooltip } from "design-system";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -21,7 +20,7 @@ import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 
 const WidgetList = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
   img {
