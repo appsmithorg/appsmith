@@ -2,7 +2,6 @@
 /* eslint-disable no-console */
 import {
   DataTree,
-  DataTreeAppsmith,
   DataTreeEntity,
   DataTreeObjectEntity,
 } from "entities/DataTree/dataTreeFactory";
@@ -16,7 +15,6 @@ import {
   CrashingError,
   DataTreeDiff,
   getSafeToRenderDataTree,
-  isAppsmithEntity,
   removeFunctions,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -50,6 +48,7 @@ let replayMap: Record<string, ReplayEntity<any>>;
 
 function createNewEntity(entity: DataTreeObjectEntity) {
   const newObj = Object.create(entity.__config__ || null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { __config__, ...rest } = entity;
   Object.assign(newObj, rest) as DataTreeEntity;
   return newObj;
@@ -57,7 +56,7 @@ function createNewEntity(entity: DataTreeObjectEntity) {
 
 function createUnEvalTree(unevalTree: DataTree) {
   const newUnEvalTree: DataTree = {};
-  // check for entity.__config__
+
   Object.entries(unevalTree).forEach(([key, entity]) => {
     newUnEvalTree[key] = createNewEntity(entity as DataTreeObjectEntity);
   });
