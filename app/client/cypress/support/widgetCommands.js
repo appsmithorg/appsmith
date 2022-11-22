@@ -812,11 +812,9 @@ Cypress.Commands.add("addColumnV2", (colId) => {
 });
 
 Cypress.Commands.add("editColumn", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn")
-    .scrollIntoView()
-    .click({
-      force: true,
-    });
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
+    force: true,
+  });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1500);
 });

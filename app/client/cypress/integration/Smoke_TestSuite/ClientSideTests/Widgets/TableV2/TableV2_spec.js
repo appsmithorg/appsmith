@@ -128,7 +128,7 @@ describe("Table Widget V2 Functionality", function() {
   it("5. Verify that table filter dropdown only includes filterable columns", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(500);
-    cy.testJsontext("tabledata", `{{[{step: 1, task: 1}]}}`);
+    PropPane.UpdatePropertyFieldValue("Table Data", `{{[{step: 1, task: 1}]}}`);
     cy.get(
       ".t--property-control-allowfiltering .bp3-control-indicator",
     ).click();
