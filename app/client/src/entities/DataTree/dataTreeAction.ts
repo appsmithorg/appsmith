@@ -45,26 +45,30 @@ export const generateDataTreeAction = (
   );
 
   return {
+    actionId: action.config.id,
     run: {},
     clear: {},
-    actionId: action.config.id,
-    name: action.config.name,
-    pluginId: action.config.pluginId,
-    pluginType: action.config.pluginType,
-    config: action.config.actionConfiguration,
-    dynamicBindingPathList,
     data: action.data ? action.data.body : undefined,
+    isLoading: action.isLoading,
     responseMeta: {
       statusCode: action.data?.statusCode,
       isExecutionSuccess: action.data?.isExecutionSuccess || false,
       headers: action.data?.headers,
     },
     ENTITY_TYPE: ENTITY_TYPE.ACTION,
-    isLoading: action.isLoading,
-    bindingPaths,
-    reactivePaths,
-    dependencyMap,
-    logBlackList: {},
-    datasourceUrl,
+    __config__: {
+      actionId: action.config.id,
+      name: action.config.name,
+      pluginId: action.config.pluginId,
+      pluginType: action.config.pluginType,
+      config: action.config.actionConfiguration,
+      dynamicBindingPathList,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      bindingPaths,
+      reactivePaths,
+      dependencyMap,
+      logBlackList: {},
+      datasourceUrl,
+    },
   };
 };
