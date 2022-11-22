@@ -10,14 +10,18 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { Checkbox, emailValidator, TextInput } from "design-system";
+import {
+  Checkbox,
+  emailValidator,
+  getTypographyByKey,
+  TextInput,
+} from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 const LabelContainer = styled.div`
   display: flex;
@@ -50,7 +54,7 @@ const DefaultConfigContainer = styled.div`
 `;
 
 const SectionTitle = styled.span`
-  ${(props) => getTypographyByKey(props, "u1")};
+  ${getTypographyByKey("u1")};
   text-transform: uppercase;
   color: ${Colors.GRAY_900};
 `;
