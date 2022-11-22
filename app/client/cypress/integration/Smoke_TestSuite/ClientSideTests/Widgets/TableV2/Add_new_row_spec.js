@@ -335,7 +335,7 @@ describe("Table widget Add new row feature's", () => {
       cy.addDsl(dsl);
     });
 
-    it.only("3.1. should test that discard button is undoing the add new feature", () => {
+    it("3.1. should test that discard button is undoing the add new feature", () => {
       cy.openPropertyPane("tablewidgetv2");
       propPane.ToggleOnOrOff("Allow adding a row", "On");
       cy.get(".tableWrap .new-row").should("not.exist");
@@ -344,7 +344,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it.only("3.2. should test that discard events is triggered when user clicks on the discard button", () => {
+    it("3.2. should test that discard events is triggered when user clicks on the discard button", () => {
       cy.get(
         ".t--property-control-ondiscard .t--open-dropdown-Select-Action",
       ).click({ force: true });
@@ -358,7 +358,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".tableWrap .new-row").should("not.exist");
     });
 
-    it.only("3.3. should test that save event is triggered when user clicks on the save button", () => {
+    it("3.3. should test that save event is triggered when user clicks on the save button", () => {
       cy.get(
         ".t--property-control-onsave .t--open-dropdown-Select-Action",
       ).click({ force: true });
