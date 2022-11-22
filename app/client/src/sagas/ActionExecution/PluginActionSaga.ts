@@ -1,4 +1,12 @@
-import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
+import {
+  all,
+  call,
+  delay,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   executePluginActionError,
   executePluginActionRequest,
@@ -764,6 +772,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     let payload = EMPTY_RESPONSE;
     let isError = true;
     let error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
+
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,
@@ -940,61 +949,71 @@ function* executePluginActionSaga(
   if (paginationField) {
     executeActionRequest.paginationField = paginationField;
   }
-
-  const formData = new FormData();
-
-  yield call(
-    evaluateActionParams,
-    pluginAction.jsonPathKeys,
-    formData,
-    executeActionRequest,
-    params,
-  );
-
-  try {
-    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
+  for (let i = 0; i < 5; i++) {
+    const formData = new FormData();
+    yield call(
+      evaluateActionParams,
+      pluginAction.jsonPathKeys,
       formData,
-      timeout,
+      executeActionRequest,
+      params,
     );
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-    );
-    yield validateResponse(response);
-    const payload = createActionExecutionResponse(response);
 
-    yield put(
-      executePluginActionSuccess({
-        id: actionId,
-        response: payload,
-      }),
-    );
-    let plugin: Plugin | undefined;
-    if (!!pluginAction.pluginId) {
-      plugin = shouldBeDefined<Plugin>(
-        yield select(getPlugin, pluginAction.pluginId),
-        `Plugin not found for id - ${pluginAction.pluginId}`,
+    try {
+      const response: ActionExecutionResponse = yield ActionAPI.executeAction(
+        formData,
+        timeout,
       );
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.EXECUTE_ACTION,
+      );
+      yield validateResponse(response);
+      const payload = createActionExecutionResponse(response);
+      let hasError = false;
+      // HACK: for hasura query error by token invalid
+      if (payload.body) {
+        const datas: any = payload.body;
+        for (const key in datas) {
+          if (key == "errors" && datas[key].length > 0) {
+            hasError = true;
+            yield delay(1000);
+          }
+        }
+      }
+      if (!hasError || i == 4) {
+        yield put(
+          executePluginActionSuccess({
+            id: actionId,
+            response: payload,
+          }),
+        );
+        let plugin: Plugin | undefined;
+        if (!!pluginAction.pluginId) {
+          plugin = shouldBeDefined<Plugin>(
+            yield select(getPlugin, pluginAction.pluginId),
+            `Plugin not found for id - ${pluginAction.pluginId}`,
+          );
+        }
+        // sets the default display format for action response e.g Raw, Json or Table
+        yield setDefaultActionDisplayFormat(actionId, plugin, payload);
+        return {
+          payload,
+          isError: isErrorResponse(response),
+        };
+      }
+    } catch (e) {
+      yield put(
+        executePluginActionSuccess({
+          id: actionId,
+          response: EMPTY_RESPONSE,
+        }),
+      );
+      if (e instanceof UserCancelledActionExecutionError) {
+        throw new UserCancelledActionExecutionError();
+      }
+
+      throw new PluginActionExecutionError("Response not valid", false);
     }
-
-    // sets the default display format for action response e.g Raw, Json or Table
-    yield setDefaultActionDisplayFormat(actionId, plugin, payload);
-
-    return {
-      payload,
-      isError: isErrorResponse(response),
-    };
-  } catch (e) {
-    yield put(
-      executePluginActionSuccess({
-        id: actionId,
-        response: EMPTY_RESPONSE,
-      }),
-    );
-    if (e instanceof UserCancelledActionExecutionError) {
-      throw new UserCancelledActionExecutionError();
-    }
-
-    throw new PluginActionExecutionError("Response not valid", false);
   }
 }
 
