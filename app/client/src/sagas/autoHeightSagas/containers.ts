@@ -153,8 +153,6 @@ export function* dynamicallyUpdateContainersSaga() {
     }
   }
 
-  console.log("Dynamic Height: ", { updates });
-
   if (Object.keys(updates).length > 0) {
     // TODO(abhinav): Make sure there are no race conditions or scenarios where these updates are not considered.
     for (const widgetId in updates) {
