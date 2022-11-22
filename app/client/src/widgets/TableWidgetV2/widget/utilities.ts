@@ -26,6 +26,7 @@ import {
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
+import { AppThemeStylesheet } from "entities/AppTheming";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -512,7 +513,7 @@ export const getSelectedRowBgColor = (accentColor: string) => {
 export const getStylesheetValue = (
   props: TableWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: Record<string, any>,
+  widgetStylesheet?: AppThemeStylesheet,
 ) => {
   const propertyName = propertyPath.split(".").slice(-1)[0];
   const columnName = propertyPath.split(".").slice(-2)[0];

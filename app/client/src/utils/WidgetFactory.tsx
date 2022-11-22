@@ -50,7 +50,7 @@ class WidgetFactory {
     readonly PropertyPaneConfig[]
   > = new Map();
   static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
-  static stylesheetConfigMap: Map<WidgetType, Record<string, any>> = new Map();
+  static stylesheetConfigMap: Map<WidgetType, AppThemeStylesheet> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -68,7 +68,7 @@ class WidgetFactory {
     propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
-    stylesheetConfig?: Record<string, any>,
+    stylesheetConfig?: AppThemeStylesheet,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -269,13 +269,11 @@ class WidgetFactory {
     return this.loadingProperties.get(type);
   }
 
-  static getWidgetStylesheetConfigMap(
-    widgetType: WidgetType,
-  ): AppThemeStylesheet {
+  static getWidgetStylesheetConfigMap(widgetType: WidgetType) {
     const map = this.stylesheetConfigMap.get(widgetType);
     if (!map) {
       log.error("Widget stylesheet properties not defined: ", widgetType);
-      return {};
+      return undefined;
     }
     return map;
   }

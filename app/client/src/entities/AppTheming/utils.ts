@@ -108,7 +108,7 @@ export const getPropertiesToUpdateForReset = (
               const fieldStylesheet = getFieldStylesheet(
                 widget.widgetName,
                 schemaItem.fieldType,
-                WidgetFactory.getWidgetStylesheetConfigMap(widget.type)
+                (WidgetFactory.getWidgetStylesheetConfigMap(widget.type) || {})
                   .childStylesheet as any,
               );
 
@@ -129,28 +129,30 @@ export const getPropertiesToUpdateForReset = (
         }
 
         // reset submit button
-        ["submitButtonStyles", "resetButtonStyles"].map((buttonStyleKey) => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          Object.keys(stylesheetValue[buttonStyleKey]).map((propertyKey) => {
-            const buttonStylesheetValue =
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              stylesheetValue[buttonStyleKey][propertyKey];
+        (["submitButtonStyles", "resetButtonStyles"] as const).map(
+          (buttonStyleKey) => {
+            Object.keys(get(stylesheetValue, buttonStyleKey, {})).map(
+              (propertyKey) => {
+                const buttonStylesheetValue = get(
+                  stylesheetValue,
+                  `${buttonStyleKey}.${propertyKey}`,
+                ) as string;
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (
-              THEME_BINDING_REGEX.test(buttonStylesheetValue) &&
-              buttonStylesheetValue !== widget[buttonStyleKey][propertyKey] &&
-              buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]
-            ) {
-              modifications[
-                `${buttonStyleKey}.${propertyKey}`
-              ] = buttonStylesheetValue;
-            }
-          });
-        });
+                if (
+                  buttonStylesheetValue &&
+                  THEME_BINDING_REGEX.test(buttonStylesheetValue) &&
+                  buttonStylesheetValue !==
+                    widget[buttonStyleKey][propertyKey] &&
+                  buttonStylesheetValue !== widget[buttonStyleKey][propertyKey]
+                ) {
+                  modifications[
+                    `${buttonStyleKey}.${propertyKey}`
+                  ] = buttonStylesheetValue;
+                }
+              },
+            );
+          },
+        );
       }
 
       if (Object.keys(modifications).length > 0) {

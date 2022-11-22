@@ -61,20 +61,6 @@ function* getEntityNames() {
   return Object.keys(evalTree);
 }
 
-/**
- * return stylesheet of widget
- * NOTE: a stylesheet is an object that contains
- * which property of widget will use which property of the theme
- *
- * @param type
- * @returns
- */
-function* getThemeDefaultConfig(type: string) {
-  const stylesheet = WidgetFactory.getWidgetStylesheetConfigMap(type);
-
-  return stylesheet;
-}
-
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
@@ -93,10 +79,9 @@ function* getChildWidgetProps(
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
-  const themeDefaultConfig: Record<string, unknown> = yield call(
-    getThemeDefaultConfig,
-    type,
-  );
+  const themeDefaultConfig =
+    WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     const entityNames: string[] = yield call(getEntityNames);

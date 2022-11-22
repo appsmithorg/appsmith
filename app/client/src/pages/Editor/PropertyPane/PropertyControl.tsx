@@ -57,7 +57,6 @@ import {
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
-import { AppThemeStylesheet } from "entities/AppTheming";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -136,7 +135,7 @@ const PropertyControl = memo((props: Props) => {
    *   theme config and thus it is fetched from there.
    */
   const propertyStylesheetValue = (() => {
-    const widgetStylesheet: AppThemeStylesheet = WidgetFactory.getWidgetStylesheetConfigMap(
+    const widgetStylesheet = WidgetFactory.getWidgetStylesheetConfigMap(
       widgetProperties.type,
     );
 

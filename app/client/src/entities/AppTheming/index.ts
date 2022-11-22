@@ -21,6 +21,15 @@ export type AppThemeStylesheet = {
   };
 };
 
+export type ButtonStyles = {
+  resetButtonStyles: {
+    [key: string]: string;
+  };
+  submitButtonStyles: {
+    [key: string]: string;
+  };
+};
+
 export type AppTheme = {
   id: string;
   name: string;
@@ -61,12 +70,6 @@ export type AppTheme = {
             [key: string]: string;
           };
       childStylesheet: Stylesheet;
-      resetButtonStyles: {
-        [key: string]: string;
-      };
-      submitButtonStyles: {
-        [key: string]: string;
-      };
     };
   };
   // current values for the theme
