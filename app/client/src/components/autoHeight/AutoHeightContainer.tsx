@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useEffect, useRef, useState } from "react";
+import React, { PropsWithChildren, useEffect, useRef } from "react";
 import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
