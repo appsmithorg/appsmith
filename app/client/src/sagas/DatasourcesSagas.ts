@@ -358,7 +358,7 @@ function* updateDatasourceSaga(
       }
       //Refresh datasource structure on save
       if (expandDatasourceId === response.data.id) {
-        yield put(fetchDatasourceStructure(response.data.id));
+        yield put(fetchDatasourceStructure(response.data.id, true));
       }
 
       AppsmithConsole.info({
