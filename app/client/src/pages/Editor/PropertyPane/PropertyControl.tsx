@@ -58,6 +58,7 @@ import {
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { ReduxAction } from "ce/constants/ReduxActionConstants";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -238,6 +239,7 @@ const PropertyControl = memo((props: Props) => {
   );
   const onBatchUpdatePropertiesOfMultipleWidgets = useCallback(
     (updatesArray: UpdateWidgetPropertyPayload[]) => {
+      console.log("#### updates", updatesArray);
       dispatch(batchUpdateMultipleWidgetProperties(updatesArray));
     },
     [],
