@@ -60,12 +60,16 @@ const AppViewerBody = styled.section<{
 
 const AppViewerBodyContainer = styled.div<{
   width?: string;
-  backgroundColor: string;
+  backgroundColor?: string;
 }>`
   flex: 1;
   overflow: auto;
   margin: 0 auto;
-  background: ${({ backgroundColor }) => backgroundColor};
+  ${({ backgroundColor }) =>
+    backgroundColor &&
+    `
+    background: ${backgroundColor};
+  `}
 `;
 
 export type AppViewerProps = RouteComponentProps<BuilderRouteParams>;
@@ -241,9 +245,7 @@ function AppViewer(props: Props) {
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}
         />
-        <AppViewerBodyContainer
-          backgroundColor={selectedTheme.properties.colors.backgroundColor}
-        >
+        <AppViewerBodyContainer>
           <AppViewerBody
             className={CANVAS_SELECTOR}
             hasPages={pages.length > 1}
