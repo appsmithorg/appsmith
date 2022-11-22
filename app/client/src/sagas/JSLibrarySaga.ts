@@ -55,7 +55,8 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
 
   if (!success) {
     log.debug("Failed to install locally");
-    return handleInstallationFailure(url as string);
+    yield call(handleInstallationFailure, url as string);
+    return;
   }
 
   const name: string = lib.name || accessor[accessor.length - 1];
