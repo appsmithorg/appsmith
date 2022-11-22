@@ -5,14 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Map;
 import java.util.Set;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
+@Document
 public class CustomJSLib extends BaseDomain {
     /* Library name */
     String name;
@@ -32,7 +33,7 @@ public class CustomJSLib extends BaseDomain {
 
     /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
-    Map<String, Object> defs;
+    String defs;
 
     /**
      * The equality operator has been overridden here so that when two custom JS library objects are compared, they
@@ -48,7 +49,11 @@ public class CustomJSLib extends BaseDomain {
             return false;
         }
 
-        // TODO: add comment
+        /**
+         * We check the equality using the accessor set since this is supposed to be unique for a given library. The
+         * accessors in the accessor set are defined by the installed library i.e. client or the server does not have
+         * any logic defined to generate accessor values.
+         */
         return ((CustomJSLib) o).getAccessor().equals(this.accessor);
     }
 }

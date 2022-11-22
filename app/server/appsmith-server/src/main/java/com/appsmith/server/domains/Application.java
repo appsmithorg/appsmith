@@ -17,8 +17,10 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
@@ -78,7 +80,7 @@ public class Application extends BaseDomain {
     AppLayout publishedAppLayout;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    List<CustomJSLib> installedCustomJSLibs = new ArrayList<>();
+    Set<CustomJSLib> installedCustomJSLibs = new HashSet<>();
 
     GitApplicationMetadata gitApplicationMetadata;
 
