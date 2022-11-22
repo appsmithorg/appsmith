@@ -1,36 +1,36 @@
-import { Toaster } from "design-system";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import log from "loglevel";
-import { cloneDeep } from "lodash";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
-import {
-  getOccupiedSpacesSelectorForContainer,
-  getMainCanvasProps,
-} from "selectors/editorSelectors";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import { Toaster } from "design-system";
+import { cloneDeep } from "lodash";
+import log from "loglevel";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import {
+  getMainCanvasProps,
+  getOccupiedSpacesSelectorForContainer,
+} from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -68,8 +68,11 @@ export function* getCanvasSizeAfterWidgetMove(
       getWidget,
       canvasWidget.parentId,
     );
-    canvasParentMinHeight =
-      (parent.bottomRow - parent.topRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    if (!parent.detachFromLayout) {
+      canvasParentMinHeight =
+        (parent.bottomRow - parent.topRow) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    }
   }
   if (canvasWidget) {
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
