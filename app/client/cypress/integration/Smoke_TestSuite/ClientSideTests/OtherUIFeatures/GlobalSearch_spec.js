@@ -167,25 +167,19 @@ describe("GlobalSearch", function() {
       .then((title) => expect(title).includes("Api"));
   });
 
-  it("8. navigatesToGoogleSheetsQuery does not break again: Bug 15012", () => {
+  // since now datasource will only be saved once user clicks on save button explicitly,
+  // updated test so that when user clicks on google sheet and searches for the same datasource, no
+  // results found will be shown
+  it.only("8. navigatesToGoogleSheetsQuery does not break again: Bug 15012", () => {
     cy.createGoogleSheetsDatasource();
     cy.renameDatasource("XYZ");
     cy.wait(4000);
-    cy.get(appPage.dropdownChevronLeft).click();
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000); // modal open transition should be deterministic
     cy.get(commonlocators.globalSearchInput).type("XYZ");
-    cy.get("body").type("{enter}");
 
-    cy.get(".t--save-datasource")
-      .contains("Save and Authorize")
-      .should("be.visible");
-
-    cy.deleteDatasource("XYZ");
-
-    // this should be called at the end of the last test case in this spec file.
-    cy.NavigateToHome();
+    cy.get(".no-data-title").should("be.visible");
   });
 });
