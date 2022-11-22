@@ -22,6 +22,7 @@ import { originalDSLForDSLMigrations } from "./testDSLs";
 import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
 import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
 import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
+import * as migrateAutoHeight from "./migrations/autoHeightMigrations";
 
 type Migration = {
   functionLookup: {
@@ -662,6 +663,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 67,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migratePropertiesForDynamicHeight",
+      },
+    ],
+    version: 68,
   },
 ];
 

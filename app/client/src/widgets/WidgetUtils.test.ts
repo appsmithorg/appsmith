@@ -636,7 +636,7 @@ describe("Should Update Widget Height Automatically?", () => {
     };
 
     const inputs = [
-      600, // Is beyond max height of 40 rows
+      600, // Is beyond max height of 40 rows,
       560, // Is beyond max height of 40 rows
       220, // Is within 20 and 40 rows limits
       180, // Is below the min of 20 rows
@@ -647,15 +647,15 @@ describe("Should Update Widget Height Automatically?", () => {
       100, // Is below the min possible value
     ];
     const expected = [
-      false,
+      true, // because currentHeight is not close to maxDynamicHeight
+      true, // because currentheight is not close to maxDynamicHeight
+      true,
+      true, // because we need to go as low as possible (minDynamicHeight)
       false,
       true,
-      false,
-      false,
       true,
-      true,
-      false,
-      false,
+      true, // because we need to go as low as possible (minDynamicHeight)
+      true, // because we need to go as low as possible (minDynamicHeight)
     ];
 
     inputs.forEach((input, index) => {
