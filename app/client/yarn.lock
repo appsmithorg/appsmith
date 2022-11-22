@@ -6223,10 +6223,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.33-alpha.1":
-  version "1.0.33-alpha.1"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.33-alpha.1.tgz#3b5ce5ace5eee1817f3cd50931e8e0ff08f0d0c2"
-  integrity sha512-YUOLwPqc0OWCyfb8ory+cm2kSKjvV1Z27Mv2W2pRGRXkEwLD3vgIJL9vcxmEaw8ewPv+ls7zFhA+SKENTwZEuw==
+"design-system@npm:@appsmithorg/design-system@1.0.34-alpha.2":
+  version "1.0.34-alpha.2"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.34-alpha.2.tgz#350d43edf4252be63c5077b6629a702a2f285aa6"
+  integrity sha512-62XGvFBlOZElNw36JSpnwgxNMhuifcerKuos6trcjZ5cKGrNCN6MO8eF9yeLuMhHLP9x/nDlg9QqFZUkFolJcA==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
