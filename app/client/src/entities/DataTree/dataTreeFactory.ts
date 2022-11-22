@@ -21,7 +21,10 @@ import {
 import { AppTheme } from "entities/AppTheming";
 import { PluginId } from "api/PluginApi";
 import log from "loglevel";
-import { WidgetConfig } from "reducers/entityReducers/widgetConfigReducer";
+import {
+  WidgetConfig,
+  WidgetConfigProps,
+} from "reducers/entityReducers/widgetConfigReducer";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -60,6 +63,7 @@ export interface ActionEntityEvalTree {
     isExecutionSuccess: boolean;
     headers: unknown;
   };
+  __config__: ActionEntityConfig;
 }
 
 export interface ActionEntityConfig {
@@ -77,9 +81,7 @@ export interface ActionEntityConfig {
   datasourceUrl: string;
 }
 
-export interface DataTreeAction
-  extends ActionEntityEvalTree,
-    ActionEntityConfig {}
+export type DataTreeAction = ActionEntityEvalTree;
 
 export interface JSActionEntityConfig {
   meta: Record<string, MetaArgs>;
@@ -97,9 +99,10 @@ export interface JSActionEntityConfig {
 export interface JSActionEvalTree {
   [propName: string]: unknown;
   body: string;
+  __config__: JSActionEntityConfig;
 }
 
-export type DataTreeJSAction = JSActionEntityConfig & JSActionEvalTree;
+export type DataTreeJSAction = JSActionEvalTree;
 
 export interface MetaArgs {
   arguments: Variable[];
@@ -139,7 +142,9 @@ export type PropertyOverrideDependency = Record<
 //   meta: Record<string, unknown>;
 // }
 
-export interface WidgetEntityConfig extends WidgetConfig {
+export interface WidgetEntityConfig
+  extends Partial<WidgetProps>,
+    Omit<WidgetConfigProps, "widgetName" | "rows" | "columns"> {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
@@ -152,8 +157,6 @@ export interface WidgetEntityConfig extends WidgetConfig {
 
   defaultMetaProps: Array<string>;
   type: string;
-  widgetId: string;
-  widgetName: string;
 }
 
 export type DataTreeWidget = WidgetEvalTree & WidgetEntityConfig;
@@ -210,78 +213,64 @@ export type EvalTreeEntity =
 export type EvalTree = {
   [entityName: string]: EvalTreeEntity;
 };
-
 export class DataTreeFactory {
   static create({
     actions,
     appData,
     editorConfigs,
     jsActions,
+    // pageList,
     pluginDependencyConfig,
     theme,
     widgets,
     widgetsMeta,
-  }: DataTreeSeed): {
-    unEvalTree: EvalTree;
-    entityConfigCollection: EntityConfigCollection;
-  } {
-    const unEvalTree: EvalTree = {};
-    const entityConfigCollection: EntityConfigCollection = {};
+  }: DataTreeSeed): DataTree {
+    const dataTree: DataTree = {};
     const start = performance.now();
     const startActions = performance.now();
 
     actions.forEach((action) => {
       const editorConfig = editorConfigs[action.config.pluginId];
       const dependencyConfig = pluginDependencyConfig[action.config.pluginId];
-      const {
-        entityConfig: actionEntityConfig,
-        unEvalTree: actionDataTree,
-      } = generateDataTreeAction(action, editorConfig, dependencyConfig);
-      unEvalTree[action.config.name] = actionDataTree;
-      entityConfigCollection[action.config.name] = actionEntityConfig;
+      dataTree[action.config.name] = generateDataTreeAction(
+        action,
+        editorConfig,
+        dependencyConfig,
+      );
     });
     const endActions = performance.now();
 
     const startJsActions = performance.now();
 
     jsActions.forEach((js) => {
-      const {
-        entityConfig: jsActionEntityConfig,
-        unEvalTree: jsActionDataTree,
-      } = generateDataTreeJSAction(js);
-      unEvalTree[js.config.name] = jsActionDataTree;
-      entityConfigCollection[js.config.name] = jsActionEntityConfig;
+      dataTree[js.config.name] = generateDataTreeJSAction(js);
     });
     const endJsActions = performance.now();
 
     const startWidgets = performance.now();
 
     Object.values(widgets).forEach((widget) => {
-      const {
-        entityConfig,
-        unEvalTree: widgetUnEvalTree,
-      } = generateDataTreeWidget(widget, widgetsMeta[widget.widgetId]);
-
-      unEvalTree[widget.widgetName] = widgetUnEvalTree;
-      entityConfigCollection[widget.widgetName] = entityConfig;
+      dataTree[widget.widgetName] = generateDataTreeWidget(
+        widget,
+        widgetsMeta[widget.widgetId],
+      );
     });
     const endWidgets = performance.now();
 
-    // remove pageList
+    /**
+     *  pageList is not used in evaluation code need to confirm once again if it is needed or not.
+     */
+
     // dataTree.pageList = pageList;
 
-    unEvalTree.appsmith = {
+    dataTree.appsmith = {
       ...appData,
       // combine both persistent and transient state with the transient state
       // taking precedence in case the key is the same
       store: { ...appData.store.persistent, ...appData.store.transient },
       theme,
     } as DataTreeAppsmith;
-
-    entityConfigCollection.appsmith = {
-      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
-    } as DataTreeAppsmith;
-
+    (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     const end = performance.now();
 
     const out = {
@@ -293,6 +282,6 @@ export class DataTreeFactory {
 
     log.debug("### Create unevalTree timing", out);
 
-    return { unEvalTree, entityConfigCollection };
+    return dataTree;
   }
 }

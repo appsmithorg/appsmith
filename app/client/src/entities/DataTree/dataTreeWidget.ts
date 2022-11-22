@@ -132,14 +132,21 @@ const generateDataTreeWidgetWithoutMeta = (
    *
    * Therefore spread is replaced with "merge" which merges objects recursively.
    */
+
+  console.log("$$$-widget", {
+    widget,
+  });
+
+  const widgetPathsToOmit = [
+    "dynamicBindingPathList",
+    "dynamicPropertyPathList",
+    "dynamicTriggerPathList",
+    "privateWidgets",
+  ];
+
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {},
-    _.omit(widget, [
-      "dynamicBindingPathList",
-      "dynamicPropertyPathList",
-      "dynamicTriggerPathList",
-      "privateWidgets",
-    ]),
+    _.omit(widget, widgetPathsToOmit),
     unInitializedDefaultProps,
     derivedProps,
     {
@@ -169,7 +176,8 @@ const generateDataTreeWidgetWithoutMeta = (
       propertyOverrideDependency,
       overridingPropertyPaths,
       type: widget.type,
-      ..._.pick(widget, ["dynamicPropertyPathList", "dynamicTriggerPathList"]),
+      dynamicPropertyPathList: widget.dynamicPropertyPathList,
+      dynamicTriggerPathList: widget.dynamicTriggerPathList,
     },
   };
 };
@@ -225,5 +233,6 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
-  return { entityConfig, unEvalTree: dataTreeWidget };
+  dataTreeWidget["__config__"] = entityConfig;
+  return dataTreeWidget;
 };
