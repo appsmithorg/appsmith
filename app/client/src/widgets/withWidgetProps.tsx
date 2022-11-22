@@ -86,10 +86,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetId !== MAIN_CONTAINER_WIDGET_ID
       ) {
         widgetProps.rightColumn = props.rightColumn;
-        if (widgetProps.bottomRow === undefined)
+        if (widgetProps.bottomRow === undefined) {
           widgetProps.bottomRow = props.bottomRow;
-        if (widgetProps.bottomRow === undefined)
           widgetProps.minHeight = props.minHeight;
+        }
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
@@ -117,16 +117,20 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return null;
     }
 
-    // We don't render invisible widgets in view mode
-    // True, but we need this information to re-arrange widgets in view mode.
-    // We may create an HOC for autoHeight updates, such that, this info
-    // doesn't need to go all the way to the BaseWidget.
-
-    if (
+    const shouldCollapseWidgetInViewOrPreviewMode =
       !widgetProps.isVisible &&
       (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW) &&
-      widgetProps.bottomRow !== widgetProps.topRow
-    ) {
+      widgetProps.bottomRow !== widgetProps.topRow;
+
+    const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
+      widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
+
+    const shouldResetCollapsedContainerHeightInCanvasMode =
+      widgetProps.topRow === widgetProps.bottomRow &&
+      renderMode === RenderModes.CANVAS;
+
+    // We don't render invisible widgets in view mode
+    if (shouldCollapseWidgetInViewOrPreviewMode) {
       dispatch({
         type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
         payload: {
@@ -136,10 +140,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       });
       return null;
     } else if (
-      !widgetProps.isVisible &&
-      renderMode !== RenderModes.PAGE &&
-      renderMode !== RenderModes.PREVIEW &&
-      widgetProps.topRow === widgetProps.bottomRow
+      shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
+      shouldResetCollapsedContainerHeightInCanvasMode
     ) {
       dispatch(checkContainersForAutoHeightAction());
     }
