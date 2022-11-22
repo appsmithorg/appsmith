@@ -77,6 +77,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       const visibleItems = sourceData
         .map((item, index) => ({
           ...item,
+          id: index.toString(),
           isVisible: getValue("isVisible", index),
           isDisabled: getValue("isDisabled", index),
           index: index,

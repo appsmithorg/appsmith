@@ -246,43 +246,41 @@ function PopoverContent(props: PopoverContentProps) {
 
   if (!visibleItems?.length) return <StyledMenu />;
 
-  const listItems = visibleItems.map(
-    (item: Record<string, MenuItems | any>, index: number) => {
-      const {
-        backgroundColor,
-        iconAlign,
-        iconColor,
-        iconName,
-        id,
-        isDisabled,
-        label,
-        onClick,
-        textColor,
-      } = item;
+  const listItems = visibleItems.map((item: MenuItems, index: number) => {
+    const {
+      backgroundColor,
+      iconAlign,
+      iconColor,
+      iconName,
+      id,
+      isDisabled,
+      label,
+      onClick,
+      textColor,
+    } = item;
 
-      return (
-        <BaseMenuItem
-          backgroundColor={backgroundColor}
-          disabled={isDisabled}
-          icon={
-            iconAlign === Alignment.RIGHT ? null : (
-              <Icon color={iconColor} icon={iconName} />
-            )
-          }
-          isCompact={isCompact}
-          key={id}
-          labelElement={
-            iconAlign === Alignment.RIGHT ? (
-              <Icon color={iconColor} icon={iconName} />
-            ) : null
-          }
-          onClick={() => onItemClicked(onClick, index)}
-          text={label}
-          textColor={textColor}
-        />
-      );
-    },
-  );
+    return (
+      <BaseMenuItem
+        backgroundColor={backgroundColor}
+        disabled={isDisabled}
+        icon={
+          iconAlign === Alignment.RIGHT ? null : (
+            <Icon color={iconColor} icon={iconName} />
+          )
+        }
+        isCompact={isCompact}
+        key={id}
+        labelElement={
+          iconAlign === Alignment.RIGHT ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : null
+        }
+        onClick={() => onItemClicked(onClick, index)}
+        text={label}
+        textColor={textColor}
+      />
+    );
+  });
 
   return <StyledMenu backgroundColor={backgroundColor}>{listItems}</StyledMenu>;
 }
