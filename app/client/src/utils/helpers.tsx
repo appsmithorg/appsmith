@@ -9,7 +9,7 @@ import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-import { get, set, isNil, has } from "lodash";
+import { get, set, isNil, has, uniq } from "lodash";
 import { Workspace } from "@appsmith/constants/workspaceConstants";
 import {
   isPermitted,
@@ -935,4 +935,43 @@ export function AutoBind(target: any, _: string, descriptor: any) {
   if (typeof descriptor.value === "function")
     descriptor.value = descriptor.value.bind(target);
   return descriptor;
+}
+
+/**
+ * Add item to an array which could be undefined
+ * @param arr1 Base Array (could be undefined)
+ * @param item Item to add to array
+ * @param makeUnique Should make sure array has unique entries
+ * @returns array which includes items from arr1 and item
+ */
+export function pushToArray(
+  item: unknown,
+  arr1?: unknown[],
+  makeUnique = false,
+) {
+  if (Array.isArray(arr1)) arr1.push(item);
+  else return [item];
+
+  if (makeUnique) return uniq(arr1);
+  return arr1;
+}
+
+/**
+ * Add items to array which could be undefined
+ * @param arr1 Base Array (could be undefined)
+ * @param items Items to add to arr1
+ * @param makeUnique Should make sure array has unique entries
+ * @returns array which contains items from arr1 and items
+ */
+export function concatWithArray(
+  items: unknown[],
+  arr1?: unknown[],
+  makeUnique = false,
+) {
+  let finalArr: unknown[] = [];
+  if (Array.isArray(arr1)) finalArr = arr1.concat(items);
+  else finalArr = finalArr.concat(items);
+
+  if (makeUnique) return uniq(finalArr);
+  return finalArr;
 }

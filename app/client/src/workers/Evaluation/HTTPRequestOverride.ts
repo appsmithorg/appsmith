@@ -1,4 +1,4 @@
-const _originalFetch = fetch;
+const _originalFetch = self.fetch;
 
 export default function interceptAndOverrideHttpRequest() {
   Object.defineProperty(self, "fetch", {
