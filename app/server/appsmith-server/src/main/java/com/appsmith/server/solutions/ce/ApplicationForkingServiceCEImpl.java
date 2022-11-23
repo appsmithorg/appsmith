@@ -15,6 +15,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -38,12 +39,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
+    private final WorkspacePermission workspacePermission;
 
     public Mono<Application> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS)
+        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationManagePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();

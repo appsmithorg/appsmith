@@ -60,6 +60,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -171,6 +172,9 @@ public class ActionServiceCE_Test {
 
     @SpyBean
     AstService astService;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
 
 
     Application testApp = null;
@@ -303,7 +307,7 @@ public class ActionServiceCE_Test {
     public void createValidActionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -365,7 +369,7 @@ public class ActionServiceCE_Test {
     public void createValidAction_forGitConnectedApp_getValidPermissionAndDefaultIds() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1251,7 +1255,7 @@ public class ActionServiceCE_Test {
         Application testApplication = new Application();
         testApplication.setName("checkNewActionAndNewDatasourceAnonymousPermissionInPublicApp TestApp");
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {

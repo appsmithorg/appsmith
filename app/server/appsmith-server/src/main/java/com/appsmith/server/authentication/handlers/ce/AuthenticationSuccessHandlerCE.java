@@ -18,6 +18,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -58,6 +59,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
+    private final WorkspacePermission workspacePermission;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -180,7 +182,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         Mono<Application> applicationMono = Mono.just(application);
         if (defaultWorkspaceId == null) {
 
-            applicationMono = workspaceRepository.findAll(AclPermission.MANAGE_WORKSPACES)
+            applicationMono = workspaceRepository.findAll(workspacePermission.getManagePermission())
                     .take(1, true)
                     .collectList()
                     .flatMap(workspaces -> {

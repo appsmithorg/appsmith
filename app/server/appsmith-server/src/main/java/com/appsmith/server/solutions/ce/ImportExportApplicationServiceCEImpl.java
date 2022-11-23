@@ -59,6 +59,7 @@ import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.github.zafarkhaja.semver.util.Stream;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -127,6 +128,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final PolicyUtils policyUtils;
     private final AnalyticsService analyticsService;
     private final DatasourcePermission datasourcePermission;
+    private final WorkspacePermission workspacePermission;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -705,7 +707,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(workspaceService.findById(workspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS))
+                .then(workspaceService.findById(workspaceId, workspacePermission.getApplicationManagePermission()))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )

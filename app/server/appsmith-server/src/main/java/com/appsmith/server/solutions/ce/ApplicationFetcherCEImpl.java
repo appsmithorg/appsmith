@@ -23,6 +23,7 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -63,6 +64,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
     private final UserWorkspaceService userWorkspaceService;
+    private final WorkspacePermission workspacePermission;
 
     private <Domain extends BaseDomain> Flux<Domain> sortDomain(Flux<Domain> domainFlux, List<String> sortOrder) {
         if (CollectionUtils.isEmpty(sortOrder)) {
@@ -134,7 +136,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             Application::getWorkspaceId, Function.identity()
                     );
 
-                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(READ_WORKSPACES)
+                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(workspacePermission.getReadPermission())
                             .cache();
 
                     Mono<List<Workspace>> workspaceListMono = workspacesFromRepoFlux

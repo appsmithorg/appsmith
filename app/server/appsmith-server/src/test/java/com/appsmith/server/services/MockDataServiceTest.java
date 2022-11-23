@@ -15,6 +15,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,6 +89,9 @@ public class MockDataServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    @Autowired
+    WorkspacePermission workspacePermission;
+
     String workspaceId = "";
 
     Application testApp = null;
@@ -152,7 +156,7 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -216,7 +220,7 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {

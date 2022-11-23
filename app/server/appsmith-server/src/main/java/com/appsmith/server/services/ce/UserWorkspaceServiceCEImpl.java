@@ -18,6 +18,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
+    private final WorkspacePermission workspacePermission;
 
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
@@ -62,7 +64,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                       EmailSender emailSender,
                                       UserDataService userDataService,
                                       PermissionGroupService permissionGroupService,
-                                      TenantService tenantService) {
+                                      TenantService tenantService,
+                                      WorkspacePermission workspacePermission) {
         this.sessionUserService = sessionUserService;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
@@ -72,12 +75,13 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.userDataService = userDataService;
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
+        this.workspacePermission = workspacePermission;
     }
 
     @Override
     public Mono<User> leaveWorkspace(String workspaceId) {
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
@@ -129,7 +133,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         }
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .cache();
 
@@ -311,7 +315,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     protected Flux<PermissionGroup> getPermissionGroupsForWorkspace(String workspaceId) {
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // Get default permission groups

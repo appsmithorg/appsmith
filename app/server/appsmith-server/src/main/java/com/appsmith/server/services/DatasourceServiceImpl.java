@@ -6,6 +6,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.DatasourceServiceCEImpl;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -32,11 +33,13 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  SequenceService sequenceService,
                                  NewActionRepository newActionRepository,
                                  DatasourceContextService datasourceContextService,
-                                 DatasourcePermission datasourcePermission) {
+                                 DatasourcePermission datasourcePermission,
+                                 WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, pluginService, pluginExecutorHelper, policyGenerator,
-                sequenceService, newActionRepository, datasourceContextService, datasourcePermission);
+                sequenceService, newActionRepository, datasourceContextService, datasourcePermission,
+                workspacePermission);
 
     }
 }

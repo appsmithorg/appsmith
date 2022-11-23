@@ -29,6 +29,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -104,6 +105,9 @@ public class DatasourceServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
 
     String workspaceId = "";
 
@@ -269,7 +273,7 @@ public class DatasourceServiceTest {
             workspaceId = workspace.getId();
         }
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -675,7 +679,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        workspaceRepository.findByName(name, AclPermission.READ_WORKSPACES),
+                        workspaceRepository.findByName(name, workspacePermission.getReadPermission()),
                         pluginService.findByPackageName("restapi-plugin")
                 )
                 .flatMap(objects -> {
@@ -749,7 +753,7 @@ public class DatasourceServiceTest {
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
-                        workspaceRepository.findByName(name, AclPermission.READ_WORKSPACES),
+                        workspaceRepository.findByName(name, workspacePermission.getReadPermission()),
                         pluginService.findByPackageName("restapi-plugin")
                 )
                 .flatMap(objects -> {
@@ -1026,7 +1030,7 @@ public class DatasourceServiceTest {
         Workspace workspace = workspaceService.create(toCreate, apiUser).block();
         String workspaceId = workspace.getId();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {

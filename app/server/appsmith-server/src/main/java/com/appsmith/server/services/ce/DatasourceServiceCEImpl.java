@@ -29,6 +29,7 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
@@ -72,6 +73,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final NewActionRepository newActionRepository;
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
+    private final WorkspacePermission workspacePermission;
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
@@ -88,7 +90,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    SequenceService sequenceService,
                                    NewActionRepository newActionRepository,
                                    DatasourceContextService datasourceContextService,
-                                   DatasourcePermission datasourcePermission) {
+                                   DatasourcePermission datasourcePermission,
+                                   WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -100,6 +103,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         this.newActionRepository = newActionRepository;
         this.datasourceContextService = datasourceContextService;
         this.datasourcePermission = datasourcePermission;
+        this.workspacePermission = workspacePermission;
     }
 
     @Override
@@ -143,7 +147,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_DATASOURCES)
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceManagePermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {

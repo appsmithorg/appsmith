@@ -98,6 +98,9 @@ public class ShareWorkspacePermissionTests {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
+    @Autowired
+    WorkspacePermission workspacePermission;
+
     Application savedApplication;
 
     Workspace savedWorkspace;
@@ -188,7 +191,7 @@ public class ShareWorkspacePermissionTests {
                 .build();
 
         Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         StepVerifier.create(Mono.zip(applicationMono, workspaceMono))
                 .assertNext(tuple -> {
@@ -243,7 +246,7 @@ public class ShareWorkspacePermissionTests {
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                 .build();
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         StepVerifier.create(workspaceMono)
                 .assertNext(workspace -> {

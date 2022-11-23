@@ -373,7 +373,7 @@ public class WorkspaceServiceTest {
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-for-get-name");
         Mono<Workspace> createWorkspace = workspaceService.create(workspace);
-        Mono<Workspace> getWorkspace = createWorkspace.flatMap(t -> workspaceService.findById(t.getId(), READ_WORKSPACES));
+        Mono<Workspace> getWorkspace = createWorkspace.flatMap(t -> workspaceService.findById(t.getId(), workspacePermission.getReadPermission()));
         StepVerifier.create(getWorkspace)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -469,7 +469,7 @@ public class WorkspaceServiceTest {
                     changes.setDomain("abc.com");
                     return workspaceService.update(t.getT1().getId(), changes)
                             .zipWhen(updatedWorkspace ->
-                                    workspaceRepository.findById(t.getT2().getId(), READ_WORKSPACES)
+                                    workspaceRepository.findById(t.getT2().getId(), workspacePermission.getReadPermission())
                                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, t.getT2().getId())))
                             );
                 });
@@ -995,7 +995,7 @@ public class WorkspaceServiceTest {
                 })
                 .flatMap(tuple -> {
                     Workspace t2 = tuple.getT2();
-                    return workspaceService.findById(t2.getId(), READ_WORKSPACES);
+                    return workspaceService.findById(t2.getId(), workspacePermission.getReadPermission());
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
@@ -1129,7 +1129,7 @@ public class WorkspaceServiceTest {
                 })
                 .flatMap(tuple -> {
                     Workspace t2 = tuple.getT2();
-                    return workspaceService.findById(t2.getId(), READ_WORKSPACES);
+                    return workspaceService.findById(t2.getId(), workspacePermission.getReadPermission());
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",

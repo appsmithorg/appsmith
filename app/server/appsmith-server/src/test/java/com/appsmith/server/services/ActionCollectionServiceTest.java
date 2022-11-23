@@ -263,7 +263,7 @@ public class ActionCollectionServiceTest {
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {

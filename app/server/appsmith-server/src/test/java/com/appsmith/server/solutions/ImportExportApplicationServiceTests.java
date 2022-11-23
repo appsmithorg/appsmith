@@ -170,6 +170,9 @@ public class ImportExportApplicationServiceTests {
     @Autowired
     DatasourcePermission datasourcePermission;
 
+    @Autowired
+    WorkspacePermission workspacePermission;
+
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
     private static String workspaceId;
@@ -310,7 +313,7 @@ public class ImportExportApplicationServiceTests {
 
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -1475,7 +1478,7 @@ public class ImportExportApplicationServiceTests {
         // Now add a page and export the same import it to the app
         // Check if the policies and visibility flag are not reset
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, AclPermission.READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {

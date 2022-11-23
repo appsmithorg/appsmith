@@ -297,7 +297,7 @@ public class ApplicationServiceTest {
         testApplication.setName("ApplicationServiceTest TestApp");
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId);
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -508,7 +508,7 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validGetApplications-Test");
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -783,7 +783,7 @@ public class ApplicationServiceTest {
 
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -867,7 +867,7 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validMakeApplicationPrivate-Test");
 
-        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
+        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, workspacePermission.getReadPermission())
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
                     return permissionGroupRepository.findAllById(defaultPermissionGroups);
@@ -943,7 +943,7 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void makeApplicationPublic_applicationWithGitMetadata_success() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1056,7 +1056,7 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void makeApplicationPrivate_applicationWithGitMetadata_success() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1152,7 +1152,7 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void validMakeApplicationPublicWithActions() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1286,7 +1286,7 @@ public class ApplicationServiceTest {
         Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1441,7 +1441,7 @@ public class ApplicationServiceTest {
 
         final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1554,7 +1554,7 @@ public class ApplicationServiceTest {
         Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .cache();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1875,7 +1875,7 @@ public class ApplicationServiceTest {
         Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .cache();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -2886,7 +2886,7 @@ public class ApplicationServiceTest {
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
                 .flatMap(application -> datasourceService.findById(savedDatasource.getId(), datasourcePermission.getReadPermission()));
 
-        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
+        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, workspacePermission.getReadPermission())
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
                     return permissionGroupRepository.findAllById(defaultPermissionGroups);
