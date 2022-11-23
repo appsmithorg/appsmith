@@ -400,6 +400,8 @@ function eventRequestHandler({
         unEvalUpdates = [];
       }
 
+      logs.push({ unevalTreeInWorker: unevalTree });
+
       return {
         dataTree,
         dependencies,
