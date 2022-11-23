@@ -250,6 +250,7 @@ export interface RichtextEditorComponentProps {
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelTooltip?: string;
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
@@ -265,6 +266,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
   } = props;
 
@@ -326,6 +328,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           disabled={isDisabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           position={labelPosition}
           text={labelText}
