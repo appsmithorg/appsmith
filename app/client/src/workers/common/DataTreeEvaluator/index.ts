@@ -39,6 +39,7 @@ import {
   trimDependantChangePaths,
   overrideWidgetProperties,
   getAllPaths,
+  isNewEntity,
 } from "workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -169,7 +170,7 @@ export default class DataTreeEvaluator {
 
   /**
    * Method to create all data required for linting and
-   * evaluation of the first tree
+   * evaluation of the first tree (which happens in `evalAndValidateFirstTree` )
    */
   setupFirstTree(
     unEvalTree: DataTree,
@@ -331,7 +332,7 @@ export default class DataTreeEvaluator {
 
   /**
    * Method to create all data required for linting and
-   * evaluation of the updated tree
+   * evaluation of the sub-tree (which happens in `evalAndValidateSubTree`)
    */
 
   setupUpdateTree(
@@ -508,6 +509,7 @@ export default class DataTreeEvaluator {
   evalAndValidateSubTree(
     evaluationOrder: string[],
     nonDynamicFieldValidationOrder: string[],
+    unevalUpdates: DataTreeDiff[],
   ): {
     evalMetaUpdates: EvalMetaUpdates;
   } {
@@ -519,7 +521,7 @@ export default class DataTreeEvaluator {
       this.evalTree,
       this.resolvedFunctions,
       evaluationOrder,
-      { skipRevalidation: false },
+      { skipRevalidation: false, isFirstTree: false, unevalUpdates },
     );
     const evaluationEndTime = performance.now();
     const reValidateStartTime = performance.now();
@@ -642,13 +644,18 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
-    option = { skipRevalidation: true },
+    options: {
+      skipRevalidation: boolean;
+      isFirstTree: boolean;
+      unevalUpdates: DataTreeDiff[];
+    } = { skipRevalidation: true, isFirstTree: true, unevalUpdates: [] },
   ): {
     evaluatedTree: DataTree;
     evalMetaUpdates: EvalMetaUpdates;
   } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
+    const { isFirstTree, skipRevalidation, unevalUpdates } = options;
     try {
       const evaluatedTree = sortedDependencies.reduce(
         (currentTree: DataTree, fullPropertyPath: string) => {
@@ -709,6 +716,8 @@ export default class DataTreeEvaluator {
           }
           if (isWidget(entity) && !isATriggerPath) {
             if (propertyPath) {
+              const isNewWidget =
+                isFirstTree || isNewEntity(unevalUpdates, entityName);
               const parsedValue = validateAndParseWidgetProperty({
                 fullPropertyPath,
                 widget: entity,
@@ -722,12 +731,13 @@ export default class DataTreeEvaluator {
                 entity,
                 evalMetaUpdates,
                 fullPropertyPath,
+                isNewWidget,
                 parsedValue,
                 propertyPath,
                 evalPropertyValue,
               });
 
-              if (!option.skipRevalidation) {
+              if (!skipRevalidation) {
                 this.reValidateWidgetDependentProperty({
                   fullPropertyPath,
                   widget: entity,
@@ -1050,6 +1060,7 @@ export default class DataTreeEvaluator {
     evalMetaUpdates,
     evalPropertyValue,
     fullPropertyPath,
+    isNewWidget,
     parsedValue,
     propertyPath,
   }: {
@@ -1057,6 +1068,7 @@ export default class DataTreeEvaluator {
     entity: DataTreeWidget;
     evalMetaUpdates: EvalMetaUpdates;
     fullPropertyPath: string;
+    isNewWidget: boolean;
     parsedValue: unknown;
     propertyPath: string;
     evalPropertyValue: unknown;
@@ -1067,6 +1079,7 @@ export default class DataTreeEvaluator {
       value: parsedValue,
       currentTree,
       evalMetaUpdates,
+      isNewWidget,
     });
 
     if (overwriteObj && overwriteObj.overwriteParsedValue) {

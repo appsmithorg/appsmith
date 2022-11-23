@@ -69,7 +69,6 @@ const generateDataTreeWidgetWithoutMeta = (
     // Do not log errors for the derived property bindings
     blockedDerivedProps[propertyName] = true;
   });
-
   const overridingMetaPropsMap: Record<string, boolean> = {};
 
   Object.entries(defaultProps).forEach(
@@ -95,8 +94,8 @@ const generateDataTreeWidgetWithoutMeta = (
           key: propertyName,
           type: OverridingPropertyType.META,
         });
-        overridingMetaPropsMap[propertyName] = true;
       }
+      overridingMetaPropsMap[propertyName] = true;
     },
   );
 
@@ -193,13 +192,14 @@ export const generateDataTreeWidget = (
     defaultMetaProps,
     overridingMetaPropsMap,
   } = generateDataTreeWidgetWithoutMetaMemoized(widget);
+
   const overridingMetaProps: Record<string, unknown> = {};
 
-  // overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
-  Object.entries(defaultMetaProps).forEach(([key, value]) => {
+  //overridingMetaProps has all meta property value either from metaReducer or default set by widget whose dependent property also has default property.
+  Object.entries(defaultMetaProps).forEach(([key]) => {
     if (overridingMetaPropsMap[key]) {
       overridingMetaProps[key] =
-        key in widgetMetaProps ? widgetMetaProps[key] : value;
+        key in widgetMetaProps ? widgetMetaProps[key] : undefined;
     }
   });
 
@@ -215,5 +215,6 @@ export const generateDataTreeWidget = (
   });
 
   dataTreeWidget["meta"] = meta;
+
   return dataTreeWidget;
 };
