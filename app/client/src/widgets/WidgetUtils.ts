@@ -813,7 +813,7 @@ export function shouldUpdateWidgetHeightAutomatically(
     // And the difference in expected and current is atleast 1 row
     // We can safely reduce the height
     if (
-      maxAutoHeightInRows > currentHeightInRows &&
+      maxAutoHeightInRows >= currentHeightInRows &&
       Math.abs(currentHeightInRows - expectedHeightInRows) >= 1
     ) {
       return true;
@@ -844,7 +844,7 @@ export function shouldUpdateWidgetHeightAutomatically(
 
   // The widget height should always be at least minDynamicHeightInRows
   // Same case as above, this time if minheight goes below the current.
-  if (currentHeightInRows < minAutoHeightInRows) {
+  if (currentHeightInRows !== minAutoHeightInRows) {
     return true;
   }
 

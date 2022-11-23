@@ -180,7 +180,11 @@ class JSONFormWidget extends BaseWidget<
         Math.ceil(totalHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) *
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
-      if (height && Math.abs(componentHeight - expectedHeightInPixels) > 0) {
+      if (
+        height &&
+        Math.abs(componentHeight - expectedHeightInPixels) >
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      ) {
         this.updateAutoHeight(expectedHeightInPixels);
       }
     }
