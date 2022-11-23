@@ -22,10 +22,11 @@ import styled from "styled-components";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import { Icon, LabelWithTooltip } from "design-system";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 import { isNil } from "lodash";
 
 export interface TreeSelectProps
@@ -49,6 +50,7 @@ export interface TreeSelectProps
   dropDownWidth: number;
   width: number;
   isValid: boolean;
+  isDynamicHeightEnabled: boolean;
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
@@ -109,6 +111,7 @@ function SingleSelectTreeComponent({
   dropDownWidth,
   expandAll,
   filterText,
+  isDynamicHeightEnabled,
   isFilterable,
   isValid,
   labelAlignment,
@@ -254,6 +257,7 @@ function SingleSelectTreeComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

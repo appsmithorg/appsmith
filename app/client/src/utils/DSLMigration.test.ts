@@ -21,6 +21,8 @@ import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { originalDSLForDSLMigrations } from "./testDSLs";
 import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
 import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
+import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
+import * as migrateAutoHeight from "./migrations/autoHeightMigrations";
 
 type Migration = {
   functionLookup: {
@@ -656,11 +658,29 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
+        moduleObj: migrateLabelPosition,
+        functionName: "migrateLabelPosition",
+      },
+    ],
+    version: 67,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migratePropertiesForDynamicHeight",
+      },
+    ],
+    version: 68,
+  },
+  {
+    functionLookup: [
+      {
         moduleObj: menuButtonWidgetMigrations,
         functionName: "migrateMenuButtonDynamicItems",
       },
     ],
-    version: 67,
+    version: 69,
   },
 ];
 

@@ -34,6 +34,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
+  isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
@@ -428,6 +429,7 @@ class CurrencyInputWidget extends BaseInputWidget<
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
