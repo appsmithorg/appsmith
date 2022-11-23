@@ -131,9 +131,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      // Defaulting the playing property to autoPlay from the properties' side panel
-      // Plays the audio player by default and when reset, if autoPlay is on
-      // Stops the audio player by default and when reset, if autoPlay is off
+      // Plays the audio player by default and when reset, if autoPlay is on (and vice versa)
       playing: "autoPlay",
     };
   }
@@ -141,24 +139,20 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
   // TODO: (Rishabh) When we have the new list widget, we need to make the playState as a derived propery.
   // TODO: (Balaji) Can we have dynamic default value that accepts current widget values and determines the default value.
   componentDidUpdate(prevProps: AudioWidgetProps) {
-    // When the widget is reset ie it goes from the playState being something other than "NOT_STARTED" to "NOT_STARTED"
+    // When the widget is reset
     if (
       prevProps.playState !== "NOT_STARTED" &&
       this.props.playState === "NOT_STARTED"
     ) {
-      // Audio player is sought to 0
       this._player.current?.seekTo(0);
 
-      // Changing the playState of the player to "PLAYING" when the widget is reset
-      // and is playing the media (autoPlay & playing properties are true)
-      // No change required when the widget is reset and autoplay & playing
-      // are false as the media isn't playing and playState is already set to "NOT_STARTED"
+      // When autoPlay & playing are true
       if (this.props.playing) {
         this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
       }
     }
 
-    // Mapping the autoPlay values to playState when autoPlay value changes
+    // When autoPlay changes
     if (prevProps.autoPlay !== this.props.autoPlay) {
       if (this.props.autoPlay) {
         this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
@@ -187,6 +181,14 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           }}
           onPause={() => {
             // TODO: We do not want the pause event for onSeek or onEnd.
+            // Don't set playState to paused on onEnded
+            if (
+              this._player.current &&
+              this._player.current.getDuration() ===
+                this._player.current.getCurrentTime()
+            ) {
+              return;
+            }
             // Stopping the media when it is playing and pause is hit
             if (this.props.playing) {
               this.props.updateWidgetMetaProperty("playing", false);
