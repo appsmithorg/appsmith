@@ -28,7 +28,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -107,9 +106,9 @@ public class RestApiPlugin extends BasePlugin {
             if (actionConfiguration.getPaginationType() != null &&
                     PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
                     executeActionDTO.getPaginationField() != null) {
-                List<Property> queryParamsList = new ArrayList<>();
-                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, queryParamsList,executeActionDTO.getPaginationField());
-                updateActionConfigurationForPagination(actionConfiguration, queryParamsList,executeActionDTO.getPaginationField());
+                List<Property> paginationQueryParamsList = new ArrayList<>();
+                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, paginationQueryParamsList,executeActionDTO.getPaginationField());
+                updateActionConfigurationForPagination(actionConfiguration, paginationQueryParamsList,executeActionDTO.getPaginationField());
             }
 
             // Filter out any empty headers
@@ -194,23 +193,23 @@ public class RestApiPlugin extends BasePlugin {
 
         private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
                                                                                    DatasourceConfiguration datasourceConfiguration,
-                                                                                   List<Property> queryParamsList,
+                                                                                   List<Property> paginationQueryParamsList,
                                                                                    PaginationField paginationField) {
 
             if (PaginationField.NEXT.equals(paginationField)) {
                 if (actionConfiguration.getNext() == null) {
                     datasourceConfiguration.setUrl(null);
                 } else {
-                    queryParamsList.addAll(decodeUrlAndEncodeQueryParams(datasourceConfiguration,actionConfiguration.getNext()));
+                    paginationQueryParamsList.addAll(decodeUrlAndGetAllQueryParams(datasourceConfiguration,actionConfiguration.getNext()));
                 }
             } else if (PaginationField.PREV.equals(paginationField)) {
-                queryParamsList.addAll(decodeUrlAndEncodeQueryParams(datasourceConfiguration,actionConfiguration.getPrev()));
+                paginationQueryParamsList.addAll(decodeUrlAndGetAllQueryParams(datasourceConfiguration,actionConfiguration.getPrev()));
             }
 
             return datasourceConfiguration;
         }
 
-        private List<Property> decodeUrlAndEncodeQueryParams(DatasourceConfiguration datasourceConfiguration,String inputUrl) {
+        private List<Property> decodeUrlAndGetAllQueryParams(DatasourceConfiguration datasourceConfiguration, String inputUrl) {
 
             String decodedUrl = URLDecoder.decode(inputUrl,StandardCharsets.UTF_8);
 
@@ -230,13 +229,13 @@ public class RestApiPlugin extends BasePlugin {
                     queryParamBuilder.append(urlParts[i]);
                 }
 
-                return getQueryParamList(queryParamBuilder.toString());
+                return getQueryParamListFromUrlSuffix(queryParamBuilder.toString());
             }
 
             return new ArrayList<>();
         }
 
-    private List<Property> getQueryParamList(String queryParams) {
+    private List<Property> getQueryParamListFromUrlSuffix(String queryParams) {
 
             String[] queryParamArray = queryParams.split("&");
 
@@ -247,6 +246,10 @@ public class RestApiPlugin extends BasePlugin {
 
                 String key = keyValue.length > 0 ? keyValue[0] : "";
                 String value = keyValue.length > 1 ? keyValue[1] : "";
+
+                if (key.length() == 0) {
+                    continue;
+                }
 
                 Property property = new Property(key,value);
                 queryParamList.add(property);
