@@ -9,6 +9,9 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   searchTags: ["input", "rte"],
+  features: {
+    dynamicHeight: true,
+  },
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
     rows: 20,

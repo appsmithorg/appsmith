@@ -4,6 +4,9 @@ import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Checkbox",
   iconSVG: IconSVG,

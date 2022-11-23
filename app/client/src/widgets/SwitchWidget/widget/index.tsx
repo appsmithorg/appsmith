@@ -7,8 +7,11 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
@@ -35,6 +38,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Right", value: LabelPosition.Right },
             ],
+            defaultValue: LabelPosition.Left,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -233,6 +237,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         accentColor={this.props.accentColor}
         alignWidget={this.props.alignWidget}
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
         isSwitchedOn={!!this.props.isSwitchedOn}
         key={this.props.widgetId}

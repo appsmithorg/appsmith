@@ -114,30 +114,36 @@ const RESET_OPTIONS = {
   keepErrors: true,
 };
 
-function Form<TValues = any>({
-  backgroundColor,
-  children,
-  disabledWhenInvalid,
-  fixedFooter,
-  getFormData,
-  hideFooter,
-  isSubmitting,
-  isWidgetMounting,
-  onFormValidityUpdate,
-  onSubmit,
-  registerResetObserver,
-  resetButtonLabel,
-  resetButtonStyles,
-  schema,
-  scrollContents,
-  showReset,
-  stretchBodyVertically,
-  submitButtonLabel,
-  submitButtonStyles,
-  title,
-  unregisterResetObserver,
-  updateFormData,
-}: FormProps<TValues>) {
+function Form<TValues = any>(
+  {
+    backgroundColor,
+    children,
+    disabledWhenInvalid,
+    fixedFooter,
+    getFormData,
+    hideFooter,
+    isSubmitting,
+    isWidgetMounting,
+    onFormValidityUpdate,
+    onSubmit,
+    registerResetObserver,
+    resetButtonLabel,
+    resetButtonStyles,
+    schema,
+    scrollContents,
+    showReset,
+    stretchBodyVertically,
+    submitButtonLabel,
+    submitButtonStyles,
+    title,
+    unregisterResetObserver,
+    updateFormData,
+  }: FormProps<TValues>,
+  ref:
+    | ((instance: HTMLDivElement | null) => void)
+    | React.MutableRefObject<HTMLDivElement | null>
+    | null,
+) {
   const valuesRef = useRef({});
   const methods = useForm();
   const { formState, reset, watch } = methods;
@@ -261,6 +267,7 @@ function Form<TValues = any>({
       >
         <StyledFormBody
           className="t--jsonform-body"
+          ref={ref}
           stretchBodyVertically={stretchBodyVertically}
         >
           <StyledTitle>{title}</StyledTitle>
@@ -298,4 +305,4 @@ function Form<TValues = any>({
   );
 }
 
-export default Form;
+export default React.forwardRef<HTMLDivElement, FormProps<any>>(Form);
