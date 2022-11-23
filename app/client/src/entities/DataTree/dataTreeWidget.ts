@@ -221,7 +221,6 @@ export const generateDataTreeWidget = (
 
   dataTreeWidget["meta"] = meta;
   dataTreeWidget["__config__"] = entityConfig;
-  dataTreeWidget["ENTITY_TYPE"] = ENTITY_TYPE.WIDGET;
 
   return dataTreeWidget;
 };

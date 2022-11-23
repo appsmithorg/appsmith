@@ -58,7 +58,6 @@ export const generateDataTreeAction = (
       isExecutionSuccess: action.data?.isExecutionSuccess || false,
       headers: action.data?.headers,
     },
-    ENTITY_TYPE: ENTITY_TYPE.ACTION,
     __config__: {
       actionId: action.config.id,
       name: action.config.name,

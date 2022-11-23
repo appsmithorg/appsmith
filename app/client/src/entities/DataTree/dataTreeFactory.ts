@@ -54,7 +54,6 @@ export interface ActionEntityEvalTree {
     | ActionDispatcher
     | ClearPluginActionDescription
     | Record<string, unknown>;
-  ENTITY_TYPE: ENTITY_TYPE.ACTION;
   responseMeta: {
     statusCode?: string;
     isExecutionSuccess: boolean;

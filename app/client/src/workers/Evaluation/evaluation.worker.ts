@@ -68,6 +68,16 @@ function createUnEvalTree(unevalTree: UnEvalTree) {
   return newUnEvalTree;
 }
 
+function createDataTreeWithConfig(dataTree: DataTree) {
+  const newDataTree: DataTree = {};
+  for (const entityName of Object.keys(dataTree)) {
+    const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
+    const entity = dataTree[entityName];
+    newDataTree[entityName] = { ...entityConfig, ...entity };
+  }
+  return JSON.parse(JSON.stringify(newDataTree));
+}
+
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(fn: typeof eventRequestHandler) {
   return (e: MessageEvent<EvalWorkerRequest>) => {
@@ -296,8 +306,7 @@ function eventRequestHandler({
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = dataTreeResponse.evalTree;
-          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+          dataTree = createDataTreeWithConfig(dataTreeResponse.evalTree);
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -333,8 +342,7 @@ function eventRequestHandler({
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = dataTreeResponse.evalTree;
-          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+          dataTree = createDataTreeWithConfig(dataTreeResponse.evalTree);
         } else {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             dataTreeEvaluator.setAllActionValidationConfig(
@@ -365,7 +373,7 @@ function eventRequestHandler({
             evalOrder,
             nonDynamicFieldValidationOrder,
           );
-          dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
+          dataTree = createDataTreeWithConfig(dataTreeEvaluator.evalTree);
           evalMetaUpdates = JSON.parse(
             JSON.stringify(updateResponse.evalMetaUpdates),
           );
@@ -399,8 +407,6 @@ function eventRequestHandler({
         dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
         unEvalUpdates = [];
       }
-
-      logs.push({ unevalTreeInWorker: unevalTree });
 
       return {
         dataTree,
