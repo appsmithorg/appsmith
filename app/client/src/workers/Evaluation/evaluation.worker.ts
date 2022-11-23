@@ -3,6 +3,7 @@
 import {
   DataTree,
   DataTreeEntity,
+  DataTreeObjectEntity,
   UnEvalTree,
   UnEvalTreeEntityObject,
 } from "entities/DataTree/dataTreeFactory";
@@ -76,6 +77,22 @@ function createDataTreeWithConfig(dataTree: DataTree) {
     newDataTree[entityName] = { ...entityConfig, ...entity };
   }
   return JSON.parse(JSON.stringify(newDataTree));
+}
+
+function createUnEvalTreeWithEntityConfig(unevalTree: UnEvalTree) {
+  const unEvalTreeWithConfig: DataTree = {};
+  for (const entityName of Object.keys(unevalTree)) {
+    const entity = unevalTree[entityName];
+    let entityConfig = {};
+    if (entity && entity.hasOwnProperty("__config__")) {
+      entityConfig = (entity as UnEvalTreeEntityObject)["__config__"];
+    }
+    unEvalTreeWithConfig[entityName] = {
+      ...entityConfig,
+      ...entity,
+    } as DataTreeObjectEntity;
+  }
+  return unEvalTreeWithConfig;
 }
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
@@ -301,7 +318,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
-            dataTreeEvaluator.oldUnEvalTree,
+            createUnEvalTreeWithEntityConfig(__unevalTree__),
             requiresLinting,
           );
 
@@ -337,7 +354,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
-            dataTreeEvaluator.oldUnEvalTree,
+            createUnEvalTreeWithEntityConfig(__unevalTree__),
             requiresLinting,
           );
 
@@ -364,7 +381,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
-            dataTreeEvaluator.oldUnEvalTree,
+            createUnEvalTreeWithEntityConfig(__unevalTree__),
             requiresLinting,
           );
           nonDynamicFieldValidationOrder =
