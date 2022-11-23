@@ -15,7 +15,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,8 +87,6 @@ public class MockDataServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-    @Autowired
-    DatasourcePermission datasourcePermission;
 
     String workspaceId = "";
 
@@ -183,13 +180,13 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
                     assertThat(createdDatasource.getName()).isEqualTo("Movies");
-                    Policy manageDatasourcePolicy = Policy.builder().permission(datasourcePermission.getManagePermission().getValue())
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(datasourcePermission.getReadPermission().getValue())
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(datasourcePermission.getExecutePermission().getValue())
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
@@ -247,13 +244,13 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
                     assertThat(createdDatasource.getName()).isEqualTo("Users");
-                    Policy manageDatasourcePolicy = Policy.builder().permission(datasourcePermission.getManagePermission().getValue())
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(datasourcePermission.getReadPermission().getValue())
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(datasourcePermission.getExecutePermission().getValue())
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
@@ -316,13 +313,13 @@ public class MockDataServiceTest {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
                     assertThat(createdDatasource.getName()).isEqualTo("Movies (1)");
-                    Policy manageDatasourcePolicy = Policy.builder().permission(datasourcePermission.getManagePermission().getValue())
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(datasourcePermission.getReadPermission().getValue())
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(datasourcePermission.getExecutePermission().getValue())
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 

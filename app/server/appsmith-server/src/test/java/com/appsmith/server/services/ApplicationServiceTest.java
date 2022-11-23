@@ -1243,13 +1243,13 @@ public class ApplicationServiceTest {
                     PermissionGroup publicPermissionGroup = tuple.getT4();
                     final ActionCollection actionCollection1 = tuple.getT3();
 
-                    Policy manageDatasourcePolicy = Policy.builder().permission(datasourcePermission.getManagePermission().getValue())
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(datasourcePermission.getReadPermission().getValue())
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(datasourcePermission.getExecutePermission().getValue())
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId(), publicPermissionGroup.getId()))
                             .build();
@@ -2957,7 +2957,7 @@ public class ApplicationServiceTest {
                     assertThat(datasource1
                             .getPolicies()
                             .stream()
-                            .filter(policy -> policy.getPermission().equals(datasourcePermission.getExecutePermission().getValue()))
+                            .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
                             .findFirst()
                             .get()
                             .getPermissionGroups()
