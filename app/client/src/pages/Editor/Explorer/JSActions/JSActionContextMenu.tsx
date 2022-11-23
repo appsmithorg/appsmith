@@ -35,7 +35,7 @@ type EntityContextMenuProps = {
   canDelete?: boolean;
 };
 export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
-  const { canDelete, canManage } = props;
+  const { canDelete = false, canManage = false } = props;
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
 

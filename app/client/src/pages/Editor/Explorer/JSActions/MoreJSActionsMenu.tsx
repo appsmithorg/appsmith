@@ -80,7 +80,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
-  const { isChangePermitted = true, isDeletePermitted = true } = props;
+  const { isChangePermitted = false, isDeletePermitted = false } = props;
 
   const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) => {
