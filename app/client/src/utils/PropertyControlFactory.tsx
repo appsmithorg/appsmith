@@ -6,6 +6,7 @@ import BaseControl, {
   ControlData,
 } from "components/propertyControls/BaseControl";
 import { isArray } from "lodash";
+import { AdditionalDynamicDataTree } from "./autocomplete/customTreeTypeDefCreator";
 
 class PropertyControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
@@ -34,7 +35,7 @@ class PropertyControlFactory {
     controlFunctions: ControlFunctions,
     preferEditor: boolean,
     customEditor?: string,
-    additionalAutoComplete?: Record<string, Record<string, unknown>>,
+    additionalAutoComplete?: AdditionalDynamicDataTree,
     hideEvaluatedValue?: boolean,
   ): JSX.Element {
     let controlBuilder;

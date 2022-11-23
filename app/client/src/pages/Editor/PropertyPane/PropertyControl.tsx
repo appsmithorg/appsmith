@@ -58,6 +58,7 @@ import {
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -525,14 +526,12 @@ const PropertyControl = memo((props: Props) => {
       .join("")
       .toLowerCase();
 
-    let additionAutocomplete:
-      | Record<string, Record<string, unknown>>
-      | undefined = undefined;
+    let additionAutocomplete: AdditionalDynamicDataTree | undefined;
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
       additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
-        | Record<string, Record<string, unknown>>
+        | AdditionalDynamicDataTree
         | undefined;
     }
 

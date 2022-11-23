@@ -8,7 +8,6 @@ import { klona } from "klona";
 import derivedProperties from "./parseDerivedProperties";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import MetaWidgetGenerator, { GeneratorOptions } from "../MetaWidgetGenerator";
-import propertyPaneConfig from "./propertyConfig";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
@@ -16,9 +15,14 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import {
+  PropertyPaneContentConfig,
+  PropertyPaneStyleConfig,
+} from "./propertyConfig";
+import {
   GridDefaults,
   RenderModes,
   WidgetType,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import ListComponent, {
@@ -104,11 +108,12 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   virtualizer?: VirtualizerInstance;
   pageSize: number;
 
-  /**
-   * returns the property pane config of the widget
-   */
-  static getPropertyPaneConfig() {
-    return propertyPaneConfig;
+  static getPropertyPaneContentConfig() {
+    return PropertyPaneContentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return PropertyPaneStyleConfig;
   }
 
   static getDerivedPropertiesMap() {
@@ -152,6 +157,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
       widgetId: props.widgetId,
+      primaryWidgetType: ListWidget.getWidgetType(),
     });
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
@@ -502,7 +508,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     metaMainCanvas.minHeight = componentHeight;
     metaMainCanvas.rightColumn = componentWidth;
     metaMainCanvas.noPad = true;
-    metaMainCanvas.bottomRow = this.mainMetaCanvasWidgetBottomRow();
+    metaMainCanvas.bottomRow =
+      this.mainMetaCanvasWidgetBottomRow() - WIDGET_PADDING * 2;
 
     return metaMainCanvas as MetaWidget;
   };

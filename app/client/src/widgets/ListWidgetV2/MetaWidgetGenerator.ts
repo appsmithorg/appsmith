@@ -59,6 +59,7 @@ type ConstructorProps = {
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
+  primaryWidgetType: string;
   renderMode: string;
   scrollElement: HTMLDivElement | null;
   serverSidePagination: boolean;
@@ -165,6 +166,7 @@ class MetaWidgetGenerator {
   private level: ConstructorProps["level"];
   private levelData: GeneratorOptions["levelData"];
   private metaIdToCacheMap: Record<string, string>;
+  private modificationsQueue: Queue<MODIFICATION_TYPE>;
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
   private pageSize?: number;
@@ -172,8 +174,8 @@ class MetaWidgetGenerator {
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
   private primaryKeys: GeneratorOptions["primaryKeys"];
+  private primaryWidgetType: ConstructorProps["primaryWidgetType"];
   private renderMode: ConstructorProps["renderMode"];
-  private modificationsQueue: Queue<MODIFICATION_TYPE>;
   private scrollElement: ConstructorProps["scrollElement"];
   private serverSidePagination: ConstructorProps["serverSidePagination"];
   private setWidgetCache: ConstructorProps["setWidgetCache"];
@@ -203,6 +205,7 @@ class MetaWidgetGenerator {
     this.pageNo = 1;
     this.pageSize = 0;
     this.prevTemplateWidgets = {};
+    this.primaryWidgetType = props.primaryWidgetType;
     this.prevViewMetaWidgetIds = [];
     this.renderMode = props.renderMode;
     this.modificationsQueue = new Queue<MODIFICATION_TYPE>();
@@ -497,11 +500,11 @@ class MetaWidgetGenerator {
       this.addDynamicPathsProperties(metaWidget, metaCacheProps);
     }
 
-    if (templateWidget.type === "LIST_WIDGET_V2") {
+    if (templateWidget.type === this.primaryWidgetType) {
       this.addLevelData(metaWidget, rowIndex);
     }
 
-    if (this.isClonedRow(index)) {
+    if (this.isRowNonConfigurable(index)) {
       this.disableWidgetOperations(metaWidget);
     }
 
@@ -1012,11 +1015,15 @@ class MetaWidgetGenerator {
     );
   };
 
+  private isRowNonConfigurable = (index: number) => {
+    return index > 0 && this.renderMode === RenderModes.CANVAS;
+  };
+
   private shouldGenerateMetaWidgetFor = (
     templateWidgetId: string,
     key: string,
   ) => {
-    const { metaWidgetId } =
+    const { metaWidgetId, type } =
       this.getRowTemplateCache(key, templateWidgetId) || {};
     const { added, removed, unchanged } = this.templateWidgetStatus;
     const templateWidgetsAddedOrRemoved = added.size > 0 || removed.size > 0;
@@ -1034,13 +1041,19 @@ class MetaWidgetGenerator {
      * true only when
      * if main container widget and any new children got added/removed then update
      * or
-     * if non container widget - either it's property modified or doesn't exist in current view
+     * doesn't exist in current view
+     * or
+     * if non container widget's property modified
+     * or
+     * if nested primary widget type (list widget) and templateWidgetsAddedOrRemoved
+     * is true (levelData should be updated in this case).
      */
 
     return (
       (isMainContainerWidget && shouldMainContainerUpdate) ||
       !isMetaWidgetPresentInCurrentView ||
-      isTemplateWidgetChanged
+      isTemplateWidgetChanged ||
+      (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved)
     );
   };
 

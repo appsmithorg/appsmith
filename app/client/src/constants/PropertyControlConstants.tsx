@@ -8,6 +8,7 @@ import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { AppTheme } from "entities/AppTheming";
 import { WidgetProps } from "widgets/BaseWidget";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
@@ -74,9 +75,7 @@ export type PropertyPaneControlConfig = {
   isTriggerProperty: boolean;
   validation?: ValidationConfig;
   useValidationMessage?: boolean;
-  additionalAutoComplete?: (
-    props: any,
-  ) => Record<string, Record<string, unknown>>;
+  additionalAutoComplete?: (props: any) => AdditionalDynamicDataTree;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object

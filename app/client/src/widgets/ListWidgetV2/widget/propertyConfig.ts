@@ -1,7 +1,6 @@
 import { get, isPlainObject } from "lodash";
 
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -80,9 +79,9 @@ export const primaryKeyOptions = (props: ListWidgetProps) => {
   }
 };
 
-const ListWidgetPropertyPaneConfig = [
+export const PropertyPaneContentConfig = [
   {
-    sectionName: "General",
+    sectionName: "Data",
     children: [
       {
         helpText: "Takes in an array of objects to display items in the list.",
@@ -95,39 +94,6 @@ const ListWidgetPropertyPaneConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.ARRAY },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      },
-      {
-        helpText:
-          "Bind the List.pageNo property in your API and call it onPageChange",
-        propertyName: "serverSidePagination",
-        label: "Server Side Pagination",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        propertyName: "isVisible",
-        label: "Visible",
-        helpText: "Controls the visibility of the widget",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      {
-        propertyName: "infiniteScroll",
-        label: "Infinite scroll",
-        helpText: "Scrolls vertically, removes pagination",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
       },
       {
         propertyName: "primaryKeys",
@@ -155,50 +121,31 @@ const ListWidgetPropertyPaneConfig = [
           },
         },
       },
-      {
-        propertyName: "animateLoading",
-        label: "Animate Loading",
-        controlType: "SWITCH",
-        helpText: "Controls the loading of the widget",
-        defaultValue: true,
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
     ],
   },
   {
-    sectionName: "Events",
+    sectionName: "Pagination",
     children: [
       {
-        helpText: "Triggers an action when a row is clicked",
-        propertyName: "onRowClick",
-        label: "onRowClick",
-        controlType: "ACTION_SELECTOR",
+        propertyName: "infiniteScroll",
+        label: "Infinite scroll",
+        helpText: "Scrolls vertically, removes pagination",
+        controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
-          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
-
-          if (Array.isArray(items)) {
-            items = items.filter(Boolean);
-          } else {
-            items = [];
-          }
-
-          return {
-            currentItem: Object.assign(
-              {},
-              ...Object.keys(get(items, "0", {})).map((key) => ({
-                [key]: "",
-              })),
-            ),
-            currentIndex: 0,
-          };
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
         },
-        dependencies: ["listData"],
+      },
+      {
+        propertyName: "serverSidePagination",
+        helpText:
+          "Bind the List.pageNo property in your API and call it onPageChange",
+        label: "Server Side Pagination",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
       },
       {
         helpText: "Triggers an action when a list page is changed",
@@ -227,11 +174,93 @@ const ListWidgetPropertyPaneConfig = [
     ],
   },
   {
-    sectionName: "Styles",
+    sectionName: "General",
+    children: [
+      {
+        propertyName: "isVisible",
+        label: "Visible",
+        helpText: "Controls the visibility of the widget",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+    ],
+  },
+  {
+    sectionName: "Events",
+    children: [
+      {
+        propertyName: "onRowClick",
+        helpText: "Triggers an action when a row is clicked",
+        label: "onRowClick",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
+          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
+
+          if (Array.isArray(items)) {
+            items = items.filter(Boolean);
+          } else {
+            items = [];
+          }
+
+          return {
+            currentItem: Object.assign(
+              {},
+              ...Object.keys(get(items, "0", {})).map((key) => ({
+                [key]: "",
+              })),
+            ),
+            currentIndex: 0,
+          };
+        },
+        dependencies: ["listData"],
+      },
+    ],
+  },
+];
+
+export const PropertyPaneStyleConfig = [
+  {
+    sectionName: "General",
+    children: [
+      {
+        propertyName: "gridGap",
+        helpText: "Spacing between items in Pixels",
+        placeholderText: "0",
+        label: "Item Spacing (px)",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        inputType: "INTEGER",
+        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
+      },
+    ],
+  },
+  {
+    sectionName: "Color",
     children: [
       {
         propertyName: "backgroundColor",
         label: "Background Color",
+        helpText: "Background color of the list container",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -247,17 +276,11 @@ const ListWidgetPropertyPaneConfig = [
           },
         },
       },
-      {
-        helpText: "Spacing between items in Pixels",
-        placeholderText: "0",
-        propertyName: "gridGap",
-        label: "Item Spacing (px)",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
-      },
+    ],
+  },
+  {
+    sectionName: "Border and Shadow",
+    children: [
       {
         propertyName: "borderRadius",
         label: "Border Radius",
@@ -281,6 +304,4 @@ const ListWidgetPropertyPaneConfig = [
       },
     ],
   },
-] as PropertyPaneConfig[];
-
-export { ListWidgetPropertyPaneConfig as default };
+];

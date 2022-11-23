@@ -12,6 +12,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 import CodeEditor from "../editorComponents/LazyCodeEditorWrapper";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 export function InputText(props: {
   label: string;
@@ -23,7 +24,7 @@ export function InputText(props: {
   expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
-  additionalAutocomplete?: Record<string, Record<string, unknown>>;
+  additionalAutocomplete?: AdditionalDynamicDataTree;
   theme?: EditorTheme;
   hideEvaluatedValue?: boolean;
 }) {
