@@ -6,13 +6,12 @@ import {
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import {
   DataTree,
   DataTreeFactory,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
+import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "@appsmith/reducers";
@@ -89,24 +88,7 @@ export const getWidgetEvalValues = createSelector(
 // there isn't a response already
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-  (tree: DataTree, actions: ActionDataState) => {
-    //js actions needs to be added
-    const cachedResponses: Record<string, any> = {};
-    if (actions && actions.length) {
-      actions.forEach((action) => {
-        if (!(action.config.name in tree) && action.config.cacheResponse) {
-          try {
-            cachedResponses[action.config.name] = JSON.parse(
-              action.config.cacheResponse,
-            );
-          } catch (e) {
-            cachedResponses[action.config.name] = action.config.cacheResponse;
-          }
-        }
-      });
-    }
+  (tree: DataTree) => {
     return tree;
   },
 );
