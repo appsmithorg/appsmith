@@ -30,6 +30,7 @@ describe("Dynamic Height Width validation for Visibility", function() {
       .invoke("css", "height")
       .then((theight) => {
         cy.get(".bp3-control-indicator").click({ force: true });
+        cy.wait(2000);
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")
           .then((tnewheight) => {
@@ -37,8 +38,14 @@ describe("Dynamic Height Width validation for Visibility", function() {
             cy.get("label:Contains('On')").should("not.exist");
             cy.get("label:Contains('Off')").should("be.visible");
             cy.get(".bp3-control-indicator").click({ force: true });
-            cy.get("label:Contains('Off')").should("not.exist");
-            cy.get("label:Contains('On')").should("be.visible");
+            cy.wait(2000);
+            cy.get(".t--widget-containerwidget")
+              .invoke("css", "height")
+              .then((tonheight) => {
+                expect(tonheight).to.not.equal(tnewheight);
+                cy.get("label:Contains('Off')").should("not.exist");
+                cy.get("label:Contains('On')").should("be.visible");
+              });
           });
       });
   });
