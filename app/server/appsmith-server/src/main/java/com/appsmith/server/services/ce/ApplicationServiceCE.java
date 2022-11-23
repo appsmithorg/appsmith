@@ -10,7 +10,11 @@ import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ApplicationServiceCE extends CrudService<Application, String> {
+
+    Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName);
 
     Mono<Application> findById(String id);
 
@@ -27,6 +31,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> save(Application application);
 
     Mono<Application> update(String defaultApplicationId, Application application, String branchName);
+
+    public Mono<UpdateResult> update(String defaultApplicationId, String fieldName, Object value, String branchName);
 
     Mono<Application> createDefault(Application object);
 
@@ -53,6 +59,16 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
                                                               String defaultApplicationId,
                                                               AclPermission aclPermission);
+
+    Mono<Application> findByBranchNameAndDefaultApplicationId(String branchName,
+                                                              String defaultApplicationId,
+                                                              List<String> projectionFieldNames,
+                                                              AclPermission aclPermission);
+
+    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(String branchName,
+                                                                          String defaultApplicationId,
+                                                                          String fieldName,
+                                                                          AclPermission aclPermission);
 
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 

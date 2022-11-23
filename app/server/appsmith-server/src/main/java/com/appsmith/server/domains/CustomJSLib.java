@@ -7,6 +7,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -18,9 +21,17 @@ public class CustomJSLib extends BaseDomain {
     /* Library name */
     String name;
 
+    String accessorString;
+
     /* These are the namespaces under which the library functions reside. User would access lib methods like
     `accessor.method` */
     Set<String> accessor;
+    public void setAccessor(Set<String> accessor) {
+        this.accessor = accessor;
+        List<String> accessorList = new ArrayList(accessor);
+        Collections.sort(accessorList);
+        this.accessorString = String.join("_", accessorList);
+    }
 
     /* Library UMD src url */
     String url;
@@ -49,11 +60,11 @@ public class CustomJSLib extends BaseDomain {
             return false;
         }
 
-        /**
+        /** TODO: update comment
          * We check the equality using the accessor set since this is supposed to be unique for a given library. The
          * accessors in the accessor set are defined by the installed library i.e. client or the server does not have
          * any logic defined to generate accessor values.
          */
-        return ((CustomJSLib) o).getAccessor().equals(this.accessor);
+        return ((CustomJSLib) o).getAccessorString().equals(this.accessorString);
     }
 }

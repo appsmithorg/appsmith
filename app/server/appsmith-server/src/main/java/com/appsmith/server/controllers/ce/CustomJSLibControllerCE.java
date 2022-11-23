@@ -33,7 +33,7 @@ public class CustomJSLibControllerCE {
             FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to add JS lib: {}_{} to application: {}, on branch:{}", customJSLib.getName(),
                 customJSLib.getVersion(), applicationId, branchName);
-        return customJSLibService.addJSLibToApplication(applicationId, customJSLib)
+        return customJSLibService.addJSLibToApplication(applicationId, customJSLib, branchName)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
@@ -44,7 +44,7 @@ public class CustomJSLibControllerCE {
                                                                          required = false) String branchName) {
         log.debug("Going to remove JS lib: {}_{} from application: {}, on branch:{}", customJSLib.getName(),
                 customJSLib.getVersion(), applicationId, branchName);
-        return customJSLibService.removeJSLibFromApplication(applicationId, customJSLib)
+        return customJSLibService.removeJSLibFromApplication(applicationId, customJSLib, branchName)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
@@ -54,7 +54,7 @@ public class CustomJSLibControllerCE {
                                                                                               FieldName.BRANCH_NAME,
                                                                                               required = false) String branchName) {
         log.debug("Going to get all JS libs in application: {}, on branch: {}", applicationId, branchName);
-        return customJSLibService.getAllJSLibsInApplication(applicationId)
+        return customJSLibService.getAllJSLibsInApplication(applicationId, branchName)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 }

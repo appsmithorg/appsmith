@@ -159,12 +159,19 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId, String branchName, AclPermission aclPermission) {
+        return getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, null, branchName, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(String defaultApplicationId,
+                                                                              List<String> projectionFieldNames,
+                                                                              String branchName,
+                                                                              AclPermission aclPermission) {
 
         String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
-
         Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
         Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
-        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission);
     }
 
     @Override
@@ -243,5 +250,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         }
 
         return this.updateById(applicationId, updateObj, aclPermission);
+    }
+
+    @Override
+    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, String fieldName,
+                                                                  Object value, String branchName, AclPermission permission) {
+        return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldName, value, branchName, permission);
     }
 }
