@@ -62,7 +62,17 @@
               "rightColumn": 36,
               "topRow": 6,
               "bottomRow": 12.9,
-              "parentId": "0"
+              "parentId": "0",
+              "onDropdownOpen": "",
+              "onDropdownClose": "",
+              "dynamicTriggerPathList": [
+                {
+                  "key": "onDropdownOpen"
+                },
+                {
+                  "key": "onDropdownClose"
+                }
+              ]
           },
           {
             "isRequired": false,
@@ -83,7 +93,6 @@
               "GREEN"
             ],
             "parentColumnSpace": 13.662109375,
-            "dynamicTriggerPathList": [],
             "leftColumn": 57,
             "dynamicBindingPathList": [],
             "options": [
@@ -102,7 +111,17 @@
             ],
             "placeholderText": "select option(s)",
             "isDisabled": false,
-            "labelTextSize": "0.875rem"
+            "labelTextSize": "0.875rem",
+            "onDropdownOpen": "",
+            "onDropdownClose": "",
+            "dynamicTriggerPathList": [
+              {
+                "key": "onDropdownOpen"
+              },
+              {
+                "key": "onDropdownClose"
+              }
+            ]
           },
           {
             "widgetName":"SingleSelectTree1",
@@ -143,7 +162,17 @@
             "parentId":"0",
             "renderMode":"CANVAS",
             "isLoading":false,
-            "allowClear":false
+            "allowClear":false,
+            "onDropdownOpen": "",
+            "onDropdownClose": "",
+            "dynamicTriggerPathList": [
+              {
+                "key": "onDropdownOpen"
+              },
+              {
+                "key": "onDropdownClose"
+              }
+            ]
           },
           {
             "widgetName":"MultiSelectTree1",
@@ -190,7 +219,17 @@
             "parentId":"0",
             "renderMode":"CANVAS",
             "isLoading":false,
-            "allowClear":false
+            "allowClear":false,
+            "onDropdownOpen": "",
+            "onDropdownClose": "",
+            "dynamicTriggerPathList": [
+              {
+                "key": "onDropdownOpen"
+              },
+              {
+                "key": "onDropdownClose"
+              }
+            ]
           }
       ]
   }

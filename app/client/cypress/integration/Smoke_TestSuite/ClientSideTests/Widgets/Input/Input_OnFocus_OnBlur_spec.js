@@ -24,7 +24,6 @@ describe("Input Widget Property tests onFocus and onBlur", function() {
 
     cy.get(widgetInput).click({ force: true });
     cy.validateToastMessage("Focused");
-    cy.wait(5000);
     agHelper.PressEscape();
     cy.openPropertyPane(inputWidgetName);
     cy.validateToastMessage("Blurred");
@@ -41,7 +40,6 @@ describe("Input Widget Property tests onFocus and onBlur", function() {
 
     cy.get(phoneInputWidget).click({ force: true });
     cy.validateToastMessage("Focused");
-    cy.wait(5000);
     agHelper.PressEscape();
     cy.openPropertyPane(phoneInputWidgetName);
     cy.validateToastMessage("Blurred");
@@ -58,7 +56,6 @@ describe("Input Widget Property tests onFocus and onBlur", function() {
 
     cy.get(currencyInputWidget).click({ force: true });
     cy.validateToastMessage("Focused");
-    cy.wait(5000);
     agHelper.PressEscape();
     cy.openPropertyPane(currencyInputWidgetName);
     cy.validateToastMessage("Blurred");

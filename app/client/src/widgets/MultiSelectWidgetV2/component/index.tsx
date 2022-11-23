@@ -59,8 +59,8 @@ export interface MultiSelectProps
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
-  onFocus?: () => void;
-  onBlur?: () => void;
+  onFocus?: (e: React.FocusEvent) => void;
+  onBlur?: (e: React.FocusEvent) => void;
   onDropdownOpen?: () => void;
   onDropdownClose?: () => void;
   renderMode?: RenderMode;
