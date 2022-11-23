@@ -49,6 +49,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       // })
       //.trigger("mouseover")
       .dblclick()
+      .dblclick()
       .type("{{JSObject1.");
     agHelper.GetNAssertElementText(locator._hints, "offsetValue", "have.text", 1);
     agHelper.Sleep();
@@ -64,6 +65,7 @@ describe("Binding Expressions should not be truncated in Url and path extraction
     cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
       .contains("__limit__")
       //.trigger("mouseover")
+      .dblclick()
       .dblclick()
       .type("{{JSObject1.");
     agHelper.GetNClickByContains(locator._hints, "limitValue");
