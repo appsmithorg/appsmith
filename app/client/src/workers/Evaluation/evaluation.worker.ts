@@ -48,6 +48,7 @@ export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 let replayMap: Record<string, ReplayEntity<any>>;
 
 function createNewEntity(entity: UnEvalTreeEntityObject) {
+  if (!Object.hasOwn(entity, "__config__")) return entity;
   const newObj = Object.create(entity.__config__ || null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { __config__, ...rest } = entity;
@@ -60,10 +61,6 @@ function createUnEvalTree(unevalTree: UnEvalTree) {
 
   for (const entityName of Object.keys(unevalTree)) {
     const entity = unevalTree[entityName];
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (!Object.hasOwn(entity, "__config__")) continue;
-
     newUnEvalTree[entityName] = createNewEntity(
       entity as UnEvalTreeEntityObject,
     );
