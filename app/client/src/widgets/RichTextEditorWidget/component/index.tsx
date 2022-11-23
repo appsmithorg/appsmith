@@ -8,7 +8,11 @@ import { TextSize } from "constants/WidgetConstants";
 // @ts-expect-error: loader types not available
 import cssVariables from "!!raw-loader!theme/wds.css";
 
-import { LabelWithTooltip, labelLayoutStyles } from "design-system";
+import {
+  LabelWithTooltip,
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "design-system";
 import { isMacOs } from "utils/AppsmithUtils";
 
 const StyledRTEditor = styled.div<{
@@ -206,6 +210,10 @@ const StyledRTEditor = styled.div<{
   }
 
   ${labelLayoutStyles}
+
+  & .${LABEL_CONTAINER_CLASS} {
+    align-self: center;
+  }
 `;
 
 export const RichTextEditorInputWrapper = styled.div<{
@@ -236,6 +244,7 @@ export interface RichtextEditorComponentProps {
   labelWidth?: number;
   labelTextColor?: string;
   labelTextSize?: TextSize;
+  labelTooltip?: string;
   labelStyle?: string;
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
@@ -251,6 +260,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
   } = props;
 
@@ -311,6 +321,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           disabled={isDisabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           position={labelPosition}
           text={labelText}
           width={labelWidth}
