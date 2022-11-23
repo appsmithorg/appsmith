@@ -3,7 +3,7 @@ import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { WidgetHeightLimits, WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
 
@@ -91,16 +91,22 @@ function findAndUpdatePropertyPaneControlConfig(
 
 export const WidgetFeaturePropertyPaneEnhancements: Record<
   RegisteredWidgetFeatures,
-  (config: PropertyPaneConfig[]) => PropertyPaneConfig[]
+  (
+    config: PropertyPaneConfig[],
+    widgetType?: WidgetType,
+  ) => PropertyPaneConfig[]
 > = {
-  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (config: PropertyPaneConfig[]) => {
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (
+    config: PropertyPaneConfig[],
+    widgetType?: WidgetType,
+  ) => {
     function hideWhenDynamicHeightIsEnabled(props: WidgetProps) {
       return (
         props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS ||
         props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
       );
     }
-    return findAndUpdatePropertyPaneControlConfig(config, {
+    let update = findAndUpdatePropertyPaneControlConfig(config, {
       shouldScrollContents: {
         hidden: hideWhenDynamicHeightIsEnabled,
         dependencies: ["dynamicHeight"],
@@ -118,6 +124,23 @@ export const WidgetFeaturePropertyPaneEnhancements: Record<
         dependencies: ["dynamicHeight"],
       },
     });
+    if (widgetType === "MODAL_WIDGET") {
+      update = findAndUpdatePropertyPaneControlConfig(update, {
+        dynamicHeight: {
+          options: [
+            {
+              label: "Auto Height",
+              value: DynamicHeight.AUTO_HEIGHT,
+            },
+            {
+              label: "Fixed",
+              value: DynamicHeight.FIXED,
+            },
+          ],
+        },
+      });
+    }
+    return update;
   },
 };
 
