@@ -123,7 +123,7 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
-  static getStylesheetConfig(): Stylesheet<ChildStylesheet> {
+  static getStylesheetConfig(): Stylesheet<ChildStylesheet & ButtonStyles> {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",

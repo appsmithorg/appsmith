@@ -140,6 +140,7 @@ export const getPropertiesToUpdateForReset = (
 
                 if (
                   buttonStylesheetValue &&
+                  typeof buttonStylesheetValue === "string" &&
                   THEME_BINDING_REGEX.test(buttonStylesheetValue) &&
                   buttonStylesheetValue !==
                     widget[buttonStyleKey][propertyKey] &&

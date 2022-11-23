@@ -1,5 +1,15 @@
-export type Stylesheet<T = Record<string, string>> = T & {
-  [key: string]: string | Stylesheet;
+type DefaultStylesheet = {
+  [key: string]: string | DefaultStylesheet;
+} & {
+  childStylesheet?: AppThemeStylesheet;
+};
+
+export type Stylesheet<T = void> = T extends void
+  ? DefaultStylesheet
+  : T & DefaultStylesheet;
+
+export type AppThemeStylesheet = {
+  [key: string]: Stylesheet;
 };
 
 export type ButtonStyles = {
@@ -12,13 +22,8 @@ export type ButtonStyles = {
 };
 
 export type ChildStylesheet = {
-  childStylesheet: Stylesheet;
+  childStylesheet: AppThemeStylesheet;
 };
-
-export type AppThemeStylesheet<T = Record<string, string>> = Record<
-  string,
-  Stylesheet<T>
->;
 
 export type AppTheme = {
   id: string;
