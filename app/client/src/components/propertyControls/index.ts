@@ -72,6 +72,7 @@ import TableInlineEditValidationControl, {
   TableInlineEditValidationControlProps,
 } from "./TableInlineEditValidationControl";
 import TableInlineEditValidPropertyControl from "./TableInlineEditValidPropertyControl";
+import TableBindingSelectorControl from "./TableBindingSelectorControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -111,6 +112,7 @@ export const PropertyControls = {
   SelectDefaultValueControl,
   TableInlineEditValidationControl,
   TableInlineEditValidPropertyControl,
+  TableBindingSelectorControl,
 };
 
 export type PropertyControlPropsType =

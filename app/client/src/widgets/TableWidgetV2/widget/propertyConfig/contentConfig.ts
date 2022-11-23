@@ -29,7 +29,7 @@ export default [
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
         label: "Table Data",
-        controlType: "INPUT_TEXT",
+        controlType: "TABLE_BINDING_SELECTOR",
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
