@@ -60,6 +60,7 @@ export interface ActionEntityEvalTree {
     headers?: unknown;
   };
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
+  config: Partial<ActionConfig>;
 }
 
 export interface ActionEntityConfig {
@@ -69,7 +70,6 @@ export interface ActionEntityConfig {
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   dependencyMap: DependencyMap;
   logBlackList: Record<string, true>;
-  config: Partial<ActionConfig>;
   pluginType: PluginType;
   pluginId: PluginId;
   actionId: string;
