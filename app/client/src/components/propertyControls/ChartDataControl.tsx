@@ -17,6 +17,9 @@ import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import ColorPickerComponent from "./ColorPickerComponentV2";
+import { useSelector } from "react-redux";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
@@ -92,6 +95,7 @@ type RenderComponentProps = {
     color: string;
   };
   theme: EditorTheme;
+  chartData?: AllChartData;
 };
 
 const expectedSeriesName: CodeEditorExpected = {
@@ -112,6 +116,7 @@ const expectedSeriesData: CodeEditorExpected = {
 
 function DataControlComponent(props: RenderComponentProps) {
   const {
+    chartData,
     dataTreePath,
     deleteOption,
     evaluated,
@@ -120,6 +125,8 @@ function DataControlComponent(props: RenderComponentProps) {
     length,
     updateOption,
   } = props;
+
+  const selectedTheme = useSelector(getSelectedAppTheme);
 
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
@@ -161,27 +168,23 @@ function DataControlComponent(props: RenderComponentProps) {
       </StyledOptionControlWrapper>
       <StyledLabel>Series Color</StyledLabel>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <CodeEditor
-          dataTreePath={`${dataTreePath}.color`}
-          evaluatedValue={evaluated?.color}
-          expected={expectedSeriesName}
-          input={{
-            value: item.color,
-            onChange: (
-              event: React.ChangeEvent<HTMLTextAreaElement> | string,
-            ) => {
-              let value: string = event as string;
-              if (typeof event !== "string") {
-                value = event.target.value;
-              }
-              updateOption(index, "color", value);
-            },
+        <ColorPickerComponent
+          changeColor={(
+            event: React.ChangeEvent<HTMLTextAreaElement> | string,
+          ) => {
+            let value: string = event as string;
+            if (typeof event !== "string") {
+              value = event.target.value;
+            }
+            updateOption(index, "color", value);
           }}
-          mode={EditorModes.TEXT_WITH_BINDING}
-          placeholder="Series Color (Hex)"
-          size={EditorSize.EXTENDED}
-          tabBehaviour={TabBehaviour.INPUT}
-          theme={props.theme}
+          color={
+            chartData && Object.keys(chartData).length === 1
+              ? evaluated?.color || selectedTheme.properties.colors.primaryColor
+              : ""
+          }
+          showApplicationColors
+          showThemeColors
         />
       </StyledOptionControlWrapper>
       <StyledLabel>Series Data</StyledLabel>
@@ -257,6 +260,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
             return (
               <DataControlComponent
+                chartData={chartData}
                 dataTreePath={`${this.props.dataTreePath}.${key}`}
                 deleteOption={this.deleteOption}
                 evaluated={get(evaluatedValue, `${key}`)}
