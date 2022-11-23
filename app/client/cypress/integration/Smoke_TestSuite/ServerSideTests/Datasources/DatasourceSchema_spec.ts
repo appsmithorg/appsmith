@@ -21,7 +21,7 @@ describe("Datasource form related tests", function() {
         .contains(dataSourceName)
         .click();
       dataSources.updatePassword("docker");
-      dataSources.verifySchema("Schema not available");
+      dataSources.verifySchema("public.");
       dataSources.DeleteDatasouceFromActiveTab(dataSourceName);
     });
   });
