@@ -18,7 +18,10 @@ export const CONFIG = {
   canvasHeightOffset: (props: WidgetProps): number =>
     props.shouldShowTabs === true ? 4 : 0,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
   },
   defaults: {
     rows: 40,

@@ -11,7 +11,15 @@ export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
 }
 
-export type WidgetFeatures = Record<RegisteredWidgetFeatures, boolean>;
+interface WidgetFeatureConfig {
+  active: boolean;
+  sectionIndex: number;
+}
+
+export type WidgetFeatures = Record<
+  RegisteredWidgetFeatures,
+  WidgetFeatureConfig
+>;
 
 export enum DynamicHeight {
   AUTO_HEIGHT = "AUTO_HEIGHT",
@@ -19,7 +27,7 @@ export enum DynamicHeight {
   AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS",
 }
 
-/* This contains all properties which will be added 
+/* This contains all properties which will be added
    to a widget, automatically, by the Appsmith platform
    Each feature, is a unique key, whose value is an object
    with the list of properties to be added to a widget along

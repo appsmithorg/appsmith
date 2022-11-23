@@ -14,7 +14,10 @@ const RESET_BUTTON_DEFAULT_STYLES = {
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "JSON Form",
