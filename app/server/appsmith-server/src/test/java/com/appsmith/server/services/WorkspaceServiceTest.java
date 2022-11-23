@@ -26,6 +26,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,6 +123,8 @@ public class WorkspaceServiceTest {
     private UserAndAccessManagementService userAndAccessManagementService;
     @Autowired
     DatasourcePermission datasourcePermission;
+    @Autowired
+    WorkspacePermission workspacePermission;
 
     Workspace workspace;
 

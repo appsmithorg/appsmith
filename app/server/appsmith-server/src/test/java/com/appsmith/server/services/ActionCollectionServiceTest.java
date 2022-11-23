@@ -29,6 +29,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.RefactoringSolution;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -123,6 +124,9 @@ public class ActionCollectionServiceTest {
 
     @MockBean
     PluginExecutor pluginExecutor;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
 
     Application testApp = null;
 

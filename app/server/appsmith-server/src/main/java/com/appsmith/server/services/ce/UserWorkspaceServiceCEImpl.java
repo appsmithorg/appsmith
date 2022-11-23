@@ -18,6 +18,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
     private final WorkspacePermission workspacePermission;
+    private final PermissionGroupPermission permissionGroupPermission;
 
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
@@ -65,7 +67,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                       UserDataService userDataService,
                                       PermissionGroupService permissionGroupService,
                                       TenantService tenantService,
-                                      WorkspacePermission workspacePermission) {
+                                      WorkspacePermission workspacePermission,
+                                      PermissionGroupPermission permissionGroupPermission) {
         this.sessionUserService = sessionUserService;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
@@ -76,6 +79,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
         this.workspacePermission = workspacePermission;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     @Override
@@ -247,7 +251,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     public Mono<Map<String, List<WorkspaceMemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds) {
 
         // Get default permission groups
-        Flux<PermissionGroup> permissionGroupFlux = permissionGroupService.getByDefaultWorkspaces(workspaceIds, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+        Flux<PermissionGroup> permissionGroupFlux = permissionGroupService.getByDefaultWorkspaces(workspaceIds, permissionGroupPermission.getMembersReadPermission())
                 .cache();
 
         Mono<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspacesMono = permissionGroupFlux
@@ -320,7 +324,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Get default permission groups
         return workspaceMono
-                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS));
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, permissionGroupPermission.getMembersReadPermission()));
     }
 
     protected Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {

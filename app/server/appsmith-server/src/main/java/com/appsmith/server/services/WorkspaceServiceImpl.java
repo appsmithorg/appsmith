@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,11 +41,12 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 PermissionGroupService permissionGroupService,
                                 PolicyUtils policyUtils,
                                 ModelMapper modelMapper,
-                                WorkspacePermission workspacePermission) {
+                                WorkspacePermission workspacePermission,
+                                PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
                 assetRepository, assetService, applicationRepository, permissionGroupService,
-                policyUtils, modelMapper, workspacePermission);
+                policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
     }
 }

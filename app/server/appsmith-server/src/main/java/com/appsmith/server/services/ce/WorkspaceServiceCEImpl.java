@@ -30,6 +30,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -84,6 +85,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final PolicyUtils policyUtils;
     private final ModelMapper modelMapper;
     private final WorkspacePermission workspacePermission;
+    private final PermissionGroupPermission permissionGroupPermission;
 
 
     @Autowired
@@ -104,7 +106,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   PermissionGroupService permissionGroupService,
                                   PolicyUtils policyUtils,
                                   ModelMapper modelMapper,
-                                  WorkspacePermission workspacePermission) {
+                                  WorkspacePermission workspacePermission,
+                                  PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -119,6 +122,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.policyUtils = policyUtils;
         this.modelMapper = modelMapper;
         this.workspacePermission = workspacePermission;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     @Override
@@ -304,7 +308,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
         // All the default permission groups should be readable by all the members of the workspace
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUP_MEMBERS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), permissionGroupPermission.getMembersReadPermission()))
                 .collect(Collectors.toSet());
         Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))

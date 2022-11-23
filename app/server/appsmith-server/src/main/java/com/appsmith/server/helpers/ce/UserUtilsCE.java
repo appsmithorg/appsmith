@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
@@ -39,12 +40,16 @@ public class UserUtilsCE {
     private final PermissionGroupRepository permissionGroupRepository;
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
+    private final PermissionGroupPermission permissionGroupPermission;
 
-    public UserUtilsCE(ConfigRepository configRepository, PermissionGroupRepository permissionGroupRepository,
-                       CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public UserUtilsCE(ConfigRepository configRepository,
+                       PermissionGroupRepository permissionGroupRepository,
+                       CacheableRepositoryHelper cacheableRepositoryHelper,
+                       PermissionGroupPermission permissionGroupPermission) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     public Mono<Boolean> isSuperUser(User user) {
@@ -150,7 +155,7 @@ public class UserUtilsCE {
         return permissionGroupRepository.save(instanceAdminPermissionGroup)
                 .flatMap(savedPermissionGroup -> {
                     Set<Permission> permissions = Set.of(
-                            new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUP_MEMBERS),
+                            new Permission(savedPermissionGroup.getId(), permissionGroupPermission.getMembersReadPermission()),
                             new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
                             new Permission(savedPermissionGroup.getId(), UNASSIGN_PERMISSION_GROUPS)
                     );
