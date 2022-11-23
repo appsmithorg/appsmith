@@ -27,6 +27,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
 import { Stylesheet } from "entities/AppTheming";
+import { DropdownOption } from "widgets/SelectWidget/constants";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -258,10 +259,10 @@ export const getBooleanPropertyValue = (value: unknown, index: number) => {
   return !!value;
 };
 
-/*
- * value is either array of arrays of label, value or array of label, value
- */
-export const getArrayPropertyValue = (value: unknown, index: number) => {
+export const getArrayPropertyValue = (
+  value: DropdownOption[] | DropdownOption[][],
+  index: number,
+) => {
   if (Array.isArray(value) && value.length > 0) {
     if (Array.isArray(value[0])) {
       // value is array of arrays of label value

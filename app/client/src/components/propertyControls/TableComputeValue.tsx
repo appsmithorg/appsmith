@@ -86,8 +86,8 @@ function InputText(props: InputTextProp) {
 class ComputeTablePropertyControlV2 extends BaseControl<
   ComputeTablePropertyControlPropsV2
 > {
-  static getBindingPrefix(tableId: string) {
-    return `{{${tableId}.processedTableData.map((currentRow, currentIndex) => ( `;
+  static getBindingPrefix(tableName: string) {
+    return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
   }
 
   static bindingSuffix = `))}}`;
@@ -101,12 +101,12 @@ class ComputeTablePropertyControlV2 extends BaseControl<
       propertyValue,
       theme,
     } = this.props;
-    const tableId = this.props.widgetProperties.widgetName;
+    const tableName = this.props.widgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? ComputeTablePropertyControlV2.getInputComputedValue(
             propertyValue,
-            tableId,
+            tableName,
           )
         : propertyValue
         ? propertyValue
@@ -139,9 +139,9 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     );
   }
 
-  static getInputComputedValue = (propertyValue: string, tableId: string) => {
+  static getInputComputedValue = (propertyValue: string, tableName: string) => {
     const bindingPrefix = ComputeTablePropertyControlV2.getBindingPrefix(
-      tableId,
+      tableName,
     );
 
     if (propertyValue.includes(bindingPrefix)) {
@@ -156,7 +156,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     }
   };
 
-  getComputedValue = (value: string, tableId: string) => {
+  getComputedValue = (value: string, tableName: string) => {
     if (!isDynamicValue(value)) {
       return value;
     }
@@ -168,7 +168,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<
     }
 
     return `${ComputeTablePropertyControlV2.getBindingPrefix(
-      tableId,
+      tableName,
     )}${stringToEvaluate}${ComputeTablePropertyControlV2.bindingSuffix}`;
   };
 
