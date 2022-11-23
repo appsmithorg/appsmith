@@ -2,7 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -29,7 +29,7 @@ export const CONFIG = {
     isDisabled: false,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

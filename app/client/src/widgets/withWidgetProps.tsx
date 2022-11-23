@@ -101,13 +101,29 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
        * For Mobile Viewport:
        * Adjust right column to accommodate specified minWidth.
        */
+      console.log(
+        "#### check:",
+        widgetProps.widgetName,
+        isMobile,
+        props.isFlexChild,
+        widgetProps.minWidth,
+      );
       if (props.isFlexChild && isMobile && widgetProps.minWidth) {
         const { minWidth, parentColumnSpace, rightColumn } = widgetProps;
-        if (parentColumnSpace * rightColumn < minWidth)
+        if (parentColumnSpace * rightColumn < minWidth) {
           widgetProps.rightColumn = Math.min(
             Math.floor(minWidth / parentColumnSpace),
             64,
           );
+          console.log(
+            "#### data",
+            widgetProps.widgetName,
+            minWidth,
+            parentColumnSpace * rightColumn,
+            Math.min(Math.floor(minWidth / parentColumnSpace), 64),
+            widgetProps.rightColumn,
+          );
+        }
       }
 
       widgetProps.children = children;
@@ -116,7 +132,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.childWidgets = childWidgets;
       widgetProps.foo = "bar";
     }
-
+    console.log(
+      "$$$$ widget props",
+      widgetProps.widgetName,
+      widgetProps,
+      props,
+    );
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
 

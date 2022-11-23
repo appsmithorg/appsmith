@@ -3,8 +3,8 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "components/constants";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -42,7 +42,7 @@ export const CONFIG = {
     version: 1,
     positioning: Positioning.Vertical,
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

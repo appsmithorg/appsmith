@@ -1,5 +1,5 @@
 import { ResponsiveBehavior } from "components/constants";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE } from "constants/WidgetConstants";
 import { OverflowTypes } from "./constants";
 import IconSVG from "./icon.svg";
@@ -24,7 +24,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

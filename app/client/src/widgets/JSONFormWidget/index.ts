@@ -4,7 +4,7 @@ import Widget, { JSONFormWidgetProps } from "./widget";
 import { ButtonVariantTypes } from "components/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { ResponsiveBehavior } from "components/constants";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -21,7 +21,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     animateLoading: true,
     backgroundColor: "#fff",
     columns: 25,

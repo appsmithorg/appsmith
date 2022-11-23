@@ -373,7 +373,7 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-    // console.log("#### widget props", this.props.widgetName, this.props);
+    console.log("^^^^ widget props", this.props.widgetName, this.props);
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();

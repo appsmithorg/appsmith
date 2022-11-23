@@ -1,6 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition, ResponsiveBehavior } from "components/constants";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -27,7 +27,7 @@ export const CONFIG = {
     labelWidth: 5,
     version: 1,
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

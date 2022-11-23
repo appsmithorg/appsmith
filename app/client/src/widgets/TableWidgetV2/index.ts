@@ -11,7 +11,7 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { escapeString } from "./widget/utilities";
 import { ResponsiveBehavior } from "components/constants";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -20,7 +20,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     rows: 28,
     columns: 34,
     animateLoading: true,

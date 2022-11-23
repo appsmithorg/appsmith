@@ -1,5 +1,6 @@
 import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariantTypes } from "components/constants";
+import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -18,6 +19,7 @@ export const CONFIG = {
     widgetName: "IconButton",
     version: 1,
     animateLoading: true,
+    minWidth: ICON_BUTTON_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

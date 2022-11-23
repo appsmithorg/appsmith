@@ -7,10 +7,8 @@ import {
 } from "components/constants";
 import FlexBoxComponent from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
-import {
-  CANVAS_DEFAULT_MIN_HEIGHT_PX,
-  MOBILE_MAX_WIDTH,
-} from "constants/AppConstants";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { CSSProperties } from "react";
@@ -205,7 +203,7 @@ export const CONFIG = {
     detachFromLayout: true,
     flexLayers: [],
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: CanvasWidget.getDerivedPropertiesMap(),

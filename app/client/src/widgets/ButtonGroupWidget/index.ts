@@ -6,7 +6,7 @@ import { klona as clone } from "klona/full";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ResponsiveBehavior } from "components/constants";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -25,7 +25,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
-    minWidth: MOBILE_MAX_WIDTH,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     groupButtons: {
       groupButton1: {
         label: "Favorite",
