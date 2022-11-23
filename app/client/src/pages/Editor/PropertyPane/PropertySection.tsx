@@ -95,7 +95,7 @@ type PropertySectionProps = {
   // hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
-  tag?: string;
+  tag?: string; // Used to show a tag on the section title on search results
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
@@ -115,8 +115,13 @@ export const PropertySection = memo((props: PropertySectionProps) => {
       getPropertySectionState(state, `${widgetProps?.widgetId}.${props.id}`),
     () => true,
   );
+  const isSearchResult = props.tag !== undefined;
   const [isOpen, setIsOpen] = useState(
-    isDefaultContextOpen !== undefined ? isDefaultContextOpen : !!isDefaultOpen,
+    isSearchResult
+      ? true
+      : isDefaultContextOpen !== undefined
+      ? isDefaultContextOpen
+      : !!isDefaultOpen,
   );
 
   const handleSectionTitleClick = useCallback(() => {
