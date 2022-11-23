@@ -532,7 +532,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.LEFT,
-          depth,
+          depth * HORIZONTAL_RESIZE_LIMIT,
           30,
           false,
         ),
@@ -545,7 +545,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.LEFT,
-          depth,
+          depth * HORIZONTAL_RESIZE_LIMIT,
           30,
           true,
         ),
@@ -562,7 +562,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.RIGHT,
-          depth,
+          depth * HORIZONTAL_RESIZE_LIMIT,
           30,
           false,
         ),
@@ -578,7 +578,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.RIGHT,
-          depth,
+          depth * HORIZONTAL_RESIZE_LIMIT,
           30,
           true,
         ),
@@ -608,7 +608,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.TOP,
-          depth,
+          depth * VERTICAL_RESIZE_LIMIT,
           20,
           false,
         ),
@@ -617,7 +617,14 @@ describe("Test reflow util methods", () => {
     it("should return max number for TOP Direction when Resizing", () => {
       const depth = 2;
       expect(
-        getMaxY(collisionTree, gridProps, ReflowDirection.TOP, depth, 20, true),
+        getMaxY(
+          collisionTree,
+          gridProps,
+          ReflowDirection.TOP,
+          depth * VERTICAL_RESIZE_LIMIT,
+          20,
+          true,
+        ),
       ).toBe(
         -1 *
           (collisionTree.top - depth * VERTICAL_RESIZE_LIMIT) *
@@ -631,7 +638,7 @@ describe("Test reflow util methods", () => {
           collisionTree,
           gridProps,
           ReflowDirection.BOTTOM,
-          depth,
+          depth * VERTICAL_RESIZE_LIMIT,
           230,
           false,
         ),
@@ -1906,7 +1913,7 @@ describe("Test reflow util methods", () => {
         "1234": {
           BOTTOM: {
             value: 10,
-            depth: 5,
+            occupiedLength: 5 * VERTICAL_RESIZE_LIMIT,
             occupiedSpace: 10,
             currentEmptySpaces: 10,
           },
@@ -1914,7 +1921,7 @@ describe("Test reflow util methods", () => {
       };
       expect(checkProcessNodeForTree(collidingSpace, processedNodes)).toEqual({
         shouldProcessNode: false,
-        depth: 5,
+        occupiedLength: 5 * VERTICAL_RESIZE_LIMIT,
         occupiedSpace: 10,
         currentEmptySpaces: 10,
       });
@@ -1936,7 +1943,7 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth,
+          depth * VERTICAL_RESIZE_LIMIT,
         ),
       ).toBe(collidingValue);
     });
@@ -1951,7 +1958,7 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth,
+          depth * VERTICAL_RESIZE_LIMIT,
         ),
       ).toBe(collidingValue);
     });
@@ -1966,7 +1973,7 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth,
+          depth * VERTICAL_RESIZE_LIMIT,
         ),
       ).toBe(depth * VERTICAL_RESIZE_LIMIT);
     });
@@ -1981,7 +1988,7 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth,
+          depth * HORIZONTAL_RESIZE_LIMIT,
         ),
       ).toBe(depth * HORIZONTAL_RESIZE_LIMIT);
     });
@@ -1996,7 +2003,7 @@ describe("Test reflow util methods", () => {
           collidingValue,
           direction,
           gridProps,
-          depth,
+          depth * HORIZONTAL_RESIZE_LIMIT,
         ),
       ).toBe(gridProps.maxGridColumns - depth * HORIZONTAL_RESIZE_LIMIT);
     });

@@ -34,13 +34,15 @@ export type RenderMode =
   | "COMPONENT_PANE"
   | "CANVAS"
   | "PAGE"
-  | "CANVAS_SELECTED";
+  | "CANVAS_SELECTED"
+  | "PREVIEW";
 
 export const RenderModes: { [id: string]: RenderMode } = {
   COMPONENT_PANE: "COMPONENT_PANE",
   CANVAS: "CANVAS",
   PAGE: "PAGE",
   CANVAS_SELECTED: "CANVAS_SELECTED",
+  PREVIEW: "PREVIEW",
 };
 
 export const CSSUnits: { [id: string]: CSSUnit } = {
@@ -70,7 +72,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 67;
+export const LATEST_PAGE_VERSION = 69;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -82,6 +84,8 @@ export const GridDefaults = {
   VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET: 5,
   MAIN_CANVAS_EXTENSION_OFFSET: 8,
 };
+
+export const CANVAS_MIN_HEIGHT = 380;
 
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionally so it take cares of itself).
@@ -138,6 +142,7 @@ export const WIDGET_STATIC_PROPS = {
   renderMode: true,
   detachFromLayout: true,
   noContainerOffset: false,
+  height: false,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {
@@ -152,3 +157,14 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
 export type TextSize = keyof typeof TextSizes;
 
 export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;
+
+// The max and min height limits for widgets in rows.
+// 9000 is an arbitrarily large value for the height of a widget
+// In pixels this would be 90000px, which is a fairly large number.
+
+// 4 is the minimum for any widget, as we donot support zero height widgets today.
+// This also makes sure that widgets have sufficient area in which users can interact.
+export const WidgetHeightLimits = {
+  MAX_HEIGHT_IN_ROWS: 9000,
+  MIN_HEIGHT_IN_ROWS: 4,
+};
