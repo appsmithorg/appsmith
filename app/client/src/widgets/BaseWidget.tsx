@@ -36,7 +36,7 @@ import PreviewModeComponent from "components/editorComponents/PreviewModeCompone
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
-import { AppThemeStylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 /***
  * BaseWidget
@@ -82,7 +82,7 @@ abstract class BaseWidget<
     return {};
   }
 
-  static getStylesheetConfig(): AppThemeStylesheet {
+  static getStylesheetConfig(): Stylesheet {
     return {};
   }
 

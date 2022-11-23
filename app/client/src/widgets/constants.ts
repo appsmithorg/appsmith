@@ -8,6 +8,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
 import moment from "moment";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface WidgetConfiguration {
   type: string;
@@ -29,7 +30,7 @@ export interface WidgetConfiguration {
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
-    stylesheetConfig?: Record<string, string>;
+    stylesheetConfig?: Stylesheet;
   };
 }
 

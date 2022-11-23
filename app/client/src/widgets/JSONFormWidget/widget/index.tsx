@@ -29,6 +29,7 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -122,7 +123,7 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet<ChildStylesheet> {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",

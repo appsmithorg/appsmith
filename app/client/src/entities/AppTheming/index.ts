@@ -1,20 +1,5 @@
-export type Stylesheet = {
-  [key: string]: {
-    [key: string]: string;
-  };
-};
-
-export type AppThemeStylesheet<
-  T extends Stylesheet = Record<string, never>
-> = T & {
-  [key: string]:
-    | undefined
-    | string
-    | Stylesheet
-    | {
-        [key: string]: string;
-      };
-  childStylesheet?: Stylesheet;
+export type Stylesheet<T = Record<string, string>> = T & {
+  [key: string]: string | Stylesheet;
 };
 
 export type ButtonStyles = {
@@ -25,6 +10,15 @@ export type ButtonStyles = {
     [key: string]: string;
   };
 };
+
+export type ChildStylesheet = {
+  childStylesheet: Stylesheet;
+};
+
+export type AppThemeStylesheet<T = Record<string, string>> = Record<
+  string,
+  Stylesheet<T>
+>;
 
 export type AppTheme = {
   id: string;
@@ -57,17 +51,7 @@ export type AppTheme = {
     };
   };
   // styles for specific widgets
-  stylesheet: {
-    [key: string]: {
-      [key: string]:
-        | string
-        | Stylesheet
-        | {
-            [key: string]: string;
-          };
-      childStylesheet: Stylesheet;
-    };
-  };
+  stylesheet: AppThemeStylesheet;
   // current values for the theme
   properties: {
     colors: {
