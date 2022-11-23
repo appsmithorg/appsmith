@@ -164,19 +164,22 @@ function eventRequestHandler({
     case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
       const {
         callbackData,
-        dataTree,
         dynamicTrigger,
         eventType,
         globalContext,
         triggerMeta,
+        unEvalTree: __unEvalTree__,
       } = requestData;
       if (!dataTreeEvaluator) {
         return { triggers: [], errors: [] };
       }
+
+      const unEvalTree = createUnEvalTree(__unEvalTree__);
+
       const {
         evalOrder,
         nonDynamicFieldValidationOrder,
-      } = dataTreeEvaluator.setupUpdateTree(dataTree);
+      } = dataTreeEvaluator.setupUpdateTree(unEvalTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,

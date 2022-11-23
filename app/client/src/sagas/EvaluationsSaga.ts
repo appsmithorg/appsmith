@@ -267,7 +267,7 @@ export function* evaluateAndExecuteDynamicTrigger(
     evalWorker.duplexRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     {
-      dataTree: unEvalTree,
+      unEvalTree,
       dynamicTrigger,
       callbackData,
       globalContext,
