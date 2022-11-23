@@ -10,7 +10,7 @@ let propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer;
 
 describe("Theme validation usecase for multi-select widget", function() {
-  it("Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function() {
+  it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function() {
     //cy.reload(); // To remove the rename tooltip
     ee.DragDropWidgetNVerify("multiselectwidgetv2", 300, 80);
     cy.get(themelocator.canvas).click({ force: true });
@@ -96,7 +96,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.contains("Color").click({ force: true });
   });
 
-  it.skip("Publish the App and validate Font across the app + Bug 15007", function() {
+  it.skip("2. Publish the App and validate Font across the app + Bug 15007", function() {
     //Skipping due to mentioned bug
     cy.PublishtheApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
@@ -118,7 +118,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.goToEditFromPublish();
   });
 
-  it("Validate current theme feature", function() {
+  it("3. Validate current theme feature", function() {
     cy.get("#canvas-selection-0").click({ force: true });
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
@@ -138,7 +138,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       });
   });
 
-  it("Publish the App and validate change of Theme across the app in publish mode", function() {
+  it("4. Publish the App and validate change of Theme across the app in publish mode", function() {
     cy.PublishtheApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .first()
