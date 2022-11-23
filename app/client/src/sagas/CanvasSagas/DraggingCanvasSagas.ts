@@ -1,35 +1,36 @@
-import { Toaster } from "design-system";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import log from "loglevel";
-import { cloneDeep } from "lodash";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { Toaster } from "design-system";
+import { cloneDeep } from "lodash";
+import log from "loglevel";
+import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { getWidget, getWidgets } from "sagas/selectors";
+import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { collisionCheckPostReflow } from "utils/reflowHookUtils";
-import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import { getWidget, getWidgets } from "sagas/selectors";
-import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -56,21 +57,33 @@ export function* getCanvasSizeAfterWidgetMove(
 
   //get mainCanvas's minHeight if the canvasWidget is mianCanvas
   let mainCanvasMinHeight;
+  let canvasParentMinHeight = canvasWidget.minHeight;
   if (canvasWidgetId === MAIN_CONTAINER_WIDGET_ID) {
     const mainCanvasProps: MainCanvasReduxState = yield select(
       getMainCanvasProps,
     );
     mainCanvasMinHeight = mainCanvasProps?.height;
+  } else if (canvasWidget.parentId) {
+    const parent: FlattenedWidgetProps = yield select(
+      getWidget,
+      canvasWidget.parentId,
+    );
+    if (!parent.detachFromLayout) {
+      canvasParentMinHeight =
+        (parent.bottomRow - parent.topRow) *
+        GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    }
   }
-
   if (canvasWidget) {
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
       getOccupiedSpacesSelectorForContainer(canvasWidgetId),
     );
+
     const canvasMinHeight =
       mainCanvasMinHeight ||
-      canvasWidget.minHeight ||
+      canvasParentMinHeight ||
       CANVAS_DEFAULT_MIN_HEIGHT_PX;
+
     const newRows = calculateDropTargetRows(
       movedWidgetIds,
       movedWidgetsBottomRow,
@@ -78,6 +91,7 @@ export function* getCanvasSizeAfterWidgetMove(
       occupiedSpacesByChildren,
       canvasWidgetId,
     );
+
     const rowsToPersist = Math.max(
       canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
       newRows,
@@ -88,6 +102,7 @@ export function* getCanvasSizeAfterWidgetMove(
     const newBottomRow = Math.round(
       rowsToPersist * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
+
     /* Update the canvas's rows, ONLY if it has changed since the last render */
     if (originalSnapRows !== newBottomRow) {
       // TODO(abhinav): This considers that the topRow will always be zero
@@ -140,6 +155,7 @@ function* addWidgetAndMoveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [newWidget.newWidgetId],
@@ -293,6 +309,7 @@ function* moveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     const block = draggedBlocksToUpdate[0];
     const oldParentId = block.updateWidgetParams.payload.parentId;

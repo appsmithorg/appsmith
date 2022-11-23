@@ -1,6 +1,7 @@
 import { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { ReflowDirection } from "reflow/reflowTypes";
 
 export type UIElementSize = { height: number; width: number };
 
@@ -73,3 +74,29 @@ export const computeFinalRowCols = (
 
   return hasRowColsChanged(newRowCols, props) ? newRowCols : false;
 };
+
+/**
+ * A rudimentary function which based on horizontal and vertical resize enabled
+ * tells us whether a resize handle in a particular direction works
+ * Note: This works only if vertical or horizontal directions are provided.
+ * @param horizontalEnabled : boolean
+ * @param verticalEnabled : boolean
+ * @param direction : ReflowDirection
+ * @returns if resize is allowed in the direction provided
+ * Works only for vertical and horizontal directions
+ */
+export function isHandleResizeAllowed(
+  horizontalEnabled: boolean,
+  verticalEnabled: boolean,
+  direction?: ReflowDirection,
+): boolean {
+  if (direction === ReflowDirection.TOP || direction === ReflowDirection.BOTTOM)
+    return verticalEnabled;
+  else if (
+    direction === ReflowDirection.LEFT ||
+    direction === ReflowDirection.RIGHT
+  ) {
+    return horizontalEnabled;
+  }
+  return true;
+}
