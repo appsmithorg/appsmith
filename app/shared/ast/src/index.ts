@@ -1,9 +1,9 @@
-import { parse, Node, SourceLocation, Options, Comment } from "acorn";
+import { parse, Node, SourceLocation, Options } from "acorn";
 import { ancestor, simple } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from "./constants/ast";
+import { ECMA_VERSION, NodeTypes } from "./constants";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
-import { jsObjectDeclaration } from "./jsObject/index";
+import { jsObjectDeclaration } from "./jsObject";
 /*
  * Valuable links:
  *
@@ -218,8 +218,6 @@ const getFunctionalParamNamesFromNode = (
 export const getAST = memoize((code: string, options?: AstOptions) =>
   parse(code, { ...options, ecmaVersion: ECMA_VERSION })
 );
-
-export const getUnMemoisedAST = (code: string, options?: AstOptions) => parse(code, { ...options, ecmaVersion: ECMA_VERSION });
 
 /**
  * An AST based extractor that fetches all possible references in a given
