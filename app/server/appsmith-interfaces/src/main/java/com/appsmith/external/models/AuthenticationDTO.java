@@ -55,8 +55,7 @@ public abstract class AuthenticationDTO implements AppsmithDomain {
 
     @JsonProperty
     protected boolean secretExists() {
-        String secret = getSecret();
-        return StringUtils.hasLength(secret);
+        return StringUtils.hasLength(getSecret());
     }
 
     public Mono<Boolean> hasExpired() {
