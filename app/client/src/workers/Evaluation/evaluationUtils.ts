@@ -706,7 +706,9 @@ export const widgetPathsNotToOverride = (
   let pathsNotToOverride: string[] = [];
   const overridingPropertyPaths = entity.overridingPropertyPaths[propertyPath];
 
-  if (isNewWidget && !isEmpty(entity.metaProps)) {
+  const parsedMetaObj = JSON.parse(JSON.stringify(entity.meta));
+
+  if (isNewWidget && !isEmpty(parsedMetaObj)) {
     const metaPaths = overridingPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
