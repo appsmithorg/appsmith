@@ -141,13 +141,12 @@ const generateDataTreeWidgetWithoutMeta = (
   ];
 
   const dataTreeWidgetWithoutMetaProps = _.merge(
-    {},
+    {
+      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    },
     _.omit(widget, widgetPathsToOmit),
     unInitializedDefaultProps,
     derivedProps,
-    {
-      meta: {}, // this will be overridden by meta value calculated in generateDataTreeWidget
-    },
   );
   return {
     dataTreeWidgetWithoutMetaProps,
@@ -169,7 +168,6 @@ const generateDataTreeWidgetWithoutMeta = (
       privateWidgets: {
         ...widget.privateWidgets,
       },
-      meta: {},
       propertyOverrideDependency,
       overridingPropertyPaths,
       type: widget.type,

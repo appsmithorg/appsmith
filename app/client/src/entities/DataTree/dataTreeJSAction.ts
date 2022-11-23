@@ -56,6 +56,7 @@ export const generateDataTreeJSAction = (
     ...variableList,
     ...actionsData,
     body: removeThisReference,
+    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     __config__: {
       meta: meta,
       name: js.config.name,

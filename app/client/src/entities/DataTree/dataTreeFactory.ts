@@ -59,6 +59,7 @@ export interface ActionEntityEvalTree {
     isExecutionSuccess: boolean;
     headers?: unknown;
   };
+  ENTITY_TYPE: ENTITY_TYPE.ACTION;
 }
 
 export interface ActionEntityConfig {
@@ -138,7 +139,6 @@ export type WidgetConfig = {
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   privateWidgets: PrivateWidgets;
-  meta: Record<string, unknown>;
 };
 export interface WidgetEntityConfig
   extends Partial<WidgetProps>,
@@ -150,6 +150,7 @@ export interface WidgetEntityConfig
 
 export interface WidgetEvalTree extends Partial<WidgetProps> {
   meta: Record<string, unknown>;
+  ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
 
 export interface UnEvalTreeWidget extends WidgetEvalTree {
