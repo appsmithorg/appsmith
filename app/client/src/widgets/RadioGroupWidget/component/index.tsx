@@ -6,11 +6,10 @@ import { TextSize } from "constants/WidgetConstants";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { RadioOption } from "../constants";
-import {
-  LabelWithTooltip,
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -35,6 +34,7 @@ export interface StyledRadioGroupProps {
   labelPosition?: LabelPosition;
   optionCount: number;
   accentColor: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
@@ -48,8 +48,12 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
 
     & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
       &:before {
-       opacity: 1;
-       background-image: radial-gradient(var( --wds-color-bg-disabled-strong), var( --wds-color-bg-disabled-strong) 28%, transparent 32%)
+        opacity: 1;
+        background-image: radial-gradient(
+          var(--wds-color-bg-disabled-strong),
+          var(--wds-color-bg-disabled-strong) 28%,
+          transparent 32%
+        );
       }
     }
   }
@@ -69,6 +73,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     disabled,
     height,
     inline,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -110,6 +115,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           fontStyle={labelStyle}
           helpText={labelTooltip}
           inline={inline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           optionCount={optionCount}
           position={labelPosition}
@@ -124,6 +130,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
         disabled={disabled}
         height={height}
         inline={inline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         onChange={handleChange}
         optionCount={options.length}
@@ -153,6 +160,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   selectedOptionValue: string;
   disabled: boolean;
   loading: boolean;
+  isDynamicHeightEnabled?: boolean;
   inline: boolean;
   alignment: Alignment;
   compactMode: boolean;

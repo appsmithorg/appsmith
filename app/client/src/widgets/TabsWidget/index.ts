@@ -10,6 +10,16 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  // TODO(abhinav): Default config like these are not serializable
+  // So they will not work with Redux state and they might break
+  // evaluations. One way to handle these types of properties is to
+  // define them in a Map which the platform understands to have
+  // them stored only in the WidgetFactory.
+  canvasHeightOffset: (props: WidgetProps): number =>
+    props.shouldShowTabs === true ? 4 : 0,
+  features: {
+    dynamicHeight: true,
+  },
   defaults: {
     rows: 40,
     columns: 24,

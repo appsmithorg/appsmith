@@ -14,6 +14,7 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 /**
  * Validation rules:
@@ -224,6 +225,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -544,6 +546,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         disabled={isDisabled}
         height={componentHeight}
         inline={Boolean(isInline)}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         key={widgetId}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}

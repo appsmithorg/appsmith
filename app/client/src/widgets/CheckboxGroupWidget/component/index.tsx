@@ -16,11 +16,10 @@ import {
   StyledCheckbox,
 } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import {
-  LabelWithTooltip,
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
 import { ThemeProp, AlignWidgetTypes } from "widgets/constants";
 
 export interface InputContainerProps {
@@ -28,6 +27,7 @@ export interface InputContainerProps {
   optionCount: number;
   valid?: boolean;
   optionAlignment?: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const InputContainer = styled.div<ThemeProp & InputContainerProps>`
@@ -46,8 +46,8 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
       ? `flex-start`
       : `center`};
   width: 100%;
-  height: 100%;
   flex-grow: 1;
+  height: 100%;
   
   border: 1px solid transparent;
 
@@ -128,6 +128,7 @@ function SelectAll(props: SelectAllProps) {
 
 export interface CheckboxGroupComponentProps extends ComponentProps {
   isDisabled: boolean;
+  isDynamicHeightEnabled?: boolean;
   isInline: boolean;
   isSelectAll?: boolean;
   isRequired?: boolean;
@@ -158,6 +159,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     borderRadius,
     compactMode,
     isDisabled,
+    isDynamicHeightEnabled,
     isInline,
     isSelectAll,
     isValid,
@@ -207,6 +209,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           fontStyle={labelStyle}
           helpText={labelTooltip}
           inline={isInline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}
@@ -216,6 +219,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       <InputContainer
         data-cy="checkbox-group-container"
         inline={isInline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         optionAlignment={optionAlignment}
         optionCount={options.length}
       >

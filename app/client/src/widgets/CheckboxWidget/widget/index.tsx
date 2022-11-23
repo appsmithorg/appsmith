@@ -7,6 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -34,6 +35,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
               { label: "Left", value: LabelPosition.Left },
               { label: "Right", value: LabelPosition.Right },
             ],
+            defaultValue: LabelPosition.Left,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -293,6 +295,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         isChecked={!!this.props.isChecked}
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isLoading={this.props.isLoading}
         isRequired={this.props.isRequired}
         key={this.props.widgetId}
