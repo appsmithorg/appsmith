@@ -170,7 +170,7 @@ export type DataTreeObjectEntity =
   | DataTreeWidget
   | DataTreeAppsmith;
 
-export type DataTreeEntity = DataTreeObjectEntity;
+export type DataTreeEntity = DataTreeObjectEntity | Page[] | ActionDispatcher;
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
@@ -181,7 +181,10 @@ export type UnEvalTreeEntityObject =
   | UnEvalTreeJSAction
   | UnEvalTreeWidget;
 
-export type UnEvalTreeEntity = UnEvalTreeEntityObject | DataTreeAppsmith;
+export type UnEvalTreeEntity =
+  | UnEvalTreeEntityObject
+  | DataTreeAppsmith
+  | Page[];
 
 export type UnEvalTree = {
   [entityName: string]: UnEvalTreeEntity;
@@ -211,7 +214,7 @@ export class DataTreeFactory {
     appData,
     editorConfigs,
     jsActions,
-    // pageList,
+    pageList,
     pluginDependencyConfig,
     theme,
     widgets,
@@ -253,7 +256,7 @@ export class DataTreeFactory {
      *  pageList is not used in evaluation code need to confirm once again if it is needed or not.
      */
 
-    // dataTree.pageList = pageList;
+    dataTree.pageList = pageList;
 
     dataTree.appsmith = {
       ...appData,
