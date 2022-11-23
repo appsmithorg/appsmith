@@ -424,7 +424,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public Mono<ActionCollection> archiveById(String id) {
         Mono<ActionCollection> actionCollectionMono = repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
         return actionCollectionMono
                 .map(actionCollection -> {
