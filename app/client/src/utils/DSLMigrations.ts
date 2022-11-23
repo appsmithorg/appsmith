@@ -61,11 +61,11 @@ import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigratio
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
 import { MigrateSelectTypeWidgetDefaultValue } from "./migrations/SelectWidget";
 import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskinningMigrations";
-// import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
-// import { RegisteredWidgetFeatures, WidgetFeatureProps } from "./WidgetFeatures";
+
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
+import { migratePropertiesForDynamicHeight } from "./migrations/autoHeightMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1112,13 +1112,13 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 67) {
     currentDSL = migrateLabelPosition(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 68;
   }
 
-  // if (currentDSL.version === 64) {
-  //   currentDSL = migratePropertiesForDynamicHeight(currentDSL);
-  //   currentDSL.version = LATEST_PAGE_VERSION;
-  // }
+  if (currentDSL.version === 68) {
+    currentDSL = migratePropertiesForDynamicHeight(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
 
   return currentDSL;
 };
@@ -1560,23 +1560,3 @@ export const migrateFilterValueForDropDownWidget = (currentDSL: DSLWidget) => {
 
   return newDSL;
 };
-
-// export const migratePropertiesForDynamicHeight = (currentDSL: DSLWidget) => {
-//   const widgetsWithDynamicHeight = compact(
-//     ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
-//       if (config.features?.dynamicHeight) return config.type;
-//     }),
-//   );
-//   if (widgetsWithDynamicHeight.includes(currentDSL.type)) {
-//     currentDSL = {
-//       ...currentDSL,
-//       ...WidgetFeatureProps[RegisteredWidgetFeatures.DYNAMIC_HEIGHT],
-//     };
-//   }
-//   if (Array.isArray(currentDSL.children)) {
-//     currentDSL.children = currentDSL.children.map(
-//       migratePropertiesForDynamicHeight,
-//     );
-//   }
-//   return currentDSL;
-// };
