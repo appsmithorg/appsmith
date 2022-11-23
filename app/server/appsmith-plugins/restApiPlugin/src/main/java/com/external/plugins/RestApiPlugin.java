@@ -107,8 +107,9 @@ public class RestApiPlugin extends BasePlugin {
             if (actionConfiguration.getPaginationType() != null &&
                     PaginationType.URL.equals(actionConfiguration.getPaginationType()) &&
                     executeActionDTO.getPaginationField() != null) {
-                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, executeActionDTO.getPaginationField());
-                updateActionConfigurationForPagination(actionConfiguration, executeActionDTO.getPaginationField());
+                List<Property> queryParamsList = new ArrayList<>();
+                updateDatasourceConfigurationForPagination(actionConfiguration, datasourceConfiguration, queryParamsList,executeActionDTO.getPaginationField());
+                updateActionConfigurationForPagination(actionConfiguration, queryParamsList,executeActionDTO.getPaginationField());
             }
 
             // Filter out any empty headers
@@ -182,46 +183,64 @@ public class RestApiPlugin extends BasePlugin {
         }
 
         private ActionConfiguration updateActionConfigurationForPagination(ActionConfiguration actionConfiguration,
+                                                                           List<Property> queryParamsList,
                                                                            PaginationField paginationField) {
             if (PaginationField.NEXT.equals(paginationField) || PaginationField.PREV.equals(paginationField)) {
                 actionConfiguration.setPath("");
-                actionConfiguration.setQueryParameters(null);
+                actionConfiguration.setQueryParameters(queryParamsList);
             }
             return actionConfiguration;
         }
 
         private DatasourceConfiguration updateDatasourceConfigurationForPagination(ActionConfiguration actionConfiguration,
                                                                                    DatasourceConfiguration datasourceConfiguration,
+                                                                                   List<Property> queryParamsList,
                                                                                    PaginationField paginationField) {
+
             if (PaginationField.NEXT.equals(paginationField)) {
                 if (actionConfiguration.getNext() == null) {
                     datasourceConfiguration.setUrl(null);
                 } else {
-                    datasourceConfiguration.setUrl(decodeUrlAndEncodeQueryParams(actionConfiguration.getNext()));
+                    queryParamsList.addAll(decodeUrlAndEncodeQueryParams(datasourceConfiguration,actionConfiguration.getNext()));
                 }
             } else if (PaginationField.PREV.equals(paginationField)) {
-                datasourceConfiguration.setUrl(decodeUrlAndEncodeQueryParams(actionConfiguration.getPrev()));
+                queryParamsList.addAll(decodeUrlAndEncodeQueryParams(datasourceConfiguration,actionConfiguration.getPrev()));
             }
 
             return datasourceConfiguration;
         }
 
-        private String decodeUrlAndEncodeQueryParams(String inputUrl) {
+        private List<Property> decodeUrlAndEncodeQueryParams(DatasourceConfiguration datasourceConfiguration,String inputUrl) {
 
             String decodedUrl = URLDecoder.decode(inputUrl,StandardCharsets.UTF_8);
 
             String[] urlParts = decodedUrl.split("\\?");
-            if (urlParts.length == 2) {
-                return urlParts[0] + "?" + encodeQueryParameters(urlParts[1]);
-            } else  {
-                return decodedUrl;
+            datasourceConfiguration.setUrl(urlParts[0]);
+
+            if (urlParts.length >= 2) {
+
+                StringBuilder queryParamBuilder = new StringBuilder();
+
+                for (int i = 1; i < urlParts.length; i++) {
+
+                    if (queryParamBuilder.length() != 0) {
+                        queryParamBuilder.append("?");
+                    }
+
+                    queryParamBuilder.append(urlParts[i]);
+                }
+
+                return getQueryParamList(queryParamBuilder.toString());
             }
+
+            return new ArrayList<>();
         }
 
-        private String encodeQueryParameters(String queryParams) {
+    private List<Property> getQueryParamList(String queryParams) {
 
-            StringBuilder responseBuilder = new StringBuilder();
             String[] queryParamArray = queryParams.split("&");
+
+            List<Property> queryParamList = new ArrayList<>();
 
             for (String queryParam : queryParamArray) {
                 String[] keyValue = queryParam.split("=");
@@ -229,16 +248,11 @@ public class RestApiPlugin extends BasePlugin {
                 String key = keyValue.length > 0 ? keyValue[0] : "";
                 String value = keyValue.length > 1 ? keyValue[1] : "";
 
-                if (responseBuilder.length() != 0) {
-                        responseBuilder.append("&");
-                    }
-                responseBuilder
-                        .append(URLEncoder.encode(key,StandardCharsets.UTF_8))
-                        .append("=")
-                        .append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+                Property property = new Property(key,value);
+                queryParamList.add(property);
             }
 
-            return responseBuilder.toString();
+            return queryParamList;
         }
 
         @Override
