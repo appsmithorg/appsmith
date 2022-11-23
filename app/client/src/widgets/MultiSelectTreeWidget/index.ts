@@ -3,6 +3,7 @@ import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ResponsiveBehavior } from "components/constants";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -48,6 +49,7 @@ export const CONFIG = {
     labelWidth: 5,
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: MOBILE_MAX_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

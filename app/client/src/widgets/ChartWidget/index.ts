@@ -1,4 +1,5 @@
 import { ResponsiveBehavior } from "components/constants";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
@@ -21,6 +22,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: MOBILE_MAX_WIDTH,
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",

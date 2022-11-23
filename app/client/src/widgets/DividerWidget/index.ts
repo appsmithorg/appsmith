@@ -1,4 +1,5 @@
 import { ResponsiveBehavior } from "components/constants";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -22,6 +23,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: MOBILE_MAX_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

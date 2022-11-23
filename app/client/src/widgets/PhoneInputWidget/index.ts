@@ -1,4 +1,5 @@
 import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultISDCode } from "./component/ISDCodeDropdown";
 import IconSVG from "./icon.svg";
@@ -20,6 +21,7 @@ export const CONFIG = {
     allowDialCodeChange: false,
     allowFormatting: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: MOBILE_MAX_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

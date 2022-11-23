@@ -23,6 +23,7 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -45,6 +46,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
+    const isMobile = useSelector(getIsMobile);
 
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
@@ -52,7 +54,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
-
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
@@ -96,10 +97,24 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
 
+      /**
+       * For Mobile Viewport:
+       * Adjust right column to accommodate specified minWidth.
+       */
+      if (props.isFlexChild && isMobile && widgetProps.minWidth) {
+        const { minWidth, parentColumnSpace, rightColumn } = widgetProps;
+        if (parentColumnSpace * rightColumn < minWidth)
+          widgetProps.rightColumn = Math.min(
+            Math.floor(minWidth / parentColumnSpace),
+            64,
+          );
+      }
+
       widgetProps.children = children;
 
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
+      widgetProps.foo = "bar";
     }
 
     //merging with original props

@@ -191,6 +191,7 @@ abstract class BaseWidget<
       this.props.bottomRow,
       this.props.parentColumnSpace,
       this.props.parentRowSpace,
+      this.props.minWidth,
     );
   };
 
@@ -201,6 +202,7 @@ abstract class BaseWidget<
     bottomRow: number,
     parentColumnSpace: number,
     parentRowSpace: number,
+    minWidth?: number,
   ): {
     componentWidth: number;
     componentHeight: number;
@@ -371,8 +373,7 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-    // console.log(`${this.props.widgetName} : ${this.props.widgetId} =========`);
-    // console.log(this.props);
+    // console.log("#### widget props", this.props.widgetName, this.props);
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();
@@ -491,6 +492,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   isFlexChild?: boolean;
   direction?: LayoutDirection;
   responsiveBehavior?: ResponsiveBehavior;
+  minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
 }
 
 export const WIDGET_STATIC_PROPS = {

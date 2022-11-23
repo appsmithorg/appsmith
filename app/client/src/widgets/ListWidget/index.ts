@@ -11,6 +11,7 @@ import {
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { ResponsiveBehavior } from "components/constants";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -27,6 +28,7 @@ export const CONFIG = {
     gridType: "vertical",
     template: {},
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: MOBILE_MAX_WIDTH,
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
