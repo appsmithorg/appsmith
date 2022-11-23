@@ -10,7 +10,9 @@ import cssVariables from "!!raw-loader!theme/wds.css";
 
 import { labelLayoutStyles } from "design-system";
 import { isMacOs } from "utils/AppsmithUtils";
-import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import LabelWithTooltip, {
+  LABEL_CONTAINER_CLASS,
+} from "widgets/components/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{
   borderRadius: string;
@@ -208,6 +210,10 @@ const StyledRTEditor = styled.div<{
   }
 
   ${labelLayoutStyles}
+
+  & .${LABEL_CONTAINER_CLASS} {
+    align-self: center;
+  }
 `;
 
 export const RichTextEditorInputWrapper = styled.div<{
