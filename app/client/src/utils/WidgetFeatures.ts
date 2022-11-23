@@ -4,6 +4,7 @@ import {
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { klona } from "klona/lite";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
 
@@ -295,3 +296,26 @@ export const PropertyPaneConfigTemplates: Record<
     },
   ],
 };
+
+export function disableWidgetFeatures(
+  widgetConfig: PropertyPaneConfig[],
+  disabledWidgetFeatures?: RegisteredWidgetFeatures[],
+): PropertyPaneConfig[] {
+  if (!disabledWidgetFeatures || disabledWidgetFeatures.length <= 0)
+    return widgetConfig;
+
+  const clonedConfig = klona(widgetConfig);
+  const firstConfig = clonedConfig[0];
+
+  for (let i = 0; i < (firstConfig?.children?.length || -1); i++) {
+    const config = firstConfig?.children?.[i];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (disabledWidgetFeatures.indexOf(config?.propertyName || "") > -1) {
+      firstConfig?.children?.splice(i, 1);
+      i--;
+    }
+  }
+
+  return clonedConfig;
+}
