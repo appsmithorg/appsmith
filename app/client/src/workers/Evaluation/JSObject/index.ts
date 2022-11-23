@@ -231,8 +231,8 @@ export function parseJSActions(
   oldUnEvalTree?: DataTree,
 ) {
   let jsUpdates: Record<string, JSUpdate> = {};
-  const appsmithObj = unEvalDataTree.appsmith as DataTreeAppsmith;
-  const isEditMode = appsmithObj.mode === APP_MODE.EDIT ? true : false;
+  const appsmithObj = unEvalDataTree?.appsmith as DataTreeAppsmith;
+  const isEditMode = appsmithObj?.mode === APP_MODE.EDIT ? true : false;
   if (!isEditMode) {
     Object.keys(unEvalDataTree).forEach((entityName) => {
       const entity = unEvalDataTree[entityName];
