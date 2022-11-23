@@ -83,11 +83,7 @@ class CanvasWidget extends ContainerWidget {
   ): JSX.Element {
     const direction = this.getDirection();
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
-    const stretchFlexBox =
-      !this.props.children || !this.props.children?.length
-        ? true
-        : this.props.alignment === Alignment.Bottom ||
-          this.props.positioning === Positioning.Vertical;
+    const stretchFlexBox = !this.props.children || !this.props.children?.length;
     return (
       <ContainerComponent {...props}>
         {props.renderMode === RenderModes.CANVAS && (
