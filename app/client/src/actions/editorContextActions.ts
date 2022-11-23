@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   CodeEditorContext,
   EvaluatedPopupState,
@@ -6,9 +6,9 @@ import {
   SelectedPropertyPanel,
 } from "reducers/uiReducers/editorContextReducer";
 
-export const setFocusableField = (path: string | undefined) => {
+export const setFocusableCodeEditorField = (path: string | undefined) => {
   return {
-    type: ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
+    type: ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD,
     payload: { path },
   };
 };
@@ -40,10 +40,30 @@ export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
   };
 };
 
-export const setCodeEditorLastFocus = (key: string | undefined) => {
+export const setCodeEditorCursorAction = (
+  path: string,
+  cursorPosition: { ch: number; line: number },
+) => {
   return {
-    type: ReduxActionTypes.SET_CODE_EDITOR_FOCUS,
-    payload: { key },
+    type: ReduxActionTypes.SET_CODE_EDITOR_CURSOR,
+    payload: { cursorPosition, path },
+  };
+};
+
+export type CodeEditorFocusState = {
+  key: string | undefined;
+  cursorPosition: {
+    ch: number;
+    line: number;
+  };
+};
+
+export const generateKeyAndSetCodeEditorLastFocus = (
+  payload: CodeEditorFocusState,
+) => {
+  return {
+    type: ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_LAST_FOCUS,
+    payload,
   };
 };
 

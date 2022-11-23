@@ -4,14 +4,10 @@ import { HeaderProps } from "./types";
 import { FontWeight, Text, TextType } from "design-system";
 
 export const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  align-items: center;
   width: 496px;
-
   text-align: center;
+  height: 120px;
+  padding: 32px;
 
   & .header-heading-container {
     & .cs-text {

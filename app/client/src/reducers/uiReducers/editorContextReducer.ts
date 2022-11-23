@@ -2,6 +2,10 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export type SelectedPropertyPanel = { [path: string]: number };
+export type CursorPosition = {
+  line: number;
+  ch: number;
+};
 
 export type EvaluatedPopupState = {
   type: boolean;
@@ -10,6 +14,7 @@ export type EvaluatedPopupState = {
 };
 
 export type CodeEditorContext = {
+  cursorPosition?: CursorPosition;
   evalPopupState?: EvaluatedPopupState;
 };
 
@@ -28,8 +33,8 @@ export type EditorContextState = {
   entityCollapsibleFields: Record<string, boolean>;
   subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
-  focusableField?: string;
   selectedPropertyPanel: SelectedPropertyPanel;
+  focusableCodeEditor?: string;
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
@@ -59,14 +64,14 @@ export const isSubEntities = (name: string): boolean => {
  * Context Reducer to store states of different components of editor
  */
 export const editorContextReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD]: (
+  [ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD]: (
     state: EditorContextState,
     action: {
       payload: { path: string };
     },
   ) => {
     const { path } = action.payload;
-    state.focusableField = path;
+    state.focusableCodeEditor = path;
   },
   [ReduxActionTypes.SET_SELECTED_PANEL_PROPERTY]: (
     state: EditorContextState,
@@ -96,15 +101,16 @@ export const editorContextReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedPropertyPanel = action.payload;
   },
-  [ReduxActionTypes.SET_CODE_EDITOR_FOCUS]: (
+  [ReduxActionTypes.SET_CODE_EDITOR_CURSOR]: (
     state: EditorContextState,
     action: {
-      payload: { key: string };
+      payload: { path: string; cursorPosition: CursorPosition };
     },
   ) => {
-    const { key } = action.payload;
-    if (!key) return;
-    state.focusableField = key;
+    const { cursorPosition, path } = action.payload;
+    if (!path) return;
+    if (!state.codeEditorHistory[path]) state.codeEditorHistory[path] = {};
+    state.codeEditorHistory[path].cursorPosition = cursorPosition;
   },
   [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY]: (
     state: EditorContextState,

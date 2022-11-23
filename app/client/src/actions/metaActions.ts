@@ -4,7 +4,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import { MetaState } from "reducers/entityReducers/metaReducer";
-import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { DataTreeWidget } from "../entities/DataTree/dataTreeFactory";
 
 export interface UpdateWidgetMetaPropertyPayload {

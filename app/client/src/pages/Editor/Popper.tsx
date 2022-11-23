@@ -105,77 +105,75 @@ export default (props: PopperProps) => {
       props.targetNode &&
       props.isOpen
     ) {
-      setTimeout(() => {
-        // TODO: To further optimize this, we can go through the popper API
-        // and figure out a way to keep an app instance level popper instance
-        // which we can update to have different references when called here.
-        // However, the performance benefit gained by such an optimization
-        // remains to be discovered.
-        const _popper = new PopperJS(
-          // eslint-disable-next-line
-          props.targetNode!,
-          (contentRef.current as unknown) as Element,
-          {
-            ...(isDraggable && disablePopperEvents
-              ? {}
-              : { placement: props.placement }),
-            onCreate: (popperData) => {
-              const elementRef: any = popperData.instance.popper;
-              if (isDraggable && position) {
-                const initPositon =
-                  position || elementRef.getBoundingClientRect();
-                elementRef.style.transform = "unset";
-                elementRef.style.top = initPositon.top + "px";
-                elementRef.style.left = initPositon.left + "px";
-              }
+      // TODO: To further optimize this, we can go through the popper API
+      // and figure out a way to keep an app instance level popper instance
+      // which we can update to have different references when called here.
+      // However, the performance benefit gained by such an optimization
+      // remains to be discovered.
+      const _popper = new PopperJS(
+        // eslint-disable-next-line
+        props.targetNode!,
+        (contentRef.current as unknown) as Element,
+        {
+          ...(isDraggable && disablePopperEvents
+            ? {}
+            : { placement: props.placement }),
+          onCreate: (popperData) => {
+            const elementRef: any = popperData.instance.popper;
+            if (isDraggable && position) {
+              const initPositon =
+                position || elementRef.getBoundingClientRect();
+              elementRef.style.transform = "unset";
+              elementRef.style.top = initPositon.top + "px";
+              elementRef.style.left = initPositon.left + "px";
+            }
+          },
+          modifiers: {
+            flip: {
+              behavior: ["right", "left", "bottom", "top"],
             },
-            modifiers: {
-              flip: {
-                behavior: ["right", "left", "bottom", "top"],
-              },
-              keepTogether: {
-                enabled: false,
-              },
-              arrow: {
-                enabled: false,
-              },
-              preventOverflow: {
-                enabled: true,
-                /*
+            keepTogether: {
+              enabled: false,
+            },
+            arrow: {
+              enabled: false,
+            },
+            preventOverflow: {
+              enabled: true,
+              /*
                 Prevent the FilterPane from overflowing the canvas when the
                 table widget is on the very top of the canvas.
               */
-                boundariesElement: boundaryParent,
-              },
-              ...props.modifiers,
+              boundariesElement: boundaryParent,
             },
+            ...props.modifiers,
           },
+        },
+      );
+      if (isDraggable) {
+        disablePopperEvents && _popper.disableEventListeners();
+        draggableElement(
+          `${popperId}-popper`,
+          _popper.popper,
+          onPositionChange,
+          parentElement,
+          position,
+          renderDragBlockPositions,
+          () =>
+            !!renderDragBlock ? (
+              renderDragBlock
+            ) : (
+              <ThemeProvider theme={popperTheme}>
+                <PopperDragHandle />
+              </ThemeProvider>
+            ),
+          cypressSelectorDragHandle,
         );
-        if (isDraggable) {
-          disablePopperEvents && _popper.disableEventListeners();
-          draggableElement(
-            `${popperId}-popper`,
-            _popper.popper,
-            onPositionChange,
-            parentElement,
-            position,
-            renderDragBlockPositions,
-            () =>
-              !!renderDragBlock ? (
-                renderDragBlock
-              ) : (
-                <ThemeProvider theme={popperTheme}>
-                  <PopperDragHandle />
-                </ThemeProvider>
-              ),
-            cypressSelectorDragHandle,
-          );
-        }
+      }
 
-        return () => {
-          _popper.destroy();
-        };
-      }, 300);
+      return () => {
+        _popper.destroy();
+      };
     }
   }, [
     props.targetNode,

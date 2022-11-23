@@ -8,7 +8,36 @@ import {
   setWidgetPropertySectionState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
+
 import { all, put, takeLatest } from "redux-saga/effects";
+import {
+  CodeEditorFocusState,
+  setCodeEditorCursorAction,
+  setFocusableCodeEditorField,
+} from "actions/editorContextActions";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+
+/**
+ * This method appends the PageId along with the focusable propertyPath
+ * @param action
+ */
+function* generateKeyAndSetFocusableEditor(
+  action: ReduxAction<CodeEditorFocusState>,
+) {
+  const { cursorPosition, key } = action.payload;
+
+  const entityInfo = identifyEntityFromPath(
+    window.location.pathname,
+    window.location.hash,
+  );
+
+  if (key) {
+    if (entityInfo.entity !== FocusEntity.PROPERTY_PANE) {
+      yield put(setFocusableCodeEditorField(key));
+    }
+    yield put(setCodeEditorCursorAction(key, cursorPosition));
+  }
+}
 
 function* setPropertySectionStateSaga(
   action: ReduxAction<{
@@ -47,6 +76,10 @@ export default function* editorContextSagas() {
     takeLatest(
       ReduxActionTypes.SET_SELECTED_PROPERTY_TAB_INDEX,
       setSelectedPropertyTabIndexSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_LAST_FOCUS,
+      generateKeyAndSetFocusableEditor,
     ),
   ]);
 }

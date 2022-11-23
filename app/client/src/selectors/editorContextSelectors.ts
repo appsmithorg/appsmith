@@ -1,6 +1,7 @@
 import { AppState } from "@appsmith/reducers";
 import {
   CodeEditorHistory,
+  CursorPosition,
   EvaluatedPopupState,
   isSubEntities,
   PropertyPanelContext,
@@ -11,8 +12,8 @@ import { createSelector } from "reselect";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 
-export const getFocusableField = (state: AppState) =>
-  state.ui.editorContext.focusableField;
+export const getFocusableCodeEditorField = (state: AppState) =>
+  state.ui.editorContext.focusableCodeEditor;
 
 export const getCodeEditorHistory = (state: AppState) =>
   state.ui.editorContext.codeEditorHistory;
@@ -72,7 +73,7 @@ export const getSelectedPropertyTabIndex = createSelector(
 
 export const getIsCodeEditorFocused = createSelector(
   [
-    getFocusableField,
+    getFocusableCodeEditorField,
     selectFeatureFlags,
     (_state: AppState, key: string | undefined) => key,
   ],
@@ -88,10 +89,14 @@ export const getIsCodeEditorFocused = createSelector(
   },
 );
 
-export const getshouldFocusPropertyPath = createSelector(
-  [getFocusableField, (_state: AppState, key: string | undefined) => key],
-  (focusableField: string | undefined, key: string | undefined): boolean => {
-    return !!(key && focusableField === key);
+export const getCodeEditorLastCursorPosition = createSelector(
+  [getCodeEditorHistory, (state: AppState, key: string | undefined) => key],
+  (
+    codeEditorHistory: CodeEditorHistory,
+    key: string | undefined,
+  ): CursorPosition | undefined => {
+    if (key === undefined) return;
+    return codeEditorHistory[key]?.cursorPosition;
   },
 );
 

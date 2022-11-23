@@ -28,6 +28,10 @@ const TabsWrapper = styled.div`
   flex-direction: column;
 `;
 
+const NumberOfTabs = styled.div`
+  margin: 1% 0;
+`;
+
 type DroppableItem = BaseItemProps;
 
 function AddTabButtonComponent({ widgetId }: any) {
@@ -190,14 +194,18 @@ class TabControl extends BaseControl<ControlProps, State> {
     });
   };
   render() {
+    const tabs = this.getTabItems();
     return (
       <TabsWrapper>
+        <NumberOfTabs className="t--number-of-tabs">
+          {tabs.length} tabs
+        </NumberOfTabs>
         <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={this.getTabItems()}
+          items={tabs}
           onEdit={this.onEdit}
           propertyPath={this.props.dataTreePath}
           renderComponent={TabControlComponent}

@@ -9,7 +9,7 @@ import {
 import {
   ReduxAction,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
@@ -157,7 +157,7 @@ function* storeStateOfPage(pageId: string) {
     state._routingURL = undefined;
   }
 
-  if (previousParamString) {
+  if (previousParamString !== undefined) {
     state._paramString = previousParamString;
   }
 
