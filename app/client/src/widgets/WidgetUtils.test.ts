@@ -651,7 +651,7 @@ describe("Should Update Widget Height Automatically?", () => {
       true, // because currentheight is not close to maxDynamicHeight
       true,
       true, // because we need to go as low as possible (minDynamicHeight)
-      false,
+      true,
       true,
       true,
       true, // because we need to go as low as possible (minDynamicHeight)
