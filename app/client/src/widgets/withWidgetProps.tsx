@@ -17,12 +17,14 @@ import {
   getRenderMode,
 } from "selectors/editorSelectors";
 import { AppState } from "@appsmith/reducers";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -46,6 +48,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
 
+    const dispatch = useDispatch();
+
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
       return getChildWidgets(state, widgetId);
@@ -65,6 +69,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       })();
 
       widgetProps = { ...canvasWidgetProps };
+
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
        * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
@@ -81,8 +86,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetId !== MAIN_CONTAINER_WIDGET_ID
       ) {
         widgetProps.rightColumn = props.rightColumn;
-        widgetProps.bottomRow = props.bottomRow;
-        widgetProps.minHeight = props.minHeight;
+        if (widgetProps.bottomRow === undefined) {
+          widgetProps.bottomRow = props.bottomRow;
+          widgetProps.minHeight = props.minHeight;
+        }
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
@@ -110,9 +117,33 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return null;
     }
 
+    const shouldCollapseWidgetInViewOrPreviewMode =
+      !widgetProps.isVisible &&
+      (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW) &&
+      widgetProps.bottomRow !== widgetProps.topRow;
+
+    const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
+      widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
+
+    const shouldResetCollapsedContainerHeightInCanvasMode =
+      widgetProps.topRow === widgetProps.bottomRow &&
+      renderMode === RenderModes.CANVAS;
+
     // We don't render invisible widgets in view mode
-    if (renderMode === RenderModes.PAGE && !widgetProps.isVisible) {
+    if (shouldCollapseWidgetInViewOrPreviewMode) {
+      dispatch({
+        type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
+        payload: {
+          widgetId: props.widgetId,
+          height: 0,
+        },
+      });
       return null;
+    } else if (
+      shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
+      shouldResetCollapsedContainerHeightInCanvasMode
+    ) {
+      dispatch(checkContainersForAutoHeightAction());
     }
 
     return <WrappedWidget {...widgetProps} />;

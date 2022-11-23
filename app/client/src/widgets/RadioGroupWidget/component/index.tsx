@@ -6,11 +6,10 @@ import { RadioGroup, Radio, Alignment, Classes } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
-import {
-  LabelWithTooltip,
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -33,11 +32,13 @@ export interface StyledRadioGroupProps {
   labelPosition?: LabelPosition;
   optionCount: number;
   accentColor: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
   ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
+  height: ${({ inline, isDynamicHeightEnabled }) =>
+    inline && !isDynamicHeightEnabled ? "32px" : "100%"};
 
   .${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
@@ -68,6 +69,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     disabled,
     height,
     inline,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -107,6 +109,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           inline={inline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           optionCount={optionCount}
           position={labelPosition}
@@ -121,6 +124,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
         disabled={disabled}
         height={height}
         inline={inline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         onChange={handleChange}
         optionCount={options.length}
@@ -150,6 +154,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   selectedOptionValue: string;
   disabled: boolean;
   loading: boolean;
+  isDynamicHeightEnabled?: boolean;
   inline: boolean;
   alignment: Alignment;
   compactMode: boolean;

@@ -17,8 +17,10 @@ import {
 } from "@appsmith/constants/messages";
 import { LabelPosition } from "components/constants";
 import { parseDate } from "./utils";
-import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "widgets/components/LabelWithTooltip";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
 
@@ -298,6 +300,7 @@ class DatePickerComponent extends React.Component<
             disabled={isDisabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
             text={labelText}
@@ -437,6 +440,7 @@ interface DatePickerComponentProps extends ComponentProps {
   timezone?: string;
   datePickerType: DatePickerType;
   isDisabled: boolean;
+  isDynamicHeightEnabled?: boolean;
   onDateSelected: (selectedDate: string) => void;
   isLoading: boolean;
   withoutPortal?: boolean;

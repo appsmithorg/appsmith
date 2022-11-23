@@ -21,6 +21,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -147,6 +148,7 @@ class CheckboxGroupWidget extends BaseWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -497,13 +499,24 @@ class CheckboxGroupWidget extends BaseWidget<
         .filter((option) => !options.includes(option))
         .concat(options.filter((option) => !prevOptions.includes(option)));
 
-      let selectedValues = this.props.selectedValues.filter(
+      // TODO(abhinav): Not sure why we have to do this.
+      // Stuff breaks after release merge, fixing it here.
+      let _selectedValues = this.props.selectedValues;
+      if (!Array.isArray(_selectedValues)) {
+        if (
+          this.props.defaultSelectedValues &&
+          this.props.defaultSelectedValues.length &&
+          !Array.isArray(this.props.defaultSelectedValues)
+        ) {
+          _selectedValues = [this.props.defaultSelectedValues];
+        } else {
+          _selectedValues = [];
+        }
+      }
+
+      const selectedValues = _selectedValues.filter(
         (selectedValue: string) => !diffOptions.includes(selectedValue),
       );
-      // if selectedValues empty, and options have changed, set defaultSelectedValues
-      if (!selectedValues.length && this.props.defaultSelectedValues.length) {
-        selectedValues = this.props.defaultSelectedValues;
-      }
 
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
         triggerPropertyName: "onSelectionChange",
@@ -536,6 +549,7 @@ class CheckboxGroupWidget extends BaseWidget<
           )
         }
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInline={this.props.isInline}
         isRequired={this.props.isRequired}
         isSelectAll={this.props.isSelectAll}
