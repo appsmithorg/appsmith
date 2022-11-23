@@ -806,7 +806,7 @@ class TransformError {
   private errorMessageRegexList = [
     /ReferenceError: Can't find variable: ([\w_]+)/, // ReferenceError message for safari
     /ReferenceError: ([\w_]+) is not defined/, // ReferenceError message for other browser
-    /TypeError: ([\w_]+\.[\w_]+)\(\) is not a function/,
+    /TypeError: ([\w_]+\.[\w_]+) is not a function/,
   ];
 
   private asyncFunctionsNameMap: Record<string, string> = {};
