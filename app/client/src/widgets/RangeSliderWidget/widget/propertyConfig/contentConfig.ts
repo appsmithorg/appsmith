@@ -161,6 +161,7 @@ export default [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
         ],
+        defaultValue: LabelPosition.Left,
         isBindProperty: false,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },

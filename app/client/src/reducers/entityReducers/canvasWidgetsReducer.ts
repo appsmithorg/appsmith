@@ -5,10 +5,8 @@ import {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { Diff, diff } from "deep-diff";
 import { uniq, get, set } from "lodash";
-
-const initialState: CanvasWidgetsReduxState = {};
+import { Diff, diff } from "deep-diff";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values 
@@ -22,6 +20,8 @@ export type UpdateWidgetsPayload = Record<
     propertyValue: unknown;
   }>
 >;
+
+const initialState: CanvasWidgetsReduxState = {};
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -103,6 +103,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     }
   },
 });
+
 export interface CanvasWidgetsReduxState {
   [widgetId: string]: FlattenedWidgetProps;
 }

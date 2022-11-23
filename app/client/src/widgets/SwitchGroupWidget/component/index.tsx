@@ -5,12 +5,11 @@ import { Alignment } from "@blueprintjs/core";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
-import {
-  LabelWithTooltip,
+import { StyledSwitch } from "widgets/SwitchWidget/component";
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
-import { StyledSwitch } from "widgets/SwitchWidget/component";
+} from "widgets/components/LabelWithTooltip";
 import { ThemeProp } from "widgets/constants";
 
 export interface SwitchGroupContainerProps {
@@ -34,11 +33,13 @@ export interface InputContainerProps {
   labelPosition?: LabelPosition;
   optionCount: number;
   valid?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }
 
 export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
+  height: ${({ inline, isDynamicHeightEnabled }) =>
+    inline && !isDynamicHeightEnabled ? "32px" : "100%"};
   border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&
@@ -60,6 +61,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     disabled,
     height,
     inline,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -91,6 +93,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           inline={inline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}
@@ -102,6 +105,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
         compactMode={compactMode}
         height={height}
         inline={inline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         labelPosition={labelPosition}
         optionCount={optionCount}
         valid={valid}
@@ -110,7 +114,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           options.length > 0 &&
           options.map((option: OptionProps) => (
             <StyledSwitch
-              accentColor={accentColor}
+              $accentColor={accentColor}
               alignIndicator={alignment}
               checked={(selected || []).includes(option.value)}
               disabled={disabled}
@@ -129,6 +133,7 @@ export interface SwitchGroupComponentProps {
   alignment: Alignment;
   disabled: boolean;
   inline: boolean;
+  isDynamicHeightEnabled?: boolean;
   options: OptionProps[];
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
   required: boolean;
