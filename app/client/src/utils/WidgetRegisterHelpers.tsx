@@ -4,13 +4,17 @@ import * as Sentry from "@sentry/react";
 import store from "store";
 
 import BaseWidget from "widgets/BaseWidget";
-import WidgetFactory from "./WidgetFactory";
+import WidgetFactory, { NonSerialisableWidgetConfigs } from "./WidgetFactory";
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
-import { WidgetFeatureProps } from "./WidgetFeatures";
+import {
+  RegisteredWidgetFeatures,
+  WidgetFeaturePropertyEnhancements,
+  WidgetFeatureProps,
+} from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
 import withWidgetProps from "widgets/withWidgetProps";
 
@@ -50,13 +54,22 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
 };
 
 export const configureWidget = (config: WidgetConfiguration) => {
-  let features = {};
-  if (config.features && config.features.dynamicHeight) {
-    features = Object.assign({}, WidgetFeatureProps.DYNAMIC_HEIGHT);
+  let features: Record<string, unknown> = {};
+  if (config.features) {
+    Object.keys(config.features).forEach((registeredFeature: string) => {
+      features = Object.assign(
+        {},
+        WidgetFeatureProps[registeredFeature as RegisteredWidgetFeatures],
+        WidgetFeaturePropertyEnhancements[
+          registeredFeature as RegisteredWidgetFeatures
+        ](config),
+      );
+    });
   }
+
   const _config = {
-    ...features,
     ...config.defaults,
+    ...features,
     searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
@@ -66,12 +79,25 @@ export const configureWidget = (config: WidgetConfiguration) => {
     key: generateReactKey(),
     iconSVG: config.iconSVG,
     isCanvas: config.isCanvas,
+    canvasHeightOffset: config.canvasHeightOffset,
   };
+
+  const nonSerialisableWidgetConfigs: Record<string, unknown> = {};
+  Object.values(NonSerialisableWidgetConfigs).forEach((entry) => {
+    if (_config[entry] !== undefined) {
+      nonSerialisableWidgetConfigs[entry] = _config[entry];
+    }
+    delete _config[entry];
+  });
+
+  WidgetFactory.storeNonSerialisablewidgetConfig(
+    config.type,
+    nonSerialisableWidgetConfigs,
+  );
+  WidgetFactory.storeWidgetConfig(config.type, _config);
 
   store.dispatch({
     type: ReduxActionTypes.ADD_WIDGET_CONFIG,
     payload: _config,
   });
-
-  WidgetFactory.storeWidgetConfig(config.type, _config);
 };
