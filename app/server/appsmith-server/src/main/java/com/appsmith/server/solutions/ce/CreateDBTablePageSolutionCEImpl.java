@@ -37,6 +37,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -82,6 +83,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
     private final PluginExecutorHelper pluginExecutorHelper;
+    private final DatasourcePermission datasourcePermission;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -181,7 +183,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getManagePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                 )

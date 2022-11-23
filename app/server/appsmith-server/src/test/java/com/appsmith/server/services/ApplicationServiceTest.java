@@ -45,6 +45,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -197,6 +198,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     SessionUserService sessionUserService;
+
+    @Autowired
+    DatasourcePermission datasourcePermission;
 
     String workspaceId;
 
@@ -1239,13 +1243,13 @@ public class ApplicationServiceTest {
                     PermissionGroup publicPermissionGroup = tuple.getT4();
                     final ActionCollection actionCollection1 = tuple.getT3();
 
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder().permission(datasourcePermission.getManagePermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder().permission(datasourcePermission.getReadPermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                    Policy executeDatasourcePolicy = Policy.builder().permission(datasourcePermission.getExecutePermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId(), publicPermissionGroup.getId()))
                             .build();
@@ -2880,7 +2884,7 @@ public class ApplicationServiceTest {
                 .collectList();
 
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
-                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
+                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), datasourcePermission.getReadPermission()));
 
         List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
                 .flatMapMany(savedWorkspace -> {
@@ -2953,7 +2957,7 @@ public class ApplicationServiceTest {
                     assertThat(datasource1
                             .getPolicies()
                             .stream()
-                            .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
+                            .filter(policy -> policy.getPermission().equals(datasourcePermission.getExecutePermission().getValue()))
                             .findFirst()
                             .get()
                             .getPermissionGroups()

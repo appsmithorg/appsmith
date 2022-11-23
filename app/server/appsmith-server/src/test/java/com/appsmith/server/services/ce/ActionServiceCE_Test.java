@@ -59,6 +59,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -171,6 +172,8 @@ public class ActionServiceCE_Test {
 
     @SpyBean
     AstService astService;
+    @Autowired
+    DatasourcePermission datasourcePermission;
 
     Application testApp = null;
 
@@ -1322,13 +1325,13 @@ public class ActionServiceCE_Test {
                             .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
                             .findFirst().get();
 
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder().permission(datasourcePermission.getManagePermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder().permission(datasourcePermission.getReadPermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                    Policy executeDatasourcePolicy = Policy.builder().permission(datasourcePermission.getExecutePermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId(), publicAppPermissionGroup.getId()))
                             .build();

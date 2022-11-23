@@ -53,6 +53,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -131,6 +132,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final GitDeployKeysRepository gitDeployKeysRepository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
+    private final DatasourcePermission datasourcePermission;
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
@@ -1914,7 +1916,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
 
 
-                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES).collectList();
+                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getManagePermission()).collectList();
                     Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
                     Mono<ApplicationJson> applicationJsonMono = fileUtils
                             .reconstructApplicationJsonFromGitRepo(workspaceId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)

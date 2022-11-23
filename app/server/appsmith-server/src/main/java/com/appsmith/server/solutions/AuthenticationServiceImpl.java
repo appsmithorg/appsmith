@@ -19,8 +19,10 @@ public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl imple
                                      RedirectHelper redirectHelper,
                                      NewPageService newPageService,
                                      CloudServicesConfig cloudServicesConfig,
-                                     ConfigService configService) {
+                                     ConfigService configService,
+                                     DatasourcePermission datasourcePermission) {
 
-        super(datasourceService, pluginService, redirectHelper, newPageService, cloudServicesConfig, configService);
+        super(datasourceService, pluginService, redirectHelper, newPageService, cloudServicesConfig, configService,
+                datasourcePermission);
     }
 }

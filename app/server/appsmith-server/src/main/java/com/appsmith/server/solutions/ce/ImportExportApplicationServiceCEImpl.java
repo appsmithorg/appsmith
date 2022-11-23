@@ -57,6 +57,7 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.github.zafarkhaja.semver.util.Stream;
 import com.google.gson.Gson;
@@ -125,6 +126,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ThemeService themeService;
     private final PolicyUtils policyUtils;
     private final AnalyticsService analyticsService;
+    private final DatasourcePermission datasourcePermission;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -284,8 +286,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }});
 
                                 Flux<Datasource> datasourceFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? datasourceRepository.findAllByWorkspaceId(workspaceId, AclPermission.READ_DATASOURCES)
-                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES);
+                                        ? datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getReadPermission())
+                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getManagePermission());
 
                                 return datasourceFlux.collectList();
                             })
@@ -681,7 +683,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES)
+                .findAllByWorkspaceId(workspaceId, datasourcePermission.getManagePermission())
                 .cache();
 
         assert importedApplication != null : "Received invalid application object!";
@@ -1886,7 +1888,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // No matching existing datasource found, so create a new one.
                     datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
                     return datasourceService
-                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, AclPermission.MANAGE_DATASOURCES)
+                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getManagePermission())
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
                             )
@@ -1979,7 +1981,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
-        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES).collectList();
+        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getManagePermission()).collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()
                 .zipWith(listMono)

@@ -19,6 +19,7 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final DatasourceContextService datasourceContextService;
     private final CustomDatasourceRepository datasourceRepository;
     private final AuthenticationValidator authenticationValidator;
+    private final DatasourcePermission datasourcePermission;
+
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
         return datasourceService.getById(datasourceId)
@@ -145,7 +148,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
             2. Check plugin is present
             3. Execute DB query from the information provided present in pluginSpecifiedTemplates
          */
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getManagePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId
                 )))

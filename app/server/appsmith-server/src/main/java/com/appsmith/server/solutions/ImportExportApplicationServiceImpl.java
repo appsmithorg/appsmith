@@ -42,11 +42,12 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,
                                               PolicyUtils policyUtils,
-                                              AnalyticsService analyticsService) {
+                                              AnalyticsService analyticsService,
+                                              DatasourcePermission datasourcePermission) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
-                actionCollectionService, themeService, policyUtils, analyticsService);
+                actionCollectionService, themeService, policyUtils, analyticsService, datasourcePermission);
     }
 }

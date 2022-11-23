@@ -39,6 +39,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +79,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final TenantService tenantService;
 
     private final UserRepository userRepository;
+    private final DatasourcePermission datasourcePermission;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -93,7 +95,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     ResponseUtils responseUtils,
                                     PermissionGroupService permissionGroupService,
                                     TenantService tenantService,
-                                    UserRepository userRepository) {
+                                    UserRepository userRepository,
+                                    DatasourcePermission datasourcePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
@@ -104,6 +107,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;
+        this.datasourcePermission = datasourcePermission;
     }
 
     @Override
@@ -376,7 +380,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Map<String, Policy> actionPolicyMap = policyUtils
                 .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
         Map<String, Policy> datasourcePolicyMap = policyUtils
-                .generatePolicyFromPermissionWithPermissionGroup(EXECUTE_DATASOURCES, permissionGroupId);
+                .generatePolicyFromPermissionWithPermissionGroup(datasourcePermission.getExecutePermission(), permissionGroupId);
         Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
                 applicationPolicyMap, Application.class, Theme.class
         );

@@ -26,6 +26,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
 
     private final ConfigService configService;
+    private final DatasourcePermission datasourcePermission;
 
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
@@ -94,7 +96,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+        return datasourceService.findById(datasourceId, datasourcePermission.getManagePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
@@ -305,7 +307,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getManagePermission())
                 .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
@@ -384,7 +386,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Update datasource as being authorized
         // Return control to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getManagePermission())
                 .cache();
 
         return datasourceMono

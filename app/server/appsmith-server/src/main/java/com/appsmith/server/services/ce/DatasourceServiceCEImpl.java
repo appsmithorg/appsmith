@@ -28,6 +28,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
@@ -69,8 +70,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
-
     private final DatasourceContextService datasourceContextService;
+    private final DatasourcePermission datasourcePermission;
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
@@ -86,7 +87,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    PolicyGenerator policyGenerator,
                                    SequenceService sequenceService,
                                    NewActionRepository newActionRepository,
-                                   DatasourceContextService datasourceContextService) {
+                                   DatasourceContextService datasourceContextService,
+                                   DatasourcePermission datasourcePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -97,6 +99,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
         this.datasourceContextService = datasourceContextService;
+        this.datasourcePermission = datasourcePermission;
     }
 
     @Override
@@ -410,7 +413,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Remove branch name as datasources are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
         if (params.getFirst(fieldName(QDatasource.datasource.workspaceId)) != null) {
-            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), AclPermission.READ_DATASOURCES)
+            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), datasourcePermission.getReadPermission())
                     .collectList()
                     .map(datasourceList -> {
                         markRecentlyUsed(datasourceList, 3);
@@ -440,7 +443,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
-                .findById(id, MANAGE_DATASOURCES)
+                .findById(id, datasourcePermission.getManagePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {

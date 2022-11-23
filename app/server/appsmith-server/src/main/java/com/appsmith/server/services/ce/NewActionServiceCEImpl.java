@@ -57,6 +57,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -143,6 +144,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ResponseUtils responseUtils;
 
     private final PermissionGroupService permissionGroupService;
+    private final DatasourcePermission datasourcePermission;
 
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
@@ -163,7 +165,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   AuthenticationValidator authenticationValidator,
                                   ConfigService configService,
                                   ResponseUtils responseUtils,
-                                  PermissionGroupService permissionGroupService) {
+                                  PermissionGroupService permissionGroupService,
+                                  DatasourcePermission datasourcePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -182,6 +185,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
         this.configService = configService;
+        this.datasourcePermission = datasourcePermission;
     }
 
     @Override
@@ -353,7 +357,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .flatMap(datasourceService::validateDatasource);
             } else {
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId(), MANAGE_DATASOURCES)
+                datasourceMono = datasourceService.findById(action.getDatasource().getId(), datasourcePermission.getManagePermission())
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
@@ -647,7 +651,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // 3. Instantiate the implementation class based on the query type
 
         Mono<Datasource> datasourceMono = actionDTOMono
-                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO, EXECUTE_DATASOURCES))
+                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO, datasourcePermission.getExecutePermission()))
                 .cache();
 
         Mono<Plugin> pluginMono = datasourceMono
@@ -1930,7 +1934,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return Mono.just(datasource);
                     }
                     // Check if datasource has execute permission
-                    boolean isPublicDatasource = permissionGroupService.isEntityAccessible(datasource, EXECUTE_DATASOURCES.getValue(), publicPermissionGroupId);
+                    boolean isPublicDatasource = permissionGroupService.isEntityAccessible(datasource, datasourcePermission.getExecutePermission().getValue(), publicPermissionGroupId);
                     if (isPublicDatasource) {
                         // Datasource has correct permission. Return as is
                         return Mono.just(datasource);
@@ -1944,11 +1948,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 }
 
                                 Policy executePolicy = Policy.builder()
-                                        .permission(EXECUTE_DATASOURCES.getValue())
+                                        .permission(datasourcePermission.getExecutePermission().getValue())
                                         .permissionGroups(Set.of(publicPermissionGroupId))
                                         .build();
                                 Map<String, Policy> datasourcePolicyMap = Map.of(
-                                        EXECUTE_DATASOURCES.getValue(), executePolicy
+                                        datasourcePermission.getExecutePermission().getValue(), executePolicy
                                 );
 
                                 Datasource updatedDatasource =

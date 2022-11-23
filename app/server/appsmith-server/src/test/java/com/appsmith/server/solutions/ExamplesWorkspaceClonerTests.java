@@ -138,6 +138,8 @@ public class ExamplesWorkspaceClonerTests {
 
     @Autowired
     private LayoutCollectionService layoutCollectionService;
+    @Autowired
+    DatasourcePermission datasourcePermission;
 
     private static class WorkspaceData {
         Workspace workspace;
@@ -157,7 +159,7 @@ public class ExamplesWorkspaceClonerTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
+                                .findAllByWorkspaceId(workspace.getId(), datasourcePermission.getReadPermission())
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add),

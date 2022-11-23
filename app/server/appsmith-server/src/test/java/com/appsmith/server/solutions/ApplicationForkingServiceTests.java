@@ -156,6 +156,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
 
+    @Autowired
+    DatasourcePermission datasourcePermission;
+
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;
@@ -294,7 +297,7 @@ public class ApplicationForkingServiceTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
+                                .findAllByWorkspaceId(workspace.getId(), datasourcePermission.getReadPermission())
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add)

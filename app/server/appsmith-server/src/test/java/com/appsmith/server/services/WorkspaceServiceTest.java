@@ -24,6 +24,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -119,6 +120,8 @@ public class WorkspaceServiceTest {
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
+    @Autowired
+    DatasourcePermission datasourcePermission;
 
     Workspace workspace;
 
@@ -1003,7 +1006,7 @@ public class WorkspaceServiceTest {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
         Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
-                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(), READ_DATASOURCES)
+                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(), datasourcePermission.getReadPermission())
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
         );
 
@@ -1061,13 +1064,13 @@ public class WorkspaceServiceTest {
                     /*
                      * Check for datasource permissions after the user addition
                      */
-                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                    Policy manageDatasourcePolicy = Policy.builder().permission(datasourcePermission.getManagePermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                    Policy readDatasourcePolicy = Policy.builder().permission(datasourcePermission.getReadPermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                    Policy executeDatasourcePolicy = Policy.builder().permission(datasourcePermission.getExecutePermission().getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 

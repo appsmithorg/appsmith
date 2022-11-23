@@ -9,6 +9,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
+import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
@@ -35,11 +36,12 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           GitCloudServicesUtils gitCloudServicesUtils,
                           GitDeployKeysRepository gitDeployKeysRepository,
                           DatasourceService datasourceService,
-                          PluginService pluginService) {
+                          PluginService pluginService,
+                          DatasourcePermission datasourcePermission) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService);
+                datasourceService, pluginService, datasourcePermission);
     }
 }

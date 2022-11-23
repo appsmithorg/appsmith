@@ -21,6 +21,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -56,6 +57,7 @@ public class PolicyUtils {
     private final CommentThreadRepository commentThreadRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ThemeRepository themeRepository;
+    private final DatasourcePermission datasourcePermission;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -196,7 +198,7 @@ public class PolicyUtils {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByWorkspaceId(workspaceId, AclPermission.EXECUTE_DATASOURCES)
+                .findAllByWorkspaceId(workspaceId, datasourcePermission.getExecutePermission())
                 // In case we have come across a datasource for this workspace that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
@@ -213,7 +215,7 @@ public class PolicyUtils {
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
 
         return datasourceRepository
-                .findAllByIds(ids, MANAGE_DATASOURCES)
+                .findAllByIds(ids, datasourcePermission.getManagePermission())
                 // In case we have come across a datasource the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .flatMap(datasource -> {
