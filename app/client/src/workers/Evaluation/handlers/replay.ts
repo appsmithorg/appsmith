@@ -29,4 +29,5 @@ export function updateReplayObject(request: EvalWorkerRequest) {
   } else {
     replayMap[entityId] = new ReplayEditor(entity, entityType);
   }
+  return true;
 }

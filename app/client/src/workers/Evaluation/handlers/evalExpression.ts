@@ -7,7 +7,9 @@ export default function(request: EvalWorkerRequest) {
   const { expression, isTrigger } = requestData;
   const evalTree = dataTreeEvaluator?.evalTree;
   if (!evalTree) return {};
-  return isTrigger
-    ? evaluateAsync(expression, evalTree, "SNIPPET", {})
-    : evaluateSync(expression, evalTree, {}, false);
+  if (isTrigger) {
+    evaluateAsync(expression, evalTree, "SNIPPET", {});
+    return;
+  }
+  return evaluateSync(expression, evalTree, {}, false);
 }

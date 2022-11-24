@@ -24,10 +24,12 @@ export default function() {
   overrideTimeout();
   interceptAndOverrideHttpRequest();
   SetupDOM();
+  return true;
 }
 
 export function setEvaluationVersion(request: EvalWorkerRequest) {
   const { requestData } = request;
   const { version } = requestData;
   self.evaluationVersion = version || 1;
+  return true;
 }
