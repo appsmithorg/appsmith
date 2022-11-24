@@ -1,6 +1,7 @@
 import {
   ReduxAction,
   ReduxActionErrorTypes,
+  ReduxActionType,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -57,6 +58,7 @@ import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
   getContainerWidgetSpacesSelector,
+  getCanvasHeightOffset,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -140,6 +142,55 @@ import { flashElementsById } from "utils/helpers";
 import { getSlidingCanvasName } from "constants/componentClassNameConstants";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
+import { updateMultipleWidgetProperties } from "actions/widgetActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+
+export function* updateAllChildCanvasHeights(
+  currentContainerLikeWidgetId: string,
+  topRow: number,
+  bottomRow: number,
+  allWidgets?: CanvasWidgetsReduxState,
+) {
+  const containerLikeWidget: FlattenedWidgetProps = yield select(
+    getWidget,
+    currentContainerLikeWidgetId,
+  );
+  let stateWidgets: CanvasWidgetsReduxState | undefined = allWidgets;
+  if (!stateWidgets) stateWidgets = yield select(getWidgets);
+  const canvasHeightOffset: number = getCanvasHeightOffset(
+    containerLikeWidget.type,
+    containerLikeWidget,
+  );
+  const containerLikeWidgetHeightInPx: number =
+    (bottomRow - topRow - canvasHeightOffset) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+  const widgets = { ...stateWidgets };
+  if (Array.isArray(containerLikeWidget.children)) {
+    containerLikeWidget.children.forEach((childWidgetId: string) => {
+      const childWidget = { ...widgets[childWidgetId] };
+      if (Array.isArray(childWidget.children)) {
+        const maxChildBottomRow = childWidget.children.reduce((prev, next) => {
+          return widgets[next].bottomRow > prev
+            ? widgets[next].bottomRow
+            : prev;
+        }, 0);
+        const maxHeightBasedOnChildrenInPx =
+          maxChildBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+        const finalHeight = Math.max(
+          containerLikeWidgetHeightInPx,
+          maxHeightBasedOnChildrenInPx,
+        );
+        widgets[childWidgetId] = {
+          ...childWidget,
+          bottomRow: finalHeight,
+          minHeight: finalHeight,
+        };
+      }
+    });
+  }
+  return widgets;
+}
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -162,7 +213,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const widgets = { ...stateWidgets };
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
-    const movedWidgets: {
+    let movedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(
       reflowWidgets,
@@ -170,6 +221,13 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       widget,
       snapColumnSpace,
       snapRowSpace,
+    );
+
+    movedWidgets = yield updateAllChildCanvasHeights(
+      widgetId,
+      topRow,
+      bottomRow,
+      movedWidgets,
     );
 
     const updatedCanvasBottomRow: number = yield call(
@@ -188,6 +246,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(movedWidgets));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -520,12 +579,23 @@ export function getPropertiesToUpdate(
   };
 }
 
+export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
+  const children = widget.children;
+  if (Array.isArray(children) && children.length > 0) {
+    const firstChild: FlattenedWidgetProps = yield select(
+      getWidget,
+      children[0],
+    );
+    if (firstChild.type === "CANVAS_WIDGET") return true;
+  }
+  return false;
+}
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
   const { dynamicUpdates, updates, widgetId } = updatesObj;
 
-  const { modify = {}, remove = [], triggerPaths } = updates;
+  const { modify = {}, remove = [], postUpdateAction, triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
 
@@ -570,7 +640,10 @@ export function* getPropertiesUpdatedWidget(
   // If there exists another spot in this workflow, where we are iterating over the dynamicTriggerPathList and dynamicBindingPathList, after
   // performing all updates to the widget, we can piggy back on that iteration to purge orphaned paths
   // I couldn't find it, so here it is.
-  return purgeOrphanedDynamicPaths(widget);
+  return {
+    updatedWidget: purgeOrphanedDynamicPaths(widget),
+    actionToDispatch: postUpdateAction,
+  };
 }
 
 function* batchUpdateWidgetPropertySaga(
@@ -582,12 +655,15 @@ function* batchUpdateWidgetPropertySaga(
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
-  const updatedWidget: WidgetProps = yield call(
-    getPropertiesUpdatedWidget,
-    action.payload,
-  );
+  const updatedWidgetAndActionsToDispatch: {
+    updatedWidget: WidgetProps;
+    actionToDispatch?: ReduxActionType;
+  } = yield call(getPropertiesUpdatedWidget, action.payload);
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: updatedWidget };
+  const widgets = {
+    ...stateWidgets,
+    [widgetId]: updatedWidgetAndActionsToDispatch.updatedWidget,
+  };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
@@ -595,6 +671,12 @@ function* batchUpdateWidgetPropertySaga(
   );
   // Save the layout
   yield put(updateAndSaveLayout(widgets, { shouldReplay }));
+  if (updatedWidgetAndActionsToDispatch.actionToDispatch) {
+    yield put({
+      type: updatedWidgetAndActionsToDispatch.actionToDispatch,
+      payload: { widgetId },
+    });
+  }
 }
 
 function* batchUpdateMultipleWidgetsPropertiesSaga(
@@ -603,22 +685,31 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   const start = performance.now();
   const { updatesArray } = action.payload;
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const updatedWidgets: WidgetProps[] = yield all(
+  const updatedWidgetsAndActionsToDispatch: Array<{
+    updatedWidget: WidgetProps;
+    actionToDispatch?: ReduxActionType;
+  }> = yield all(
     updatesArray.map((eachUpdate) => {
       return call(getPropertiesUpdatedWidget, eachUpdate);
     }),
   );
-  const updatedStateWidgets = updatedWidgets.reduce(
-    (allWidgets, eachUpdatedWidget) => {
+
+  const updatedStateWidgets = updatedWidgetsAndActionsToDispatch.reduce(
+    (allWidgets, eachUpdatedWidgetAndActionsToDispatch) => {
       return {
         ...allWidgets,
-        [eachUpdatedWidget.widgetId]: eachUpdatedWidget,
+        [eachUpdatedWidgetAndActionsToDispatch.updatedWidget.widgetId]:
+          eachUpdatedWidgetAndActionsToDispatch.updatedWidget,
       };
     },
     stateWidgets,
   );
 
-  const updatedWidgetIds = uniq(updatedWidgets.map((each) => each.widgetId));
+  const updatedWidgetIds = uniq(
+    updatedWidgetsAndActionsToDispatch.map(
+      (each) => each.updatedWidget.widgetId,
+    ),
+  );
 
   log.debug(
     "Batch multi-widget properties update calculations took: ",
@@ -632,6 +723,14 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
       updatedWidgetIds,
     }),
   );
+  for (const updatedWidgetAndActions of updatedWidgetsAndActionsToDispatch) {
+    if (updatedWidgetAndActions.actionToDispatch) {
+      yield put({
+        type: updatedWidgetAndActions.actionToDispatch,
+        payload: { widgetId: updatedWidgetAndActions.updatedWidget.widgetId },
+      });
+    }
+  }
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
@@ -733,7 +832,10 @@ function* updateCanvasSize(
   action: ReduxAction<{ canvasWidgetId: string; snapRows: number }>,
 ) {
   const { canvasWidgetId, snapRows } = action.payload;
-  const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
+  const canvasWidget: FlattenedWidgetProps = yield select(
+    getWidget,
+    canvasWidgetId,
+  );
 
   const originalSnapRows = canvasWidget.bottomRow - canvasWidget.topRow;
 
@@ -746,13 +848,14 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      batchUpdateWidgetProperty(
-        canvasWidgetId,
-        {
-          modify: { bottomRow: newBottomRow },
-        },
-        false,
-      ),
+      updateMultipleWidgetProperties({
+        [canvasWidgetId]: [
+          {
+            propertyPath: "bottomRow",
+            propertyValue: newBottomRow,
+          },
+        ],
+      }),
     );
   }
 }
@@ -1600,6 +1703,7 @@ function* pasteWidgetSaga(
     type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
     payload: newlyCreatedWidgetIds,
   });
+  yield put(generateAutoHeightLayoutTreeAction(true, true));
 
   //if pasting at the bottom of the canvas, then flash it.
   if (shouldGroup || !newPastingPositionMap) {

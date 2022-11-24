@@ -10,6 +10,7 @@ import {
   addPropertyConfigIds,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
+  PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
 
@@ -17,6 +18,9 @@ type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type WidgetType = typeof WidgetFactory.widgetTypes[number];
 
+export enum NonSerialisableWidgetConfigs {
+  CANVAS_HEIGHT_OFFSET = "canvasHeightOffset",
+}
 class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
@@ -55,6 +59,11 @@ class WidgetFactory {
     Partial<WidgetProps> & WidgetConfigProps & { type: string }
   > = new Map();
 
+  static nonSerialisableWidgetConfigMap: Map<
+    WidgetType,
+    Record<NonSerialisableWidgetConfigs, unknown>
+  > = new Map();
+
   static registerWidgetBuilder(
     widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
@@ -71,12 +80,15 @@ class WidgetFactory {
       this.widgetTypes[widgetType] = widgetType;
       this.widgetMap.set(widgetType, widgetBuilder);
       this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
-      this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
+      this.defaultPropertiesMap.set(
+        widgetType,
+        defaultPropertiesMap as Record<string, string>,
+      );
       this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
       loadingProperties &&
         this.loadingProperties.set(widgetType, loadingProperties);
 
-      if (propertyPaneConfig) {
+      if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneConfig,
           features,
@@ -100,6 +112,7 @@ class WidgetFactory {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneContentConfig,
           features,
+          PropertyPaneConfigTypes.CONTENT,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -120,6 +133,7 @@ class WidgetFactory {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
           propertyPaneStyleConfig,
           features,
+          PropertyPaneConfigTypes.STYLE,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
@@ -143,6 +157,13 @@ class WidgetFactory {
     config: Partial<WidgetProps> & WidgetConfigProps & { type: string },
   ) {
     this.widgetConfigMap.set(widgetType, Object.freeze(config));
+  }
+
+  static storeNonSerialisablewidgetConfig(
+    widgetType: string,
+    config: Record<NonSerialisableWidgetConfigs, unknown>,
+  ) {
+    this.nonSerialisableWidgetConfigMap.set(widgetType, config);
   }
 
   static createWidget(
@@ -220,7 +241,7 @@ class WidgetFactory {
     const map = this.propertyPaneConfigsMap.get(type);
     if (!map || (map && map.length === 0)) {
       const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
-      if (config.length === 0) {
+      if (config === undefined) {
         log.error("Widget property pane config not defined", type);
       }
       return config;

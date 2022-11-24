@@ -16,7 +16,7 @@ describe("Canvas Resize", function() {
       cy.get(commonlocators.dropTarget).should(
         "have.css",
         "height",
-        `${dsl.bottomRow}px`,
+        `${dsl.minHeight}px`,
       );
     });
   });
