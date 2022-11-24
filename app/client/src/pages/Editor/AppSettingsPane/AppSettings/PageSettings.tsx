@@ -12,6 +12,8 @@ import {
   URL_FIELD_SPECIAL_CHARACTER_ERROR,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP,
   PAGE_SETTINGS_NAME_EMPTY_MESSAGE,
+  PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
+  PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
@@ -281,10 +283,13 @@ function PageSettings(props: { page: Page }) {
         </UrlPreviewWrapper>
       )}
 
-      <div className="pb-2 flex justify-between content-center">
-        <Text style={{ "line-height": "1.8" }} type={TextType.P1}>
-          {PAGE_SETTINGS_SHOW_PAGE_NAV()}
-        </Text>
+      <div className="flex justify-between content-center pb-2">
+        <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
+          <PropertyHelpLabel
+            label={PAGE_SETTINGS_SHOW_PAGE_NAV()}
+            tooltip={PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP()}
+          />
+        </div>
         <SwitchWrapper>
           <AdsSwitch
             checked={isShown}
@@ -304,7 +309,9 @@ function PageSettings(props: { page: Page }) {
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
             tooltip={
-              !!isDefault ? PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP() : undefined
+              !!isDefault
+                ? PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP()
+                : PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE()
             }
           />
         </div>
