@@ -3,7 +3,7 @@ import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
 
@@ -164,7 +164,8 @@ function updateMinMaxDynamicHeight(
     ) {
       updates.push({
         propertyPath: "maxDynamicHeight",
-        propertyValue: props.bottomRow - props.topRow,
+        propertyValue:
+          props.bottomRow - props.topRow + GridDefaults.CANVAS_EXTENSION_OFFSET,
       });
     }
 

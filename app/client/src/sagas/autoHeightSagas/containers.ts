@@ -24,7 +24,13 @@ export function* dynamicallyUpdateContainersSaga() {
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
     stateWidgets,
-  ).filter((widget: FlattenedWidgetProps) => widget.type === "CANVAS_WIDGET");
+  ).filter((widget: FlattenedWidgetProps) => {
+    const isCanvasWidget = widget.type === "CANVAS_WIDGET";
+    const parent = widget.parentId ? stateWidgets[widget.parentId] : undefined;
+    if (parent?.type === "LIST_WIDGET") return false;
+    if (!parent) return false;
+    return isCanvasWidget;
+  });
 
   const dynamicHeightLayoutTree: AutoHeightLayoutTreeReduxState = yield select(
     getAutoHeightLayoutTree,
