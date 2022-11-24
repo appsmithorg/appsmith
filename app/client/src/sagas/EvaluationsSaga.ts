@@ -271,20 +271,24 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
       const { callbackData, eventType, triggerMeta } = payload;
       const data = JSON.parse(callbackData);
       for (const key in data) {
-        yield call(
-          executeActionTriggers,
-          {
-            type: ActionTriggerType.STORE_VALUE,
-            payload: {
-              key: key,
-              persist: true,
-              uniqueActionRequestId: uniqueId("store_value_id_"),
-              value: data[key],
-            },
-          } as ActionDescription,
-          eventType,
-          triggerMeta,
-        );
+        if (key == "callbackId" && data[key]) {
+          window.parent.postMessage(data[key], "*");
+        } else {
+          yield call(
+            executeActionTriggers,
+            {
+              type: ActionTriggerType.STORE_VALUE,
+              payload: {
+                key: key,
+                persist: true,
+                uniqueActionRequestId: uniqueId("store_value_id_"),
+                value: data[key],
+              },
+            } as ActionDescription,
+            eventType,
+            triggerMeta,
+          );
+        }
       }
     }
   } finally {
