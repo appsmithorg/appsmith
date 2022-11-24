@@ -2,6 +2,7 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import {
   GridDefaults,
@@ -11,6 +12,7 @@ import {
 import { klona } from "klona/lite";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
+import WidgetFactory from "./WidgetFactory";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -341,21 +343,30 @@ export const PropertyPaneConfigTemplates: Record<
 };
 
 export function disableWidgetFeatures(
-  widgetConfig: PropertyPaneConfig[],
-  disabledWidgetFeatures?: RegisteredWidgetFeatures[],
+  widgetType: WidgetType,
+  disabledWidgetFeatures?: string[],
 ): PropertyPaneConfig[] {
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneContentConfig(
+    widgetType,
+  ) as PropertyPaneConfig[];
+
   if (!disabledWidgetFeatures || disabledWidgetFeatures.length <= 0)
     return widgetConfig;
 
   const clonedConfig = klona(widgetConfig);
-  const firstConfig = clonedConfig[0];
+  const GeneralConfig = clonedConfig.find(
+    (sectionConfig) =>
+      (sectionConfig as PropertyPaneSectionConfig)?.sectionName === "General",
+  );
 
-  for (let i = 0; i < (firstConfig?.children?.length || -1); i++) {
-    const config = firstConfig?.children?.[i];
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (disabledWidgetFeatures.indexOf(config?.propertyName || "") > -1) {
-      firstConfig?.children?.splice(i, 1);
+  for (let i = 0; i < (GeneralConfig?.children?.length || -1); i++) {
+    const config = GeneralConfig?.children?.[i];
+    if (
+      disabledWidgetFeatures.indexOf(
+        (config as PropertyPaneControlConfig)?.propertyName || "",
+      ) > -1
+    ) {
+      GeneralConfig?.children?.splice(i, 1);
       i--;
     }
   }
