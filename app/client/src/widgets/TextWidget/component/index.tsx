@@ -115,7 +115,10 @@ export const StyledText = styled(Text)<{
       ? "hidden"
       : "auto"};
   text-overflow: ellipsis;
-  text-align: ${(props) => props.textAlign.toLowerCase()};
+  && div {
+    display: block;
+    width: 100%;
+  }
   display: flex;
   width: 100%;
   justify-content: flex-start;
@@ -140,6 +143,8 @@ export const StyledText = styled(Text)<{
     width: 100%;
     line-height: 1.2;
     white-space: pre-wrap;
+    display: block;
+    text-align: ${(props) => props.textAlign.toLowerCase()};
   }
 `;
 
