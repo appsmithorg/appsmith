@@ -424,7 +424,12 @@ function eventRequestHandler({
           });
           console.error(error);
         }
-        dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
+
+        dataTree = getSafeToRenderDataTree(
+          createDataTreeWithConfig(unevalTree),
+          widgetTypeConfigMap,
+        );
+
         unEvalUpdates = [];
       }
 
