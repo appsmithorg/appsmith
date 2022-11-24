@@ -156,6 +156,7 @@ function Form<TValues = any>(
   >({
     activeClassName: FOOTER_SCROLL_ACTIVE_CLASS_NAME,
     fixedFooter,
+    ref: ref as React.MutableRefObject<HTMLDivElement>,
   });
 
   const onReset = (
@@ -262,12 +263,11 @@ function Form<TValues = any>(
     <FormProvider {...methods}>
       <StyledForm
         fixedFooter={fixedFooter}
-        ref={bodyRef}
+        ref={bodyRef as React.RefObject<HTMLFormElement>}
         scrollContents={scrollContents}
       >
         <StyledFormBody
           className="t--jsonform-body"
-          ref={ref}
           stretchBodyVertically={stretchBodyVertically}
         >
           <StyledTitle>{title}</StyledTitle>

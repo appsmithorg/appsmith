@@ -34,6 +34,21 @@ import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReduce
 import { getCanvasLevelMap } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
 
+/* TODO(abhinav)
+  hasScroll is no longer needed, as the only way we will be computing for hasScroll, is when we get the updates
+  from the Container computations saga. In container computations, we also compute the inner canvas height. So,
+  this becomes a duplicate run of pretty much the same code.
+
+  In most cases, when we run the getMinHeightBasedOnChildren, we add the CANVAS_EXTENSION_OFFSET and the offset
+  from the widget configuration. This means that we can DRY this by moving them into the getMinHeightBasedOnChildren function
+
+  The computations we do when a widget changes for its parent, is pretty much the same as the ones we do in container 
+  computations saga, so we can potentially re-use that code.
+
+  Adding to widgetsToUpdate can be done using one function and shrink this saga by a large amount
+
+  
+
 /**
  * Saga to update a widget's auto height
  * When a widget changes in height, it must do the following
@@ -273,6 +288,36 @@ export function* updateWidgetAutoHeightSaga() {
             const parentContainerLikeWidget: FlattenedWidgetProps =
               stateWidgets[parentCanvasWidget.parentId];
 
+            let minCanvasHeightInRows: number = yield getMinHeightBasedOnChildren(
+              parentCanvasWidget.widgetId,
+              changesSoFar,
+              true,
+              dynamicHeightLayoutTree,
+            );
+
+            // Add extra rows, this is to accommodate for padding and margins in the parent
+            minCanvasHeightInRows += GridDefaults.CANVAS_EXTENSION_OFFSET;
+            // Setting this in a variable, as this will be the total scroll height in the canvas.
+            const minCanvasHeightInPixels =
+              minCanvasHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+            // We need to make sure that the canvas widget doesn't have
+            // any extra scroll, to this end, we need to add the `minHeight` update
+            // for the canvas widgets. Canvas Widgets are never updated in other flows
+            // As they simply take up whatever space the parent has, but this doesn't effect
+            // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
+            // Also, for canvas widgets, the values are in pure pixels instead of rows.
+            widgetsToUpdate[parentCanvasWidgetId] = [
+              {
+                propertyPath: "bottomRow",
+                propertyValue: minCanvasHeightInPixels,
+              },
+              {
+                propertyPath: "minHeight",
+                propertyValue: minCanvasHeightInPixels,
+              },
+            ];
+
             // Widgets need to consider changing heights, only if they have dynamic height
             // enabled.
             if (isAutoHeightEnabledForWidget(parentContainerLikeWidget)) {
@@ -282,20 +327,10 @@ export function* updateWidgetAutoHeightSaga() {
                 parentContainerLikeWidget,
               );
 
-              // Get the array of children ids.
-              // This cannot be [], because we came to this point due to an update
-              // caused by one of the children.
-
-              let minPossibleHeight: number = yield getMinHeightBasedOnChildren(
-                parentCanvasWidget.widgetId,
-                changesSoFar,
-                true,
-                dynamicHeightLayoutTree,
+              minHeightInRows = Math.max(
+                minHeightInRows,
+                minCanvasHeightInRows,
               );
-
-              // Add extra rows, this is to accommodate for padding and margins in the parent
-              minPossibleHeight =
-                minPossibleHeight + GridDefaults.CANVAS_EXTENSION_OFFSET;
 
               // For widgets like Tabs Widget, some of the height is occupied by the
               // tabs themselves, the child canvas as a result has less number of rows available
@@ -304,11 +339,7 @@ export function* updateWidgetAutoHeightSaga() {
                 parentContainerLikeWidget.type,
                 parentContainerLikeWidget,
               );
-              minPossibleHeight += canvasHeightOffset;
-              minHeightInRows = Math.max(minPossibleHeight, minHeightInRows);
-
-              // Setting this in a variable, as this will be the total scroll height in the canvas.
-              const maxBottomRow = minHeightInRows + 0;
+              minHeightInRows += canvasHeightOffset;
 
               // Make sure we're not overflowing the max height bounds
               const maxDynamicHeight = getWidgetMaxAutoHeight(
@@ -316,25 +347,6 @@ export function* updateWidgetAutoHeightSaga() {
               );
 
               minHeightInRows = Math.min(maxDynamicHeight, minHeightInRows);
-
-              // We need to make sure that the canvas widget doesn't have
-              // any extra scroll, to this end, we need to add the `minHeight` update
-              // for the canvas widgets. Canvas Widgets are never updated in other flows
-              // As they simply take up whatever space the parent has, but this doesn't effect
-              // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
-              // Also, for canvas widgets, the values are in pure pixels instead of rows.
-              widgetsToUpdate[parentCanvasWidgetId] = [
-                {
-                  propertyPath: "bottomRow",
-                  propertyValue:
-                    maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                },
-                {
-                  propertyPath: "minHeight",
-                  propertyValue:
-                    maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                },
-              ];
 
               let layoutData =
                 dynamicHeightLayoutTree[parentContainerLikeWidget.widgetId];
@@ -430,20 +442,21 @@ export function* updateWidgetAutoHeightSaga() {
       }
     }
     // Let's consider the minimum Canvas Height
-    let maxCanvasHeight = CANVAS_DEFAULT_MIN_HEIGHT_PX;
+    let maxCanvasHeightInRows =
+      CANVAS_DEFAULT_MIN_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     // The same logic to compute the minimum height of the MainContainer
     // Based on how many rows are being occuped by children.
 
-    const maxPossibleCanvasHeight: number = yield getMinHeightBasedOnChildren(
+    const maxPossibleCanvasHeightInRows: number = yield getMinHeightBasedOnChildren(
       MAIN_CONTAINER_WIDGET_ID,
       changesSoFar,
-      false,
+      true,
       dynamicHeightLayoutTree,
     );
 
-    maxCanvasHeight = Math.max(
-      maxPossibleCanvasHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-      maxCanvasHeight,
+    maxCanvasHeightInRows = Math.max(
+      maxPossibleCanvasHeightInRows,
+      maxCanvasHeightInRows,
     );
 
     // Add the MainContainer's update.
@@ -451,9 +464,8 @@ export function* updateWidgetAutoHeightSaga() {
       {
         propertyPath: "bottomRow",
         propertyValue:
-          maxCanvasHeight +
-          GridDefaults.CANVAS_EXTENSION_OFFSET *
-            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          (maxCanvasHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET) *
+          GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       },
     ];
 
