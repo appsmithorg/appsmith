@@ -4,6 +4,9 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Checkbox Group",
   iconSVG: IconSVG,
@@ -18,7 +21,7 @@ export const CONFIG = {
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
-    defaultSelectedValues: "BLUE",
+    defaultSelectedValues: ["BLUE"],
     isDisabled: false,
     isInline: true,
     isRequired: false,

@@ -1147,4 +1147,36 @@ public class LayoutActionServiceTest {
 
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void jsActionWithoutCollectionIdShouldBeIgnoredDuringNameChecking() {
+        ActionDTO firstAction = new ActionDTO();
+        firstAction.setPluginType(PluginType.JS);
+        firstAction.setName("foo");
+        firstAction.setFullyQualifiedName("testCollection.foo");
+        firstAction.setCollectionId("collectionId");
+
+        ActionDTO secondAction = new ActionDTO();
+        secondAction.setPluginType(PluginType.JS);
+        secondAction.setName("bar");
+        secondAction.setFullyQualifiedName("testCollection.bar");
+        secondAction.setCollectionId(null);
+
+
+        Mockito.doReturn(Flux.just(firstAction, secondAction)).when(newActionService).getUnpublishedActions(Mockito.any());
+
+        ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
+        mockActionCollectionDTO.setName("testCollection");
+        mockActionCollectionDTO.setActions(List.of(firstAction, secondAction));
+
+        Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
+                .thenReturn(Flux.just(mockActionCollectionDTO));
+
+        Mono<Boolean> nameAllowedMono = layoutActionService.isNameAllowed(testPage.getId(), testPage.getLayouts().get(0).getId(), "testCollection.bar");
+
+        StepVerifier.create(nameAllowedMono)
+                .assertNext(Assertions::assertTrue)
+                .verifyComplete();
+    }
+
 }

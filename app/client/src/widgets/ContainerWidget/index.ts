@@ -8,6 +8,9 @@ export const CONFIG = {
   name: "Container",
   iconSVG: IconSVG,
   isCanvas: true,
+  features: {
+    dynamicHeight: true,
+  },
   searchTags: ["div", "parent", "group"],
   defaults: {
     backgroundColor: "#FFFFFF",
