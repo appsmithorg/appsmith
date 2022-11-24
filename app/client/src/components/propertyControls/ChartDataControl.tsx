@@ -179,9 +179,10 @@ function DataControlComponent(props: RenderComponentProps) {
             updateOption(index, "color", value);
           }}
           color={
-            chartData && Object.keys(chartData).length === 1
-              ? evaluated?.color || selectedTheme.properties.colors.primaryColor
-              : ""
+            item.color || ""
+            // item.color ?? (chartData && Object.keys(chartData)[0] === index)
+            //   ? selectedTheme.properties.colors.primaryColor
+            //   : ""
           }
           showApplicationColors
           showThemeColors

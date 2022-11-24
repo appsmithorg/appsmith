@@ -149,7 +149,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return {
         label: item.x,
         value: item.y,
-        color,
+        color: color ?? this.props.primaryColor,
       };
     });
   };
@@ -223,7 +223,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartDataset = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMultiSeries(chartData);
 
-    const dataset = Object.keys(chartData).map((key: string) => {
+    const dataset = Object.keys(chartData).map((key: string, index) => {
       const item = get(chartData, `${key}`);
 
       const seriesChartData: Array<Record<
@@ -232,7 +232,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       >> = this.getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
-        color: item.color,
+        color: item.color ?? index === 0 ? this.props.primaryColor : "",
         data: seriesChartData,
       };
     });
