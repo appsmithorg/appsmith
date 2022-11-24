@@ -43,6 +43,7 @@ import focusHistoryReducer from "./focusHistoryReducer";
 import { editorContextReducer } from "./editorContextReducer";
 import guidedTourReducer from "./guidedTourReducer";
 import libraryReducer from "./libraryReducer";
+import autoHeightUIReducer from "./autoHeightReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -89,6 +90,7 @@ const uiReducer = combineReducers({
   focusHistory: focusHistoryReducer,
   editorContext: editorContextReducer,
   libraries: libraryReducer,
+  autoHeightUI: autoHeightUIReducer,
 });
 
 export default uiReducer;

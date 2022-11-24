@@ -42,6 +42,7 @@ import NavigationSagas from "sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import JSLibrarySaga from "sagas/JSLibrarySaga";
+import AutoHeightSagas from "sagas/autoHeightSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
 import LintingSaga from "sagas/LintingSagas";
 
@@ -89,6 +90,7 @@ export const sagas = [
   NavigationSagas,
   editorContextSagas,
   PageVisibilitySaga,
+  AutoHeightSagas,
   tenantSagas,
   JSLibrarySaga,
   LintingSaga,

@@ -26,6 +26,7 @@ import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
 
 function* handleInstallationFailure(url: string, accessor?: string[]) {
   if (accessor) {
@@ -43,6 +44,7 @@ function* handleInstallationFailure(url: string, accessor?: string[]) {
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
     payload: url,
   });
+  AnalyticsUtil.logEvent(LIBRARY_EVENTS.INSTALL_FAILED, { url });
 }
 
 export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
@@ -55,7 +57,8 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
 
   if (!success) {
     log.debug("Failed to install locally");
-    return handleInstallationFailure(url as string);
+    yield call(handleInstallationFailure, url as string);
+    return;
   }
 
   const name: string = lib.name || accessor[accessor.length - 1];
@@ -64,6 +67,16 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
   const [version] = versionMatch ? versionMatch : [];
 
+  let stringifiedDefs = "";
+
+  try {
+    stringifiedDefs = JSON.stringify(defs);
+  } catch (e) {
+    stringifiedDefs = JSON.stringify({
+      "!name": `LIB/${accessor[accessor.length - 1]}`,
+    });
+  }
+
   const response: ApiResponse<boolean> = yield call(
     LibraryApi.addLibrary,
     applicationId,
@@ -71,7 +84,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
       name,
       version,
       accessor,
-      defs,
+      defs: stringifiedDefs,
       url,
     },
   );
@@ -95,6 +108,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
       text: createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
       variant: Variant.info,
     });
+    AnalyticsUtil.logEvent(LIBRARY_EVENTS.DEFINITIONS_FAILED, { url });
     log.debug("Failed to update Tern defs", e);
   }
 
@@ -133,6 +147,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     ),
     variant: Variant.success,
   });
+  AnalyticsUtil.logEvent(LIBRARY_EVENTS.INSTALL_SUCCESS, { url });
 }
 
 function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
@@ -152,6 +167,9 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       yield put({
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
         payload: accessor,
+      });
+      AnalyticsUtil.logEvent(LIBRARY_EVENTS.UNINSTALL_FAILED, {
+        url: action.payload.url,
       });
       return;
     }
@@ -176,6 +194,12 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       });
     }
 
+    try {
+      TernServer.removeDef(`LIB/${name}`);
+    } catch (e) {
+      log.debug(`Failed to remove definitions for ${name}`, e);
+    }
+
     yield call(evaluateTreeSaga, [], false, true, true);
 
     yield put({
@@ -187,10 +211,16 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       text: createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name),
       variant: Variant.success,
     });
+    AnalyticsUtil.logEvent(LIBRARY_EVENTS.UNINSTALL_SUCCESS, {
+      url: action.payload.url,
+    });
   } catch (e) {
     Toaster.show({
       text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
       variant: Variant.danger,
+    });
+    AnalyticsUtil.logEvent(LIBRARY_EVENTS.UNINSTALL_FAILED, {
+      url: action.payload.url,
     });
   }
 }
@@ -206,9 +236,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) return;
 
-    const libraries = response.data as Array<
-      TJSLibrary & { defs: Record<string, any> }
-    >;
+    const libraries = response.data as Array<TJSLibrary & { defs: string }>;
 
     const success: boolean = yield call(
       EvalWorker.request,
@@ -229,9 +257,19 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     }
 
     if (mode === APP_MODE.EDIT) {
-      //Add error handler here
       for (const lib of libraries) {
-        TernServer.updateDef(lib.defs["!name"], lib.defs);
+        try {
+          const defs = JSON.parse(lib.defs);
+          TernServer.updateDef(defs["!name"], defs);
+        } catch (e) {
+          Toaster.show({
+            text: createMessage(
+              customJSLibraryMessages.AUTOCOMPLETE_FAILED,
+              lib.name,
+            ),
+            variant: Variant.info,
+          });
+        }
       }
       yield put({
         type: ReduxActionTypes.UPDATE_LINT_GLOBALS,

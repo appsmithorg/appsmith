@@ -89,26 +89,32 @@ function InfoMessage({ children }: { children: React.ReactNode }) {
   );
 }
 
-function JSONFormComponent<TValues>({
-  backgroundColor,
-  executeAction,
-  fieldLimitExceeded,
-  getFormData,
-  isSubmitting,
-  isWidgetMounting,
-  onFormValidityUpdate,
-  registerResetObserver,
-  renderMode,
-  resetButtonLabel,
-  schema,
-  setMetaInternalFieldState,
-  submitButtonLabel,
-  unregisterResetObserver,
-  updateFormData,
-  updateWidgetMetaProperty,
-  updateWidgetProperty,
-  ...rest
-}: JSONFormComponentProps<TValues>) {
+function JSONFormComponent<TValues>(
+  {
+    backgroundColor,
+    executeAction,
+    fieldLimitExceeded,
+    getFormData,
+    isSubmitting,
+    isWidgetMounting,
+    onFormValidityUpdate,
+    registerResetObserver,
+    renderMode,
+    resetButtonLabel,
+    schema,
+    setMetaInternalFieldState,
+    submitButtonLabel,
+    unregisterResetObserver,
+    updateFormData,
+    updateWidgetMetaProperty,
+    updateWidgetProperty,
+    ...rest
+  }: JSONFormComponentProps<TValues>,
+  ref:
+    | ((instance: HTMLDivElement | null) => void)
+    | React.MutableRefObject<HTMLDivElement | null>
+    | null,
+) {
   const isSchemaEmpty = isEmpty(schema);
   const styleProps = pick(rest, [
     "borderColor",
@@ -179,6 +185,7 @@ function JSONFormComponent<TValues>({
           isWidgetMounting={isWidgetMounting}
           onFormValidityUpdate={onFormValidityUpdate}
           onSubmit={rest.onSubmit}
+          ref={ref}
           registerResetObserver={registerResetObserver}
           resetButtonLabel={resetButtonLabel}
           resetButtonStyles={rest.resetButtonStyles}
@@ -199,4 +206,4 @@ function JSONFormComponent<TValues>({
   );
 }
 
-export default React.memo(JSONFormComponent);
+export default React.memo(React.forwardRef(JSONFormComponent));
