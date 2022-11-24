@@ -34,6 +34,21 @@ import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReduce
 import { getCanvasLevelMap } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
 
+/* TODO(abhinav)
+  hasScroll is no longer needed, as the only way we will be computing for hasScroll, is when we get the updates
+  from the Container computations saga. In container computations, we also compute the inner canvas height. So,
+  this becomes a duplicate run of pretty much the same code.
+
+  In most cases, when we run the getMinHeightBasedOnChildren, we add the CANVAS_EXTENSION_OFFSET and the offset
+  from the widget configuration. This means that we can DRY this by moving them into the getMinHeightBasedOnChildren function
+
+  The computations we do when a widget changes for its parent, is pretty much the same as the ones we do in container 
+  computations saga, so we can potentially re-use that code.
+
+  Adding to widgetsToUpdate can be done using one function and shrink this saga by a large amount
+
+  
+
 /**
  * Saga to update a widget's auto height
  * When a widget changes in height, it must do the following
@@ -449,7 +464,7 @@ export function* updateWidgetAutoHeightSaga() {
       {
         propertyPath: "bottomRow",
         propertyValue:
-          (maxCanvasHeightInRows + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+          (maxCanvasHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET) *
           GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       },
     ];

@@ -1,4 +1,5 @@
 import { Colors } from "constants/Colors";
+import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -21,7 +22,7 @@ export const CONFIG = {
     dynamicHeight: true,
   },
   defaults: {
-    rows: 40,
+    rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
     columns: 24,
     shouldScrollContents: false,
     widgetName: "Tabs",

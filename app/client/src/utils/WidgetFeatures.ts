@@ -47,6 +47,7 @@ export const WidgetFeaturePropertyEnhancements: Record<
     if (config.isCanvas) {
       newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
       newProperties.minDynamicHeight =
+        config.defaults.minDynamicHeight ||
         WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
       newProperties.shouldScrollContents = true;
     }
