@@ -342,6 +342,7 @@ export const PropertyPaneConfigTemplates: Record<
   ],
 };
 
+//TODO make this logic a lot cleaner
 export function disableWidgetFeatures(
   widgetType: WidgetType,
   disabledWidgetFeatures?: string[],
