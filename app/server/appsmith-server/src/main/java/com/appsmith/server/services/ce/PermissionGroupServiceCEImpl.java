@@ -17,6 +17,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Flux;
@@ -45,6 +46,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     private final PolicyUtils policyUtils;
 
     private final ConfigRepository configRepository;
+    private final PermissionGroupPermission permissionGroupPermission;
 
     private PermissionGroup publicPermissionGroup = null;
 
@@ -57,7 +59,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         SessionUserService sessionUserService,
                                         TenantService tenantService,
                                         UserRepository userRepository,
-                                        PolicyUtils policyUtils, ConfigRepository configRepository) {
+                                        PolicyUtils policyUtils,
+                                        ConfigRepository configRepository,
+                                        PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
@@ -65,6 +69,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         this.userRepository = userRepository;
         this.policyUtils = policyUtils;
         this.configRepository = configRepository;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     @Override
@@ -140,7 +145,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().addAll(userIds);
         Mono<PermissionGroup> permissionGroupUpdateMono = repository
-                .updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .updateById(pg.getId(), pg, permissionGroupPermission.getAssignPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
 
         return Mono.zip(
@@ -152,7 +157,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users) {
-        return repository.findById(permissionGroupId, AclPermission.ASSIGN_PERMISSION_GROUPS)
+        return repository.findById(permissionGroupId, permissionGroupPermission.getAssignPermission())
                 .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));
     }
 

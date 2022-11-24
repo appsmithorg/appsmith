@@ -94,7 +94,7 @@ public class UserUtilsCE {
                         permissionGroup.setAssignedToUserIds(new HashSet<>());
                     }
                     permissionGroup.getAssignedToUserIds().removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
-                    return permissionGroupRepository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.ASSIGN_PERMISSION_GROUPS);
+                    return permissionGroupRepository.updateById(permissionGroup.getId(), permissionGroup, permissionGroupPermission.getAssignPermission());
                 })
                 .then(Mono.just(users))
                 .flatMapMany(Flux::fromIterable)
@@ -156,8 +156,8 @@ public class UserUtilsCE {
                 .flatMap(savedPermissionGroup -> {
                     Set<Permission> permissions = Set.of(
                             new Permission(savedPermissionGroup.getId(), permissionGroupPermission.getMembersReadPermission()),
-                            new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
-                            new Permission(savedPermissionGroup.getId(), UNASSIGN_PERMISSION_GROUPS)
+                            new Permission(savedPermissionGroup.getId(), permissionGroupPermission.getAssignPermission()),
+                            new Permission(savedPermissionGroup.getId(), permissionGroupPermission.getUnAssignPermission())
                     );
                     savedPermissionGroup.setPermissions(permissions);
 

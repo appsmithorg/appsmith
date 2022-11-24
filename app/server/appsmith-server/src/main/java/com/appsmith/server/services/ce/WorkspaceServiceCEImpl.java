@@ -304,7 +304,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
         // The administrator should also be able to assign any of the three permissions groups
         Set<Permission> assignPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), permissionGroupPermission.getAssignPermission()))
                 .collect(Collectors.toSet());
         // All the default permission groups should be readable by all the members of the workspace
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
@@ -334,7 +334,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
         // The developer should also be able to assign developer & viewer permission groups
         assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), permissionGroupPermission.getAssignPermission()))
                 .collect(Collectors.toSet());
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
@@ -351,7 +351,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
         // The app viewers should also be able to assign to viewer permission groups
         assignPermissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), permissionGroupPermission.getAssignPermission()))
                 .collect(Collectors.toSet());
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
@@ -498,7 +498,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, permissionGroupPermission.getAssignPermission()));
 
         // Map to PermissionGroupInfoDTO
         Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
