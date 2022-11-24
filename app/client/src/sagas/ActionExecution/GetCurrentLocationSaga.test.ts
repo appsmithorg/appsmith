@@ -7,6 +7,24 @@ import {
 } from "./GetCurrentLocationSaga";
 
 describe("getCurrentLocationSaga", () => {
+  beforeAll(() => {
+    class GeolocationPositionErrorClass extends Error {
+      readonly code!: number;
+      readonly message!: string;
+      readonly PERMISSION_DENIED!: number;
+      readonly POSITION_UNAVAILABLE!: number;
+      readonly TIMEOUT!: number;
+
+      constructor(msg?: string) {
+        super(msg);
+      }
+    }
+
+    Object.defineProperty(global, "GeolocationPositionError", {
+      value: GeolocationPositionErrorClass,
+    });
+  });
+
   it("should call the onSuccess callback with the current location", () => {
     const onSuccessCallback = jest.fn();
     const onErrorCallback = jest.fn();
