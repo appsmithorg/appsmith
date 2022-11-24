@@ -12,6 +12,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -50,6 +51,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -134,12 +136,31 @@ public class WorkspaceResourcesTest {
         Application application = new Application();
         application.setName(UUID.randomUUID().toString());
         createdApplication = applicationPageService.createApplication(application, workspace.getId()).block();
+
+        Application applicationWithoutActions = new Application();
+        applicationWithoutActions.setName(UUID.randomUUID().toString());
+        Application createdApplicationWithoutActions = applicationPageService.createApplication(applicationWithoutActions, workspace.getId()).block();
+
+        Application applicationWithoutPages = new Application();
+        applicationWithoutPages.setName(UUID.randomUUID().toString());
+        Application createdApplicationWithoutPages = applicationPageService.createApplication(applicationWithoutPages, workspace.getId()).block();
+
         Datasource toCreate = new Datasource();
         toCreate.setName("Default Database");
         toCreate.setWorkspaceId(createdWorkspace.getId());
         Plugin restApiPlugin = pluginService.findByPackageName("restapi-plugin").block();
         toCreate.setPluginId(restApiPlugin.getId());
         createdDatasource = datasourceService.create(toCreate).block();
+
+        PageDTO pageDTOWithoutActions1 = new PageDTO();
+        pageDTOWithoutActions1.setName("Without Any Actions");
+        pageDTOWithoutActions1.setApplicationId(createdApplication.getId());
+        PageDTO createdPageDTOWithoutActions1 = applicationPageService.createPage(pageDTOWithoutActions1).block();
+
+        PageDTO pageDTOWithoutActions2 = new PageDTO();
+        pageDTOWithoutActions2.setName("Without Any Actions");
+        pageDTOWithoutActions2.setApplicationId(createdApplicationWithoutActions.getId());
+        PageDTO createdPageDTOWithoutActions2 = applicationPageService.createPage(pageDTOWithoutActions2).block();
 
         ActionDTO actionToCreate = new ActionDTO();
         actionToCreate.setName("validAction");
@@ -176,8 +197,12 @@ public class WorkspaceResourcesTest {
 
 
         Flux<Application> applicationFlux = dataFromRepositoryForAllTabs.getApplicationFlux();
-        StepVerifier.create(applicationFlux)
-                .assertNext(application -> {
+        StepVerifier.create(applicationFlux.collectList())
+                .assertNext(applications -> {
+                    assertThat(applications).hasSize(3);
+                    Application application = applications.stream()
+                            .filter(application1 -> application1.getName().equals(createdApplication.getName()))
+                            .findFirst().get();
                     assert application.getName().equals(createdApplication.getName());
                 })
                 .verifyComplete();
@@ -189,10 +214,11 @@ public class WorkspaceResourcesTest {
                 })
                 .verifyComplete();
 
-        Flux<NewPage> pageFlux = dataFromRepositoryForAllTabs.getPageFlux();
-        StepVerifier.create(pageFlux)
-                .assertNext(page -> {
-                    assert page.getId().equals(createdApplication.getPages().get(0).getId());
+        Flux<NewPage> pageFlux = dataFromRepositoryForAllTabs.getPageFlux()
+                .filter(page -> page.getApplicationId().equals(createdApplication.getId()));
+        StepVerifier.create(pageFlux.collectList())
+                .assertNext(pages -> {
+                    assertThat(pages).hasSize(2);
                 })
                 .verifyComplete();
 
@@ -394,6 +420,8 @@ public class WorkspaceResourcesTest {
                     assertThat(createdDatasourceView.getChildren()).isNull();
 
                     // Only one application was created in this workspace
+                    // The workspace contains 2 applications, but only 1 application contains Pages with actions
+                    // Hence, only 1 application is showing up here.
                     assertThat(ApplicationsEntityView.getEntities().size()).isEqualTo(1);
                     BaseView createdApplicationView = ApplicationsEntityView.getEntities().get(0);
                     assertThat(createdApplicationView.getName()).isEqualTo(createdApplication.getName());
@@ -407,6 +435,8 @@ public class WorkspaceResourcesTest {
                     EntityView createdPageEntityView = createdApplicationView.getChildren().stream().findFirst().get();
                     assertThat(createdPageEntityView.getType()).isEqualTo(NewPage.class.getSimpleName());
                     // We created only one page in this application. Assert that the same has been read into the view
+                    // Now the application contains 2 pages, but only 1 page contains Actions.
+                    // Hence, only 1 page entity is coming up here.
                     assertThat(createdPageEntityView.getEntities().size()).isEqualTo(1);
                     BaseView createdPageView = createdPageEntityView.getEntities().get(0);
                     assertThat(createdPageView.getId()).isEqualTo(createdApplication.getPages().get(0).getId());

@@ -404,6 +404,7 @@ public class WorkspaceResources {
                         return Mono.just(applicationDTO);
                     }
                     return getPageActionDTOs(permissionGroupId, pageActions, pageActionCollections, defaultPageIds, pages, roleTab)
+                            .filter(pageResourcesDTOS -> ! pageResourcesDTOS.isEmpty())
                             .map(pageDTOs -> {
                                 EntityView entityView = new EntityView();
                                 entityView.setType(NewPage.class.getSimpleName());
@@ -458,6 +459,7 @@ public class WorkspaceResources {
                     pageDTO.setChildren(pageChildren);
                     return pageDTO;
                 })
+                .filter(pageResourcesDTO -> ! pageResourcesDTO.getChildren().isEmpty())
                 .collectList();
     }
 
