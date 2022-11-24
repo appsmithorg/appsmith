@@ -332,7 +332,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
             Mono<UserData> userDataMono = userDataRepository.findByUserId(user.getId())
                     .defaultIfEmpty(new UserData(user.getId()));
 
-            Mono<Boolean> editAccessOnApplicationMono = applicationService.findById(applicationId, applicationPermission.getManagePermission())
+            Mono<Boolean> editAccessOnApplicationMono = applicationService.findById(applicationId, applicationPermission.getEditPermission())
                     .map(application -> TRUE)
                     .switchIfEmpty(Mono.just(FALSE));
 
@@ -591,7 +591,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
                     // if user is app viewer, return the comments in published mode only
                     Boolean permissionPresentForUser = policyUtils.isPermissionPresentForUser(
-                            application.getPolicies(), applicationPermission.getManagePermission().getValue(), currentUser.getUsername()
+                            application.getPolicies(), applicationPermission.getEditPermission().getValue(), currentUser.getUsername()
                     );
                     if(!permissionPresentForUser) {
                         // user is app viewer, show only PUBLISHED comment threads

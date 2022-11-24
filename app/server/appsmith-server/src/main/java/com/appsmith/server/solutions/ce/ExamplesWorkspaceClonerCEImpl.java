@@ -464,7 +464,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     destApplication.getId(),
                     editModeTheme.getId(),
                     publishedModeTheme.getId(),
-                    applicationPermission.getManagePermission()
+                    applicationPermission.getEditPermission()
             );
         });
     }

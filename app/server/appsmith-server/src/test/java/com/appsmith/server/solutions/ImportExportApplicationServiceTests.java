@@ -8,7 +8,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -61,7 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.assertj.core.api.AbstractBigDecimalAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -841,7 +839,7 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getManagePermission()).collectList(),
+                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                                     actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
@@ -1046,7 +1044,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), datasourcePermission.getManagePermission()).collectList(),
+                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false
@@ -1140,7 +1138,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), datasourcePermission.getManagePermission()).collectList(),
+                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService
@@ -1294,7 +1292,7 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getManagePermission()).collectList(),
+                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                                     actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
@@ -2429,7 +2427,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getManagePermission()).collectList(),
+                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -2482,7 +2480,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getManagePermission()).collectList(),
+                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {

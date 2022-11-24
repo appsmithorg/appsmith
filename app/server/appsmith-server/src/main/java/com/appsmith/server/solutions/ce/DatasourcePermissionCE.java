@@ -5,6 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 public interface DatasourcePermissionCE {
     AclPermission getReadPermission();
     AclPermission getDeletePermission();
-    AclPermission getManagePermission();
+    AclPermission getEditPermission();
     AclPermission getExecutePermission();
 }

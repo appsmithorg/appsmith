@@ -75,7 +75,7 @@ public class ApplicationPageServiceTest {
                 .flatMap(pageDTO -> {
                     Application application = new Application();
                     application.setLastEditedAt(Instant.now().minus(10, ChronoUnit.DAYS));
-                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, applicationPermission.getManagePermission())
+                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, applicationPermission.getEditPermission())
                             .then(applicationPageService.deleteUnpublishedPage(pageDTO.getId()))
                             .then(applicationRepository.findById(pageDTO.getApplicationId()));
                 });

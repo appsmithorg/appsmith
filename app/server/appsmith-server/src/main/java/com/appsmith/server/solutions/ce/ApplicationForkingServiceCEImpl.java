@@ -46,7 +46,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationManagePermission())
+        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
@@ -65,7 +65,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?
-                            !user.isAnonymous() && application.getUserPermissions().contains(applicationPermission.getManagePermission().getValue())
+                            !user.isAnonymous() && application.getUserPermissions().contains(applicationPermission.getEditPermission().getValue())
                     )
                             || Boolean.TRUE.equals(application.getForkingEnabled());
 

@@ -1,7 +1,6 @@
 package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
@@ -182,7 +181,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         Mono<Application> applicationMono = Mono.just(application);
         if (defaultWorkspaceId == null) {
 
-            applicationMono = workspaceRepository.findAll(workspacePermission.getManagePermission())
+            applicationMono = workspaceRepository.findAll(workspacePermission.getEditPermission())
                     .take(1, true)
                     .collectList()
                     .flatMap(workspaces -> {

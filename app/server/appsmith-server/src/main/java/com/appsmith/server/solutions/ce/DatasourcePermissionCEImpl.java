@@ -14,7 +14,7 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE {
     }
 
     @Override
-    public AclPermission getManagePermission() {
+    public AclPermission getEditPermission() {
         return AclPermission.MANAGE_DATASOURCES;
     }
 

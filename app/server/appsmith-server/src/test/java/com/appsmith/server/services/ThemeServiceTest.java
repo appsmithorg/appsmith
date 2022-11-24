@@ -562,7 +562,7 @@ public class ThemeServiceTest {
         Application updateApp = new Application();
         updateApp.setEditModeThemeId("");
         updateApp.setPublishedModeThemeId("");
-        Application appWithoutTheme = applicationRepository.updateById(savedApplication.getId(), updateApp, applicationPermission.getManagePermission()).block();
+        Application appWithoutTheme = applicationRepository.updateById(savedApplication.getId(), updateApp, applicationPermission.getEditPermission()).block();
 
         Application publishedApp = applicationPageService.publish(savedApplication.getId(), TRUE).block();
 
@@ -786,7 +786,7 @@ public class ThemeServiceTest {
                                 .thenReturn(savedApplication.getId())
                 )
                 .flatMap(applicationId ->
-                        applicationRepository.findById(applicationId, applicationPermission.getManagePermission())
+                        applicationRepository.findById(applicationId, applicationPermission.getEditPermission())
                 );
 
         StepVerifier.create(applicationMono).assertNext(app -> {

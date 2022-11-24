@@ -4,7 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 
 public class WorkspacePermissionCEImpl implements WorkspacePermissionCE {
     @Override
-    public AclPermission getManagePermission() {
+    public AclPermission getEditPermission() {
         return AclPermission.MANAGE_WORKSPACES;
     }
 
@@ -24,7 +24,7 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE {
     }
 
     @Override
-    public AclPermission getApplicationManagePermission() {
+    public AclPermission getApplicationEditPermission() {
         return AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
     }
 
@@ -64,7 +64,7 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE {
     }
 
     @Override
-    public AclPermission getDatasourceManagePermission() {
+    public AclPermission getDatasourceEditPermission() {
         return AclPermission.WORKSPACE_MANAGE_DATASOURCES;
     }
 

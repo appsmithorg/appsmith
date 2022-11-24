@@ -169,7 +169,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
-        AclPermission permission = isGitSync ? applicationPermission.getManagePermission() : applicationPermission.getExportPermission();
+        AclPermission permission = isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
@@ -287,7 +287,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 Flux<Datasource> datasourceFlux = TRUE.equals(application.getExportWithConfiguration())
                                         ? datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getReadPermission())
-                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getManagePermission());
+                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission());
 
                                 return datasourceFlux.collectList();
                             })
@@ -683,7 +683,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
-                .findAllByWorkspaceId(workspaceId, datasourcePermission.getManagePermission())
+                .findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission())
                 .cache();
 
         assert importedApplication != null : "Received invalid application object!";
@@ -705,7 +705,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(workspaceService.findById(workspaceId, workspacePermission.getApplicationManagePermission()))
+                .then(workspaceService.findById(workspaceId, workspacePermission.getApplicationEditPermission()))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
@@ -798,7 +798,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     importedApplication.setWorkspaceId(workspaceId);
                                     // Application Id will be present for GIT sync
                                     if (!StringUtils.isEmpty(applicationId)) {
-                                        return applicationService.findById(applicationId, applicationPermission.getManagePermission())
+                                        return applicationService.findById(applicationId, applicationPermission.getEditPermission())
                                                 .switchIfEmpty(
                                                         Mono.error(new AppsmithException(
                                                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
@@ -1888,7 +1888,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // No matching existing datasource found, so create a new one.
                     datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
                     return datasourceService
-                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getManagePermission())
+                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getEditPermission())
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
                             )
@@ -1981,7 +1981,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
-        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getManagePermission()).collectList();
+        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission()).collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()
                 .zipWith(listMono)

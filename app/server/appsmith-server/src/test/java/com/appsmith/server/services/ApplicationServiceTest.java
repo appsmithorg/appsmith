@@ -2210,7 +2210,7 @@ public class ApplicationServiceTest {
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getManagePermission()))
+                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
@@ -2365,7 +2365,7 @@ public class ApplicationServiceTest {
 
         Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
-                .flatMap(application -> applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getManagePermission()))
+                .flatMap(application -> applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getEditPermission()))
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
@@ -2414,7 +2414,7 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getManagePermission()))
+                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
                 .cache();
 
         PageDTO newPage = applicationMono
@@ -2429,7 +2429,7 @@ public class ApplicationServiceTest {
         applicationPage.setDefaultPageId(newPage.getId());
 
         StepVerifier
-                .create(applicationService.findById(newPage.getApplicationId(), applicationPermission.getManagePermission()))
+                .create(applicationService.findById(newPage.getApplicationId(), applicationPermission.getEditPermission()))
                 .assertNext(editedApplication -> {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
@@ -2472,7 +2472,7 @@ public class ApplicationServiceTest {
         applicationPage.setDefaultPageId(newPage.getId());
 
         StepVerifier
-                .create(applicationService.findById(newPage.getApplicationId(), applicationPermission.getManagePermission()))
+                .create(applicationService.findById(newPage.getApplicationId(), applicationPermission.getEditPermission()))
                 .assertNext(editedApplication -> {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
@@ -2504,7 +2504,7 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getManagePermission()))
+                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
                 .cache();
 
         PageDTO newPage = applicationMono
@@ -2568,7 +2568,7 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getManagePermission()))
+                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
                 .cache();
 
         PageDTO newPage = applicationMono
@@ -3011,7 +3011,7 @@ public class ApplicationServiceTest {
         Mono<Application> applicationMono = applicationPageService.createApplication(unsavedApplication)
                 .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
                         .thenReturn(savedApplication.getId())
-                ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, applicationPermission.getManagePermission()));
+                ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, applicationPermission.getEditPermission()));
 
         StepVerifier.create(applicationMono)
                 .assertNext(testApplication -> {
@@ -3050,8 +3050,8 @@ public class ApplicationServiceTest {
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
                     String mainApplicationId = savedChildApp.getGitApplicationMetadata().getDefaultApplicationId();
-                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), applicationPermission.getManagePermission());
-                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, applicationPermission.getManagePermission());
+                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), applicationPermission.getEditPermission());
+                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, applicationPermission.getEditPermission());
                     return Mono.zip(childAppMono, mainAppMono);
                 });
 
@@ -3140,7 +3140,7 @@ public class ApplicationServiceTest {
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
                                 ActionCollectionDTO savedActionCollection = tuple1.getT2();
-                                return applicationService.findById(page.getApplicationId(), applicationPermission.getManagePermission())
+                                return applicationService.findById(page.getApplicationId(), applicationPermission.getEditPermission())
                                         .flatMap(application -> applicationPageService.deleteApplication(application.getId()))
                                         .flatMap(ignored ->
                                                 Mono.zip(

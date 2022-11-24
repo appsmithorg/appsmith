@@ -2948,7 +2948,7 @@ public class GitServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findAllApplicationsByDefaultApplicationId(DBApplication.getId(), applicationPermission.getManagePermission());
+                    return applicationService.findAllApplicationsByDefaultApplicationId(DBApplication.getId(), applicationPermission.getEditPermission());
                 })
                 .collectList();
 

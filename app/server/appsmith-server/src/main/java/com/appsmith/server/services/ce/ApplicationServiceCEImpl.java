@@ -245,13 +245,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         Mono<String> applicationIdMono;
         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
         if (gitData != null && !StringUtils.isEmpty(gitData.getBranchName()) && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
-            applicationIdMono = this.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getManagePermission())
+            applicationIdMono = this.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                     .map(Application::getId);
         } else {
             applicationIdMono = Mono.just(id);
         }
         return applicationIdMono
-                .flatMap(appId -> repository.updateById(appId, application, applicationPermission.getManagePermission())
+                .flatMap(appId -> repository.updateById(appId, application, applicationPermission.getEditPermission())
                         .onErrorResume(error -> {
                             if (error instanceof DuplicateKeyException) {
                                 // Error message : E11000 duplicate key error collection: appsmith.application index:
@@ -281,7 +281,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getManagePermission())
+        return this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {
                     application.setPages(null);
                     application.setGitApplicationMetadata(null);
@@ -486,7 +486,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId, String keyType) {
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
-        return repository.findById(applicationId, applicationPermission.getManagePermission())
+        return repository.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
                 ))
@@ -517,7 +517,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
                     gitAuth.setRegeneratedKey(true);
 
-                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getManagePermission())
+                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
                                 GitApplicationMetadata gitApplicationMetadata = defaultApplication.getGitApplicationMetadata();
                                 gitApplicationMetadata.setDefaultApplicationId(defaultApplication.getId());
@@ -556,7 +556,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
      */
     @Override
     public Mono<GitAuthDTO> getSshKey(String applicationId) {
-        return repository.findById(applicationId, applicationPermission.getManagePermission())
+        return repository.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 )
@@ -587,7 +587,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
 
 
-                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getManagePermission())
+                    return repository.findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .map(rootApplication -> {
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
@@ -634,7 +634,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
          */
-        return repository.updateById(applicationId, application, applicationPermission.getManagePermission()) // it'll do a set operation
+        return repository.updateById(applicationId, application, applicationPermission.getEditPermission()) // it'll do a set operation
                 .flatMap(this::setTransientFields);
     }
 

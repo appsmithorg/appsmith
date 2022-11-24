@@ -30,8 +30,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -101,7 +99,7 @@ public class DatasourceContextServiceTest {
         Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
                 spyMockPluginExecutor, monitor);
 
-        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getManagePermission());
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getEditPermission());
         doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
         doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");

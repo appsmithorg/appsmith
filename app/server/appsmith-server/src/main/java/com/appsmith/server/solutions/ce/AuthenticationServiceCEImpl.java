@@ -96,7 +96,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService.findById(datasourceId, datasourcePermission.getManagePermission())
+        return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
@@ -307,7 +307,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getManagePermission())
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
@@ -386,7 +386,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Update datasource as being authorized
         // Return control to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getManagePermission())
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
 
         return datasourceMono

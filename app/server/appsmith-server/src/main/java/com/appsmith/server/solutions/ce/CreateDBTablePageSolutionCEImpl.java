@@ -183,7 +183,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getManagePermission())
+                .findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                 )
@@ -423,7 +423,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     });
         }
 
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getManagePermission())
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, MANAGE_PAGES, false))
                 .collectList()
                 .flatMap(pages -> {

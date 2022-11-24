@@ -57,8 +57,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -147,7 +145,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceManagePermission())
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceEditPermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {
@@ -447,7 +445,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
-                .findById(id, datasourcePermission.getManagePermission())
+                .findById(id, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))
                 .flatMap(objects -> {

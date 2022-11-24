@@ -4,7 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 
 public class PermissionGroupPermissionCEImpl implements PermissionGroupPermissionCE {
     @Override
-    public AclPermission getManagePermission() {
+    public AclPermission getEditPermission() {
         return AclPermission.MANAGE_PERMISSION_GROUPS;
     }
 

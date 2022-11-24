@@ -358,7 +358,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .flatMap(datasourceService::validateDatasource);
             } else {
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId(), datasourcePermission.getManagePermission())
+                datasourceMono = datasourceService.findById(action.getDatasource().getId(), datasourcePermission.getEditPermission())
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));

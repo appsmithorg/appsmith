@@ -55,8 +55,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.EMAIL;
@@ -414,7 +412,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Ensure the resource has the same ID as from the parameter.
         resource.setId(id);
 
-        Mono<Workspace> findWorkspaceMono = repository.findById(id, workspacePermission.getManagePermission())
+        Mono<Workspace> findWorkspaceMono = repository.findById(id, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
 
@@ -530,7 +528,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> uploadLogo(String workspaceId, Part filePart) {
-        final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getManagePermission())
+        final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // We don't execute the upload Mono if we don't find the workspace.
@@ -558,7 +556,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> deleteLogo(String workspaceId) {
         return repository
-                .findById(workspaceId, workspacePermission.getManagePermission())
+                .findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .flatMap(workspace -> {
                     final String prevAssetId = workspace.getLogoAssetId();
@@ -584,7 +582,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
             if (appCount == 0) { // no application found under this workspace
                 // fetching the workspace first to make sure user has permission to archive
-                return repository.findById(workspaceId, workspacePermission.getManagePermission())
+                return repository.findById(workspaceId, workspacePermission.getEditPermission())
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))

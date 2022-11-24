@@ -276,7 +276,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson ->{
                     if (branchName != null) {
-                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getManagePermission())
+                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                                 .flatMap(application -> importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, application.getId(), branchName, applicationJson, pagesToImport));
                     }
                     return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);

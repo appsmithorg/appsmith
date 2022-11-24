@@ -216,7 +216,7 @@ public class PolicyUtils {
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
 
         return datasourceRepository
-                .findAllByIds(ids, datasourcePermission.getManagePermission())
+                .findAllByIds(ids, datasourcePermission.getEditPermission())
                 // In case we have come across a datasource the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .flatMap(datasource -> {

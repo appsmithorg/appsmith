@@ -220,7 +220,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         Criteria repoCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.isRepoPrivate)).exists(Boolean.TRUE);
         Criteria gitAuthCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.gitAuth)).exists(Boolean.TRUE);
         Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).is(workspaceId);
-        return queryAll(List.of(workspaceIdCriteria, repoCriteria, gitAuthCriteria), applicationPermission.getManagePermission());
+        return queryAll(List.of(workspaceIdCriteria, repoCriteria, gitAuthCriteria), applicationPermission.getEditPermission());
     }
 
     @Override
