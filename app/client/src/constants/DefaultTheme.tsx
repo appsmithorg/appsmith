@@ -321,8 +321,10 @@ export const BlueprintRadioSwitchGroupTransform = css<{
 }>`
   width: 100%;
 
-  ${({ inline, optionCount }) => `
-    display: ${inline ? "inline-flex" : "flex"};
+  ${({ alignment, inline, optionCount }) => `
+    display: ${
+      inline ? "inline-flex" : alignment === Alignment.RIGHT ? "block" : "flex"
+    };
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
@@ -333,7 +335,6 @@ export const BlueprintRadioSwitchGroupTransform = css<{
 
   ${BlueprintControlTransform};
   .${Classes.CONTROL} {
-    width: 100%;
     display: ${({ alignment, inline }) => {
       if (alignment === Alignment.RIGHT) {
         return inline ? "inline-block" : "block";
