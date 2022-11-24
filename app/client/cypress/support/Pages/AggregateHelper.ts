@@ -426,9 +426,14 @@ export class AggregateHelper {
       .invoke("text");
   }
 
-  public EnterActionValue(actionName: string, value: string, paste = true) {
+  public EnterActionValue(
+    actionName: string,
+    value: string,
+    paste = true,
+    index = 0,
+  ) {
     cy.xpath(this.locator._actionTextArea(actionName))
-      .first()
+      .eq(index)
       .scrollIntoView()
       .focus()
       .type("{uparrow}", { force: true })
@@ -437,7 +442,7 @@ export class AggregateHelper {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
         cy.xpath(this.locator._actionTextArea(actionName))
-          .first()
+          .eq(index)
           .scrollIntoView()
           .click({ force: true })
           .focused()
@@ -447,7 +452,7 @@ export class AggregateHelper {
       }
       this.Sleep();
       cy.xpath(this.locator._actionTextArea(actionName))
-        .first()
+        .eq(index)
         .scrollIntoView()
         .then((el: any) => {
           if (paste) {

@@ -17,6 +17,7 @@ import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -24,6 +25,7 @@ import reactor.core.scheduler.Schedulers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -126,6 +128,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
+
+        // To debug the issue with userId empty error from segment
+        // TODO remove the code block once the issue is fixed
+        if (StringUtils.isEmpty(userId)) {
+            log.error(" UserId is null or empty. event Name is {}, analyticProperties is {}, hashUserId is {}", String.valueOf(userId), event, convertWithStream(properties), hashUserId);
+        }
 
         // Hash usernames at all places for self-hosted instance
         if (userId != null
@@ -259,5 +267,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
         return sendDeleteEvent(object, null);
+    }
+
+    public String convertWithStream(Map<String, ?> map) {
+        String mapAsString = map.keySet().stream()
+                .map(key -> key + "=" + map.get(key))
+                .collect(Collectors.joining(", ", "{", "}"));
+        return mapAsString;
     }
 }
