@@ -3,11 +3,13 @@ import IconSVG from "./icon.svg";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultISDCode } from "./component/ISDCodeDropdown";
 import { LabelPosition } from "components/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 3,
+      defaultValue: DynamicHeight.FIXED,
       active: true,
     },
   },
