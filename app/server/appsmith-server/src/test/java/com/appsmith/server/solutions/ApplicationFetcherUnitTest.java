@@ -76,10 +76,8 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     UserWorkspaceService userWorkspaceService;
 
-    @MockBean
     WorkspacePermission workspacePermission;
 
-    @MockBean
     ApplicationPermission applicationPermission;
 
     User testUser;
@@ -89,6 +87,8 @@ public class ApplicationFetcherUnitTest {
 
     @BeforeEach
     public void setup() {
+        workspacePermission = new WorkspacePermissionImpl();
+        applicationPermission = new ApplicationPermissionImpl();
         applicationFetcher = new ApplicationFetcherImpl(sessionUserService,
                 userService,
                 userDataService,
