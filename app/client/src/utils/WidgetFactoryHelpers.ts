@@ -4,7 +4,17 @@ import {
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "./generators";
-import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
+import {
+  PropertyPaneConfigTemplates,
+  RegisteredWidgetFeatures,
+  WidgetFeaturePropertyPaneEnhancements,
+  WidgetFeatures,
+} from "./WidgetFeatures";
+
+export enum PropertyPaneConfigTypes {
+  STYLE = "STYLE",
+  CONTENT = "CONTENT",
+}
 
 /* This function recursively parses the property pane configuration and
    adds random hash values as `id`.
@@ -63,11 +73,34 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 export function enhancePropertyPaneConfig(
   config: PropertyPaneConfig[],
   features?: WidgetFeatures,
+  configType?: PropertyPaneConfigTypes,
 ) {
-  // Enhance property pane for dynamic height feature
-  if (features && features.dynamicHeight) {
-    config.splice(1, 0, PropertyPaneConfigTemplates.DYNAMIC_HEIGHT);
+  // Enhance property pane with widget features
+  // TODO(abhinav): The following "configType" check should come
+  // from the features themselves.
+  if (
+    features &&
+    (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
+  ) {
+    Object.keys(features).forEach((registeredFeature: string) => {
+      if (
+        Array.isArray(config[0].children) &&
+        PropertyPaneConfigTemplates[
+          registeredFeature as RegisteredWidgetFeatures
+        ]
+      ) {
+        config[0].children.push(
+          ...PropertyPaneConfigTemplates[
+            registeredFeature as RegisteredWidgetFeatures
+          ],
+        );
+        config = WidgetFeaturePropertyPaneEnhancements[
+          registeredFeature as RegisteredWidgetFeatures
+        ](config);
+      }
+    });
   }
+
   return config;
 }
 

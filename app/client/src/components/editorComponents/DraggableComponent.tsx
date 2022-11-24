@@ -9,10 +9,7 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import {
-  previewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import {
   isCurrentWidgetFocused,
@@ -59,14 +56,12 @@ export const canDrag = (
   isDraggingDisabled: boolean,
   props: any,
   isSnipingMode: boolean,
-  isPreviewMode: boolean,
 ) => {
   return (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !props?.dragDisabled &&
-    !isSnipingMode &&
-    !isPreviewMode
+    !isSnipingMode
   );
 };
 
@@ -74,7 +69,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isPreviewMode = useSelector(previewModeSelector);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
@@ -142,7 +136,6 @@ function DraggableComponent(props: DraggableComponentProps) {
     isDraggingDisabled,
     props,
     isSnipingMode,
-    isPreviewMode,
   );
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);

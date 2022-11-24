@@ -293,6 +293,11 @@ export const CONFIG = {
                 propertyName: "template",
                 propertyValue: template,
               },
+              {
+                widgetId: container.widgetId,
+                propertyName: "dynamicHeight",
+                propertyValue: "FIXED",
+              },
             ];
 
             // add logBlackList to updateProperyMap for all children

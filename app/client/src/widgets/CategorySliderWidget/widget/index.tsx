@@ -63,7 +63,7 @@ class CategorySliderWidget extends BaseWidget<
     }
   }
 
-  static getDefaultPropertiesMap(): Record<string, unknown> {
+  static getDefaultPropertiesMap(): Record<string, string> {
     return {
       value: "defaultOptionValue",
     };

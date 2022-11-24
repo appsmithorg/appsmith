@@ -1581,3 +1581,62 @@ Cypress.Commands.add("moveToContentTab", () => {
     .first()
     .click({ force: true });
 });
+
+Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .eq(index)
+    .scrollIntoView()
+    .trigger("mouseover", { force: true })
+    .wait(500);
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
+    .eq(index)
+    .scrollIntoView()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("changeLayoutHeight", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(locator).click({ force: true });
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(locator).click({ force: true });
+});
+
+Cypress.Commands.add("checkMinDefaultValue", (endp, value) => {
+  cy.get(".cm-m-null")
+    .first()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      cy.log(someText);
+      expect(someText).to.equal(value);
+    });
+});
+
+Cypress.Commands.add("checkMaxDefaultValue", (endp, value) => {
+  cy.get(".cm-m-null")
+    .last()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      cy.log(someText);
+      expect(someText).to.equal(value);
+    });
+});

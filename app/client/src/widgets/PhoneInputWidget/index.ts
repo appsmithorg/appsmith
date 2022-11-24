@@ -5,6 +5,9 @@ import { getDefaultISDCode } from "./component/ISDCodeDropdown";
 import { LabelPosition } from "components/constants";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: true,
+  },
   type: Widget.getWidgetType(),
   name: "Phone Input",
   iconSVG: IconSVG,

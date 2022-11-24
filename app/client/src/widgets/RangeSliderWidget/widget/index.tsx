@@ -72,7 +72,7 @@ class RangeSliderWidget extends BaseWidget<
     }
   }
 
-  static getDefaultPropertiesMap(): Record<string, unknown> {
+  static getDefaultPropertiesMap(): Record<string, string> {
     return {
       start: "defaultStartValue",
       end: "defaultEndValue",

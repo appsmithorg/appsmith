@@ -18,6 +18,7 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -277,6 +278,7 @@ class MultiSelectWidget extends BaseWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -659,6 +661,7 @@ class MultiSelectWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         filterText={this.props.filterText}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
