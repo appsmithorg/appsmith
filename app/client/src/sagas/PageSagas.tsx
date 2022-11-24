@@ -950,7 +950,7 @@ function* fetchPageDSLSaga(pageId: string) {
       return {
         pageId: pageId,
         dsl: extractCurrentDSL(fetchPageResponse),
-        userPermissions: fetchPageResponse.data.userPermissions,
+        userPermissions: fetchPageResponse.data?.userPermissions,
       };
     }
   } catch (error) {
