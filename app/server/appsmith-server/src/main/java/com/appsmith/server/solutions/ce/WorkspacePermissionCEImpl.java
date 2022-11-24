@@ -15,7 +15,7 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE {
 
     @Override
     public AclPermission getDeletePermission() {
-        return AclPermission.DELETE_WORKSPACES;
+        return AclPermission.MANAGE_WORKSPACES;
     }
 
     @Override

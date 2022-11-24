@@ -51,6 +51,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         // No should we be overriding the workspacePermission.getApplicationCreatePermission() to return WORKSPACE_MANAGE_APPLICATIONS
         // OR
         // Keep using the workspacePermission.getApplicationEditPermission()
+        // OR
+        // Do we need workspace edit access in order to create application in Target Workspace
         final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
