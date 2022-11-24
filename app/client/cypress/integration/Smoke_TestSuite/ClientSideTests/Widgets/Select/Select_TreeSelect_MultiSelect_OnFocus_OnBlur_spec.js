@@ -23,7 +23,6 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
 
     cy.get(formWidgetsPage.selectButton).click({ force: true });
     cy.validateToastMessage("Select1 dropdown opened");
-    cy.wait(5000);
     cy.get(formWidgetsPage.selectButton).click({ force: true });
     cy.validateToastMessage("Select1 dropdown closed");
   });
@@ -44,7 +43,6 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
 
     cy.get(formWidgetsPage.multiSelect).click({ force: true });
     cy.validateToastMessage("MultiSelect1 dropdown opened");
-    cy.wait(5000);
     cy.get(formWidgetsPage.multiSelect).click({ force: true });
     cy.validateToastMessage("MultiSelect1 dropdown closed");
   });
@@ -67,7 +65,6 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
       .last()
       .click({ force: true });
     cy.validateToastMessage("TreeSelect1 dropdown opened");
-    cy.wait(5000);
     cy.get(formWidgetsPage.treeSelect)
       .last()
       .click({ force: true });
@@ -92,7 +89,6 @@ describe("Select, MultiSelect, Tree Select and Multi Tree Select Widget Property
       .first()
       .click({ force: true });
     cy.validateToastMessage("MultiTreeSelect1 dropdown opened");
-    cy.wait(5000);
     cy.get(formWidgetsPage.multiTreeSelect)
       .first()
       .click({ force: true });
