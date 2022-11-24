@@ -83,6 +83,13 @@ type Props = ReduxStateProps &
     pageId: string;
   }>;
 
+/*
+  **** State Variables Description ****
+  showDialog: flag used to show/hide the datasource discard popup
+  routesBlocked: flag used to identity if routes are blocked or not
+  unblock: on blocking routes using history.block, it returns a function which can be used to unblock the routes
+  navigation: function that navigates to path that we want to transition to, after discard action on datasource discard dialog popup
+*/
 type State = {
   showDialog: boolean;
   routesBlocked: boolean;

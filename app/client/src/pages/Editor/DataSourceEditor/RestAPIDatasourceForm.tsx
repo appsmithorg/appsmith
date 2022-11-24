@@ -375,6 +375,11 @@ class DatasourceRestAPIEditor extends React.Component<
     return { isValid: true, message: "" };
   };
 
+  handleDeleteDatasource = (datasourceId: string) => {
+    this.props.deleteDatasource(datasourceId);
+    this.props.datasourceDeleteTrigger();
+  };
+
   render = () => {
     return (
       <>
@@ -408,19 +413,7 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderSave = () => {
-    const {
-      datasourceDeleteTrigger,
-      datasourceId,
-      deleteDatasource,
-      hiddenHeader,
-      isDeleting,
-      isSaving,
-    } = this.props;
-
-    const handleDeleteDatasource = (datasourceId: string) => {
-      deleteDatasource(datasourceId);
-      datasourceDeleteTrigger();
-    };
+    const { datasourceId, hiddenHeader, isDeleting, isSaving } = this.props;
 
     return (
       <SaveButtonContainer>
@@ -432,7 +425,7 @@ class DatasourceRestAPIEditor extends React.Component<
             isLoading={isDeleting}
             onClick={() => {
               this.state.confirmDelete
-                ? handleDeleteDatasource(datasourceId)
+                ? this.handleDeleteDatasource(datasourceId)
                 : this.setState({ confirmDelete: true });
             }}
             size="medium"
