@@ -40,6 +40,14 @@ export function* FetchAdminSettingsSaga() {
         cloudHosting,
       ),
     };
+
+    //Converting empty string values to boolean false
+    for (const key in settings) {
+      if (!settings[key]) {
+        settings[key] = false;
+      }
+    }
+
     yield put({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
       payload: settings,
