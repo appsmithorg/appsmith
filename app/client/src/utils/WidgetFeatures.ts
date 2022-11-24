@@ -3,7 +3,11 @@ import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { WidgetHeightLimits, WidgetType } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  WidgetHeightLimits,
+  WidgetType,
+} from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
 
@@ -46,9 +50,10 @@ export const WidgetFeaturePropertyEnhancements: Record<
     const newProperties: Partial<WidgetProps> = {};
     if (config.isCanvas) {
       newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
+      newProperties.minDynamicHeight =
+        config.defaults.minDynamicHeight ||
+        WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
       newProperties.shouldScrollContents = true;
-      newProperties.originalTopRow = config.defaults.topRow;
-      newProperties.originalBottomRow = config.defaults.bottomRow;
     }
     if (config.defaults.overflow) newProperties.overflow = "NONE";
     return newProperties;
@@ -186,7 +191,8 @@ function updateMinMaxDynamicHeight(
     ) {
       updates.push({
         propertyPath: "maxDynamicHeight",
-        propertyValue: props.bottomRow - props.topRow,
+        propertyValue:
+          props.bottomRow - props.topRow + GridDefaults.CANVAS_EXTENSION_OFFSET,
       });
     }
 
@@ -198,10 +204,13 @@ function updateMinMaxDynamicHeight(
       });
     }
   } else if (propertyValue === DynamicHeight.AUTO_HEIGHT) {
+    const minHeightInRows = props.isCanvas
+      ? WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS
+      : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
     updates.push(
       {
         propertyPath: "minDynamicHeight",
-        propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
+        propertyValue: minHeightInRows,
       },
       {
         propertyPath: "maxDynamicHeight",
@@ -268,7 +277,7 @@ function updateMinMaxDynamicHeight(
 // TODO FEATURE:(abhinav) Add validations to these properties
 
 const CONTAINER_SCROLL_HELPER_TEXT =
-  "While editing, this widget may scroll contents to facilitate adding widgets. When published, the widget may not scroll contents.";
+  "This widget shows an internal scroll when you add widgets in edit mode. It'll resize after you've added widgets. The scroll won't exist in view mode.";
 
 export const PropertyPaneConfigTemplates: Record<
   RegisteredWidgetFeatures,

@@ -85,8 +85,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         props.type === "CANVAS_WIDGET" &&
         widgetId !== MAIN_CONTAINER_WIDGET_ID
       ) {
+        const isListWidgetCanvas =
+          props.noPad && props.dropDisabled && props.openParentPropertyPane;
+
         widgetProps.rightColumn = props.rightColumn;
-        if (widgetProps.bottomRow === undefined) {
+        if (widgetProps.bottomRow === undefined || isListWidgetCanvas) {
           widgetProps.bottomRow = props.bottomRow;
           widgetProps.minHeight = props.minHeight;
         }

@@ -21,6 +21,7 @@ export const CONFIG = {
     backgroundColor: "white",
     borderWidth: "1",
     borderColor: Colors.GREY_5,
+    minDynamicHeight: 14,
     children: [],
     blueprint: {
       view: [

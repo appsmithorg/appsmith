@@ -167,4 +167,5 @@ export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
   MIN_HEIGHT_IN_ROWS: 4,
+  MIN_CANVAS_HEIGHT_IN_ROWS: 10,
 };
