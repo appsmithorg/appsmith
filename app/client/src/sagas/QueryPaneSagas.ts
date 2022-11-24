@@ -299,6 +299,10 @@ function* handleDatasourceCreatedSaga(
     getGenerateCRUDEnabledPluginMap,
   );
 
+  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
+  // then we check if the current plugin is supported for generate page with data functionality
+  // and finally isDBCreated ensures that datasource is not in temporary state and
+  // user has explicitly saved the datasource, before redirecting back to generate page
   if (
     isGeneratePageInitiator &&
     updatedDatasource.pluginId &&
