@@ -950,6 +950,7 @@ function* fetchPageDSLSaga(pageId: string) {
       return {
         pageId: pageId,
         dsl: extractCurrentDSL(fetchPageResponse),
+        userPermissions: fetchPageResponse.data.userPermissions,
       };
     }
   } catch (error) {
@@ -980,6 +981,10 @@ export function* populatePageDSLsSaga() {
     );
     yield put({
       type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+      payload: pageDSLs,
+    });
+    yield put({
+      type: ReduxActionTypes.UPDATE_PAGE_LIST,
       payload: pageDSLs,
     });
   } catch (error) {
