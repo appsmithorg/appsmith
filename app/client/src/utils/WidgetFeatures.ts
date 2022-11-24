@@ -44,8 +44,8 @@ export const WidgetFeaturePropertyEnhancements: Record<
 > = {
   [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (config: WidgetConfiguration) => {
     const newProperties: Partial<WidgetProps> = {};
-    newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
     if (config.isCanvas) {
+      newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
       newProperties.shouldScrollContents = true;
       newProperties.originalTopRow = config.defaults.topRow;
       newProperties.originalBottomRow = config.defaults.bottomRow;
