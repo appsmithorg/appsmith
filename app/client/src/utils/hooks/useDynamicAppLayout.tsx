@@ -22,7 +22,6 @@ import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import { calculateDynamicHeight } from "utils/DSLMigrations";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -32,19 +31,19 @@ export const useDynamicAppLayout = () => {
   const explorerWidth = useSelector(getExplorerWidth);
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
-  const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
+  const { width: screenWidth } = useWindowSizeHooks();
   const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
 
-  /**
-   * calculates min height
-   */
-  const calculatedMinHeight = useMemo(() => {
-    return calculateDynamicHeight();
-  }, [mainCanvasProps]);
+  // /**
+  //  * calculates min height
+  //  */
+  // const calculatedMinHeight = useMemo(() => {
+  //   return calculateDynamicHeight();
+  // }, [mainCanvasProps]);
 
   /**
    * app layout range i.e minWidth and maxWidth for the current layout
@@ -135,7 +134,7 @@ export const useDynamicAppLayout = () => {
     const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
-      dispatch(updateCanvasLayoutAction(calculatedWidth, calculatedMinHeight));
+      dispatch(updateCanvasLayoutAction(calculatedWidth));
     }
   };
 
@@ -147,13 +146,11 @@ export const useDynamicAppLayout = () => {
   /**
    * when screen height is changed, update canvas layout
    */
-  useEffect(() => {
-    if (calculatedMinHeight !== mainCanvasProps?.height) {
-      dispatch(
-        updateCanvasLayoutAction(mainCanvasProps?.width, calculatedMinHeight),
-      );
-    }
-  }, [screenHeight, mainCanvasProps?.height]);
+  // useEffect(() => {
+  //   if (calculatedMinHeight !== mainCanvasProps?.height) {
+  //     // dispatch(updateCanvasLayoutAction(mainCanvasProps?.width));
+  //   }
+  // }, [screenHeight, mainCanvasProps?.height]);
 
   useEffect(() => {
     if (isCanvasInitialized) debouncedResize();

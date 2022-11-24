@@ -15,6 +15,7 @@ import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import derivedProperties from "./parseDerivedProperties";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -153,6 +154,7 @@ class SingleSelectTreeWidget extends BaseWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -479,6 +481,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         expandAll={this.props.expandAll}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
