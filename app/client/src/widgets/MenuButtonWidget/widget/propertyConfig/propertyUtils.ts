@@ -8,7 +8,12 @@ export const updateMenuItemsSource = (
   const propertiesToUpdate: Array<{
     propertyPath: string;
     propertyValue: unknown;
-  }> = [];
+  }> = [
+    {
+      propertyPath,
+      propertyValue,
+    },
+  ];
   const isMenuItemsSourceChangedFromStaticToDynamic =
     props.menuItemsSource === MenuItemsSource.STATIC &&
     propertyValue === MenuItemsSource.DYNAMIC;
