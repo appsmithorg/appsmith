@@ -4,6 +4,7 @@ import {
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "./generators";
+import { WidgetType } from "./WidgetFactory";
 import {
   PropertyPaneConfigTemplates,
   RegisteredWidgetFeatures,
@@ -74,6 +75,7 @@ export function enhancePropertyPaneConfig(
   config: PropertyPaneConfig[],
   features?: WidgetFeatures,
   configType?: PropertyPaneConfigTypes,
+  widgetType?: WidgetType,
 ) {
   // Enhance property pane with widget features
   // TODO(abhinav): The following "configType" check should come
@@ -96,7 +98,7 @@ export function enhancePropertyPaneConfig(
         );
         config = WidgetFeaturePropertyPaneEnhancements[
           registeredFeature as RegisteredWidgetFeatures
-        ](config);
+        ](config, widgetType);
       }
     });
   }
