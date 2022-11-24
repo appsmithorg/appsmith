@@ -67,6 +67,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 @Slf4j
@@ -145,7 +146,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Override
     public Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName) {
-        return this.findByBranchNameAndDefaultApplicationId(branchName, id, READ_APPLICATIONS)
+        return this.findByBranchNameAndDefaultApplicationId(branchName, id, projectionFieldNames, READ_APPLICATIONS)
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
@@ -287,8 +288,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
 
     public Mono<UpdateResult> update(String defaultApplicationId, String fieldName, Object value, String branchName) {
-        return repository.updateFieldByDefaultIdAndBranchName(defaultApplicationId, fieldName, value, branchName,
-                MANAGE_APPLICATIONS);
+        String defaultIdPath = "id";
+        if (!isBlank(branchName)) {
+            defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
+        }
+        return repository.updateFieldByDefaultIdAndBranchName(defaultApplicationId, defaultIdPath, fieldName, value,
+                branchName, "gitApplicationMetadata.branchName", MANAGE_APPLICATIONS);
     }
 
     public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
@@ -625,7 +630,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                                                      List<String> projectionFieldNames,
                                                                      AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission)
+            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission) // TODO: remove next
+                    .map(res -> res)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );

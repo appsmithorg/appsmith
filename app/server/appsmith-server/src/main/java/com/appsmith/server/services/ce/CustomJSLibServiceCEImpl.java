@@ -17,6 +17,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,18 +49,28 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     @Override
     public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
                                                String branchName) {
-        return zip(getAllJSLibApplicationDTOFromApplication(applicationId, branchName),
-                createDTOFromCustomJSLibIfDoesNotExist(jsLib))
+        /*return getAllJSLibApplicationDTOFromApplication(applicationId, branchName)
+                .map(res -> true);
+*/
+        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName)
+                .zipWith(createDTOFromCustomJSLibIfDoesNotExist(jsLib))
                 .map(tuple -> {
                     /**
                      * TODO: try to convert it into a single update op where reading of list is not required
                      * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
                      */
                     Set<CustomJSLibApplicationDTO> jsLibDTOsInApplication = tuple.getT1();
+                    /*Set<String> jsLibIdsInApplication = jsLibDTOsInApplication.stream()
+                            .map(jsLibDTO -> jsLibDTO.getId())
+                            .collect(Collectors.toSet());*/
                     CustomJSLibApplicationDTO currentJSLibDTO = tuple.getT2();
+                    /*if (!jsLibIdsInApplication.contains(currentJSLibDTO.getId())) {
+                        jsLibDTOsInApplication.add(currentJSLibDTO);
+                    }*/
                     if (!jsLibDTOsInApplication.contains(currentJSLibDTO)) {
                         jsLibDTOsInApplication.add(currentJSLibDTO);
                     }
+
 
                     return jsLibDTOsInApplication;
                 })
@@ -80,8 +91,8 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     @Override
     public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId,
                                                     @NotNull CustomJSLib jsLib, String branchName) {
-        return zip(getAllJSLibApplicationDTOFromApplication(applicationId, branchName),
-                createDTOFromCustomJSLibIfDoesNotExist(jsLib))
+        return getAllJSLibApplicationDTOFromApplication(applicationId, branchName)
+                .zipWith(createDTOFromCustomJSLibIfDoesNotExist(jsLib))
                 .map(tuple -> {
                     /**
                      * TODO: try to convert it into a single update op where reading of list is not required
@@ -113,6 +124,9 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     public Mono<Set<CustomJSLibApplicationDTO>> getAllJSLibApplicationDTOFromApplication(@NotNull String applicationId, String branchName) {
         return applicationService.findByIdAndBranchName(applicationId,
                 List.of(INSTALLED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS), branchName)
-                .map(Application::getInstalledCustomJSLibs);
+                .map(res -> res)
+                .map(application -> application.getInstalledCustomJSLibs() == null ? new HashSet<CustomJSLibApplicationDTO>() :
+                        application.getInstalledCustomJSLibs())
+                .map(res -> res);
     }
 }

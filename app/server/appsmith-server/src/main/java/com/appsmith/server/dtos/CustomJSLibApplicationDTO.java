@@ -21,11 +21,16 @@ public class CustomJSLibApplicationDTO {
         /**
          * TODO: add comment
          */
-        if (!isBlank(((CustomJSLibApplicationDTO) o).getId()) && !isBlank(this.id)) {
+        /*if (!isBlank(((CustomJSLibApplicationDTO) o).getId()) && !isBlank(this.id)) {
             return ((CustomJSLibApplicationDTO) o).getId().equals(this.id);
-        }
+        }*/
 
         return ((CustomJSLibApplicationDTO) o).getAccessorString().equals(this.accessorString);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.accessorString.hashCode();
     }
 
     public static CustomJSLibApplicationDTO getDTOFromCustomJSLib(CustomJSLib jsLib) {

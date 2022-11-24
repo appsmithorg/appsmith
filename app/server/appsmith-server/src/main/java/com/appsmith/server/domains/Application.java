@@ -80,8 +80,7 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Set<CustomJSLibApplicationDTO> installedCustomJSLibs = new HashSet<>();
+    Set<CustomJSLibApplicationDTO> installedCustomJSLibs;
 
     GitApplicationMetadata gitApplicationMetadata;
 
@@ -172,6 +171,8 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        // TODO: check this
+        this.installedCustomJSLibs = application.getInstalledCustomJSLibs();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {

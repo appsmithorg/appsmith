@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -22,7 +23,9 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
     // TODO: add comment also mention why no branch
     @Override
     public Mono<CustomJSLib> findByAccessorString(String accessorString) {
-        Criteria accessorNameMatchCriteria = where("installedCustomJSLibs.accessorString").is(accessorString);
-        return queryOne(List.of(accessorNameMatchCriteria), MANAGE_PAGES);
+        Criteria accessorNameMatchCriteria = where("accessorString").is(accessorString);
+        ArrayList<Criteria> listOfCriterias = new ArrayList<>();
+        listOfCriterias.add(accessorNameMatchCriteria);
+        return queryOne(listOfCriterias, List.of());
     }
 }

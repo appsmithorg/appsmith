@@ -61,4 +61,8 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Flux<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId);
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
+
+    Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, String fieldName,
+                                                           Object value, String branchName, String branchNamePath,
+                                                           AclPermission permission);
 }

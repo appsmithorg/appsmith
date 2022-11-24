@@ -254,7 +254,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, String fieldName,
-                                                                  Object value, String branchName, AclPermission permission) {
-        return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldName, value, branchName, permission);
+                                                                  Object value, String branchName,
+                                                                  String branchNamePath, AclPermission permission) {
+        return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldName, value, branchName,
+                branchNamePath, permission);
     }
 }

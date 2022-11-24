@@ -39,6 +39,7 @@ import java.util.Set;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -192,15 +193,20 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, String fieldName,
-                                                                  Object value, String branchName, AclPermission permission) {
+                                                                  Object value, String branchName,
+                                                                  String branchNamePath, AclPermission permission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups -> {
-                    Query query = new Query(Criteria.where("defaultResources." + defaultIdPath).is(defaultId));
-                    query.addCriteria(Criteria.where("defaultResources.branchName").is(branchName));
-                    query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+                    Query query = new Query(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups,
+                            permission)));
+                    query.addCriteria(Criteria.where(defaultIdPath).is(defaultId));
+
+                    if (!isBlank(branchName)) {
+                        query.addCriteria(Criteria.where(branchNamePath).is(branchName));
+                    }
 
                     Update update = new Update();
                     update.set(fieldName, value);
@@ -446,4 +452,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
+    public Mono<T> queryOne(List<Criteria> criterias, List<String> projectionFieldNames) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> {
+                    criterias.add(notDeleted());
+                    Query query = new Query(new Criteria().andOperator(criterias));
+
+                    if(!isEmpty(projectionFieldNames)) {
+                        projectionFieldNames.stream()
+                                .forEach(projectionFieldName -> {
+                                    query.fields().include(projectionFieldName);
+                                });
+                    }
+
+                    return mongoOperations.query(this.genericDomain)
+                            .matching(query)
+                            .one();
+                });
+    }
 }

@@ -23,8 +23,4 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
     Mono<Long> countByDeletedAtNull();
 
     Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
-
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String fieldName, Object value,
-                                                     String branchName, AclPermission permission);
-
 }
