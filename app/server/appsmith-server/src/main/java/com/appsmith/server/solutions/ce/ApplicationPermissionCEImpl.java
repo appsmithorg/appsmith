@@ -40,6 +40,6 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE {
 
     @Override
     public AclPermission getPageCreatePermission() {
-        return AclPermission.MANAGE_APPLICATIONS;
+        return AclPermission.APPLICATION_CREATE_PAGES;
     }
 }

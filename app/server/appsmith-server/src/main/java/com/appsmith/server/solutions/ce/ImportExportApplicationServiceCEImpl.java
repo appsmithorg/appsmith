@@ -705,14 +705,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                // TODO: Overriding Question
-                // Earlier, WORKSPACE_MANAGE_APPLICATIONS was being used in order to fork create an application inside a target workspace.
-                // No should we be overriding the workspacePermission.getApplicationCreatePermission() to return WORKSPACE_MANAGE_APPLICATIONS
-                // OR
-                // Keep using the workspacePermission.getApplicationEditPermission()
-                // OR
-                // Do we need workspace edit access in order to create application in Target Workspace
-                .then(workspaceService.findById(workspaceId, workspacePermission.getApplicationEditPermission()))
+                .then(workspaceService.findById(workspaceId, workspacePermission.getApplicationCreatePermission()))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
@@ -1988,7 +1981,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
-        // TODO: Opinion -> Read permission should be used instead of Manage.
+        // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission()).collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
                 .collectList()

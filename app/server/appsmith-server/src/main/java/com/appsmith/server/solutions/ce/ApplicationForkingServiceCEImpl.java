@@ -46,14 +46,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        // TODO: Overriding Question
-        // Earlier, WORKSPACE_MANAGE_APPLICATIONS was being used in order to fork create an application inside a target workspace.
-        // No should we be overriding the workspacePermission.getApplicationCreatePermission() to return WORKSPACE_MANAGE_APPLICATIONS
-        // OR
-        // Keep using the workspacePermission.getApplicationEditPermission()
-        // OR
-        // Do we need workspace edit access in order to create application in Target Workspace
-        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationEditPermission())
+        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();

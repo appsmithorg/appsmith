@@ -20,7 +20,7 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE {
 
     @Override
     public AclPermission getApplicationCreatePermission() {
-        return AclPermission.WORKSPACE_CREATE_APPLICATION;
+        return AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
     }
 
     @Override

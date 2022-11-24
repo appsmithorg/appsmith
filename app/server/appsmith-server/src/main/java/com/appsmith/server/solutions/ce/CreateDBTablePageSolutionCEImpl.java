@@ -423,9 +423,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     });
         }
 
-        // Earlier, using MANAGE_APPLICATIONS in order to get or create page in Application.
-        // Now, getting that permission using the applicationPermission.getPageCreatePermission() to do the same.
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getPageCreatePermission())
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, MANAGE_PAGES, false))
                 .collectList()
                 .flatMap(pages -> {

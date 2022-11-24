@@ -391,8 +391,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
 
-        // Earlier, using MANAGE_APPLICATIONS in order to find the application to be deleted.
-        // Now, we get that permission using applicationPermission.getDeletePermission() method.
         Mono<Application> applicationMono = applicationRepository.findById(id, applicationPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .cache();
