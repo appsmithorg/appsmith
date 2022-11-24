@@ -141,13 +141,19 @@ function* onEntityDeleteSaga(payload: Log[]) {
 
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
   const errorIds = Object.keys(errors);
+  const logSourceIds = sortedLogs.withSource.map((log) => log.source?.id);
 
-  const currentlyAvailableLogs = sortedLogs.withSource.filter(
+  const errorsToDelete = errorIds.reduce((errorList: Log[], currentId) => {
+    const isPresent = logSourceIds.some((id) => id && currentId.includes(id));
+    return isPresent ? [...errorList, errors[currentId]] : errorList;
+  }, []);
+
+  sortedLogs.withSource.filter(
     (log) => log.source && errorIds.includes(log.source.id),
   );
 
-  if (!isEmpty(currentlyAvailableLogs)) {
-    const errorPayload = currentlyAvailableLogs.map((log) => ({
+  if (!isEmpty(errorsToDelete)) {
+    const errorPayload = errorsToDelete.map((log) => ({
       id: log.id as string,
       analytics: log.analytics,
     }));
@@ -255,14 +261,14 @@ function* onTriggerPropertyUpdates(payload: Log[]) {
 
 function* debuggerLogSaga(action: ReduxAction<Log[]>) {
   const { payload } = action;
-
+  let unhandledLogs: Log[] = [];
   const sortedLogs = payload.reduce(
     (sortedLogs: Record<string, Log[]>, currentLog: Log) => {
       if (currentLog.logType) {
         return sortedLogs.hasOwnProperty(currentLog.logType)
           ? {
               ...sortedLogs,
-              [currentLog.logType as LOG_TYPE]: [
+              [currentLog.logType]: [
                 ...sortedLogs[currentLog.logType],
                 currentLog,
               ],
@@ -272,6 +278,7 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
               [currentLog.logType]: [currentLog],
             };
       } else {
+        unhandledLogs.push(currentLog);
         return sortedLogs;
       }
     },
@@ -301,7 +308,6 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
         AppsmithConsole.deleteError(errorIds);
         break;
       }
-
       // @ts-expect-error: Types are not available
       case LOG_TYPE.TRIGGER_EVAL_ERROR:
         yield put(debuggerLog(payload));
@@ -356,8 +362,11 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
         yield fork(onEntityDeleteSaga, payload);
         break;
       default:
-        yield put(debuggerLog(payload));
+        unhandledLogs = unhandledLogs.concat(payload);
     }
+  }
+  if (!isEmpty(unhandledLogs)) {
+    yield put(debuggerLog(unhandledLogs));
   }
 }
 
