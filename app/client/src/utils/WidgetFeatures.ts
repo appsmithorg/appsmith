@@ -245,7 +245,7 @@ function updateMinMaxDynamicHeight(
 // TODO FEATURE:(abhinav) Add validations to these properties
 
 const CONTAINER_SCROLL_HELPER_TEXT =
-  "While editing, this widget may scroll contents to facilitate adding widgets. When published, the widget may not scroll contents.";
+  "This widget shows an internal scroll when you add widgets in edit mode. It'll resize after you've added widgets. The scroll won't exist in view mode.";
 
 export const PropertyPaneConfigTemplates: Record<
   RegisteredWidgetFeatures,
