@@ -26,7 +26,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { checkRegex } from "utils/validation/CheckRegex";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { specialCharacterCheckRegex } from "../Utils";
+import { appNameRegex } from "../Utils";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
@@ -85,7 +85,7 @@ function GeneralSettings() {
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
-          "pb-3": !isAppNameValid,
+          "pb-4": !isAppNameValid,
         })}
       >
         {isSavingAppName && <TextLoaderIcon />}
@@ -106,7 +106,7 @@ function GeneralSettings() {
           placeholder="App name"
           type="input"
           validator={checkRegex(
-            specialCharacterCheckRegex,
+            appNameRegex,
             URL_FIELD_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsAppNameValid,

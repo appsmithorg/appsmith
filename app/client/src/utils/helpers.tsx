@@ -875,7 +875,7 @@ export const getUpdatedRoute = (
   return updatedPath;
 };
 
-// to split url into array, so specific parts can be bolded on UI preview
+// to split relative url into array, so specific parts can be bolded on UI preview
 export const splitPathPreview = (
   url: string,
   customSlug?: string,

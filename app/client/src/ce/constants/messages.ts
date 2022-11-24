@@ -1313,7 +1313,7 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
   "You must set a homepage. Set another page to disable this";
 
 export const URL_FIELD_SPECIAL_CHARACTER_ERROR = () =>
-  "No special characters are allowed";
+  "No special characters allowed";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

@@ -13,6 +13,7 @@ function AppSettingsPane() {
   useOnClickOutside([paneRef, portalRef], () => {
     if (document.getElementById("save-theme-modal")) return;
     if (document.getElementById("delete-theme-modal")) return;
+    if (document.getElementById("manual-upgrades-modal")) return;
     dispatch(closeAppSettingsPaneAction());
   });
 

@@ -111,7 +111,7 @@ function UpdatesModal({
       scrollContents
       width={600}
     >
-      <BodyContainer className="p-6">
+      <BodyContainer className="p-6" id="manual-upgrades-modal">
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-start">
             <StyledIconContainer>

@@ -52,7 +52,7 @@ const UrlPreviewWrapper = styled.div`
   height: 54px;
 `;
 
-const UrlPreviewScroll = styled.p`
+const UrlPreviewScroll = styled.div`
   height: 48px;
   overflow-y: auto;
 
@@ -169,7 +169,7 @@ function PageSettings(props: { page: Page }) {
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
-          "pb-3": !isPageNameValid,
+          "pb-4": !isPageNameValid,
         })}
       >
         {isPageNameSaving && <TextLoaderIcon />}
@@ -217,7 +217,7 @@ function PageSettings(props: { page: Page }) {
         className={classNames({
           "py-1 relative": true,
           "pb-2": appNeedsUpdate,
-          "pb-5": !appNeedsUpdate && !isCustomSlugValid,
+          "pb-6": !appNeedsUpdate && !isCustomSlugValid,
         })}
       >
         {isCustomSlugSaving && <TextLoaderIcon />}
@@ -250,24 +250,33 @@ function PageSettings(props: { page: Page }) {
         >
           <UrlPreviewScroll
             className={`py-1 pl-2 mr-0.5 text-[color:var(--appsmith-color-black-700)] text-xs break-all`}
+            onCopy={() => {
+              navigator.clipboard.writeText(
+                location.protocol +
+                  "//" +
+                  window.location.hostname +
+                  pathPreview.relativePath,
+              );
+            }}
             style={{ lineHeight: "1.17" }}
           >
             {location.protocol}
             {"//"}
             {window.location.hostname}
-            {Array.isArray(pathPreview) && (
+            {Array.isArray(pathPreview.splitRelativePath) && (
               <>
-                {pathPreview[0]}
+                {pathPreview.splitRelativePath[0]}
                 <strong
                   className={`text-[color:var(--appsmith-color-black-800))]`}
                 >
-                  {pathPreview[1]}
+                  {pathPreview.splitRelativePath[1]}
                 </strong>
-                {pathPreview[2]}
-                {pathPreview[3]}
+                {pathPreview.splitRelativePath[2]}
+                {pathPreview.splitRelativePath[3]}
               </>
             )}
-            {!Array.isArray(pathPreview) && pathPreview}
+            {!Array.isArray(pathPreview.splitRelativePath) &&
+              pathPreview.splitRelativePath}
           </UrlPreviewScroll>
         </UrlPreviewWrapper>
       )}
