@@ -15,7 +15,7 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE {
 
     @Override
     public AclPermission getPublishPermission() {
-        return AclPermission.PUBLISH_APPLICATIONS;
+        return AclPermission.MANAGE_APPLICATIONS;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE {
 
     @Override
     public AclPermission getDeletePermission() {
-        return AclPermission.DELETE_APPLICATIONS;
+        return AclPermission.MANAGE_APPLICATIONS;
     }
 
     @Override
@@ -40,6 +40,6 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE {
 
     @Override
     public AclPermission getPageCreatePermission() {
-        return AclPermission.APPLICATION_CREATE_PAGES;
+        return AclPermission.MANAGE_APPLICATIONS;
     }
 }

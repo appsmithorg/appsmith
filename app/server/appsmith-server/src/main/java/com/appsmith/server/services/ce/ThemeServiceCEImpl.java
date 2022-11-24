@@ -208,7 +208,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     @Override
     public Mono<Theme> publishTheme(String applicationId) {
         // fetch application to make sure user has permission to manage this application
-        return applicationRepository.findById(applicationId, applicationPermission.getEditPermission()).flatMap(application -> {
+        // Earlier, MANAGE_APPLICATIONS was being used in order to publish the application
+        // Now, we will get that permission using applicationPermission.getPublishPermission() method
+        return applicationRepository.findById(applicationId, applicationPermission.getPublishPermission()).flatMap(application -> {
             Mono<Theme> editModeThemeMono;
             if (!StringUtils.hasLength(application.getEditModeThemeId())) { // theme id is empty, use the default theme
                 editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
