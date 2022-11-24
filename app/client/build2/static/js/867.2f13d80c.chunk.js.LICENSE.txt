@@ -1,0 +1,134 @@
+/* @license
+Papa Parse
+v5.3.2
+https://github.com/mholt/PapaParse
+License: MIT
+*/
+
+/*!
+       * The buffer module from node.js, for the browser.
+       *
+       * @author   Feross Aboukhadijeh <http://feross.org>
+       * @license  MIT
+       */
+
+/*!
+  * $script.js JS loader & dependency manager
+  * https://github.com/ded/script.js
+  * (c) Dustin Diaz 2014 | License MIT
+  */
+
+/*!
+  Copyright (c) 2017 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+
+/*!
+* focus-trap 6.9.0
+* @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
+*/
+
+/*!
+* tabbable 5.2.1
+* @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
+*/
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+
+/*! dontAppend && */
+
+/*! exports provided: default */
+
+/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
+
+/*! no static exports found */
+
+/*! react */
+
+/*! showdown v 1.9.1 - 02-11-2019 */
+
+/*!******************************!*\
+        !*** ./src/react-webcam.tsx ***!
+        \******************************/
+
+/*!**************************************************************************************!*\
+        !*** external {"root":"React","commonjs2":"react","commonjs":"react","amd":"react"} ***!
+        \**************************************************************************************/
+
+/*!dontAppend && */
+
+/**
+ * Prism: Lightweight, robust, elegant syntax highlighting
+ *
+ * @license MIT <https://opensource.org/licenses/MIT>
+ * @author Lea Verou <https://lea.verou.me>
+ * @namespace
+ * @public
+ */
+
+/** !
+     * @license FusionCharts JavaScript Library
+     * Copyright FusionCharts, Inc.
+     * License Information at <http://www.fusioncharts.com/license>
+     */
+
+/** !
+     * @license FusionCharts JavaScript Library - KDtree
+     * Copyright FusionCharts, Inc.
+     * License Information at <http://www.fusioncharts.com/license>
+     *
+     * @version //? write(JSON.parse(require('fs').readFileSync('./package.json')).version);
+     */
+
+/**!
+      * RedRaphael 1.0.0 - JavaScript Vector Library VML Module
+      * Copyright (c) 2012-2013 FusionCharts, Inc. <http://www.fusioncharts.com>
+      *
+      * Raphael 2.1.0 - JavaScript Vector Library VML Module
+      * Copyright (c) 2008-2012 Dmitry Baranovskiy <http://raphaeljs.com>
+      * Copyright © 2008-2012 Sencha Labs <http://sencha.com>
+      *
+      * Licensed under the MIT license.
+      */
+
+/**!
+* @license FusionCharts JavaScript Library
+* Copyright FusionCharts, Inc.
+* License Information at <http://www.fusioncharts.com/license>
+*
+* @version 3.18.0
+*
+* @attributions (infers respective third-party copyrights)
+* Raphael 2.1.0 (modified as 'Red Raphael') <http://raphaeljs.com/license.html>
+* JSON v2 <http://www.JSON.org/js.html>
+* Firebug Lite 1.3.0 <http://getfirebug.com/firebuglite>
+*/

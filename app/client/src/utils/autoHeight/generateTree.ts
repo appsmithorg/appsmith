@@ -11,7 +11,15 @@ export function generateTree(
   previousTree: Record<string, TreeNode>,
 ): Record<string, TreeNode> {
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
-  spaces.sort((a, b) => a.top - b.top); // Sort based on position, top to bottom, so that we know which is above the other
+  spaces.sort((a, b) => {
+    //if both are of the same level and previous tree exists, check originalTops
+    if (a.top === b.top && previousTree[a.id] && previousTree[b.id]) {
+      return (
+        previousTree[a.id].originalTopRow - previousTree[b.id].originalTopRow
+      );
+    }
+    return a.top - b.top;
+  }); // Sort based on position, top to bottom, so that we know which is above the other
   const _spaces = [...spaces];
 
   const aboveMap: Record<string, string[]> = {};

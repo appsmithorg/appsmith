@@ -1,0 +1,89 @@
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.Africa.20.10-31-2012 11:17:54
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.Asia.20.10-31-2012 11:17:55
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.Europe.20.12-18-2012 04:19:41
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.NorthAmerica.20.10-30-2012 06:49:23
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.Oceania.20.10-30-2012 07:04:13
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.SouthAmerica.20.10-30-2012 07:14:33
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.USA.20.10-31-2012 11:18:04
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.World.20.10-30-2012 07:55:31
+       */
+
+/**!
+       * @license FusionCharts JavaScript Library
+       * Copyright FusionCharts, Inc.
+       * License Information at <http://www.fusioncharts.com/license>
+       *
+       * @author FusionCharts, Inc.
+       * @meta package_map_pack
+       * @id fusionmaps.WorldWithAntarctica.20.10-30-2012 08:00:19
+       */
