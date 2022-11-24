@@ -66,7 +66,7 @@ export function DataSourceContextMenu(props: {
     },
     {
       value: "refresh",
-      className: "t--datasource-refresh",
+      className: "single-select t--datasource-refresh",
       onSelect: dispatchRefresh,
       label: createMessage(CONTEXT_REFRESH),
     },
