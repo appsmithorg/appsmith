@@ -1,8 +1,10 @@
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import log from "loglevel";
 import { generateReactKey } from "./generators";
 import {
   PropertyPaneConfigTemplates,
@@ -86,6 +88,11 @@ export function enhancePropertyPaneConfig(
       const { sectionIndex } = features[
         registeredFeature as RegisteredWidgetFeatures
       ];
+      const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
+        ?.sectionName;
+      if (!sectionName || sectionName !== "General") {
+        log.error(`Invalid section index for feature: ${registeredFeature}`);
+      }
       if (
         Array.isArray(config[sectionIndex].children) &&
         PropertyPaneConfigTemplates[
