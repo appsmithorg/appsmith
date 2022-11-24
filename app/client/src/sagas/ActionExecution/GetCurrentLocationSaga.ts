@@ -191,6 +191,8 @@ export function* watchCurrentLocation(
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
+
+    return;
   }
   successChannel = channel();
   errorChannel = channel();
@@ -208,6 +210,13 @@ export function* watchCurrentLocation(
       }
     },
     (error) => {
+      // When location is turned off, the watch fails but watchId is generated
+      // Resetting the watchId to undefined so that a new watch can be started
+      if (watchId && error instanceof GeolocationPositionError) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = undefined;
+      }
+
       if (errorChannel) {
         errorChannel.put({
           error,
