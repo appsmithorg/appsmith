@@ -42,6 +42,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
@@ -67,10 +68,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
@@ -97,6 +95,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
 
 
     public static final Integer EVALUATION_VERSION = 2;
@@ -127,7 +126,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             }
         }
 
-        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), AclPermission.MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), applicationPermission.getManagePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, page.getApplicationId())))
                 .cache();
 
@@ -163,7 +162,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             defaultResources.setApplicationId(page.getApplicationId());
         }
         defaultResources.setBranchName(branchName);
-        return applicationService.findBranchedApplicationId(branchName, defaultResources.getApplicationId(), MANAGE_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultResources.getApplicationId(), applicationPermission.getManagePermission())
                 .flatMap(branchedApplicationId -> {
                     page.setApplicationId(branchedApplicationId);
                     page.setDefaultResources(defaultResources);
@@ -249,10 +248,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         AclPermission pagePermission;
         if (viewMode) {
             //If view is set, then this user is trying to view the application
-            appPermission = READ_APPLICATIONS;
+            appPermission = applicationPermission.getReadPermission();
             pagePermission = READ_PAGES;
         } else {
-            appPermission = MANAGE_APPLICATIONS;
+            appPermission = applicationPermission.getManagePermission();
             pagePermission = MANAGE_PAGES;
         }
 
@@ -281,7 +280,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
                     return Mono.error(new AppsmithException(AppsmithError.PAGE_DOESNT_BELONG_TO_APPLICATION, page.getName(), applicationId));
                 })
-                .then(applicationService.findById(applicationId, MANAGE_APPLICATIONS))
+                .then(applicationService.findById(applicationId, applicationPermission.getManagePermission()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .flatMap(application ->
                         applicationRepository
@@ -357,7 +356,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             // Now publish this newly created app with default states so that
                             // launching of newly created application is possible.
                             .flatMap(updatedApplication -> publish(savedApplication.getId(), false)
-                                    .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS)));
+                                    .then(applicationService.findById(savedApplication.getId(), applicationPermission.getReadPermission())));
                 });
     }
 
@@ -392,7 +391,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
 
-        Mono<Application> applicationMono = applicationRepository.findById(id, MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationRepository.findById(id, applicationPermission.getManagePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .cache();
 
@@ -406,7 +405,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
                         return applicationService
-                                .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS);
+                                .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), applicationPermission.getManagePermission());
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -507,7 +506,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Mono<ApplicationPagesDTO> pageNamesMono = newPageService
                             .findApplicationPagesByApplicationIdViewMode(page.getApplicationId(), false, false);
 
-                    Mono<Application> destinationApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                    Mono<Application> destinationApplicationMono = applicationService.findById(applicationId, applicationPermission.getManagePermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
 
                     return Mono.zip(pageNamesMono, destinationApplicationMono)
@@ -673,7 +672,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .thenReturn(savedPage);
                 })
                 .flatMap(page -> {
-                    Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS);
+                    Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), applicationPermission.getManagePermission());
                     return applicationMono
                             .flatMap(application -> {
                                 ApplicationPage applicationPage = new ApplicationPage();
@@ -698,7 +697,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Application> cloneApplication(String applicationId, String branchName) {
 
-        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getManagePermission())
                 .flatMap(application -> {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
@@ -708,7 +707,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         return applicationService.findByBranchNameAndDefaultApplicationId(
                                 application.getGitApplicationMetadata().getDefaultBranchName(),
                                 applicationId,
-                                AclPermission.MANAGE_APPLICATIONS
+                                applicationPermission.getManagePermission()
                         );
                     }
                     return Mono.just(application);
@@ -794,7 +793,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 application.setEditModeThemeId(editModeThemeId);
                                                 application.setPublishedModeThemeId(publishedModeThemeId);
                                                 return applicationService.setAppTheme(
-                                                        application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
+                                                        application.getId(), editModeThemeId, publishedModeThemeId, applicationPermission.getManagePermission()
                                                 ).thenReturn(application);
                                             })
                             )
@@ -923,7 +922,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
-        Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findById(applicationId, applicationPermission.getManagePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
 
@@ -1041,7 +1040,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         publishedActionsFlux,
                         publishedActionsCollectionFlux,
                         // not using existing applicationMono because we need the latest Application after published
-                        applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                        applicationService.findById(applicationId, applicationPermission.getManagePermission())
                 )
                 .flatMap(objects -> {
                     Application application = objects.getT4();
@@ -1067,7 +1066,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getManagePermission())
                 .flatMap(branchedApplicationId -> publish(branchedApplicationId, isPublishedManually))
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
@@ -1085,7 +1084,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<ApplicationPagesDTO> reorderPage(String defaultAppId, String defaultPageId, Integer order, String branchName) {
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId)))
-                .zipWhen(branchedPage -> applicationService.findById(branchedPage.getApplicationId(), MANAGE_APPLICATIONS)
+                .zipWhen(branchedPage -> applicationService.findById(branchedPage.getApplicationId(), applicationPermission.getManagePermission())
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultAppId))))
                 .flatMap(tuple -> {
                     final NewPage branchedPage = tuple.getT1();

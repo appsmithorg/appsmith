@@ -22,6 +22,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +42,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 
 
 @Slf4j
@@ -65,6 +64,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final NewPageService newPageService;
     private final UserWorkspaceService userWorkspaceService;
     private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
 
     private <Domain extends BaseDomain> Flux<Domain> sortDomain(Flux<Domain> domainFlux, List<String> sortOrder) {
         if (CollectionUtils.isEmpty(sortOrder)) {
@@ -117,7 +117,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
-                            .findAllUserApps(READ_APPLICATIONS)
+                            .findAllUserApps(applicationPermission.getReadPermission())
                             //sort transformation
                             .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedAppIds()))
                             // Git connected apps will have gitApplicationMetadat

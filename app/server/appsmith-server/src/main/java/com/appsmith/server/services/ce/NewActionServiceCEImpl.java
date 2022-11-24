@@ -57,6 +57,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -104,11 +105,8 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
@@ -145,6 +143,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     private final PermissionGroupService permissionGroupService;
     private final DatasourcePermission datasourcePermission;
+    private final ApplicationPermission applicationPermission;
 
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
@@ -166,7 +165,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   ConfigService configService,
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
-                                  DatasourcePermission datasourcePermission) {
+                                  DatasourcePermission datasourcePermission,
+                                  ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -186,6 +186,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.responseUtils = responseUtils;
         this.configService = configService;
         this.datasourcePermission = datasourcePermission;
+        this.applicationPermission = applicationPermission;
     }
 
     @Override
@@ -1308,7 +1309,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMapMany(this::getActionsForViewMode)
                 .map(responseUtils::updateActionViewDTOWithDefaultResources);
     }
@@ -1520,7 +1521,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                    .findById(params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                    .findById(params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission())
                     .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
                     .flatMap(this::sanitizeAction)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
@@ -1540,7 +1541,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), READ_PAGES);
         Mono<Application> branchedApplicationMono = StringUtils.isEmpty(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
-                : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS);
+                : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission());
 
         return Mono.zip(branchedApplicationMono, branchedPageMono)
                 .flatMapMany(tuple -> {

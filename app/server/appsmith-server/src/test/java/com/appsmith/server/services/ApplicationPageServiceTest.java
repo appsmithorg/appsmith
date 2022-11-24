@@ -1,11 +1,11 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +42,8 @@ public class ApplicationPageServiceTest {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     /**
      * Creates an workspace, an application and a page under that application
@@ -73,7 +75,7 @@ public class ApplicationPageServiceTest {
                 .flatMap(pageDTO -> {
                     Application application = new Application();
                     application.setLastEditedAt(Instant.now().minus(10, ChronoUnit.DAYS));
-                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, AclPermission.MANAGE_APPLICATIONS)
+                    return applicationRepository.updateById(pageDTO.getApplicationId(), application, applicationPermission.getManagePermission())
                             .then(applicationPageService.deleteUnpublishedPage(pageDTO.getId()))
                             .then(applicationRepository.findById(pageDTO.getApplicationId()));
                 });

@@ -18,6 +18,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,6 +92,8 @@ public class ActionCollectionServiceImplTest {
     ResponseUtils responseUtils;
     @MockBean
     RefactoringSolution refactoringSolution;
+    @MockBean
+    ApplicationPermission applicationPermission;
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
@@ -106,7 +109,8 @@ public class ActionCollectionServiceImplTest {
                 newActionService,
                 policyGenerator,
                 applicationService,
-                responseUtils
+                responseUtils,
+                applicationPermission
         );
 
         layoutCollectionService = new LayoutCollectionServiceImpl(

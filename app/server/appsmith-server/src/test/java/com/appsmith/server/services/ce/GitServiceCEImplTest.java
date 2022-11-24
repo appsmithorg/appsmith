@@ -17,6 +17,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +78,8 @@ public class GitServiceCEImplTest {
     GitDeployKeysRepository gitDeployKeysRepository;
     @MockBean
     DatasourcePermission datasourcePermission;
+    @MockBean
+    ApplicationPermission applicationPermission;
 
     @BeforeEach
     public void setup() {
@@ -84,7 +87,7 @@ public class GitServiceCEImplTest {
                 userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, gitFileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService, datasourcePermission
+                datasourceService, pluginService, datasourcePermission, applicationPermission
         );
     }
 

@@ -32,6 +32,7 @@ import com.appsmith.server.services.NotificationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EmailEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -57,10 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THREADS;
@@ -89,6 +87,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     private final EmailEventHandler emailEventHandler;
     private final SequenceService sequenceService;
     private final ResponseUtils responseUtils;
+    private final ApplicationPermission applicationPermission;
 
     public CommentServiceCEImpl(
             Scheduler scheduler,
@@ -108,7 +107,8 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
             EmailEventHandler emailEventHandler,
             UserDataRepository userDataRepository,
             SequenceService sequenceService,
-            ResponseUtils responseUtils) {
+            ResponseUtils responseUtils,
+            ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
@@ -123,6 +123,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         this.userDataRepository = userDataRepository;
         this.sequenceService = sequenceService;
         this.responseUtils = responseUtils;
+        this.applicationPermission = applicationPermission;
     }
 
     @Override
@@ -163,7 +164,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
         final Mono<String> branchedAppIdMono = StringUtils.isEmpty(defaultApplicationId)
                 ? Mono.just("")
-                : applicationService.findBranchedApplicationId(branchName, defaultApplicationId, COMMENT_ON_APPLICATIONS);
+                : applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getCanCommentPermission());
 
         final Mono<String> branchedPageIdMono = StringUtils.isEmpty(defaultPageId)
                 ? Mono.just("")
@@ -331,14 +332,14 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
             Mono<UserData> userDataMono = userDataRepository.findByUserId(user.getId())
                     .defaultIfEmpty(new UserData(user.getId()));
 
-            Mono<Boolean> editAccessOnApplicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+            Mono<Boolean> editAccessOnApplicationMono = applicationService.findById(applicationId, applicationPermission.getManagePermission())
                     .map(application -> TRUE)
                     .switchIfEmpty(Mono.just(FALSE));
 
             return Mono.zip(
                     userDataMono,
                     applicationService
-                            .findById(applicationId, COMMENT_ON_APPLICATIONS)
+                            .findById(applicationId, applicationPermission.getCanCommentPermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(
                                     AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)
                             )),
@@ -411,7 +412,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         final String defaultAppId = commentThread.getApplicationId();
         final String defaultPageId = commentThread.getPageId();
         return Mono.zip(
-                        applicationService.findBranchedApplicationId(branchName, defaultAppId, COMMENT_ON_APPLICATIONS),
+                        applicationService.findBranchedApplicationId(branchName, defaultAppId, applicationPermission.getCanCommentPermission()),
                         newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, READ_PAGES))
                 .flatMap(tuple -> {
                     String branchedApplicationId = tuple.getT1();
@@ -579,7 +580,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
     @Override
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
-        return applicationService.findById(commentThreadFilterDTO.getApplicationId(), READ_APPLICATIONS)
+        return applicationService.findById(commentThreadFilterDTO.getApplicationId(), applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, commentThreadFilterDTO.getApplicationId()
                 )))
@@ -590,7 +591,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
                     // if user is app viewer, return the comments in published mode only
                     Boolean permissionPresentForUser = policyUtils.isPermissionPresentForUser(
-                            application.getPolicies(), MANAGE_APPLICATIONS.getValue(), currentUser.getUsername()
+                            application.getPolicies(), applicationPermission.getManagePermission().getValue(), currentUser.getUsername()
                     );
                     if(!permissionPresentForUser) {
                         // user is app viewer, show only PUBLISHED comment threads
@@ -623,7 +624,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO,
                                                                String branchName) {
         final String defaultApplicationId = commentThreadFilterDTO.getApplicationId();
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMap(branchAppId -> {
                     commentThreadFilterDTO.setApplicationId(branchAppId);
                     return getThreadsByApplicationId(commentThreadFilterDTO);
@@ -807,7 +808,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     public Mono<Long> getUnreadCount(String applicationId, String branchName) {
         return Mono.zip(
                         sessionUserService.getCurrentUser(),
-                        applicationService.findBranchedApplicationId(branchName, applicationId, READ_APPLICATIONS))
+                        applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getReadPermission()))
                 .flatMap(tuple ->
                         threadRepository.countUnreadThreads(tuple.getT2(), tuple.getT1().getUsername())
                 );

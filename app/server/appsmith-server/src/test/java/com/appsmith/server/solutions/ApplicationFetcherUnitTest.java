@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,6 +79,9 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     WorkspacePermission workspacePermission;
 
+    @MockBean
+    ApplicationPermission applicationPermission;
+
     User testUser;
 
     final static String defaultPageId = "defaultPageId";
@@ -96,7 +98,8 @@ public class ApplicationFetcherUnitTest {
                 responseUtils,
                 newPageService,
                 userWorkspaceService,
-                workspacePermission);
+                workspacePermission,
+                applicationPermission);
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {
@@ -201,7 +204,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4, 4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(applicationPermission.getReadPermission())
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -247,7 +250,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4, 4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(applicationPermission.getReadPermission())
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -383,7 +386,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4, 4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(applicationPermission.getReadPermission())
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -435,7 +438,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(3, 3);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(applicationPermission.getReadPermission())
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))

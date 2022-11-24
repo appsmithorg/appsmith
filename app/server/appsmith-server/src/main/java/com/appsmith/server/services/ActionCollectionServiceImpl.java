@@ -4,6 +4,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.ActionCollectionServiceCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -25,9 +26,10 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                                        NewActionService newActionService,
                                        PolicyGenerator policyGenerator,
                                        ApplicationService applicationService,
-                                       ResponseUtils responseUtils) {
+                                       ResponseUtils responseUtils,
+                                       ApplicationPermission applicationPermission) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                newActionService, policyGenerator, applicationService, responseUtils);
+                newActionService, policyGenerator, applicationService, responseUtils, applicationPermission);
 
     }
 }

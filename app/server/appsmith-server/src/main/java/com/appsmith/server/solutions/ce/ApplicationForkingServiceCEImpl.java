@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -14,6 +13,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +40,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
 
     public Mono<Application> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
-        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
+        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationManagePermission())
@@ -64,7 +65,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?
-                            !user.isAnonymous() && application.getUserPermissions().contains(AclPermission.MANAGE_APPLICATIONS.getValue())
+                            !user.isAnonymous() && application.getUserPermissions().contains(applicationPermission.getManagePermission().getValue())
                     )
                             || Boolean.TRUE.equals(application.getForkingEnabled());
 
@@ -100,7 +101,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                            String targetWorkspaceId,
                                                            String branchName) {
         if(StringUtils.isEmpty(branchName)) {
-            return applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
+            return applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
                     .flatMap(application -> {
                         // For git connected application user can update the default branch
@@ -110,19 +111,19 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             return applicationService.findBranchedApplicationId(
                                     application.getGitApplicationMetadata().getDefaultBranchName(),
                                     srcApplicationId,
-                                    AclPermission.READ_APPLICATIONS
+                                    applicationPermission.getReadPermission()
                             ).flatMap(appId -> forkApplicationToWorkspace(appId, targetWorkspaceId));
                         }
                         return forkApplicationToWorkspace(application.getId(), targetWorkspaceId);
                     });
         }
-        return applicationService.findBranchedApplicationId(branchName, srcApplicationId, AclPermission.READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission())
                 .flatMap(branchedApplicationId -> forkApplicationToWorkspace(branchedApplicationId, targetWorkspaceId))
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application, Map<String, Object> eventData) {
-        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+        return applicationService.findById(applicationId, applicationPermission.getReadPermission())
                 .flatMap(sourceApplication -> {
 
                     final Map<String, Object> data = Map.of(

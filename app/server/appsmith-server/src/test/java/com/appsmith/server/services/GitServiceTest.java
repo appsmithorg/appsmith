@@ -43,6 +43,7 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -90,9 +91,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -157,6 +156,8 @@ public class GitServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     private static String workspaceId;
     private static Application gitConnectedApplication = new Application();
@@ -1589,7 +1590,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(branchList));
 
         Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal")
-                .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
+                .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("branchNotInLocal", gitConnectedApplication.getId(), applicationPermission.getReadPermission()));
 
         StepVerifier
                 .create(applicationMono)
@@ -1999,7 +2000,7 @@ public class GitServiceTest {
                 .flatMap(application ->
                         gitService
                                 .createBranch(application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
-                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS))
+                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), applicationPermission.getReadPermission()))
                 );
 
         StepVerifier
@@ -2149,7 +2150,7 @@ public class GitServiceTest {
                 .flatMap(application ->
                         gitService
                                 .createBranch(application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
-                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS))
+                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), applicationPermission.getReadPermission()))
                 )
                 .zipWhen(application ->
                         applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
@@ -2310,7 +2311,7 @@ public class GitServiceTest {
                         e.printStackTrace();
                     }
                     return applicationService
-                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS);
+                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), applicationPermission.getReadPermission());
                 });
 
         StepVerifier
@@ -2636,7 +2637,7 @@ public class GitServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByWorkspaceId(testWorkspaceId, READ_APPLICATIONS)
+                    return applicationService.findByWorkspaceId(testWorkspaceId, applicationPermission.getReadPermission())
                             .filter(application1 -> "testGitImportRepoCancelledMidway".equals(application1.getName()))
                             .next();
                 });
@@ -2947,7 +2948,7 @@ public class GitServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findAllApplicationsByDefaultApplicationId(DBApplication.getId(), MANAGE_APPLICATIONS);
+                    return applicationService.findAllApplicationsByDefaultApplicationId(DBApplication.getId(), applicationPermission.getManagePermission());
                 })
                 .collectList();
 

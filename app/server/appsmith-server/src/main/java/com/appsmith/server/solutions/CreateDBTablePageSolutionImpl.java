@@ -28,10 +28,11 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                                          SessionUserService sessionUserService,
                                          ResponseUtils responseUtils,
                                          PluginExecutorHelper pluginExecutorHelper,
-                                         DatasourcePermission datasourcePermission) {
+                                         DatasourcePermission datasourcePermission,
+                                         ApplicationPermission applicationPermission) {
 
         super(datasourceService, newPageService, layoutActionService, applicationPageService, applicationService,
                 pluginService, analyticsService, sessionUserService, responseUtils, pluginExecutorHelper,
-                datasourcePermission);
+                datasourcePermission, applicationPermission);
     }
 }

@@ -11,7 +11,6 @@ import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
 import com.appsmith.external.models.DatasourceStructure.Table;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
@@ -37,6 +36,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -65,7 +65,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 
 
@@ -84,6 +83,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final ResponseUtils responseUtils;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final DatasourcePermission datasourcePermission;
+    private final ApplicationPermission applicationPermission;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -423,7 +423,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     });
         }
 
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getManagePermission())
                 .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, MANAGE_PAGES, false))
                 .collectList()
                 .flatMap(pages -> {

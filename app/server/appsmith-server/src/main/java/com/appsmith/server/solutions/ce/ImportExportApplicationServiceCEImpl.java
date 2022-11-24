@@ -57,10 +57,10 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.github.zafarkhaja.semver.util.Stream;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -92,10 +92,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -129,6 +126,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final AnalyticsService analyticsService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -171,7 +169,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
-        AclPermission permission = isGitSync ? AclPermission.MANAGE_APPLICATIONS : AclPermission.EXPORT_APPLICATIONS;
+        AclPermission permission = isGitSync ? applicationPermission.getManagePermission() : applicationPermission.getExportPermission();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
@@ -474,7 +472,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
-        return applicationService.findBranchedApplicationId(branchName, applicationId, EXPORT_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getExportPermission())
                 .flatMap(branchedAppId -> exportApplicationById(branchedAppId, SerialiseApplicationObjective.SHARE));
     }
 
@@ -800,7 +798,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     importedApplication.setWorkspaceId(workspaceId);
                                     // Application Id will be present for GIT sync
                                     if (!StringUtils.isEmpty(applicationId)) {
-                                        return applicationService.findById(applicationId, MANAGE_APPLICATIONS)
+                                        return applicationService.findById(applicationId, applicationPermission.getManagePermission())
                                                 .switchIfEmpty(
                                                         Mono.error(new AppsmithException(
                                                                 AppsmithError.ACL_NO_RESOURCE_FOUND,
@@ -2133,7 +2131,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
 
-        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+        return applicationService.findById(applicationId, applicationPermission.getReadPermission())
                 .flatMap(application -> {
                     return Mono.zip(Mono.just(application), workspaceService.getById(application.getWorkspaceId()));
                 })

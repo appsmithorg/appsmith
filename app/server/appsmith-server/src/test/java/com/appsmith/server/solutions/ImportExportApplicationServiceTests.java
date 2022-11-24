@@ -103,12 +103,10 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -172,6 +170,9 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     WorkspacePermission workspacePermission;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -944,7 +945,7 @@ public class ImportExportApplicationServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
+                    return applicationRepository.findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
                             .next();
                 });
 

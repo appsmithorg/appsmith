@@ -21,6 +21,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Component
@@ -58,6 +58,7 @@ public class PolicyUtils {
     private final ActionCollectionRepository actionCollectionRepository;
     private final ThemeRepository themeRepository;
     private final DatasourcePermission datasourcePermission;
+    private final ApplicationPermission applicationPermission;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -236,7 +237,7 @@ public class PolicyUtils {
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
-                .findByWorkspaceId(workspaceId, AclPermission.READ_APPLICATIONS)
+                .findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
                 // In case we have come across an application for this workspace that the current user is not allowed to manage, move on.
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {

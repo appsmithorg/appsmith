@@ -20,6 +20,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -45,7 +46,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 
@@ -56,6 +56,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
     private final ResponseUtils responseUtils;
+    private final ApplicationPermission applicationPermission;
 
     @Autowired
     public NewPageServiceCEImpl(Scheduler scheduler,
@@ -66,11 +67,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                                 AnalyticsService analyticsService,
                                 ApplicationService applicationService,
                                 UserDataService userDataService,
-                                ResponseUtils responseUtils) {
+                                ResponseUtils responseUtils,
+                                ApplicationPermission applicationPermission) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.responseUtils = responseUtils;
+        this.applicationPermission = applicationPermission;
     }
 
     @Override
@@ -210,7 +213,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed) {
-        Mono<Application> applicationMono = applicationService.findById(applicationId, READ_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findById(applicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 // Throw a 404 error if the application has never been published
                 .flatMap(application -> {
@@ -351,14 +354,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                                                                                           Boolean view,
                                                                                           boolean markApplicationAsRecentlyAccessed) {
 
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMap(childApplicationId -> findApplicationPagesByApplicationIdViewMode(childApplicationId, view, markApplicationAsRecentlyAccessed))
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 
     @Override
     public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
-        Mono<Application> applicationMono = applicationService.findByName(applicationName, READ_APPLICATIONS)
+        Mono<Application> applicationMono = applicationService.findByName(applicationName, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
                 .cache();
 

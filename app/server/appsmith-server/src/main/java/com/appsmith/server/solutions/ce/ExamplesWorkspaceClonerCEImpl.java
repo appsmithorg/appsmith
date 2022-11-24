@@ -37,6 +37,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     private final ActionCollectionService actionCollectionService;
     private final LayoutCollectionService layoutCollectionService;
     private final ThemeService themeService;
+    private final ApplicationPermission applicationPermission;
 
     public Mono<Workspace> cloneExamplesWorkspace() {
         return sessionUserService
@@ -462,7 +464,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     destApplication.getId(),
                     editModeTheme.getId(),
                     publishedModeTheme.getId(),
-                    AclPermission.MANAGE_APPLICATIONS
+                    applicationPermission.getManagePermission()
             );
         });
     }

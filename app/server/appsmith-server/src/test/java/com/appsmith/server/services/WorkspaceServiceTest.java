@@ -24,6 +24,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -125,6 +126,8 @@ public class WorkspaceServiceTest {
     DatasourcePermission datasourcePermission;
     @Autowired
     WorkspacePermission workspacePermission;
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     Workspace workspace;
 
@@ -1002,7 +1005,7 @@ public class WorkspaceServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
-                        READ_APPLICATIONS)
+                        applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
@@ -1136,7 +1139,7 @@ public class WorkspaceServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
-                        READ_APPLICATIONS)
+                        applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")

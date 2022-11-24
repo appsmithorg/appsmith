@@ -21,6 +21,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,6 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -60,6 +60,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final PolicyGenerator policyGenerator;
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
+    private final ApplicationPermission applicationPermission;
 
     @Autowired
     public ActionCollectionServiceCEImpl(Scheduler scheduler,
@@ -71,13 +72,15 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                          NewActionService newActionService,
                                          PolicyGenerator policyGenerator,
                                          ApplicationService applicationService,
-                                         ResponseUtils responseUtils) {
+                                         ResponseUtils responseUtils,
+                                         ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
         this.policyGenerator = policyGenerator;
         this.applicationService = applicationService;
         this.responseUtils = responseUtils;
+        this.applicationPermission = applicationPermission;
     }
 
     @Override
@@ -200,7 +203,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        return applicationService.findBranchedApplicationId(branchName, applicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getReadPermission())
                 .flatMapMany(branchedApplicationId ->
                         repository
                                 .findByApplicationIdAndViewMode(branchedApplicationId, true, EXECUTE_ACTIONS)
@@ -260,7 +263,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
-                    .findBranchedApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_APPLICATIONS)
+                    .findBranchedApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission())
                     .flatMapMany(childApplicationId ->
                             repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, READ_ACTIONS)
                     )

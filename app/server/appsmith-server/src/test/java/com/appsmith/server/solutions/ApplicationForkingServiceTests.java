@@ -5,7 +5,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -80,8 +79,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -161,6 +158,8 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     PermissionGroupPermission permissionGroupPermission;
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     private static String sourceAppId;
 
@@ -297,7 +296,7 @@ public class ApplicationForkingServiceTests {
         return Mono
                 .when(
                         applicationService
-                                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
+                                .findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
                                 .map(data.applications::add),
                         datasourceService
                                 .findAllByWorkspaceId(workspace.getId(), datasourcePermission.getReadPermission())
@@ -460,7 +459,7 @@ public class ApplicationForkingServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS).next();
+                    return applicationService.findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission()).next();
                 })
                 .cache();
 
@@ -777,7 +776,7 @@ public class ApplicationForkingServiceTests {
 
     private Flux<ActionDTO> getActionsInWorkspace(Workspace workspace) {
         return applicationService
-                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
                 // fetch the unpublished pages
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
