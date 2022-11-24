@@ -21,6 +21,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -481,7 +482,7 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

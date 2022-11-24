@@ -6,6 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import { CodeScannerWidgetProps } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState
@@ -24,7 +25,7 @@ class CodeScannerWidget extends BaseWidget<
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       buttonColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

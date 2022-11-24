@@ -25,6 +25,7 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultValueValidation(
   value: any,
@@ -388,7 +389,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

@@ -12,6 +12,7 @@ import SwitchGroupComponent, { OptionProps } from "../component";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -359,7 +360,7 @@ class SwitchGroupWidget extends BaseWidget<
     ];
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
     };

@@ -7,6 +7,7 @@ import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
+import { Stylesheet } from "entities/AppTheming";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -153,7 +154,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     ];
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       fillColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

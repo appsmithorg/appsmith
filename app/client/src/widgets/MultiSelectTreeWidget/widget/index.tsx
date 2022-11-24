@@ -17,6 +17,7 @@ import MultiTreeSelectComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -482,7 +483,7 @@ class MultiSelectTreeWidget extends BaseWidget<
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

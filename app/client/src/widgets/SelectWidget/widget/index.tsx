@@ -23,6 +23,7 @@ import {
 } from "lodash";
 import equal from "fast-deep-equal/es6";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -500,7 +501,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     ];
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

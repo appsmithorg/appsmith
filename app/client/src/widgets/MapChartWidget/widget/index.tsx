@@ -22,6 +22,7 @@ import {
 } from "../constants";
 import { MapType } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
@@ -331,7 +332,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return "MAP_CHART_WIDGET";
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",

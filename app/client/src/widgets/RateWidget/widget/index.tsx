@@ -8,6 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -270,7 +271,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     };
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       activeColor: "{{appsmith.theme.colors.primaryColor}}",
     };

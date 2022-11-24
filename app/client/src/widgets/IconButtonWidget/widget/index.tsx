@@ -9,6 +9,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IconButtonComponent from "../component";
 import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -200,7 +201,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     ];
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       buttonColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

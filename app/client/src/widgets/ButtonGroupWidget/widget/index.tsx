@@ -14,6 +14,7 @@ import {
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { getStylesheetValue } from "./helpers";
+import { ChildStylesheet, Stylesheet } from "entities/AppTheming";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -538,7 +539,7 @@ class ButtonGroupWidget extends BaseWidget<
     ];
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",

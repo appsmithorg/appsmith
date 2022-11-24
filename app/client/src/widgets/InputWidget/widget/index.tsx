@@ -29,6 +29,7 @@ import {
   getLocale,
 } from "../component/utilities";
 import { LabelPosition } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultValueValidation(
   value: any,
@@ -709,7 +710,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

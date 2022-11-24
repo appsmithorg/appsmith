@@ -35,6 +35,7 @@ import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
 } from "widgets/WidgetUtils";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultValueValidation(
   value: any,
@@ -255,7 +256,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     });
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

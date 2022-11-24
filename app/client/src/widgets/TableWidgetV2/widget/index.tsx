@@ -83,6 +83,7 @@ import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
+import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -159,7 +160,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return [/\.tableData$/];
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

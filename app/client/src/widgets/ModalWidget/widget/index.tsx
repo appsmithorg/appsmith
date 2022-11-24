@@ -16,6 +16,7 @@ import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectModalWidgetAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import { Stylesheet } from "entities/AppTheming";
 
 const minSize = 100;
 
@@ -108,7 +109,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     ];
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",

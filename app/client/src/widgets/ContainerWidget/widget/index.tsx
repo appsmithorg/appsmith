@@ -20,6 +20,7 @@ import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { Stylesheet } from "entities/AppTheming";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -147,7 +148,7 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",

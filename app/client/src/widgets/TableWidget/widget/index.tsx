@@ -53,6 +53,7 @@ import { getCellProperties } from "./getTableColumns";
 import { Colors } from "constants/Colors";
 import { borderRadiusUtility, boxShadowMigration } from "widgets/WidgetUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -74,7 +75,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return tablePropertyPaneConfig;
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

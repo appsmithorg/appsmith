@@ -6,6 +6,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import CircularProgressComponent, {
   CircularProgressComponentProps,
 } from "../component";
+import { Stylesheet } from "entities/AppTheming";
 
 interface CircularProgressWidgetProps
   extends WidgetProps,
@@ -90,7 +91,7 @@ class CircularProgressWidget extends BaseWidget<
     ];
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       fillColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

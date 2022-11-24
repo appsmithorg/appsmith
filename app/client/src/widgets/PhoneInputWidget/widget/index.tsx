@@ -30,6 +30,7 @@ import {
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultValueValidation(
   value: any,
@@ -185,7 +186,7 @@ class PhoneInputWidget extends BaseInputWidget<
     });
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

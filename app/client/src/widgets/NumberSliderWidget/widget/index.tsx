@@ -6,6 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import SliderComponent, { SliderComponentProps } from "../component/Slider";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface NumberSliderWidgetProps
   extends WidgetProps,
@@ -38,7 +39,7 @@ class NumberSliderWidget extends BaseWidget<
     return styleConfig;
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
     };

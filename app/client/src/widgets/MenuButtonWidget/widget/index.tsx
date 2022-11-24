@@ -14,6 +14,7 @@ import {
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { MinimumPopupRows } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -435,7 +436,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     ];
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       menuColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

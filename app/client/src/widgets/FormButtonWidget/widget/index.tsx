@@ -19,6 +19,7 @@ import {
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+import { Stylesheet } from "entities/AppTheming";
 
 class FormButtonWidget extends ButtonWidget {
   constructor(props: FormButtonWidgetProps) {
@@ -310,7 +311,7 @@ class FormButtonWidget extends ButtonWidget {
     ];
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       buttonColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

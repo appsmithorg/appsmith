@@ -10,6 +10,7 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import showdown from "showdown";
+import { Stylesheet } from "entities/AppTheming";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -323,7 +324,7 @@ class RichTextEditorWidget extends BaseWidget<
     ];
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",

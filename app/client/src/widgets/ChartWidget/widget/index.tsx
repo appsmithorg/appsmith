@@ -15,6 +15,7 @@ import {
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
 import { Colors } from "constants/Colors";
+import { Stylesheet } from "entities/AppTheming";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -39,7 +40,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return styleConfig;
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",

@@ -385,7 +385,7 @@ describe(".getStylesheetValue", () => {
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
       const result = getStylesheetValue(props, input, {
         childStylesheet: schemaTestData.fieldThemeStylesheets,
-      });
+      } as any);
 
       expect(result).toEqual(expectedOutput);
     });

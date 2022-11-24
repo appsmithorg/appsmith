@@ -12,7 +12,7 @@ import {
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
-import { AppThemeStylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -50,7 +50,7 @@ class WidgetFactory {
     readonly PropertyPaneConfig[]
   > = new Map();
   static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
-  static stylesheetConfigMap: Map<WidgetType, AppThemeStylesheet> = new Map();
+  static stylesheetConfigMap: Map<WidgetType, Stylesheet> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -68,7 +68,7 @@ class WidgetFactory {
     propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
-    stylesheetConfig?: AppThemeStylesheet,
+    stylesheetConfig?: Stylesheet,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;

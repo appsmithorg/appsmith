@@ -9,6 +9,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
     return [
@@ -227,7 +228,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     ];
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       boxShadow: "none",

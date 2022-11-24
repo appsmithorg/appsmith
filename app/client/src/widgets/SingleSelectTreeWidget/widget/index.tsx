@@ -16,6 +16,7 @@ import SingleSelectTreeComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -299,7 +300,7 @@ class SingleSelectTreeWidget extends BaseWidget<
     ];
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

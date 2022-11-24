@@ -14,6 +14,7 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { DateFormatOptions } from "./constants";
+import { Stylesheet } from "entities/AppTheming";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
@@ -440,7 +441,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

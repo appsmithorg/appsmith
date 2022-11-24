@@ -8,6 +8,7 @@ import styleConfig from "./propertyConfig/styleConfig";
 import SliderComponent, {
   SliderComponentProps,
 } from "../../NumberSliderWidget/component/Slider";
+import { Stylesheet } from "entities/AppTheming";
 
 export type SliderOption = {
   label: string;
@@ -75,7 +76,7 @@ class CategorySliderWidget extends BaseWidget<
     };
   }
 
-  static getStylesheetConfig(): Record<string, any> {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
     };

@@ -4,7 +4,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { AppThemeStylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 /**
  * this is a getter function to get stylesheet value of the property from the config
@@ -17,7 +17,7 @@ import { AppThemeStylesheet } from "entities/AppTheming";
 export const getStylesheetValue = (
   props: TableWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: AppThemeStylesheet,
+  widgetStylesheet?: Stylesheet,
 ) => {
   const propertyName = propertyPath.split(".").slice(-1)[0];
   const columnName = propertyPath.split(".").slice(-2)[0];
@@ -37,7 +37,7 @@ export const getStylesheetValue = (
 export const getPrimaryColumnStylesheetValue = (
   props: TableWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: AppThemeStylesheet,
+  widgetStylesheet?: Stylesheet,
 ) => {
   const propertyName = propertyPath.split(".").slice(-1)[0];
   const columnName = propertyPath.split(".").slice(-2)[0];

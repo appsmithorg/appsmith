@@ -88,12 +88,12 @@ export const getPropertiesToUpdateForReset = (
           childStylesheetValue &&
             Object.keys(childStylesheetValue).map((childPropertyKey) => {
               if (
-                childStylesheetValue[childPropertyKey] !==
+                get(childStylesheetValue, childPropertyKey) !==
                 groupButton[childPropertyKey]
               ) {
                 modifications[
                   `groupButtons.${groupButtonName}.${childPropertyKey}`
-                ] = childStylesheetValue[childPropertyKey];
+                ] = get(childStylesheetValue, childPropertyKey);
               }
             });
         });
@@ -140,6 +140,7 @@ export const getPropertiesToUpdateForReset = (
 
                 if (
                   buttonStylesheetValue &&
+                  typeof buttonStylesheetValue === "string" &&
                   THEME_BINDING_REGEX.test(buttonStylesheetValue) &&
                   buttonStylesheetValue !==
                     widget[buttonStyleKey][propertyKey] &&

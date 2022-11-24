@@ -8,6 +8,7 @@ import ProgressBarComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Colors } from "constants/Colors";
 import { BarType } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class ProgressBarWidget extends BaseWidget<
   ProgressBarWidgetProps,
@@ -145,7 +146,7 @@ class ProgressBarWidget extends BaseWidget<
     return {};
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       fillColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",

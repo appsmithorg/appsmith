@@ -6,6 +6,7 @@ import ImageComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { Stylesheet } from "entities/AppTheming";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {
@@ -213,7 +214,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     return {};
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",

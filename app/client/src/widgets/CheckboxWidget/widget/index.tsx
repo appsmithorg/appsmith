@@ -7,6 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -276,7 +277,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  static getStylesheetConfig() {
+  static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
