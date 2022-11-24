@@ -907,7 +907,6 @@ Cypress.Commands.add("selectWidgetForReset", (value) => {
     .children()
     .contains(value)
     .click();
-  // cy.enterActionValue(value);
 });
 
 Cypress.Commands.add("SetDateToToday", () => {

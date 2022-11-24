@@ -122,16 +122,15 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      // Static property reflecting the state of the widget
+      // Property reflecting the state of the widget
       playState: PlayState.NOT_STARTED,
-      // Static property passed onto the audio player making it a controlled component
+      // Property passed onto the audio player making it a controlled component
       playing: false,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      // Plays the audio player by default and when reset, if autoPlay is on (and vice versa)
       playing: "autoPlay",
     };
   }
@@ -146,13 +145,12 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
     ) {
       this._player.current?.seekTo(0);
 
-      // When autoPlay & playing are true
       if (this.props.playing) {
         this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
       }
     }
 
-    // When autoPlay changes
+    // When autoPlay changes from property pane
     if (prevProps.autoPlay !== this.props.autoPlay) {
       if (this.props.autoPlay) {
         this.props.updateWidgetMetaProperty("playState", PlayState.PLAYING);
