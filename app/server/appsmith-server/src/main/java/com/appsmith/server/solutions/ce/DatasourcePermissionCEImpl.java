@@ -10,7 +10,7 @@ public class DatasourcePermissionCEImpl implements DatasourcePermissionCE {
 
     @Override
     public AclPermission getDeletePermission() {
-        return AclPermission.DELETE_DATASOURCES;
+        return AclPermission.MANAGE_DATASOURCES;
     }
 
     @Override
