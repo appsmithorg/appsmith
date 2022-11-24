@@ -1,17 +1,15 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
 import { isString, xor } from "lodash";
-
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-
-import SwitchGroupComponent, { OptionProps } from "../component";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import SwitchGroupComponent, { OptionProps } from "../component";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class SwitchGroupWidget extends BaseWidget<
@@ -177,6 +175,16 @@ class SwitchGroupWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             propertyName: "isVisible",
             helpText: "Controls the visibility of the widget",
@@ -421,6 +429,7 @@ class SwitchGroupWidget extends BaseWidget<
       labelText,
       labelTextColor,
       labelTextSize,
+      labelTooltip,
       options,
       selectedValues,
       topRow,
@@ -453,6 +462,7 @@ class SwitchGroupWidget extends BaseWidget<
         labelText={labelText}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
+        labelTooltip={labelTooltip}
         labelWidth={this.getLabelWidth()}
         onChange={this.handleSwitchStateChange}
         options={_options}
