@@ -103,7 +103,7 @@ export const useDynamicAppLayout = () => {
 
       calculatedWidth -= explorerWidth;
     }
-    const ele: any = document.getElementById("main-canvas-container");
+    const ele: any = document.getElementById("canvas-viewport");
     if (
       appMode === "EDIT" &&
       appLayout?.type === "FLUID" &&
@@ -163,7 +163,7 @@ export const useDynamicAppLayout = () => {
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
   useEffect(() => {
-    const ele: any = document.getElementById("main-canvas-container");
+    const ele: any = document.getElementById("canvas-viewport");
     if (ele) {
       if (appLayout?.type === "FLUID") {
         resizeObserver.observe(ele);
