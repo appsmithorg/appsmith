@@ -333,6 +333,7 @@ export const BlueprintRadioSwitchGroupTransform = css<{
 
   ${BlueprintControlTransform};
   .${Classes.CONTROL} {
+    width: 100%;
     display: ${({ alignment, inline }) => {
       if (alignment === Alignment.RIGHT) {
         return inline ? "inline-block" : "block";
