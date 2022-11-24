@@ -60,7 +60,7 @@ export function DataSourceContextMenu(props: {
   const treeOptions = [
     canManageDatasource && {
       value: "rename",
-      className: "t--datasource-rename",
+      className: "single-select t--datasource-rename",
       onSelect: editDatasourceName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
