@@ -5,7 +5,10 @@ import { LabelPosition } from "components/constants";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 3,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Input",

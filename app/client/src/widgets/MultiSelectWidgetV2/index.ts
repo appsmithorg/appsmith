@@ -5,7 +5,10 @@ import { Alignment } from "@blueprintjs/core";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 4,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "MultiSelect",

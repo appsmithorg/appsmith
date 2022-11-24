@@ -10,7 +10,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   isCanvas: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
   },
   searchTags: ["div", "parent", "group"],
   defaults: {
