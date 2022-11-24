@@ -48,9 +48,9 @@ export function uninstallLibrary(request: EvalWorkerRequest) {
       self[key] = undefined;
       libraryReservedNames.delete(key);
     }
-    return true;
+    return { success: true };
   } catch (e) {
-    return false;
+    return { success: false };
   }
 }
 
@@ -68,8 +68,8 @@ export function loadLibraries(request: EvalWorkerRequest) {
       libraryReservedNames.add(key);
     }
     JSLibraries.push(...requestData);
-    return true;
+    return { success: true };
   } catch (e) {
-    return false;
+    return { success: false };
   }
 }
