@@ -14,7 +14,7 @@ import {
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { getStylesheetValue } from "./helpers";
-import { ChildStylesheet, Stylesheet } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
