@@ -3,6 +3,7 @@ import { Colors } from "constants/Colors";
 import Widget, { JSONFormWidgetProps } from "./widget";
 import { ButtonVariantTypes } from "components/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -16,6 +17,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: {
       sectionIndex: 1,
+      defaultValue: DynamicHeight.FIXED,
       active: true,
     },
   },
