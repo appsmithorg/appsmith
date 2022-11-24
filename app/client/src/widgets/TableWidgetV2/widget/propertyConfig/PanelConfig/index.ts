@@ -14,7 +14,7 @@ import Color from "./Color";
 import BorderAndShadow from "./BorderAndShadow";
 import Validations from "./Validation";
 import Select from "./Select";
-import { updateAliasOnLabelChange } from "../../propertyUtils";
+import { updateCustomColumnAliasOnLabelChange } from "../../propertyUtils";
 
 export default {
   editableTitle: true,
@@ -40,5 +40,5 @@ export default {
     discardButtonStyleConfig,
     BorderAndShadow,
   ],
-  updateHook: updateAliasOnLabelChange,
+  updateHook: updateCustomColumnAliasOnLabelChange,
 };

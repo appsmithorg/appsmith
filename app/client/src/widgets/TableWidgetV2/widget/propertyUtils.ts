@@ -625,24 +625,17 @@ export const replacePropertyName = (
   return `${path.join(".")}.${targetPropertyName}`;
 };
 
-export const updateAliasOnLabelChange = (
+export const updateCustomColumnAliasOnLabelChange = (
   props: TableWidgetProps,
   propertyPath: string,
   propertyValue: unknown,
 ): Array<PropertyHookUpdates> | undefined => {
   // alias will be updated along with label change only for custom columns
-  const regex = /^primaryColumns\.(customColumn\d+)\.(.*)$/;
+  const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
   const propertyToUpdate = [];
-  if (
-    propertyPath?.length &&
-    regex.test(propertyPath) &&
-    propertyPath.split(".").pop() === "label"
-  ) {
-    const propertyPathArr = propertyPath.split(".");
-    propertyPathArr.pop();
-    propertyPathArr.push("alias");
+  if (propertyPath?.length && regex.test(propertyPath)) {
     propertyToUpdate.push({
-      propertyPath: propertyPathArr.join("."),
+      propertyPath: propertyPath.replace("label", "alias"),
       propertyValue,
     });
   }
