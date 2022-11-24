@@ -10,6 +10,7 @@ function messageEventListener(e: MessageEvent<EvalWorkerRequest>) {
   const { method, requestData, requestId } = e.data;
   if (!method) return;
   const responseData = handlerMap[method](e.data);
+  if (!responseData) return;
   const endTime = performance.now();
   try {
     self.postMessage({

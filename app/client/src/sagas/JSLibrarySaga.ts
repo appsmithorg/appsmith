@@ -182,7 +182,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       },
     });
 
-    const success: boolean = yield call(
+    const { success }: { success: boolean } = yield call(
       EvalWorker.request,
       EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY,
       accessor,
@@ -238,7 +238,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
 
     const libraries = response.data as Array<TJSLibrary & { defs: string }>;
 
-    const success: boolean = yield call(
+    const { success }: { success: boolean } = yield call(
       EvalWorker.request,
       EVAL_WORKER_ACTIONS.LOAD_LIBRARIES,
       libraries.map((lib) => ({
