@@ -30,18 +30,22 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -53,6 +57,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -275,7 +280,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
             // validate input is in the format email,email,email and is not empty
             if (!ValidationUtils.validateEmailCsv(emailCsv)) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Admin Email"));
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Admin Emails"));
             } else { // make sure user is not removing own email
                 Set<String> adminEmails = TextUtils.csvToSet(emailCsv);
                 if (!adminEmails.contains(user.getEmail())) { // user can not remove own email address
@@ -446,6 +451,39 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 });
     }
 
+    @Override
+    public Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+        return Flux.fromIterable(formData.entrySet())
+                .flatMap(entry -> {
+                    final String key = entry.getKey();
+                    final List<Part> parts = entry.getValue();
+                    return DataBufferUtils
+                            .join(Flux.fromIterable(parts).flatMapSequential(Part::content))
+                            .flatMap(dataBuffer -> {
+                                final byte[] content;
+                                try (InputStream inputStream = dataBuffer.asInputStream(true)) {
+                                    content = inputStream.readAllBytes();
+                                } catch (IOException e) {
+                                    log.error("Unable to read multipart form data, in env change API", e);
+                                    return Mono.error(new AppsmithException(AppsmithError.IO_ERROR, "unable to read data"));
+                                }
+                                if (parts.get(0) instanceof FilePart) {
+                                    return handleFileUpload(key, parts);
+                                } else {
+                                    return Mono.just(Map.entry(key, new String(content, StandardCharsets.UTF_8)));
+                                }
+                            });
+                })
+                .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                .flatMap(this::applyChanges);
+    }
+
+    @Override
+    @NotNull
+    public Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION, "File upload is not supported"));
+    }
+
     /**
      * Sends analytics events after an admin setting update.
      *
@@ -507,6 +545,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param originalVariable Already existing env variable value
      * @param authEnv          Env variable name
      */
+    @Override
     public void setAnalyticsEventAction(Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
         // Authentication configuration added
         if (!newVariable.isEmpty() && (originalVariable == null || originalVariable.isEmpty())) {

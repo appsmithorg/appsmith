@@ -526,7 +526,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // We don't execute the upload Mono if we don't find the workspace.
-        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.WORKSPACE_LOGO_SIZE_KB, false);
+        final Mono<Asset> uploadAssetMono = assetService.upload(List.of(filePart), Constraint.WORKSPACE_LOGO_SIZE_KB, false);
 
         return findWorkspaceMono
                 .flatMap(workspace -> Mono.zip(Mono.just(workspace), uploadAssetMono))

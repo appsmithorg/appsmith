@@ -24,7 +24,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION;
 
@@ -44,14 +47,18 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     }
 
     @Override
-    public Mono<Asset> upload(Part filePart, int maxFileSizeKB, boolean isThumbnail) {
-        if (filePart == null) {
+    public Mono<Asset> upload(List<Part> fileParts, int maxFileSizeKB, boolean isThumbnail) {
+        fileParts = fileParts.stream().filter(Objects::nonNull).collect(Collectors.toList());
+
+        if (fileParts.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
 
+        final Part firstPart = fileParts.get(0);
+
         // The reason we restrict file types here is to avoid having to deal with dangerous image types such as SVG,
-        // which can have arbitrary HTML/JS inside of them.
-        final MediaType contentType = filePart.headers().getContentType();
+        // which can have arbitrary HTML/JS inside them.
+        final MediaType contentType = firstPart.headers().getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new AppsmithException(
                     AppsmithError.VALIDATION_FAILURE,
@@ -59,7 +66,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             ));
         }
 
-        final Flux<DataBuffer> contentCache = filePart.content().cache();
+        final Flux<DataBuffer> contentCache = Flux.fromIterable(fileParts).flatMap(Part::content).cache();
 
         return contentCache.count()
                 .defaultIfEmpty(0L)
