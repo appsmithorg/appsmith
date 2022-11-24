@@ -1,3 +1,4 @@
+import { omit } from "lodash";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
@@ -152,3 +153,12 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
 export type TextSize = keyof typeof TextSizes;
 
 export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;
+
+export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
+  ...omit(WIDGET_STATIC_PROPS, ["widgetId", "widgetName", "type"]),
+  hideCard: true,
+  isDeprecated: true,
+  searchTags: true,
+  iconSVG: true,
+  version: true,
+};
