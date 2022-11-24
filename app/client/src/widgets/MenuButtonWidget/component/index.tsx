@@ -264,15 +264,17 @@ function PopoverContent(props: PopoverContentProps) {
         backgroundColor={backgroundColor}
         disabled={isDisabled}
         icon={
-          iconAlign === Alignment.RIGHT ? null : (
+          iconAlign === Alignment.RIGHT ? null : iconName ? (
             <Icon color={iconColor} icon={iconName} />
-          )
+          ) : null
         }
         isCompact={isCompact}
         key={id}
         labelElement={
           iconAlign === Alignment.RIGHT ? (
-            <Icon color={iconColor} icon={iconName} />
+            iconName ? (
+              <Icon color={iconColor} icon={iconName} />
+            ) : null
           ) : null
         }
         onClick={() => onItemClicked(onClick, index)}
@@ -330,9 +332,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
         buttonVariant={buttonVariant}
         disabled={isDisabled}
         fill
-        icon={isRightAlign ? undefined : iconName}
+        icon={isRightAlign ? null : iconName ? iconName : null}
         placement={placement}
-        rightIcon={isRightAlign ? iconName : undefined}
+        rightIcon={isRightAlign ? (iconName ? iconName : null) : null}
         text={label}
       />
     </DragContainer>
