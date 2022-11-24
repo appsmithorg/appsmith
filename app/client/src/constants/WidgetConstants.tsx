@@ -178,4 +178,5 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
   searchTags: true,
   iconSVG: true,
   version: true,
+  displayName: true,
 };
