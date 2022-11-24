@@ -40,7 +40,7 @@ type EntityContextMenuProps = {
   canDeleteAction?: boolean;
 };
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
-  const { canDeleteAction, canManageAction } = props;
+  const { canDeleteAction = false, canManageAction = false } = props;
   const nextEntityName = useNewActionName();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();

@@ -37,7 +37,6 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
      * @param{toggleButton Css} Assert to be checked
      */
     cy.moveToContentTab();
-    cy.togglebar(commonlocators.scrollView);
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");

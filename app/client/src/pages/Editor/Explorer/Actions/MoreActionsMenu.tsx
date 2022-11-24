@@ -78,7 +78,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const { isChangePermitted = true, isDeletePermitted = true } = props;
+  const { isChangePermitted = false, isDeletePermitted = false } = props;
 
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
