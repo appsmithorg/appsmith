@@ -337,18 +337,20 @@ export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
 // is accurate
 export function* updateTernDefinitions(
   dataTree: DataTree,
-  updates?: DataTreeDiff[],
+  isCreateFirstTree: boolean,
+  updates: DataTreeDiff[] = [],
 ) {
   let shouldUpdate: boolean;
   // No updates, means it was a first Eval
-  if (!updates) {
+
+  if (isCreateFirstTree) {
     shouldUpdate = true;
   } else if (updates.length === 0) {
     // update length is 0 means no significant updates
     shouldUpdate = false;
   } else {
     // Only when new field is added or deleted, we want to re-create the def
-    shouldUpdate = some(updates, (update) => {
+    shouldUpdate = some(updates || [], (update) => {
       if (
         update.event === DataTreeDiffEvent.NEW ||
         update.event === DataTreeDiffEvent.DELETE
@@ -370,6 +372,7 @@ export function* updateTernDefinitions(
       return false;
     });
   }
+
   if (shouldUpdate) {
     const start = performance.now();
     // remove private widgets from dataTree used for autocompletion

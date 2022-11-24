@@ -69,6 +69,9 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION,
   // Widgets
+  /**
+   * TODO: Update layout also triggers on drag and drop of widget, that could be skipped from evaluation.
+   */
   ReduxActionTypes.UPDATE_LAYOUT,
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
