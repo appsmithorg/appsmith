@@ -59,6 +59,28 @@ export const extractGeoLocation = (
   };
 };
 
+/**
+ * When location access is turned off in the browser, the error is a GeolocationPositionError instance
+ * We can't pass this instance to the worker thread as it uses structured cloning for copying the objects
+ * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+ * It doesn't support some entities like DOM Nodes, functions etc. for copying
+ * And will throw an error if we try to pass it
+ * GeolocationPositionError instance doesn't exist in worker thread hence not supported by structured cloning
+ * https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPositionError
+ * Hence we're creating a new object with same structure which can be passed to the worker thread
+ */
+function sanitizeGeolocationError(error: any) {
+  if (error instanceof GeolocationPositionError) {
+    const { code, message } = error;
+    return {
+      code,
+      message,
+    };
+  }
+
+  return error;
+}
+
 let successChannel: Channel<any> | undefined;
 let errorChannel: Channel<any> | undefined;
 
@@ -92,11 +114,17 @@ function* errorCallbackHandler() {
       if (callback) {
         yield call(executeAppAction, {
           dynamicString: callback,
-          callbackData: [error],
+          callbackData: [sanitizeGeolocationError(error)],
           event: { type: eventType },
           triggerPropertyName: triggerMeta.triggerPropertyName,
           source: triggerMeta.source,
         });
+
+        logActionExecutionError(
+          (error as Error).message,
+          triggerMeta.source,
+          triggerMeta.triggerPropertyName,
+        );
       } else {
         throw new TriggerFailureError(error.message, triggerMeta);
       }
@@ -134,7 +162,7 @@ export function* getCurrentLocationSaga(
     if (actionPayload.onError) {
       yield call(executeAppAction, {
         dynamicString: actionPayload.onError,
-        callbackData: [error],
+        callbackData: [sanitizeGeolocationError(error)],
         event: { type: eventType },
         triggerPropertyName: triggerMeta.triggerPropertyName,
         source: triggerMeta.source,
