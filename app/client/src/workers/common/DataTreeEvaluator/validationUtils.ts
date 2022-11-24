@@ -156,12 +156,6 @@ export function getValidatedTree(tree: DataTree) {
             }),
           );
         }
-        // else {
-        //   resetValidationErrorsForEntityProperty(
-        //     tree,
-        //     `${entityKey}.${property}`,
-        //   );
-        // }
       },
     );
     return { ...tree, [entityKey]: parsedEntity };

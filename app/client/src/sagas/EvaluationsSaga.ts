@@ -104,6 +104,7 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
+import { isWidget } from "workers/Evaluation/evaluationUtils";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -523,21 +524,22 @@ export function* validateProperty(
   value: any,
   props: WidgetProps,
 ) {
-  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
-  // @ts-expect-error: We have a typeMismatch for validationPaths
-  const validation = unevalTree[props.widgetName].validationPaths[property];
-  const response: unknown = yield call(
-    evalWorker.request,
-    EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
-    {
-      property,
-      value,
-      props,
-      validation,
-    },
-  );
-
-  return response;
+  const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
+  const entity = unevalTree[props.widgetName];
+  if (isWidget(entity)) {
+    const validation = entity.__config__.validationPaths[property];
+    const response: unknown = yield call(
+      evalWorker.request,
+      EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
+      {
+        property,
+        value,
+        props,
+        validation,
+      },
+    );
+    return response;
+  }
 }
 
 function evalQueueBuffer() {
