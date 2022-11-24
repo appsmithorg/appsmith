@@ -49,7 +49,7 @@ describe("Authenticated API Datasource", function() {
     cy.deleteDatasource("FakeAuthenticatedApi");
   });
 
-  it.only("4. Bug: 18051 - Save and Authorise should return to datasource page in view mode and not new datasource page", () => {
+  it("4. Bug: 18051 - Save and Authorise should return to datasource page in view mode and not new datasource page", () => {
     cy.NavigateToAPI_Panel();
     cy.get(apiwidget.createAuthApiDatasource).click();
     cy.generateUUID().then((uuid) => {
