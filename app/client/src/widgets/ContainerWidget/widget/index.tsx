@@ -224,14 +224,16 @@ class ContainerWidget extends BaseWidget<
                 snapRows={snapRows}
                 widgetId={props.widgetId}
               />
+
+              <WidgetsMultiSelectBox
+                {...this.getSnapSpaces()}
+                noContainerOffset={!!props.noContainerOffset}
+                widgetId={this.props.widgetId}
+                widgetType={this.props.type}
+              />
             </>
           )}
-        <WidgetsMultiSelectBox
-          {...this.getSnapSpaces()}
-          noContainerOffset={!!props.noContainerOffset}
-          widgetId={this.props.widgetId}
-          widgetType={this.props.type}
-        />
+
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

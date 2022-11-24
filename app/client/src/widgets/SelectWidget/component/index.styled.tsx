@@ -19,9 +19,9 @@ export const StyledDiv = styled.div`
 `;
 
 export const StyledControlGroup = styled(ControlGroup)<{
-  compactMode: boolean;
-  labelPosition?: LabelPosition;
-  isDisabled?: boolean;
+  $compactMode: boolean;
+  $labelPosition?: LabelPosition;
+  $isDisabled?: boolean;
 }>`
   &&& > {
     span {
@@ -38,12 +38,12 @@ export const StyledControlGroup = styled(ControlGroup)<{
           fill: var(--wds-color-icon);
 
           path {
-            fill: ${({ isDisabled }) =>
-              isDisabled
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"};
-            stroke: ${({ isDisabled }) =>
-              isDisabled
+            stroke: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"} !important;
           }
@@ -58,8 +58,8 @@ export const StyledControlGroup = styled(ControlGroup)<{
           height: 20px;
 
           path {
-            fill: ${({ isDisabled }) =>
-              isDisabled
+            fill: ${({ $isDisabled }) =>
+              $isDisabled
                 ? "var(--wds-color-icon-disabled)"
                 : "var(--wds-color-icon)"};
           }

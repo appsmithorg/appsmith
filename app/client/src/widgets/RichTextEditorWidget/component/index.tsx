@@ -7,13 +7,11 @@ import { TextSize } from "constants/WidgetConstants";
 
 // @ts-expect-error: loader types not available
 import cssVariables from "!!raw-loader!theme/wds.css";
-
-import {
-  LabelWithTooltip,
+import { isMacOs } from "utils/AppsmithUtils";
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
-import { isMacOs } from "utils/AppsmithUtils";
+} from "widgets/components/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{
   borderRadius: string;
@@ -22,6 +20,7 @@ const StyledRTEditor = styled.div<{
   labelPosition?: LabelPosition;
   isValid?: boolean;
   isDisabled?: boolean;
+  isDynamicHeightEnabled?: boolean;
 }>`
   && {
     width: 100%;
@@ -219,12 +218,16 @@ const StyledRTEditor = styled.div<{
 export const RichTextEditorInputWrapper = styled.div<{
   isValid?: boolean;
   borderRadius: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   display: flex;
   width: 100%;
   min-width: 0;
   height: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { height: auto; min-height: 192px; }" : ""};
 `;
 
 export interface RichtextEditorComponentProps {
@@ -235,6 +238,7 @@ export interface RichtextEditorComponentProps {
   isDisabled: boolean;
   isVisible?: boolean;
   compactMode: boolean;
+  isDynamicHeightEnabled: boolean;
   isToolbarHidden: boolean;
   borderRadius: string;
   boxShadow?: string;
@@ -250,10 +254,11 @@ export interface RichtextEditorComponentProps {
   onValueChange: (valueAsString: string) => void;
 }
 
-export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
+function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
     isDisabled,
+    isDynamicHeightEnabled,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -309,6 +314,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       compactMode={compactMode}
       data-testid="rte-container"
       isDisabled={props.isDisabled}
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       isValid={props.isValid}
       labelPosition={labelPosition}
     >
@@ -322,6 +328,7 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           helpText={labelTooltip}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           position={labelPosition}
           text={labelText}
           width={labelWidth}
@@ -329,13 +336,14 @@ export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       )}
       <RichTextEditorInputWrapper
         borderRadius={props.borderRadius}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         isValid={props.isValid}
       >
         <Editor
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
           init={{
-            height: "100%",
+            height: isDynamicHeightEnabled ? "auto" : "100%",
             menubar: false,
             toolbar_mode: "sliding",
             forced_root_block: "p",
