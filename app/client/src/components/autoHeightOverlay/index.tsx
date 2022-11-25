@@ -162,6 +162,8 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     }, [maxDynamicHeight]);
 
     function onAnyDotStop() {
+      // Tell the Canvas that we've stopped resizing
+      // Put it later in the stack so that other updates like click, are not propagated to the parent container
       setTimeout(() => {
         setIsAutoHeightWithLimitsChanging &&
           setIsAutoHeightWithLimitsChanging(false);

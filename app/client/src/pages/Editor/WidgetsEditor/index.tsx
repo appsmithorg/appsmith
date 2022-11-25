@@ -75,6 +75,8 @@ function WidgetsEditor() {
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
 
   const handleWrapperClick = useCallback(() => {
+    // Making sure that we don't deselect the widget
+    // after we are done dragging the limits in auto height with limits
     if (allowDragToSelect && !isAutoHeightWithLimitsChanging) {
       focusWidget && focusWidget();
       deselectAll && deselectAll();

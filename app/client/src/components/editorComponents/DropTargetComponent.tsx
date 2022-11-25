@@ -159,6 +159,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   };
 
   const handleFocus = (e: any) => {
+    // Making sure that we don't deselect the widget
+    // after we are done dragging the limits in auto height with limits
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
       if (!props.parentId) {
         deselectAll();
