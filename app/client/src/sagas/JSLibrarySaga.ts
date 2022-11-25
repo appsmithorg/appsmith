@@ -27,6 +27,7 @@ import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
+import { isDebugMode } from "entities/Engine";
 
 function* handleInstallationFailure(url: string, accessor?: string[]) {
   if (accessor) {
@@ -250,9 +251,22 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     );
 
     if (!success) {
-      yield put({
-        type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
-      });
+      if (isDebugMode()) {
+        yield put({
+          type: ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
+          payload: libraries.map((lib) => ({
+            name: lib.name,
+            accessor: lib.accessor,
+            version: lib.version,
+            url: lib.url,
+            docsURL: lib.docsURL,
+          })),
+        });
+      } else {
+        yield put({
+          type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
+        });
+      }
       return;
     }
 

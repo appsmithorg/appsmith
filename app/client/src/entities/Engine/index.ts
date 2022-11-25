@@ -106,7 +106,7 @@ export default abstract class AppEngine {
   }
 }
 
-function isDebugMode() {
+export function isDebugMode() {
   try {
     const searchParams = new URLSearchParams(window.location.search);
     for (const searchParam of searchParams) {
