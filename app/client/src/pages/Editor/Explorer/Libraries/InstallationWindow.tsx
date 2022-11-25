@@ -382,13 +382,6 @@ function InstallationPopoverContent(props: any) {
               onClick={(e) => openDoc(e, Repo.JsDelivr)}
             >
               jsDelivr
-            </a>{" "}
-            or{" "}
-            <a
-              className="text-primary-500"
-              onClick={(e) => openDoc(e, Repo.Unpkg)}
-            >
-              UNPKG
             </a>
             {". "}
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
@@ -396,8 +389,9 @@ function InstallationPopoverContent(props: any) {
               className="text-primary-500"
               onClick={(e) => openDoc(e, Repo.Unpkg)}
             >
-              here.
+              here
             </a>
+            {"."}
           </span>
         </div>
         <InstallationProgress />
