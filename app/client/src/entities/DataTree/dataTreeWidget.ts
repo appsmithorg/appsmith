@@ -2,7 +2,10 @@ import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _ from "lodash";
 import memoize from "micro-memoize";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
+import {
+  DynamicPath,
+  getEntityDynamicBindingPathList,
+} from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   ENTITY_TYPE,
@@ -138,6 +141,7 @@ const generateDataTreeWidgetWithoutMeta = (
     "dynamicPropertyPathList",
     "dynamicTriggerPathList",
     "privateWidgets",
+    "type",
   ];
 
   const dataTreeWidgetWithoutMetaProps = _.merge(
@@ -148,6 +152,16 @@ const generateDataTreeWidgetWithoutMeta = (
     unInitializedDefaultProps,
     derivedProps,
   );
+
+  const dynamicPathsList: {
+    dynamicPropertyPathList?: DynamicPath[];
+    dynamicTriggerPathList?: DynamicPath[];
+  } = {};
+  if (widget.dynamicPropertyPathList)
+    dynamicPathsList.dynamicPropertyPathList = widget.dynamicPropertyPathList;
+  if (widget.dynamicTriggerPathList)
+    dynamicPathsList.dynamicTriggerPathList = widget.dynamicTriggerPathList;
+
   return {
     dataTreeWidgetWithoutMetaProps,
     overridingMetaPropsMap,
@@ -171,8 +185,7 @@ const generateDataTreeWidgetWithoutMeta = (
       propertyOverrideDependency,
       overridingPropertyPaths,
       type: widget.type,
-      dynamicPropertyPathList: widget.dynamicPropertyPathList,
-      dynamicTriggerPathList: widget.dynamicTriggerPathList,
+      ...dynamicPathsList,
     },
   };
 };

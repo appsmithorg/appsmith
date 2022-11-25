@@ -2,11 +2,13 @@ import React from "react";
 import "@testing-library/jest-dom";
 import KeyValueFieldArray from "../KeyValueFieldArray";
 import { reduxForm } from "redux-form";
-import { render, screen } from "test/testUtils";
+import { render } from "test/testUtils";
+
+const actionConfig: Array<{ key: string; value: string }> = [];
 
 const initialProps = {
   name: "Headers",
-  actionConfig: [],
+  actionConfig,
   dataTreePath: ".config.headers",
   hideHeader: false,
   label: "Headers",
@@ -43,13 +45,9 @@ describe("Bug 11832: KeyValueFieldArray", () => {
   });
 
   it("If headers data is there, it need not maintain pairs of empty fields", () => {
-    // @ts-expect-error: 1
     initialProps.actionConfig.push({ key: "p1", value: "p2" });
-    // @ts-expect-error: 2
     initialProps.actionConfig.push({ key: "p1", value: "p2" });
-    // @ts-expect-error: 3
     initialProps.actionConfig.push({ key: "p1", value: "p2" });
-    // @ts-expect-error: 4
     initialProps.actionConfig.push({ key: "p1", value: "p2" });
     render(getComponent(initialProps));
     rendererTimer = setTimeout(() => {
