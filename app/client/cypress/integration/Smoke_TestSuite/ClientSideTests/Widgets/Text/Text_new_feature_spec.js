@@ -13,6 +13,15 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
   it("Test to validate parsing link", function() {
     // Add link to text widget
+    cy.testCodeMirror("app.appsmith.com");
+    // check if it's a link when no http or https is passed,
+    cy.get(`${commonlocators.headingTextStyle} a`).should(
+      "have.attr",
+      "href",
+      "http://app.appsmith.com",
+    );
+
+    // Add link to text widget
     cy.testCodeMirror("https://app.appsmith.com");
     // check if it's parsed as link
     cy.get(commonlocators.headingTextStyle);
