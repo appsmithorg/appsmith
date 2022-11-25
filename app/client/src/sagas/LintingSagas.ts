@@ -19,7 +19,6 @@ export const lintWorker = new GracefulWorkerService(
 );
 
 export function* lintTreeSaga({
-  jsUpdates,
   pathsToLint,
   unevalTree,
 }: LintTreeSagaRequestData) {
@@ -28,7 +27,6 @@ export function* lintTreeSaga({
   if (appMode !== APP_MODE.EDIT) return;
 
   const lintTreeRequestData: LintTreeRequest = {
-    jsUpdates,
     pathsToLint,
     unevalTree,
   };

@@ -14,7 +14,6 @@ export interface LintTreeResponse {
 export interface LintTreeRequest {
   pathsToLint: string[];
   unevalTree: DataTree;
-  jsUpdates: Record<string, JSUpdate>;
 }
 
 export type LintWorkerRequest = WorkerRequest<
@@ -24,6 +23,5 @@ export type LintWorkerRequest = WorkerRequest<
 
 export type LintTreeSagaRequestData = {
   pathsToLint: string[];
-  jsUpdates: Record<string, JSUpdate>;
   unevalTree: DataTree;
 };

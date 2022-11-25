@@ -461,7 +461,6 @@ function getInvalidPropertyErrorsFromScript(
 
 export function initiateLinting(
   lintOrder: string[],
-  jsUpdates: Record<string, JSUpdate>,
   unevalTree: DataTree,
   requiresLinting: boolean,
 ) {
@@ -470,7 +469,6 @@ export function initiateLinting(
     promisified: true,
     responseData: {
       lintOrder,
-      jsUpdates,
       unevalTree,
       type: EVAL_WORKER_ACTIONS.LINT_TREE,
     },

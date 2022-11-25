@@ -269,7 +269,6 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            jsUpdates,
             createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
@@ -305,7 +304,6 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            jsUpdates,
             createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
@@ -332,7 +330,6 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            jsUpdates,
             createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
