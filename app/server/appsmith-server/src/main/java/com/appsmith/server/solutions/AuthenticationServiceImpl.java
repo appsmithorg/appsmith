@@ -20,9 +20,10 @@ public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl imple
                                      NewPageService newPageService,
                                      CloudServicesConfig cloudServicesConfig,
                                      ConfigService configService,
-                                     DatasourcePermission datasourcePermission) {
+                                     DatasourcePermission datasourcePermission,
+                                     PagePermission pagePermission) {
 
         super(datasourceService, pluginService, redirectHelper, newPageService, cloudServicesConfig, configService,
-                datasourcePermission);
+                datasourcePermission, pagePermission);
     }
 }

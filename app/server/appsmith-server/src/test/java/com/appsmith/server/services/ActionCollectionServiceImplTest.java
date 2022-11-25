@@ -20,6 +20,8 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ApplicationPermissionImpl;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.PagePermissionImpl;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -94,12 +96,14 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     RefactoringSolution refactoringSolution;
     ApplicationPermission applicationPermission;
+    PagePermission pagePermission;
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
+        pagePermission = new PagePermissionImpl();
         actionCollectionService = new ActionCollectionServiceImpl(
                 scheduler,
                 validator,
@@ -122,7 +126,8 @@ public class ActionCollectionServiceImplTest {
                 newActionService,
                 analyticsService,
                 responseUtils,
-                actionCollectionRepository
+                actionCollectionRepository,
+                pagePermission
         );
 
         Mockito

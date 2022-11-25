@@ -79,6 +79,7 @@ public class ApplicationFetcherUnitTest {
     WorkspacePermission workspacePermission;
 
     ApplicationPermission applicationPermission;
+    PagePermission pagePermission;
 
     User testUser;
 
@@ -89,6 +90,7 @@ public class ApplicationFetcherUnitTest {
     public void setup() {
         workspacePermission = new WorkspacePermissionImpl();
         applicationPermission = new ApplicationPermissionImpl();
+        pagePermission = new PagePermissionImpl();
         applicationFetcher = new ApplicationFetcherImpl(sessionUserService,
                 userService,
                 userDataService,
@@ -99,7 +101,8 @@ public class ApplicationFetcherUnitTest {
                 newPageService,
                 userWorkspaceService,
                 workspacePermission,
-                applicationPermission);
+                applicationPermission,
+                pagePermission);
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {

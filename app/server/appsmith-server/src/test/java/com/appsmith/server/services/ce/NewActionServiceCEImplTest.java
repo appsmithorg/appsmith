@@ -27,6 +27,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -126,6 +127,8 @@ public class NewActionServiceCEImplTest {
     DatasourcePermission datasourcePermission;
     @MockBean
     ApplicationPermission applicationPermission;
+    @MockBean
+    PagePermission pagePermission;
 
     private BodyExtractor.Context context;
 
@@ -154,7 +157,8 @@ public class NewActionServiceCEImplTest {
                 responseUtils,
                 permissionGroupService,
                 datasourcePermission,
-                applicationPermission);
+                applicationPermission,
+                pagePermission);
     }
 
     @BeforeEach

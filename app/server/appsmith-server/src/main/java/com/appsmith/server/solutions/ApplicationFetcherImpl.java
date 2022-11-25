@@ -25,10 +25,11 @@ public class ApplicationFetcherImpl extends ApplicationFetcherCEImpl implements 
                                   NewPageService newPageService,
                                   UserWorkspaceService userWorkspaceService,
                                   WorkspacePermission workspacePermission,
-                                  ApplicationPermission applicationPermission) {
+                                  ApplicationPermission applicationPermission,
+                                  PagePermission pagePermission) {
 
         super(sessionUserService, userService, userDataService, workspaceService, applicationRepository,
                 releaseNotesService, responseUtils, newPageService, userWorkspaceService, workspacePermission,
-                applicationPermission);
+                applicationPermission, pagePermission);
     }
 }

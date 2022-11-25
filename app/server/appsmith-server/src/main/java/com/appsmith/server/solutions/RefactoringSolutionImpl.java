@@ -25,7 +25,8 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                                    LayoutActionService layoutActionService,
                                    ApplicationService applicationService,
                                    AstService astService,
-                                   InstanceConfig instanceConfig) {
+                                   InstanceConfig instanceConfig,
+                                   PagePermission pagePermission) {
         super(objectMapper,
                 newPageService,
                 newActionService,
@@ -34,6 +35,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                 layoutActionService,
                 applicationService,
                 astService,
-                instanceConfig);
+                instanceConfig,
+                pagePermission);
     }
 }

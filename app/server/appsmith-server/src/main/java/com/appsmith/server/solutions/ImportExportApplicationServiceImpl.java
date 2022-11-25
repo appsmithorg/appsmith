@@ -45,12 +45,13 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               AnalyticsService analyticsService,
                                               DatasourcePermission datasourcePermission,
                                               WorkspacePermission workspacePermission,
-                                              ApplicationPermission applicationPermission) {
+                                              ApplicationPermission applicationPermission,
+                                              PagePermission pagePermission) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
                 actionCollectionService, themeService, policyUtils, analyticsService, datasourcePermission,
-                workspacePermission, applicationPermission);
+                workspacePermission, applicationPermission, pagePermission);
     }
 }

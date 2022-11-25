@@ -38,11 +38,12 @@ public class ExamplesWorkspaceClonerImpl extends ExamplesWorkspaceClonerCEImpl i
                                           ActionCollectionService actionCollectionService,
                                           LayoutCollectionService layoutCollectionService,
                                           ThemeService themeService,
-                                       ApplicationPermission applicationPermission) {
+                                       ApplicationPermission applicationPermission,
+                                       PagePermission pagePermission) {
 
         super(workspaceService, workspaceRepository, datasourceService, datasourceRepository, configService,
                 sessionUserService, userService, applicationService, applicationPageService, newPageRepository,
                 newActionService, layoutActionService, actionCollectionService, layoutCollectionService, themeService,
-                applicationPermission);
+                applicationPermission, pagePermission);
     }
 }

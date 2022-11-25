@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.NewActionServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -41,13 +42,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 ResponseUtils responseUtils,
                                 PermissionGroupService permissionGroupService,
                                 DatasourcePermission datasourcePermission,
-                                ApplicationPermission applicationPermission) {
+                                ApplicationPermission applicationPermission,
+                                PagePermission pagePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
                 policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
                 authenticationValidator, configService, responseUtils, permissionGroupService, datasourcePermission,
-                applicationPermission);
+                applicationPermission, pagePermission);
 
     }
 }

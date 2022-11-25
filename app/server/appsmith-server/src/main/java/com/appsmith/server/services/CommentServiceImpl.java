@@ -9,6 +9,7 @@ import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.services.ce.CommentServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EmailEventHandler;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -39,12 +40,13 @@ public class CommentServiceImpl extends CommentServiceCEImpl implements CommentS
                               UserDataRepository userDataRepository,
                               SequenceService sequenceService,
                               ResponseUtils responseUtils,
-                              ApplicationPermission applicationPermission) {
+                              ApplicationPermission applicationPermission,
+                              PagePermission pagePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 threadRepository, userService, sessionUserService, applicationService, newPageService,
                 notificationService, policyGenerator, policyUtils, emailEventHandler, userDataRepository,
-                sequenceService, responseUtils, applicationPermission);
+                sequenceService, responseUtils, applicationPermission, pagePermission);
 
     }
 }

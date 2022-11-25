@@ -20,6 +20,7 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,6 +81,8 @@ public class GitServiceCEImplTest {
     DatasourcePermission datasourcePermission;
     @MockBean
     ApplicationPermission applicationPermission;
+    @MockBean
+    PagePermission pagePermission;
 
     @BeforeEach
     public void setup() {
@@ -87,7 +90,7 @@ public class GitServiceCEImplTest {
                 userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, gitFileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService, datasourcePermission, applicationPermission
+                datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission
         );
     }
 
