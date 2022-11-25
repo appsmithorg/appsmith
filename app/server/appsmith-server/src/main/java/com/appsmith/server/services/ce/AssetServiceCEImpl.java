@@ -39,7 +39,12 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     private final AnalyticsService analyticsService;
 
-    private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG);
+    private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(
+            MediaType.IMAGE_JPEG,
+            MediaType.IMAGE_PNG,
+            MediaType.valueOf("image/svg+xml"),
+            MediaType.valueOf("image/x-icon")
+    );
 
     @Override
     public Mono<Asset> getById(String id) {
