@@ -12,6 +12,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
 import { ColumnTypes, EditableCell, TableVariant } from "../constants";
 import { useCallback } from "react";
+import styled from "styled-components";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -35,6 +36,13 @@ export interface ColumnMenuSubOptionProps {
   isHeader?: boolean;
 }
 
+const StyledDiv = styled.div`
+  font-size: 18px;
+  width: 400px !import;
+  margin: 10px auto;
+  padding: 110px 0px;
+  text-align: center;
+`;
 interface ReactTableComponentProps {
   widgetId: string;
   widgetName: string;
@@ -293,6 +301,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   const memoziedEnableDrag = useCallback(() => disableDrag(false), [
     disableDrag,
   ]);
+
+  if (columns.length === 0) {
+    return <StyledDiv>Connect to your data from property pane</StyledDiv>;
+  }
 
   return (
     <Table

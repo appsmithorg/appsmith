@@ -516,6 +516,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const pageId: string = yield select(getCurrentPageId);
 
   if (pluginType === PluginType.API) {
+    return;
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
     history.push(
       apiEditorIdURL({

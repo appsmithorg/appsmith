@@ -36,7 +36,7 @@ export const PluginFormInputFieldMap: Record<
 
 export const DROPDOWN_DIMENSION = {
   HEIGHT: "36px",
-  WIDTH: "404px",
+  WIDTH: "100%",
 };
 
 export const DEFAULT_DROPDOWN_OPTION = {

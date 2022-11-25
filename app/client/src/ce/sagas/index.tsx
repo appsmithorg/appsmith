@@ -42,6 +42,7 @@ import NavigationSagas from "sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
+import WidgetBindingSaga from "sagas/WidgetBindingSaga";
 
 export const sagas = [
   initSagas,
@@ -88,4 +89,5 @@ export const sagas = [
   editorContextSagas,
   PageVisibilitySaga,
   tenantSagas,
+  WidgetBindingSaga,
 ];
