@@ -252,10 +252,6 @@ export class DataTreeFactory {
     });
     const endWidgets = performance.now();
 
-    /**
-     *  pageList is not used in evaluation code need to confirm once again if it is needed or not.
-     */
-
     dataTree.pageList = pageList;
 
     dataTree.appsmith = {

@@ -1,12 +1,6 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
-import {
-  DataTree,
-  DataTreeEntity,
-  DataTreeObjectEntity,
-  UnEvalTree,
-  UnEvalTreeEntityObject,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
@@ -15,6 +9,9 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
+  createDataTreeWithConfig,
+  createUnEvalTree,
+  createUnEvalTreeWithEntityConfig,
   DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
@@ -47,53 +44,6 @@ const CANVAS = "canvas";
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
-
-function createNewEntity(entity: UnEvalTreeEntityObject) {
-  if (!entity || !entity.hasOwnProperty("__config__")) return entity;
-  const { __config__, ...rest } = entity;
-  const newObj = Object.create(__config__);
-  Object.assign(newObj, rest) as DataTreeEntity;
-  return newObj;
-}
-
-function createUnEvalTree(unevalTree: UnEvalTree) {
-  const newUnEvalTree: DataTree = {};
-
-  for (const entityName of Object.keys(unevalTree)) {
-    const entity = unevalTree[entityName];
-    newUnEvalTree[entityName] = createNewEntity(
-      entity as UnEvalTreeEntityObject,
-    );
-  }
-
-  return newUnEvalTree;
-}
-
-function createDataTreeWithConfig(dataTree: DataTree) {
-  const newDataTree: DataTree = {};
-  for (const entityName of Object.keys(dataTree)) {
-    const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
-    const entity = dataTree[entityName];
-    newDataTree[entityName] = { ...entityConfig, ...entity };
-  }
-  return JSON.parse(JSON.stringify(newDataTree));
-}
-
-function createUnEvalTreeWithEntityConfig(unevalTree: UnEvalTree) {
-  const unEvalTreeWithConfig: DataTree = {};
-  for (const entityName of Object.keys(unevalTree)) {
-    const entity = unevalTree[entityName];
-    let entityConfig = {};
-    if (entity && entity.hasOwnProperty("__config__")) {
-      entityConfig = (entity as UnEvalTreeEntityObject)["__config__"];
-    }
-    unEvalTreeWithConfig[entityName] = {
-      ...entityConfig,
-      ...entity,
-    } as DataTreeObjectEntity;
-  }
-  return unEvalTreeWithConfig;
-}
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(fn: typeof eventRequestHandler) {

@@ -17,6 +17,8 @@ import {
   ENTITY_TYPE,
   DataTreeJSAction,
   PrivateWidgets,
+  UnEvalTree,
+  UnEvalTreeEntityObject,
 } from "entities/DataTree/dataTreeFactory";
 import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -795,3 +797,53 @@ export const isATriggerPath = (
 ) => {
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };
+
+function createNewEntity(entity: UnEvalTreeEntityObject) {
+  if (!entity || !entity.hasOwnProperty("__config__")) return entity;
+  const { __config__, ...rest } = entity;
+  const newObj = Object.create(__config__);
+  Object.assign(newObj, rest) as DataTreeEntity;
+  return newObj;
+}
+/**
+ * This method takes unevaltree received from mainThread as input and return a new unEvalTree with each entity config moved to entity object's prototype.
+ * Moving configs to prototype skips it from diffing, cloning and getAllPaths calculation.
+ */
+export function createUnEvalTree(unevalTree: UnEvalTree) {
+  const newUnEvalTree: DataTree = {};
+
+  for (const entityName of Object.keys(unevalTree)) {
+    const entity = unevalTree[entityName];
+    newUnEvalTree[entityName] = createNewEntity(
+      entity as UnEvalTreeEntityObject,
+    );
+  }
+
+  return newUnEvalTree;
+}
+
+export function createDataTreeWithConfig(dataTree: DataTree) {
+  const newDataTree: DataTree = {};
+  for (const entityName of Object.keys(dataTree)) {
+    const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
+    const entity = dataTree[entityName];
+    newDataTree[entityName] = { ...entityConfig, ...entity };
+  }
+  return JSON.parse(JSON.stringify(newDataTree));
+}
+
+export function createUnEvalTreeWithEntityConfig(unevalTree: UnEvalTree) {
+  const unEvalTreeWithConfig: DataTree = {};
+  for (const entityName of Object.keys(unevalTree)) {
+    const entity = unevalTree[entityName];
+    let entityConfig = {};
+    if (entity && entity.hasOwnProperty("__config__")) {
+      entityConfig = (entity as UnEvalTreeEntityObject)["__config__"];
+    }
+    unEvalTreeWithConfig[entityName] = {
+      ...entityConfig,
+      ...entity,
+    } as DataTreeObjectEntity;
+  }
+  return unEvalTreeWithConfig;
+}
