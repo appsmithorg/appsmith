@@ -65,7 +65,6 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   getInputValue,
@@ -76,7 +75,7 @@ import {
   removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
@@ -85,7 +84,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import { startingEntityUpdation } from "actions/editorActions";
+import { startingEntityUpdate } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -101,10 +100,17 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { getIsCodeEditorFocused } from "selectors/editorContextSelectors";
-import { generateKeyAndSetCodeEditorLastFocus } from "actions/editorContextActions";
+import {
+  getCodeEditorLastCursorPosition,
+  getIsCodeEditorFocused,
+} from "selectors/editorContextSelectors";
+import {
+  CodeEditorFocusState,
+  generateKeyAndSetCodeEditorLastFocus,
+} from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
+import { getEntityLintErrors } from "selectors/lintingSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -127,6 +133,7 @@ export type EditorStyleProps = {
   link?: string;
   showLightningMenu?: boolean;
   dataTreePath?: string;
+  focusElementName?: string;
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   borderLess?: boolean;
@@ -201,8 +208,10 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
-  // state of lint errors in editor
-  hasLintError: boolean;
+};
+
+const getEditorIdentifier = (props: EditorProps): string => {
+  return props.dataTreePath || props.focusElementName || "";
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -226,7 +235,6 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
-      hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -343,9 +351,11 @@ class CodeEditor extends Component<Props, State> {
 
         this.lintCode(editor);
 
-        if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
-          editor.focus();
-        }
+        setTimeout(() => {
+          if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
+            editor.focus();
+          }
+        }, 200);
       }.bind(this);
 
       // Finally create the Codemirror editor
@@ -375,6 +385,7 @@ class CodeEditor extends Component<Props, State> {
       }
       return nextState.isFocused || !!nextProps.isJSObject || !areErrorsEqual;
     }
+
     return true;
   }
 
@@ -393,13 +404,19 @@ class CodeEditor extends Component<Props, State> {
       this.debounceEditorRefresh();
     }
     if (
-      !prevProps.editorIsFocused &&
-      this.props.editorIsFocused &&
+      getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps) &&
       shouldFocusOnPropertyControl()
     ) {
-      this.editor.focus();
+      setTimeout(() => {
+        if (this.props.editorIsFocused) {
+          this.editor.focus();
+        }
+      }, 200);
     }
     this.editor.operation(() => {
+      if (prevProps.lintErrors !== this.props.lintErrors)
+        this.lintCode(this.editor);
+
       if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
@@ -560,14 +577,24 @@ class CodeEditor extends Component<Props, State> {
         EditorModes.GRAPHQL_WITH_BINDING,
       ].includes(mode.name)
     ) {
-      this.editor.setOption("matchBrackets", true);
+      cm.setOption("matchBrackets", true);
     } else {
-      this.editor.setOption("matchBrackets", false);
+      cm.setOption("matchBrackets", false);
     }
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+    const { ch, line, sticky } = cm.getCursor();
+    // Check if it is a user focus
+    if (
+      ch === 0 &&
+      line === 0 &&
+      sticky === null &&
+      this.props.editorLastCursorPosition
+    ) {
+      cm.setCursor(this.props.editorLastCursorPosition);
+    }
 
     if (!cm.state.completionActive) {
       updateCustomDef(this.props.additionalDynamicData);
@@ -593,7 +620,14 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
-    this.props.setCodeEditorLastFocus(this.props.dataTreePath);
+    const cursor = this.editor.getCursor();
+    this.props.setCodeEditorLastFocus({
+      key: getEditorIdentifier(this.props),
+      cursorPosition: {
+        ch: cursor.ch,
+        line: cursor.line,
+      },
+    });
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
@@ -617,8 +651,9 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleLintTooltip = () => {
-    // return if there is no lint error in editor instance
-    if (!this.state.hasLintError) return;
+    const { lintErrors } = this.props;
+
+    if (lintErrors.length === 0) return;
     const lintTooltipList = document.getElementsByClassName(LINT_TOOLTIP_CLASS);
     if (!lintTooltipList) return;
     for (const tooltip of lintTooltipList) {
@@ -631,7 +666,10 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleChange = (instance?: any, changeObj?: any) => {
+  handleChange = (
+    instance?: CodeMirror.Editor,
+    changeObj?: CodeMirror.EditorChangeLinkedList,
+  ) => {
     const value = this.editor?.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
@@ -649,12 +687,17 @@ class CodeEditor extends Component<Props, State> {
       });
       this.props.input.onChange(value);
     }
-    CodeEditor.updateMarkings(this.editor, this.props.marking);
+    if (this.editor) {
+      CodeEditor.updateMarkings(this.editor, this.props.marking);
+    }
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
 
-  startChange = (instance?: any, changeObj?: any) => {
+  startChange = (
+    instance: CodeMirror.Editor,
+    changeObj: CodeMirror.EditorChangeLinkedList,
+  ) => {
     /* This action updates the status of the savingEntity to true so that any
       shortcut commands do not execute before updating the entity in the store */
     const value = this.editor.getValue() || "";
@@ -668,7 +711,7 @@ class CodeEditor extends Component<Props, State> {
       this.setState({
         changeStarted: true,
       });
-      this.props.startingEntityUpdation();
+      this.props.startingEntityUpdate();
     }
     this.handleDebouncedChange(instance, changeObj);
   };
@@ -771,20 +814,15 @@ class CodeEditor extends Component<Props, State> {
     const {
       additionalDynamicData: contextData,
       dataTreePath,
-      dynamicData,
       isJSObject,
     } = this.props;
 
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
-    const errors = _.get(
-      dynamicData,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
+    const lintErrors = this.props.lintErrors;
 
-    const annotations = getLintAnnotations(editor.getValue(), errors, {
+    const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
       contextData,
     });
@@ -824,33 +862,17 @@ class CodeEditor extends Component<Props, State> {
   getPropertyValidation = (
     dataTreePath?: string,
   ): {
-    isInvalid: boolean;
-    errors: EvaluationError[];
+    evalErrors: EvaluationError[];
     pathEvaluatedValue: unknown;
   } => {
     if (!dataTreePath) {
       return {
-        isInvalid: false,
-        errors: [],
+        evalErrors: [],
         pathEvaluatedValue: undefined,
       };
     }
 
-    const errors = this.getErrors(this.props.dynamicData, dataTreePath);
-
-    const filteredLintErrors = errors.filter(
-      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-    );
-
-    const lintErrors = errors.filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-    );
-
-    if (!_.isEmpty(lintErrors)) {
-      !this.state.hasLintError && this.setState({ hasLintError: true });
-    } else {
-      this.state.hasLintError && this.setState({ hasLintError: false });
-    }
+    const evalErrors = this.getErrors(this.props.dynamicData, dataTreePath);
 
     const pathEvaluatedValue = _.get(
       this.props.dynamicData,
@@ -858,8 +880,7 @@ class CodeEditor extends Component<Props, State> {
     );
 
     return {
-      isInvalid: filteredLintErrors.length > 0,
-      errors: filteredLintErrors,
+      evalErrors,
       pathEvaluatedValue,
     };
   };
@@ -886,10 +907,14 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const validations = this.getPropertyValidation(dataTreePath);
-    let { errors, isInvalid } = validations;
-    const { pathEvaluatedValue } = validations;
-    let evaluated = evaluatedValue;
+    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
+      dataTreePath,
+    );
+
+    let errors = evalErrors,
+      isInvalid = evalErrors.length > 0,
+      evaluated = evaluatedValue;
+
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
@@ -901,9 +926,6 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
-    /*  Evaluation results for snippet snippets */
-    this.lintCode(this.editor);
-
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
@@ -1026,15 +1048,20 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  editorIsFocused: getIsCodeEditorFocused(state, props.dataTreePath || ""),
+  lintErrors: getEntityLintErrors(state, props.dataTreePath),
+  editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
+  editorLastCursorPosition: getCodeEditorLastCursorPosition(
+    state,
+    getEditorIdentifier(props),
+  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
-  startingEntityUpdation: () => dispatch(startingEntityUpdation()),
-  setCodeEditorLastFocus: (key: string | undefined) =>
-    dispatch(generateKeyAndSetCodeEditorLastFocus(key)),
+  startingEntityUpdate: () => dispatch(startingEntityUpdate()),
+  setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
+    dispatch(generateKeyAndSetCodeEditorLastFocus(payload)),
 });
 
 export default Sentry.withProfiler(

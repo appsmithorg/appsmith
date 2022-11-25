@@ -24,7 +24,7 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
   it("2. Create dummy pages for navigating", () => {
     //CRUD page 2
     ee.AddNewPage();
-    agHelper.GetNClick(homePage._buildFromDataTableActionCard);
+    ee.AddNewPage("generate-page");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
@@ -42,7 +42,7 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
 
     //CRUD page 3
     ee.AddNewPage();
-    agHelper.GetNClick(homePage._buildFromDataTableActionCard);
+    ee.AddNewPage("generate-page");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 

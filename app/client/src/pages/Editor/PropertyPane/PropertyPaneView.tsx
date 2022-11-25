@@ -38,6 +38,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
+import { disableWidgetFeatures } from "utils/WidgetFeatures";
 
 export const StyledSearchInput = React.memo(styled(SearchInput)`
   position: sticky;
@@ -262,8 +263,9 @@ function PropertyPaneView(
               contentComponent={
                 isContentConfigAvailable ? (
                   <PropertyControlsGenerator
-                    config={WidgetFactory.getWidgetPropertyPaneContentConfig(
+                    config={disableWidgetFeatures(
                       widgetProperties.type,
+                      widgetProperties.disabledWidgetFeatures,
                     )}
                     id={widgetProperties.widgetId}
                     panel={panel}

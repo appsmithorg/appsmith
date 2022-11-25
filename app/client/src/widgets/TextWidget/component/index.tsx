@@ -17,6 +17,7 @@ import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
+import LinkFilter from "./filters/LinkFilter";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -115,7 +116,10 @@ export const StyledText = styled(Text)<{
       ? "hidden"
       : "auto"};
   text-overflow: ellipsis;
-  text-align: ${(props) => props.textAlign.toLowerCase()};
+  && div {
+    display: block;
+    width: 100%;
+  }
   display: flex;
   width: 100%;
   justify-content: flex-start;
@@ -140,6 +144,8 @@ export const StyledText = styled(Text)<{
     width: 100%;
     line-height: 1.2;
     white-space: pre-wrap;
+    display: block;
+    text-align: ${(props) => props.textAlign.toLowerCase()};
   }
 `;
 
@@ -301,6 +307,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             >
               <Interweave
                 content={text}
+                filters={[new LinkFilter()]}
                 matchers={
                   disableLink
                     ? []
@@ -350,6 +357,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             >
               <Interweave
                 content={text}
+                filters={[new LinkFilter()]}
                 matchers={
                   disableLink
                     ? []

@@ -34,6 +34,7 @@ import {
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
+  getShouldFocusPropertyPath,
   getWidgetPropsForPropertyName,
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
@@ -50,14 +51,13 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
 import { AppState } from "@appsmith/reducers";
-import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
+import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -91,7 +91,7 @@ const PropertyControl = memo((props: Props) => {
   let hasDispatchedPropertyFocus = false;
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
-      getshouldFocusPropertyPath(
+      getShouldFocusPropertyPath(
         state,
         dataTreePath,
         hasDispatchedPropertyFocus,
@@ -113,16 +113,20 @@ const PropertyControl = memo((props: Props) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
 
   useEffect(() => {
-    if (
-      shouldFocusPropertyPath &&
-      shouldFocusOnPropertyControl(controlRef.current)
-    ) {
+    if (shouldFocusPropertyPath) {
+      // We can get a code editor element as well, which will take time to load
+      // for that we setTimeout to 200 ms
       setTimeout(() => {
-        const focusableElement = getPropertyControlFocusElement(
-          controlRef.current,
-        );
-        focusableElement?.scrollIntoView({ block: "center" });
-        focusableElement?.focus();
+        if (shouldFocusOnPropertyControl(controlRef.current)) {
+          const focusableElement = getPropertyControlFocusElement(
+            controlRef.current,
+          );
+          focusableElement?.scrollIntoView({
+            block: "center",
+            behavior: "smooth",
+          });
+          focusableElement?.focus();
+        }
       }, 0);
     }
   }, [shouldFocusPropertyPath]);
@@ -252,10 +256,18 @@ const PropertyControl = memo((props: Props) => {
         propertyValue,
       );
     }
+
     if (propertiesToUpdate) {
       const allUpdates: Record<string, unknown> = {};
       const allDeletions: string[] = [];
       const allDynamicPropertyPathUpdate: DynamicPath[] = [];
+      // TODO(abhinav): DEBUG: Ask Rahul and Ashok, if this causes issues anywhere else.
+
+      // We add the current updated first, so that the updatehooks can override the value
+      // This is needed for transformations in some cases. For example,
+      // the INPUT_TEXT control uses string as default, we can convert this into a number
+      // by calling an updateHook which runs the parseInt over this value.
+      allUpdates[propertyName] = propertyValue;
       propertiesToUpdate.forEach(
         ({
           isDynamicPropertyPath,
@@ -276,7 +288,6 @@ const PropertyControl = memo((props: Props) => {
           }
         },
       );
-      allUpdates[propertyName] = propertyValue;
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget properties were updated",
@@ -295,6 +306,7 @@ const PropertyControl = memo((props: Props) => {
         updates: {
           modify: allUpdates,
           remove: allDeletions,
+          postUpdateAction: props.postUpdateAction,
         },
         dynamicUpdates: {
           dynamicPropertyPathList: allDynamicPropertyPathUpdate,
@@ -318,10 +330,12 @@ const PropertyControl = memo((props: Props) => {
           [propertyName]: propertyValue,
         },
       });
+
       return {
         widgetId: widgetProperties.widgetId,
         updates: {
           modify,
+          postUpdateAction: props.postUpdateAction,
         },
       };
     }
@@ -410,6 +424,7 @@ const PropertyControl = memo((props: Props) => {
         propertyName,
         propertyValue,
       );
+
       const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] = getOtherWidgetPropertyChanges(
         propertyName,
         propertyValue,
@@ -424,6 +439,7 @@ const PropertyControl = memo((props: Props) => {
           );
         }
       }
+
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
@@ -559,7 +575,7 @@ const PropertyControl = memo((props: Props) => {
       if (!shouldFocusPropertyPath) {
         hasDispatchedPropertyFocus = true;
         setTimeout(() => {
-          dispatch(generateKeyAndSetFocusableField(dataTreePath));
+          dispatch(generateKeyAndSetFocusablePropertyPaneField(dataTreePath));
         }, 0);
       }
     };
