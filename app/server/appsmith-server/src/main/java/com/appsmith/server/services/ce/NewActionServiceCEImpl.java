@@ -1148,6 +1148,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (datasource.getCreatedAt() != null) {
                         dsCreatedAt = DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt());
                     }
+                    List<Param> paramsList = executeActionDto.getParams();
+                    if (paramsList == null) {
+                        paramsList = new ArrayList<>();
+                    }
+                    List<String> executionParams =  paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
                             "request", request,
@@ -1157,7 +1162,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed,
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS_COUNT, String.valueOf(executionParams.size()),
+                            FieldName.ACTION_EXECUTION_REQUEST_PARAMS, executionParams.stream().collect(Collectors.joining(",", "[", "]"))
                     ));
                     data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
@@ -1184,10 +1191,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
-                    List<Param> paramsList = executeActionDto.getParams();
-                    if (paramsList == null) {
-                        paramsList = new ArrayList<>();
-                    }
+
                     String executionRequestQuery = "";
                     if (actionExecutionResult != null &&
                             actionExecutionResult.getRequest() != null &&
@@ -1195,7 +1199,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         executionRequestQuery = actionExecutionResult.getRequest().getQuery();
                     }
 
-                    List<String> executionParams =  paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
                     final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
