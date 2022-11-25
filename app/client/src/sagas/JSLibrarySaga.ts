@@ -28,9 +28,11 @@ import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
 
-export function findUrlFromText(text: string) {
-  const urlRegex = /((?:https?:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)/gi;
-  return text.match(urlRegex);
+export function parseErrorMessage(text: string) {
+  return text
+    .split(": ")
+    .slice(1)
+    .join("");
 }
 
 function* handleInstallationFailure(url: string, accessor?: string[]) {
@@ -269,12 +271,9 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
             docsURL: lib.docsURL,
           })),
         });
-        const urlMatch = findUrlFromText(message);
+        const errorMessage = parseErrorMessage(message);
         Toaster.show({
-          text: createMessage(
-            customJSLibraryMessages.CLIENT_LOAD_FAILED,
-            urlMatch?.[0],
-          ),
+          text: errorMessage,
           variant: Variant.warning,
         });
       } else {
