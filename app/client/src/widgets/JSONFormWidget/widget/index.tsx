@@ -30,12 +30,6 @@ import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
 import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
-import { GridDefaults } from "constants/WidgetConstants";
-import {
-  getWidgetMaxAutoHeight,
-  getWidgetMinAutoHeight,
-  isAutoHeightEnabledForWidget,
-} from "widgets/WidgetUtils";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -249,43 +243,6 @@ class JSONFormWidget extends BaseWidget<
       this.state.metaInternalFieldState,
       schema,
     );
-    let height = this.formRef?.current?.scrollHeight || 0;
-
-    if (isAutoHeightEnabledForWidget(this.props)) {
-      const maxDynamicHeight = getWidgetMaxAutoHeight(this.props);
-      const minDynamicHeight = getWidgetMinAutoHeight(this.props);
-      const footerHeight = 80; // TODO(abhinav): Get it from the component. Check with Ashit
-
-      if (
-        maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT <
-        height + footerHeight
-      ) {
-        height =
-          maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
-          footerHeight;
-      } else if (
-        minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT >
-        height + footerHeight
-      ) {
-        height =
-          minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
-          footerHeight;
-      }
-      const totalHeight = footerHeight + height;
-      const { componentHeight } = this.getComponentDimensions();
-
-      const expectedHeightInPixels =
-        Math.ceil(totalHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT) *
-        GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-      if (
-        height &&
-        Math.abs(componentHeight - expectedHeightInPixels) >
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-      ) {
-        this.updateAutoHeight(expectedHeightInPixels);
-      }
-    }
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {

@@ -9,7 +9,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 3,
+      active: true,
+    },
   },
   searchTags: ["choice"],
   defaults: {

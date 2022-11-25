@@ -2,10 +2,15 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { LabelPosition } from "components/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 3,
+      defaultValue: DynamicHeight.FIXED,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Input",

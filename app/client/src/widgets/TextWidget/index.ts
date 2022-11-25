@@ -5,7 +5,10 @@ import Widget from "./widget";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Text",

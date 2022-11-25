@@ -85,7 +85,7 @@ describe("Dynamic Height Width validation", function() {
     cy.get(".t--widget-propertypane-toggle")
       .first()
       .click({ force: true });
-    cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
+    //cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
     //cy.checkMinDefaultValue(commonlocators.minHeight,"4")
     //cy.checkMaxDefaultValue(commonlocators.maxHeight,"24")
     cy.changeLayoutHeight(commonlocators.autoHeight);

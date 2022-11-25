@@ -21,7 +21,10 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
   },
   searchTags: ["dialog", "popup", "notification"],
   defaults: {
@@ -29,6 +32,7 @@ export const CONFIG = {
     columns: 24,
     width: 456,
     height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
+    minDynamicHeight: 24,
     canEscapeKeyClose: true,
     animateLoading: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.

@@ -3,6 +3,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
@@ -122,6 +123,9 @@ export const CONFIG = {
                     isDeletable: false,
                     disallowCopy: true,
                     disablePropertyPane: true,
+                    disabledWidgetFeatures: [
+                      RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
+                    ],
                     openParentPropertyPane: true,
                     children: [],
                     blueprint: {

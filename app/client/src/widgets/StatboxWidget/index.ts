@@ -6,7 +6,10 @@ import Widget from "./widget";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Stats Box",
@@ -21,6 +24,7 @@ export const CONFIG = {
     backgroundColor: "white",
     borderWidth: "1",
     borderColor: Colors.GREY_5,
+    minDynamicHeight: 14,
     children: [],
     blueprint: {
       view: [

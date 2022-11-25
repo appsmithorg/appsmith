@@ -1,4 +1,5 @@
 import { Colors } from "constants/Colors";
+import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -16,12 +17,15 @@ export const CONFIG = {
   // define them in a Map which the platform understands to have
   // them stored only in the WidgetFactory.
   canvasHeightOffset: (props: WidgetProps): number =>
-    props.shouldShowTabs === true ? 4 : 0,
+    props.shouldShowTabs === true ? 5 : 0,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
   },
   defaults: {
-    rows: 40,
+    rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
     columns: 24,
     shouldScrollContents: false,
     widgetName: "Tabs",

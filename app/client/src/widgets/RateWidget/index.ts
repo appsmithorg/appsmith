@@ -4,7 +4,10 @@ import Widget from "./widget";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Rating",

@@ -5,7 +5,10 @@ import { AlignWidgetTypes } from "widgets/constants";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 2,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Checkbox",

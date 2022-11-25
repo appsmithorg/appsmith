@@ -10,7 +10,10 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
   },
   searchTags: ["group"],
   defaults: {
