@@ -124,8 +124,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const shouldCollapseWidgetInViewOrPreviewMode =
       !widgetProps.isVisible &&
-      (renderMode === RenderModes.PAGE || isPreviewMode) &&
-      widgetProps.bottomRow !== widgetProps.topRow;
+      (renderMode === RenderModes.PAGE || isPreviewMode);
 
     const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
       widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
@@ -151,8 +150,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     ) {
       dispatch(checkContainersForAutoHeightAction());
     }
-
-    if (!widgetProps.isVisible) return null;
 
     return <WrappedWidget {...widgetProps} />;
   }
