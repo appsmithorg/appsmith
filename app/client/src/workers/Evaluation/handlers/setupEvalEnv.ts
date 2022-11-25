@@ -1,4 +1,4 @@
-import { JSLibraries, unsafeFunctionForEval } from "utils/DynamicBindingUtils";
+import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
 import interceptAndOverrideHttpRequest from "../HTTPRequestOverride";
 import { resetJSLibraries } from "../JSLibrary";
 import SetupDOM from "../SetupDOM";
@@ -7,9 +7,9 @@ import { EvalWorkerRequest } from "../types";
 import userLogs from "../UserLog";
 
 export default function() {
-  resetJSLibraries();
+  const libraries = resetJSLibraries();
   ///// Adding extra libraries separately
-  JSLibraries.forEach((library) => {
+  libraries.forEach((library) => {
     // @ts-expect-error: Types are not available
     self[library.accessor] = library.lib;
   });
@@ -31,5 +31,7 @@ export function setEvaluationVersion(request: EvalWorkerRequest) {
   const { requestData } = request;
   const { version } = requestData;
   self.evaluationVersion = version || 1;
+  // TODO: Move this to setup
+  resetJSLibraries();
   return true;
 }

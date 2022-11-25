@@ -12,7 +12,10 @@ export function resetJSLibraries() {
   );
   for (const key of libraryReservedNames) {
     if (!defaultLibraryAccessors.includes(key)) {
+      // @ts-expect-error: Types are not available
+      self[key] = undefined;
       libraryReservedNames.delete(key);
     }
   }
+  return JSLibraries;
 }
