@@ -384,7 +384,6 @@ export function* executeDynamicTriggerRequest(
     if (requestData.type === EVAL_WORKER_ACTIONS.LINT_TREE) {
       yield spawn(lintTreeSaga, {
         pathsToLint: requestData.lintOrder,
-        jsUpdates: requestData.jsUpdates,
         unevalTree: requestData.unevalTree,
       });
     }
