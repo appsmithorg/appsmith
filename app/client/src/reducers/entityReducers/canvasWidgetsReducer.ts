@@ -86,7 +86,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateWidgetsPayload>,
   ) => {
-    const start = performance.now();
     // For each widget whose properties we would like to update
     for (const [widgetId, propertyPathsToUpdate] of Object.entries(
       action.payload,
@@ -102,7 +101,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
           set(state, path, propertyValue);
       });
     }
-    console.log("Setting redux state: Time taken:", performance.now() - start);
   },
 });
 
