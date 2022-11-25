@@ -3,6 +3,12 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Rating",
   iconSVG: IconSVG,
