@@ -8,6 +8,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import { GenerateCRUDSuccess } from "actions/pageActions";
+import { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -44,6 +45,27 @@ export const pageListReducer = createReducer(initialState, {
       defaultPageId:
         action.payload.pages.find((page) => page.isDefault)?.pageId ||
         action.payload.pages[0].pageId,
+    };
+  },
+  [ReduxActionTypes.UPDATE_PAGE_LIST]: (
+    state: PageListReduxState,
+    action: ReduxAction<
+      Array<{ pageId: string; dsl: DSL; userPermissions: string[] }>
+    >,
+  ) => {
+    const pagePermissionsMap = action.payload.reduce((acc, page) => {
+      acc[page.pageId] = page.userPermissions;
+      return acc;
+    }, {} as Record<string, string[]>);
+
+    return {
+      ...state,
+      pages: state.pages.map((page) => {
+        return {
+          ...page,
+          userPermissions: pagePermissionsMap[page.pageId] ?? [],
+        };
+      }),
     };
   },
   [ReduxActionTypes.RESET_PAGE_LIST]: () => initialState,
