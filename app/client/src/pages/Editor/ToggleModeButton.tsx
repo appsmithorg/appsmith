@@ -71,11 +71,37 @@ const Container = styled.div`
 `;
 
 function EditModeReset() {
-  return <Pen size={20} />;
+  return (
+    <TooltipComponent
+      content={
+        <>
+          Edit Mode
+          <span style={{ color: "#fff", marginLeft: 20 }}>V</span>
+        </>
+      }
+      hoverOpenDelay={1000}
+      position="bottom"
+    >
+      <Pen size={20} />
+    </TooltipComponent>
+  );
 }
 
 function ViewModeReset() {
-  return <Eye size={20} />;
+  return (
+    <TooltipComponent
+      content={
+        <>
+          View Mode
+          <span style={{ color: "#fff", marginLeft: 20 }}>V</span>
+        </>
+      }
+      hoverOpenDelay={1000}
+      position="bottom"
+    >
+      <Eye size={20} />
+    </TooltipComponent>
+  );
 }
 
 function ViewOrEditMode({ mode }: { mode?: APP_MODE }) {
@@ -116,15 +142,26 @@ function ToggleModeButton({ showSelectedMode = true }) {
           </ModeButton>
         )}
         {appMode === APP_MODE.EDIT && (
-          <ModeButton
-            active={isPreviewMode}
-            className="t--switch-preview-mode-toggle"
-            onClick={onClickPreviewModeButton}
-            showSelectedMode={showSelectedMode}
-            type="fill"
+          <TooltipComponent
+            content={
+              <>
+                Preview Mode
+                <span style={{ color: "#fff", marginLeft: 20 }}>P</span>
+              </>
+            }
+            hoverOpenDelay={1000}
+            position="bottom"
           >
-            <Eye size={20} />
-          </ModeButton>
+            <ModeButton
+              active={isPreviewMode}
+              className="t--switch-preview-mode-toggle"
+              onClick={onClickPreviewModeButton}
+              showSelectedMode={showSelectedMode}
+              type="fill"
+            >
+              <Eye size={20} />
+            </ModeButton>
+          </TooltipComponent>
         )}
       </div>
     </Container>

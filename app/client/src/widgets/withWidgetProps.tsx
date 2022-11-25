@@ -132,7 +132,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const shouldResetCollapsedContainerHeightInCanvasMode =
       widgetProps.topRow === widgetProps.bottomRow &&
-      renderMode === RenderModes.CANVAS;
+      renderMode === RenderModes.CANVAS &&
+      !isPreviewMode;
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {
@@ -150,6 +151,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     ) {
       dispatch(checkContainersForAutoHeightAction());
     }
+
+    if (!widgetProps.isVisible) return null;
 
     return <WrappedWidget {...widgetProps} />;
   }

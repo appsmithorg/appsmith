@@ -16,7 +16,7 @@ export default function* autoHeightSagas() {
       batchCallsToUpdateWidgetAutoHeightSaga,
     ),
     debounce(
-      20,
+      50,
       ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
       updateWidgetAutoHeightSaga,
     ),
