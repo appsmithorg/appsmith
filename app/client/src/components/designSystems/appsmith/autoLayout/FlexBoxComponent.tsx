@@ -1,6 +1,6 @@
 import { isArray } from "lodash";
 import React, { ReactNode } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { AppState } from "ce/reducers";
 import {
@@ -202,7 +202,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
     return (
       <NewLayerStyled
-        className="selected"
         id={`new-layer-${widgetId}-${layerIndex}`}
         isDragging={isDragging}
       >
@@ -289,9 +288,12 @@ function FlexBoxComponent(props: FlexBoxProps) {
     return res;
   };
 
-  function getColumns(id: string): number {
-    if (!allWidgets[id]) return 0;
-    return allWidgets[id].rightColumn;
+  function getColumns(id: string, isMobile: boolean): number {
+    const widget = allWidgets[id];
+    if (!widget) return 0;
+    return isMobile && widget.mobileRightColumn
+      ? widget.mobileRightColumn
+      : widget.rightColumn;
   }
 
   function processLayers(map: { [key: string]: any }) {
@@ -381,13 +383,13 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
       if (child.align === "end") {
         end.push(widget);
-        endColumns += getColumns(child.id);
+        endColumns += getColumns(child.id, isMobile);
       } else if (child.align === "center") {
         center.push(widget);
-        centerColumns += getColumns(child.id);
+        centerColumns += getColumns(child.id, isMobile);
       } else {
         start.push(widget);
-        startColumns += getColumns(child.id);
+        startColumns += getColumns(child.id, isMobile);
       }
     }
     /**
@@ -441,6 +443,9 @@ function FlexBoxComponent(props: FlexBoxProps) {
           key={index}
           start={start}
           widgetId={props.widgetId}
+          wrapCenter={centerColumns > 64}
+          wrapEnd={endColumns > 64}
+          wrapStart={startColumns > 64}
         />
       ),
       count,

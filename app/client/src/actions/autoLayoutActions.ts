@@ -15,10 +15,12 @@ export const addWrappers = (parentId: string) => ({
 export const updateLayoutForMobileBreakpoint = (
   parentId: string,
   isMobile: boolean,
+  canvasWidth: number,
 ) => ({
   type: ReduxActionTypes.RECALCULATE_COLUMNS,
   payload: {
     parentId,
     isMobile,
+    canvasWidth,
   },
 });

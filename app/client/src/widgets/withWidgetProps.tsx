@@ -66,6 +66,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       })();
 
       widgetProps = { ...canvasWidgetProps };
+
+      widgetProps.isMobile = !!isMobile;
+
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
        * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
