@@ -316,6 +316,16 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -589,6 +599,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         resetFilterTextOnClose={!this.props.serverSideFiltering}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
+        tooltip={this.props.tooltip}
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -667,6 +678,7 @@ export interface SelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   isDirty?: boolean;
   filterText: string;
+  tooltip?: string;
 }
 
 export default SelectWidget;

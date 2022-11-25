@@ -439,6 +439,7 @@ export interface SelectComponentProps extends ComponentProps {
   onClose?: () => void;
   hideCancelIcon?: boolean;
   resetFilterTextOnClose?: boolean;
+  tooltip?: string;
 }
 
 export default React.memo(SelectComponent);
