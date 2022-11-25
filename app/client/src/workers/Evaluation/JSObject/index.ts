@@ -190,6 +190,7 @@ export function viewModeSaveResolvedFunctionsAndJSUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
   entity: DataTreeJSAction,
   jsUpdates: Record<string, JSUpdate>,
+  unEvalDataTree: DataTree,
   entityName: string,
 ) {
   try {
@@ -199,7 +200,16 @@ export function viewModeSaveResolvedFunctionsAndJSUpdates(
     //think about adding variables as currentJSCollectionState
     Object.keys(jsActions).forEach((jsAction: any) => {
       try {
-        const result = eval(jsActions[jsAction].body);
+        const { result } = evaluateSync(
+          jsActions[jsAction].body,
+          unEvalDataTree,
+          {},
+          false,
+          undefined,
+          undefined,
+          true,
+        );
+
         if (!!result) {
           const functionString = jsActions[jsAction].body;
 
@@ -243,6 +253,7 @@ export function parseJSActions(
         dataTreeEvalRef,
         entity,
         jsUpdates,
+        unEvalDataTree,
         entityName,
       );
     });
