@@ -7,7 +7,9 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 import com.appsmith.server.domains.EnvironmentVariable;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -23,5 +25,8 @@ public class EnvironmentDTO {
 
     @Transient
     List<EnvironmentVariable> environmentVariableList;
+
+    @Transient
+    public Set<String> userPermissions = new HashSet<>();
 
 }
