@@ -41,6 +41,7 @@ export class PluginFormConfigsNotFoundError extends AppEngineApiError {}
 
 export default abstract class AppEngine {
   private _mode: APP_MODE;
+  protected _debugMode = false;
   constructor(mode: APP_MODE) {
     this._mode = mode;
     this._urlRedirect = null;
@@ -95,10 +96,26 @@ export default abstract class AppEngine {
         pageId,
         pageIdInUrl,
       );
-      if (!newURL) return;
-      history.replace(newURL);
+      if (newURL) {
+        history.replace(newURL);
+      }
+      this._debugMode = isDebugMode();
     } catch (e) {
       log.error(e);
     }
+  }
+}
+
+function isDebugMode() {
+  try {
+    const searchParams = new URLSearchParams(window.location.search);
+    for (const searchParam of searchParams) {
+      if (searchParam[0] === "debug") {
+        return searchParam[1] === "true";
+      }
+    }
+    return false;
+  } catch (e) {
+    return false;
   }
 }
