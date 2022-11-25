@@ -445,6 +445,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
           widgetId={props.widgetId}
           wrapCenter={centerColumns > 64}
           wrapEnd={endColumns > 64}
+          wrapLayer={startColumns + centerColumns + endColumns > 64}
           wrapStart={startColumns > 64}
         />
       ),

@@ -100,47 +100,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
 
-      /**
-       * For Mobile Viewport:
-       * Adjust right column to accommodate specified minWidth.
-       */
-      console.log(
-        "#### check:",
-        widgetProps.widgetName,
-        isMobile,
-        props.isFlexChild,
-        widgetProps.minWidth,
-      );
-      if (props.isFlexChild && isMobile && widgetProps.minWidth) {
-        const { minWidth, parentColumnSpace, rightColumn } = widgetProps;
-        if (parentColumnSpace * rightColumn < minWidth) {
-          widgetProps.rightColumn = Math.min(
-            Math.floor(minWidth / parentColumnSpace),
-            64,
-          );
-          console.log(
-            "#### data",
-            widgetProps.widgetName,
-            minWidth,
-            parentColumnSpace * rightColumn,
-            Math.min(Math.floor(minWidth / parentColumnSpace), 64),
-            widgetProps.rightColumn,
-          );
-        }
-      }
-
       widgetProps.children = children;
 
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
-      widgetProps.foo = "bar";
     }
-    console.log(
-      "$$$$ widget props",
-      widgetProps.widgetName,
-      widgetProps,
-      props,
-    );
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
 
