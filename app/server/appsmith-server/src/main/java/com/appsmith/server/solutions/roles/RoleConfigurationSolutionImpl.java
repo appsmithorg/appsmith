@@ -16,6 +16,7 @@ import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -39,6 +40,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 
 @Component
+@Slf4j
 public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution {
 
     private final WorkspaceResources workspaceResources;
@@ -130,6 +132,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     try {
                         aClass = getClass(type);
                     } catch (ClassNotFoundException e) {
+                        log.debug("DEBUG : Class not found for entity : {}", entity);
                         // This must be a custom header (aka same entity type but different name)
                         Optional<Tuple3<String, Class, List<AclPermission>>> duplicateEntityClassOptional = duplicateEntities.stream()
                                 .filter(entityTuple -> entityTuple.getT1().equals(name))
@@ -140,12 +143,21 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                             aClass = (Class<?>) entityTuple.getT2();
                             permissionsOfInterestIfDuplicate = entityTuple.getT3();
                         }
-
                     }
 
                     // If we haven't been able to figure out the class so far, throw an error and return
                     if (aClass == null) {
                         return Flux.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    }
+
+                    if (!CollectionUtils.isEmpty(duplicateEntities)) {
+                        for (Tuple3<String, Class, List<AclPermission>> duplicateEntity : duplicateEntities) {
+                            String entityName = duplicateEntity.getT1();
+                            Class entityClass = duplicateEntity.getT2();
+                            if (entityName.equals(name) && entityClass.equals(aClass)) {
+                                permissionsOfInterestIfDuplicate = duplicateEntity.getT3();
+                            }
+                        }
                     }
 
                     List<Integer> permissions = entity.getPermissions();
@@ -286,7 +298,6 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         } catch (ClassNotFoundException e) {
             completeClassName = "com.appsmith.external.models." + name;
             return Class.forName(completeClassName);
-
         }
     }
 
