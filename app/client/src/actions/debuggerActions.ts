@@ -45,7 +45,7 @@ export const addErrorLogs = (payload: Log[]) => ({
   payload,
 });
 
-export const deleteErrorLogInit = (
+export const deleteErrorLogsInit = (
   payload: { id: string; analytics?: Log["analytics"] }[],
 ) => ({
   type: ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,

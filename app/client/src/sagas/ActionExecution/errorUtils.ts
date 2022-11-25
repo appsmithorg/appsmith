@@ -65,7 +65,7 @@ export const logActionExecutionError = (
   errorType?: PropertyEvaluationErrorType,
 ) => {
   if (triggerPropertyName) {
-    AppsmithConsole.addError([
+    AppsmithConsole.addErrors([
       {
         payload: {
           id: `${source?.id}-${triggerPropertyName}`,

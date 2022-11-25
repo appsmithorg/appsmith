@@ -180,10 +180,10 @@ function logLatestEvalPropertyErrors(
     }
   }
   if (!isEmpty(errorsToAdd)) {
-    AppsmithConsole.addError(errorsToAdd);
+    AppsmithConsole.addErrors(errorsToAdd);
   }
   if (!isEmpty(errorsToDelete)) {
-    AppsmithConsole.deleteError(errorsToDelete);
+    AppsmithConsole.deleteErrors(errorsToDelete);
   }
 }
 
@@ -384,7 +384,7 @@ export function* handleJSFunctionExecutionErrorLog(
   errors: any[],
 ) {
   errors.length
-    ? AppsmithConsole.addError([
+    ? AppsmithConsole.addErrors([
         {
           payload: {
             id: `${collectionId}-${action.id}`,
@@ -406,5 +406,5 @@ export function* handleJSFunctionExecutionErrorLog(
           },
         },
       ])
-    : AppsmithConsole.deleteError([{ id: `${collectionId}-${action.id}` }]);
+    : AppsmithConsole.deleteErrors([{ id: `${collectionId}-${action.id}` }]);
 }

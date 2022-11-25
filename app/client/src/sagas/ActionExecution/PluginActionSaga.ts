@@ -384,7 +384,7 @@ export default function* executePluginActionTriggerSaga(
   const { isError, payload } = executePluginActionResponse;
 
   if (isError) {
-    AppsmithConsole.addError([
+    AppsmithConsole.addErrors([
       {
         payload: {
           id: actionId,
@@ -631,7 +631,7 @@ function* runActionSaga(
       });
     }
 
-    AppsmithConsole.addError([
+    AppsmithConsole.addErrors([
       {
         payload: {
           id: actionId,
@@ -790,7 +790,7 @@ function* executePageLoadAction(pageAction: PageAction) {
     }
 
     if (isError) {
-      AppsmithConsole.addError([
+      AppsmithConsole.addErrors([
         {
           payload: {
             id: pageAction.id,

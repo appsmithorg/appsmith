@@ -2,7 +2,7 @@ import {
   addErrorLogInit,
   debuggerLog,
   debuggerLogInit,
-  deleteErrorLogInit,
+  deleteErrorLogsInit,
 } from "actions/debuggerActions";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -82,30 +82,28 @@ function error(
   });
 }
 
-interface addErrorArg {
-  payload: LogActionPayload;
-  severity?: Severity;
-  category?: LOG_CATEGORY;
-}
-
-// This is used to add an error to the errors tab
-function addError(args: addErrorArg[]) {
-  const refinedArgs = args.map((arg) => ({
-    ...arg.payload,
-    severity: arg.severity ?? Severity.ERROR,
+// Function used to add errors to the error tab of the debugger
+function addErrors(
+  errors: {
+    payload: LogActionPayload;
+    severity?: Severity;
+    category?: LOG_CATEGORY;
+  }[],
+) {
+  const refinedErrors = errors.map((error) => ({
+    ...error.payload,
+    severity: error.severity ?? Severity.ERROR,
     timestamp: getTimeStamp(),
     occurrenceCount: 1,
-    category: arg.category ?? LOG_CATEGORY.PLATFORM_GENERATED,
+    category: error.category ?? LOG_CATEGORY.PLATFORM_GENERATED,
   }));
 
-  dispatchAction(addErrorLogInit(refinedArgs));
+  dispatchAction(addErrorLogInit(refinedErrors));
 }
 
-// This is used to remove an error from the errors tab
-function deleteError(
-  errorPayload: { id: string; analytics?: Log["analytics"] }[],
-) {
-  dispatchAction(deleteErrorLogInit(errorPayload));
+// This is used to remove errors from the error tab of the debugger
+function deleteErrors(errors: { id: string; analytics?: Log["analytics"] }[]) {
+  dispatchAction(deleteErrorLogsInit(errors));
 }
 
 export default {
@@ -113,6 +111,6 @@ export default {
   info,
   warning,
   error,
-  addError,
-  deleteError,
+  addErrors,
+  deleteErrors,
 };

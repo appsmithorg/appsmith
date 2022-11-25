@@ -286,7 +286,7 @@ function* updateJSCollection(data: {
           );
           // delete all execution error logs for deletedActions if present
           deletedActions.forEach((action) =>
-            AppsmithConsole.deleteError([
+            AppsmithConsole.deleteErrors([
               { id: `${jsCollection.id}-${action.id}` },
             ]),
           );
@@ -401,7 +401,7 @@ export function* handleExecuteJSFunctionSaga(data: {
         variant: Variant.success,
       });
   } catch (error) {
-    AppsmithConsole.addError([
+    AppsmithConsole.addErrors([
       {
         payload: {
           id: actionId,
