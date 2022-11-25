@@ -3,6 +3,7 @@ import {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface SearchResultType {
   section: {
@@ -13,6 +14,20 @@ interface SearchResultType {
     startsWith: PropertyPaneConfig[];
     contains: PropertyPaneConfig[];
   };
+}
+
+interface PropertyPaneSearchAnalytics {
+  widgetType: string;
+  searchText: string;
+  widgetName: string;
+  searchPath: string;
+}
+
+export function sendPropertyPaneSearchAnalytics(
+  param: PropertyPaneSearchAnalytics,
+) {
+  if (param.searchText !== "")
+    AnalyticsUtil.logEvent("WIDGET_PROPERTY_SEARCH", param);
 }
 
 function match(text: string, searchQuery: string) {

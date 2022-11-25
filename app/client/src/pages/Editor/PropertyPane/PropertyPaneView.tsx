@@ -33,6 +33,7 @@ import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { disableWidgetFeatures } from "utils/WidgetFeatures";
+import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -96,6 +97,18 @@ function PropertyPaneView(
       );
     };
   }, []);
+
+  /**
+   * Analytics for property pane Search
+   */
+  useEffect(() => {
+    sendPropertyPaneSearchAnalytics({
+      widgetType: widgetProperties?.type,
+      searchText,
+      widgetName: widgetProperties.widgetName,
+      searchPath: "",
+    });
+  }, [searchText]);
 
   /**
    * on delete button click

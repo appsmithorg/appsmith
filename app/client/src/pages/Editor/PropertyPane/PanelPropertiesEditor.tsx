@@ -13,6 +13,7 @@ import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
@@ -128,6 +129,21 @@ export function PanelPropertiesEditor(
   }, [widgetProperties.widgetId]);
 
   const { searchText, setSearchText } = useSearchText("");
+
+  /**
+   * Analytics for property pane Search
+   */
+  useEffect(() => {
+    const searchPath = `${panelParentPropertyPath}.${
+      panelProps[panelConfig.panelIdPropertyName]
+    }`;
+    sendPropertyPaneSearchAnalytics({
+      widgetType: widgetProperties?.type,
+      searchText,
+      widgetName: widgetProperties.widgetName,
+      searchPath,
+    });
+  }, [searchText]);
 
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {
