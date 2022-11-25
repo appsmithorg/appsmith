@@ -38,7 +38,9 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("maxchars", 5);
     cy.get(`${fieldPrefix}-name input`).click();
     cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain("Default text length must be less than 5 characters");
+      expect($x).contain(
+        "Default text length must be less than or equal to 5 characters",
+      );
     });
     cy.testJsontext("maxchars", "");
   });
