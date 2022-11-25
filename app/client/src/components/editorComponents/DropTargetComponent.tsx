@@ -27,6 +27,7 @@ import {
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
+import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -74,9 +75,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const isAutoHeightWithLimitsChanging = useSelector(
-    (state: AppState) => state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,
-  );
+  const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
 
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
