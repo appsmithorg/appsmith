@@ -11,8 +11,11 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
+import com.google.gson.Gson;
 import com.segment.analytics.Analytics;
+import com.segment.analytics.Log;
 import com.segment.analytics.messages.IdentifyMessage;
+import com.segment.analytics.messages.Message;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,10 +25,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.segment.analytics.internal.AnalyticsClient.getGsonInstance;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -164,6 +170,15 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             analyticsProperties.put("originService", "appsmith-server");
             analyticsProperties.put("instanceId", instanceId);
             messageBuilder = messageBuilder.properties(analyticsProperties);
+
+            // TODO Remove thise code block after finding the event that is causing the size limit issue for segment
+            Message message = messageBuilder.build();
+            Gson gson = getGsonInstance();
+            String stringifiedMessage = gson.toJson(message);
+            int sizeInBytes = stringifiedMessage.getBytes(Charset.forName("UTF-8")).length;
+            if (sizeInBytes  > 32768) {
+                log.error("Message was above individual limit. Message content {}, event {}", stringifiedMessage, event);
+            }
             analytics.enqueue(messageBuilder);
             return instanceId;
         }).subscribeOn(Schedulers.boundedElastic()).subscribe();
