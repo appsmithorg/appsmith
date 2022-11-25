@@ -10,6 +10,7 @@ import {
   spawn,
   take,
 } from "redux-saga/effects";
+import { POST_MESSAGE_TYPE } from "@appsmith/constants/ApiConstants";
 
 import {
   EvaluationReduxAction,
@@ -272,7 +273,13 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
       const data = JSON.parse(callbackData);
       for (const key in data) {
         if (key == "callbackId" && data[key]) {
-          window.parent.postMessage(data[key], "*");
+          window.parent.postMessage(
+            JSON.stringify({
+              callbackId: data[key],
+              type: POST_MESSAGE_TYPE.TOKEN,
+            }),
+            "*",
+          );
         } else {
           yield call(
             executeActionTriggers,
