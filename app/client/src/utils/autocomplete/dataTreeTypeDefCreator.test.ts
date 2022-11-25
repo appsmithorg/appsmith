@@ -43,6 +43,7 @@ describe("dataTreeTypeDefCreator", () => {
       propertyOverrideDependency: {},
       overridingPropertyPaths: {},
       privateWidgets: {},
+      meta: {},
     };
     const { def, entityInfo } = dataTreeTypeDefCreator(
       {

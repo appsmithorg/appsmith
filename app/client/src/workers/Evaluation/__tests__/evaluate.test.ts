@@ -34,6 +34,7 @@ describe("evaluateSync", () => {
     overridingPropertyPaths: {},
     privateWidgets: {},
     propertyOverrideDependency: {},
+    meta: {},
   };
   const dataTree: DataTree = {
     Input1: widget,

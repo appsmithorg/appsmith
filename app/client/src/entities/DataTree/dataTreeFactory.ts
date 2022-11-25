@@ -148,7 +148,7 @@ export interface WidgetEntityConfig
   type: string;
 }
 
-export interface WidgetEvalTree extends Partial<WidgetProps> {
+export interface WidgetEvalTree extends WidgetProps {
   meta: Record<string, unknown>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
 }
@@ -157,7 +157,7 @@ export interface UnEvalTreeWidget extends WidgetEvalTree {
   __config__: WidgetEntityConfig;
 }
 
-export interface DataTreeWidget extends WidgetProps, WidgetConfig {}
+export interface DataTreeWidget extends WidgetEvalTree, WidgetConfig {}
 
 export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
