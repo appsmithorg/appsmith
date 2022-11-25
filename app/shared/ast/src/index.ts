@@ -1,9 +1,10 @@
-import { parse, Node, SourceLocation, Options } from "acorn";
+import {parse, Node, SourceLocation, Options, Comment} from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject";
+import {attachComments} from "astravel";
 /*
  * Valuable links:
  *
@@ -193,7 +194,7 @@ const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
   );
 };
 
-const wrapCode = (code: string) => {
+export const wrapCode = (code: string) => {
   return `
     (function() {
       return ${code}
@@ -219,6 +220,9 @@ export const getAST = memoize((code: string, options?: AstOptions) =>
   parse(code, { ...options, ecmaVersion: ECMA_VERSION })
 );
 
+export const getAstWithCommentsAttached = (ast: Node, commentArray: Array<Comment>) => {
+  return attachComments(ast, commentArray);
+}
 /**
  * An AST based extractor that fetches all possible references in a given
  * piece of code. We use this to get any references to the global entities in Appsmith

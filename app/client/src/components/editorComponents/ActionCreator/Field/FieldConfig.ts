@@ -23,7 +23,7 @@ import { ACTION_TRIGGER_REGEX } from "../regex";
 import { TreeDropdownOption } from "design-system";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFuncExpressionAtPosition } from "@shared/ast";
-import { getDynamicBindings } from "../../../../utils/DynamicBindingUtils";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {

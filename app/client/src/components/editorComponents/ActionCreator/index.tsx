@@ -45,7 +45,7 @@ import {
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import { isValueValidURL } from "./utils";
-import { getDynamicBindings } from "../../../utils/DynamicBindingUtils";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   getFuncExpressionAtPosition,
   getFunction,

@@ -1,24 +1,19 @@
 import {
     ArrowFunctionExpressionNode,
+    getAstWithCommentsAttached,
     isArrowFunctionExpression,
     isCallExpressionNode,
-    LiteralNode
+    LiteralNode,
+    wrapCode,
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {simple} from "acorn-walk";
 import {Node, parse, Comment} from "acorn";
 import {ECMA_VERSION, NodeTypes} from "../constants";
 import {generate} from "astring";
-import {attachComments} from "astravel";
 
-const wrapCode = (code: string) => {
-    return `
-    (function() {
-      return ${code}
-    })
-  `;
-};
-
+const LENGTH_OF_QUOTES = 2;
+const NEXT_POSITION = 1;
 export const getTextArgumentAtPosition = (value: string, argNum: number, evaluationVersion: number): string => {
     let ast: Node = { end: 0, start: 0, type: "" };
     let requiredArgument: string = "";
@@ -35,7 +30,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     } catch (error) {
         return requiredArgument;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -70,19 +65,21 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: str
     } catch (error) {
         return changedValue;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
             if (isCallExpressionNode(node)) {
-                const startPosition = node.callee.end + 1;
+                // add 1 to get the starting position of the next
+                // node to ending position of previous
+                const startPosition = node.callee.end + NEXT_POSITION;
                 node.arguments[argNum] = {
                     type: NodeTypes.Literal,
                     value: `'${changeValue}'`,
                     raw: String.raw`'${changeValue}'`,
                     start: startPosition,
                     // add 2 for quotes
-                    end: (startPosition) + (changeValue.length + 2),
+                    end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
                 };
                 changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
             }
@@ -124,8 +121,8 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     } catch (error) {
         return changedValue;
     }
-    const changeValueAstWithComments = attachComments(changeValueAst, changedValueCommentArray);
-    const currentValueAstWithComments = attachComments(ast, currentValueCommentArray);
+    const changeValueAstWithComments = getAstWithCommentsAttached(changeValueAst, changedValueCommentArray);
+    const currentValueAstWithComments = getAstWithCommentsAttached(ast, currentValueCommentArray);
 
     simple(changeValueAstWithComments, {
         ArrowFunctionExpression(node) {
@@ -165,7 +162,7 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     } catch (error) {
         return defaultValue;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -197,19 +194,21 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     } catch (error) {
         return changedValue;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
             if (isCallExpressionNode(node)) {
-                const startPosition = node.callee.end + 1;
+                // add 1 to get the starting position of the next
+                // node to ending position of previous
+                const startPosition = node.callee.end + NEXT_POSITION;
                 node.arguments[argNum] = {
                     type: NodeTypes.Literal,
                     value: `${changeValue}`,
                     raw: String.raw`${changeValue}`,
                     start: startPosition,
                     // add 2 for quotes
-                    end: (startPosition) + (changeValue.length + 2),
+                    end: (startPosition) + (changeValue.length + LENGTH_OF_QUOTES),
                 };
                 changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
             }
@@ -235,7 +234,7 @@ export const getModalName = (value: string, evaluationVersion: number): string =
     } catch (error) {
         return modalName;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -267,19 +266,21 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
     } catch (error) {
         return changedValue;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
             if (isCallExpressionNode(node)) {
-                const startPosition = node.callee.end + 1;
+                // add 1 to get the starting position of the next
+                // node to ending position of previous
+                const startPosition = node.callee.end + NEXT_POSITION;
                 const newNode: LiteralNode = {
                     type: NodeTypes.Literal,
                     value: `${changeValue}`,
                     raw: String.raw`'${changeValue}'`,
                     start: startPosition,
                     // add 2 for quotes
-                    end: startPosition + (changeValue.length + 2),
+                    end: startPosition + (changeValue.length + LENGTH_OF_QUOTES),
                 };
                 node.arguments = [newNode];
                 changedValue = `{{${generate(astWithComments, {comments: true}).trim()}}}`;
@@ -306,7 +307,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     } catch (error) {
         return requiredArgument;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -337,7 +338,7 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
     } catch (error) {
         return requiredFunction;
     }
-    const astWithComments = attachComments(ast, commentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -383,8 +384,8 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
     } catch (error) {
         return requiredQuery;
     }
-    const astWithComments = attachComments(ast, commentArray);
-    const changeActionAstWithComments = attachComments(changeActionAst, changeActionCommentArray);
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const changeActionAstWithComments = getAstWithCommentsAttached(changeActionAst, changeActionCommentArray);
 
 
     simple(changeActionAstWithComments, {
@@ -399,7 +400,9 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
     simple(astWithComments, {
         CallExpression(node) {
             if (isCallExpressionNode(node) && isCallExpressionNode(node.callee)) {
-                const startPosition = node.callee.end + 1;
+                // add 1 to get the starting position of the next
+                // node to ending position of previous
+                const startPosition = node.callee.end + NEXT_POSITION;
                 requiredNode.start = startPosition;
                 requiredNode.end = startPosition + changeAction.length;
                 node.callee.arguments[argNum] = requiredNode;
