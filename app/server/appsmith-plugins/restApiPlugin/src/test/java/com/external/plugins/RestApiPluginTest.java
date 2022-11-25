@@ -12,6 +12,7 @@ import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -42,6 +44,7 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -209,6 +212,60 @@ public class RestApiPluginTest {
                         }
                     });
 
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testHttpGetRequestRawBody() {
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+
+        Param param = new Param();
+        param.setKey("Text1.text");
+        param.setValue("hello world");
+        param.setClientDataType(ClientDataType.STRING);
+        param.setPseudoBindingName("k0");
+
+        executeActionDTO.setParams(Collections.singletonList(param));
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
+        executeActionDTO.setParameterMap(Collections.singletonMap("Text1.text","k0"));
+        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Text1.text"));
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("");
+
+        final List<Property> headers = List.of(new Property("content-type",MediaType.TEXT_PLAIN_VALUE));
+
+        final List<Property> queryParameters = List.of();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(headers);
+        actionConfiguration.setQueryParameters(queryParameters);
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        actionConfiguration.setTimeoutInMillisecond("10000");
+
+        actionConfiguration.setPath("");
+
+        actionConfiguration.setPaginationType(PaginationType.URL);
+
+        actionConfiguration.setEncodeParamsToggle(true);
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode body = (JsonNode) result.getBody();
+                    assertEquals(3,body.size());
+                    Object requestBody = result.getRequest().getBody();
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
                 })
                 .verifyComplete();
     }
