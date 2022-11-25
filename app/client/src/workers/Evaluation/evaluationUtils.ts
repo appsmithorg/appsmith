@@ -831,19 +831,3 @@ export function createDataTreeWithConfig(dataTree: DataTree) {
   }
   return JSON.parse(JSON.stringify(newDataTree));
 }
-
-export function createUnEvalTreeWithEntityConfig(unevalTree: UnEvalTree) {
-  const unEvalTreeWithConfig: DataTree = {};
-  for (const entityName of Object.keys(unevalTree)) {
-    const entity = unevalTree[entityName];
-    let entityConfig = {};
-    if (entity && entity.hasOwnProperty("__config__")) {
-      entityConfig = (entity as UnEvalTreeEntityObject)["__config__"];
-    }
-    unEvalTreeWithConfig[entityName] = {
-      ...entityConfig,
-      ...entity,
-    } as DataTreeObjectEntity;
-  }
-  return unEvalTreeWithConfig;
-}

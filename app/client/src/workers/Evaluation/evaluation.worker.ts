@@ -11,7 +11,6 @@ import {
   CrashingError,
   createDataTreeWithConfig,
   createUnEvalTree,
-  createUnEvalTreeWithEntityConfig,
   DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
@@ -271,7 +270,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
-            createUnEvalTreeWithEntityConfig(__unevalTree__),
+            createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
 
@@ -307,7 +306,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
-            createUnEvalTreeWithEntityConfig(__unevalTree__),
+            createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
 
@@ -334,7 +333,7 @@ function eventRequestHandler({
           initiateLinting(
             lintOrder,
             jsUpdates,
-            createUnEvalTreeWithEntityConfig(__unevalTree__),
+            createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
           nonDynamicFieldValidationOrder =
