@@ -25,6 +25,7 @@ import {
 import {
   getChildOfContainerLikeWidget,
   getMinHeightBasedOnChildren,
+  getParentCurrentHeightInRows,
   shouldWidgetsCollapse,
 } from "./helpers";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
@@ -296,26 +297,6 @@ export function* updateWidgetAutoHeightSaga() {
 
             // Add extra rows, this is to accommodate for padding and margins in the parent
             minCanvasHeightInRows += GridDefaults.CANVAS_EXTENSION_OFFSET;
-            // Setting this in a variable, as this will be the total scroll height in the canvas.
-            const minCanvasHeightInPixels =
-              minCanvasHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-            // We need to make sure that the canvas widget doesn't have
-            // any extra scroll, to this end, we need to add the `minHeight` update
-            // for the canvas widgets. Canvas Widgets are never updated in other flows
-            // As they simply take up whatever space the parent has, but this doesn't effect
-            // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
-            // Also, for canvas widgets, the values are in pure pixels instead of rows.
-            widgetsToUpdate[parentCanvasWidgetId] = [
-              {
-                propertyPath: "bottomRow",
-                propertyValue: minCanvasHeightInPixels,
-              },
-              {
-                propertyPath: "minHeight",
-                propertyValue: minCanvasHeightInPixels,
-              },
-            ];
 
             // Widgets need to consider changing heights, only if they have dynamic height
             // enabled.
@@ -330,6 +311,27 @@ export function* updateWidgetAutoHeightSaga() {
                 minHeightInRows,
                 minCanvasHeightInRows,
               );
+
+              // Setting this in a variable, as this will be the total scroll height in the canvas.
+              const minCanvasHeightInPixels =
+                minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+              // We need to make sure that the canvas widget doesn't have
+              // any extra scroll, to this end, we need to add the `minHeight` update
+              // for the canvas widgets. Canvas Widgets are never updated in other flows
+              // As they simply take up whatever space the parent has, but this doesn't effect
+              // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
+              // Also, for canvas widgets, the values are in pure pixels instead of rows.
+              widgetsToUpdate[parentCanvasWidgetId] = [
+                {
+                  propertyPath: "bottomRow",
+                  propertyValue: minCanvasHeightInPixels,
+                },
+                {
+                  propertyPath: "minHeight",
+                  propertyValue: minCanvasHeightInPixels,
+                },
+              ];
 
               // For widgets like Tabs Widget, some of the height is occupied by the
               // tabs themselves, the child canvas as a result has less number of rows available
@@ -435,6 +437,33 @@ export function* updateWidgetAutoHeightSaga() {
                   ]);
                 }
               }
+            } else {
+              const parentContinerHeightInRows = getParentCurrentHeightInRows(
+                dynamicHeightLayoutTree,
+                parentContainerLikeWidget.widgetId,
+                changesSoFar,
+              );
+              // Setting this in a variable, as this will be the total scroll height in the canvas.
+              const minCanvasHeightInPixels =
+                Math.max(minCanvasHeightInRows, parentContinerHeightInRows) *
+                GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+              // We need to make sure that the canvas widget doesn't have
+              // any extra scroll, to this end, we need to add the `minHeight` update
+              // for the canvas widgets. Canvas Widgets are never updated in other flows
+              // As they simply take up whatever space the parent has, but this doesn't effect
+              // the `minHeight`, which leads to scroll if the `minHeight` is a larger value.
+              // Also, for canvas widgets, the values are in pure pixels instead of rows.
+              widgetsToUpdate[parentCanvasWidgetId] = [
+                {
+                  propertyPath: "bottomRow",
+                  propertyValue: minCanvasHeightInPixels,
+                },
+                {
+                  propertyPath: "minHeight",
+                  propertyValue: minCanvasHeightInPixels,
+                },
+              ];
             }
           }
         }
