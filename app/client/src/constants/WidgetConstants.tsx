@@ -1,4 +1,3 @@
-import { omit } from "lodash";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
@@ -172,7 +171,11 @@ export const WidgetHeightLimits = {
 };
 
 export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
-  ...omit(WIDGET_STATIC_PROPS, ["widgetId", "widgetName", "type"]),
+  children: true,
+  parentId: true,
+  renderMode: true,
+  detachFromLayout: true,
+  noContainerOffset: false,
   hideCard: true,
   isDeprecated: true,
   searchTags: true,
