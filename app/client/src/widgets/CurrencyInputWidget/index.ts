@@ -1,4 +1,5 @@
 import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultCurrency } from "./component/CurrencyCodeDropdown";
 import IconSVG from "./icon.svg";
@@ -20,6 +21,7 @@ export const CONFIG = {
     defaultCurrencyCode: getDefaultCurrency().currency,
     decimals: 0,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

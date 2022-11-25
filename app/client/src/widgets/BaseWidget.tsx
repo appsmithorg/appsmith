@@ -191,6 +191,8 @@ abstract class BaseWidget<
       this.props.bottomRow,
       this.props.parentColumnSpace,
       this.props.parentRowSpace,
+      this.props.mobileRightColumn,
+      this.props.isMobile,
     );
   };
 
@@ -201,12 +203,16 @@ abstract class BaseWidget<
     bottomRow: number,
     parentColumnSpace: number,
     parentRowSpace: number,
+    mobileRightColumn?: number,
+    isMobile?: boolean,
   ): {
     componentWidth: number;
     componentHeight: number;
   } {
+    const right =
+      isMobile && mobileRightColumn ? mobileRightColumn : rightColumn;
     return {
-      componentWidth: (rightColumn - leftColumn) * parentColumnSpace,
+      componentWidth: (right - leftColumn) * parentColumnSpace,
       componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
   }
@@ -371,8 +377,7 @@ abstract class BaseWidget<
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-    // console.log(`${this.props.widgetName} : ${this.props.widgetId} =========`);
-    // console.log(this.props);
+
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getWidgetComponent();
@@ -476,6 +481,7 @@ export type WidgetRowCols = {
   topRow: number;
   bottomRow: number;
   minHeight?: number; // Required to reduce the size of CanvasWidgets.
+  mobileRightColumn?: number;
 };
 
 export interface WidgetPositionProps extends WidgetRowCols {
@@ -491,6 +497,8 @@ export interface WidgetPositionProps extends WidgetRowCols {
   isFlexChild?: boolean;
   direction?: LayoutDirection;
   responsiveBehavior?: ResponsiveBehavior;
+  minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
+  isMobile?: boolean;
 }
 
 export const WIDGET_STATIC_PROPS = {

@@ -38,7 +38,6 @@ const FlexWidget = styled.div<{
   componentWidth: number;
   isMobile: boolean;
   isFillWidget: boolean;
-  minWidth?: string;
   padding: number;
   zIndex: number;
   zIndexOnHover: number;
@@ -52,7 +51,6 @@ const FlexWidget = styled.div<{
   width: ${({ componentWidth }) => `${Math.floor(componentWidth)}px`};
   height: ${({ componentHeight, isMobile }) =>
     isMobile ? "auto" : Math.floor(componentHeight) + "px"};
-  min-width: ${({ minWidth }) => minWidth};
 
   min-height: 30px;
   padding: ${({ isAffectedByDrag, padding }) =>
@@ -110,10 +108,10 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
 
-  const minWidth =
-    props.responsiveBehavior === ResponsiveBehavior.Fill && isMobile
-      ? "100%"
-      : props.minWidth + "px";
+  // const minWidth =
+  //   props.responsiveBehavior === ResponsiveBehavior.Fill && isMobile
+  //     ? "100%"
+  //     : props.minWidth + "px";
   const dragMargin =
     props.parentId === MAIN_CONTAINER_WIDGET_ID
       ? DEFAULT_MARGIN
@@ -141,7 +139,6 @@ export function FlexComponent(props: AutoLayoutProps) {
       isAffectedByDrag={isAffectedByDrag}
       isFillWidget={isFillWidget}
       isMobile={isMobile}
-      minWidth={minWidth}
       onClick={stopEventPropagation}
       onClickCapture={onClickFn}
       padding={WIDGET_PADDING}

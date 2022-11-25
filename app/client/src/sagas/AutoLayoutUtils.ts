@@ -247,24 +247,41 @@ export function updateSizeOfAllChildren(
 export function alterLayoutForMobile(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  canvasWidth: number,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
   const children = parent.children;
 
-  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0")
+  if (checkIsNotVerticalStack(parent) && parent.widgetId !== "0") {
     return widgets;
+  }
   if (!children || !children.length) return widgets;
 
   for (const child of children) {
     const widget = { ...widgets[child] };
 
-    if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-      widget.rightColumn = 64;
-      widget.leftColumn = 0;
+    // if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+    //   widget.rightColumn = 64;
+    //   widget.leftColumn = 0;
+    // }
+    if (widget.minWidth && !widget.mobileRightColumn) {
+      const { minWidth, rightColumn } = widget;
+      const columnSpace = canvasWidth / 64;
+      if (columnSpace * rightColumn < minWidth) {
+        widget.leftColumn = 0;
+        widget.mobileRightColumn = Math.min(
+          Math.floor(minWidth / columnSpace),
+          64,
+        );
+      }
     }
 
-    widgets = alterLayoutForMobile(widgets, child);
+    widgets = alterLayoutForMobile(
+      widgets,
+      child,
+      (canvasWidth * (widget.mobileRightColumn || 1)) / 64,
+    );
     widgets[child] = widget;
   }
   return widgets;
