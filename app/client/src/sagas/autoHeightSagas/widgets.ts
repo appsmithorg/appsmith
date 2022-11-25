@@ -86,6 +86,10 @@ export function* updateWidgetAutoHeightSaga() {
     hasScroll?: boolean;
   }> = [];
 
+  console.log("Time taken: so far:", performance.now() - start);
+
+  const start1 = performance.now();
+
   // For each widget which have new heights to update.
   for (const widgetId in updates) {
     // Get the widget from the reducer.
@@ -138,7 +142,6 @@ export function* updateWidgetAutoHeightSaga() {
             newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
         ),
         parentId: widget.parentId,
-        hasScroll: widget.isCanvas ? true : false,
       });
     } else if (widget) {
       // For widgets like Modal Widget. (Rather this assumes that it is only the modal widget which needs a change)
@@ -178,6 +181,8 @@ export function* updateWidgetAutoHeightSaga() {
       }
     }
   }
+
+  console.log("Time taken: compiling updates:", performance.now() - start1);
 
   // If there are updates.
   if (expectedUpdates.length > 0) {
@@ -234,7 +239,7 @@ export function* updateWidgetAutoHeightSaga() {
       const parentCanvasWidgetsToConsider =
         parentCanvasWidgetsGroupedByLevel[level];
       const delta: Record<string, number> = {};
-
+      const start2 = performance.now();
       if (
         Array.isArray(parentCanvasWidgetsToConsider) &&
         parentCanvasWidgetsToConsider.length > 0
@@ -264,7 +269,9 @@ export function* updateWidgetAutoHeightSaga() {
           }
         });
       }
+      console.log("Time taken: compiling deltas:", performance.now() - start2);
 
+      const start3 = performance.now();
       if (Object.keys(delta).length > 0) {
         // 2. Run the reflow computations for  this parent's child updates
         const siblingWidgetsToUpdate = computeChangeInPositionBasedOnDelta(
@@ -440,6 +447,7 @@ export function* updateWidgetAutoHeightSaga() {
           }
         }
       }
+      console.log("Time taken: running compute:", performance.now() - start3);
     }
     // Let's consider the minimum Canvas Height
     let maxCanvasHeightInRows =
@@ -447,6 +455,7 @@ export function* updateWidgetAutoHeightSaga() {
     // The same logic to compute the minimum height of the MainContainer
     // Based on how many rows are being occuped by children.
 
+    const start5 = performance.now();
     const maxPossibleCanvasHeightInRows: number = yield getMinHeightBasedOnChildren(
       MAIN_CONTAINER_WIDGET_ID,
       changesSoFar,
@@ -469,12 +478,13 @@ export function* updateWidgetAutoHeightSaga() {
       },
     ];
 
+    console.log("Time taken: main container:", performance.now() - start5);
+
     // Convert the changesSoFar (this are the computed changes)
     // To the widgetsToUpdate data structure for final reducer update.
+    const start4 = performance.now();
+
     for (const changedWidgetId in changesSoFar) {
-      const hasScroll = Object.values(expectedUpdates).find(
-        (entry) => entry.widgetId === changedWidgetId,
-      )?.hasScroll;
       const { originalBottomRow, originalTopRow } = dynamicHeightLayoutTree[
         changedWidgetId
       ];
@@ -497,19 +507,22 @@ export function* updateWidgetAutoHeightSaga() {
           propertyValue: originalBottomRow,
         },
       ];
-      if (hasScroll) {
-        const containerLikeWidget = stateWidgets[changedWidgetId];
+      const containerLikeWidget = stateWidgets[changedWidgetId];
 
-        if (
-          Array.isArray(containerLikeWidget.children) &&
-          containerLikeWidget.children.length > 0
-        ) {
-          const childWidgetId:
-            | string
-            | undefined = yield getChildOfContainerLikeWidget(
-            containerLikeWidget,
-          );
-          if (childWidgetId) {
+      if (
+        Array.isArray(containerLikeWidget.children) &&
+        containerLikeWidget.children.length > 0
+      ) {
+        const childWidgetId:
+          | string
+          | undefined = yield getChildOfContainerLikeWidget(
+          containerLikeWidget,
+        );
+
+        if (childWidgetId) {
+          const isCanvasWidget =
+            stateWidgets[childWidgetId]?.type === "CANVAS_WIDGET";
+          if (isCanvasWidget) {
             let canvasHeight: number = yield getMinHeightBasedOnChildren(
               childWidgetId,
               changesSoFar,
@@ -517,6 +530,7 @@ export function* updateWidgetAutoHeightSaga() {
               dynamicHeightLayoutTree,
             );
             canvasHeight += GridDefaults.CANVAS_EXTENSION_OFFSET;
+
             const canvasHeightOffset: number = getCanvasHeightOffset(
               containerLikeWidget.type,
               containerLikeWidget,
@@ -544,9 +558,11 @@ export function* updateWidgetAutoHeightSaga() {
         }
       }
     }
+    console.log("Time taken: cleanup:", performance.now() - start4);
   }
 
   log.debug("Dynamic height: Widgets to update:", { widgetsToUpdate });
+  const start6 = performance.now();
   if (Object.keys(widgetsToUpdate).length > 0) {
     // Push all updates to the CanvasWidgetsReducer.
     // Note that we're not calling `UPDATE_LAYOUT`
@@ -555,6 +571,7 @@ export function* updateWidgetAutoHeightSaga() {
     resetAutoHeightUpdateQueue();
     yield put(generateAutoHeightLayoutTreeAction(false, false));
   }
+  console.log("Time taken: settting final", performance.now() - start6);
 
   log.debug(
     "Dynamic Height: Overall time taken: ",

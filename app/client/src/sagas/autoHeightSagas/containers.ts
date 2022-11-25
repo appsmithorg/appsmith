@@ -189,7 +189,7 @@ export function* dynamicallyUpdateContainersSaga() {
     }
   }
   log.debug(
-    "Dynamic height: Container computations took:",
+    "Dynamic height: Container computations time taken:",
     performance.now() - start,
     "ms",
   );

@@ -39,7 +39,7 @@ export function* getLayoutTree(layoutUpdated: boolean) {
     }
   }
   log.debug(
-    "Dynamic Height: Tree generation took:",
+    "Dynamic Height: Tree generation time taken:",
     performance.now() - start,
     "ms",
   );
@@ -52,6 +52,7 @@ export function* generateTreeForAutoHeightComputations(
     layoutUpdated: boolean;
   }>,
 ) {
+  const start = performance.now();
   const { canvasLevelMap, tree } = yield getLayoutTree(
     action.payload.layoutUpdated,
   );
@@ -64,6 +65,7 @@ export function* generateTreeForAutoHeightComputations(
     });
     yield put(checkContainersForAutoHeightAction());
   }
+  console.log("Overall tree generation time taken:", performance.now() - start);
 
   return tree;
 }

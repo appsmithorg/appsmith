@@ -15,6 +15,7 @@ import {
   computeMainContainerWidget,
   getChildWidgets,
   getRenderMode,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,6 +34,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     props: WidgetProps & { skipWidgetPropsHydration?: boolean },
   ) {
     const { children, skipWidgetPropsHydration, type, widgetId } = props;
+    // const isPreviewMode = useSelector(previewModeSelector);
 
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
@@ -120,34 +122,34 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return null;
     }
 
-    const shouldCollapseWidgetInViewOrPreviewMode =
-      !widgetProps.isVisible &&
-      (renderMode === RenderModes.PAGE || renderMode === RenderModes.PREVIEW) &&
-      widgetProps.bottomRow !== widgetProps.topRow;
+    // const shouldCollapseWidgetInViewOrPreviewMode =
+    //   !widgetProps.isVisible &&
+    //   (renderMode === RenderModes.PAGE || isPreviewMode) &&
+    //   widgetProps.bottomRow !== widgetProps.topRow;
 
-    const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
-      widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
+    // const shouldResetCollapsedContainerHeightInViewOrPreviewMode =
+    //   widgetProps.isVisible && widgetProps.topRow === widgetProps.bottomRow;
 
-    const shouldResetCollapsedContainerHeightInCanvasMode =
-      widgetProps.topRow === widgetProps.bottomRow &&
-      renderMode === RenderModes.CANVAS;
+    // const shouldResetCollapsedContainerHeightInCanvasMode =
+    //   widgetProps.topRow === widgetProps.bottomRow &&
+    //   renderMode === RenderModes.CANVAS;
 
-    // We don't render invisible widgets in view mode
-    if (shouldCollapseWidgetInViewOrPreviewMode) {
-      dispatch({
-        type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
-        payload: {
-          widgetId: props.widgetId,
-          height: 0,
-        },
-      });
-      return null;
-    } else if (
-      shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
-      shouldResetCollapsedContainerHeightInCanvasMode
-    ) {
-      dispatch(checkContainersForAutoHeightAction());
-    }
+    // // We don't render invisible widgets in view mode
+    // if (shouldCollapseWidgetInViewOrPreviewMode) {
+    //   dispatch({
+    //     type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
+    //     payload: {
+    //       widgetId: props.widgetId,
+    //       height: 0,
+    //     },
+    //   });
+    //   return null;
+    // } else if (
+    //   shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
+    //   shouldResetCollapsedContainerHeightInCanvasMode
+    // ) {
+    //   dispatch(checkContainersForAutoHeightAction());
+    // }
 
     return <WrappedWidget {...widgetProps} />;
   }
