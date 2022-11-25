@@ -70,6 +70,6 @@ export function loadLibraries(request: EvalWorkerRequest) {
     JSLibraries.push(...requestData);
     return { success: true };
   } catch (e) {
-    return { success: false };
+    return { success: false, message: (e as Error).message };
   }
 }

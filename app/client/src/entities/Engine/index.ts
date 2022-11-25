@@ -96,26 +96,10 @@ export default abstract class AppEngine {
         pageId,
         pageIdInUrl,
       );
-      if (newURL) {
-        history.replace(newURL);
-      }
-      this._debugMode = isDebugMode();
+      if (!newURL) return;
+      history.replace(newURL);
     } catch (e) {
       log.error(e);
     }
-  }
-}
-
-export function isDebugMode() {
-  try {
-    const searchParams = new URLSearchParams(window.location.search);
-    for (const searchParam of searchParams) {
-      if (searchParam[0] === "debug") {
-        return searchParam[1] === "true";
-      }
-    }
-    return false;
-  } catch (e) {
-    return false;
   }
 }

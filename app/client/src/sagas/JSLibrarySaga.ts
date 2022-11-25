@@ -27,7 +27,11 @@ import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
-import { isDebugMode } from "entities/Engine";
+
+export function findUrlFromText(text: string) {
+  const urlRegex = /((?:https?:\/\/|www\.)(?:[-a-z0-9]+\.)*[-a-z0-9]+.*)/gi;
+  return text.match(urlRegex);
+}
 
 function* handleInstallationFailure(url: string, accessor?: string[]) {
   if (accessor) {
@@ -239,7 +243,10 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
 
     const libraries = response.data as Array<TJSLibrary & { defs: string }>;
 
-    const { success }: { success: boolean } = yield call(
+    const {
+      message,
+      success,
+    }: { success: boolean; message: string } = yield call(
       EvalWorker.request,
       EVAL_WORKER_ACTIONS.LOAD_LIBRARIES,
       libraries.map((lib) => ({
@@ -251,7 +258,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     );
 
     if (!success) {
-      if (isDebugMode()) {
+      if (mode === APP_MODE.EDIT) {
         yield put({
           type: ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
           payload: libraries.map((lib) => ({
@@ -261,6 +268,14 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
             url: lib.url,
             docsURL: lib.docsURL,
           })),
+        });
+        const urlMatch = findUrlFromText(message);
+        Toaster.show({
+          text: createMessage(
+            customJSLibraryMessages.CLIENT_LOAD_FAILED,
+            urlMatch?.[0],
+          ),
+          variant: Variant.warning,
         });
       } else {
         yield put({

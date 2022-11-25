@@ -1311,6 +1311,7 @@ export const customJSLibraryMessages = {
   REPORT_ISSUE: () => `Report issue`,
   AUTOCOMPLETE_FAILED: (name: string) =>
     `Code completion for ${name} will not work.`,
+  CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
 };
 
 export const USAGE_AND_BILLING = {

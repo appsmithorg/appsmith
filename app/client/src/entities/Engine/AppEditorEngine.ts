@@ -115,13 +115,6 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_PAGE_ERROR,
     ];
 
-    if (!this._debugMode) {
-      successActionEffects.push(ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS);
-      failureActionEffects.push(
-        ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
-      );
-    }
-
     const allActionCalls: boolean = yield call(
       failFastApiCalls,
       initActionsCalls,
