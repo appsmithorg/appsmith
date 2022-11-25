@@ -64,10 +64,6 @@ export const StyledSwitch = styled(Switch)<{
   inline?: boolean;
 }>`
   &.${Classes.CONTROL} {
-    margin: 0;
-  }
-
-  &.${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
       background: ${({ $accentColor }) => `${$accentColor}`} !important;
       border: 1px solid ${({ $accentColor }) => `${$accentColor}`} !important;

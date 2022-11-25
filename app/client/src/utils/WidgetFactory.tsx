@@ -113,6 +113,7 @@ class WidgetFactory {
           propertyPaneContentConfig,
           features,
           PropertyPaneConfigTypes.CONTENT,
+          widgetType,
         );
 
         const serializablePropertyPaneConfig = convertFunctionsToString(
