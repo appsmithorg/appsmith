@@ -94,7 +94,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
+                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, permissionGroupPermission.getUnAssignPermission());
                 })
                 .single()
                 .flatMap(permissionGroup -> {
@@ -151,7 +151,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
+                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, permissionGroupPermission.getUnAssignPermission());
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
                 .single()

@@ -309,7 +309,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), permissionGroupPermission.getMembersReadPermission()))
                 .collect(Collectors.toSet());
         Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), permissionGroupPermission.getUnAssignPermission()))
                 .collect(Collectors.toSet());
 
 
