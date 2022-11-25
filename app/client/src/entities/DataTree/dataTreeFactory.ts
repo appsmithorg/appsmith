@@ -61,6 +61,7 @@ export interface ActionEntityEvalTree {
   };
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   config: Partial<ActionConfig>;
+  datasourceUrl: string;
 }
 
 export interface ActionEntityConfig {
@@ -74,7 +75,6 @@ export interface ActionEntityConfig {
   pluginId: PluginId;
   actionId: string;
   name: string;
-  datasourceUrl: string;
 }
 export interface UnEvalTreeAction extends ActionEntityEvalTree {
   __config__: ActionEntityConfig;

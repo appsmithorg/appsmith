@@ -60,6 +60,7 @@ export const generateDataTreeAction = (
     },
     config: action.config.actionConfiguration,
     ENTITY_TYPE: ENTITY_TYPE.ACTION,
+    datasourceUrl,
     __config__: {
       actionId: action.config.id,
       name: action.config.name,
@@ -71,7 +72,6 @@ export const generateDataTreeAction = (
       reactivePaths,
       dependencyMap,
       logBlackList: {},
-      datasourceUrl,
     },
   };
 };
