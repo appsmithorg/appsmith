@@ -33,7 +33,10 @@ import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { changeQuery } from "actions/queryPaneActions";
+import {
+  changeQuery,
+  setQueryPaneResponsePaneHeight,
+} from "actions/queryPaneActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -46,6 +49,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import { ActionExecutionResizerHeight } from "../APIEditor/constants";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -76,6 +80,7 @@ type ReduxDispatchProps = {
     propertyName: string,
     value: string,
   ) => void;
+  setQueryPaneResponsePaneHeight: (height: number) => void;
 };
 
 type ReduxStateProps = {
@@ -154,6 +159,9 @@ class QueryEditor extends React.Component<Props> {
       dataSourceSize: dataSources.length,
     });
     this.props.runAction(this.props.actionId);
+
+    // reset response pane height back to original
+    this.props.setQueryPaneResponsePaneHeight(ActionExecutionResizerHeight);
   };
 
   componentDidUpdate(prevProps: Props) {
@@ -355,6 +363,9 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     value: string,
   ) => {
     dispatch(setActionProperty({ actionId, propertyName, value }));
+  },
+  setQueryPaneResponsePaneHeight: (height) => {
+    dispatch(setQueryPaneResponsePaneHeight(height));
   },
 });
 
