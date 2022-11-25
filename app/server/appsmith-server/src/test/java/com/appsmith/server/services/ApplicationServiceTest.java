@@ -44,6 +44,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -212,6 +213,8 @@ public class ApplicationServiceTest {
 
     @Autowired
     PagePermission pagePermission;
+    @Autowired
+    ActionPermission actionPermission;
 
     String workspaceId;
 
@@ -1244,7 +1247,7 @@ public class ApplicationServiceTest {
                 .then(newActionService.findById(savedAction.getId()));
 
         final Mono<ActionCollection> actionCollectionMono = publicAppMono
-                .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
+                .then(actionCollectionService.findById(savedActionCollection.getId(), actionPermission.getReadPermission()));
 
         StepVerifier
                 .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, publicPermissionGroupMono))
@@ -1478,10 +1481,10 @@ public class ApplicationServiceTest {
 
 
         Mono<List<NewAction>> clonedActionListMono = clonedApplicationMono
-                .flatMapMany(application -> newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null))
+                .flatMapMany(application -> newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null))
                 .collectList();
 
-        Mono<List<NewAction>> srcActionListMono = newActionService.findAllByApplicationIdAndViewMode(gitConnectedApp.getId(), false, READ_ACTIONS, null)
+        Mono<List<NewAction>> srcActionListMono = newActionService.findAllByApplicationIdAndViewMode(gitConnectedApp.getId(), false, actionPermission.getReadPermission(), null)
                 .collectList();
 
         StepVerifier
@@ -1671,7 +1674,7 @@ public class ApplicationServiceTest {
 
                     originalResourceIds.put("pageIds", pageIds);
                     originalResourceIds.put("collectionIds", collectionIds);
-                    return newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, READ_ACTIONS, null)
+                    return newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, actionPermission.getReadPermission(), null)
                             .collectList()
                             .flatMap(actionList -> {
                                 List<String> actionIds = actionList.stream().map(BaseDomain::getId).collect(Collectors.toList());
@@ -1683,8 +1686,8 @@ public class ApplicationServiceTest {
 
         StepVerifier.create(resultMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
                                 newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList(),
                                 defaultPermissionGroupsMono
                         )))
@@ -1804,8 +1807,8 @@ public class ApplicationServiceTest {
         StepVerifier
                 .create(originalApplicationMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
                                 newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -2016,7 +2019,7 @@ public class ApplicationServiceTest {
                             .valueOf(collectionDTO.getDefaultToBranchedActionIdsMap().values().stream().findAny().orElse(null));
 
                     return newActionService.deleteUnpublishedAction(deletedActionIdWithinActionCollection)
-                            .thenMany(newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, READ_ACTIONS, null))
+                            .thenMany(newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, actionPermission.getReadPermission(), null))
                             .collectList()
                             .flatMap(actionList -> {
                                 List<String> actionIds = actionList.stream().map(BaseDomain::getId).collect(Collectors.toList());
@@ -2029,8 +2032,8 @@ public class ApplicationServiceTest {
 
         StepVerifier.create(resultMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
                                 newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList(),
                                 defaultPermissionGroupsMono
                         )))
@@ -2693,7 +2696,7 @@ public class ApplicationServiceTest {
         // Find all actions in new app
         Mono<List<NewAction>> actionsMono = clonedAppFromDbMono
                 .flatMap(clonedAppFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, actionPermission.getReadPermission(), null)
                         .collectList()
                 );
 
@@ -2706,7 +2709,7 @@ public class ApplicationServiceTest {
         // Find all action collections in new app
         final Mono<List<ActionCollection>> actionCollectionsMono = clonedAppFromDbMono
                 .flatMap(clonedAppFromDb -> actionCollectionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, actionPermission.getReadPermission(), null)
                         .collectList()
                 );
 
@@ -2885,7 +2888,7 @@ public class ApplicationServiceTest {
 
         Mono<List<NewAction>> actionsMono = applicationFromDbPostViewChange
                 .flatMap(clonedAppFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, actionPermission.getReadPermission(), null)
                         .collectList()
                 );
 

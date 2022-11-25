@@ -35,6 +35,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -86,6 +87,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final ResponseUtils responseUtils;
     private final DatasourceService datasourceService;
     private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
 
     private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
@@ -230,7 +232,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .map(NewPage::getId);
 
         Mono<NewAction> branchedActionMono = newActionService
-                .findByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), MANAGE_ACTIONS);
+                .findByBranchNameAndDefaultActionId(branchName, actionMoveDTO.getAction().getId(), actionPermission.getEditPermission());
 
         return Mono.zip(toPageMono, branchedActionMono)
                 .flatMap(tuple -> {
@@ -507,7 +509,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
                 .flatMap(updatedAction -> this.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
@@ -522,7 +524,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad) {
-        return newActionService.findById(id, MANAGE_ACTIONS)
+        return newActionService.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .flatMap(newAction -> {
                     ActionDTO action = newAction.getUnpublishedAction();
@@ -541,7 +543,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
@@ -561,7 +563,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }

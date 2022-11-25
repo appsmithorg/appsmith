@@ -33,6 +33,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -128,6 +129,9 @@ public class PageServiceTest {
 
     @Autowired
     PagePermission pagePermission;
+
+    @Autowired
+    ActionPermission actionPermission;
 
     static Application application = null;
 
@@ -600,7 +604,7 @@ public class PageServiceTest {
                 pageMono
                         .flatMapMany(
                                 page1 -> newActionService
-                                        .findByPageId(page1.getId(), READ_ACTIONS))
+                                        .findByPageId(page1.getId(), actionPermission.getReadPermission()))
                         .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono =
@@ -782,7 +786,7 @@ public class PageServiceTest {
                 pageMono
                         .flatMapMany(
                                 page1 -> newActionService
-                                        .findByPageId(page1.getId(), READ_ACTIONS))
+                                        .findByPageId(page1.getId(), actionPermission.getReadPermission()))
                         .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono =

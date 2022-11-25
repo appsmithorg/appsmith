@@ -14,6 +14,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,9 @@ public class CurlImporterServiceTest {
 
     @Autowired
     PagePermission pagePermission;
+
+    @Autowired
+    ActionPermission actionPermission;
 
     String workspaceId;
 
@@ -269,7 +273,7 @@ public class CurlImporterServiceTest {
         // As importAction updates the ids with the defaultIds before sending the response to client we have to again
         // fetch branched action
         Mono<NewAction> branchedSavedActionMono = branchedResultMono
-                .flatMap(actionDTO -> newActionService.findByBranchNameAndDefaultActionId("testBranch", actionDTO.getId(), AclPermission.MANAGE_ACTIONS));
+                .flatMap(actionDTO -> newActionService.findByBranchNameAndDefaultActionId("testBranch", actionDTO.getId(), actionPermission.getEditPermission()));
 
         StepVerifier
                 .create(Mono.zip(branchedResultMono, branchedPageMono, branchedSavedActionMono))

@@ -21,6 +21,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -61,6 +62,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
+    private final ActionPermission actionPermission;
 
     @Autowired
     public ActionCollectionServiceCEImpl(Scheduler scheduler,
@@ -73,7 +75,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                          PolicyGenerator policyGenerator,
                                          ApplicationService applicationService,
                                          ResponseUtils responseUtils,
-                                         ApplicationPermission applicationPermission) {
+                                         ApplicationPermission applicationPermission,
+                                         ActionPermission actionPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
@@ -81,6 +84,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         this.applicationService = applicationService;
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
+        this.actionPermission = actionPermission;
     }
 
     @Override
@@ -129,7 +133,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public Mono<ActionCollection> findByIdAndBranchName(String id, String branchName) {
         // TODO sanitise resonse for default IDs
-        return this.findByBranchNameAndDefaultCollectionId(branchName, id, READ_ACTIONS);
+        return this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getReadPermission());
     }
 
     @Override
@@ -157,7 +161,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(actionCollectionDTO -> Flux.fromIterable(actionCollectionDTO.getDefaultToBranchedActionIdsMap().values())
                         .mergeWith(Flux.fromIterable(actionCollectionDTO.getDefaultToBranchedArchivedActionIdsMap().values()))
                         .flatMap(actionId -> {
-                            return newActionService.findActionDTObyIdAndViewMode(actionId, viewMode, READ_ACTIONS);
+                            return newActionService.findActionDTObyIdAndViewMode(actionId, viewMode, actionPermission.getReadPermission());
                         })
                         .collectList()
                         .flatMap(actionsList -> splitValidActionsByViewMode(actionCollectionDTO, actionsList, viewMode)));
@@ -206,7 +210,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getReadPermission())
                 .flatMapMany(branchedApplicationId ->
                         repository
-                                .findByApplicationIdAndViewMode(branchedApplicationId, true, EXECUTE_ACTIONS)
+                                .findByApplicationIdAndViewMode(branchedApplicationId, true, actionPermission.getExecutePermission())
                                 // Filter out all the action collections which haven't been published
                                 .flatMap(actionCollection -> {
                                     if (actionCollection.getPublishedCollection() == null) {
@@ -242,7 +246,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                     actionCollectionViewDTO.setDefaultResources(defaults);
                                     return Flux.fromIterable(publishedCollection.getDefaultToBranchedActionIdsMap().values())
                                             .flatMap(actionId -> {
-                                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, EXECUTE_ACTIONS);
+                                                return newActionService.findActionDTObyIdAndViewMode(actionId, true, actionPermission.getExecutePermission());
                                             })
                                             .collectList()
                                             .map(actionDTOList -> {
@@ -265,7 +269,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             return applicationService
                     .findBranchedApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission())
                     .flatMapMany(childApplicationId ->
-                            repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, READ_ACTIONS)
+                            repository.findByApplicationIdAndViewMode(childApplicationId, viewMode, actionPermission.getReadPermission())
                     )
                     .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
         }
@@ -288,7 +292,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
-        return repository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(name, pageIds, viewMode, branch, READ_ACTIONS, sort)
+        return repository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort)
                 .flatMap(actionCollection ->
                         generateActionCollectionByViewMode(actionCollection, viewMode));
     }
@@ -299,7 +303,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
 
@@ -320,7 +324,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono
                 .flatMap(toDelete -> {
@@ -356,7 +360,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName) {
         Mono<String> branchedCollectionId = StringUtils.isEmpty(branchName)
                 ? Mono.just(id)
-                : this.findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS)
+                : this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission())
                 .map(ActionCollection::getId);
 
         return branchedCollectionId
@@ -460,7 +464,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS);
+        Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission());
 
         return branchedCollectionMono
                 .map(ActionCollection::getId)

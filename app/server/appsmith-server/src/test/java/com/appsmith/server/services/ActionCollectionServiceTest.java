@@ -28,6 +28,7 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -130,6 +131,8 @@ public class ActionCollectionServiceTest {
     WorkspacePermission workspacePermission;
     @Autowired
     PagePermission pagePermission;
+    @Autowired
+    ActionPermission actionPermission;
 
     Application testApp = null;
 
@@ -256,11 +259,11 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDeletedAt(Instant.now());
         layoutCollectionService.createCollection(actionCollectionDTO).block();
-        ActionCollection createdActionCollection = actionCollectionRepository.findByApplicationId(createdApplication.getId(), READ_ACTIONS, null).blockFirst();
+        ActionCollection createdActionCollection = actionCollectionRepository.findByApplicationId(createdApplication.getId(), actionPermission.getReadPermission(), null).blockFirst();
         createdActionCollection.setDeletedAt(Instant.now());
         actionCollectionRepository.save(createdActionCollection).block();
 
-        StepVerifier.create(actionCollectionRepository.findByApplicationId(createdApplication.getId(), READ_ACTIONS, null))
+        StepVerifier.create(actionCollectionRepository.findByApplicationId(createdApplication.getId(), actionPermission.getReadPermission(), null))
                 .verifyComplete();
     }
 
@@ -288,7 +291,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
 
         Mono<ActionCollection> actionCollectionMono = layoutCollectionService.createCollection(actionCollectionDTO)
-                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
+                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), actionPermission.getReadPermission()));
 
         StepVerifier
                 .create(Mono.zip(actionCollectionMono, defaultPermissionGroupsMono))
@@ -631,7 +634,7 @@ public class ActionCollectionServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS);
+                    return actionCollectionService.findById(createdCollection.getId(), actionPermission.getReadPermission());
                 }).block();
 
         action1.getActionConfiguration().setIsAsync(false);

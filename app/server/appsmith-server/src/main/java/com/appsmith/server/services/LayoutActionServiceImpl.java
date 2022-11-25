@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,11 +24,12 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                                    ApplicationService applicationService,
                                    ResponseUtils responseUtils,
                                    DatasourceService datasourceService,
-                                   PagePermission pagePermission) {
+                                   PagePermission pagePermission,
+                                   ActionPermission actionPermission) {
 
         super(objectMapper, analyticsService, newPageService, newActionService, pageLoadActionsUtil, sessionUserService,
                 actionCollectionService, collectionService, applicationService, responseUtils, datasourceService,
-                pagePermission);
+                pagePermission, actionPermission);
 
     }
 }

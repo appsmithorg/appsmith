@@ -9,6 +9,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -42,11 +43,13 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           PluginService pluginService,
                           DatasourcePermission datasourcePermission,
                           ApplicationPermission applicationPermission,
-                          PagePermission pagePermission) {
+                          PagePermission pagePermission,
+                          ActionPermission actionPermission) {
 
         super(userService, userDataService, sessionUserService, applicationService, applicationPageService,
                 newPageService, newActionService, actionCollectionService, fileUtils, importExportApplicationService,
                 gitExecutor, responseUtils, emailConfig, analyticsService, gitCloudServicesUtils, gitDeployKeysRepository,
-                datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission);
+                datasourceService, pluginService, datasourcePermission, applicationPermission, pagePermission,
+                actionPermission);
     }
 }

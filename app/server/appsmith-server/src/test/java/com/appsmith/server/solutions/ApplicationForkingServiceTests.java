@@ -162,6 +162,8 @@ public class ApplicationForkingServiceTests {
     ApplicationPermission applicationPermission;
     @Autowired
     PagePermission pagePermission;
+    @Autowired
+    ActionPermission actionPermission;
 
     private static String sourceAppId;
 
@@ -324,8 +326,8 @@ public class ApplicationForkingServiceTests {
 
         StepVerifier.create(resultMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
                                 newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -468,8 +470,8 @@ public class ApplicationForkingServiceTests {
         StepVerifier
                 .create(forkedAppFromDbMono.zipWhen(application ->
                         Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
                                 newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()))
                 )
                 .assertNext(tuple -> {

@@ -25,6 +25,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -129,6 +130,8 @@ public class NewActionServiceCEImplTest {
     ApplicationPermission applicationPermission;
     @MockBean
     PagePermission pagePermission;
+    @MockBean
+    ActionPermission actionPermission;
 
     private BodyExtractor.Context context;
 
@@ -158,7 +161,8 @@ public class NewActionServiceCEImplTest {
                 permissionGroupService,
                 datasourcePermission,
                 applicationPermission,
-                pagePermission);
+                pagePermission,
+                actionPermission);
     }
 
     @BeforeEach

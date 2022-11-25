@@ -59,6 +59,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -179,6 +180,8 @@ public class ActionServiceCE_Test {
 
     @Autowired
     PagePermission pagePermission;
+    @Autowired
+    ActionPermission actionPermission;
 
 
     Application testApp = null;
@@ -294,7 +297,7 @@ public class ActionServiceCE_Test {
         action.setDatasource(datasource);
 
         Mono<NewAction> actionMono = layoutActionService.createSingleActionWithBranch(action, branchName)
-                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(branchName, createdAction.getId(), READ_ACTIONS));
+                .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(branchName, createdAction.getId(), actionPermission.getReadPermission()));
 
         StepVerifier
                 .create(actionMono)
@@ -1504,7 +1507,7 @@ public class ActionServiceCE_Test {
         action.setDatasource(datasource);
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), actionPermission.getReadPermission()))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier
@@ -1537,7 +1540,7 @@ public class ActionServiceCE_Test {
         action.setDatasource(datasource);
 
         Mono<ActionDTO> actionMono = layoutActionService.createSingleAction(action)
-                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
+                .flatMap(createdAction -> newActionService.findById(createdAction.getId(), actionPermission.getReadPermission()))
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false));
 
         StepVerifier

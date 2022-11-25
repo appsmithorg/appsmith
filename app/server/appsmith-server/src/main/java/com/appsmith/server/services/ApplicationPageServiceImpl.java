@@ -7,6 +7,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -34,11 +35,12 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       ResponseUtils responseUtils,
                                       WorkspacePermission workspacePermission,
                                       ApplicationPermission applicationPermission,
-                                      PagePermission pagePermission) {
+                                      PagePermission pagePermission,
+                                      ActionPermission actionPermission) {
 
         super(workspaceService, applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
                 gitFileUtils, commentThreadRepository, themeService, responseUtils, workspacePermission,
-                applicationPermission, pagePermission);
+                applicationPermission, pagePermission, actionPermission);
     }
 }

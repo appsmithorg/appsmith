@@ -42,6 +42,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -98,6 +99,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
 
     public static final Integer EVALUATION_VERSION = 2;
@@ -431,8 +433,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     public Mono<Application> deleteApplicationByResource(Application application) {
         log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
-        return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS)
-                .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
+        return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), actionPermission.getEditPermission())
+                .then(newActionService.archiveActionsByApplicationId(application.getId(), actionPermission.getDeletePermission()))
                 .then(newPageService.archivePagesByApplicationId(application.getId(), pagePermission.getDeletePermission()))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
@@ -492,7 +494,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         final Flux<ActionCollection> sourceActionCollectionsFlux = actionCollectionService.findByPageId(pageId);
 
-        Flux<NewAction> sourceActionFlux = newActionService.findByPageId(pageId, MANAGE_ACTIONS)
+        Flux<NewAction> sourceActionFlux = newActionService.findByPageId(pageId, actionPermission.getEditPermission())
                 // Set collection reference in actions to null to reset to the new application's collections later
                 .map(newAction -> {
                     if (newAction.getUnpublishedAction() != null) {
@@ -866,7 +868,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                      *  actionCollection which will be deleted while deleting the collection, this will avoid the race
                      *  condition for delete action
                      */
-                    Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), MANAGE_ACTIONS)
+                    Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), actionPermission.getEditPermission())
                             .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
@@ -997,7 +999,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
         Mono<List<NewAction>> publishedActionsListMono = newActionService
-                .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
+                .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
                 .flatMap(newAction -> {
                     // If the action was deleted in edit mode, now this document can be safely archived
                     if (newAction.getUnpublishedAction().getDeletedAt() != null) {
@@ -1013,7 +1015,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app
 
         Mono<List<ActionCollection>> publishedActionCollectionsListMono = actionCollectionService
-                .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
+                .findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getEditPermission(), null)
                 .flatMap(collection -> {
                     // If the collection was deleted in edit mode, now this can be safely deleted from the repository
                     if (collection.getUnpublishedCollection().getDeletedAt() != null) {

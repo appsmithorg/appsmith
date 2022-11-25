@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -88,6 +89,9 @@ public class LayoutServiceTest {
 
     @Autowired
     PagePermission pagePermission;
+
+    @Autowired
+    ActionPermission actionPermission;
 
     String workspaceId;
 
@@ -894,8 +898,8 @@ public class LayoutServiceTest {
                 .verifyComplete();
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId("hiddenAction3", page.getId(), AclPermission.MANAGE_ACTIONS));
+            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), actionPermission.getEditPermission())
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("hiddenAction3", page.getId(), actionPermission.getEditPermission()));
         });
 
         StepVerifier
@@ -1027,8 +1031,8 @@ public class LayoutServiceTest {
                 .verifyComplete();
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
+            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), actionPermission.getEditPermission())
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), actionPermission.getEditPermission()));
         });
 
         StepVerifier
@@ -1123,8 +1127,8 @@ public class LayoutServiceTest {
                 .verifyComplete();
 
         Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
+            return newActionService.findByUnpublishedNameAndPageId("aGetAction", page.getId(), actionPermission.getEditPermission())
+                    .zipWith(newActionService.findByUnpublishedNameAndPageId("ignoredAction1", page.getId(), actionPermission.getEditPermission()));
         });
 
         StepVerifier

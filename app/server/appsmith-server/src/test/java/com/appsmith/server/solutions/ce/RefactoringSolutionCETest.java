@@ -36,6 +36,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
@@ -122,6 +123,8 @@ class RefactoringSolutionCETest {
     ImportExportApplicationService importExportApplicationService;
     @Autowired
     PagePermission pagePermission;
+    @Autowired
+    ActionPermission actionPermission;
 
     Application testApp = null;
 
@@ -284,7 +287,7 @@ class RefactoringSolutionCETest {
 
         LayoutDTO postNameChangeLayout = refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), actionPermission.getReadPermission());
 
         StepVerifier
                 .create(postNameChangeActionMono)
@@ -351,7 +354,7 @@ class RefactoringSolutionCETest {
 
         LayoutDTO postNameChangeLayout = refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(createdAction.getId(), actionPermission.getReadPermission());
 
         StepVerifier
                 .create(postNameChangeActionMono)
@@ -412,7 +415,7 @@ class RefactoringSolutionCETest {
 
         refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), actionPermission.getReadPermission());
 
         StepVerifier
                 .create(postNameChangeActionMono)
@@ -532,7 +535,7 @@ class RefactoringSolutionCETest {
 
         LayoutDTO postNameChangeLayout = refactoringSolution.refactorActionName(refactorActionNameDTO).block();
 
-        Mono<NewAction> postNameChangeActionMono = newActionService.findById(firstAction.getId(), READ_ACTIONS);
+        Mono<NewAction> postNameChangeActionMono = newActionService.findById(firstAction.getId(), actionPermission.getReadPermission());
 
         StepVerifier
                 .create(postNameChangeActionMono)

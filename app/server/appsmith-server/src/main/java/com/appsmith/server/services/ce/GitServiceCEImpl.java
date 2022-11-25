@@ -51,6 +51,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -132,6 +133,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
@@ -1040,7 +1042,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 })
                                 .collectList()
                                 .flatMapMany(newPageService::saveAll)
-                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), MANAGE_ACTIONS)
+                                .flatMap(newPage -> newActionService.findByPageId(newPage.getId(), actionPermission.getEditPermission())
                                         .map(newAction -> {
                                             newAction.setDefaultResources(null);
                                             if (newAction.getUnpublishedAction() != null) {

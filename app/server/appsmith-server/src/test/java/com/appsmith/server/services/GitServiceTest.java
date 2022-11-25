@@ -43,6 +43,7 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -162,6 +163,8 @@ public class GitServiceTest {
 
     @Autowired
     PagePermission pagePermission;
+    @Autowired
+    ActionPermission actionPermission;
 
     private static String workspaceId;
     private static Application gitConnectedApplication = new Application();
@@ -1053,8 +1056,8 @@ public class GitServiceTest {
 
         StepVerifier
                 .create(resultMono.zipWhen(application -> Mono.zip(
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
                         newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
                 )))
                 .assertNext(tuple -> {
@@ -2009,8 +2012,8 @@ public class GitServiceTest {
 
         StepVerifier
                 .create(createBranchMono.zipWhen(application -> Mono.zip(
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
                         newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList(),
                         applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
                 )))

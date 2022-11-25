@@ -57,6 +57,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -146,6 +147,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
@@ -169,7 +171,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   PermissionGroupService permissionGroupService,
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission,
-                                  PagePermission pagePermission) {
+                                  PagePermission pagePermission,
+                                  ActionPermission actionPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -191,6 +194,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.datasourcePermission = datasourcePermission;
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
+        this.actionPermission = actionPermission;
     }
 
     @Override
@@ -230,7 +234,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultActionId(branchName, id, READ_ACTIONS)
+        return this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getReadPermission())
                 .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
@@ -547,7 +551,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // the update doesn't lead to resetting of this field.
         action.setUserSetOnLoad(null);
 
-        Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<NewAction> updatedActionMono = repository.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
@@ -645,7 +649,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // Initialize the name to be empty value
         actionName.set("");
         // 2. Fetch the action from the DB and check if it can be executed
-        Mono<NewAction> actionMono = repository.findById(actionId, EXECUTE_ACTIONS)
+        Mono<NewAction> actionMono = repository.findById(actionId, actionPermission.getExecutePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
                 .cache();
 
@@ -957,7 +961,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.just(dto);
                 })
                 .flatMap(executeActionDTO -> this
-                        .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), EXECUTE_ACTIONS)
+                        .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .map(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
@@ -1253,7 +1257,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
-                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, MANAGE_ACTIONS)
+                .findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(pageId, actionPermission.getEditPermission())
                 .flatMap(this::sanitizeAction);
     }
 
@@ -1267,7 +1271,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
         return repository
-                .findUnpublishedActionsByNameInAndPageId(names, pageId, MANAGE_ACTIONS)
+                .findUnpublishedActionsByNameInAndPageId(names, pageId, actionPermission.getEditPermission())
                 .flatMap(this::sanitizeAction);
     }
 
@@ -1330,7 +1334,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         // fetch the published actions by applicationId
         // No need to sort the results
-        return findAllByApplicationIdAndViewMode(applicationId, true, EXECUTE_ACTIONS, null)
+        return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> {
                     ActionViewDTO actionViewDTO = new ActionViewDTO();
@@ -1364,7 +1368,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        Mono<NewAction> actionMono = repository.findById(id, MANAGE_ACTIONS)
+        Mono<NewAction> actionMono = repository.findById(id, actionPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> {
@@ -1529,11 +1533,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
                     .findById(params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission())
-                    .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS))
+                    .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission()))
                     .flatMap(this::sanitizeAction)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
-        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, READ_ACTIONS, sort)
+        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, actionPermission.getReadPermission(), sort)
                 .flatMap(this::sanitizeAction)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
@@ -1884,7 +1888,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, MANAGE_ACTIONS);
+        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getEditPermission());
 
         return branchedActionMono
                 .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))
@@ -1936,7 +1940,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(publicPermissionGroup -> {
                     String publicPermissionGroupId = publicPermissionGroup.getId();
                     // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
-                    boolean isPublicAction = permissionGroupService.isEntityAccessible(action, EXECUTE_ACTIONS.getValue(), publicPermissionGroupId);
+                    boolean isPublicAction = permissionGroupService.isEntityAccessible(action, actionPermission.getExecutePermission().getValue(), publicPermissionGroupId);
 
                     if (!isPublicAction) {
                         return Mono.just(datasource);

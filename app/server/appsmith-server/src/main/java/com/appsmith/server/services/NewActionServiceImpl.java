@@ -6,6 +6,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.NewActionServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -43,13 +44,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 PermissionGroupService permissionGroupService,
                                 DatasourcePermission datasourcePermission,
                                 ApplicationPermission applicationPermission,
-                                PagePermission pagePermission) {
+                                PagePermission pagePermission,
+                                ActionPermission actionPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
                 policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
                 authenticationValidator, configService, responseUtils, permissionGroupService, datasourcePermission,
-                applicationPermission, pagePermission);
+                applicationPermission, pagePermission, actionPermission);
 
     }
 }

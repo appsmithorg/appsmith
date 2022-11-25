@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.LayoutCollectionServiceCEImpl;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +21,10 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                                        AnalyticsService analyticsService,
                                        ResponseUtils responseUtils,
                                        ActionCollectionRepository actionCollectionRepository,
-                                       PagePermission pagePermission) {
+                                       PagePermission pagePermission,
+                                       ActionPermission actionPermission) {
 
         super(newPageService, layoutActionService, refactoringSolution, actionCollectionService, newActionService, analyticsService,
-                responseUtils, actionCollectionRepository, pagePermission);
+                responseUtils, actionCollectionRepository, pagePermission, actionPermission);
     }
 }

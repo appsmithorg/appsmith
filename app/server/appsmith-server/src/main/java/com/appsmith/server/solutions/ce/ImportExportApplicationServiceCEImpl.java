@@ -57,6 +57,7 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
@@ -129,6 +130,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -299,8 +301,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setDatasourceList(datasourceList);
 
                                 Flux<ActionCollection> actionCollectionFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? actionCollectionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
-                                        : actionCollectionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
+                                        ? actionCollectionRepository.findByApplicationId(applicationId, actionPermission.getReadPermission(), null)
+                                        : actionCollectionRepository.findByApplicationId(applicationId, actionPermission.getEditPermission(), null);
                                 return actionCollectionFlux;
                             })
                             .map(actionCollection -> {
@@ -355,8 +357,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
                                 Flux<NewAction> actionFlux = TRUE.equals(application.getExportWithConfiguration())
-                                        ? newActionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
-                                        : newActionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
+                                        ? newActionRepository.findByApplicationId(applicationId, actionPermission.getReadPermission(), null)
+                                        : newActionRepository.findByApplicationId(applicationId, actionPermission.getEditPermission(), null);
 
                                 return actionFlux;
                             })
@@ -1396,7 +1398,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         return newActionService.save(existingAction);
                     } else if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
-                        return newActionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newAction.getGitSyncId(), MANAGE_ACTIONS)
+                        return newActionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newAction.getGitSyncId(), actionPermission.getEditPermission())
                                 .switchIfEmpty(Mono.defer(() -> {
                                     // This is the first page we are saving with given gitSyncId in this instance
                                     DefaultResources defaultResources = new DefaultResources();
@@ -1550,7 +1552,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         );
                     } else if (importedApplication.getGitApplicationMetadata() != null) {
                         final String defaultApplicationId = importedApplication.getGitApplicationMetadata().getDefaultApplicationId();
-                        return actionCollectionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, actionCollection.getGitSyncId(), MANAGE_ACTIONS)
+                        return actionCollectionRepository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, actionCollection.getGitSyncId(), actionPermission.getEditPermission())
                                 .switchIfEmpty(Mono.defer(() -> {
                                     // This is the first page we are saving with given gitSyncId in this instance
                                     DefaultResources defaultResources = new DefaultResources();
@@ -1619,7 +1621,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         actionIds.addAll(unpublishedActionIdToCollectionIdMap.keySet());
         actionIds.addAll(publishedActionIdToCollectionIdMap.keySet());
         return Flux.fromIterable(actionIds)
-                .flatMap(actionId -> newActionRepository.findById(actionId, MANAGE_ACTIONS))
+                .flatMap(actionId -> newActionRepository.findById(actionId, actionPermission.getEditPermission()))
                 .map(newAction -> {
                     // Update collectionId and defaultCollectionIds in actionDTOs
                     ActionDTO unpublishedAction = newAction.getUnpublishedAction();
@@ -1985,7 +1987,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission()).collectList();
-        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, AclPermission.READ_ACTIONS, null)
+        return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getReadPermission(), null)
                 .collectList()
                 .zipWith(listMono)
                 .flatMap(objects -> {
