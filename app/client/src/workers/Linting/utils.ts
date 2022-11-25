@@ -51,7 +51,6 @@ import {
   isWidget,
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import { JSUpdate } from "utils/JSPaneUtils";
 import { Severity } from "entities/AppsmithConsole";
 
 export function getlintErrorsFromTree(
