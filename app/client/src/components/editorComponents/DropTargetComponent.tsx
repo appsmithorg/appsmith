@@ -197,14 +197,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const shouldOnboard =
     !(childWidgets && childWidgets.length) && !isDragging && !props.parentId;
 
-  if (props.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    // console.log(
-    //   "Dynamic height: Drop Target Height:",
-    //   { height },
-    //   { snapRows },
-    // );
-  }
-
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget

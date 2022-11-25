@@ -291,7 +291,7 @@ export function* updateWidgetAutoHeightSaga() {
             let minCanvasHeightInRows: number = yield getMinHeightBasedOnChildren(
               parentCanvasWidget.widgetId,
               changesSoFar,
-              true,
+              false,
               dynamicHeightLayoutTree,
             );
 
