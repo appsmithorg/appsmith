@@ -121,6 +121,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         order: null,
       },
       transientTableData: {},
+      updatedRowIndex: -1,
       editableCell: defaultEditableCell,
       columnEditableCellValue: {},
       selectColumnFilterText: {},
@@ -142,7 +143,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
       updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
       updatedRowIndices: `{{(()=>{ ${derivedProperties.getUpdatedRowIndices}})()}}`,
-      updatedRow: `{{this.triggeredRow}}`,
+      updatedRow: `{{(()=>{ ${derivedProperties.getUpdatedRow}})()}}`,
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
     };
@@ -595,6 +596,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      */
     if (isTableDataModified) {
       this.props.updateWidgetMetaProperty("transientTableData", {});
+      // reset updatedRowIndex whenever transientTableData is flushed.
+      this.props.updateWidgetMetaProperty("updatedRowIndex", -1);
+
       this.clearEditableCell(true);
       this.props.updateWidgetMetaProperty("selectColumnFilterText", {});
     }
@@ -1208,6 +1212,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...transientData,
       },
     });
+
+    this.props.updateWidgetMetaProperty("updatedRowIndex", __originalIndex__);
   };
 
   removeRowFromTransientTableData = (index: number) => {
@@ -1221,6 +1227,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         newTransientTableData,
       );
     }
+    this.props.updateWidgetMetaProperty("updatedRowIndex", -1);
   };
 
   getRowOriginalIndex = (index: number) => {

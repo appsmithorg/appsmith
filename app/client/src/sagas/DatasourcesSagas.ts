@@ -344,8 +344,6 @@ function* updateDatasourceSaga(
 
       const state: AppState = yield select();
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
-      const datasourceStructure =
-        state.entities.datasources.structure[response.data.id];
 
       // Dont redirect if action payload has an onSuccess
       yield put(
@@ -367,8 +365,9 @@ function* updateDatasourceSaga(
       if (actionPayload.onSuccess) {
         yield put(actionPayload.onSuccess);
       }
-      if (expandDatasourceId === response.data.id && !datasourceStructure) {
-        yield put(fetchDatasourceStructure(response.data.id));
+      //Refresh datasource structure on save
+      if (expandDatasourceId === response.data.id) {
+        yield put(fetchDatasourceStructure(response.data.id, true));
       }
 
       AppsmithConsole.info({
