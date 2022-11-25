@@ -25,6 +25,7 @@ export interface AutoLayoutLayerProps {
   wrapStart: boolean;
   wrapCenter: boolean;
   wrapEnd: boolean;
+  wrapLayer: boolean;
 }
 
 const LayoutLayerContainer = styled.div<{
@@ -89,9 +90,7 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
       flexDirection={flexDirection}
       hideOnLoad={props.hideOnLoad}
       isCurrentCanvasDragging={props.isCurrentCanvasDragging}
-      wrap={
-        props.isMobile && (props.wrapStart || props.wrapCenter || props.wrapEnd)
-      }
+      wrap={props.isMobile && props.wrapLayer}
     >
       <StartWrapper
         flexDirection={flexDirection}

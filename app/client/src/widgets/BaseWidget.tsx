@@ -210,7 +210,9 @@ abstract class BaseWidget<
     componentHeight: number;
   } {
     const right =
-      isMobile && mobileRightColumn ? mobileRightColumn : rightColumn;
+      isMobile && mobileRightColumn && parentColumnSpace !== 1
+        ? mobileRightColumn
+        : rightColumn;
     return {
       componentWidth: (right - leftColumn) * parentColumnSpace,
       componentHeight: (bottomRow - topRow) * parentRowSpace,
