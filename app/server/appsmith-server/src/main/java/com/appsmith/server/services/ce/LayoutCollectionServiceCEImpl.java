@@ -25,6 +25,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
     private final ActionCollectionRepository actionCollectionRepository;
+    private final PagePermission pagePermission;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -87,7 +89,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
         final String pageId = collection.getPageId();
         Mono<NewPage> pageMono = newPageService
-                .findById(pageId, MANAGE_PAGES)
+                .findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .cache();
@@ -230,13 +232,13 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return newPageService.findById(collection.getPageId(), MANAGE_PAGES)
+        return newPageService.findById(collection.getPageId(), pagePermission.getEditPermission())
                 .flatMap(newPage -> {
                     // Insert defaultPageId and defaultAppId from page
                     DefaultResources defaultResources = newPage.getDefaultResources();
                     defaultResources.setBranchName(branchName);
                     collection.setDefaultResources(defaultResources);
-                    return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), MANAGE_PAGES);
+                    return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultResources.getPageId(), pagePermission.getEditPermission());
                 })
                 .flatMap(branchedPage -> {
                     // Update the page and application id with branched resource
@@ -258,7 +260,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         Mono<String> branchedPageIdMono = StringUtils.isEmpty(branchName)
                 ? Mono.just(pageId)
                 : newPageService
-                .findByBranchNameAndDefaultPageId(branchName, pageId, MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getEditPermission())
                 .map(NewPage::getId)
                 .cache();
 
@@ -325,7 +327,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final String collectionId = actionCollectionMoveDTO.getCollectionId();
         final String destinationPageId = actionCollectionMoveDTO.getDestinationPageId();
 
-        Mono<NewPage> destinationPageMono = newPageService.findById(actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+        Mono<NewPage> destinationPageMono = newPageService.findById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)))
                 .cache();
 
@@ -375,7 +377,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     final String oldPageId = tuple.getT2();
 
                     return newPageService
-                            .findPageById(oldPageId, MANAGE_PAGES, false)
+                            .findPageById(oldPageId, pagePermission.getEditPermission(), false)
                             .flatMap(page -> {
                                 if (page.getLayouts() == null) {
                                     return Mono.empty();
@@ -390,7 +392,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                         .collect(toSet());
                             })
                             // fetch the unpublished destination page
-                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
+                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission(), false))
                             .flatMap(page -> {
                                 if (page.getLayouts() == null) {
                                     return Mono.empty();
@@ -413,7 +415,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     public Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO, String branchName) {
 
         Mono<String> destinationPageMono = newPageService
-                .findByBranchNameAndDefaultPageId(branchName, actionCollectionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission())
                 .map(NewPage::getId);
 
         Mono<String> branchedCollectionMono = actionCollectionService
@@ -596,7 +598,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
                 .map(responseUtils::updateCollectionDTOWithDefaultResources)
-                .zipWith(newPageService.findById(pageId, MANAGE_PAGES),
+                .zipWith(newPageService.findById(pageId, pagePermission.getEditPermission()),
                         (branchedActionCollection, newPage) -> {
                             //redundant check
                             if (newPage.getUnpublishedPage().getLayouts().size() > 0) {

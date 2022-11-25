@@ -59,6 +59,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -144,6 +145,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PermissionGroupService permissionGroupService;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
@@ -166,7 +168,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
                                   DatasourcePermission datasourcePermission,
-                                  ApplicationPermission applicationPermission) {
+                                  ApplicationPermission applicationPermission,
+                                  PagePermission pagePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -187,6 +190,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.configService = configService;
         this.datasourcePermission = datasourcePermission;
         this.applicationPermission = applicationPermission;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -1541,7 +1545,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // Get branched applicationId and pageId
         Mono<NewPage> branchedPageMono = StringUtils.isEmpty(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
-                : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), READ_PAGES);
+                : newPageService.findByBranchNameAndDefaultPageId(branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission());
         Mono<Application> branchedApplicationMono = StringUtils.isEmpty(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
                 : applicationService.findByBranchNameAndDefaultApplicationId(branchName, params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission());

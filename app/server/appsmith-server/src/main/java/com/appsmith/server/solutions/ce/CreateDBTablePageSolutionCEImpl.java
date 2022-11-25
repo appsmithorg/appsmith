@@ -38,6 +38,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +85,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final PluginExecutorHelper pluginExecutorHelper;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -410,7 +412,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
         log.debug("Fetching page from application {}, defaultPageId {}, branchName {}", defaultApplicationId, defaultPageId, branchName);
         if (defaultPageId != null) {
-            return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+            return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId))
                     )
@@ -424,7 +426,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         }
 
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, MANAGE_PAGES, false))
+                .flatMapMany(childApplicationId -> newPageService.findByApplicationId(childApplicationId, pagePermission.getEditPermission(), false))
                 .collectList()
                 .flatMap(pages -> {
                     // Avoid duplicating page names
@@ -452,7 +454,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     page.setDefaultResources(defaultResources);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), MANAGE_PAGES));
+                .flatMap(pageDTO -> newPageService.findById(pageDTO.getId(), pagePermission.getEditPermission()));
     }
 
     /**

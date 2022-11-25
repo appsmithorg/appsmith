@@ -37,6 +37,7 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -119,6 +120,8 @@ class RefactoringSolutionCETest {
 
     @Autowired
     ImportExportApplicationService importExportApplicationService;
+    @Autowired
+    PagePermission pagePermission;
 
     Application testApp = null;
 
@@ -155,7 +158,7 @@ class RefactoringSolutionCETest {
 
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
 
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject();
@@ -186,7 +189,7 @@ class RefactoringSolutionCETest {
             layout.setPublishedDsl(dsl);
             layoutActionService.updateLayout(pageId, testApp.getId(), layout.getId(), layout).block();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
         }
 
         if (gitConnectedApp == null) {
@@ -205,7 +208,7 @@ class RefactoringSolutionCETest {
                     .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
-            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), pagePermission.getReadPermission(), false).block();
 
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
@@ -574,7 +577,7 @@ class RefactoringSolutionCETest {
 
         Mono<LayoutDTO> widgetRenameMono = refactoringSolution.refactorWidgetName(refactorNameDTO).cache();
 
-        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), pagePermission.getReadPermission(), false));
 
         StepVerifier
                 .create(Mono.zip(widgetRenameMono, pageFromRepoMono))
@@ -616,7 +619,7 @@ class RefactoringSolutionCETest {
 
         Mono<LayoutDTO> widgetRenameMono = refactoringSolution.refactorWidgetName(refactorNameDTO).cache();
 
-        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+        Mono<PageDTO> pageFromRepoMono = widgetRenameMono.then(newPageService.findPageById(testPage.getId(), pagePermission.getReadPermission(), false));
 
         StepVerifier
                 .create(Mono.zip(widgetRenameMono, pageFromRepoMono))

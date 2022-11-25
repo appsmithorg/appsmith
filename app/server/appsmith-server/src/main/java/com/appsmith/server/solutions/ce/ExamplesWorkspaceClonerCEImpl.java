@@ -38,6 +38,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +76,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     private final LayoutCollectionService layoutCollectionService;
     private final ThemeService themeService;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     public Mono<Workspace> cloneExamplesWorkspace() {
         return sessionUserService
@@ -442,7 +444,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             applicationIds.add(savedApplication.getId());
                             return forkThemes(application, savedApplication).thenMany(
                                     newPageRepository
-                                            .findByApplicationIdAndNonDeletedEditMode(templateApplicationId, AclPermission.READ_PAGES)
+                                            .findByApplicationIdAndNonDeletedEditMode(templateApplicationId, pagePermission.getReadPermission())
                                             .map(newPage -> {
                                                 log.info("Preparing page for cloning {} {}.", newPage.getUnpublishedPage().getName(), newPage.getId());
                                                 newPage.setApplicationId(savedApplication.getId());

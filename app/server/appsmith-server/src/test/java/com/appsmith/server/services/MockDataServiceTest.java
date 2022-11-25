@@ -15,6 +15,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -92,6 +93,9 @@ public class MockDataServiceTest {
     @Autowired
     WorkspacePermission workspacePermission;
 
+    @Autowired
+    PagePermission pagePermission;
+
     String workspaceId = "";
 
     Application testApp = null;
@@ -118,7 +122,7 @@ public class MockDataServiceTest {
             application.setName(UUID.randomUUID().toString());
             testApp = applicationPageService.createApplication(application, workspaceId).block();
             final String pageId = testApp.getPages().get(0).getId();
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
         }
     }
 

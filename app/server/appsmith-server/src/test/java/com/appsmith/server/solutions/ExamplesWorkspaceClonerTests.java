@@ -141,6 +141,8 @@ public class ExamplesWorkspaceClonerTests {
 
     @Autowired
     ApplicationPermission applicationPermission;
+    @Autowired
+    PagePermission pagePermission;
 
     private static class WorkspaceData {
         Workspace workspace;
@@ -721,7 +723,7 @@ public class ExamplesWorkspaceClonerTests {
                             .then(layoutActionService.createSingleAction(newPageAction))
                             .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
                             .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction))
-                            .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
+                            .then(newPageService.findPageById(page.getId(), pagePermission.getReadPermission(), false));
                 })
                 .map(tuple2 -> {
                     log.info("Created action and added page to app {}", tuple2);
@@ -1030,7 +1032,7 @@ public class ExamplesWorkspaceClonerTests {
         return applicationService
                 .findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), pagePermission.getReadPermission(), false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }
@@ -1039,7 +1041,7 @@ public class ExamplesWorkspaceClonerTests {
         return applicationService
                 .findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), pagePermission.getReadPermission(), false))
                 .flatMap(page -> actionCollectionService.getPopulatedActionCollectionsByViewMode(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), false));
     }

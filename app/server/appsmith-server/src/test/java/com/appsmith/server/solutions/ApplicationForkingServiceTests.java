@@ -160,6 +160,8 @@ public class ApplicationForkingServiceTests {
     PermissionGroupPermission permissionGroupPermission;
     @Autowired
     ApplicationPermission applicationPermission;
+    @Autowired
+    PagePermission pagePermission;
 
     private static String sourceAppId;
 
@@ -189,7 +191,7 @@ public class ApplicationForkingServiceTests {
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
 
-        PageDTO testPage = newPageService.findPageById(app1.getPages().get(0).getId(), READ_PAGES, false).block();
+        PageDTO testPage = newPageService.findPageById(app1.getPages().get(0).getId(), pagePermission.getReadPermission(), false).block();
 
         // Save action
         Datasource datasource = new Datasource();
@@ -324,7 +326,7 @@ public class ApplicationForkingServiceTests {
                         .zipWhen(application -> Mono.zip(
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
+                                newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
                         )))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
@@ -468,7 +470,7 @@ public class ApplicationForkingServiceTests {
                         Mono.zip(
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()))
+                                newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()))
                 )
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
@@ -753,8 +755,8 @@ public class ApplicationForkingServiceTests {
         final Mono<Application> resultMono = Mono.just(resultApplication);
 
         StepVerifier.create(resultMono
-                        .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), READ_PAGES).collectList()
-                                .zipWith(newPageService.findNewPagesByApplicationId(originalAppId, READ_PAGES).collectList())))
+                        .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), pagePermission.getReadPermission()).collectList()
+                                .zipWith(newPageService.findNewPagesByApplicationId(originalAppId, pagePermission.getReadPermission()).collectList())))
                 .assertNext(tuple -> {
                     Application forkedApplication = tuple.getT1();
                     List<NewPage> forkedPages = tuple.getT2().getT1();
@@ -778,7 +780,7 @@ public class ApplicationForkingServiceTests {
         return applicationService
                 .findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), pagePermission.getReadPermission(), false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }

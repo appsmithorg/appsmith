@@ -60,6 +60,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -127,6 +128,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -237,8 +239,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
                     Flux<NewPage> pageFlux = TRUE.equals(application.getExportWithConfiguration())
-                            ? newPageRepository.findByApplicationId(applicationId, READ_PAGES)
-                            : newPageRepository.findByApplicationId(applicationId, MANAGE_PAGES);
+                            ? newPageRepository.findByApplicationId(applicationId, pagePermission.getReadPermission())
+                            : newPageRepository.findByApplicationId(applicationId, pagePermission.getEditPermission());
 
                     return pageFlux
                             .collectList()
@@ -866,7 +868,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                     // For git-sync this will not be empty
                     Mono<List<NewPage>> existingPagesMono = newPageService
-                            .findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                            .findNewPagesByApplicationId(importedApplication.getId(), pagePermission.getEditPermission())
                             .collectList()
                             .cache();
 
@@ -1132,7 +1134,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // Don't update gitAuth as we are using @Encrypted for private key
                     importedApplication.setGitApplicationMetadata(null);
                     // Map layoutOnLoadActions ids with relevant actions
-                    return newPageService.findNewPagesByApplicationId(importedApplication.getId(), MANAGE_PAGES)
+                    return newPageService.findNewPagesByApplicationId(importedApplication.getId(), pagePermission.getEditPermission())
                             .flatMap(newPage -> {
                                 if (newPage.getDefaultResources() != null) {
                                     newPage.getDefaultResources().setBranchName(branchName);
@@ -1276,7 +1278,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             return newPageService.save(existingPage);
                         } else if (application.getGitApplicationMetadata() != null) {
                             final String defaultApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
-                            return newPageService.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newPage.getGitSyncId(), MANAGE_PAGES)
+                            return newPageService.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, newPage.getGitSyncId(), pagePermission.getEditPermission())
                                     .switchIfEmpty(Mono.defer(() -> {
                                         // This is the first page we are saving with given gitSyncId in this instance
                                         DefaultResources defaultResources = new DefaultResources();

@@ -44,6 +44,7 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -158,6 +159,9 @@ public class GitServiceTest {
     PluginExecutorHelper pluginExecutorHelper;
     @Autowired
     ApplicationPermission applicationPermission;
+
+    @Autowired
+    PagePermission pagePermission;
 
     private static String workspaceId;
     private static Application gitConnectedApplication = new Application();
@@ -965,7 +969,7 @@ public class GitServiceTest {
                     return Mono.zip(
                             applicationService.save(application),
                             pluginRepository.findByPackageName("installed-plugin"),
-                            newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false)
+                            newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false)
                     );
                 })
                 .flatMap(tuple -> {
@@ -1051,7 +1055,7 @@ public class GitServiceTest {
                 .create(resultMono.zipWhen(application -> Mono.zip(
                         newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                         actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
+                        newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
                 )))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
@@ -1930,7 +1934,7 @@ public class GitServiceTest {
                         Mono.zip(
                                 Mono.just(application),
                                 pluginRepository.findByPackageName("installed-plugin"),
-                                newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
+                                newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false))
                 )
                 .flatMap(tuple -> {
 
@@ -2007,7 +2011,7 @@ public class GitServiceTest {
                 .create(createBranchMono.zipWhen(application -> Mono.zip(
                         newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                         actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
-                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
+                        newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList(),
                         applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
                 )))
                 .assertNext(tuple -> {
@@ -2134,7 +2138,7 @@ public class GitServiceTest {
                         Mono.zip(
                                 Mono.just(application),
                                 pluginRepository.findByPackageName("installed-plugin"),
-                                newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
+                                newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false))
                 )
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();

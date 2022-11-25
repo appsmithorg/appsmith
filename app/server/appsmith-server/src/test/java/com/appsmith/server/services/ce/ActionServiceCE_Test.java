@@ -60,6 +60,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -176,6 +177,9 @@ public class ActionServiceCE_Test {
     @Autowired
     WorkspacePermission workspacePermission;
 
+    @Autowired
+    PagePermission pagePermission;
+
 
     Application testApp = null;
 
@@ -213,7 +217,7 @@ public class ActionServiceCE_Test {
 
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
 
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
@@ -253,7 +257,7 @@ public class ActionServiceCE_Test {
                     .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
-            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), pagePermission.getReadPermission(), false).block();
 
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
@@ -2654,7 +2658,7 @@ public class ActionServiceCE_Test {
 
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
         return newPageService
-                .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
+                .findByNameAndViewMode(page.getName(), pagePermission.getReadPermission(), false)
                 .switchIfEmpty(applicationPageService.createApplication(app, workspaceId)
                         .map(application -> {
                             page.setApplicationId(application.getId());

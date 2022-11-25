@@ -54,6 +54,7 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
@@ -130,6 +131,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final PluginService pluginService;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
@@ -1031,7 +1033,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
                         // will be deleted
                         Flux.fromIterable(application.getPages())
-                                .flatMap(page -> newPageService.findById(page.getId(), MANAGE_PAGES))
+                                .flatMap(page -> newPageService.findById(page.getId(), pagePermission.getEditPermission()))
                                 .map(newPage -> {
                                     newPage.setDefaultResources(null);
                                     return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);

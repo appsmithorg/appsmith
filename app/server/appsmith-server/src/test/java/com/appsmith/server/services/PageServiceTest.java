@@ -34,6 +34,7 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -124,6 +125,9 @@ public class PageServiceTest {
 
     @Autowired
     WorkspacePermission workspacePermission;
+
+    @Autowired
+    PagePermission pagePermission;
 
     static Application application = null;
 
@@ -528,7 +532,7 @@ public class PageServiceTest {
         setupTestApplication();
         final String pageId = application.getPages().get(0).getId();
 
-        final PageDTO page = newPageService.findPageById(pageId, READ_PAGES, false).block();
+        final PageDTO page = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
 
         ActionDTO action = new ActionDTO();
         action.setName("PageAction");
@@ -709,7 +713,7 @@ public class PageServiceTest {
         final String pageId = gitConnectedApplication.getPages().get(0).getId();
         final String branchName = gitConnectedApplication.getGitApplicationMetadata().getBranchName();
 
-        final PageDTO page = newPageService.findPageById(pageId, READ_PAGES, false).block();
+        final PageDTO page = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
 
         ActionDTO action = new ActionDTO();
         action.setName("PageAction");
@@ -771,7 +775,7 @@ public class PageServiceTest {
 
 
         final Mono<NewPage> pageMono = applicationPageService.clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
-                .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), MANAGE_PAGES))
+                .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), pagePermission.getEditPermission()))
                 .cache();
 
         Mono<List<NewAction>> actionsMono =

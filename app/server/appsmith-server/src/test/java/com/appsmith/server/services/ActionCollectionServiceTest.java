@@ -28,6 +28,7 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -127,6 +128,8 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     WorkspacePermission workspacePermission;
+    @Autowired
+    PagePermission pagePermission;
 
     Application testApp = null;
 
@@ -159,7 +162,7 @@ public class ActionCollectionServiceTest {
             assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
 
             assert testPage != null;
             Layout layout = testPage.getLayouts().get(0);

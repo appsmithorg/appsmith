@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -84,6 +85,9 @@ public class LayoutServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    PagePermission pagePermission;
 
     String workspaceId;
 
@@ -180,7 +184,7 @@ public class LayoutServiceTest {
 
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
         return newPageService
-                .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
+                .findByNameAndViewMode(page.getName(), pagePermission.getReadPermission(), false)
                 .switchIfEmpty(applicationPageService.createApplication(app, workspaceId)
                         .map(application -> {
                             page.setApplicationId(application.getId());

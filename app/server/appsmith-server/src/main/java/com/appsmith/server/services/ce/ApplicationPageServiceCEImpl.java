@@ -43,6 +43,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
@@ -96,6 +97,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
 
     public static final Integer EVALUATION_VERSION = 2;
@@ -210,7 +212,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
-        AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
+        AclPermission permission = viewMode ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
         return newPageService.findPageById(pageId, permission, viewMode)
                 .map(newPage -> {
                     List<Layout> layouts = newPage.getLayouts();
@@ -234,7 +236,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
 
-        AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
+        AclPermission permission = viewMode ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> {
                     return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage.getId(), viewMode));
@@ -245,20 +247,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode) {
         AclPermission appPermission;
-        AclPermission pagePermission;
+        AclPermission pagePermission1;
         if (viewMode) {
             //If view is set, then this user is trying to view the application
             appPermission = applicationPermission.getReadPermission();
-            pagePermission = READ_PAGES;
+            pagePermission1 = pagePermission.getReadPermission();
         } else {
             appPermission = applicationPermission.getEditPermission();
-            pagePermission = MANAGE_PAGES;
+            pagePermission1 = pagePermission.getEditPermission();
         }
 
         return applicationService
                 .findByName(applicationName, appPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application name", applicationName)))
-                .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(pageName, application.getId(), pagePermission, viewMode))
+                .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(pageName, application.getId(), pagePermission1, viewMode))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by page name", pageName)));
     }
 
@@ -271,7 +273,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> makePageDefault(String applicationId, String pageId) {
         // Since this can only happen during edit, the page in question is unpublished page. Set the view mode accordingly
         Boolean viewMode = false;
-        return newPageService.findPageById(pageId, AclPermission.MANAGE_PAGES, viewMode)
+        return newPageService.findPageById(pageId, pagePermission.getEditPermission(), viewMode)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 // Check if the page actually belongs to the application.
                 .flatMap(page -> {
@@ -292,7 +294,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Application> makePageDefault(String defaultApplicationId, String defaultPageId, String branchName) {
         // TODO remove the dependency of applicationId as pageId and branch can get the exact resource
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(branchedPage -> makePageDefault(branchedPage.getApplicationId(), branchedPage.getId()))
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
@@ -431,7 +433,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
         return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), MANAGE_ACTIONS)
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
-                .then(newPageService.archivePagesByApplicationId(application.getId(), MANAGE_PAGES))
+                .then(newPageService.archivePagesByApplicationId(application.getId(), pagePermission.getDeletePermission()))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
                 .flatMap(deletedApplication -> {
@@ -450,7 +452,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> clonePage(String pageId) {
 
-        return newPageService.findById(pageId, MANAGE_PAGES)
+        return newPageService.findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
                 .flatMap(page ->
                         applicationService.saveLastEditInformation(page.getApplicationId())
@@ -460,7 +462,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> clonePageByDefaultPageIdAndBranch(String defaultPageId, String branchName) {
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> clonePage(newPage.getId()))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -470,7 +472,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                       @Nullable String newPageNameSuffix) {
         // Find the source page and then prune the page layout fields to only contain the required fields that should be
         // copied.
-        Mono<PageDTO> sourcePageMono = newPageService.findPageById(pageId, MANAGE_PAGES, false)
+        Mono<PageDTO> sourcePageMono = newPageService.findPageById(pageId, pagePermission.getEditPermission(), false)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> {
@@ -827,7 +829,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
 
-        return newPageService.findById(id, AclPermission.MANAGE_PAGES)
+        return newPageService.findById(id, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
@@ -907,7 +909,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -984,7 +986,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMapMany(Flux::fromIterable)
                 //In each page, copy each layout's dsl to publishedDsl field
                 .flatMap(applicationPage -> newPageService
-                        .findById(applicationPage.getId(), MANAGE_PAGES)
+                        .findById(applicationPage.getId(), pagePermission.getEditPermission())
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, applicationPage.getId())))
                         .map(page -> {
                             page.setPublishedPage(page.getUnpublishedPage());
@@ -1082,7 +1084,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      **/
     @Override
     public Mono<ApplicationPagesDTO> reorderPage(String defaultAppId, String defaultPageId, Integer order, String branchName) {
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId)))
                 .zipWhen(branchedPage -> applicationService.findById(branchedPage.getApplicationId(), applicationPermission.getEditPermission())
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultAppId))))

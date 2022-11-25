@@ -27,6 +27,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -118,6 +119,9 @@ public class LayoutActionServiceTest {
     @Autowired
     ImportExportApplicationService importExportApplicationService;
 
+    @Autowired
+    PagePermission pagePermission;
+
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -159,7 +163,7 @@ public class LayoutActionServiceTest {
 
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
 
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject();
@@ -190,7 +194,7 @@ public class LayoutActionServiceTest {
             layout.setPublishedDsl(dsl);
             layoutActionService.updateLayout(pageId, testApp.getId(), layout.getId(), layout).block();
 
-            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
+            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
         }
 
         if (gitConnectedApp == null) {
@@ -209,7 +213,7 @@ public class LayoutActionServiceTest {
                     .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspace(workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                     .block();
 
-            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), READ_PAGES, false).block();
+            gitConnectedPage = newPageService.findPageById(gitConnectedApp.getPages().get(0).getId(), pagePermission.getReadPermission(), false).block();
 
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
@@ -268,7 +272,7 @@ public class LayoutActionServiceTest {
                             .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 .flatMap(savedAction -> layoutActionService.deleteUnpublishedAction(savedAction.getId())) // Delete action
-                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false)); // Get page info
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), pagePermission.getReadPermission(), false)); // Get page info
 
         StepVerifier
                 .create(resultMono)
@@ -353,7 +357,7 @@ public class LayoutActionServiceTest {
                             .flatMap(updatedAction -> layoutActionService.updatePageLayoutsByPageId(updatedAction.getPageId()).thenReturn(updatedAction));
                 })
                 // fetch the unpublished page
-                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), pagePermission.getReadPermission(), false));
 
         StepVerifier
                 .create(resultMono)
@@ -529,7 +533,7 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout).cache();
 
-        Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
+        Mono<PageDTO> pageFromRepoMono = updateLayoutMono.then(newPageService.findPageById(testPage.getId(), pagePermission.getReadPermission(), false));
 
         StepVerifier
                 .create(Mono.zip(updateLayoutMono, pageFromRepoMono))

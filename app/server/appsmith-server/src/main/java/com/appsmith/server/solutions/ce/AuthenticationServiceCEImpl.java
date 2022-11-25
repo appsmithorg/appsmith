@@ -27,6 +27,7 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +84,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
 
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
+    private final PagePermission pagePermission;
 
     /**
      * This method is used by the generic OAuth2 implementation that is used by REST APIs. Here, we only populate all the required fields
@@ -316,7 +318,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                            newPageService.findById(pageId, AclPermission.READ_PAGES),
+                            newPageService.findById(pageId, pagePermission.getReadPermission()),
                             configService.getInstanceId(),
                             pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {

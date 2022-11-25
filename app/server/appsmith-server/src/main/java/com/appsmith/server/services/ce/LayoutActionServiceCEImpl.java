@@ -36,6 +36,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -84,6 +85,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
     private final DatasourceService datasourceService;
+    private final PagePermission pagePermission;
 
 
     private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
@@ -157,7 +159,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         final String destinationPageId = actionMoveDTO.getDestinationPageId();
         action.setPageId(destinationPageId);
 
-        Mono<NewPage> destinationPageMono = newPageService.findById(destinationPageId, MANAGE_PAGES)
+        Mono<NewPage> destinationPageMono = newPageService.findById(destinationPageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)));
 
         /*
@@ -186,7 +188,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .flatMap(savedAction ->
                         // fetch the unpublished source page
                         newPageService
-                                .findPageById(oldPageId, MANAGE_PAGES, false)
+                                .findPageById(oldPageId, pagePermission.getEditPermission(), false)
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
@@ -201,7 +203,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                             .collect(toSet());
                                 })
                                 // fetch the unpublished destination page
-                                .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), MANAGE_PAGES, false))
+                                .then(newPageService.findPageById(actionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission(), false))
                                 .flatMap(page -> {
                                     if (page.getLayouts() == null) {
                                         return Mono.empty();
@@ -224,7 +226,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         // As client only have default page Id it will be sent under action and not the action.defaultResources
         Mono<String> toPageMono = newPageService
-                .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), MANAGE_PAGES)
+                .findByBranchNameAndDefaultPageId(branchName, actionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission())
                 .map(NewPage::getId);
 
         Mono<NewAction> branchedActionMono = newActionService
@@ -439,7 +441,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (!isFQN) {
             widgetNamesMono = newPageService
                     // fetch the unpublished page
-                    .findPageById(pageId, MANAGE_PAGES, false)
+                    .findPageById(pageId, pagePermission.getEditPermission(), false)
                     .flatMap(page -> {
                         List<Layout> layouts = page.getLayouts();
                         for (Layout layout : layouts) {
@@ -509,7 +511,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
                 .flatMap(updatedAction -> this.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
-                .zipWith(newPageService.findPageById(pageId, MANAGE_PAGES, false), (actionDTO, pageDTO) -> {
+                .zipWith(newPageService.findPageById(pageId, pagePermission.getEditPermission(), false), (actionDTO, pageDTO) -> {
                     // redundant check
                     if (pageDTO.getLayouts().size() > 0) {
                         actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
@@ -568,7 +570,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<String> updatePageLayoutsByPageId(String pageId) {
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
-                .flatMap(id -> newPageService.findPageById(id, MANAGE_PAGES, false))
+                .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
                 .flatMapMany(page -> {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
@@ -685,7 +687,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             .updateActionsExecuteOnLoad(flatmapPageLoadActions, pageId, actionUpdates, messages)
                             .thenReturn(allOnLoadActions);
                 })
-                .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, MANAGE_PAGES, false)
+                .zipWith(newPageService.findByIdAndLayoutsId(pageId, layoutId, pagePermission.getEditPermission(), false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND,
                                 FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID, pageId + ", " + layoutId))))
                 // Now update the page layout with the page load actions and the graph.
@@ -745,7 +747,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (StringUtils.isEmpty(branchName)) {
             return updateLayout(defaultPageId, defaultApplicationId, layoutId, layout);
         }
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(branchedPage -> updateLayout(branchedPage.getId(), branchedPage.getApplicationId(), layoutId, layout))
                 .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
@@ -825,7 +827,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         DefaultResources defaultResources = new DefaultResources();
         defaultResources.setBranchName(branchName);
 
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, action.getPageId(), MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, action.getPageId(), pagePermission.getEditPermission())
                 .flatMap(newPage -> {
                     // Update the page and application id with branched resource
                     action.setPageId(newPage.getId());
@@ -873,7 +875,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         newAction.getPublishedAction().setDatasource(new Datasource());
 
         Mono<NewPage> pageMono = newPageService
-                .findById(action.getPageId(), READ_PAGES)
+                .findById(action.getPageId(), pagePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();

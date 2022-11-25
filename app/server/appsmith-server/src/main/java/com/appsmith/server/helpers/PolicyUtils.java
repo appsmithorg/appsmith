@@ -23,6 +23,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -59,6 +60,8 @@ public class PolicyUtils {
     private final ThemeRepository themeRepository;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
+
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -259,7 +262,7 @@ public class PolicyUtils {
         // during deployment of the application to handle edge cases.
         return newPageRepository
                 // fetch pages with read permissions so that app viewers can invite other app viewers
-                .findByApplicationId(applicationId, AclPermission.READ_PAGES)
+                .findByApplicationId(applicationId, pagePermission.getReadPermission())
                 .switchIfEmpty(Mono.empty())
                 .map(page -> {
                     if (addPolicyToObject) {

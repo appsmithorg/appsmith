@@ -34,6 +34,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EmailEventHandler;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -88,6 +89,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     private final SequenceService sequenceService;
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     public CommentServiceCEImpl(
             Scheduler scheduler,
@@ -108,7 +110,8 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
             UserDataRepository userDataRepository,
             SequenceService sequenceService,
             ResponseUtils responseUtils,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
@@ -124,6 +127,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         this.sequenceService = sequenceService;
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -168,7 +172,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
         final Mono<String> branchedPageIdMono = StringUtils.isEmpty(defaultPageId)
                 ? Mono.just("")
-                : newPageService.findBranchedPageId(branchName, defaultPageId, MANAGE_PAGES);
+                : newPageService.findBranchedPageId(branchName, defaultPageId, pagePermission.getEditPermission());
 
         return Mono.zip(branchedAppIdMono, branchedPageIdMono, userMono)
                 .flatMap(tuple -> {
@@ -413,7 +417,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         final String defaultPageId = commentThread.getPageId();
         return Mono.zip(
                         applicationService.findBranchedApplicationId(branchName, defaultAppId, applicationPermission.getCanCommentPermission()),
-                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, READ_PAGES))
+                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission()))
                 .flatMap(tuple -> {
                     String branchedApplicationId = tuple.getT1();
                     String branchedPageId = tuple.getT2().getId();
