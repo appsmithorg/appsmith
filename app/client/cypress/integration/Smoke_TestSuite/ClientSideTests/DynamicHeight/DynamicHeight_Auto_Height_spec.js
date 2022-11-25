@@ -1,4 +1,4 @@
-const dsl = require("../../../../fixtures/dynamicHeightContainerdsl.json");
+const dsl = require("../../../../fixtures/dynamicHeightContainerCheckboxdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation", function() {
@@ -6,9 +6,9 @@ describe("Dynamic Height Width validation", function() {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
-    cy.changeLayoutHeight(commonlocators.autoHeight);
+    //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("checkboxgroupwidget");
-    cy.changeLayoutHeight(commonlocators.autoHeight);
+    //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((height) => {
