@@ -17,12 +17,18 @@ import AutoHeightLimitOverlayDisplay from "./ui/AutoHeightLimitOverlayDisplay";
 import { useHoverState, usePositionedStyles } from "./hooks";
 import { getSnappedValues } from "./utils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
+import { LayersContext } from "constants/Layers";
 
-const StyledAutoHeightOverlay = styled.div<{ isHidden: boolean }>`
+interface StyledAutoHeightOverlayProps {
+  layerIndex: number;
+  isHidden: boolean;
+}
+
+const StyledAutoHeightOverlay = styled.div<StyledAutoHeightOverlayProps>`
   width: 100%;
   height: 100%;
   position: absolute;
-  z-index: 3;
+  z-index: ${(props) => props.layerIndex};
   pointer-events: none;
   display: ${(props) => (props.isHidden ? "none" : "block")};
 `;
@@ -252,9 +258,12 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
       topRow,
     });
 
+    const { autoHeightWithLimitsOverlay } = React.useContext(LayersContext);
+
     return (
       <StyledAutoHeightOverlay
         isHidden={isHidden}
+        layerIndex={autoHeightWithLimitsOverlay}
         onClick={(e) => {
           // avoid DropTarget handleFocus
           e.stopPropagation();

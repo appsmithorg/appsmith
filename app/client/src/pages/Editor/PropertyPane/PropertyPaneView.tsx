@@ -32,6 +32,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { disableWidgetFeatures } from "utils/WidgetFeatures";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -233,8 +234,11 @@ function PropertyPaneView(
             <PropertyPaneSearchInput onTextChange={setSearchText} />
             {searchText.length > 0 ? (
               <PropertyControlsGenerator
-                config={WidgetFactory.getWidgetPropertyPaneSearchConfig(
-                  widgetProperties.type,
+                config={disableWidgetFeatures(
+                  WidgetFactory.getWidgetPropertyPaneSearchConfig(
+                    widgetProperties.type,
+                  ),
+                  widgetProperties.disabledWidgetFeatures,
                 )}
                 id={widgetProperties.widgetId}
                 panel={panel}
@@ -247,8 +251,11 @@ function PropertyPaneView(
                 contentComponent={
                   isContentConfigAvailable ? (
                     <PropertyControlsGenerator
-                      config={WidgetFactory.getWidgetPropertyPaneContentConfig(
-                        widgetProperties.type,
+                      config={disableWidgetFeatures(
+                        WidgetFactory.getWidgetPropertyPaneContentConfig(
+                          widgetProperties.type,
+                        ),
+                        widgetProperties.disabledWidgetFeatures,
                       )}
                       id={widgetProperties.widgetId}
                       panel={panel}
