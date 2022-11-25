@@ -75,6 +75,7 @@ const datasourcePaneReducer = createReducer(initialState, {
     return {
       ...state,
       newDatasource: action.payload.id,
+      expandDatasourceId: action.payload.id,
     };
   },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (
