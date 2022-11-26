@@ -66,6 +66,7 @@ export const CONFIG = {
             tabName: "Tab 1",
             children: [],
             version: 1,
+            bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
           },
         },
         {
@@ -81,6 +82,7 @@ export const CONFIG = {
             tabName: "Tab 2",
             children: [],
             version: 1,
+            bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
           },
         },
       ],

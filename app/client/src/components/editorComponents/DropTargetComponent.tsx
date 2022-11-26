@@ -24,7 +24,10 @@ import {
   useShowPropertyPane,
   useCanvasSnapRowsUpdateHook,
 } from "utils/hooks/dragResizeHooks";
-import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
+import {
+  getOccupiedSpacesSelectorForContainer,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
@@ -66,7 +69,8 @@ export const DropTargetContext: Context<{
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
-  const canDropTargetExtend = props.canExtend;
+  const isPreviewMode = useSelector(previewModeSelector);
+  const canDropTargetExtend = props.canExtend && !isPreviewMode;
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
 
   const isResizing = useSelector(
@@ -197,14 +201,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const shouldOnboard =
     !(childWidgets && childWidgets.length) && !isDragging && !props.parentId;
-
-  if (props.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    // console.log(
-    //   "Dynamic height: Drop Target Height:",
-    //   { height },
-    //   { snapRows },
-    // );
-  }
 
   return (
     <DropTargetContext.Provider value={contextValue}>
