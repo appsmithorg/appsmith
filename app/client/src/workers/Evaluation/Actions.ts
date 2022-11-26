@@ -7,7 +7,6 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
-import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
@@ -305,7 +304,10 @@ export const enhanceDataTreeWithFunctions = (
   skipEntityFunctions = false,
   eventType?: EventType,
 ): DataTree => {
-  const clonedDT = klona(dataTree);
+  const entityFunctions: Record<string, Record<string, Function>> = {};
+
+  const newDataTree: DataTree = {};
+
   self.TRIGGER_COLLECTOR = [];
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
@@ -319,7 +321,7 @@ export const enhanceDataTreeWithFunctions = (
             const funcName = `${funcOrFuncCreator.path ||
               `${entityName}.${name}`}`;
             _.set(
-              clonedDT,
+              entityFunctions,
               funcName,
               pusher.bind(
                 {
@@ -334,7 +336,7 @@ export const enhanceDataTreeWithFunctions = (
         });
     } else {
       _.set(
-        clonedDT,
+        newDataTree,
         name,
         pusher.bind(
           {
@@ -347,7 +349,15 @@ export const enhanceDataTreeWithFunctions = (
     }
   });
 
-  return clonedDT;
+  Object.keys(entityFunctions).forEach((entityName) => {
+    newDataTree[entityName] = Object.assign(
+      {},
+      dataTree[entityName],
+      entityFunctions[entityName],
+    );
+  });
+
+  return newDataTree;
 };
 
 /**
