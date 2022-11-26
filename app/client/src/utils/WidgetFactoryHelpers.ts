@@ -1,9 +1,12 @@
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import log from "loglevel";
 import { generateReactKey } from "./generators";
+import { WidgetType } from "./WidgetFactory";
 import {
   PropertyPaneConfigTemplates,
   RegisteredWidgetFeatures,
@@ -74,6 +77,7 @@ export function enhancePropertyPaneConfig(
   config: PropertyPaneConfig[],
   features?: WidgetFeatures,
   configType?: PropertyPaneConfigTypes,
+  widgetType?: WidgetType,
 ) {
   // Enhance property pane with widget features
   // TODO(abhinav): The following "configType" check should come
@@ -83,20 +87,28 @@ export function enhancePropertyPaneConfig(
     (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
   ) {
     Object.keys(features).forEach((registeredFeature: string) => {
+      const { sectionIndex } = features[
+        registeredFeature as RegisteredWidgetFeatures
+      ];
+      const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
+        ?.sectionName;
+      if (!sectionName || sectionName !== "General") {
+        log.error(`Invalid section index for feature: ${registeredFeature}`);
+      }
       if (
-        Array.isArray(config[0].children) &&
+        Array.isArray(config[sectionIndex].children) &&
         PropertyPaneConfigTemplates[
           registeredFeature as RegisteredWidgetFeatures
         ]
       ) {
-        config[0].children.push(
+        config[sectionIndex].children?.push(
           ...PropertyPaneConfigTemplates[
             registeredFeature as RegisteredWidgetFeatures
           ],
         );
         config = WidgetFeaturePropertyPaneEnhancements[
           registeredFeature as RegisteredWidgetFeatures
-        ](config);
+        ](config, widgetType);
       }
     });
   }
