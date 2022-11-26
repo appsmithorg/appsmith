@@ -29,7 +29,6 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
-
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
   borderColor?: string;
@@ -92,6 +91,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
+  formRef = React.createRef<HTMLDivElement>();
 
   state = {
     resetObserverCallback: noop,
@@ -130,6 +130,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -388,6 +389,7 @@ class JSONFormWidget extends BaseWidget<
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
+        ref={this.formRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}

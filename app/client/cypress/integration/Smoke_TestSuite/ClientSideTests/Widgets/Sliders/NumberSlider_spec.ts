@@ -121,6 +121,8 @@ describe("Number Slider spec", () => {
       .focus()
       .type("{rightArrow}");
 
+    agHelper.Sleep(2000); //for the changes to reflect in text widget
+
     // Assert the Text widget has value 20
     agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
       expect($label).to.eq("20");
@@ -133,8 +135,7 @@ describe("Number Slider spec", () => {
       .type("{leftArrow}")
       .type("{leftArrow}");
 
-    agHelper.Sleep(200);
-
+    agHelper.Sleep(2000); //for the changes to reflect in text widget
     // Assert the Text widget has value 0
     agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
       expect($label).to.eq("0");

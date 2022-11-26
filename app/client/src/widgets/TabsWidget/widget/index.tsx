@@ -13,6 +13,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -171,6 +172,9 @@ class TabsWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+            postUpdateActions: [
+              ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+            ],
           },
         ],
       },
@@ -265,6 +269,11 @@ class TabsWidget extends BaseWidget<
     ];
   }
 
+  callDynamicHeightUpdates = () => {
+    const { checkContainersForAutoHeight } = this.context;
+    checkContainersForAutoHeight && checkContainersForAutoHeight();
+  };
+
   onTabChange = (tabWidgetId: string) => {
     this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
       triggerPropertyName: "onTabSelected",
@@ -273,6 +282,7 @@ class TabsWidget extends BaseWidget<
         type: EventType.ON_TAB_CHANGE,
       },
     });
+    setTimeout(this.callDynamicHeightUpdates, 0);
   };
 
   static getDerivedPropertiesMap() {
@@ -327,7 +337,6 @@ class TabsWidget extends BaseWidget<
       return null;
     }
 
-    childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     childWidgetData.rightColumn = componentWidth;
@@ -388,6 +397,7 @@ class TabsWidget extends BaseWidget<
         "selectedTabWidgetId",
         defaultTabWidgetId,
       );
+      setTimeout(this.callDynamicHeightUpdates, 0);
     }
   };
 

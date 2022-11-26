@@ -271,9 +271,10 @@ describe("Linting", () => {
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     createMySQLDatasourceQuery();
-
+    agHelper.RefreshPage();//Since this seems failing a bit
     clickButtonAndAssertLintError(false);
   });
+
   it("8. Doesn't show lint errors for supported web apis", () => {
     const JS_OBJECT_WITH_WEB_API = `export default {
       myFun1: () => {

@@ -57,6 +57,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         inputRef={this.props.inputRef}
         inputType={this.props.inputType}
         intent={this.props.intent}
+        isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
