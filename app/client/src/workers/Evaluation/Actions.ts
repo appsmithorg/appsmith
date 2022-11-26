@@ -349,12 +349,16 @@ export const enhanceDataTreeWithFunctions = (
     }
   });
 
-  Object.keys(entityFunctions).forEach((entityName) => {
-    newDataTree[entityName] = Object.assign(
-      {},
-      dataTree[entityName],
-      entityFunctions[entityName],
-    );
+  Object.keys(dataTree).forEach((entityName) => {
+    if (entityFunctions[entityName]) {
+      newDataTree[entityName] = Object.assign(
+        {},
+        dataTree[entityName],
+        entityFunctions[entityName],
+      );
+    } else {
+      newDataTree[entityName] = Object.assign({}, dataTree[entityName]);
+    }
   });
 
   return newDataTree;
