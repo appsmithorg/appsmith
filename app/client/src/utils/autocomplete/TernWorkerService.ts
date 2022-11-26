@@ -1,17 +1,5 @@
 import { Def, Server } from "tern";
-
-export enum TernWorkerAction {
-  INIT = "INIT",
-  ADD_FILE = "ADD_FILE",
-  DELETE_FILE = "DELETE_FILE",
-  REQUEST = "REQUEST",
-  GET_FILE = "GET_FILE",
-  DELETE_DEF = "DELETE_DEF",
-  ADD_DEF = "ADD_DEF",
-  DEBUG = "DEBUG",
-}
-
-export type CallbackFn = (...args: any) => any;
+import { CallbackFn, TernWorkerAction } from "./types";
 
 const ternWorker = new Worker(
   new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
@@ -36,7 +24,7 @@ type TernWorkerServerConstructor = {
 function TernWorkerServer(this: any, ts: any) {
   const worker = (ts.worker = ternWorker);
   worker.postMessage({
-    type: "init",
+    type: TernWorkerAction.INIT,
     defs: ts.options.defs,
     plugins: ts.options.plugins,
     scripts: ts.options.workerDeps,

@@ -1,8 +1,5 @@
 import tern, { Server, Def } from "tern";
-import {
-  CallbackFn,
-  TernWorkerAction,
-} from "utils/autocomplete/TernWorkerService";
+import { CallbackFn, TernWorkerAction } from "utils/autocomplete/types";
 
 let server: Server;
 
@@ -36,7 +33,7 @@ self.onmessage = function(e) {
 };
 
 function getFile(file: string, c: CallbackFn) {
-  postMessage({ type: "getFile", name: file, id: ++nextId });
+  postMessage({ type: TernWorkerAction.GET_FILE, name: file, id: ++nextId });
   pending[nextId] = c;
 }
 
@@ -55,6 +52,6 @@ function startServer(defs: Def[], plugins = {}, scripts?: string[]) {
 self.console = {
   ...self.console,
   log: function(v) {
-    postMessage({ type: "debug", message: v });
+    postMessage({ type: TernWorkerAction.DEBUG, message: v });
   },
 };
