@@ -798,7 +798,7 @@ export const isATriggerPath = (
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };
 
-function createNewEntity(entity: UnEvalTreeEntityObject) {
+export function createNewEntity(entity: UnEvalTreeEntityObject) {
   if (!entity || !entity.hasOwnProperty("__config__")) return entity;
   const { __config__, ...rest } = entity;
   const newObj = Object.create(__config__);

@@ -219,7 +219,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   },
 };
 
-const BASE_WIDGET: DataTreeWidget = {
+const BASE_WIDGET = ({
   logBlackList: {},
   widgetId: "randomID",
   widgetName: "randomWidgetName",
@@ -234,16 +234,9 @@ const BASE_WIDGET: DataTreeWidget = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  bindingPaths: {},
-  reactivePaths: {},
-  triggerPaths: {},
-  validationPaths: {},
   ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-  propertyOverrideDependency: {},
-  overridingPropertyPaths: {},
-  privateWidgets: {},
   meta: {},
-};
+} as unknown) as DataTreeWidget;
 
 export const BASE_ACTION: DataTreeAction = {
   clear: {},
@@ -326,7 +319,7 @@ const dependencyMap = {
   "Text4.value": [],
 };
 
-describe.skip("DataTreeEvaluator", () => {
+describe("DataTreeEvaluator", () => {
   metaMock.mockImplementation((type) => {
     return WIDGET_CONFIG_MAP[type].metaProperties;
   });
@@ -449,6 +442,7 @@ describe.skip("DataTreeEvaluator", () => {
       evalOrder,
       nonDynamicFieldValidationOrder,
     } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
+
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Text2.text", "Hey there");
@@ -502,7 +496,7 @@ describe.skip("DataTreeEvaluator", () => {
       isVisible: EvaluationSubstitutionType.TEMPLATE,
       isDisabled: EvaluationSubstitutionType.TEMPLATE,
     };
-    const updatedUnEvalTree = {
+    const updatedUnEvalTree = ({
       ...unEvalTree,
       Dropdown2: {
         ...BASE_WIDGET,
@@ -525,19 +519,21 @@ describe.skip("DataTreeEvaluator", () => {
           selectedOptionValue: EvaluationSubstitutionType.TEMPLATE,
           selectedOptionLabel: EvaluationSubstitutionType.TEMPLATE,
         },
+        propertyOverrideDependency: {},
+        validationPaths: {},
       },
-    };
+    } as unknown) as UnEvalTree;
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(updatedUnEvalTree);
+    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
   });
 
   it("Adds an entity with a complicated binding", () => {
-    const updatedUnEvalTree = {
+    const updatedUnEvalTree = ({
       ...unEvalTree,
       Api1: {
         ...BASE_ACTION,
@@ -551,11 +547,11 @@ describe.skip("DataTreeEvaluator", () => {
           },
         ],
       },
-    };
+    } as unknown) as UnEvalTree;
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(updatedUnEvalTree);
+    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
@@ -628,12 +624,16 @@ describe.skip("DataTreeEvaluator", () => {
     });
   });
 
-  it("Honors predefined action dependencyMap", () => {
+  it.skip("Honors predefined action dependencyMap", () => {
     const updatedTree1 = {
       ...unEvalTree,
       Text1: {
         ...BASE_WIDGET,
         text: "Test",
+        reactivePaths: {},
+        triggerPaths: {},
+        propertyOverrideDependency: {},
+        validationPaths: {},
       },
       Api2: {
         ...BASE_ACTION,
@@ -658,7 +658,9 @@ describe.skip("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
-    } = evaluator.setupUpdateTree(updatedTree1);
+    } = evaluator.setupUpdateTree(
+      createUnEvalTree((updatedTree1 as unknown) as UnEvalTree),
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder2,
@@ -679,13 +681,16 @@ describe.skip("DataTreeEvaluator", () => {
           ...updatedTree1.Api2.config,
           body: "{ 'name': {{ Text1.text }} }",
         },
+        reactivePaths: {},
       },
     };
 
     const {
       evalOrder: newEvalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(updatedTree2);
+    } = evaluator.setupUpdateTree(
+      createUnEvalTree((updatedTree2 as unknown) as UnEvalTree),
+    );
     evaluator.evalAndValidateSubTree(
       newEvalOrder,
       nonDynamicFieldValidationOrder,
@@ -718,7 +723,9 @@ describe.skip("DataTreeEvaluator", () => {
     const {
       evalOrder: newEvalOrder2,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
-    } = evaluator.setupUpdateTree(updatedTree3);
+    } = evaluator.setupUpdateTree(
+      createUnEvalTree((updatedTree3 as unknown) as UnEvalTree),
+    );
     evaluator.evalAndValidateSubTree(
       newEvalOrder2,
       nonDynamicFieldValidationOrder3,

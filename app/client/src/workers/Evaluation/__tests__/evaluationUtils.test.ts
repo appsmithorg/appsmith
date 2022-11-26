@@ -31,6 +31,7 @@ import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
+import { WidgetConfiguration } from "widgets/constants";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -573,8 +574,10 @@ describe("4. translateDiffEvent", () => {
 describe("5. overrideWidgetProperties", () => {
   beforeAll(() => {
     registerWidget(TableWidget, TableWidgetConfig);
-    // @ts-expect-error: InputWidgetV2Config type
-    registerWidget(InputWidget, InputWidgetV2Config);
+    registerWidget(
+      InputWidget,
+      (InputWidgetV2Config as unknown) as WidgetConfiguration,
+    );
   });
 
   describe("1. Input widget ", () => {
