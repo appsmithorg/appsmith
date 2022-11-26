@@ -298,6 +298,14 @@ export function* updateWidgetAutoHeightSaga() {
             // Add extra rows, this is to accommodate for padding and margins in the parent
             minCanvasHeightInRows += GridDefaults.CANVAS_EXTENSION_OFFSET;
 
+            // For widgets like Tabs Widget, some of the height is occupied by the
+            // tabs themselves, the child canvas as a result has less number of rows available
+            // To accommodate for this, we need to increase the new height by the offset amount.
+            const canvasHeightOffset: number = getCanvasHeightOffset(
+              parentContainerLikeWidget.type,
+              parentContainerLikeWidget,
+            );
+
             // Widgets need to consider changing heights, only if they have dynamic height
             // enabled.
             if (isAutoHeightEnabledForWidget(parentContainerLikeWidget)) {
@@ -333,13 +341,6 @@ export function* updateWidgetAutoHeightSaga() {
                 },
               ];
 
-              // For widgets like Tabs Widget, some of the height is occupied by the
-              // tabs themselves, the child canvas as a result has less number of rows available
-              // To accommodate for this, we need to increase the new height by the offset amount.
-              const canvasHeightOffset: number = getCanvasHeightOffset(
-                parentContainerLikeWidget.type,
-                parentContainerLikeWidget,
-              );
               minHeightInRows += canvasHeightOffset;
 
               // Make sure we're not overflowing the max height bounds
@@ -438,14 +439,22 @@ export function* updateWidgetAutoHeightSaga() {
                 }
               }
             } else {
-              const parentContinerHeightInRows = getParentCurrentHeightInRows(
+              let parentContainerHeightInRows = getParentCurrentHeightInRows(
                 dynamicHeightLayoutTree,
                 parentContainerLikeWidget.widgetId,
                 changesSoFar,
               );
+
+              parentContainerHeightInRows -= canvasHeightOffset;
+
+              console.log("Dynamic Height: Container Updates:", {
+                minCanvasHeightInRows,
+                parentContainerHeightInRows,
+              });
+
               // Setting this in a variable, as this will be the total scroll height in the canvas.
               const minCanvasHeightInPixels =
-                Math.max(minCanvasHeightInRows, parentContinerHeightInRows) *
+                Math.max(minCanvasHeightInRows, parentContainerHeightInRows) *
                 GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
               // We need to make sure that the canvas widget doesn't have

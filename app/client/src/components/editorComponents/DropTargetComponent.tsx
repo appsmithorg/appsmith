@@ -70,8 +70,11 @@ export const DropTargetContext: Context<{
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   const isPreviewMode = useSelector(previewModeSelector);
-  const canDropTargetExtend = props.canExtend && !isPreviewMode;
-  const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+  const canDropTargetExtend = props.canExtend;
+  const snapRows = getCanvasSnapRows(
+    props.bottomRow,
+    props.canExtend && !isPreviewMode,
+  );
 
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -112,7 +115,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     isAutoHeightWithLimitsChanging;
 
   useEffect(() => {
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const snapRows = getCanvasSnapRows(
+      props.bottomRow,
+      props.canExtend && !isPreviewMode,
+    );
     if (rowRef.current !== snapRows) {
       rowRef.current = snapRows;
       updateHeight();
@@ -177,9 +183,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     e.preventDefault();
   };
 
-  const height = canDropTargetExtend
+  let height = canDropTargetExtend
     ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
     : "100%";
+  if (props.minHeight === rowRef.current * props.snapRowSpace && isPreviewMode)
+    height = `${props.minHeight - GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
+
   const boxShadow =
     (isResizing || isDragging || isAutoHeightWithLimitsChanging) &&
     props.widgetId === MAIN_CONTAINER_WIDGET_ID
