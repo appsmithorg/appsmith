@@ -41,7 +41,7 @@ import { AppState } from "@appsmith/reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import TernServer from "utils/autocomplete/TernServer";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
@@ -381,7 +381,7 @@ export function* updateTernDefinitions(
       treeWithoutPrivateWidgets,
       !!featureFlags.JS_EDITOR,
     );
-    TernServer.updateDef("DATA_TREE", def, entityInfo);
+    CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();
     log.debug("Tern", { updates });
     log.debug("Tern definitions updated took ", (end - start).toFixed(2));

@@ -5,7 +5,7 @@ import { isArray, compact, isNumber } from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   ValidationResponse,
