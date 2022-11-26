@@ -447,11 +447,6 @@ export function* updateWidgetAutoHeightSaga() {
 
               parentContainerHeightInRows -= canvasHeightOffset;
 
-              console.log("Dynamic Height: Container Updates:", {
-                minCanvasHeightInRows,
-                parentContainerHeightInRows,
-              });
-
               // Setting this in a variable, as this will be the total scroll height in the canvas.
               const minCanvasHeightInPixels =
                 Math.max(minCanvasHeightInRows, parentContainerHeightInRows) *

@@ -136,13 +136,15 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {
-      dispatch({
-        type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
-        payload: {
-          widgetId: props.widgetId,
-          height: 0,
-        },
-      });
+      if (widgetProps.bottomRow !== widgetProps.topRow) {
+        dispatch({
+          type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
+          payload: {
+            widgetId: props.widgetId,
+            height: 0,
+          },
+        });
+      }
       return null;
     } else if (
       shouldResetCollapsedContainerHeightInViewOrPreviewMode ||

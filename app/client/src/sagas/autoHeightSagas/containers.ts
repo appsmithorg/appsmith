@@ -28,7 +28,7 @@ export function* dynamicallyUpdateContainersSaga() {
     const isCanvasWidget = widget.type === "CANVAS_WIDGET";
     const parent = widget.parentId ? stateWidgets[widget.parentId] : undefined;
     if (parent?.type === "LIST_WIDGET") return false;
-    if (!parent) return false;
+    if (parent === undefined) return false;
     return isCanvasWidget;
   });
 
