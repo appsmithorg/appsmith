@@ -27,7 +27,7 @@ describe("reflow", () => {
           bottomRow: box2BottomRow,
           originalTopRow: box2TopRow,
           originalBottomRow: box2BottomRow,
-          distanceToNearestAbove: 0,
+          distanceToNearestAbove: 10,
         },
       };
 
@@ -81,7 +81,7 @@ describe("reflow", () => {
           bottomRow: box2BottomRow,
           originalTopRow: box2OriginalTopRow,
           originalBottomRow: box2OriginalBottomRow,
-          distanceToNearestAbove: 0,
+          distanceToNearestAbove: 10,
         },
       };
 
@@ -135,7 +135,7 @@ describe("reflow", () => {
           bottomRow: box2BottomRow,
           originalTopRow: box2OriginalTopRow,
           originalBottomRow: box2OriginalBottomRow,
-          distanceToNearestAbove: 0,
+          distanceToNearestAbove: 40,
         },
       };
 
@@ -199,7 +199,7 @@ describe("reflow", () => {
           bottomRow: box2BottomRow,
           originalTopRow: box2OriginalTopRow,
           originalBottomRow: box2OriginalBottomRow,
-          distanceToNearestAbove: 0,
+          distanceToNearestAbove: 20,
         },
         "3": box3,
       };
@@ -217,8 +217,8 @@ describe("reflow", () => {
           bottomRow: box1BottomRow + box1DeltaHeight,
         },
         "2": {
-          topRow: 130,
-          bottomRow: 170,
+          topRow: 140,
+          bottomRow: 180,
         },
       };
 
