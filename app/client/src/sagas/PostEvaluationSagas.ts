@@ -340,27 +340,20 @@ export function* updateTernDefinitions(
   updates: DataTreeDiff[],
   isCreateFirstTree: boolean,
 ) {
-  let shouldUpdate: boolean = some(updates, (update) => {
-    if (
-      update.event === DataTreeDiffEvent.NEW ||
-      update.event === DataTreeDiffEvent.DELETE
-    ) {
-      return true;
-    }
-
-    if (update.event === DataTreeDiffEvent.NOOP) {
+  const shouldUpdate: boolean =
+    isCreateFirstTree ||
+    some(updates, (update) => {
+      if (update.event === DataTreeDiffEvent.NEW) return true;
+      if (update.event === DataTreeDiffEvent.DELETE) return true;
+      if (update.event === DataTreeDiffEvent.EDIT) return false;
       const { entityName } = getEntityNameAndPropertyPath(
         update.payload.propertyPath,
       );
       const entity = dataTree[entityName];
-      if (entity && isWidget(entity)) {
-        // if widget property name is modified then update tern def
-        return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
-      }
-    }
-    return false;
-  });
-  shouldUpdate = shouldUpdate || isCreateFirstTree;
+      if (!entity || !isWidget(entity)) return false;
+      return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
+    });
+
   if (!shouldUpdate) return;
   const start = performance.now();
   // remove private widgets from dataTree used for autocompletion
