@@ -385,6 +385,7 @@ class CodeEditor extends Component<Props, State> {
       }
       return nextState.isFocused || !!nextProps.isJSObject || !areErrorsEqual;
     }
+
     return true;
   }
 
@@ -413,6 +414,9 @@ class CodeEditor extends Component<Props, State> {
       }, 200);
     }
     this.editor.operation(() => {
+      if (prevProps.lintErrors !== this.props.lintErrors)
+        this.lintCode(this.editor);
+
       if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
@@ -906,6 +910,7 @@ class CodeEditor extends Component<Props, State> {
     const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
       dataTreePath,
     );
+
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
       evaluated = evaluatedValue;
@@ -921,9 +926,6 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
-    /*  Evaluation results for snippet snippets */
-    this.lintCode(this.editor);
-
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
@@ -1046,9 +1048,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  lintErrors: props.dataTreePath
-    ? getEntityLintErrors(state, props.dataTreePath)
-    : [],
+  lintErrors: getEntityLintErrors(state, props.dataTreePath),
   editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
