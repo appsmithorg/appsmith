@@ -340,33 +340,26 @@ export function* updateTernDefinitions(
   updates: DataTreeDiff[],
   isCreateFirstTree: boolean,
 ) {
-  let shouldUpdate: boolean;
-  if (updates.length === 0) {
-    // update length is 0 means no significant updates
-    shouldUpdate = false;
-  } else {
-    // Only when new field is added or deleted, we want to re-create the def
-    shouldUpdate = some(updates, (update) => {
-      if (
-        update.event === DataTreeDiffEvent.NEW ||
-        update.event === DataTreeDiffEvent.DELETE
-      ) {
-        return true;
-      }
+  let shouldUpdate: boolean = some(updates, (update) => {
+    if (
+      update.event === DataTreeDiffEvent.NEW ||
+      update.event === DataTreeDiffEvent.DELETE
+    ) {
+      return true;
+    }
 
-      if (update.event === DataTreeDiffEvent.NOOP) {
-        const { entityName } = getEntityNameAndPropertyPath(
-          update.payload.propertyPath,
-        );
-        const entity = dataTree[entityName];
-        if (entity && isWidget(entity)) {
-          // if widget property name is modified then update tern def
-          return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
-        }
+    if (update.event === DataTreeDiffEvent.NOOP) {
+      const { entityName } = getEntityNameAndPropertyPath(
+        update.payload.propertyPath,
+      );
+      const entity = dataTree[entityName];
+      if (entity && isWidget(entity)) {
+        // if widget property name is modified then update tern def
+        return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
       }
-      return false;
-    });
-  }
+    }
+    return false;
+  });
   shouldUpdate = shouldUpdate || isCreateFirstTree;
   if (!shouldUpdate) return;
   const start = performance.now();
