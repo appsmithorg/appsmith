@@ -223,7 +223,7 @@ function eventRequestHandler({
       let evalOrder: string[] = [];
       let lintOrder: string[] = [];
       let jsUpdates: Record<string, JSUpdate> = {};
-      let unEvalUpdates: DataTreeDiff[] | null = null;
+      let unEvalUpdates: DataTreeDiff[] = [];
       let nonDynamicFieldValidationOrder: string[] = [];
       let isCreateFirstTree = false;
       let dataTree: DataTree = {};
