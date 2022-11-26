@@ -1,9 +1,3 @@
-import "acorn";
-import "tern/lib/signal";
-import "tern/lib/def";
-import "tern/lib/comment";
-import "tern/lib/infer";
-import "tern/lib/tern";
 import tern, { Server, Def } from "tern";
 
 let server: Server;
