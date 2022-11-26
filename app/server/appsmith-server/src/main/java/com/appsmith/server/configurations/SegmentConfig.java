@@ -59,7 +59,6 @@ public class SegmentConfig {
             final Throwable error = logData.getError();
             // TODO remove this log statement once the issue with analytics is resolved
             log.error(" UserId is null or empty inside error. Message from log data {}, stack trace {}, message from error {}, args {}", logData.getMessage(), error == null ? "null" : ExceptionUtils.getStackTrace(error), error == null ? "" : error.getMessage(), ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()));
-            // TODO set the userId before calling the segment build function
             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error").userId("segmentError")
                     .properties(Map.of(
                             "message", logData.getMessage(),

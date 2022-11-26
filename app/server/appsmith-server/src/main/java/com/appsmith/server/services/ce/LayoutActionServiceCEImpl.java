@@ -597,7 +597,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             "appId", t2.getApplicationId(),
                             "pageId", pageId,
                             "layoutId", layoutId,
-                            "dsl", dsl.toJSONString(),
                             "isSuccessfulExecution", isSuccess,
                             "error", error == null ? "" : error.getMessage()
                     );
