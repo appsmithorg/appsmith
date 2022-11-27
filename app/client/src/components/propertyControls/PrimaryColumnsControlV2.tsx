@@ -25,11 +25,7 @@ import {
   getDataTreeForAutocomplete,
   getPathEvalErrors,
 } from "selectors/dataTreeSelectors";
-import {
-  EvaluationError,
-  getEvalValuePath,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import { EvaluationError, isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox, CheckboxType } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -488,7 +484,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
       };
     }
 
-    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+    const pathEvaluatedValue = _.get(dataTree, dataTreePath);
 
     return {
       isInvalid: errors.length > 0,

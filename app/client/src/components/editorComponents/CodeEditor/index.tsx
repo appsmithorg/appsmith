@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _, { isEqual } from "lodash";
+import _, { isEqual, get } from "lodash";
 
 import {
   DataTree,
@@ -61,11 +61,7 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import {
-  EvaluationError,
-  getEvalErrorPath,
-  getEvalValuePath,
-} from "utils/DynamicBindingUtils";
+import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import {
   getInputValue,
   isActionEntity,
@@ -874,10 +870,7 @@ class CodeEditor extends Component<Props, State> {
 
     const evalErrors = this.getErrors(this.props.dynamicData, dataTreePath);
 
-    const pathEvaluatedValue = _.get(
-      this.props.dynamicData,
-      getEvalValuePath(dataTreePath),
-    );
+    const pathEvaluatedValue = get(this.props.dynamicData, dataTreePath);
 
     return {
       evalErrors,

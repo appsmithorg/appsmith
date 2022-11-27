@@ -22,11 +22,7 @@ import {
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
-import {
-  EvaluationError,
-  getEvalErrorPath,
-  getEvalValuePath,
-} from "utils/DynamicBindingUtils";
+import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
@@ -366,7 +362,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
       [],
     ) as EvaluationError[];
 
-    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+    const pathEvaluatedValue = _.get(dataTree, dataTreePath);
 
     return {
       isInvalid: errors.length > 0,

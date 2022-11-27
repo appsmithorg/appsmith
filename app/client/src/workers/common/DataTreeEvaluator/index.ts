@@ -6,7 +6,7 @@ import {
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEvalErrorPath,
-  getEvalValuePath,
+  // getEvalValuePath,
   isChildPropertyPath,
   isPathADynamicBinding,
   isPathADynamicTrigger,
@@ -34,7 +34,7 @@ import {
   isDynamicLeaf,
   isJSAction,
   isWidget,
-  removeFunctions,
+  // removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   overrideWidgetProperties,
@@ -761,37 +761,18 @@ export default class DataTreeEvaluator {
                 );
               }
             }
-            const safeEvaluatedValue = removeFunctions(evalPropertyValue);
-            set(
-              currentTree,
-              getEvalValuePath(fullPropertyPath),
-              safeEvaluatedValue,
-            );
+            // const safeEvaluatedValue = removeFunctions(evalPropertyValue);
+            // set(
+            //   currentTree,
+            //   getEvalValuePath(fullPropertyPath),
+            //   safeEvaluatedValue,
+            // );
             set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
-              const currentEvaluatedValue = get(
-                currentTree,
-                getEvalValuePath(fullPropertyPath, {
-                  isPopulated: true,
-                  fullPath: true,
-                }),
-              );
-              if (!currentEvaluatedValue) {
-                set(
-                  currentTree,
-                  getEvalValuePath(fullPropertyPath, {
-                    isPopulated: true,
-                    fullPath: true,
-                  }),
-                  evalPropertyValue,
-                );
-                set(currentTree, fullPropertyPath, evalPropertyValue);
-              } else {
-                set(currentTree, fullPropertyPath, currentEvaluatedValue);
-              }
+              set(currentTree, fullPropertyPath, evalPropertyValue);
             }
             return currentTree;
           } else {

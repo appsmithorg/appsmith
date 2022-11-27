@@ -48,7 +48,7 @@ describe(".onGenerateFormClick", () => {
 
     set(
       widgetProperties,
-      `${EVALUATION_PATH}.evaluatedValues.sourceData`,
+      "sourceData",
       schemaTestData.initialDataset.dataSource,
     );
 
@@ -91,7 +91,7 @@ describe(".onGenerateFormClick", () => {
 
     set(
       widgetProperties,
-      `${EVALUATION_PATH}.evaluatedValues.sourceData`,
+      "sourceData",
       schemaTestData.initialDataset.dataSource,
     );
 
@@ -136,7 +136,7 @@ describe(".onGenerateFormClick", () => {
 
     set(
       widgetProperties,
-      `${EVALUATION_PATH}.evaluatedValues.sourceData`,
+      "sourceData",
       schemaTestData.withRemovedAddedKeyToInitialDataset.dataSource,
     );
 

@@ -349,7 +349,6 @@ export const isChildPropertyPath = (
  **/
 export const EVALUATION_PATH = "__evaluation__";
 export const EVAL_ERROR_PATH = `${EVALUATION_PATH}.errors`;
-export const EVAL_VALUE_PATH = `${EVALUATION_PATH}.evaluatedValues`;
 
 /**
  * non-populated object 
@@ -410,21 +409,6 @@ export const getEvalErrorPath = (
   );
 };
 
-export const getEvalValuePath = (
-  fullPropertyPath: string,
-  options = {
-    fullPath: true,
-    isPopulated: false,
-  },
-) => {
-  return getNestedEvalPath(
-    fullPropertyPath,
-    EVAL_VALUE_PATH,
-    options.fullPath,
-    options.isPopulated,
-  );
-};
-
 export enum PropertyEvaluationErrorType {
   VALIDATION = "VALIDATION",
   PARSE = "PARSE",
@@ -457,7 +441,6 @@ export interface LintError extends DataTreeError {
 export interface DataTreeEvaluationProps {
   __evaluation__?: {
     errors: Record<string, EvaluationError[]>;
-    evaluatedValues?: Record<string, unknown>;
   };
 }
 

@@ -2,10 +2,8 @@ import { Action, PluginType } from "entities/Action";
 import equal from "fast-deep-equal/es6";
 import { getPropertyPath } from "./DynamicBindingUtils";
 import {
-  EVAL_VALUE_PATH,
   getDynamicBindingsChangesSaga,
   getDynamicStringSegments,
-  getEvalValuePath,
   isChildPropertyPath,
 } from "./DynamicBindingUtils";
 
@@ -175,25 +173,25 @@ describe("getPropertyPath function", () => {
   });
 });
 
-describe("getNestedEvalPath", () => {
-  it("returns valid nested path", () => {
-    const actualUnpopulatedNestedPath = getEvalValuePath(
-      "Table1.primaryColumns.state",
-      {
-        isPopulated: false,
-        fullPath: true,
-      },
-    );
-    const actualPopulatedNestedPath = getEvalValuePath(
-      "Table1.primaryColumns.state",
-      {
-        isPopulated: true,
-        fullPath: true,
-      },
-    );
-    const expectedUnpopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.['primaryColumns.state']`;
-    const expectedPopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.primaryColumns.state`;
-    expect(actualPopulatedNestedPath).toEqual(expectedPopulatedNestedPath);
-    expect(actualUnpopulatedNestedPath).toEqual(expectedUnpopulatedNestedPath);
-  });
-});
+// describe("getNestedEvalPath", () => {
+//   it("returns valid nested path", () => {
+//     const actualUnpopulatedNestedPath = getEvalValuePath(
+//       "Table1.primaryColumns.state",
+//       {
+//         isPopulated: false,
+//         fullPath: true,
+//       },
+//     );
+//     const actualPopulatedNestedPath = getEvalValuePath(
+//       "Table1.primaryColumns.state",
+//       {
+//         isPopulated: true,
+//         fullPath: true,
+//       },
+//     );
+//     const expectedUnpopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.['primaryColumns.state']`;
+//     const expectedPopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.primaryColumns.state`;
+//     expect(actualPopulatedNestedPath).toEqual(expectedPopulatedNestedPath);
+//     expect(actualUnpopulatedNestedPath).toEqual(expectedUnpopulatedNestedPath);
+//   });
+// });

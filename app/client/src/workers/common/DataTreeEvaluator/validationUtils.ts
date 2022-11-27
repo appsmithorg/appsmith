@@ -1,11 +1,10 @@
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { get, isUndefined, set } from "lodash";
+import { get, set } from "lodash";
 import {
   EvaluationError,
   getEvalErrorPath,
-  getEvalValuePath,
   isPathADynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
@@ -13,7 +12,7 @@ import {
   addErrorToEntityProperty,
   getEntityNameAndPropertyPath,
   isWidget,
-  removeFunctions,
+  // removeFunctions,
   resetValidationErrorsForEntityProperty,
 } from "workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
@@ -38,20 +37,20 @@ export function validateAndParseWidgetProperty({
   }
   const validation = widget.validationPaths[propertyPath];
 
-  const { isValid, messages, parsed, transformed } = validateWidgetProperty(
+  const { isValid, messages, parsed } = validateWidgetProperty(
     validation,
     evalPropertyValue,
     widget,
     propertyPath,
   );
 
-  let evaluatedValue;
+  // let evaluatedValue;
   if (isValid) {
-    evaluatedValue = parsed;
+    // evaluatedValue = parsed;
     // remove validation errors is already present
     resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
   } else {
-    evaluatedValue = isUndefined(transformed) ? evalPropertyValue : transformed;
+    // evaluatedValue = isUndefined(transformed) ? evalPropertyValue : transformed;
 
     const evalErrors: EvaluationError[] =
       messages?.map((message) => {
@@ -66,15 +65,7 @@ export function validateAndParseWidgetProperty({
     addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
   }
   // set evaluated value
-  const safeEvaluatedValue = removeFunctions(evaluatedValue);
-  set(
-    widget,
-    getEvalValuePath(fullPropertyPath, {
-      isPopulated: false,
-      fullPath: false,
-    }),
-    safeEvaluatedValue,
-  );
+  // const safeEvaluatedValue = removeFunctions(evaluatedValue);
 
   return parsed;
 }
@@ -122,23 +113,16 @@ export function getValidatedTree(tree: DataTree) {
           isValid,
           messages,
           parsed,
-          transformed,
+          // transformed,
         } = validateWidgetProperty(validation, value, parsedEntity, property);
         set(parsedEntity, property, parsed);
-        const evaluatedValue = isValid
-          ? parsed
-          : isUndefined(transformed)
-          ? value
-          : transformed;
-        const safeEvaluatedValue = removeFunctions(evaluatedValue);
-        set(
-          parsedEntity,
-          getEvalValuePath(`${entityKey}.${property}`, {
-            isPopulated: false,
-            fullPath: false,
-          }),
-          safeEvaluatedValue,
-        );
+        // const evaluatedValue = isValid
+        //   ? parsed
+        //   : isUndefined(transformed)
+        //   ? value
+        //   : transformed;
+        // const safeEvaluatedValue = removeFunctions(evaluatedValue);
+        // set(parsedEntity, `${entityKey}.${property}`, safeEvaluatedValue);
         if (!isValid) {
           const evalErrors: EvaluationError[] =
             messages?.map((message) => ({

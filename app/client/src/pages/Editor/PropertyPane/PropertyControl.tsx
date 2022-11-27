@@ -27,7 +27,6 @@ import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   DynamicPath,
-  getEvalValuePath,
   isDynamicValue,
   isPathADynamicProperty,
   isPathADynamicTrigger,
@@ -496,13 +495,7 @@ const PropertyControl = memo((props: Props) => {
       ) as string;
     }
 
-    const evaluatedValue = _.get(
-      widgetProperties,
-      getEvalValuePath(dataTreePath, {
-        isPopulated: true,
-        fullPath: false,
-      }),
-    );
+    const evaluatedValue = _.get(widgetProperties, dataTreePath);
 
     const { additionalAutoComplete, ...rest } = props;
     const config: ControlData = {

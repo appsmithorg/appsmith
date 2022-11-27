@@ -65,8 +65,9 @@ export const onGenerateFormClick = ({
 
   if (widgetProperties.autoGenerateForm) return;
 
-  const currSourceData = widgetProperties[EVALUATION_PATH]?.evaluatedValues
-    ?.sourceData as Record<string, any> | Record<string, any>[];
+  const currSourceData = widgetProperties?.sourceData as
+    | Record<string, any>
+    | Record<string, any>[];
 
   const prevSourceData = widgetProperties.schema?.__root_schema__?.sourceData;
 
