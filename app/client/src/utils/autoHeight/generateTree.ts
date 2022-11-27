@@ -91,6 +91,9 @@ export function generateTree(
   }
 
   for (const boxId in tree) {
+    // For each box, get the nearest above node
+    // Then get the distance between this node and the nearest above
+    // We'll try to maintain this distance when reflowing due to auto height
     const nearestAbove = getNearestAbove(tree, boxId, {});
     if (nearestAbove.length > 0) {
       tree[boxId].distanceToNearestAbove =
