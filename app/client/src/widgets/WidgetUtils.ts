@@ -772,7 +772,8 @@ export function getWidgetMaxAutoHeight(props: WidgetProps) {
  * @returns: The min possible height of the widget (in rows)
  */
 export function getWidgetMinAutoHeight(props: WidgetProps) {
-  return props.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+  if (props.dynamicHeight !== DynamicHeight.FIXED)
+    return props.minDynamicHeight || WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
 }
 
 /**

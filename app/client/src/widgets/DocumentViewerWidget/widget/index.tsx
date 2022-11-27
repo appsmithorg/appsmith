@@ -5,7 +5,7 @@ import {
   ValidationTypes,
   ValidationResponse,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
