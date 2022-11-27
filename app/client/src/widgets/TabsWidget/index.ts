@@ -25,7 +25,7 @@ export const CONFIG = {
     },
   },
   defaults: {
-    rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
+    rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
     columns: 24,
     shouldScrollContents: false,
     widgetName: "Tabs",
@@ -33,6 +33,7 @@ export const CONFIG = {
     borderWidth: 1,
     borderColor: Colors.GREY_5,
     backgroundColor: Colors.WHITE,
+    minDynamicHeight: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
     tabsObj: {
       tab1: {
         label: "Tab 1",
@@ -66,6 +67,7 @@ export const CONFIG = {
             tabName: "Tab 1",
             children: [],
             version: 1,
+            bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
           },
         },
         {
@@ -81,6 +83,7 @@ export const CONFIG = {
             tabName: "Tab 2",
             children: [],
             version: 1,
+            bottomRow: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
           },
         },
       ],
