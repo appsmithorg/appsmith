@@ -9,12 +9,15 @@ import {
 import WidgetFactory from "utils/WidgetFactory";
 import {
   ENTITY_TYPE,
-  OverridingPropertyPaths,
-  OverridingPropertyType,
-  PropertyOverrideDependency,
   WidgetEntityConfig,
   UnEvalTreeWidget,
 } from "./dataTreeFactory";
+import {
+  OverridingPropertyPaths,
+  OverridingPropertyType,
+  PropertyOverrideDependency,
+} from "./types";
+
 import { setOverridingProperty } from "./utils";
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.

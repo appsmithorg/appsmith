@@ -108,7 +108,6 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { isWidget } from "workers/Evaluation/evaluationUtils";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(

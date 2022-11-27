@@ -13,7 +13,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import { createUnEvalTree } from "../evaluationUtils";
+import { createUnEvalTreeForEval } from "../evaluationUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -419,7 +419,7 @@ describe("DataTreeEvaluator", () => {
     ),
   };
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
-  evaluator.setupFirstTree(createUnEvalTree(unEvalTree));
+  evaluator.setupFirstTree(createUnEvalTreeForEval(unEvalTree));
   evaluator.evalAndValidateFirstTree();
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
@@ -441,7 +441,7 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
+    } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
 
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
@@ -460,7 +460,7 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
+    } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
 
     const dataTree = evaluator.evalTree;
@@ -482,7 +482,7 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
+    } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Input1.text", "Default value");
@@ -526,7 +526,7 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
+    } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
     expect(dataTree).toHaveProperty("Dropdown2.options.0.label", "newValue");
@@ -551,7 +551,7 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
+    } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
@@ -601,7 +601,7 @@ describe("DataTreeEvaluator", () => {
     const {
       evalOrder,
       nonDynamicFieldValidationOrder,
-    } = evaluator.setupUpdateTree(createUnEvalTree(updatedUnEvalTree));
+    } = evaluator.setupUpdateTree(createUnEvalTreeForEval(updatedUnEvalTree));
     evaluator.evalAndValidateSubTree(evalOrder, nonDynamicFieldValidationOrder);
     const dataTree = evaluator.evalTree;
     const updatedDependencyMap = evaluator.dependencyMap;
@@ -655,7 +655,7 @@ describe("DataTreeEvaluator", () => {
       evalOrder,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
     } = evaluator.setupUpdateTree(
-      createUnEvalTree((updatedTree1 as unknown) as UnEvalTree),
+      createUnEvalTreeForEval((updatedTree1 as unknown) as UnEvalTree),
     );
     evaluator.evalAndValidateSubTree(
       evalOrder,
@@ -684,7 +684,7 @@ describe("DataTreeEvaluator", () => {
       evalOrder: newEvalOrder,
       nonDynamicFieldValidationOrder,
     } = evaluator.setupUpdateTree(
-      createUnEvalTree((updatedTree2 as unknown) as UnEvalTree),
+      createUnEvalTreeForEval((updatedTree2 as unknown) as UnEvalTree),
     );
     evaluator.evalAndValidateSubTree(
       newEvalOrder,
@@ -719,7 +719,7 @@ describe("DataTreeEvaluator", () => {
       evalOrder: newEvalOrder2,
       nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
     } = evaluator.setupUpdateTree(
-      createUnEvalTree((updatedTree3 as unknown) as UnEvalTree),
+      createUnEvalTreeForEval((updatedTree3 as unknown) as UnEvalTree),
     );
     evaluator.evalAndValidateSubTree(
       newEvalOrder2,

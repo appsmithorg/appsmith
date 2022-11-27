@@ -20,8 +20,8 @@ import {
   DataTreeJSAction,
   DataTreeWidget,
   EvaluationSubstitutionType,
-  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/types";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,

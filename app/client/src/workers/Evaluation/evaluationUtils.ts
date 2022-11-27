@@ -16,10 +16,10 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   DataTreeJSAction,
-  PrivateWidgets,
   UnEvalTree,
   UnEvalTreeEntityObject,
 } from "entities/DataTree/dataTreeFactory";
+
 import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
@@ -29,6 +29,7 @@ import { EvalMetaUpdates } from "../common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+import { PrivateWidgets } from "entities/DataTree/types";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options

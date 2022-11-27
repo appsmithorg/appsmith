@@ -1,11 +1,12 @@
 import {
   ENTITY_TYPE,
-  MetaArgs,
   UnEvalTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
+
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "utils/DynamicBindingUtils";
+import { MetaArgs } from "./types";
 
 const reg = /this\./g;
 

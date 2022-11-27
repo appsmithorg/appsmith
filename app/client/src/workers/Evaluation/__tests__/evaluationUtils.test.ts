@@ -6,10 +6,10 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-  PrivateWidgets,
   UnEvalTree,
   UnEvalTreeAction,
 } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/types";
 import {
   createDataTreeWithConfig,
   createNewEntity,
