@@ -502,6 +502,14 @@ export class AggregateHelper {
     }
   }
 
+  public ClearTextField(selector: string) {
+    this.GetElement(selector).clear();
+  }
+
+  public InvokeVal(selector: string) {
+    return cy.get(selector).invoke("val");
+  }
+
   public TypeText(selector: string, value: string, index = 0) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)

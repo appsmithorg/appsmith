@@ -178,6 +178,7 @@ function PageSettings(props: { page: Page }) {
         <TextInput
           defaultValue={pageName}
           fill
+          id="t--page-settings-name"
           onBlur={savePageName}
           onChange={setPageName}
           onKeyPress={(ev: React.KeyboardEvent) => {
@@ -226,6 +227,7 @@ function PageSettings(props: { page: Page }) {
         <TextInput
           defaultValue={customSlug}
           fill
+          id="t--page-settings-custom-slug"
           onBlur={saveCustomSlug}
           onChange={setCustomSlug}
           onKeyPress={(ev: React.KeyboardEvent) => {

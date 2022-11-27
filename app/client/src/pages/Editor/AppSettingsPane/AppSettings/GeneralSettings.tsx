@@ -92,6 +92,7 @@ function GeneralSettings() {
         <TextInput
           defaultValue={applicationName}
           fill
+          id="t--general-settings-app-name"
           // undefined sent implicitly - parameter "icon"
           onBlur={() => updateAppSettings()}
           onChange={(value: string) =>
@@ -117,7 +118,7 @@ function GeneralSettings() {
       </div>
 
       <Text type={TextType.P1}>{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
-      <IconSelectorWrapper className="pt-1">
+      <IconSelectorWrapper className="pt-1" id="t--general-settings-app-icon">
         <IconSelector
           className="icon-selector"
           fill
