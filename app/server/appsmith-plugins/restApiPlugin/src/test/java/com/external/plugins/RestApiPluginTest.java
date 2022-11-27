@@ -25,6 +25,7 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import net.minidev.json.JSONObject;
@@ -217,25 +218,27 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testHttpGetRequestRawBody() {
+    public void testHttpGetRequestRawBody1() {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
 
         Param param = new Param();
-        param.setKey("Text1.text");
-        param.setValue("hello world");
+        param.setKey("Input1.text");
+        param.setValue("123");
         param.setClientDataType(ClientDataType.STRING);
         param.setPseudoBindingName("k0");
 
         executeActionDTO.setParams(Collections.singletonList(param));
         executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
-        executeActionDTO.setParameterMap(Collections.singletonMap("Text1.text","k0"));
-        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Text1.text"));
+        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
+        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("");
+        datasourceConfiguration.setUrl("https://1306e7ae-332b-4e2e-a7c0-0fb7bef1a7c5.mock.pstmn.io");
 
-        final List<Property> headers = List.of(new Property("content-type",MediaType.TEXT_PLAIN_VALUE));
+        final List<Property> headers = List.of(
+                new Property("content-type",MediaType.TEXT_PLAIN_VALUE),
+                new Property("x-mock-match-request-body","true"));
 
         final List<Property> queryParameters = List.of();
 
@@ -243,9 +246,12 @@ public class RestApiPluginTest {
         actionConfiguration.setHeaders(headers);
         actionConfiguration.setQueryParameters(queryParameters);
         actionConfiguration.setHttpMethod(HttpMethod.GET);
+
+        actionConfiguration.setBody("abc is equals to {{Input1.text}}");
+
         actionConfiguration.setTimeoutInMillisecond("10000");
 
-        actionConfiguration.setPath("");
+        actionConfiguration.setPath("/test/v1");
 
         actionConfiguration.setPaginationType(PaginationType.URL);
 
@@ -262,8 +268,69 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(3,body.size());
-                    Object requestBody = result.getRequest().getBody();
+                    assertEquals(2,body.size());
+                    assertEquals("success",body.get("status").asText());
+                    assertEquals("raw path 1",body.get("path").asText());
+                    final ActionExecutionRequest request = result.getRequest();
+                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testHttpGetRequestRawBody2() {
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+
+        Param param = new Param();
+        param.setKey("Input1.text");
+        param.setValue("123");
+        param.setClientDataType(ClientDataType.STRING);
+        param.setPseudoBindingName("k0");
+
+        executeActionDTO.setParams(Collections.singletonList(param));
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
+        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
+        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("https://1306e7ae-332b-4e2e-a7c0-0fb7bef1a7c5.mock.pstmn.io");
+
+        final List<Property> headers = List.of(
+                new Property("content-type",MediaType.TEXT_PLAIN_VALUE),
+                new Property("x-mock-match-request-body","true"));
+
+        final List<Property> queryParameters = List.of();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHeaders(headers);
+        actionConfiguration.setQueryParameters(queryParameters);
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+
+        actionConfiguration.setBody("{ \"abc\": {{Input1.text}} }");
+
+        actionConfiguration.setTimeoutInMillisecond("10000");
+
+        actionConfiguration.setPath("/test/v1");
+
+        actionConfiguration.setPaginationType(PaginationType.URL);
+
+        actionConfiguration.setEncodeParamsToggle(true);
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode body = (JsonNode) result.getBody();
+                    assertEquals(2,body.size());
+                    assertEquals("success",body.get("status").asText());
+                    assertEquals("raw path 2",body.get("path").asText());
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals(HttpMethod.GET, request.getHttpMethod());
                 })
