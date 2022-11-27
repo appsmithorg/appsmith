@@ -125,10 +125,10 @@ export function PanelPropertiesEditor(
   );
 
   useEffect(() => {
-    if (panelProps.propPaneId !== widgetProperties.widgetId) {
+    if (panelProps.propPaneId !== widgetProperties?.widgetId) {
       props.closePanel();
     }
-  }, [widgetProperties.widgetId]);
+  }, [widgetProperties?.widgetId]);
 
   const { searchText, setSearchText } = useSearchText("");
 
