@@ -287,6 +287,8 @@ function PageSettings(props: { page: Page }) {
         <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SHOW_PAGE_NAV()}
+            lineHeight="1.17"
+            maxWidth="217px"
             tooltip={PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP()}
           />
         </div>
@@ -308,6 +310,8 @@ function PageSettings(props: { page: Page }) {
         <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
+            lineHeight="1.17"
+            maxWidth="217px"
             tooltip={
               !!isDefault
                 ? PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP()

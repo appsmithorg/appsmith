@@ -20,7 +20,6 @@ import { APP_MODE } from "entities/App";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
-import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
