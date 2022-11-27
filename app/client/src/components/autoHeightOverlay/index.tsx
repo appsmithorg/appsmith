@@ -27,6 +27,7 @@ import {
   AutoHeightOverlayUIStateReducer,
   createInitialAutoHeightUIState,
 } from "./store";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 interface StyledAutoHeightOverlayProps {
   layerIndex: number;
@@ -378,11 +379,13 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> = me
       selectedWidgets,
     } = useSelector((state: AppState) => state.ui.widgetDragResize);
 
+    const isPreviewMode = useSelector(previewModeSelector);
+
     const isWidgetSelected = selectedWidget === widgetId;
     const multipleWidgetsSelected = selectedWidgets.length > 1;
     const isHidden = multipleWidgetsSelected || isDragging || isResizing;
 
-    if (isWidgetSelected) {
+    if (isWidgetSelected && !isPreviewMode) {
       return <AutoHeightOverlay isHidden={isHidden} {...props} />;
     }
 
