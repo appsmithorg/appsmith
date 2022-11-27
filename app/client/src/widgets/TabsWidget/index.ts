@@ -1,4 +1,5 @@
 import { Colors } from "constants/Colors";
+import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
@@ -10,8 +11,21 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  // TODO(abhinav): Default config like these are not serializable
+  // So they will not work with Redux state and they might break
+  // evaluations. One way to handle these types of properties is to
+  // define them in a Map which the platform understands to have
+  // them stored only in the WidgetFactory.
+  canvasHeightOffset: (props: WidgetProps): number =>
+    props.shouldShowTabs === true ? 5 : 0,
+  features: {
+    dynamicHeight: {
+      sectionIndex: 1,
+      active: true,
+    },
+  },
   defaults: {
-    rows: 40,
+    rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS,
     columns: 24,
     shouldScrollContents: false,
     widgetName: "Tabs",

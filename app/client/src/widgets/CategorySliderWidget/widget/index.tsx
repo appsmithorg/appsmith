@@ -62,7 +62,7 @@ class CategorySliderWidget extends BaseWidget<
     }
   }
 
-  static getDefaultPropertiesMap(): Record<string, unknown> {
+  static getDefaultPropertiesMap(): Record<string, string> {
     return {
       value: "defaultOptionValue",
     };
@@ -140,6 +140,7 @@ class CategorySliderWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         marks={sliderOptions}

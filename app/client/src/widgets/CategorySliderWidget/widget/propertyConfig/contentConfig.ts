@@ -84,6 +84,7 @@ export default [
           { label: "Left", value: LabelPosition.Left },
           { label: "Top", value: LabelPosition.Top },
         ],
+        defaultValue: LabelPosition.Left,
         isBindProperty: false,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -134,6 +135,16 @@ export default [
   {
     sectionName: "General",
     children: [
+      {
+        helpText: "Show help text or details about current input",
+        propertyName: "labelTooltip",
+        label: "Tooltip",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Value must be atleast 6 chars",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
       {
         propertyName: "showMarksLabel",
         helpText: "Controls the visibility of the marks Label widget",

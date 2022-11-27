@@ -44,6 +44,7 @@ import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { getMainCanvasProps } from "selectors/editorSelectors";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -359,11 +360,14 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
+
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [addChildAction.payload.newWidgetId],
     });
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
+
     log.debug("add child computations took", performance.now() - start, "ms");
     // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
     // call execute
