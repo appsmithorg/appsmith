@@ -11,7 +11,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { PrivateWidgets } from "entities/DataTree/types";
 import {
-  createDataTreeWithConfig,
+  makeDataTreeEntityConfigAsProperty,
   createNewEntity,
   createUnEvalTreeForEval,
   DataTreeDiff,
@@ -1209,11 +1209,11 @@ describe("7. Test util methods", () => {
     expect(widgetForEval).not.toHaveProperty("__config__");
   });
 
-  it("3. createDataTreeWithConfig method", () => {
+  it("3. makeDataTreeEntityConfigAsProperty method", () => {
     const unEvalTreeForEval = createUnEvalTreeForEval(
       (unevalTreeFromMainThread as unknown) as UnEvalTree,
     );
-    const dataTree = createDataTreeWithConfig(unEvalTreeForEval);
+    const dataTree = makeDataTreeEntityConfigAsProperty(unEvalTreeForEval);
 
     expect(dataTree.Api2).not.toHaveProperty("__config__");
 

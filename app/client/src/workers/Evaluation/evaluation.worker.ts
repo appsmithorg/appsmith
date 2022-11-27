@@ -9,7 +9,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
-  createDataTreeWithConfig,
+  makeDataTreeEntityConfigAsProperty,
   createUnEvalTreeForEval,
   DataTreeDiff,
   getSafeToRenderDataTree,
@@ -269,12 +269,14 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
+            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = createDataTreeWithConfig(dataTreeResponse.evalTree);
+          dataTree = makeDataTreeEntityConfigAsProperty(
+            dataTreeResponse.evalTree,
+          );
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -304,12 +306,14 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
+            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = createDataTreeWithConfig(dataTreeResponse.evalTree);
+          dataTree = makeDataTreeEntityConfigAsProperty(
+            dataTreeResponse.evalTree,
+          );
         } else {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             dataTreeEvaluator.setAllActionValidationConfig(
@@ -330,7 +334,7 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            createDataTreeWithConfig(dataTreeEvaluator.oldUnEvalTree),
+            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
             requiresLinting,
           );
           nonDynamicFieldValidationOrder =
@@ -339,7 +343,9 @@ function eventRequestHandler({
             evalOrder,
             nonDynamicFieldValidationOrder,
           );
-          dataTree = createDataTreeWithConfig(dataTreeEvaluator.evalTree);
+          dataTree = makeDataTreeEntityConfigAsProperty(
+            dataTreeEvaluator.evalTree,
+          );
           evalMetaUpdates = JSON.parse(
             JSON.stringify(updateResponse.evalMetaUpdates),
           );
@@ -372,7 +378,7 @@ function eventRequestHandler({
         }
 
         dataTree = getSafeToRenderDataTree(
-          createDataTreeWithConfig(unevalTree),
+          makeDataTreeEntityConfigAsProperty(unevalTree),
           widgetTypeConfigMap,
         );
 

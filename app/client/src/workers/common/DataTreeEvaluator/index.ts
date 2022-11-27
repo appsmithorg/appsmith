@@ -1159,6 +1159,11 @@ export default class DataTreeEvaluator {
     }
   }
 
+  /**
+   * Update the entity config set as prototype according to latest unEvalTree changes else code would consume stale configs.
+   *
+   * Example scenario: On addition of a JS binding to widget, it's dynamicBindingPathList changes and needs to be updated.
+   */
   updateConfigForModifiedEntity(unEvalTree: DataTree, entityName: string) {
     const unEvalEntity = unEvalTree[entityName];
     // skip entity if entity is not present in the evalTree or is not a valid entity
