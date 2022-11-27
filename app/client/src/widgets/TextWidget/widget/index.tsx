@@ -10,7 +10,7 @@ import { Color } from "constants/Colors";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";

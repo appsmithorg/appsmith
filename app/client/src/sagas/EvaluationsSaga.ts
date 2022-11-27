@@ -220,8 +220,8 @@ function* evaluateTreeSaga(
     yield fork(
       updateTernDefinitions,
       updatedDataTree,
-      isCreateFirstTree,
       unEvalUpdates,
+      isCreateFirstTree,
     );
   }
   yield put(setDependencyMap(dependencies));
