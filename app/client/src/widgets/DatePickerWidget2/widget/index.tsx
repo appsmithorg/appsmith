@@ -6,7 +6,7 @@ import DatePickerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 import derivedProperties from "./parseDerivedProperties";
 import { DatePickerType, TimePrecision } from "../constants";

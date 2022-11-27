@@ -21,6 +21,7 @@ import { FieldEntityInformation } from "components/editorComponents/CodeEditor/E
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
+import TernWorkerServer from "./TernWorkerService";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
@@ -129,7 +130,7 @@ export function typeToIcon(type: string, isKeyword: boolean) {
   return cls + "completion " + cls + "completion-" + suffix;
 }
 
-class TernServer {
+class CodeMirrorTernService {
   server: Server;
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
@@ -139,12 +140,11 @@ class TernServer {
     string,
     DataTreeDefEntityInformation
   >();
+  options: { async: boolean; defs: Def[] };
 
-  constructor() {
-    this.server = new tern.Server({
-      async: true,
-      defs: DEFS,
-    });
+  constructor(options: { async: boolean; defs: Def[] }) {
+    this.options = options;
+    this.server = new TernWorkerServer(this);
   }
 
   resetServer() {
@@ -846,4 +846,7 @@ export const createCompletionHeader = (name: string): Completion => ({
   isHeader: true,
 });
 
-export default new TernServer();
+export default new CodeMirrorTernService({
+  async: true,
+  defs: DEFS,
+});

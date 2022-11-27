@@ -22,9 +22,7 @@ function AutoHeightContainerWrapper(props: AutoHeightWrapperProps) {
   if (isCanvas) return <>{children}</>;
 
   const onHeightUpdate = (height: number) => {
-    requestAnimationFrame(() => {
-      props.onUpdateDynamicHeight(height);
-    });
+    props.onUpdateDynamicHeight(height);
   };
 
   const maxDynamicHeight = getWidgetMaxAutoHeight(widgetProps);
