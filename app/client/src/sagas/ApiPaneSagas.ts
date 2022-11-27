@@ -538,13 +538,13 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const pageId: string = yield select(getCurrentPageId);
   // Only look at API plugins
   if (plugin && plugin.type !== PluginType.API) return;
-
   history.push(
     datasourcesEditorIdURL({
       pageId,
       datasourceId: actionPayload.payload.id,
       params: {
         from: "datasources",
+        viewMode: "false",
         ...getQueryParams(),
       },
     }),

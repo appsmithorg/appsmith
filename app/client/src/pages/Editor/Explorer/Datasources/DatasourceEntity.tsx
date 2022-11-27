@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { getQueryParams } from "utils/URLUtils";
 import { getAction } from "selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
@@ -49,15 +48,11 @@ const ExplorerDatasourceEntity = React.memo(
           pageId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
-          params: {
-            viewMode: true,
-          },
         });
       } else {
         url = datasourcesEditorIdURL({
           pageId,
           datasourceId: props.datasource.id,
-          params: getQueryParams(),
         });
       }
 
