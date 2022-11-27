@@ -21,7 +21,6 @@ import {
   JSActionEvalTree,
   WidgetConfig,
   EvaluationSubstitutionType,
-  PrivateWidgets,
 } from "./types";
 
 export interface UnEvalTreeAction extends ActionEntityEvalTree {
