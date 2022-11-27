@@ -11,7 +11,7 @@ import {
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Case, Classes, Icon, IconSize, Text, TextType } from "design-system";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
