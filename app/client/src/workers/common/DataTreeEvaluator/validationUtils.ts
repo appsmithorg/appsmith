@@ -109,7 +109,7 @@ export function validateActionProperty(
 
 export function getValidatedTree(tree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
-    const parsedEntity = tree[entityKey] as DataTreeWidget;
+    const parsedEntity = tree[entityKey];
     if (!isWidget(parsedEntity)) {
       return tree;
     }
