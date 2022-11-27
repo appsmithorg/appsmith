@@ -172,9 +172,7 @@ class TabsWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
-            postUpdateActions: [
-              ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
-            ],
+            postUpdateAction: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
           },
         ],
       },

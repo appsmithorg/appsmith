@@ -8,7 +8,10 @@ import { updateWidgetAutoHeightSaga } from "./widgets";
 export default function* autoHeightSagas() {
   yield all([
     takeLatest(
-      ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+      [
+        ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+        ReduxActionTypes.SET_PREVIEW_MODE,
+      ],
       dynamicallyUpdateContainersSaga,
     ),
     takeEvery(
@@ -16,7 +19,7 @@ export default function* autoHeightSagas() {
       batchCallsToUpdateWidgetAutoHeightSaga,
     ),
     debounce(
-      100,
+      50,
       ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
       updateWidgetAutoHeightSaga,
     ),
