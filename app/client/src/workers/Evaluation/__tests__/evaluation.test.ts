@@ -624,16 +624,12 @@ describe("DataTreeEvaluator", () => {
     });
   });
 
-  it.skip("Honors predefined action dependencyMap", () => {
+  it("Honors predefined action dependencyMap", () => {
     const updatedTree1 = {
       ...unEvalTree,
       Text1: {
-        ...BASE_WIDGET,
+        ...unEvalTree.Text1,
         text: "Test",
-        reactivePaths: {},
-        triggerPaths: {},
-        propertyOverrideDependency: {},
-        validationPaths: {},
       },
       Api2: {
         ...BASE_ACTION,
@@ -661,6 +657,7 @@ describe("DataTreeEvaluator", () => {
     } = evaluator.setupUpdateTree(
       createUnEvalTree((updatedTree1 as unknown) as UnEvalTree),
     );
+    console.log(evalOrder, updatedTree1.Text1);
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder2,
@@ -681,7 +678,6 @@ describe("DataTreeEvaluator", () => {
           ...updatedTree1.Api2.config,
           body: "{ 'name': {{ Text1.text }} }",
         },
-        reactivePaths: {},
       },
     };
 
