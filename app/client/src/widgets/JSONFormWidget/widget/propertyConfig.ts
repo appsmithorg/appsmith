@@ -1,7 +1,7 @@
 import { Alignment } from "@blueprintjs/core";
 
 import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";

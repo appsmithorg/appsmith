@@ -1,4 +1,4 @@
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
