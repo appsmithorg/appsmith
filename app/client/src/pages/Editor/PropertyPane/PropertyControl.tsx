@@ -24,7 +24,6 @@ import {
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
-import { TooltipComponent } from "design-system";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
   DynamicPath,
@@ -46,8 +45,9 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { AppState } from "@appsmith/reducers";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {

@@ -118,6 +118,7 @@ function AppInviteUsersForm(props: any) {
       </Title>
       <StyledCopyToClipBoard
         btnWidth={InviteButtonWidth}
+        className="t--deployed-url"
         copyText={appViewEndPoint}
       />
 

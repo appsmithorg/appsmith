@@ -31,7 +31,7 @@ export const CONFIG = {
     labelWidth: 8,
     labelTextSize: "0.875rem",
     rows: 8,
-    columns: 38,
+    columns: 40,
     widgetName: "RangeSlider",
     shouldScroll: false,
     shouldTruncate: false,

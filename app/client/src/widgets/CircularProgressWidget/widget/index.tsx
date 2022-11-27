@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import CircularProgressComponent, {
   CircularProgressComponentProps,
 } from "../component";

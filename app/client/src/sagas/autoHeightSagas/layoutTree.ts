@@ -39,7 +39,7 @@ export function* getLayoutTree(layoutUpdated: boolean) {
     }
   }
   log.debug(
-    "Dynamic Height: Tree generation took:",
+    "Dynamic Height: Tree generation time taken:",
     performance.now() - start,
     "ms",
   );

@@ -18,7 +18,7 @@ import {
   CurrencyDropdownOptions,
   getCountryCodeFromCurrencyCode,
 } from "../component/CurrencyCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import _ from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import BaseInputWidget from "widgets/BaseInputWidget";
