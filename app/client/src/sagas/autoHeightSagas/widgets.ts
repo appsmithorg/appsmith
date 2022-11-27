@@ -317,12 +317,13 @@ export function* updateWidgetAutoHeightSaga() {
 
               minHeightInRows = Math.max(
                 minHeightInRows,
-                minCanvasHeightInRows,
+                minCanvasHeightInRows + canvasHeightOffset,
               );
 
               // Setting this in a variable, as this will be the total scroll height in the canvas.
               const minCanvasHeightInPixels =
-                minHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+                (minHeightInRows - canvasHeightOffset) *
+                GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
               // We need to make sure that the canvas widget doesn't have
               // any extra scroll, to this end, we need to add the `minHeight` update
@@ -340,8 +341,6 @@ export function* updateWidgetAutoHeightSaga() {
                   propertyValue: minCanvasHeightInPixels,
                 },
               ];
-
-              minHeightInRows += canvasHeightOffset;
 
               // Make sure we're not overflowing the max height bounds
               const maxDynamicHeight = getWidgetMaxAutoHeight(
@@ -540,8 +539,8 @@ export function* updateWidgetAutoHeightSaga() {
         );
 
         if (childWidgetId) {
-          const isCanvasWidget =
-            stateWidgets[childWidgetId]?.type === "CANVAS_WIDGET";
+          const childCanvasWidget = stateWidgets[childWidgetId];
+          const isCanvasWidget = childCanvasWidget?.type === "CANVAS_WIDGET";
           if (isCanvasWidget) {
             let canvasHeight: number = yield getMinHeightBasedOnChildren(
               childWidgetId,
@@ -551,11 +550,6 @@ export function* updateWidgetAutoHeightSaga() {
             );
             canvasHeight += GridDefaults.CANVAS_EXTENSION_OFFSET;
 
-            const canvasHeightOffset: number = getCanvasHeightOffset(
-              containerLikeWidget.type,
-              containerLikeWidget,
-            );
-            canvasHeight -= canvasHeightOffset;
             const propertyUpdates = [
               {
                 propertyPath: "minHeight",

@@ -7,7 +7,10 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  getCanvasHeightOffset,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { TreeNode } from "utils/autoHeight/constants";
 
@@ -84,6 +87,7 @@ export function* getMinHeightBasedOnChildren(
   const { children = [], parentId } = stateWidgets[widgetId];
   // If we need to consider the parent height
   if (parentId && !ignoreParent) {
+    const parent = stateWidgets[parentId];
     const parentHeightInRows = getParentCurrentHeightInRows(
       tree,
       parentId,
@@ -91,6 +95,14 @@ export function* getMinHeightBasedOnChildren(
     );
     // The canvas will be an extension smaller than the parent?
     minHeightInRows = parentHeightInRows - GridDefaults.CANVAS_EXTENSION_OFFSET;
+
+    // We will also remove any extra offsets the parent has
+    // As we're dealing with the child canvas widget here.
+    const canvasHeightOffset: number = getCanvasHeightOffset(
+      parent.type,
+      parent,
+    );
+    minHeightInRows = minHeightInRows - canvasHeightOffset;
     // If the canvas is empty return the parent's height in rows, without
     // the canvas extension offset
     if (!children.length) {
