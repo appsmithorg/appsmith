@@ -2,6 +2,7 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
+import { enhanceDataTreeWithFunctions } from "../Actions";
 jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
@@ -654,5 +655,253 @@ describe("Add functions", () => {
         ]),
       );
     });
+  });
+});
+
+const dataTree = {
+  Text1: {
+    widgetName: "Text1",
+    displayName: "Text",
+    type: "TEXT_WIDGET",
+    hideCard: false,
+    animateLoading: true,
+    overflow: "SCROLL",
+    fontFamily: "Nunito Sans",
+    parentColumnSpace: 15.0625,
+    dynamicTriggerPathList: [],
+    leftColumn: 4,
+    dynamicBindingPathList: [],
+    shouldTruncate: false,
+    text: '"2022-11-27T21:36:00.128Z"',
+    key: "gt93hhlp15",
+    isDeprecated: false,
+    rightColumn: 29,
+    textAlign: "LEFT",
+    dynamicHeight: "FIXED",
+    widgetId: "ajg9fjegvr",
+    isVisible: true,
+    fontStyle: "BOLD",
+    textColor: "#231F20",
+    version: 1,
+    parentId: "0",
+    renderMode: "CANVAS",
+    isLoading: false,
+    borderRadius: "0.375rem",
+    maxDynamicHeight: 9000,
+    fontSize: "1rem",
+    minDynamicHeight: 4,
+    value: '"2022-11-27T21:36:00.128Z"',
+    defaultProps: {},
+    defaultMetaProps: [],
+    logBlackList: {
+      value: true,
+    },
+    meta: {},
+    propertyOverrideDependency: {},
+    overridingPropertyPaths: {},
+    bindingPaths: {
+      text: "TEMPLATE",
+      isVisible: "TEMPLATE",
+    },
+    reactivePaths: {
+      value: "TEMPLATE",
+      fontFamily: "TEMPLATE",
+    },
+    triggerPaths: {},
+    validationPaths: {},
+    ENTITY_TYPE: "WIDGET",
+    privateWidgets: {},
+    __evaluation__: {
+      errors: {},
+      evaluatedValues: {},
+    },
+    backgroundColor: "",
+    borderColor: "",
+  },
+  pageList: [
+    {
+      pageName: "Page1",
+      pageId: "63349fb5d39f215f89b8245e",
+      isDefault: false,
+      isHidden: false,
+      slug: "page1",
+    },
+    {
+      pageName: "Page2",
+      pageId: "637cc6b4a3664a7fe679b7b0",
+      isDefault: true,
+      isHidden: false,
+      slug: "page2",
+    },
+  ],
+  appsmith: {
+    store: {},
+    geolocation: {
+      canBeRequested: true,
+      currentPosition: {},
+    },
+    mode: "EDIT",
+    ENTITY_TYPE: "APPSMITH",
+  },
+  Api2: {
+    run: {},
+    clear: {},
+    name: "Api2",
+    pluginType: "API",
+    config: {},
+    dynamicBindingPathList: [
+      {
+        key: "config.path",
+      },
+    ],
+    responseMeta: {
+      isExecutionSuccess: false,
+    },
+    ENTITY_TYPE: "ACTION",
+    isLoading: false,
+    bindingPaths: {
+      "config.path": "TEMPLATE",
+      "config.body": "SMART_SUBSTITUTE",
+      "config.pluginSpecifiedTemplates[1].value": "SMART_SUBSTITUTE",
+      "config.pluginSpecifiedTemplates[2].value.limitBased.limit.value":
+        "SMART_SUBSTITUTE",
+    },
+    reactivePaths: {
+      data: "TEMPLATE",
+      isLoading: "TEMPLATE",
+      datasourceUrl: "TEMPLATE",
+      "config.path": "TEMPLATE",
+      "config.body": "SMART_SUBSTITUTE",
+      "config.pluginSpecifiedTemplates[1].value": "SMART_SUBSTITUTE",
+    },
+    dependencyMap: {
+      "config.body": ["config.pluginSpecifiedTemplates[0].value"],
+    },
+    logBlackList: {},
+    datasourceUrl: "",
+    __evaluation__: {
+      errors: {
+        config: [],
+      },
+      evaluatedValues: {
+        "config.path": "/users/undefined",
+        config: {
+          timeoutInMillisecond: 10000,
+          paginationType: "NONE",
+          path: "/users/test",
+          headers: [],
+          encodeParamsToggle: true,
+          queryParameters: [],
+          bodyFormData: [],
+          httpMethod: "GET",
+          selfReferencingDataPaths: [],
+          pluginSpecifiedTemplates: [
+            {
+              value: true,
+            },
+          ],
+          formData: {
+            apiContentType: "none",
+          },
+        },
+      },
+    },
+  },
+  JSObject1: {
+    name: "JSObject1",
+    actionId: "637cda3b2f8e175c6f5269d5",
+    pluginType: "JS",
+    ENTITY_TYPE: "JSACTION",
+    body:
+      "export default {\n\tstoreTest2: () => {\n\t\tlet values = [\n\t\t\t\t\tstoreValue('val1', 'number 1'),\n\t\t\t\t\tstoreValue('val2', 'number 2'),\n\t\t\t\t\tstoreValue('val3', 'number 3'),\n\t\t\t\t\tstoreValue('val4', 'number 4')\n\t\t\t\t];\n\t\treturn Promise.all(values)\n\t\t\t.then(() => {\n\t\t\tshowAlert(JSON.stringify(appsmith.store))\n\t\t})\n\t\t\t.catch((err) => {\n\t\t\treturn showAlert('Could not store values in store ' + err.toString());\n\t\t})\n\t},\n\tnewFunction: function() {\n\t\tJSObject1.storeTest()\n\t}\n}",
+    meta: {
+      newFunction: {
+        arguments: [],
+        isAsync: false,
+        confirmBeforeExecute: false,
+      },
+      storeTest2: {
+        arguments: [],
+        isAsync: true,
+        confirmBeforeExecute: false,
+      },
+    },
+    bindingPaths: {
+      body: "SMART_SUBSTITUTE",
+      newFunction: "SMART_SUBSTITUTE",
+      storeTest2: "SMART_SUBSTITUTE",
+    },
+    reactivePaths: {
+      body: "SMART_SUBSTITUTE",
+      newFunction: "SMART_SUBSTITUTE",
+      storeTest2: "SMART_SUBSTITUTE",
+    },
+    dynamicBindingPathList: [
+      {
+        key: "body",
+      },
+      {
+        key: "newFunction",
+      },
+      {
+        key: "storeTest2",
+      },
+    ],
+    variables: [],
+    dependencyMap: {
+      body: ["newFunction", "storeTest2"],
+    },
+    __evaluation__: {
+      errors: {
+        storeTest2: [],
+        newFunction: [],
+        body: [],
+      },
+    },
+  },
+};
+
+describe("Test enhanceDataTreeWithFunctions method", () => {
+  let dataTreeWidgetFunctions: DataTree = {};
+  beforeAll(() => {
+    dataTreeWidgetFunctions = enhanceDataTreeWithFunctions(
+      (dataTree as unknown) as DataTree,
+    );
+  });
+
+  it("1. Assert framework actions are added", () => {
+    const frameworkActions = {
+      navigateTo: true,
+      showAlert: true,
+      showModal: true,
+      closeModal: true,
+      storeValue: true,
+      removeValue: true,
+      clearStore: true,
+      download: true,
+      copyToClipboard: true,
+      resetWidget: true,
+      setInterval: true,
+      clearInterval: true,
+      postWindowMessage: true,
+    };
+
+    for (const actionName of Object.keys(frameworkActions)) {
+      expect(dataTreeWidgetFunctions).toHaveProperty(actionName);
+      expect(typeof dataTreeWidgetFunctions[actionName]).toBe("function");
+    }
+  });
+
+  it("2. Assert Api has run and clear method", () => {
+    expect(dataTreeWidgetFunctions.Api2).toHaveProperty("run");
+    expect(dataTreeWidgetFunctions.Api2).toHaveProperty("clear");
+    // @ts-expect-error: Action type missing
+    expect(typeof dataTreeWidgetFunctions.Api2.run).toBe("function");
+    // @ts-expect-error: Action type missing
+    expect(typeof dataTreeWidgetFunctions.Api2.clear).toBe("function");
+  });
+
+  it("3. Assert input dataTree is not mutated", () => {
+    expect(typeof dataTree.Api2.run).not.toBe("function");
   });
 });
