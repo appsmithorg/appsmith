@@ -94,7 +94,11 @@ import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
 import { getAllActionValidationConfig } from "selectors/entitiesSelector";
-import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  UnEvalTree,
+  UnEvalTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -527,21 +531,19 @@ export function* validateProperty(
   props: WidgetProps,
 ) {
   const unevalTree: UnEvalTree = yield select(getUnevaluatedDataTree);
-  const entity = unevalTree[props.widgetName];
-  if (isWidget(entity)) {
-    const validation = entity.__config__.validationPaths[property];
-    const response: unknown = yield call(
-      evalWorker.request,
-      EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
-      {
-        property,
-        value,
-        props,
-        validation,
-      },
-    );
-    return response;
-  }
+  const entity = unevalTree[props.widgetName] as UnEvalTreeWidget;
+  const validation = entity?.__config__.validationPaths[property];
+  const response: unknown = yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY,
+    {
+      property,
+      value,
+      props,
+      validation,
+    },
+  );
+  return response;
 }
 
 function evalQueueBuffer() {
