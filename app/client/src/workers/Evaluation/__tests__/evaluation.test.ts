@@ -657,7 +657,6 @@ describe("DataTreeEvaluator", () => {
     } = evaluator.setupUpdateTree(
       createUnEvalTree((updatedTree1 as unknown) as UnEvalTree),
     );
-    console.log(evalOrder, updatedTree1.Text1);
     evaluator.evalAndValidateSubTree(
       evalOrder,
       nonDynamicFieldValidationOrder2,
