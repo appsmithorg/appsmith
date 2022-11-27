@@ -1,7 +1,21 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { getPropertiesToUpdateForReset } from "./utils";
+import { registerWidget } from "utils/WidgetRegisterHelpers";
+import ButtonWidget, {
+  CONFIG as ButtonWidgetConfig,
+} from "widgets/ButtonWidget";
+import TableWidget, { CONFIG as TableWidgetConfig } from "widgets/TableWidget";
+import JSONFormWidget, {
+  CONFIG as JSONFormWidgetConfig,
+} from "widgets/JSONFormWidget";
 
 describe("AppThemingSaga test", () => {
+  beforeAll(() => {
+    registerWidget(ButtonWidget, ButtonWidgetConfig);
+    registerWidget(TableWidget, TableWidgetConfig);
+    registerWidget(JSONFormWidget, JSONFormWidgetConfig);
+  });
+
   it("Checks if button widget resets to correct value", () => {
     const input = [
       {
@@ -36,6 +50,7 @@ describe("AppThemingSaga test", () => {
         widgetId: "widget1",
         updates: {
           modify: {
+            borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
             buttonColor: "{{appsmith.theme.colors.primaryColor}}",
           },
         },
@@ -97,7 +112,9 @@ describe("AppThemingSaga test", () => {
         widgetId: "widget1",
         updates: {
           modify: {
-            buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+            accentColor: "{{appsmith.theme.colors.primaryColor}}",
+            borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
             "primaryColumns.customColumn1.buttonColor":
               "{{widget1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
           },
@@ -157,6 +174,12 @@ describe("AppThemingSaga test", () => {
               boxShadow: "none",
             },
           },
+          resetButtonStyles: {
+            buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          },
+          submitButtonStyles: {
+            buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          },
           isLoading: false,
           parentColumnSpace: 1,
           parentRowSpace: 1,
@@ -190,9 +213,17 @@ describe("AppThemingSaga test", () => {
         updates: {
           modify: {
             borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            boxShadow: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "schema.__root_schema__.children.name.accentColor":
+            "submitButtonStyles.borderRadius":
+              "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "resetButtonStyles.borderRadius":
+              "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "schema.__root_schema__.borderRadius":
               "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            "schema.__root_schema__.cellBorderRadius":
+              "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
+            "schema.__root_schema__.children.name.accentColor":
+              "{{((sourceData, formData, fieldState) => (appsmith.theme.colors.primaryColor))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
             "schema.__root_schema__.children.name.borderRadius":
               "{{((sourceData, formData, fieldState) => (appsmith.theme.borderRadius.appBorderRadius))(JSONForm1.sourceData, JSONForm1.formData, JSONForm1.fieldState)}}",
           },
