@@ -209,10 +209,11 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { onEnd, onPause, onPlay, playing, url } = this.props;
+    const { autoPlay, onEnd, onPause, onPlay, playing, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
+          autoPlay={autoPlay}
           backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}

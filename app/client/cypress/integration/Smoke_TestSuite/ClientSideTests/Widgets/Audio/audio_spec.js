@@ -64,6 +64,11 @@ describe("Audio Widget Functionality", function() {
     cy.get(commonlocators.onClick).click();
     cy.selectResetWidget();
     cy.selectWidgetForReset("Audio1");
+
+    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    cy.openPropertyPane("textwidget");
+    cy.updateCodeInput(".t--property-control-text", `{{Audio1.playState}}`);
+
     cy.openPropertyPane("audiowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.wait(1000);
@@ -74,18 +79,6 @@ describe("Audio Widget Functionality", function() {
       const audio = $audio.get(0);
       expect(audio.currentTime).to.equal(0);
     });
-  });
-
-  it("Checks if audio widget playstate is reset when the widget gets reset", function() {
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-    cy.openPropertyPane("textwidget");
-    cy.updateCodeInput(".t--property-control-text", `{{Audio1.playState}}`);
-    cy.openPropertyPane("audiowidget");
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.wait(1000);
-    cy.get(widgetsPage.autoPlay).click({ force: true });
-    cy.get(widgetsPage.widgetBtn).click({ force: true });
-    cy.wait(1000);
     cy.get(".t--widget-textwidget").should("contain", "NOT_STARTED");
   });
 });

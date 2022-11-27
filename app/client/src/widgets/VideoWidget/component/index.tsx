@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { createMessage, ENTER_VIDEO_URL } from "@appsmith/constants/messages";
 export interface VideoComponentProps {
   url?: string;
+  autoPlay?: boolean;
   playing?: boolean;
   controls?: boolean;
   onStart?: () => void;
@@ -48,6 +49,7 @@ const Error = styled.span``;
 
 export default function VideoComponent(props: VideoComponentProps) {
   const {
+    autoPlay,
     controls,
     onEnded,
     onError,
@@ -70,6 +72,7 @@ export default function VideoComponent(props: VideoComponentProps) {
       <ReactPlayer
         controls={controls || true}
         height="100%"
+        muted={autoPlay}
         onEnded={onEnded}
         onError={onError}
         onPause={onPause}
