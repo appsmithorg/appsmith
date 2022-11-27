@@ -33,7 +33,6 @@ export function* batchCallsToUpdateWidgetAutoHeightSaga(
   const isLayoutUpdating: boolean = yield select(getIsDraggingOrResizing);
   const { height, widgetId } = action.payload;
   log.debug("Dynamic height: batching update:", { widgetId, height });
-
   addWidgetToAutoHeightUpdateQueue(widgetId, height);
   if (isLayoutUpdating) return;
   yield put({

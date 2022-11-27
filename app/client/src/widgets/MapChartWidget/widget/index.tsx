@@ -21,7 +21,7 @@ import {
   MapTypes,
 } from "../constants";
 import { MapType } from "../component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>

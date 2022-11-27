@@ -1297,7 +1297,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(application1 -> addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH.getEventName(),
                                     application1,
-                                    application1.getGitApplicationMetadata().getIsRepoPrivate()
+                                    Boolean.TRUE.equals(application1.getGitApplicationMetadata().getIsRepoPrivate())
                             ))
                             .map(responseUtils::updateApplicationWithDefaultResources);
                 });
