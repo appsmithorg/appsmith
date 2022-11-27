@@ -64,6 +64,7 @@ export function* updateWidgetAutoHeightSaga() {
   const updates = getAutoHeightUpdateQueue();
   log.debug("Dynamic Height: updates to process", { updates });
   const start = performance.now();
+  let shouldRecomputeContainers = false;
 
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
 
@@ -96,6 +97,8 @@ export function* updateWidgetAutoHeightSaga() {
       // Get the boundaries for possible min and max dynamic height.
       let minDynamicHeightInPixels =
         getWidgetMinAutoHeight(widget) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+      if (widget.type === "TABS_WIDGET") shouldRecomputeContainers = true;
 
       // In case of a widget going invisible in view mode
       if (updates[widgetId] === 0) {
@@ -582,7 +585,9 @@ export function* updateWidgetAutoHeightSaga() {
     // as we don't need to trigger an eval
     yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
     resetAutoHeightUpdateQueue();
-    yield put(generateAutoHeightLayoutTreeAction(false, false));
+    yield put(
+      generateAutoHeightLayoutTreeAction(shouldRecomputeContainers, false),
+    );
   }
 
   log.debug(
