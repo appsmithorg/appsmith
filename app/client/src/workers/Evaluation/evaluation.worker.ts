@@ -10,7 +10,7 @@ import {
 import {
   CrashingError,
   createDataTreeWithConfig,
-  createUnEvalTree,
+  createUnEvalTreeForEval,
   DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
@@ -123,7 +123,7 @@ function eventRequestHandler({
         return { triggers: [], errors: [] };
       }
 
-      const unEvalTree = createUnEvalTree(__unEvalTree__);
+      const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
 
       const {
         evalOrder,
@@ -248,7 +248,7 @@ function eventRequestHandler({
         widgetTypeConfigMap,
       } = requestData as EvalTreeRequestData;
 
-      const unevalTree = createUnEvalTree(__unevalTree__);
+      const unevalTree = createUnEvalTreeForEval(__unevalTree__);
 
       try {
         if (!dataTreeEvaluator) {

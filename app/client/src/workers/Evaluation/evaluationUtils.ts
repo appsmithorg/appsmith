@@ -809,7 +809,7 @@ export function createNewEntity(entity: UnEvalTreeEntityObject) {
  * This method takes unevaltree received from mainThread as input and return a new unEvalTree with each entity config moved to entity object's prototype.
  * Moving configs to prototype skips it from diffing, cloning and getAllPaths calculation.
  */
-export function createUnEvalTree(unevalTree: UnEvalTree) {
+export function createUnEvalTreeForEval(unevalTree: UnEvalTree) {
   const newUnEvalTree: DataTree = {};
 
   for (const entityName of Object.keys(unevalTree)) {
