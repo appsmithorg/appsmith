@@ -43,6 +43,7 @@ import {
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import { Stylesheet } from "entities/AppTheming";
 import { CSSProperties } from "styled-components";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -90,6 +91,10 @@ abstract class BaseWidget<
   }
   // TODO Find a way to enforce this, (dont let it be set)
   static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
     return {};
   }
 
