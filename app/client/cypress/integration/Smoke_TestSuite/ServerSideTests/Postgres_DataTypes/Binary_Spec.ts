@@ -187,7 +187,7 @@ describe("Binary Datatype tests", function() {
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
     agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(8000); //some more time for rows to rearrange!
+    agHelper.Sleep(10000); //some more time for rows to rearrange!
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
