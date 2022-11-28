@@ -115,20 +115,18 @@ describe("MaintainContext&Focus", function() {
 
   it("5. Maintains focus on Query panes", () => {
     cy.SearchEntityandOpen("SQL_Query");
-    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
-      ch: 5,
-      line: 0,
-    });
+    cy.get(".t--actionConfiguration\\.body .CodeEditorTarget").should(
+      "be.focused",
+    );
 
     cy.SearchEntityandOpen("S3_Query");
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration\\.formData\\.bucket\\.data",
-      { ch: 2, line: 0 },
-    );
+    cy.get(
+      ".t--actionConfiguration\\.formData\\.bucket\\.data .CodeEditorTarget",
+    ).should("be.focused");
     cy.SearchEntityandOpen("Mongo_Query");
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration\\.formData\\.collection\\.data",
-    );
+    cy.get(
+      ".t--actionConfiguration\\.formData\\.collection\\.data .CodeEditorTarget",
+    ).should("be.focused");
   });
 
   it("6. Maintains focus on JS Objects", () => {
@@ -147,14 +145,15 @@ describe("MaintainContext&Focus", function() {
     apiPage.AssertRightPaneSelectedTab("connections");
   });
 
-  it("7. Datasource edit mode has to be maintained", () => {
+  it("8. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith");
     ee.SelectEntityByName("Github");
     dataSources.AssertViewMode();
     ee.SelectEntityByName("Appsmith");
     dataSources.AssertEditMode();
   });
-  it("8. Datasource collapse state has to be maintained", () => {
+
+  it("9. Datasource collapse state has to be maintained", () => {
     // Create datasource 1
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
@@ -172,5 +171,24 @@ describe("MaintainContext&Focus", function() {
     ee.SelectEntityByName("Postgres1");
     // Validate if section with index 1 is expanded
     dataSources.AssertSectionCollapseState(1, false);
+  });
+
+  it("10. Maintain focus of form control inputs", () => {
+    cy.SearchEntityandOpen("SQL_Query");
+    cy.get(".t--form-control-SWITCH label")
+      .scrollIntoView()
+      .click({ force: true });
+    cy.SearchEntityandOpen("S3_Query");
+    cy.get(queryLocators.querySettingsTab).click();
+    cy.get(
+      "[data-cy='actionConfiguration.timeoutInMillisecond'] .CodeEditorTarget",
+    ).focus();
+
+    cy.SearchEntityandOpen("SQL_Query");
+    cy.get(".t--form-control-SWITCH input").should("be.focused");
+    cy.SearchEntityandOpen("S3_Query");
+    cy.get(
+      "[data-cy='actionConfiguration.timeoutInMillisecond'] .CodeEditorTarget",
+    ).should("be.focused");
   });
 });
