@@ -50,7 +50,7 @@ export const entityMarker: MarkHelper = (
     const lineNo = editor.getLineNumber(line) || 0;
     const tokens = editor.getLineTokens(lineNo);
     tokens.forEach((token) => {
-      if (token.string in entityNavigationData) {
+      if (token.type === "variable" && token.string in entityNavigationData) {
         const data = entityNavigationData[token.string];
         editor.markText(
           { ch: token.start, line: lineNo },

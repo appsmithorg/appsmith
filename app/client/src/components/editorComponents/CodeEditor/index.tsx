@@ -60,7 +60,7 @@ import {
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button, ScrollIndicator, Toaster } from "design-system";
+import { Button, ScrollIndicator } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -589,11 +589,6 @@ class CodeEditor extends Component<Props, State> {
         if (navigationData.type === ENTITY_TYPE.WIDGET) {
           this.props.selectWidget(navigationData.id);
         }
-      } else {
-        Toaster.show({
-          type: "info",
-          text: "Click while pressing cmd/ctrl key to navigate",
-        });
       }
     }
   };
