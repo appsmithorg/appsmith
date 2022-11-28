@@ -28,7 +28,7 @@ import {
   hasDeletePagePermission,
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { getPagePermissions } from "selectors/editorSelectors";
+import { getPageById } from "selectors/editorSelectors";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -98,7 +98,8 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
-  const pagePermissions = useSelector(getPagePermissions);
+  const pagePermissions =
+    useSelector(getPageById(props.pageId))?.userPermissions || [];
 
   const canManagePages = hasManagePagePermission(pagePermissions);
 
