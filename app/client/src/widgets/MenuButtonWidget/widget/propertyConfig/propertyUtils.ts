@@ -47,5 +47,5 @@ export const updateMenuItemsSource = (
     }
   }
 
-  return propertiesToUpdate;
+  return propertiesToUpdate?.length ? propertiesToUpdate : [];
 };

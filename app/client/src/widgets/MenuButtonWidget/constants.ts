@@ -14,35 +14,24 @@ export enum MenuItemsSource {
 }
 
 export interface MenuItem {
-  widgetId: string;
+  widgetId?: string;
+  index?: number;
   id: string;
-  index: number;
+  label?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
-  label?: string;
+  onClick?: string;
   backgroundColor?: string;
   textColor?: string;
   iconName?: IconName;
   iconColor?: string;
   iconAlign?: Alignment;
-  onClick?: string;
 }
 
 export interface ConfigureMenuItems {
   label: string;
   id: string;
-  config: {
-    id: string;
-    label: any;
-    isVisible: any;
-    isDisabled: any;
-    onClick?: string;
-    backgroundColor?: string;
-    textColor?: string;
-    iconName?: IconName;
-    iconColor?: string;
-    iconAlign?: Alignment;
-  };
+  config: MenuItem;
 }
 
 export interface MenuButtonWidgetProps extends WidgetProps {

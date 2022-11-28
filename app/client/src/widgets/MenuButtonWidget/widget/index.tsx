@@ -6,7 +6,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import MenuButtonComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
-import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
+import { MenuButtonWidgetProps, MenuItem, MenuItemsSource } from "../constants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
 import equal from "fast-deep-equal/es6";
@@ -52,6 +52,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       menuItemsSource,
       sourceData,
     } = this.props;
+    const { config } = configureMenuItems;
 
     if (menuItemsSource === MenuItemsSource.STATIC) {
       const visibleItems = Object.keys(menuItems)
@@ -64,14 +65,14 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       isArray(sourceData) &&
       sourceData?.length
     ) {
-      const getValue = (property: string, index: number) => {
-        const propertyName = property as keyof typeof configureMenuItems.config;
+      const getValue = (propertyName: keyof MenuItem, index: number) => {
+        const value = config[propertyName];
 
-        if (isArray(configureMenuItems.config[propertyName])) {
-          return configureMenuItems.config[propertyName][index];
+        if (isArray(value)) {
+          return value[index];
         }
 
-        return configureMenuItems.config[propertyName] ?? null;
+        return value ?? null;
       };
 
       const visibleItems = sourceData
@@ -83,7 +84,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           index: index,
           widgetId: "",
           label: getValue("label", index),
-          onClick: configureMenuItems?.config?.onClick,
+          onClick: config?.onClick,
           textColor: getValue("textColor", index),
           backgroundColor: getValue("backgroundColor", index),
           iconAlign: getValue("iconAlign", index),

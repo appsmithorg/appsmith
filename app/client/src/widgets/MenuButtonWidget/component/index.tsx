@@ -244,53 +244,54 @@ function PopoverContent(props: PopoverContentProps) {
 
   const visibleItems = getVisibleItems();
 
-  if (!visibleItems?.length) return <StyledMenu />;
+  if (!visibleItems?.length) {
+    return <StyledMenu />;
+  } else {
+    const listItems = visibleItems.map((item: MenuItem, index: number) => {
+      const {
+        backgroundColor,
+        iconAlign,
+        iconColor,
+        iconName,
+        id,
+        isDisabled,
+        label,
+        onClick,
+        textColor,
+      } = item;
 
-  const listItems = visibleItems.map((item: MenuItem, index: number) => {
-    const {
-      backgroundColor,
-      iconAlign,
-      iconColor,
-      iconName,
-      id,
-      isDisabled,
-      label,
-      onClick,
-      textColor,
-    } = item;
-
-    return (
-      <BaseMenuItem
-        backgroundColor={backgroundColor}
-        disabled={isDisabled}
-        icon={
-          iconAlign === Alignment.RIGHT ? null : iconName ? (
-            <Icon color={iconColor} icon={iconName} />
-          ) : null
-        }
-        isCompact={isCompact}
-        key={id}
-        labelElement={
-          iconAlign === Alignment.RIGHT ? (
-            iconName ? (
+      return (
+        <BaseMenuItem
+          backgroundColor={backgroundColor}
+          disabled={isDisabled}
+          icon={
+            iconAlign !== Alignment.RIGHT && iconName ? (
               <Icon color={iconColor} icon={iconName} />
             ) : null
-          ) : null
-        }
-        onClick={() => onItemClicked(onClick, index)}
-        text={label}
-        textColor={textColor}
-      />
-    );
-  });
+          }
+          isCompact={isCompact}
+          key={id}
+          labelElement={
+            iconAlign === Alignment.RIGHT && iconName ? (
+              <Icon color={iconColor} icon={iconName} />
+            ) : null
+          }
+          onClick={() => onItemClicked(onClick, index)}
+          text={label}
+          textColor={textColor}
+        />
+      );
+    });
 
-  return <StyledMenu backgroundColor={backgroundColor}>{listItems}</StyledMenu>;
+    return (
+      <StyledMenu backgroundColor={backgroundColor}>{listItems}</StyledMenu>
+    );
+  }
 }
 
 export interface PopoverTargetButtonProps {
   borderRadius?: string;
   boxShadow?: string;
-
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
@@ -332,9 +333,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
         buttonVariant={buttonVariant}
         disabled={isDisabled}
         fill
-        icon={isRightAlign ? null : iconName ? iconName : null}
+        icon={!isRightAlign && iconName ? iconName : null}
         placement={placement}
-        rightIcon={isRightAlign ? (iconName ? iconName : null) : null}
+        rightIcon={isRightAlign && iconName ? iconName : null}
         text={label}
       />
     </DragContainer>
