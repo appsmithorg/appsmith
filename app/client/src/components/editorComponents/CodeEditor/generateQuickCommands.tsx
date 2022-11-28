@@ -3,7 +3,7 @@ import React from "react";
 import {
   AutocompleteDataType,
   CommandsCompletion,
-} from "utils/autocomplete/TernServer";
+} from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";

@@ -1,92 +1,5 @@
 import { TreeNode } from "./constants";
-
-/**
- *
- * @param tree : Auto Height Layout Tree
- * @param effectedBoxId : Current box in consideration
- * @param aboveId : Above box which may or maynot have changed
- * @param offsetSoFar : Offset of the above box, or changes to be applied so far
- * @returns : The offset expected to be applied to the effectedBoxId. This is how much this box should move
- */
-export function getNegativeOffset(
-  tree: Record<string, TreeNode>,
-  effectedBoxId: string,
-  aboveId: string,
-  offsetSoFar = 0,
-): number {
-  if (offsetSoFar <= 0) {
-    // Let's take in to account the old spacing between the effected box and bottom most above box
-    // when the layout was last updated.
-    const oldSpacing =
-      tree[effectedBoxId].originalTopRow - tree[aboveId].originalBottomRow;
-    // Let's compute the spacing between the effected box and bottom most above box
-    const currentSpacing = tree[effectedBoxId].topRow - tree[aboveId].bottomRow;
-    // If the old spacing is less than current spacing and the offset of the bottom most above,
-    // we need to make sure that we're sticking to the original spacing between the bottom most above
-    // and the current effected box.
-    // Note: This applies only if the offset is negative, which is to say that the box is to move up
-    if (oldSpacing < currentSpacing + offsetSoFar) {
-      return oldSpacing + offsetSoFar - currentSpacing;
-    }
-  }
-  return offsetSoFar;
-}
-/**
- * Gets the nearest above box for the current box. Including the aboves which have changes so far.
- *
- * @param tree: Auto Height Layout Tree
- * @param effectedBoxId: Current box in consideration
- * @param repositionedBoxes: Boxes repositioned so far
- * @returns An array of boxIds which are above and nearest the effectedBoxId
- */
-export function getNearestAbove(
-  tree: Record<string, TreeNode>,
-  effectedBoxId: string,
-  repositionedBoxes: Record<string, { topRow: number; bottomRow: number }>,
-) {
-  // Get all the above boxes
-  const aboves = tree[effectedBoxId].aboves;
-  // We're trying to find the nearest boxes above this box
-
-  return aboves.reduce((prev: string[], next: string) => {
-    if (!prev[0]) return [next];
-    // Get the bottomRow of the above box
-    let nextBottomRow = tree[next].bottomRow;
-    let prevBottomRow = tree[prev[0]].bottomRow;
-    // If we've already repositioned this, use the new bottomRow of the box
-    if (repositionedBoxes[next]) {
-      nextBottomRow = repositionedBoxes[next].bottomRow;
-    }
-    if (repositionedBoxes[prev[0]]) {
-      prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
-    }
-
-    // If the current box's (next) bottomRow is larger than the previous
-    // This (next) box is the bottom most above so far
-    if (nextBottomRow > prevBottomRow) return [next];
-    // If this (next) box's bottom row is the same as the previous
-    // We have two bottom most boxes
-    else if (nextBottomRow === prevBottomRow) {
-      if (
-        repositionedBoxes[prev[0]] &&
-        repositionedBoxes[prev[0]].bottomRow ===
-          repositionedBoxes[prev[0]].topRow
-      ) {
-        return prev;
-      }
-      if (
-        repositionedBoxes[next] &&
-        repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
-      ) {
-        return [next];
-      }
-      return [...prev, next];
-    }
-    // This (next) box's bottom row is lower than the boxes selected so far
-    // so, we ignore it.
-    else return prev;
-  }, []);
-}
+import { getNearestAbove } from "./helpers";
 
 function getAllEffectedBoxes(
   effectorBoxId: string,
@@ -159,39 +72,23 @@ export function computeChangeInPositionBasedOnDelta(
       // If the above box has been effected by another box change height
       // Or, if this above box itself has changed height
       if (effectedBoxes.includes(aboveId) || delta[aboveId]) {
-        // In case the above box has changed heights
-        const _aboveOffset = repositionedBoxes[aboveId]
-          ? repositionedBoxes[aboveId].bottomRow - tree[aboveId].bottomRow
-          : 0;
-
-        // If so far, we haven't got any _offset updates
-        // This can happen if this is the first aboveId we're checking
-        if (_offset === undefined) _offset = _aboveOffset;
-
-        const negativeOffset = getNegativeOffset(
-          tree,
-          effectedBoxId,
-          aboveId,
-          _aboveOffset,
-        );
-
-        // If the bottom most above (_aboveOffset), has moved down (either by increasing height and/or due to its above)
-        // Let's take the effected boxs' change to be the max of _offset and _aboveOffset
-        // The _offset so far will be due to other bottomMostAbove effecting this effected box.
-        if (_aboveOffset > 0) _offset = Math.max(_aboveOffset, _offset);
-        // If the bottom most above (_aboveOffset) has moved up (either by decreasing height and/or due to its above)
-        // Let's take the Min (negative values, so max offset in the upward direction) of the _aboveOffset, _offset, negativeOffset.
-        else if (_aboveOffset < 0) {
-          _offset = Math.min(_aboveOffset, _offset, negativeOffset);
+        // If we have the above repositioned
+        if (repositionedBoxes[aboveId]) {
+          // Get the new expected top row of this effectedBox
+          const newTopRow =
+            repositionedBoxes[aboveId].bottomRow +
+            tree[effectedBoxId].distanceToNearestAbove;
+          // Get the offset this effectedBox needs to consider moving
+          _offset = newTopRow - tree[effectedBoxId].topRow;
+        } else {
+          // Since the above hasn't changed, don't change this.
+          _offset = 0;
         }
       } else {
-        // Stick to the widget above if the bottomMost above box hasn't changed
-        // TODO(abhinav): Here we may want to use the same logic as negativeOffset using originals as done previously.
-        // Test this.
-        // Let's take in to account the old spacing between the effected box and bottom most above box
-        // when the layout was last updated.
-        const negativeOffset = getNegativeOffset(tree, effectedBoxId, aboveId);
-        _offset = negativeOffset;
+        // Maintain distance from the bottom most above.
+        const newTopRow =
+          tree[aboveId].bottomRow + tree[effectedBoxId].distanceToNearestAbove;
+        _offset = newTopRow - tree[effectedBoxId].topRow;
       }
     }
 
