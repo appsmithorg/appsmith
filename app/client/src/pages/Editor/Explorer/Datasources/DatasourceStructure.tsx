@@ -12,10 +12,11 @@ import { DatasourceTable } from "entities/Datasource";
 import { Colors } from "constants/Colors";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -60,12 +61,14 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   );
 
   const datasourcePermissions = datasource?.userPermissions || [];
+  const pagePermissions = useSelector(getPagePermissions);
 
-  const canManageDatasources = hasManageDatasourcePermission(
-    datasourcePermissions,
-  );
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
 
-  const lightningMenu = canManageDatasources ? (
+  const lightningMenu = canCreateDatasourceActions ? (
     <Wrapper
       className={`t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
       onClick={() => setActive(!active)}
@@ -96,7 +99,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
       position={Position.RIGHT_TOP}
     >
       <StyledEntity
-        action={() => setActive(!active)}
+        action={() => canCreateDatasourceActions && setActive(!active)}
         active={active}
         className={`datasourceStructure`}
         contextMenu={templateMenu}
