@@ -267,6 +267,7 @@ class SelectComponent extends React.Component<
       labelTextColor,
       labelTextSize,
       labelWidth,
+      tooltip,
       widgetId,
     } = this.props;
     // active focused item
@@ -321,9 +322,11 @@ class SelectComponent extends React.Component<
             className={`select-label`}
             color={labelTextColor}
             compact={compactMode}
+            cyHelpTextClassName="select-tooltip"
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            helpText={tooltip}
             loading={isLoading}
             position={labelPosition}
             ref={this.labelRef}

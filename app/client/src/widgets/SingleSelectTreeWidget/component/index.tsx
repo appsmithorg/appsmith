@@ -57,6 +57,7 @@ export interface TreeSelectProps
   isFilterable: boolean;
   renderMode?: RenderMode;
   options?: DefaultOptionType[];
+  tooltip?: string;
 }
 
 export const NoDataFoundContainer = styled.div`
@@ -123,6 +124,7 @@ function SingleSelectTreeComponent({
   options,
   placeholder,
   renderMode,
+  tooltip,
   value,
   widgetId,
   width,
@@ -251,9 +253,11 @@ function SingleSelectTreeComponent({
           className={`tree-select-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="tree-select-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={tooltip}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

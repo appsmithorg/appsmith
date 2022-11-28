@@ -61,6 +61,7 @@ export interface MultiSelectProps
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
   renderMode?: RenderMode;
+  tooltip?: string;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -93,6 +94,7 @@ function MultiSelectComponent({
   placeholder,
   renderMode,
   serverSideFiltering,
+  tooltip,
   value,
   widgetId,
   width,
@@ -301,9 +303,11 @@ function MultiSelectComponent({
           className={`multiselect-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="multiselect-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={tooltip}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

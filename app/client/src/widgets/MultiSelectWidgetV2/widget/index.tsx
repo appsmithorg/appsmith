@@ -380,6 +380,16 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -666,6 +676,7 @@ class MultiSelectWidget extends BaseWidget<
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
         serverSideFiltering={this.props.serverSideFiltering}
+        tooltip={this.props.tooltip}
         value={values}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -746,6 +757,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelAlignment?: Alignment;
   labelWidth?: number;
   isDirty?: boolean;
+  tooltip?: string;
 }
 
 export default MultiSelectWidget;

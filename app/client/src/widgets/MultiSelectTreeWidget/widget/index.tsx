@@ -235,6 +235,16 @@ class MultiSelectTreeWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Mode to Display options",
             propertyName: "mode",
             label: "Mode",
@@ -532,6 +542,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
+        tooltip={this.props.tooltip}
         value={this.props.selectedOptionValues}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -594,6 +605,7 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   boxShadow?: string;
   accentColor: string;
   isDirty: boolean;
+  tooltip?: string;
 }
 
 export default MultiSelectTreeWidget;

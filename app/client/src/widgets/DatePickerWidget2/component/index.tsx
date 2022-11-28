@@ -163,6 +163,7 @@ class DatePickerComponent extends React.Component<
       labelTextColor,
       labelTextSize,
       labelWidth,
+      tooltip,
     } = this.props;
     const now = moment();
     const year = now.get("year");
@@ -295,9 +296,11 @@ class DatePickerComponent extends React.Component<
             className={`datepicker-label`}
             color={labelTextColor}
             compact={compactMode}
+            cyHelpTextClassName="datepicker-tooltip"
             disabled={isDisabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            helpText={tooltip}
             loading={isLoading}
             position={labelPosition}
             text={labelText}
@@ -448,6 +451,7 @@ interface DatePickerComponentProps extends ComponentProps {
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
+  tooltip?: string;
 }
 
 interface DatePickerComponentState {

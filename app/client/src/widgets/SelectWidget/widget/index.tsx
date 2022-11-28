@@ -320,7 +320,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             propertyName: "tooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
-            placeholderText: "Value must be atleast 6 chars",
+            placeholderText: "Add tooltip text here",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

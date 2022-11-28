@@ -58,6 +58,7 @@ export interface TreeSelectProps
   isFilterable: boolean;
   renderMode?: RenderMode;
   options?: DefaultOptionType[];
+  tooltip?: string;
 }
 
 export const NoDataFoundContainer = styled.div`
@@ -125,6 +126,7 @@ function MultiTreeSelectComponent({
   options,
   placeholder,
   renderMode,
+  tooltip,
   value,
   widgetId,
   width,
@@ -241,9 +243,11 @@ function MultiTreeSelectComponent({
           className={`multitree-select-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="multitree-select-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={tooltip}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

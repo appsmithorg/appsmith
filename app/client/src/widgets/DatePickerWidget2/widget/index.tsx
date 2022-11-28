@@ -228,6 +228,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -482,6 +492,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}
+        tooltip={this.props.tooltip}
         widgetId={this.props.widgetId}
       />
     );
@@ -533,6 +544,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   accentColor: string;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  tooltip?: string;
 }
 
 export default DatePickerWidget;

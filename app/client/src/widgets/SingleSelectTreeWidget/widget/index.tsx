@@ -220,6 +220,16 @@ class SingleSelectTreeWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current selection",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add tooltip text here",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -493,6 +503,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
+        tooltip={this.props.tooltip}
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -553,6 +564,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   boxShadow?: string;
   accentColor: string;
   isDirty?: boolean;
+  tooltip?: string;
 }
 
 export default SingleSelectTreeWidget;
