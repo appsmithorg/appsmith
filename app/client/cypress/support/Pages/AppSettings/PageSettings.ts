@@ -12,7 +12,7 @@ export class PageSettings {
     homePageHeader: "#t--page-settings-default-page",
   };
 
-  changePageNameAndVerifyUrl(newPageName: string, reset = false) {
+  changePageNameAndVerifyUrl(newPageName: string) {
     this.agHelper
       .InvokeVal(this.locators.pageNameField)
       .then((currentPageName) => {
@@ -27,22 +27,11 @@ export class PageSettings {
           this.agHelper.PressEnter();
           this.agHelper.ValidateNetworkStatus("@updatePage", 200);
           checkUrl(appName as string, newPageName);
-
-          if (reset) {
-            this.agHelper.RemoveCharsNType(
-              this.locators.pageNameField,
-              currentPageNameLength + newPageName.length,
-              currentPageName as string,
-            );
-            this.agHelper.PressEnter();
-            this.agHelper.ValidateNetworkStatus("@updatePage", 200);
-            checkUrl(appName as string, currentPageName as string);
-          }
         });
       });
   }
 
-  changeCustomSlugAndVerifyUrl(customSlug: string, reset = false) {
+  changeCustomSlugAndVerifyUrl(customSlug: string) {
     this.agHelper
       .InvokeVal(this.locators.customSlugField)
       .then((currentCustomSlug) => {
@@ -61,29 +50,6 @@ export class PageSettings {
           this.agHelper.PressEnter();
           this.agHelper.ValidateNetworkStatus("@updatePage", 200);
           checkUrl(appName as string, "", customSlug);
-
-          if (reset) {
-            if (currentCustomSlugLength === 0) {
-              this.agHelper.ClearTextField(this.locators.customSlugField);
-            } else {
-              this.agHelper.RemoveCharsNType(
-                this.locators.customSlugField,
-                currentCustomSlugLength + customSlug.length,
-                currentCustomSlug as string,
-              );
-            }
-            this.agHelper.PressEnter();
-            this.agHelper.ValidateNetworkStatus("@updatePage", 200);
-            this.agHelper
-              .InvokeVal(this.locators.pageNameField)
-              .then((currentPageName) => {
-                checkUrl(
-                  appName as string,
-                  currentPageName as string,
-                  currentCustomSlug as string,
-                );
-              });
-          }
         });
       });
   }
