@@ -26,14 +26,16 @@ const ignoredKeys = [
   "arguments",
   "caller",
   "length",
+  "name",
 ];
 
 export function makeTernDefs(obj: any) {
   const defs: Record<string, unknown> = {};
   const cachedDefs: any = [];
   const visitedReferences: any = [];
-  const MAX_ITERATIONS = 5000;
+  const MAX_ITERATIONS = 10000;
   let iteration_count = 1;
+  const baseObjPrototype = Object.getPrototypeOf({});
 
   const queue = [[obj, defs]];
 
@@ -59,6 +61,19 @@ export function makeTernDefs(obj: any) {
             return [src[key], target[key]];
           }),
       );
+      if (type === "object") {
+        const prototype = Object.getPrototypeOf(src);
+        if (prototype !== baseObjPrototype) {
+          queue.push(
+            ...Object.getOwnPropertyNames(prototype)
+              .filter((key) => !ignoredKeys.includes(key))
+              .map((key) => {
+                target[key] = {};
+                return [src[key], target[key]];
+              }),
+          );
+        }
+      }
       iteration_count++;
     }
   } catch (e) {

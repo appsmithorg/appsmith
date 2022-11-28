@@ -41,12 +41,12 @@ export default [
     icon: "https://github.com/segmentio.png?s=20",
   },
   {
-    name: "Mixpanel",
-    description: "Isomorphic Javascript client for Supabase",
+    name: "mixpanel-browser",
+    description: "The official Mixpanel JavaScript browser client library",
     author: "mixpanel",
     docsURL: "https://developer.mixpanel.com/docs/javascript",
     version: "2.1.0",
-    url: `/libraries/mixpanel@0.17.0.js`,
+    url: `https://cdn.jsdelivr.net/npm/mixpanel-browser@2.45.0/dist/mixpanel.umd.js`,
     icon: "https://github.com/mixpanel.png?s=20",
   },
   {
@@ -94,7 +94,7 @@ export default [
     author: "greggman",
     docsURL: "https://github.com/greggman/uzip-module#uzip-module",
     version: "1.0.3",
-    url: `/libraries/uzip-module@1.0.3.js`,
+    url: `https://cdn.jsdelivr.net/npm/uzip-module@1.0.3/dist/uzip.js`,
     icon: "https://github.com/greggman.png?s=20",
   },
   {
