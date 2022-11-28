@@ -9,7 +9,11 @@ export class GeneralSettings {
     appIconSelector: "#t--general-settings-app-icon",
   };
 
-  changeAppNameAndVerifyUrl(newAppName: string, pageName = "page1") {
+  changeAppNameAndVerifyUrl(
+    reset: boolean,
+    newAppName: string,
+    pageName = "page1",
+  ) {
     this.agHelper
       .InvokeVal(this.locators.appNameField)
       .then((currentAppName) => {
@@ -21,6 +25,16 @@ export class GeneralSettings {
         this.agHelper.PressEnter();
         this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
         checkUrl(newAppName, pageName);
+        if (reset) {
+          this.agHelper.RemoveCharsNType(
+            this.locators.appNameField,
+            newAppName.length,
+            currentAppName as string,
+          );
+          this.agHelper.PressEnter();
+          this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
+          checkUrl(currentAppName as string, pageName);
+        }
       });
   }
 
