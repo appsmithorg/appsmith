@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.solutions.ActionPermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
     private final NewActionService newActionService;
 
     private final AstService astService;
+    private final ActionPermission actionPermission;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -113,7 +115,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         Map<String, EntityDependencyNode> actionsFoundDuringWalk = new HashMap<>();
 
         Flux<ActionDTO> allActionsByPageIdFlux = newActionService
-                .findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
+                .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                 .cache();
 
