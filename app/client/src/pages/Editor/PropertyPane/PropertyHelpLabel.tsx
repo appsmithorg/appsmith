@@ -22,7 +22,6 @@ function PropertyHelpLabel(props: Props) {
           style={{
             color: "#FAFAFA",
             maxWidth: props.maxWidth ? props.maxWidth : "320px",
-            textAlign: "center",
             lineHeight: props.lineHeight,
           }}
         >

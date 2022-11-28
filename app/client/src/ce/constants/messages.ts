@@ -1306,7 +1306,7 @@ export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
-  "your app URL to new readable format to change this*";
+  "your app URL to new readable format to change this";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
   "Hide or show the appsmith navbar containing the app name and page switcher";
