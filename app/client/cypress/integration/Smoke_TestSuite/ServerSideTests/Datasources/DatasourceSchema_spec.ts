@@ -17,20 +17,9 @@ describe("Datasource form related tests", function() {
       agHelper.RenameWithInPane(dataSourceName, false);
       dataSources.FillPostgresDSForm(false, "docker", "wrongPassword");
       dataSources.verifySchema("Failed to initialize pool");
-      dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
-    });
-  });
-
-  it("1. Verify datasource structure refresh on save - valid datasource", () => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      const guid = uid;
-      const dataSourceName = "Postgres " + guid;
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      agHelper.RenameWithInPane(dataSourceName, false);
-      dataSources.FillPostgresDSForm(false, "docker", "docker");
-      dataSources.verifySchema("public.");
+      cy.get(datasource.editDatasource).click();
+      dataSources.updatePassword("docker");
+      dataSources.verifySchema("public.", true);
       dataSources.DeleteDatasouceFromWinthinDS(dataSourceName);
     });
   });

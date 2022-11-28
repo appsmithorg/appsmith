@@ -113,6 +113,7 @@ export class DataSources {
   public StartDataSourceRoutes() {
     cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
     cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
+    cy.intercept("PUT", "/api/v1/datasources").as("updateDatasource");
   }
 
   private ReplaceApplicationIdForInterceptPages(fixtureFile: any) {
@@ -328,6 +329,12 @@ export class DataSources {
     //     .then((xhr) => {
     //         cy.log(JSON.stringify(xhr.response!.body));
     //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
+  }
+
+  public updateDatasource() {
+    this.agHelper.GetNClick(this._saveDs);
+    // this.agHelper.ValidateNetworkStatus("@updateDatasource", 200);
+    this.agHelper.AssertContains("datasource updated");
   }
 
   public DeleteDatasouceFromActiveTab(
@@ -679,9 +686,13 @@ export class DataSources {
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(schema: string) {
+  public verifySchema(schema: string, isUpdate = false) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
-    this.SaveDatasource();
+    if (isUpdate) {
+      this.updateDatasource();
+    } else {
+      this.SaveDatasource();
+    }
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
