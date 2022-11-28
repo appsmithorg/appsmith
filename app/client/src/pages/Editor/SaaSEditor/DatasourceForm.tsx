@@ -32,6 +32,7 @@ import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { setDatasourceViewMode } from "actions/datasourceActions";
+import { getQueryParams } from "utils/URLUtils";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -72,6 +73,16 @@ const EditDatasourceButton = styled(AdsButton)`
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
+  componentDidUpdate() {
+    const params = getQueryParams();
+    if (
+      (this.props.isNewDatasource || params.viewMode === "false") &&
+      this.props.viewMode
+    ) {
+      this.props.setDatasourceViewMode(false);
+    }
+  }
+
   render() {
     const { formConfig, pluginId } = this.props;
     if (!pluginId) {

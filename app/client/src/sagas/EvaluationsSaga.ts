@@ -134,7 +134,6 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree,
     widgetTypeConfigMap,
@@ -217,9 +216,13 @@ function* evaluateTreeSaga(
       isCreateFirstTree,
     );
 
-    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+    yield fork(
+      updateTernDefinitions,
+      updatedDataTree,
+      unEvalUpdates,
+      isCreateFirstTree,
+    );
   }
-
   yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);

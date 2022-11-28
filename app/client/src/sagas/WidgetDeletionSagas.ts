@@ -40,6 +40,7 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -229,6 +230,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         yield put(updateAndSaveLayout(finalWidgets));
+        yield put(generateAutoHeightLayoutTreeAction(true, true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";
@@ -313,6 +315,8 @@ function* deleteAllSelectedWidgetsSaga(
     }
 
     yield put(updateAndSaveLayout(finalWidgets));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
+
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {

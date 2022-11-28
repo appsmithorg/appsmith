@@ -2,11 +2,13 @@ import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneResponsePaneHeight,
   getApiPaneResponseSelectedTab,
+  getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
   setApiPaneResponseSelectedTab,
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,
+  setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -19,9 +21,9 @@ import {
 } from "selectors/editorContextSelectors";
 import { setFocusableCodeEditorField } from "actions/editorContextActions";
 import {
-  getAllDatasourceCollapsibleState,
   getSelectedWidgets,
   isDatasourceInViewMode,
+  getAllDatasourceCollapsibleState,
 } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -67,6 +69,7 @@ export enum FocusElement {
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
   DatasourceViewMode = "DatasourceViewMode",
   DatasourceAccordions = "DatasourceAccordions",
+  ApiRightPaneTabs = "ApiRightPaneTabs",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
   QueryPaneResponseTabs = "QueryPaneResponseTabs",
   QueryPaneResponseHeight = "QueryPaneResponseHeight",
@@ -228,6 +231,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.FormControlField,
       selector: getFocusableFormControlField,
       setter: setFocusableFormControlField,
+    },
+    {
+      name: FocusElement.ApiRightPaneTabs,
+      selector: getApiRightPaneSelectedTab,
+      setter: setApiRightPaneSelectedTab,
     },
   ],
 };

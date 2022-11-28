@@ -57,10 +57,10 @@ ff4j:
       enable: true
       description: Restoring old context while navigating across the app
       flipstrategy:
-        class: org.ff4j.strategy.PonderationStrategy
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: weight
-            value: 1
+          - name: emailDomains
+            value: appsmith.com,moolya.com
 
     - uid: DATASOURCE_ENVIRONMENTS
       enable: true
