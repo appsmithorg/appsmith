@@ -4,12 +4,13 @@ import { isArray, compact, isNumber } from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { RadioOption } from "../constants";
 import { LabelPosition } from "components/constants";
 import RadioGroupComponent from "../component";
+import { Stylesheet } from "entities/AppTheming";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -505,6 +506,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     return {
       selectedOptionValue: undefined,
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      boxShadow: "none",
     };
   }
 

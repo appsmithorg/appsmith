@@ -135,12 +135,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
-        // To debug the issue with userId empty error from segment
-        // TODO remove the code block once the issue is fixed
-        if (StringUtils.isEmpty(userId)) {
-            log.error(" UserId is null or empty. event Name is {}, analyticProperties is {}, hashUserId is {}", String.valueOf(userId), event, convertWithStream(properties), hashUserId);
-        }
-
         // Hash usernames at all places for self-hosted instance
         if (userId != null
                 && hashUserId

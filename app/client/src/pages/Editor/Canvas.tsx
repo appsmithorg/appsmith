@@ -94,11 +94,9 @@ const Canvas = memo((props: CanvasProps) => {
    * background for canvas
    */
   let backgroundForCanvas;
-  let renderMode = RenderModes.CANVAS;
 
   if (isPreviewMode) {
     backgroundForCanvas = "initial";
-    renderMode = RenderModes.PREVIEW;
   } else {
     backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
   }
@@ -125,7 +123,10 @@ const Canvas = memo((props: CanvasProps) => {
         }}
       >
         {props.widgetsStructure.widgetId &&
-          WidgetFactory.createWidget(props.widgetsStructure, renderMode)}
+          WidgetFactory.createWidget(
+            props.widgetsStructure,
+            RenderModes.CANVAS,
+          )}
         {isMultiplayerEnabledForUser && (
           <CanvasMultiPointerArena pageId={pageId} />
         )}

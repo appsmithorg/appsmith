@@ -6,6 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import SliderComponent, { SliderComponentProps } from "../component/Slider";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface NumberSliderWidgetProps
   extends WidgetProps,
@@ -36,6 +37,12 @@ class NumberSliderWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
   }
 
   componentDidUpdate(prevProps: NumberSliderWidgetProps) {
@@ -103,6 +110,7 @@ class NumberSliderWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         // If showMarks is off don't show marks at all

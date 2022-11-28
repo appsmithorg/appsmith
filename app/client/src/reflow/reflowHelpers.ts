@@ -736,7 +736,8 @@ function getMovementMapHelper(
             collisionTree[accessors.parallelMax] -
             collisionTree[accessors.parallelMin],
           occupiedLength:
-            (movementMap[collisionTree.id].horizontalOccupiedLength || 0) + 1,
+            (movementMap[collisionTree.id].horizontalOccupiedLength || 0) +
+            HORIZONTAL_RESIZE_LIMIT,
           currentEmptySpaces:
             (movementMap[collisionTree.id].horizontalEmptySpaces as number) ||
             0,
@@ -747,7 +748,10 @@ function getMovementMapHelper(
             collisionTree[accessors.parallelMax] -
             collisionTree[accessors.parallelMin],
           occupiedLength:
-            (movementMap[collisionTree.id].verticalOccupiedLength || 0) + 1,
+            (movementMap[collisionTree.id].verticalOccupiedLength || 0) +
+            (collisionTree.fixedHeight && accessors.directionIndicator < 0
+              ? collisionTree.fixedHeight
+              : VERTICAL_RESIZE_LIMIT),
           currentEmptySpaces:
             (movementMap[collisionTree.id].verticalEmptySpaces as number) || 0,
         };
