@@ -475,6 +475,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           border={CodeEditorBorder.ALL_SIDE}
           className="t--datasource-editor"
           evaluatedValue={this.handleEvaluatedValue()}
+          focusElementName={`${this.props.actionName}.url`}
         />
         {datasource && datasource.name !== "DEFAULT_REST_DATASOURCE" && (
           <CustomToolTip

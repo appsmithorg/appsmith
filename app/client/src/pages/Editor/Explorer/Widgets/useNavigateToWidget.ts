@@ -44,7 +44,6 @@ export const useNavigateToWidget = () => {
     selectWidget(widgetId, false);
     navigateToCanvas(pageId, widgetId);
     quickScrollToWidget(widgetId);
-
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
     setTimeout(() => {

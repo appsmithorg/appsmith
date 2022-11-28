@@ -36,6 +36,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system";
 import { isDatasourceInViewMode } from "selectors/ui";
+import { getQueryParams } from "utils/URLUtils";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -76,10 +77,6 @@ class DataSourceEditor extends React.Component<Props> {
     ) {
       this.props.switchDatasource(this.props.datasourceId);
     }
-
-    if (this.props.isNewDatasource && this.props.viewMode) {
-      this.props.setDatasourceViewMode(false);
-    }
   }
   componentDidMount() {
     //Fix to prevent restapi datasource from being set in DatasourceDBForm in datasource view mode
@@ -113,6 +110,13 @@ class DataSourceEditor extends React.Component<Props> {
           variant,
         });
       }
+    }
+    const params = getQueryParams();
+    if (
+      (this.props.isNewDatasource || params.viewMode === "false") &&
+      this.props.viewMode
+    ) {
+      this.props.setDatasourceViewMode(false);
     }
   }
 

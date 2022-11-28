@@ -6,9 +6,10 @@ const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
+const apiPage = ObjectsRegistry.ApiPage;
 
 describe("MaintainContext&Focus", function() {
-  it("Import the test application", () => {
+  it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
@@ -29,14 +30,15 @@ describe("MaintainContext&Focus", function() {
       }
     });
   });
-  it("Focus on different entities", () => {
+
+  it("2. Focus on different entities", () => {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
     cy.SearchEntityandOpen("Text1");
-    cy.focusCodeInput(".t--property-control-text");
+    cy.focusCodeInput(".t--property-control-text", { ch: 2, line: 0 });
 
     cy.SearchEntityandOpen("Graphql_Query");
-    cy.focusCodeInput(".t--graphql-query-editor");
+    cy.focusCodeInput(".t--graphql-query-editor", { ch: 4, line: 1 });
 
     cy.SearchEntityandOpen("Rest_Api_1");
     cy.wait(1000);
@@ -52,23 +54,26 @@ describe("MaintainContext&Focus", function() {
 
     cy.SearchEntityandOpen("SQL_Query");
     cy.wait(1000);
-    cy.focusCodeInput(".t--actionConfiguration\\.body");
+    cy.focusCodeInput(".t--actionConfiguration\\.body", { ch: 5, line: 0 });
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("S3_Query");
     cy.wait(1000);
-    cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data");
+    cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data", {
+      ch: 2,
+      line: 0,
+    });
     cy.wait(1000);
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("JSObject1");
     cy.wait(1000);
-    cy.focusCodeInput(".js-editor");
+    cy.focusCodeInput(".js-editor", { ch: 4, line: 4 });
     cy.wait("@saveAction");
 
     cy.SearchEntityandOpen("JSObject2");
     cy.wait(1000);
-    cy.focusCodeInput(".js-editor");
+    cy.focusCodeInput(".js-editor", { ch: 2, line: 2 });
 
     cy.SearchEntityandOpen("Mongo_Query");
     cy.wait(1000);
@@ -78,18 +83,24 @@ describe("MaintainContext&Focus", function() {
     );
     cy.wait("@saveAction");
   });
-  it("Check for focus on entities", () => {
+
+  it("3. Maintains focus on the property pane", () => {
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
-    cy.assertCursorOnCodeInput(".t--property-control-text");
+    cy.assertSoftFocusOnPropertyPane(".t--property-control-text", {
+      ch: 2,
+      line: 0,
+    });
+  });
 
+  it("4. Maintains focus on Api Pane", () => {
     cy.SearchEntityandOpen("Graphql_Query");
     cy.contains(".react-tabs__tab", "Body").should(
       "have.class",
       "react-tabs__tab--selected",
     );
-    cy.assertCursorOnCodeInput(".t--graphql-query-editor");
+    cy.assertCursorOnCodeInput(".t--graphql-query-editor", { ch: 4, line: 1 });
 
     cy.SearchEntityandOpen("Rest_Api_1");
     cy.assertCursorOnCodeInput(apiwidget.queryKey);
@@ -100,27 +111,43 @@ describe("MaintainContext&Focus", function() {
       "react-tabs__tab--selected",
     );
     cy.assertCursorOnCodeInput(apiwidget.headerValue);
+  });
 
+  it("5. Maintains focus on Query panes", () => {
     cy.SearchEntityandOpen("SQL_Query");
-    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body");
+    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
+      ch: 5,
+      line: 0,
+    });
 
     cy.SearchEntityandOpen("S3_Query");
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
+      { ch: 2, line: 0 },
     );
-
-    cy.SearchEntityandOpen("JSObject1");
-    cy.assertCursorOnCodeInput(".js-editor");
-
-    cy.SearchEntityandOpen("JSObject2");
-    cy.assertCursorOnCodeInput(".js-editor");
-
     cy.SearchEntityandOpen("Mongo_Query");
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
   });
-  it("Datasource edit mode has to be maintained", () => {
+
+  it("6. Maintains focus on JS Objects", () => {
+    cy.SearchEntityandOpen("JSObject1");
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 4, line: 4 });
+
+    cy.SearchEntityandOpen("JSObject2");
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
+  });
+
+  it("7. Check if selected tab on right tab persists", () => {
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.SelectRightPaneTab("connections");
+    ee.SelectEntityByName("SQL_Query");
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.AssertRightPaneSelectedTab("connections");
+  });
+
+  it("7. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith");
     ee.SelectEntityByName("Github");
     dataSources.AssertViewMode();

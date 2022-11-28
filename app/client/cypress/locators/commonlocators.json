@@ -192,5 +192,16 @@
   "cancelActionExecution": ".t--cancel-action-button",
   "codeScannerScannerLayout": ".t--property-control-scannerlayout",
   "codeScannerVideo": ".code-scanner-camera-container video",
-  "codeScannerDisabledSVGIcon": ".code-scanner-camera-container div[disabled] svg"
+  "codeScannerDisabledSVGIcon": ".code-scanner-camera-container div[disabled] svg",
+  "layoutHeightDropdown": ".t--property-control-height .remixicon-icon",
+  "fixed": "[data-cy='t--dropdown-option-Fixed']",
+  "autoHeight": "[data-cy='t--dropdown-option-Auto Height']",
+  "autoHeightWithLimits": "[data-cy='t--dropdown-option-Auto Height with limits']",
+  "minHeight": "minheight\\(inrows\\)",
+  "maxHeight": "maxheight\\(inrows\\)",
+  "overlayMin": "[data-cy='t--auto-height-overlay-min']",
+  "overlayMax": "[data-cy='t--auto-height-overlay-max']",
+  "addOption": ".t--property-control-options-add",
+  "showTabsControl": ".t--property-control-showtabs .bp3-control-indicator",
+  "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator"
 }

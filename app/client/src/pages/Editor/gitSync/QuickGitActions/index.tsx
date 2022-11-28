@@ -21,7 +21,6 @@ import {
 } from "@appsmith/constants/messages";
 
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import {
@@ -43,6 +42,7 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   Button,
   Category,
+  getTypographyByKey,
   Icon,
   IconName,
   IconSize,
@@ -86,7 +86,7 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
     top: ${(props) => -1 * props.theme.spaces[3]}px;
     left: ${(props) => props.theme.spaces[8]}px;
     border-radius: ${(props) => props.theme.spaces[3]}px;
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${getTypographyByKey("p3")};
     z-index: 1;
     padding: ${(props) => props.theme.spaces[1]}px
       ${(props) => props.theme.spaces[2]}px;
@@ -224,7 +224,7 @@ const PlaceholderButton = styled.div`
   padding: ${(props) =>
     `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
   border: solid 1px ${Colors.MERCURY};
-  ${(props) => getTypographyByKey(props, "btnSmall")};
+  ${getTypographyByKey("btnSmall")};
   text-transform: uppercase;
   background-color: ${Colors.ALABASTER_ALT};
   color: ${Colors.GRAY};

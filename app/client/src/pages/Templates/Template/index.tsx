@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import { Button, Size, TooltipComponent as Tooltip } from "design-system";
+import {
+  Button,
+  getTypographyByKey,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
@@ -48,11 +52,11 @@ const TemplateContent = styled.div`
   flex: 1;
 
   .title {
-    ${(props) => getTypographyByKey(props, "h1")}
+    ${getTypographyByKey("h1")}
     color: ${Colors.EBONY_CLAY};
   }
   .categories {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     font-weight: normal;
     color: var(--appsmith-color-black-800);
     margin-top: ${(props) => props.theme.spaces[1]}px;
@@ -60,7 +64,7 @@ const TemplateContent = styled.div`
   .description {
     margin-top: ${(props) => props.theme.spaces[2]}px;
     color: var(--appsmith-color-black-700);
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${getTypographyByKey("p1")}
   }
 `;
 

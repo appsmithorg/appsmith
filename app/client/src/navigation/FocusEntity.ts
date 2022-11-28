@@ -9,6 +9,7 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_DATASOURCE_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 
 export enum FocusEntity {
   API = "API",
@@ -19,8 +20,6 @@ export enum FocusEntity {
   PROPERTY_PANE = "PROPERTY_PANE",
   NONE = "NONE",
 }
-
-export enum FocusSubTypeEntity {}
 
 export type FocusEntityInfo = {
   entity: FocusEntity;
@@ -38,6 +37,7 @@ export function identifyEntityFromPath(
   const match = matchPath<{
     apiId?: string;
     datasourceId?: string;
+    pluginPackageName?: string;
     queryId?: string;
     appId?: string;
     pageId?: string;
@@ -55,6 +55,9 @@ export function identifyEntityFromPath(
       BUILDER_CUSTOM_PATH + DATA_SOURCES_EDITOR_ID_PATH,
       BUILDER_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
       BUILDER_CUSTOM_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
+      BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+      BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+      BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
       BUILDER_PATH_DEPRECATED + JS_COLLECTION_ID_PATH,
       BUILDER_PATH + JS_COLLECTION_ID_PATH,
       BUILDER_CUSTOM_PATH + JS_COLLECTION_ID_PATH,
@@ -67,6 +70,9 @@ export function identifyEntityFromPath(
     return { entity: FocusEntity.NONE, id: "" };
   }
   if (match.params.apiId) {
+    if (match.params.pluginPackageName) {
+      return { entity: FocusEntity.QUERY, id: match.params.apiId };
+    }
     return { entity: FocusEntity.API, id: match.params.apiId };
   }
   if (match.params.datasourceId) {
