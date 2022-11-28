@@ -69,6 +69,7 @@ import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { FormDataPaths } from "workers/Evaluation/formEval";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -180,6 +181,12 @@ function* formValueChangeSaga(
 
     AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
+    return;
+  }
+
+  // If there is a change in the command type of a form and the value is an empty string, we prevent the command action value from being updated and form evaluations from being performed on it.
+  // We do this because by default the command value of an action should always be set to a non empty string value.
+  if (field === FormDataPaths.COMMAND && actionPayload.payload === "") {
     return;
   }
 
