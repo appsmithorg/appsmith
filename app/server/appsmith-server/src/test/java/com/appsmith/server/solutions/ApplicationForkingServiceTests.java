@@ -156,7 +156,6 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
 
-
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;

@@ -105,7 +105,6 @@ public class DatasourceServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-
     String workspaceId = "";
 
     @BeforeEach

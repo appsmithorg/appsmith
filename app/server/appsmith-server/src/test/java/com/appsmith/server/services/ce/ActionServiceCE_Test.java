@@ -172,8 +172,6 @@ public class ActionServiceCE_Test {
     @SpyBean
     AstService astService;
 
-
-
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -2651,7 +2649,7 @@ public class ActionServiceCE_Test {
 
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
         return newPageService
-                .findByNameAndViewMode(page.getName(), READ_PAGES, false)
+                .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
                 .switchIfEmpty(applicationPageService.createApplication(app, workspaceId)
                         .map(application -> {
                             page.setApplicationId(application.getId());

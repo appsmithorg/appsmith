@@ -121,7 +121,6 @@ public class PageServiceTest {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
-
     static Application application = null;
 
     static Application gitConnectedApplication = null;

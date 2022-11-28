@@ -98,7 +98,6 @@ public class ShareWorkspacePermissionTests {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
-
     Application savedApplication;
 
     Workspace savedWorkspace;

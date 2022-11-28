@@ -118,7 +118,6 @@ public class LayoutActionServiceTest {
     @Autowired
     ImportExportApplicationService importExportApplicationService;
 
-
     Application testApp = null;
 
     PageDTO testPage = null;

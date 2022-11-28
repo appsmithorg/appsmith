@@ -166,7 +166,6 @@ public class ImportExportApplicationServiceTests {
     @Autowired
     PermissionGroupService permissionGroupService;
 
-
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
     private static String workspaceId;
