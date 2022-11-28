@@ -7,6 +7,9 @@ export class PageSettings {
   private locators = {
     pageNameField: "#t--page-settings-name",
     customSlugField: "#t--page-settings-custom-slug",
+    showPageNavSwitch: "#t--page-settings-show-nav-control",
+    setAsHomePageSwitch: "#t--page-settings-home-page-control",
+    homePageHeader: "#t--page-settings-default-page",
   };
 
   changePageNameAndVerifyUrl(newPageName: string, reset = false) {
@@ -83,5 +86,25 @@ export class PageSettings {
           }
         });
       });
+  }
+
+  changePageNavigationSetting() {
+    this.agHelper.GetSiblingNClick(
+      this.locators.showPageNavSwitch,
+      ".bp3-control-indicator",
+    );
+    this.agHelper.ValidateNetworkStatus("@updatePage", 200);
+  }
+
+  setAsHomePage() {
+    this.agHelper.GetSiblingNClick(
+      this.locators.setAsHomePageSwitch,
+      ".bp3-control-indicator",
+    );
+    this.agHelper.ValidateNetworkStatus("@makePageDefault", 200);
+  }
+
+  isHomePage(pageName: string) {
+    this.agHelper.AssertText(this.locators.homePageHeader, "text", pageName);
   }
 }

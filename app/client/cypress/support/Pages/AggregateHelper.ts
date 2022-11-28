@@ -481,6 +481,22 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetSiblingNClick(
+    selector: string,
+    siblingSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return this.GetElement(selector)
+      .siblings(siblingSelector)
+      .first()
+      .eq(index)
+      .scrollIntoView()
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
   public SelectNRemoveLineText(selector: string) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)

@@ -38,7 +38,7 @@ export class GeneralSettings {
       });
   }
 
-  changeAppIconAndValidateApi() {
+  changeAppIcon() {
     this.agHelper.GetNClick(this.locators.appNonSelectedIcon, 0);
     this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
   }

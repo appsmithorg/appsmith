@@ -299,6 +299,7 @@ function PageSettings(props: { page: Page }) {
             checked={isShown}
             className="mb-0"
             disabled={isShownSaving}
+            id="t--page-settings-show-nav-control"
             large
             onChange={() => {
               setIsShown(!isShown);
@@ -326,6 +327,7 @@ function PageSettings(props: { page: Page }) {
             checked={isDefault}
             className="mb-0"
             disabled={isDefaultSaving || page.isDefault}
+            id="t--page-settings-home-page-control"
             large
             onChange={() => {
               setIsDefault(!isDefault);

@@ -10,6 +10,6 @@ describe("General Settings", () => {
   });
 
   it("Handles app icon change", () => {
-    appSettings.general.changeAppIconAndValidateApi();
+    appSettings.general.changeAppIcon();
   });
 });

@@ -49,7 +49,14 @@ function PageListHeader(props: {
       ) : (
         <PageIcon color={Colors.GRAY_800} height={17} width={18} />
       )}
-      <div className="font-medium pl-1 text-ellipsis whitespace-nowrap overflow-hidden">
+      <div
+        className="font-medium pl-1 text-ellipsis whitespace-nowrap overflow-hidden"
+        id={
+          props.page.isDefault
+            ? "t--page-settings-default-page"
+            : "t--page-settings-non-default-page"
+        }
+      >
         {props.page.pageName}
       </div>
     </div>
