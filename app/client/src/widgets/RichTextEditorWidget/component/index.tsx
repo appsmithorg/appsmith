@@ -266,7 +266,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const initialRender = useRef(true);
 
   const toolbarConfig =
-    "insertfile undo redo | formatselect | bold italic backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | forecolor backcolor emoticons' |help";
+    "insertfile undo redo | formatselect | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons' |help";
 
   const handleEditorChange = useCallback(
     (newValue: string, editor: any) => {
@@ -343,13 +343,13 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             resize: false,
             browser_spellcheck: true,
             content_style: `${cssVariables}
-            * {
-              color: ${
+              ${
                 props.isDisabled
-                  ? "var(--wds-color-text-disabled)"
-                  : "var(--wds-color-text)"
-              };
-            }`,
+                  ? `* {
+                  color: var(--wds-color-text-disabled)
+                }`
+                  : ""
+              }`,
             plugins: [
               "advlist autolink lists link image charmap print preview anchor",
               "searchreplace visualblocks code fullscreen",
