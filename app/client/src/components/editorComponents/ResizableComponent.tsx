@@ -234,13 +234,13 @@ export const ResizableComponent = memo(function ResizableComponent(
     });
   };
 
-  const handleResizeStart = () => {
+  const handleResizeStart = (affectsWidth = false) => {
     setIsResizing && !isResizing && setIsResizing(true);
     selectWidget && !isLastSelected && selectWidget(props.widgetId);
     // Make sure that this tableFilterPane should close
     showTableFilterPane && showTableFilterPane();
-    // If resizing a fill widget, then convert it to a hug widget.
-    if (props.responsiveBehavior === ResponsiveBehavior.Fill)
+    // If resizing a fill widget "horizontally", then convert it to a hug widget.
+    if (props.responsiveBehavior === ResponsiveBehavior.Fill && affectsWidth)
       dispatch(
         batchUpdateMultipleWidgetProperties([
           {
