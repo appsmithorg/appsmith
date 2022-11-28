@@ -5,7 +5,7 @@ import {
 } from "./hooks";
 import { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,

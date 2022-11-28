@@ -13,6 +13,7 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 export function selectedTabValidation(
@@ -282,6 +283,14 @@ class TabsWidget extends BaseWidget<
     });
     setTimeout(this.callDynamicHeightUpdates, 0);
   };
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
 
   static getDerivedPropertiesMap() {
     return {

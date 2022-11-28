@@ -17,6 +17,7 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -299,6 +300,14 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getPropertyPaneStyleConfig() {

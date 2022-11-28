@@ -84,6 +84,7 @@ import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
+import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -160,6 +161,38 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getLoadingProperties(): Array<RegExp> | undefined {
     return [/\.tableData$/];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        menuButton: {
+          menuColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        iconButton: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        editActions: {
+          saveButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          saveBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          discardBorderRadius:
+            "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+      },
+    };
   }
 
   /*

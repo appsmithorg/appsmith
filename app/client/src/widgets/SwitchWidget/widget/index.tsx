@@ -10,6 +10,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
@@ -229,6 +230,13 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      boxShadow: "none",
+    };
   }
 
   getPageView() {
