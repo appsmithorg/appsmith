@@ -355,7 +355,7 @@ function InstallationPopoverContent(props: any) {
             leftIcon="link-2"
             onChange={updateURL}
             padding="12px"
-            placeholder="Paste a library URL"
+            placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
             validator={validate}
             width="100%"
           />

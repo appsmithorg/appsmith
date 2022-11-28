@@ -19,7 +19,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import TernServer from "utils/autocomplete/TernServer";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { EVAL_WORKER_ACTIONS, TJSLibrary } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
@@ -109,7 +109,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   }
 
   try {
-    TernServer.updateDef(defs["!name"], defs);
+    CodemirrorTernService.updateDef(defs["!name"], defs);
   } catch (e) {
     Toaster.show({
       text: createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
@@ -202,7 +202,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
     }
 
     try {
-      TernServer.removeDef(`LIB/${name}`);
+      CodemirrorTernService.removeDef(`LIB/${name}`);
     } catch (e) {
       log.debug(`Failed to remove definitions for ${name}`, e);
     }
@@ -288,7 +288,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       for (const lib of libraries) {
         try {
           const defs = JSON.parse(lib.defs);
-          TernServer.updateDef(defs["!name"], defs);
+          CodemirrorTernService.updateDef(defs["!name"], defs);
         } catch (e) {
           Toaster.show({
             text: createMessage(
