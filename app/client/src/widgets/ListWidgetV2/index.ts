@@ -1,54 +1,10 @@
 // TODO: Ashit - Add jest test for all the functions
-
-import { klona } from "klona";
 import { get } from "lodash";
-import { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
 
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  FlattenedWidgetProps,
-} from "widgets/constants";
+import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
-import Widget, { ListWidgetProps } from "./widget";
-
-const getLogBlackList = (widget: WidgetProps) => {
-  const logBlackList: Record<string, boolean> = {};
-
-  Object.keys(widget).forEach((key) => {
-    logBlackList[key] = true;
-  });
-
-  return logBlackList;
-};
-
-const computeWidgets = (
-  widget: FlattenedWidgetProps,
-  widgets: Record<string, FlattenedWidgetProps>,
-  childrenUpdatePropertyMap: UpdatePropertyArgs[] = [],
-) => {
-  const clonedWidget = klona(widget);
-  const logBlackList = getLogBlackList(widget);
-
-  // TODO: (Ashit) - Remove logBlackList when widget moved out of list widget
-  clonedWidget.logBlackList = logBlackList;
-
-  childrenUpdatePropertyMap.push({
-    widgetId: clonedWidget.widgetId,
-    propertyName: "logBlackList",
-    propertyValue: logBlackList,
-  });
-
-  (widget.children || []).map((child) => {
-    const childWidget = typeof child === "string" ? widgets[child] : child;
-
-    computeWidgets(childWidget, widgets, childrenUpdatePropertyMap);
-  });
-
-  return {
-    childrenUpdatePropertyMap,
-  };
-};
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -86,22 +42,6 @@ export const CONFIG = {
       child: {
         autocomplete: (parentProps: any) => {
           return parentProps.childAutoComplete;
-        },
-        // TODO: (Ashit) - Remove this enhancement. Probably not required for V2
-        updateDataTreePath: (
-          parentProps: ListWidgetProps,
-          dataTreePath: string,
-        ) => {
-          const pathChunks = dataTreePath.split(".");
-          const widgetName = pathChunks[0];
-          const path = pathChunks.slice(1, pathChunks.length).join(".");
-          const { flattenedChildCanvasWidgets = {} } = parentProps;
-
-          const templateWidget = Object.values(
-            flattenedChildCanvasWidgets,
-          ).find((w) => w.widgetName === widgetName);
-
-          return `${parentProps.widgetName}.template.${templateWidget?.widgetId}.${path}`;
         },
       },
     },
@@ -255,24 +195,14 @@ export const CONFIG = {
       operations: [
         {
           type: BlueprintOperationTypes.MODIFY_PROPS,
-          fn: (
-            widget: WidgetProps & { children?: WidgetProps[] },
-            widgets: { [widgetId: string]: FlattenedWidgetProps },
-          ) => {
+          fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
             // List > Canvas > Container > Canvas > Widgets
             const mainCanvas = get(widget, "children.0");
             const containerId = get(widget, "children.0.children.0");
             const { widgetName } = widget;
             const primaryKeys = `{{${widgetName}.listData.map((currentItem, currentIndex) => currentItem["id"] )}}`;
 
-            const { childrenUpdatePropertyMap } = computeWidgets(
-              mainCanvas,
-              widgets,
-            );
-
             return [
-              ...childrenUpdatePropertyMap,
-
               {
                 widgetId: widget.widgetId,
                 propertyName: "mainContainerId",
@@ -289,26 +219,6 @@ export const CONFIG = {
                 propertyValue: primaryKeys,
               },
             ];
-          },
-        },
-        {
-          type: BlueprintOperationTypes.CHILD_OPERATIONS,
-          fn: (
-            widgets: { [widgetId: string]: FlattenedWidgetProps },
-            widgetId: string,
-            parentId: string,
-          ) => {
-            if (!parentId) return { widgets };
-            const widget = { ...widgets[widgetId] };
-            const parent = { ...widgets[parentId] };
-            const logBlackList = getLogBlackList(widget);
-
-            widget.logBlackList = logBlackList;
-
-            widgets[parentId] = parent;
-            widgets[widgetId] = widget;
-
-            return { widgets };
           },
         },
       ],
