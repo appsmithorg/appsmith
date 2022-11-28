@@ -98,6 +98,7 @@ const Form = styled.form`
 `;
 
 const MainConfiguration = styled.div`
+  z-index: 7;
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
