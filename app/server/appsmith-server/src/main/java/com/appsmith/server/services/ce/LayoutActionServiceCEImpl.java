@@ -829,7 +829,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         DefaultResources defaultResources = new DefaultResources();
         defaultResources.setBranchName(branchName);
 
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, action.getPageId(), pagePermission.getEditPermission())
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, action.getPageId(), pagePermission.getActionCreatePermission())
                 .flatMap(newPage -> {
                     // Update the page and application id with branched resource
                     action.setPageId(newPage.getId());

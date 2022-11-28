@@ -98,11 +98,6 @@ public class ShareWorkspacePermissionTests {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
-    @Autowired
-    WorkspacePermission workspacePermission;
-
-    @Autowired
-    PermissionGroupPermission permissionGroupPermission;
 
     Application savedApplication;
 
@@ -128,13 +123,13 @@ public class ShareWorkspacePermissionTests {
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         ArrayList<String> emails = new ArrayList<>();
 
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
                 .findFirst().get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
@@ -167,19 +162,19 @@ public class ShareWorkspacePermissionTests {
     @Test
     @WithUserDetails(value = "admin@solutiontest.com")
     public void testAdminPermissionsForInviteAndMakePublic() {
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
                 .findFirst().get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
                 .findFirst().get();
 
-        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
@@ -194,7 +189,7 @@ public class ShareWorkspacePermissionTests {
                 .build();
 
         Mono<Application> applicationMono = applicationService.findById(savedApplication.getId());
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         StepVerifier.create(Mono.zip(applicationMono, workspaceMono))
                 .assertNext(tuple -> {
@@ -227,19 +222,19 @@ public class ShareWorkspacePermissionTests {
     @Test
     @WithUserDetails(value = "developer@solutiontest.com")
     public void testDevPermissionsForInvite() {
-        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup adminPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.ADMINISTRATOR))
                 .findFirst().get();
 
-        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup developerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.DEVELOPER))
                 .findFirst().get();
 
-        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup viewerPermissionGroup = permissionGroupService.getByDefaultWorkspace(savedWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
@@ -249,7 +244,7 @@ public class ShareWorkspacePermissionTests {
                 .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                 .build();
 
-        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceMono = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         StepVerifier.create(workspaceMono)
                 .assertNext(workspace -> {

@@ -977,7 +977,6 @@ public class GitServiceCEImpl implements GitServiceCE {
      * @param defaultApplicationId application which needs to be disconnected from git connection
      * @return Application data
      */
-    // TODO: Check what needs to happen to resources here. Should we use Delete permission or keep using Edit permission
     @Override
     public Mono<Application> detachRemote(String defaultApplicationId) {
 
@@ -1320,7 +1319,6 @@ public class GitServiceCEImpl implements GitServiceCE {
         return getApplicationById(applicationId);
     }
 
-    //todo: should this be read or edit
     Mono<Application> getApplicationById(String applicationId) {
         return applicationService.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
@@ -2046,7 +2044,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    //todo: should this be delete or edit.
     @Override
     public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
         Mono<Application> deleteBranchMono = getApplicationById(defaultApplicationId)

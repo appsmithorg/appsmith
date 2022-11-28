@@ -16,7 +16,6 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
@@ -79,8 +79,6 @@ public class ThemeServiceTest {
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
-    @Autowired
-    ApplicationPermission applicationPermission;
 
     Workspace workspace;
 
@@ -562,7 +560,7 @@ public class ThemeServiceTest {
         Application updateApp = new Application();
         updateApp.setEditModeThemeId("");
         updateApp.setPublishedModeThemeId("");
-        Application appWithoutTheme = applicationRepository.updateById(savedApplication.getId(), updateApp, applicationPermission.getEditPermission()).block();
+        Application appWithoutTheme = applicationRepository.updateById(savedApplication.getId(), updateApp, MANAGE_APPLICATIONS).block();
 
         Application publishedApp = applicationPageService.publish(savedApplication.getId(), TRUE).block();
 
@@ -786,7 +784,7 @@ public class ThemeServiceTest {
                                 .thenReturn(savedApplication.getId())
                 )
                 .flatMap(applicationId ->
-                        applicationRepository.findById(applicationId, applicationPermission.getEditPermission())
+                        applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
                 );
 
         StepVerifier.create(applicationMono).assertNext(app -> {

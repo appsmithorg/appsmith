@@ -43,9 +43,6 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -93,7 +90,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -158,13 +157,6 @@ public class GitServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-    @Autowired
-    ApplicationPermission applicationPermission;
-
-    @Autowired
-    PagePermission pagePermission;
-    @Autowired
-    ActionPermission actionPermission;
 
     private static String workspaceId;
     private static Application gitConnectedApplication = new Application();
@@ -972,7 +964,7 @@ public class GitServiceTest {
                     return Mono.zip(
                             applicationService.save(application),
                             pluginRepository.findByPackageName("installed-plugin"),
-                            newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false)
+                            newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false)
                     );
                 })
                 .flatMap(tuple -> {
@@ -1056,9 +1048,9 @@ public class GitServiceTest {
 
         StepVerifier
                 .create(resultMono.zipWhen(application -> Mono.zip(
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                        newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
                 )))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
@@ -1597,7 +1589,7 @@ public class GitServiceTest {
                 .thenReturn(Mono.just(branchList));
 
         Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal")
-                .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("branchNotInLocal", gitConnectedApplication.getId(), applicationPermission.getReadPermission()));
+                .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId("branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
         StepVerifier
                 .create(applicationMono)
@@ -1937,7 +1929,7 @@ public class GitServiceTest {
                         Mono.zip(
                                 Mono.just(application),
                                 pluginRepository.findByPackageName("installed-plugin"),
-                                newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false))
+                                newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
                 )
                 .flatMap(tuple -> {
 
@@ -2007,14 +1999,14 @@ public class GitServiceTest {
                 .flatMap(application ->
                         gitService
                                 .createBranch(application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
-                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), applicationPermission.getReadPermission()))
+                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS))
                 );
 
         StepVerifier
                 .create(createBranchMono.zipWhen(application -> Mono.zip(
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                        newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList(),
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                        newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
                         applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
                 )))
                 .assertNext(tuple -> {
@@ -2141,7 +2133,7 @@ public class GitServiceTest {
                         Mono.zip(
                                 Mono.just(application),
                                 pluginRepository.findByPackageName("installed-plugin"),
-                                newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false))
+                                newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
                 )
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
@@ -2157,7 +2149,7 @@ public class GitServiceTest {
                 .flatMap(application ->
                         gitService
                                 .createBranch(application.getId(), createGitBranchDTO, application.getGitApplicationMetadata().getBranchName())
-                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), applicationPermission.getReadPermission()))
+                                .then(applicationService.findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS))
                 )
                 .zipWhen(application ->
                         applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
@@ -2318,7 +2310,7 @@ public class GitServiceTest {
                         e.printStackTrace();
                     }
                     return applicationService
-                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), applicationPermission.getReadPermission());
+                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS);
                 });
 
         StepVerifier
@@ -2644,7 +2636,7 @@ public class GitServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByWorkspaceId(testWorkspaceId, applicationPermission.getReadPermission())
+                    return applicationService.findByWorkspaceId(testWorkspaceId, READ_APPLICATIONS)
                             .filter(application1 -> "testGitImportRepoCancelledMidway".equals(application1.getName()))
                             .next();
                 });
@@ -2955,7 +2947,7 @@ public class GitServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findAllApplicationsByDefaultApplicationId(DBApplication.getId(), applicationPermission.getEditPermission());
+                    return applicationService.findAllApplicationsByDefaultApplicationId(DBApplication.getId(), MANAGE_APPLICATIONS);
                 })
                 .collectList();
 

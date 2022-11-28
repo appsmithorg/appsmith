@@ -417,7 +417,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     public Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO, String branchName) {
 
         Mono<String> destinationPageMono = newPageService
-                .findByBranchNameAndDefaultPageId(branchName, actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission())
+                .findByBranchNameAndDefaultPageId(branchName, actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission())
                 .map(NewPage::getId);
 
         Mono<String> branchedCollectionMono = actionCollectionService

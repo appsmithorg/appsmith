@@ -26,6 +26,7 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -54,8 +55,6 @@ public class ExampleApplicationsAreMarked {
 
     @MockBean
     private InstanceConfig instanceConfig;
-    @Autowired
-    ApplicationPermission applicationPermission;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -107,7 +106,7 @@ public class ExampleApplicationsAreMarked {
                             )
                             .thenReturn(workspace.getId());
                 })
-                .flatMapMany(workspaceId -> applicationService.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission()))
+                .flatMapMany(workspaceId -> applicationService.findByWorkspaceId(workspaceId, READ_APPLICATIONS))
                 .collectList();
 
         StepVerifier.create(resultMono)

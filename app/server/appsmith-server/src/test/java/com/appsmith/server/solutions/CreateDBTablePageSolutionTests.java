@@ -90,8 +90,6 @@ public class CreateDBTablePageSolutionTests {
 
     @Autowired
     ApplicationService applicationService;
-    @Autowired
-    PagePermission pagePermission;
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
@@ -344,7 +342,7 @@ public class CreateDBTablePageSolutionTests {
         Mono<NewPage> resultMono = applicationPageService.createPageWithBranchName(newPage, gitData.getBranchName())
                 .flatMap(savedPage -> solution.createPageFromDBTable(savedPage.getId(), resource, gitData.getBranchName()))
                 .flatMap(crudPageResponseDTO ->
-                        newPageService.findByBranchNameAndDefaultPageId(gitData.getBranchName(), crudPageResponseDTO.getPage().getId(), pagePermission.getReadPermission()));
+                        newPageService.findByBranchNameAndDefaultPageId(gitData.getBranchName(), crudPageResponseDTO.getPage().getId(), READ_PAGES));
 
         StepVerifier
                 .create(resultMono.zipWhen(newPage1 -> getActions(newPage1.getId())))

@@ -5,6 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -79,6 +80,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -153,17 +156,6 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
 
-    @Autowired
-    DatasourcePermission datasourcePermission;
-
-    @Autowired
-    PermissionGroupPermission permissionGroupPermission;
-    @Autowired
-    ApplicationPermission applicationPermission;
-    @Autowired
-    PagePermission pagePermission;
-    @Autowired
-    ActionPermission actionPermission;
 
     private static String sourceAppId;
 
@@ -193,7 +185,7 @@ public class ApplicationForkingServiceTests {
         app1 = applicationPageService.createApplication(app1).block();
         sourceAppId = app1.getId();
 
-        PageDTO testPage = newPageService.findPageById(app1.getPages().get(0).getId(), pagePermission.getReadPermission(), false).block();
+        PageDTO testPage = newPageService.findPageById(app1.getPages().get(0).getId(), READ_PAGES, false).block();
 
         // Save action
         Datasource datasource = new Datasource();
@@ -271,7 +263,7 @@ public class ApplicationForkingServiceTests {
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
-        PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, permissionGroupPermission.getMembersReadPermission())
+        PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
                 .collectList().block()
                 .stream()
                 .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
@@ -300,10 +292,10 @@ public class ApplicationForkingServiceTests {
         return Mono
                 .when(
                         applicationService
-                                .findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
+                                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByWorkspaceId(workspace.getId(), datasourcePermission.getReadPermission())
+                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add)
@@ -326,9 +318,9 @@ public class ApplicationForkingServiceTests {
 
         StepVerifier.create(resultMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
                         )))
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
@@ -463,16 +455,16 @@ public class ApplicationForkingServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationService.findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission()).next();
+                    return applicationService.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS).next();
                 })
                 .cache();
 
         StepVerifier
                 .create(forkedAppFromDbMono.zipWhen(application ->
                         Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()))
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()))
                 )
                 .assertNext(tuple -> {
                     Application application = tuple.getT1();
@@ -757,8 +749,8 @@ public class ApplicationForkingServiceTests {
         final Mono<Application> resultMono = Mono.just(resultApplication);
 
         StepVerifier.create(resultMono
-                        .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), pagePermission.getReadPermission()).collectList()
-                                .zipWith(newPageService.findNewPagesByApplicationId(originalAppId, pagePermission.getReadPermission()).collectList())))
+                        .zipWhen(application1 -> newPageService.findNewPagesByApplicationId(application1.getId(), READ_PAGES).collectList()
+                                .zipWith(newPageService.findNewPagesByApplicationId(originalAppId, READ_PAGES).collectList())))
                 .assertNext(tuple -> {
                     Application forkedApplication = tuple.getT1();
                     List<NewPage> forkedPages = tuple.getT2().getT1();
@@ -780,9 +772,9 @@ public class ApplicationForkingServiceTests {
 
     private Flux<ActionDTO> getActionsInWorkspace(Workspace workspace) {
         return applicationService
-                .findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
+                .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), pagePermission.getReadPermission(), false))
+                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> newActionService.getUnpublishedActionsExceptJs(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId())))));
     }

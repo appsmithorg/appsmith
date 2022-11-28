@@ -130,7 +130,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             }
         }
 
-        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), applicationPermission.getEditPermission())
+        Mono<Application> applicationMono = applicationService.findById(page.getApplicationId(), applicationPermission.getPageCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, page.getApplicationId())))
                 .cache();
 
@@ -166,7 +166,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             defaultResources.setApplicationId(page.getApplicationId());
         }
         defaultResources.setBranchName(branchName);
-        return applicationService.findBranchedApplicationId(branchName, defaultResources.getApplicationId(), applicationPermission.getEditPermission())
+        return applicationService.findBranchedApplicationId(branchName, defaultResources.getApplicationId(), applicationPermission.getPageCreatePermission())
                 .flatMap(branchedApplicationId -> {
                     page.setApplicationId(branchedApplicationId);
                     page.setDefaultResources(defaultResources);
@@ -924,7 +924,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @param applicationId The id of the application that will be published.
      * @return Publishes a Boolean true, when the application has been published.
      */
-    //TODO: Should this permission be publish or edit
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, applicationPermission.getEditPermission())
@@ -1035,7 +1034,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
     }
 
-    //TODO: should this be publish or edit
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
                                                             Mono<List<NewAction>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
@@ -1070,7 +1068,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
     }
 
-    //todo: should this be publish or edit
     @Override
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())

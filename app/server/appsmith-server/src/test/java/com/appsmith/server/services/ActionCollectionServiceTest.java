@@ -28,10 +28,7 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.RefactoringSolution;
-import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -127,13 +124,6 @@ public class ActionCollectionServiceTest {
     @MockBean
     PluginExecutor pluginExecutor;
 
-    @Autowired
-    WorkspacePermission workspacePermission;
-    @Autowired
-    PagePermission pagePermission;
-    @Autowired
-    ActionPermission actionPermission;
-
     Application testApp = null;
 
     PageDTO testPage = null;
@@ -165,7 +155,7 @@ public class ActionCollectionServiceTest {
             assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
 
-            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
             assert testPage != null;
             Layout layout = testPage.getLayouts().get(0);
@@ -259,11 +249,11 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDeletedAt(Instant.now());
         layoutCollectionService.createCollection(actionCollectionDTO).block();
-        ActionCollection createdActionCollection = actionCollectionRepository.findByApplicationId(createdApplication.getId(), actionPermission.getReadPermission(), null).blockFirst();
+        ActionCollection createdActionCollection = actionCollectionRepository.findByApplicationId(createdApplication.getId(), READ_ACTIONS, null).blockFirst();
         createdActionCollection.setDeletedAt(Instant.now());
         actionCollectionRepository.save(createdActionCollection).block();
 
-        StepVerifier.create(actionCollectionRepository.findByApplicationId(createdApplication.getId(), actionPermission.getReadPermission(), null))
+        StepVerifier.create(actionCollectionRepository.findByApplicationId(createdApplication.getId(), READ_ACTIONS, null))
                 .verifyComplete();
     }
 
@@ -273,7 +263,7 @@ public class ActionCollectionServiceTest {
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -291,7 +281,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
 
         Mono<ActionCollection> actionCollectionMono = layoutCollectionService.createCollection(actionCollectionDTO)
-                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), actionPermission.getReadPermission()));
+                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
 
         StepVerifier
                 .create(Mono.zip(actionCollectionMono, defaultPermissionGroupsMono))
@@ -634,7 +624,7 @@ public class ActionCollectionServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return actionCollectionService.findById(createdCollection.getId(), actionPermission.getReadPermission());
+                    return actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS);
                 }).block();
 
         action1.getActionConfiguration().setIsAsync(false);

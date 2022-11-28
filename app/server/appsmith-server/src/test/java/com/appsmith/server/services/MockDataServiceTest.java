@@ -15,8 +15,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.solutions.PagePermission;
-import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,12 +88,6 @@ public class MockDataServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @Autowired
-    WorkspacePermission workspacePermission;
-
-    @Autowired
-    PagePermission pagePermission;
-
     String workspaceId = "";
 
     Application testApp = null;
@@ -122,7 +114,7 @@ public class MockDataServiceTest {
             application.setName(UUID.randomUUID().toString());
             testApp = applicationPageService.createApplication(application, workspaceId).block();
             final String pageId = testApp.getPages().get(0).getId();
-            testPage = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
+            testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
         }
     }
 
@@ -160,7 +152,7 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -224,7 +216,7 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {

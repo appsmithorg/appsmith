@@ -29,52 +29,7 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE {
     }
 
     @Override
-    public AclPermission getApplicationReadPermission() {
-        return AclPermission.WORKSPACE_READ_APPLICATIONS;
-    }
-
-    @Override
-    public AclPermission getApplicationPublishPermission() {
-        return AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
-    }
-
-    @Override
-    public AclPermission getApplicationExportPermission() {
-        return AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
-    }
-
-    @Override
-    public AclPermission getApplicationDeletePermission() {
-        return AclPermission.WORKSPACE_DELETE_APPLICATIONS;
-    }
-
-    @Override
-    public AclPermission getApplicationMakePublicPermission() {
-        return AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
-    }
-
-    @Override
-    public AclPermission getDatasourceCreatePermission() {
-        return AclPermission.WORKSPACE_CREATE_DATASOURCE;
-    }
-
-    @Override
-    public AclPermission getDatasourceReadPermission() {
-        return AclPermission.WORKSPACE_READ_DATASOURCES;
-    }
-
-    @Override
     public AclPermission getDatasourceEditPermission() {
         return AclPermission.WORKSPACE_MANAGE_DATASOURCES;
-    }
-
-    @Override
-    public AclPermission getDatasourceDeletePermission() {
-        return AclPermission.WORKSPACE_DELETE_DATASOURCES;
-    }
-
-    @Override
-    public AclPermission getDatasourceExecutePermission() {
-        return AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
     }
 }

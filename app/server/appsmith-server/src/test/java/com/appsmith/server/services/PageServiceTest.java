@@ -33,10 +33,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import com.appsmith.server.solutions.PagePermission;
-import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -124,14 +121,6 @@ public class PageServiceTest {
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
 
-    @Autowired
-    WorkspacePermission workspacePermission;
-
-    @Autowired
-    PagePermission pagePermission;
-
-    @Autowired
-    ActionPermission actionPermission;
 
     static Application application = null;
 
@@ -212,7 +201,7 @@ public class PageServiceTest {
     @WithUserDetails(value = "api_user")
     public void createValidPage() throws ParseException {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -296,7 +285,7 @@ public class PageServiceTest {
     @WithUserDetails(value = "api_user")
     public void createValidPageWithLayout() throws ParseException {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -371,7 +360,7 @@ public class PageServiceTest {
     @WithUserDetails(value = "api_user")
     public void validChangePageName() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -446,7 +435,7 @@ public class PageServiceTest {
     @WithUserDetails(value = "api_user")
     public void updatePage_WhenCustomSlugSet_CustomSlugIsNotUpdated() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -524,7 +513,7 @@ public class PageServiceTest {
     public void clonePage() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -536,7 +525,7 @@ public class PageServiceTest {
         setupTestApplication();
         final String pageId = application.getPages().get(0).getId();
 
-        final PageDTO page = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
+        final PageDTO page = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
         ActionDTO action = new ActionDTO();
         action.setName("PageAction");
@@ -604,7 +593,7 @@ public class PageServiceTest {
                 pageMono
                         .flatMapMany(
                                 page1 -> newActionService
-                                        .findByPageId(page1.getId(), actionPermission.getReadPermission()))
+                                        .findByPageId(page1.getId(), READ_ACTIONS))
                         .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono =
@@ -704,7 +693,7 @@ public class PageServiceTest {
     public void clonePage_whenPageCloned_defaultIdsRetained() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -717,7 +706,7 @@ public class PageServiceTest {
         final String pageId = gitConnectedApplication.getPages().get(0).getId();
         final String branchName = gitConnectedApplication.getGitApplicationMetadata().getBranchName();
 
-        final PageDTO page = newPageService.findPageById(pageId, pagePermission.getReadPermission(), false).block();
+        final PageDTO page = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
         ActionDTO action = new ActionDTO();
         action.setName("PageAction");
@@ -779,14 +768,14 @@ public class PageServiceTest {
 
 
         final Mono<NewPage> pageMono = applicationPageService.clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
-                .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), pagePermission.getEditPermission()))
+                .flatMap(pageDTO -> newPageService.findByBranchNameAndDefaultPageId(branchName, pageDTO.getId(), MANAGE_PAGES))
                 .cache();
 
         Mono<List<NewAction>> actionsMono =
                 pageMono
                         .flatMapMany(
                                 page1 -> newActionService
-                                        .findByPageId(page1.getId(), actionPermission.getReadPermission()))
+                                        .findByPageId(page1.getId(), READ_ACTIONS))
                         .collectList();
 
         Mono<List<ActionCollection>> actionCollectionMono =

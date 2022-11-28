@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 public interface ApplicationPermissionCE {
     AclPermission getEditPermission();
     AclPermission getReadPermission();
-    AclPermission getPublishPermission();
     AclPermission getExportPermission();
     AclPermission getDeletePermission();
     AclPermission getMakePublicPermission();

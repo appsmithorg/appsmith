@@ -46,7 +46,7 @@ public class PostmanImporterServiceCEImpl extends BaseApiImporter implements Pos
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(pageId);
         action.setName(name);
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getEditPermission())
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getActionCreatePermission())
                 .map(branchedPage -> {
                     action.setDefaultResources(branchedPage.getDefaultResources());
                     return action;

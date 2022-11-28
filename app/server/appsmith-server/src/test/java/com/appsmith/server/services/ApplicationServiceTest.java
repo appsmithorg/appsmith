@@ -44,14 +44,9 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationFetcher;
-import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.solutions.WorkspacePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -106,6 +101,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
@@ -202,20 +198,6 @@ public class ApplicationServiceTest {
     @Autowired
     SessionUserService sessionUserService;
 
-    @Autowired
-    DatasourcePermission datasourcePermission;
-
-    @Autowired
-    WorkspacePermission workspacePermission;
-
-    @Autowired
-    ApplicationPermission applicationPermission;
-
-    @Autowired
-    PagePermission pagePermission;
-    @Autowired
-    ActionPermission actionPermission;
-
     String workspaceId;
 
     static Plugin testPlugin = new Plugin();
@@ -311,7 +293,7 @@ public class ApplicationServiceTest {
         testApplication.setName("ApplicationServiceTest TestApp");
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId);
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -386,7 +368,7 @@ public class ApplicationServiceTest {
         Flux<PageDTO> pagesFlux = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 // Fetch the unpublished pages by applicationId
-                .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), pagePermission.getReadPermission(), false));
+                .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
                 .users(Set.of("api_user"))
@@ -471,7 +453,7 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getApplicationByDefaultIdAndBranchName_emptyBranchName_success() {
-        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("", gitConnectedApp.getId(), applicationPermission.getReadPermission());
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
                     assertThat(application.getId()).isEqualTo(gitConnectedApp.getId());
@@ -482,7 +464,7 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getApplicationByDefaultIdAndBranchName_invalidBranchName_throwException() {
-        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), applicationPermission.getReadPermission());
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                         throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.APPLICATION, gitConnectedApp.getId() + "," + "randomBranch")))
@@ -492,7 +474,7 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getApplicationByDefaultIdAndBranchName_validBranchName_success() {
-        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("testBranch", gitConnectedApp.getId(), applicationPermission.getReadPermission());
+        Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("testBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
                     assertThat(application.getGitApplicationMetadata()).isEqualTo(gitConnectedApp.getGitApplicationMetadata());
@@ -522,7 +504,7 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validGetApplications-Test");
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -630,7 +612,7 @@ public class ApplicationServiceTest {
         Mono<Application> updateApplication = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(t -> {
                     GitApplicationMetadata gitData = t.getGitApplicationMetadata();
-                    return applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getReadPermission());
+                    return applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), READ_APPLICATIONS);
                 });
 
         StepVerifier.create(updateApplication)
@@ -724,7 +706,7 @@ public class ApplicationServiceTest {
 
         Mono<Application> branchedApplicationMono = applicationPageService.createApplication(branchedApplication);
 
-        Mono<List<Application>> gitConnectedAppsMono = applicationService.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
+        Mono<List<Application>> gitConnectedAppsMono = applicationService.findByWorkspaceId(workspaceId, READ_APPLICATIONS)
                 .filter(application -> application.getGitApplicationMetadata() != null)
                 .collectList();
 
@@ -797,7 +779,7 @@ public class ApplicationServiceTest {
 
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -829,7 +811,7 @@ public class ApplicationServiceTest {
         Mono<PageDTO> pageMono = publicAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return newPageService.findPageById(pageId, pagePermission.getReadPermission(), false);
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
         Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
@@ -881,7 +863,7 @@ public class ApplicationServiceTest {
         Application application = new Application();
         application.setName("validMakeApplicationPrivate-Test");
 
-        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, workspacePermission.getReadPermission())
+        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
                     return permissionGroupRepository.findAllById(defaultPermissionGroups);
@@ -918,7 +900,7 @@ public class ApplicationServiceTest {
         Mono<PageDTO> pageMono = privateAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return newPageService.findPageById(pageId, pagePermission.getReadPermission(), false);
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
         StepVerifier
@@ -957,7 +939,7 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void makeApplicationPublic_applicationWithGitMetadata_success() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -999,7 +981,7 @@ public class ApplicationServiceTest {
         Mono<PageDTO> pageMono = publicAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return newPageService.findPageById(pageId, pagePermission.getReadPermission(), false);
+                    return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
 
@@ -1070,7 +1052,7 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void makeApplicationPrivate_applicationWithGitMetadata_success() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1133,7 +1115,7 @@ public class ApplicationServiceTest {
                             String pageId = app.getPages().get(0).getId();
                             return Mono.zip(
                                     Mono.just(app),
-                                    newPageService.findPageById(pageId, pagePermission.getReadPermission(), false)
+                                    newPageService.findPageById(pageId, READ_PAGES, false)
                             );
                         });
 
@@ -1166,7 +1148,7 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void validMakeApplicationPublicWithActions() {
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1247,7 +1229,7 @@ public class ApplicationServiceTest {
                 .then(newActionService.findById(savedAction.getId()));
 
         final Mono<ActionCollection> actionCollectionMono = publicAppMono
-                .then(actionCollectionService.findById(savedActionCollection.getId(), actionPermission.getReadPermission()));
+                .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
 
         StepVerifier
                 .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, publicPermissionGroupMono))
@@ -1300,7 +1282,7 @@ public class ApplicationServiceTest {
         Mono<Application> clonedApplicationMono = applicationPageService.cloneApplication(gitConnectedApp.getId(), branchName)
                 .cache();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1311,11 +1293,11 @@ public class ApplicationServiceTest {
 
         Mono<List<PageDTO>> clonedPageListMono = clonedApplicationMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), pagePermission.getReadPermission(), false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         Mono<List<PageDTO>> srcPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), pagePermission.getReadPermission(), false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         StepVerifier
@@ -1392,7 +1374,7 @@ public class ApplicationServiceTest {
                 .collectList();
 
         Mono<List<NewPage>> srcNewPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
-                .flatMap(applicationPage -> newPageService.findByBranchNameAndDefaultPageId(branchName, applicationPage.getDefaultPageId(), pagePermission.getReadPermission()))
+                .flatMap(applicationPage -> newPageService.findByBranchNameAndDefaultPageId(branchName, applicationPage.getDefaultPageId(), READ_PAGES))
                 .collectList();
 
         StepVerifier
@@ -1455,7 +1437,7 @@ public class ApplicationServiceTest {
 
         final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1481,10 +1463,10 @@ public class ApplicationServiceTest {
 
 
         Mono<List<NewAction>> clonedActionListMono = clonedApplicationMono
-                .flatMapMany(application -> newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null))
+                .flatMapMany(application -> newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null))
                 .collectList();
 
-        Mono<List<NewAction>> srcActionListMono = newActionService.findAllByApplicationIdAndViewMode(gitConnectedApp.getId(), false, actionPermission.getReadPermission(), null)
+        Mono<List<NewAction>> srcActionListMono = newActionService.findAllByApplicationIdAndViewMode(gitConnectedApp.getId(), false, READ_ACTIONS, null)
                 .collectList();
 
         StepVerifier
@@ -1568,7 +1550,7 @@ public class ApplicationServiceTest {
         Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .cache();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1579,7 +1561,7 @@ public class ApplicationServiceTest {
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
         Mono<Application> resultMono = originalApplicationMono
-                .zipWhen(application -> newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false))
+                .zipWhen(application -> newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     PageDTO testPage = tuple.getT2();
@@ -1674,7 +1656,7 @@ public class ApplicationServiceTest {
 
                     originalResourceIds.put("pageIds", pageIds);
                     originalResourceIds.put("collectionIds", collectionIds);
-                    return newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, actionPermission.getReadPermission(), null)
+                    return newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, READ_ACTIONS, null)
                             .collectList()
                             .flatMap(actionList -> {
                                 List<String> actionIds = actionList.stream().map(BaseDomain::getId).collect(Collectors.toList());
@@ -1686,9 +1668,9 @@ public class ApplicationServiceTest {
 
         StepVerifier.create(resultMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
                                 defaultPermissionGroupsMono
                         )))
                 .assertNext(tuple -> {
@@ -1807,9 +1789,9 @@ public class ApplicationServiceTest {
         StepVerifier
                 .create(originalApplicationMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList()
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList()
                         )))
                 .assertNext(tuple -> {
                     List<NewAction> actionList = tuple.getT2().getT1();
@@ -1828,7 +1810,7 @@ public class ApplicationServiceTest {
 
         Mono<List<PageDTO>> pageListMono = resultMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), pagePermission.getReadPermission(), false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         // verify that Pages are cloned
@@ -1889,7 +1871,7 @@ public class ApplicationServiceTest {
         Mono<Application> originalApplicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .cache();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1900,7 +1882,7 @@ public class ApplicationServiceTest {
 
         Map<String, List<String>> originalResourceIds = new HashMap<>();
         Mono<Application> resultMono = originalApplicationMono
-                .zipWhen(application -> newPageService.findPageById(application.getPages().get(0).getId(), pagePermission.getReadPermission(), false))
+                .zipWhen(application -> newPageService.findPageById(application.getPages().get(0).getId(), READ_PAGES, false))
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     PageDTO testPage = tuple.getT2();
@@ -2019,7 +2001,7 @@ public class ApplicationServiceTest {
                             .valueOf(collectionDTO.getDefaultToBranchedActionIdsMap().values().stream().findAny().orElse(null));
 
                     return newActionService.deleteUnpublishedAction(deletedActionIdWithinActionCollection)
-                            .thenMany(newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, actionPermission.getReadPermission(), null))
+                            .thenMany(newActionService.findAllByApplicationIdAndViewMode(tuple.getT4().getId(), false, READ_ACTIONS, null))
                             .collectList()
                             .flatMap(actionList -> {
                                 List<String> actionIds = actionList.stream().map(BaseDomain::getId).collect(Collectors.toList());
@@ -2032,9 +2014,9 @@ public class ApplicationServiceTest {
 
         StepVerifier.create(resultMono
                         .zipWhen(application -> Mono.zip(
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                newPageService.findNewPagesByApplicationId(application.getId(), pagePermission.getReadPermission()).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                newPageService.findNewPagesByApplicationId(application.getId(), READ_PAGES).collectList(),
                                 defaultPermissionGroupsMono
                         )))
                 .assertNext(tuple -> {
@@ -2217,13 +2199,13 @@ public class ApplicationServiceTest {
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application -> applicationPageService.publish(application.getId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
                 .map(application -> application.getPages())
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), pagePermission.getReadPermission()))
+                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
 
         StepVerifier
@@ -2372,13 +2354,13 @@ public class ApplicationServiceTest {
 
         Mono<Application> applicationMono = applicationService.update(gitConnectedApp.getId(), gitConnectedApp)
                 .flatMap(updatedApp -> applicationPageService.publish(updatedApp.getId(), gitData.getBranchName(), true))
-                .flatMap(application -> applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), applicationPermission.getEditPermission()))
+                .flatMap(application -> applicationService.findByBranchNameAndDefaultApplicationId(gitData.getBranchName(), gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS))
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
                 .map(application -> application.getPages())
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), pagePermission.getReadPermission()))
+                .flatMap(applicationPage -> newPageService.findById(applicationPage.getId(), READ_PAGES))
                 .collectList();
 
         StepVerifier
@@ -2421,12 +2403,12 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
-                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), pagePermission.getReadPermission(), false)
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
                         .flatMap(page -> applicationPageService.deleteUnpublishedPage(page.getId()))).block();
 
@@ -2436,7 +2418,7 @@ public class ApplicationServiceTest {
         applicationPage.setDefaultPageId(newPage.getId());
 
         StepVerifier
-                .create(applicationService.findById(newPage.getApplicationId(), applicationPermission.getEditPermission()))
+                .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
                 .assertNext(editedApplication -> {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
@@ -2469,7 +2451,7 @@ public class ApplicationServiceTest {
 
         PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
-                        .findByNameAndApplicationIdAndViewMode("Test delete unPublish page test", application.getId(), pagePermission.getReadPermission(), false)
+                        .findByNameAndApplicationIdAndViewMode("Test delete unPublish page test", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
                         .flatMap(pageDTO -> applicationPageService.deleteUnpublishedPage(pageDTO.getId()))).block();
 
@@ -2479,7 +2461,7 @@ public class ApplicationServiceTest {
         applicationPage.setDefaultPageId(newPage.getId());
 
         StepVerifier
-                .create(applicationService.findById(newPage.getApplicationId(), applicationPermission.getEditPermission()))
+                .create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
                 .assertNext(editedApplication -> {
 
                     List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
@@ -2511,12 +2493,12 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
-                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), pagePermission.getReadPermission(), false)
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "unpublishedEditedPage")))).block();
 
         Mono<Application> updatedDefaultPageApplicationMono = applicationMono
@@ -2575,12 +2557,12 @@ public class ApplicationServiceTest {
                     return applicationPageService.createPage(page);
                 })
                 .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, applicationPermission.getEditPermission()))
+                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
                 .flatMap(application -> newPageService
-                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), pagePermission.getReadPermission(), false)
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page")))
                         .flatMap(page -> applicationPageService.deleteUnpublishedPage(page.getId()))).block();
 
@@ -2696,20 +2678,20 @@ public class ApplicationServiceTest {
         // Find all actions in new app
         Mono<List<NewAction>> actionsMono = clonedAppFromDbMono
                 .flatMap(clonedAppFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, actionPermission.getReadPermission(), null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                         .collectList()
                 );
 
         // Find all pages in new app
         Mono<List<PageDTO>> pagesMono = clonedAppFromDbMono
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), pagePermission.getReadPermission(), false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         // Find all action collections in new app
         final Mono<List<ActionCollection>> actionCollectionsMono = clonedAppFromDbMono
                 .flatMap(clonedAppFromDb -> actionCollectionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, actionPermission.getReadPermission(), null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                         .collectList()
                 );
 
@@ -2881,26 +2863,26 @@ public class ApplicationServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findById(originalApplication.getId(), applicationPermission.getReadPermission())
+                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS)
                             .flatMap(applicationService::setTransientFields);
                 })
                 .cache();
 
         Mono<List<NewAction>> actionsMono = applicationFromDbPostViewChange
                 .flatMap(clonedAppFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, actionPermission.getReadPermission(), null)
+                        .findAllByApplicationIdAndViewMode(clonedAppFromDb.getId(), false, READ_ACTIONS, null)
                         .collectList()
                 );
 
         Mono<List<PageDTO>> pagesMono = applicationFromDbPostViewChange
                 .flatMapMany(application -> Flux.fromIterable(application.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), pagePermission.getReadPermission(), false))
+                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
                 .collectList();
 
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
-                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), datasourcePermission.getReadPermission()));
+                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
 
-        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, workspacePermission.getReadPermission())
+        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
                     return permissionGroupRepository.findAllById(defaultPermissionGroups);
@@ -3018,7 +3000,7 @@ public class ApplicationServiceTest {
         Mono<Application> applicationMono = applicationPageService.createApplication(unsavedApplication)
                 .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
                         .thenReturn(savedApplication.getId())
-                ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, applicationPermission.getEditPermission()));
+                ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
 
         StepVerifier.create(applicationMono)
                 .assertNext(testApplication -> {
@@ -3057,8 +3039,8 @@ public class ApplicationServiceTest {
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
                     String mainApplicationId = savedChildApp.getGitApplicationMetadata().getDefaultApplicationId();
-                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), applicationPermission.getEditPermission());
-                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, applicationPermission.getEditPermission());
+                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), MANAGE_APPLICATIONS);
+                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, MANAGE_APPLICATIONS);
                     return Mono.zip(childAppMono, mainAppMono);
                 });
 
@@ -3147,7 +3129,7 @@ public class ApplicationServiceTest {
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
                                 ActionCollectionDTO savedActionCollection = tuple1.getT2();
-                                return applicationService.findById(page.getApplicationId(), applicationPermission.getEditPermission())
+                                return applicationService.findById(page.getApplicationId(), MANAGE_APPLICATIONS)
                                         .flatMap(application -> applicationPageService.deleteApplication(application.getId()))
                                         .flatMap(ignored ->
                                                 Mono.zip(

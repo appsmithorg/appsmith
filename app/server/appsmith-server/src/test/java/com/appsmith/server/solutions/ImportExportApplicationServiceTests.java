@@ -101,10 +101,12 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -163,20 +165,6 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     PermissionGroupService permissionGroupService;
-    @Autowired
-    DatasourcePermission datasourcePermission;
-
-    @Autowired
-    WorkspacePermission workspacePermission;
-
-    @Autowired
-    ApplicationPermission applicationPermission;
-
-    @Autowired
-    PagePermission pagePermission;
-
-    @Autowired
-    ActionPermission actionPermission;
 
 
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -252,7 +240,7 @@ public class ImportExportApplicationServiceTests {
     private Flux<ActionDTO> getActionsInApplication(Application application) {
         return newPageService
                 // fetch the unpublished pages
-                .findByApplicationId(application.getId(), pagePermission.getReadPermission(), false)
+                .findByApplicationId(application.getId(), READ_PAGES, false)
                 .flatMap(page -> newActionService.getUnpublishedActions(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), ""));
     }
@@ -319,7 +307,7 @@ public class ImportExportApplicationServiceTests {
 
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
@@ -419,7 +407,7 @@ public class ImportExportApplicationServiceTests {
         final String appName = testApplication.getName();
         final Mono<ApplicationJson> resultMono = Mono.zip(
                         Mono.just(testApplication),
-                        newPageService.findPageById(testApplication.getPages().get(0).getId(), pagePermission.getReadPermission(), false)
+                        newPageService.findPageById(testApplication.getPages().get(0).getId(), READ_PAGES, false)
                 )
                 .flatMap(tuple -> {
                     Application testApp = tuple.getT1();
@@ -503,15 +491,15 @@ public class ImportExportApplicationServiceTests {
 
         Mono<List<NewAction>> actionListMono = resultMono
                 .then(newActionService
-                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, actionPermission.getReadPermission(), null).collectList());
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
 
         Mono<List<ActionCollection>> collectionListMono = resultMono.then(
                 actionCollectionService
-                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, actionPermission.getReadPermission(), null).collectList());
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
 
         Mono<List<NewPage>> pageListMono = resultMono.then(
                 newPageService
-                        .findNewPagesByApplicationId(testApplication.getId(), pagePermission.getReadPermission()).collectList());
+                        .findNewPagesByApplicationId(testApplication.getId(), READ_PAGES).collectList());
 
         StepVerifier
                 .create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
@@ -652,7 +640,7 @@ public class ImportExportApplicationServiceTests {
                     final String pageId = testApp.getPages().get(0).getId();
                     return Mono.zip(
                             Mono.just(testApp),
-                            newPageService.findPageById(pageId, pagePermission.getReadPermission(), false)
+                            newPageService.findPageById(pageId, READ_PAGES, false)
                     );
                 })
                 .flatMap(tuple -> {
@@ -846,10 +834,10 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
-                                    newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                    newPageService.findByApplicationId(application.getId(), pagePermission.getEditPermission(), false).collectList(),
-                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getEditPermission(), null).collectList()
+                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                    newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                    newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
                             );
                         }))
                 .assertNext(tuple -> {
@@ -950,7 +938,7 @@ public class ImportExportApplicationServiceTests {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findByWorkspaceId(workspace.getId(), applicationPermission.getReadPermission())
+                    return applicationRepository.findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                             .next();
                 });
 
@@ -1051,11 +1039,11 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
+                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
-                                newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), pagePermission.getEditPermission(), false).collectList(),
+                                newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false
-                                        , actionPermission.getEditPermission(), null).collectList()
+                                        , MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
@@ -1145,11 +1133,11 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
+                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
-                                newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), pagePermission.getEditPermission(), false).collectList(),
+                                newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService
-                                        .findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false, actionPermission.getEditPermission(), null).collectList()
+                                        .findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false, MANAGE_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
@@ -1192,7 +1180,7 @@ public class ImportExportApplicationServiceTests {
                     return applicationService.save(application1);
                 }).block();
 
-        Mono<Application> result = newPageService.findNewPagesByApplicationId(savedApplication.getId(), pagePermission.getReadPermission()).collectList()
+        Mono<Application> result = newPageService.findNewPagesByApplicationId(savedApplication.getId(), READ_PAGES).collectList()
                 .flatMap(newPages -> {
                     NewPage newPage = newPages.get(0);
 
@@ -1205,15 +1193,15 @@ public class ImportExportApplicationServiceTests {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasourceMap.get("DS1"));
                     return layoutActionService.createAction(action)
-                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), actionPermission.getReadPermission()));
+                            .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS));
                 })
                 .then(importExportApplicationService.exportApplicationById(savedApplication.getId(), SerialiseApplicationObjective.VERSION_CONTROL)
                         .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, savedApplication.getId(), gitData.getBranchName())))
                 .cache();
 
-        Mono<List<NewPage>> updatedPagesMono = result.then(newPageService.findNewPagesByApplicationId(savedApplication.getId(), pagePermission.getReadPermission()).collectList());
+        Mono<List<NewPage>> updatedPagesMono = result.then(newPageService.findNewPagesByApplicationId(savedApplication.getId(), READ_PAGES).collectList());
 
-        Mono<List<NewAction>> updatedActionsMono = result.then(newActionService.findAllByApplicationIdAndViewMode(savedApplication.getId(), false, pagePermission.getReadPermission(), null).collectList());
+        Mono<List<NewAction>> updatedActionsMono = result.then(newActionService.findAllByApplicationIdAndViewMode(savedApplication.getId(), false, READ_PAGES, null).collectList());
 
         StepVerifier
                 .create(Mono.zip(result, updatedPagesMono, updatedActionsMono))
@@ -1299,10 +1287,10 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
-                                    newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
-                                    newPageService.findByApplicationId(application.getId(), pagePermission.getEditPermission(), false).collectList(),
-                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getEditPermission(), null).collectList()
+                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                    newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
+                                    newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
+                                    actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
                             );
                         }))
                 .assertNext(tuple -> {
@@ -1376,7 +1364,7 @@ public class ImportExportApplicationServiceTests {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1);
                 }).block();
-        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), pagePermission.getEditPermission()).block().getGitSyncId();
+        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
         PageDTO page = new PageDTO();
         page.setName("Page 2");
@@ -1402,7 +1390,7 @@ public class ImportExportApplicationServiceTests {
                         .stream()
                         .map(ApplicationPage::getId)
                         .collect(Collectors.toList())
-        ).flatMap(s -> newPageService.findById(s, pagePermission.getEditPermission())).collectList();
+        ).flatMap(s -> newPageService.findById(s, MANAGE_PAGES)).collectList();
 
         StepVerifier
                 .create(pageList)
@@ -1441,7 +1429,7 @@ public class ImportExportApplicationServiceTests {
                     return applicationService.save(application1);
                 }).block();
 
-        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), pagePermission.getEditPermission()).block().getGitSyncId();
+        String gitSyncIdBeforeImport = newPageService.findById(application.getPages().get(0).getId(), MANAGE_PAGES).block().getGitSyncId();
 
         assert application.getId() != null;
         Set<String> applicationPageIdsBeforeImport = Objects.requireNonNull(applicationRepository.findById(application.getId()).block())
@@ -1460,7 +1448,7 @@ public class ImportExportApplicationServiceTests {
                         .stream()
                         .map(ApplicationPage::getId)
                         .collect(Collectors.toList())
-        ).flatMap(s -> newPageService.findById(s, pagePermission.getEditPermission())).collectList();
+        ).flatMap(s -> newPageService.findById(s, MANAGE_PAGES)).collectList();
 
         StepVerifier
                 .create(pageList)
@@ -1484,7 +1472,7 @@ public class ImportExportApplicationServiceTests {
         // Now add a page and export the same import it to the app
         // Check if the policies and visibility flag are not reset
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, workspacePermission.getReadPermission());
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
@@ -1585,7 +1573,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithoutDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                newPageService.findByApplicationId(application.getId(), pagePermission.getEditPermission(), false).collectList()
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -1644,7 +1632,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                newPageService.findByApplicationId(application.getId(), pagePermission.getEditPermission(), false).collectList()
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -1794,7 +1782,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithoutDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                 getActionsInApplication(application).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -1838,7 +1826,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList(),
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                 getActionsInApplication(application).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -1892,7 +1880,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithoutDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                newPageService.findByApplicationId(application.getId(), pagePermission.getEditPermission(), false).collectList()
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -1929,7 +1917,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                newPageService.findByApplicationId(application.getId(), pagePermission.getEditPermission(), false).collectList()
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -2050,7 +2038,7 @@ public class ImportExportApplicationServiceTests {
                     return importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson);
                 })
                 .flatMap(application -> {
-                    return actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null)
+                    return actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
                             .next()
                             .flatMap(actionCollection -> {
                                 deletedActionCollectionNames[0] = actionCollection.getUnpublishedCollection().getName();
@@ -2064,7 +2052,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithoutDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList()
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -2102,7 +2090,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMonoWithDiscardOperation
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList()
+                                actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -2180,7 +2168,7 @@ public class ImportExportApplicationServiceTests {
         final String appName = testApplication.getName();
         final Mono<ApplicationJson> resultMono = Mono.zip(
                         Mono.just(testApplication),
-                        newPageService.findPageById(testApplication.getPages().get(0).getId(), pagePermission.getReadPermission(), false)
+                        newPageService.findPageById(testApplication.getPages().get(0).getId(), READ_PAGES, false)
                 )
                 .flatMap(tuple -> {
                     Application testApp = tuple.getT1();
@@ -2250,15 +2238,15 @@ public class ImportExportApplicationServiceTests {
 
         Mono<List<NewAction>> actionListMono = resultMono
                 .then(newActionService
-                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, actionPermission.getReadPermission(), null).collectList());
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
 
         Mono<List<ActionCollection>> collectionListMono = resultMono.then(
                 actionCollectionService
-                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, actionPermission.getReadPermission(), null).collectList());
+                        .findAllByApplicationIdAndViewMode(testApplication.getId(), false, READ_ACTIONS, null).collectList());
 
         Mono<List<NewPage>> pageListMono = resultMono.then(
                 newPageService
-                        .findNewPagesByApplicationId(testApplication.getId(), pagePermission.getReadPermission()).collectList());
+                        .findNewPagesByApplicationId(testApplication.getId(), READ_PAGES).collectList());
 
         StepVerifier
                 .create(Mono.zip(resultMono, actionListMono, collectionListMono, pageListMono))
@@ -2434,8 +2422,8 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList()
+                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -2487,8 +2475,8 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), datasourcePermission.getEditPermission()).collectList(),
-                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission(), null).collectList()
+                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1();
@@ -2575,9 +2563,9 @@ public class ImportExportApplicationServiceTests {
 
         // Get the unpublished pages and verify the order
         List<ApplicationPage> pageDTOS = application.getPages();
-        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), pagePermission.getEditPermission());
+        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), MANAGE_PAGES);
 
         StepVerifier
                 .create(Mono.zip(newPageMono1, newPageMono2, newPageMono3))
@@ -2597,9 +2585,9 @@ public class ImportExportApplicationServiceTests {
 
         // Get the published pages
         List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
-        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), pagePermission.getEditPermission());
+        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
 
         StepVerifier
                 .create(Mono.zip(newPublishedPageMono1, newPublishedPageMono2, newPublishedPageMono3))
@@ -2681,9 +2669,9 @@ public class ImportExportApplicationServiceTests {
         // Get the unpublished pages and verify the order
         application.setViewMode(false);
         List<ApplicationPage> pageDTOS = application.getPages();
-        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), pagePermission.getEditPermission());
+        Mono<NewPage> newPageMono1 = newPageService.findById(pageDTOS.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono2 = newPageService.findById(pageDTOS.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPageMono3 = newPageService.findById(pageDTOS.get(2).getId(), MANAGE_PAGES);
 
         StepVerifier
                 .create(Mono.zip(newPageMono1, newPageMono2, newPageMono3))
@@ -2703,9 +2691,9 @@ public class ImportExportApplicationServiceTests {
 
         // Get the published pages
         List<ApplicationPage> publishedPageDTOs = application.getPublishedPages();
-        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), pagePermission.getEditPermission());
-        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), pagePermission.getEditPermission());
+        Mono<NewPage> newPublishedPageMono1 = newPageService.findById(publishedPageDTOs.get(0).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono2 = newPageService.findById(publishedPageDTOs.get(1).getId(), MANAGE_PAGES);
+        Mono<NewPage> newPublishedPageMono3 = newPageService.findById(publishedPageDTOs.get(2).getId(), MANAGE_PAGES);
 
         StepVerifier
                 .create(Mono.zip(newPublishedPageMono1, newPublishedPageMono2, newPublishedPageMono3))
@@ -2813,8 +2801,8 @@ public class ImportExportApplicationServiceTests {
                 // fetch the application pages, this should contain pages from application json
                 Mono.zip(
                         newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT),
-                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getEditPermission(), null).collectList(),
-                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, actionPermission.getEditPermission(), null).collectList()
+                        newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList(),
+                        actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
                 )
         );
 
@@ -2974,9 +2962,9 @@ public class ImportExportApplicationServiceTests {
                         new ArrayList<>())
                 )
                 .flatMap(application1 -> {
-                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), pagePermission.getEditPermission()).collectList();
-                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
-                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
                     return Mono.zip(Mono.just(application1), pageList, actionList, actionCollectionList);
                 });
 
@@ -3051,9 +3039,9 @@ public class ImportExportApplicationServiceTests {
                         new ArrayList<>())
                 )
                 .flatMap(application1 -> {
-                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), pagePermission.getEditPermission()).collectList();
-                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
-                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
                     return Mono.zip(Mono.just(application1), pageList, actionList, actionCollectionList);
                 });
 
@@ -3146,9 +3134,9 @@ public class ImportExportApplicationServiceTests {
                         new ArrayList<>())
                 )
                 .flatMap(application2 -> {
-                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), pagePermission.getEditPermission()).collectList();
-                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, actionPermission.getEditPermission(), null).collectList();
-                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, actionPermission.getEditPermission(), null).collectList();
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
                     return Mono.zip(Mono.just(application2), pageList, actionList, actionCollectionList);
                 });
 
@@ -3240,9 +3228,9 @@ public class ImportExportApplicationServiceTests {
                         List.of("Page1"))
                 )
                 .flatMap(application2 -> {
-                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), pagePermission.getEditPermission()).collectList();
-                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, actionPermission.getEditPermission(), null).collectList();
-                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, actionPermission.getEditPermission(), null).collectList();
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
                     return Mono.zip(Mono.just(application2), pageList, actionList, actionCollectionList);
                 });
 
@@ -3333,9 +3321,9 @@ public class ImportExportApplicationServiceTests {
                         List.of("Page1", "Page2"))
                 )
                 .flatMap(application2 -> {
-                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), pagePermission.getEditPermission()).collectList();
-                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, actionPermission.getEditPermission(), null).collectList();
-                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, actionPermission.getEditPermission(), null).collectList();
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(branchApp.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(branchApp.getId(), false, MANAGE_ACTIONS, null).collectList();
                     return Mono.zip(Mono.just(application2), pageList, actionList, actionCollectionList);
                 });
 
@@ -3394,9 +3382,9 @@ public class ImportExportApplicationServiceTests {
                         List.of("Page1"))
                 )
                 .flatMap(application1 -> {
-                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), pagePermission.getEditPermission()).collectList();
-                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
-                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
                     return Mono.zip(Mono.just(application1), pageList, actionList, actionCollectionList);
                 });
 
@@ -3456,9 +3444,9 @@ public class ImportExportApplicationServiceTests {
                         List.of("Page1", "Page2"))
                 )
                 .flatMap(application1 -> {
-                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), pagePermission.getEditPermission()).collectList();
-                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
-                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, actionPermission.getEditPermission(), null).collectList();
+                    Mono<List<NewPage>> pageList = newPageService.findNewPagesByApplicationId(application1.getId(), MANAGE_PAGES).collectList();
+                    Mono<List<NewAction>> actionList = newActionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
+                    Mono<List<ActionCollection>> actionCollectionList = actionCollectionService.findAllByApplicationIdAndViewMode(application1.getId(), false, MANAGE_ACTIONS, null).collectList();
                     return Mono.zip(Mono.just(application1), pageList, actionList, actionCollectionList);
                 });
 

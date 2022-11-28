@@ -24,10 +24,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
-import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -122,12 +119,6 @@ public class WorkspaceServiceTest {
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
-    @Autowired
-    DatasourcePermission datasourcePermission;
-    @Autowired
-    WorkspacePermission workspacePermission;
-    @Autowired
-    ApplicationPermission applicationPermission;
 
     Workspace workspace;
 
@@ -379,7 +370,7 @@ public class WorkspaceServiceTest {
         workspace.setWebsite("https://example.com");
         workspace.setSlug("test-for-get-name");
         Mono<Workspace> createWorkspace = workspaceService.create(workspace);
-        Mono<Workspace> getWorkspace = createWorkspace.flatMap(t -> workspaceService.findById(t.getId(), workspacePermission.getReadPermission()));
+        Mono<Workspace> getWorkspace = createWorkspace.flatMap(t -> workspaceService.findById(t.getId(), READ_WORKSPACES));
         StepVerifier.create(getWorkspace)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -475,7 +466,7 @@ public class WorkspaceServiceTest {
                     changes.setDomain("abc.com");
                     return workspaceService.update(t.getT1().getId(), changes)
                             .zipWhen(updatedWorkspace ->
-                                    workspaceRepository.findById(t.getT2().getId(), workspacePermission.getReadPermission())
+                                    workspaceRepository.findById(t.getT2().getId(), READ_WORKSPACES)
                                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, t.getT2().getId())))
                             );
                 });
@@ -1001,18 +992,18 @@ public class WorkspaceServiceTest {
                 })
                 .flatMap(tuple -> {
                     Workspace t2 = tuple.getT2();
-                    return workspaceService.findById(t2.getId(), workspacePermission.getReadPermission());
+                    return workspaceService.findById(t2.getId(), READ_WORKSPACES);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
-                        applicationPermission.getReadPermission())
+                        READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
         Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
-                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(), datasourcePermission.getReadPermission())
+                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(), READ_DATASOURCES)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
         );
 
@@ -1135,11 +1126,11 @@ public class WorkspaceServiceTest {
                 })
                 .flatMap(tuple -> {
                     Workspace t2 = tuple.getT2();
-                    return workspaceService.findById(t2.getId(), workspacePermission.getReadPermission());
+                    return workspaceService.findById(t2.getId(), READ_WORKSPACES);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
-                        applicationPermission.getReadPermission())
+                        READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")

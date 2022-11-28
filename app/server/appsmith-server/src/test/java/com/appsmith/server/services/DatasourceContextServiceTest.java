@@ -1,4 +1,4 @@
- package com.appsmith.server.services;
+package com.appsmith.server.services;
 
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.BasicAuth;
@@ -16,7 +16,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +29,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -73,9 +74,6 @@ public class DatasourceContextServiceTest {
     @SpyBean
     DatasourceContextServiceImpl datasourceContextService;
 
-    @Autowired
-    DatasourcePermission datasourcePermission;
-
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
@@ -99,8 +97,8 @@ public class DatasourceContextServiceTest {
         Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
                 spyMockPluginExecutor, monitor);
 
-        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getEditPermission());
-        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", MANAGE_DATASOURCES);
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", EXECUTE_DATASOURCES);
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
         doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
         doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
