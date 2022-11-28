@@ -77,7 +77,20 @@ class DataSourceEditor extends React.Component<Props> {
     ) {
       this.props.switchDatasource(this.props.datasourceId);
     }
+
+    this.setEditMode();
   }
+
+  setEditMode() {
+    const params = getQueryParams();
+    if (
+      (this.props.isNewDatasource || params.viewMode === "false") &&
+      this.props.viewMode
+    ) {
+      this.props.setDatasourceViewMode(false);
+    }
+  }
+
   componentDidMount() {
     //Fix to prevent restapi datasource from being set in DatasourceDBForm in datasource view mode
     //TODO: Needs cleanup
@@ -111,13 +124,8 @@ class DataSourceEditor extends React.Component<Props> {
         });
       }
     }
-    const params = getQueryParams();
-    if (
-      (this.props.isNewDatasource || params.viewMode === "false") &&
-      this.props.viewMode
-    ) {
-      this.props.setDatasourceViewMode(false);
-    }
+
+    this.setEditMode();
   }
 
   render() {

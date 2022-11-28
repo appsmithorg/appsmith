@@ -24,6 +24,8 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import omit from "lodash/omit";
+import { getQueryParams } from "utils/URLUtils";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -53,6 +55,7 @@ const ExplorerDatasourceEntity = React.memo(
         url = datasourcesEditorIdURL({
           pageId,
           datasourceId: props.datasource.id,
+          params: omit(getQueryParams(), "viewMode"),
         });
       }
 

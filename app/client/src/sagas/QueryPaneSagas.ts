@@ -286,7 +286,7 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
     datasourcesEditorIdURL({
       pageId,
       datasourceId: actionPayload.payload.id,
-      params: { from: "datasources", ...getQueryParams() },
+      params: { from: "datasources", viewMode: "false", ...getQueryParams() },
     }),
   );
 }
