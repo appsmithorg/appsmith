@@ -1,7 +1,6 @@
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import React, { createRef, RefObject } from "react";
-import { Virtualizer } from "@tanstack/virtual-core";
 import { get, range, omit, isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
@@ -89,8 +88,6 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   shouldScrollContents?: boolean;
 };
 
-type VirtualizerInstance = Virtualizer<HTMLDivElement, HTMLDivElement>;
-
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
 /* in the List Widget, "children.0.children.0.children.0.children" is the path to the list of all
@@ -105,7 +102,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   prevFlattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   prevMetaContainerNames: string[];
   prevMetaMainCanvasWidget?: MetaWidget;
-  virtualizer?: VirtualizerInstance;
   pageSize: number;
 
   static getPropertyPaneContentConfig() {
@@ -220,15 +216,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       this.resetSelectedRow();
       this.resetTriggeredRowIndex();
       this.resetTriggeredRow();
-    }
-
-    // TODO
-    if (this.hasTemplateBottomRowChanged()) {
-      if (this.virtualizer) {
-        this.virtualizer.measure();
-        this.virtualizer._didMount()();
-        this.virtualizer._willUpdate();
-      }
     }
 
     this.setupMetaWidgets(prevProps);
@@ -400,17 +387,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   getTemplateBottomRow = () => {
     return this.getMainContainer()?.bottomRow;
-  };
-
-  hasTemplateBottomRowChanged = () => {
-    const prevContainer = this.getMainContainer(
-      this.prevFlattenedChildCanvasWidgets,
-    );
-    const currContainer = this.getMainContainer(
-      this.props.flattenedChildCanvasWidgets,
-    );
-
-    return prevContainer?.bottomRow !== currContainer?.bottomRow;
   };
 
   getContainerRowHeight = () => {
