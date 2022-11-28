@@ -21,7 +21,7 @@ import {
   getEvalErrorPath,
   getEvalValuePath,
 } from "utils/DynamicBindingUtils";
-import { find, get, isEmpty, some } from "lodash";
+import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
