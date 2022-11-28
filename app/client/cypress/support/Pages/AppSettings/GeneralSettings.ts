@@ -9,32 +9,18 @@ export class GeneralSettings {
     appIconSelector: "#t--general-settings-app-icon",
   };
 
-  changeAppNameAndVerifyUrl(
-    newAppName: string,
-    reset = false,
-    pageName = "page1",
-  ) {
+  changeAppNameAndVerifyUrl(newAppName: string, pageName = "page1") {
     this.agHelper
       .InvokeVal(this.locators.appNameField)
       .then((currentAppName) => {
         this.agHelper.RemoveCharsNType(
           this.locators.appNameField,
-          4,
+          (currentAppName as string).length,
           newAppName,
         );
         this.agHelper.PressEnter();
         this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
-        checkUrl((currentAppName as string).slice(0, 4) + newAppName, pageName);
-        if (reset) {
-          this.agHelper.RemoveCharsNType(
-            this.locators.appNameField,
-            4 + newAppName.length,
-            currentAppName as string,
-          );
-          this.agHelper.PressEnter();
-          this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
-          checkUrl(currentAppName as string, pageName);
-        }
+        checkUrl(newAppName, pageName);
       });
   }
 

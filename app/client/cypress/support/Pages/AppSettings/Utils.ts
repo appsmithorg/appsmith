@@ -2,6 +2,7 @@ export const checkUrl = (
   appName: string,
   pageName: string,
   customSlug?: string,
+  editMode = true,
 ) => {
   cy.location("pathname").then((pathname) => {
     if (customSlug && customSlug.length > 0) {
@@ -10,7 +11,7 @@ export const checkUrl = (
         ?.split("-")
         .pop();
       expect(pathname).to.be.equal(
-        `/app/${customSlug}-${pageId}/edit`.toLowerCase(),
+        `/app/${customSlug}-${pageId}${editMode ? "/edit" : ""}`.toLowerCase(),
       );
     } else {
       const pageId = pathname
@@ -18,7 +19,9 @@ export const checkUrl = (
         ?.split("-")
         .pop();
       expect(pathname).to.be.equal(
-        `/app/${appName}/${pageName}-${pageId}/edit`.toLowerCase(),
+        `/app/${appName}/${pageName}-${pageId}${
+          editMode ? "/edit" : ""
+        }`.toLowerCase(),
       );
     }
   });
