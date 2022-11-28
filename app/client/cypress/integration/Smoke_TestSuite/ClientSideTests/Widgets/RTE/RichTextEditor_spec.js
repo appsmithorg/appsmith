@@ -233,7 +233,7 @@ describe("RichTextEditor Widget Functionality", function() {
     });
   });
 
-  it.only("Check if the cursor position is at the end for the RTE widget", function() {
+  it("Check if the cursor position is at the end for the RTE widget", function() {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
     const testStringLen = testString.length;
