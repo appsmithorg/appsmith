@@ -2,8 +2,10 @@ const dsl = require("../../../../fixtures/multipleContainerdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation for multiple container", function() {
-  it("Validate change in auto height width with multiple containers", function() {
+  before(() => {
     cy.addDsl(dsl);
+  });
+  it("Validate change in auto height width with multiple containers", function() {
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPaneWithIndex("containerwidget", 0);
     cy.changeLayoutHeight(commonlocators.fixed);
@@ -14,6 +16,7 @@ describe("Dynamic Height Width validation for multiple container", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.changeLayoutHeight(commonlocators.fixed);
     cy.changeLayoutHeight(commonlocators.autoHeight);
+    cy.wait(2000);
     cy.get(".t--widget-containerwidget")
       .eq(0)
       .invoke("css", "height")
@@ -26,15 +29,16 @@ describe("Dynamic Height Width validation for multiple container", function() {
               .eq(2)
               .invoke("css", "height")
               .then((iheight) => {
-                cy.get(commonlocators.addOption).click({ force: true });
                 cy.get(".t--widget-checkboxgroupwidget")
                   .invoke("css", "height")
                   .then((checkboxheight) => {
+                    cy.get(commonlocators.addOption).click({ force: true });
                     cy.wait("@updateLayout").should(
                       "have.nested.property",
                       "response.body.responseMeta.status",
                       200,
                     );
+                    cy.wait(3000);
                     cy.get(".t--widget-checkboxgroupwidget")
                       .invoke("css", "height")
                       .then((newcheckboxheight) => {

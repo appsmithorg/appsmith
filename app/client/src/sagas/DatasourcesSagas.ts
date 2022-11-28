@@ -335,8 +335,6 @@ function* updateDatasourceSaga(
 
       const state: AppState = yield select();
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
-      const datasourceStructure =
-        state.entities.datasources.structure[response.data.id];
 
       // Dont redirect if action payload has an onSuccess
       yield put(
@@ -356,7 +354,7 @@ function* updateDatasourceSaga(
         yield put(actionPayload.onSuccess);
       }
       yield put(setDatasourceViewMode(true));
-      if (expandDatasourceId === response.data.id && !datasourceStructure) {
+      if (expandDatasourceId === response.data.id) {
         yield put(fetchDatasourceStructure(response.data.id));
       }
 
