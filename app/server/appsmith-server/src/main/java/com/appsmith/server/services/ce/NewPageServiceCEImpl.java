@@ -483,7 +483,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> archiveById(String id) {
-        Mono<NewPage> pageMono = this.findById(id, pagePermission.getEditPermission())
+        Mono<NewPage> pageMono = this.findById(id, pagePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();
 

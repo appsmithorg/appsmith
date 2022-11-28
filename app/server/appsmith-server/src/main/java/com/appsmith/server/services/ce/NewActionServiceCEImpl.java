@@ -1254,6 +1254,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(action -> generateActionByViewMode(action, viewMode));
     }
 
+    //TODO: Should this be read or edit permission
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
@@ -1268,6 +1269,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param pageId Id of the Page within which to look for Actions.
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
+    //TODO: Should this be read or edit
     @Override
     public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
         return repository
@@ -1368,7 +1370,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        Mono<NewAction> actionMono = repository.findById(id, actionPermission.getEditPermission())
+        Mono<NewAction> actionMono = repository.findById(id, actionPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
                 .flatMap(toDelete -> {
@@ -1888,7 +1890,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getEditPermission());
+        Mono<NewAction> branchedActionMono = this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getDeletePermission());
 
         return branchedActionMono
                 .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))

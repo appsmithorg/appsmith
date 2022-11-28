@@ -324,7 +324,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        Mono<ActionCollection> actionCollectionMono = repository.findById(id, actionPermission.getEditPermission())
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, actionPermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono
                 .flatMap(toDelete -> {
@@ -360,7 +360,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName) {
         Mono<String> branchedCollectionId = StringUtils.isEmpty(branchName)
                 ? Mono.just(id)
-                : this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission())
+                : this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getDeletePermission())
                 .map(ActionCollection::getId);
 
         return branchedCollectionId
@@ -464,7 +464,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission());
+        Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getDeletePermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
 
         return branchedCollectionMono
                 .map(ActionCollection::getId)

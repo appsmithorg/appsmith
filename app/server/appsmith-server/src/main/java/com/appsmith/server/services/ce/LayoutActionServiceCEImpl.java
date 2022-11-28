@@ -563,7 +563,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getDeletePermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }

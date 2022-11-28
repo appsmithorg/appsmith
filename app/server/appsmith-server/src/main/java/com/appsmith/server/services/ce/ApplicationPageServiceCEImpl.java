@@ -409,7 +409,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null && !StringUtils.isEmpty(gitData.getDefaultApplicationId()) && !StringUtils.isEmpty(gitData.getRepoName())) {
                         return applicationService
-                                .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission());
+                                .findAllApplicationsByDefaultApplicationId(gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -433,7 +433,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     public Mono<Application> deleteApplicationByResource(Application application) {
         log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
-        return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), actionPermission.getEditPermission())
+        return actionCollectionService.archiveActionCollectionByApplicationId(application.getId(), actionPermission.getDeletePermission())
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), actionPermission.getDeletePermission()))
                 .then(newPageService.archivePagesByApplicationId(application.getId(), pagePermission.getDeletePermission()))
                 .then(themeService.archiveApplicationThemes(application))
@@ -831,7 +831,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
 
-        return newPageService.findById(id, pagePermission.getEditPermission())
+        return newPageService.findById(id, pagePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
@@ -868,7 +868,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                      *  actionCollection which will be deleted while deleting the collection, this will avoid the race
                      *  condition for delete action
                      */
-                    Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), actionPermission.getEditPermission())
+                    Mono<List<ActionDTO>> archivedActionsMono = newActionService.findByPageId(page.getId(), actionPermission.getDeletePermission())
                             .filter(newAction -> !StringUtils.hasLength(newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
@@ -911,7 +911,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getDeletePermission())
                 .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
@@ -924,6 +924,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @param applicationId The id of the application that will be published.
      * @return Publishes a Boolean true, when the application has been published.
      */
+    //TODO: Should this permission be publish or edit
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, applicationPermission.getEditPermission())
@@ -1034,6 +1035,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
     }
 
+    //TODO: should this be publish or edit
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
                                                             Mono<List<NewAction>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
@@ -1068,6 +1070,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
     }
 
+    //todo: should this be publish or edit
     @Override
     public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
