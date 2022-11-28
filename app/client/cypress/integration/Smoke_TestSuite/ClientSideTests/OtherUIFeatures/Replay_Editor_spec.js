@@ -161,6 +161,7 @@ describe("Undo/Redo functionality", function() {
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get("body").type(`{${modifierKey}}z`);
+    cy.wait(2000);
     cy.get("input[name='url']").should("have.value", "");
     cy.get("input[name='headers[0].key']").should("have.value", "");
     cy.get("body").type(`{${modifierKey}}{shift}z`);
