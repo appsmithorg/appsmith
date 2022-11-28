@@ -6,7 +6,7 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { AppTheme } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 
@@ -85,8 +85,8 @@ export type PropertyPaneControlConfig = {
   getStylesheetValue?: (
     props: any,
     propertyPath: string,
-    stylesheet?: AppTheme["stylesheet"][string],
-  ) => AppTheme["stylesheet"][string][string];
+    stylesheet?: Stylesheet,
+  ) => Stylesheet[string];
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;

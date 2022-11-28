@@ -1,6 +1,7 @@
 import { areIntersecting } from "utils/boxHelpers";
 import { pushToArray } from "utils/helpers";
 import { MAX_BOX_SIZE, NodeSpace, TreeNode } from "./constants";
+import { getNearestAbove } from "./helpers";
 
 // This function uses the spaces occupied by sibling boxes and provides us with
 // a data structure which defines the relative vertical positioning of the boxes
@@ -11,7 +12,15 @@ export function generateTree(
   previousTree: Record<string, TreeNode>,
 ): Record<string, TreeNode> {
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
-  spaces.sort((a, b) => a.top - b.top); // Sort based on position, top to bottom, so that we know which is above the other
+  spaces.sort((a, b) => {
+    //if both are of the same level and previous tree exists, check originalTops
+    if (a.top === b.top && previousTree[a.id] && previousTree[b.id]) {
+      return (
+        previousTree[a.id].originalTopRow - previousTree[b.id].originalTopRow
+      );
+    }
+    return a.top - b.top;
+  }); // Sort based on position, top to bottom, so that we know which is above the other
   const _spaces = [...spaces];
 
   const aboveMap: Record<string, string[]> = {};
@@ -68,6 +77,7 @@ export function generateTree(
       if (originalBottomRow === undefined || layoutUpdated) {
         originalBottomRow = currentSpace.bottom - MAX_BOX_SIZE;
       }
+
       tree[currentSpace.id] = {
         aboves: aboveMap[currentSpace.id] || [],
         belows: belowMap[currentSpace.id] || [],
@@ -75,7 +85,19 @@ export function generateTree(
         bottomRow: currentSpace.bottom - MAX_BOX_SIZE,
         originalTopRow,
         originalBottomRow,
+        distanceToNearestAbove: 0,
       };
+    }
+  }
+
+  for (const boxId in tree) {
+    // For each box, get the nearest above node
+    // Then get the distance between this node and the nearest above
+    // We'll try to maintain this distance when reflowing due to auto height
+    const nearestAbove = getNearestAbove(tree, boxId, {});
+    if (nearestAbove.length > 0) {
+      tree[boxId].distanceToNearestAbove =
+        tree[boxId].topRow - tree[nearestAbove[0]].bottomRow;
     }
   }
 

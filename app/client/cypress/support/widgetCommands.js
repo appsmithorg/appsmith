@@ -1602,7 +1602,7 @@ Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
 
 Cypress.Commands.add("changeLayoutHeight", (locator) => {
   cy.get(".t--property-control-height .remixicon-icon")
-    .should("be.visible")
+    .scrollIntoView()
     .click({ force: true });
   cy.get(locator).click({ force: true });
   cy.wait("@updateLayout").should(
@@ -1614,7 +1614,7 @@ Cypress.Commands.add("changeLayoutHeight", (locator) => {
 
 Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
   cy.get(".t--property-control-height .remixicon-icon")
-    .should("be.visible")
+    .scrollIntoView()
     .click({ force: true });
   cy.get(locator).click({ force: true });
 });
