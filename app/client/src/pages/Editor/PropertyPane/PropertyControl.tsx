@@ -87,16 +87,16 @@ const PropertyControl = memo((props: Props) => {
   // using hasDispatchedPropertyFocus to make sure
   // the component does not select the state after dispatching the action,
   // which might lead to another rerender and reset the component
-  let hasDispatchedPropertyFocus = false;
+  const hasDispatchedPropertyFocus = useRef<boolean>(false);
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
       getShouldFocusPropertyPath(
         state,
         dataTreePath,
-        hasDispatchedPropertyFocus,
+        hasDispatchedPropertyFocus.current,
       ),
     (before: boolean, after: boolean) => {
-      return hasDispatchedPropertyFocus || before === after;
+      return hasDispatchedPropertyFocus.current || before === after;
     },
   );
 
@@ -347,8 +347,8 @@ const PropertyControl = memo((props: Props) => {
     // would recommend NOT TO FOLLOW this path for upcoming widgets.
 
     // if there are enhancements related to the widget, calling them here
-    // enhancements are basically group of functions that are called before widget propety
-    // is changed on propertypane. For e.g - set/update parent property
+    // enhancements are basically group of functions that are called before widget property
+    // is changed on propertyPane. For e.g - set/update parent property
     if (childWidgetPropertyUpdateEnhancementFn) {
       const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
         widgetProperties.widgetName,
@@ -569,7 +569,7 @@ const PropertyControl = memo((props: Props) => {
 
     const handleOnFocus = () => {
       if (!shouldFocusPropertyPath) {
-        hasDispatchedPropertyFocus = true;
+        hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
           dispatch(generateKeyAndSetFocusablePropertyPaneField(dataTreePath));
         }, 0);
