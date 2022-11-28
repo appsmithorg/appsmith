@@ -23,10 +23,11 @@ import styled from "styled-components";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import { Icon, LabelWithTooltip } from "design-system";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 export interface TreeSelectProps
   extends Required<
@@ -49,6 +50,7 @@ export interface TreeSelectProps
   compactMode: boolean;
   dropDownWidth: number;
   width: number;
+  isDynamicHeightEnabled?: boolean;
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
@@ -111,6 +113,7 @@ function MultiTreeSelectComponent({
   dropDownWidth,
   expandAll,
   filterText,
+  isDynamicHeightEnabled,
   isFilterable,
   isValid,
   labelAlignment,
@@ -134,8 +137,7 @@ function MultiTreeSelectComponent({
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
 
-  const _menu = useRef<HTMLElement | null>(null);
-
+  const _menu = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -212,7 +214,6 @@ function MultiTreeSelectComponent({
   );
 
   const onClear = useCallback(() => onChange([], []), []);
-
   const onDropdownVisibleChange = (open: boolean) => {
     onOpen(open);
     // clear the search input on closing the widget
@@ -248,6 +249,7 @@ function MultiTreeSelectComponent({
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           helpText={tooltip}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

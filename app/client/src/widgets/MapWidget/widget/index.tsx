@@ -12,6 +12,7 @@ import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { MarkerProps } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { Stylesheet } from "entities/AppTheming";
 
 const { google } = getAppsmithConfigs();
 
@@ -294,6 +295,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   }
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   updateCenter = (lat: number, long: number, title?: string) => {

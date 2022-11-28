@@ -21,8 +21,9 @@ import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import { Icon, LabelWithTooltip } from "design-system";
+import { Icon } from "design-system";
 import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;
@@ -62,6 +63,7 @@ export interface MultiSelectProps
   onBlur?: (e: React.FocusEvent) => void;
   renderMode?: RenderMode;
   tooltip?: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const DEBOUNCE_TIMEOUT = 1000;
@@ -76,6 +78,7 @@ function MultiSelectComponent({
   dropdownStyle,
   dropDownWidth,
   filterText,
+  isDynamicHeightEnabled,
   isFilterable,
   isValid,
   labelAlignment,
@@ -308,6 +311,7 @@ function MultiSelectComponent({
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           helpText={tooltip}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           ref={labelRef}

@@ -28,7 +28,9 @@ export class DataSources {
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
   private _saveDs = ".t--save-datasource";
+  private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
+  _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
@@ -45,6 +47,7 @@ export class DataSources {
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
   _runQueryBtn = ".t--run-query";
   _newDatabases = "#new-datasources";
+  _newDatasourceContainer = "#new-integrations-wrapper"
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
   _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
@@ -106,6 +109,7 @@ export class DataSources {
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
+  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -217,6 +221,7 @@ export class DataSources {
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
+    cy.get(this._newDatasourceContainer).scrollTo("bottom");
     cy.get(this._newDatabases).should("be.visible");
   }
 
@@ -329,6 +334,11 @@ export class DataSources {
     //     .then((xhr) => {
     //         cy.log(JSON.stringify(xhr.response!.body));
     //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
+  }
+
+  public AuthAPISaveAndAuthorize() {
+    cy.get(this._saveAndAuthorizeDS).click();
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
   }
 
   public DeleteDatasouceFromActiveTab(
@@ -679,5 +689,20 @@ export class DataSources {
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
     this.agHelper.GetNClick(this._queryResponse("QUERY"));
+  }
+
+  //Update with new password in the datasource conf page
+  public updatePassword(newPassword: string){
+    cy.get(this._sectionAuthentication).click();
+    cy.get(this._password).type(newPassword);
+  }
+
+  //Fetch schema from server and validate UI for the updates
+  public verifySchema(schema: string){
+    cy.intercept("GET", this._getStructureReq).as("getDSStructure");
+    this.SaveDatasource();
+    cy.wait("@getDSStructure").then(() => {
+      cy.get(".bp3-collapse-body").contains(schema);
+    });
   }
 }
