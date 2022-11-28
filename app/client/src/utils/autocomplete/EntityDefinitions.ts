@@ -155,6 +155,9 @@ export const entityDefinitions = {
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
     pageOffset: generateTypeDef(widget.pageOffset),
+    tableHeaders: generateTypeDef(widget.tableHeaders),
+    newRow: generateTypeDef(widget.newRow),
+    isAddRowInProgress: "bool",
   }),
   VIDEO_WIDGET: {
     "!doc":

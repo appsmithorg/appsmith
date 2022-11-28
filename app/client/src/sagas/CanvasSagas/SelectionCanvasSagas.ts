@@ -12,7 +12,7 @@ import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgets } from "sagas/selectors";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

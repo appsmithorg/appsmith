@@ -58,6 +58,7 @@ export type CollidingSpace = OccupiedSpace & {
   collidingId: string;
   isHorizontal: boolean;
   order: number;
+  fixedHeight?: number;
 };
 
 export type SecondOrderCollision = OccupiedSpace & {
@@ -95,6 +96,7 @@ export type CollisionTree = OccupiedSpace & {
   collidingId: string;
   isHorizontal: boolean;
   order: number;
+  fixedHeight?: number;
 };
 
 export type SpaceMovementMap = {
@@ -112,7 +114,7 @@ export type CollisionTreeCache = {
   [spaceId: string]: {
     [direction: string]: {
       value: number;
-      depth?: number;
+      occupiedLength?: number;
       occupiedSpace?: number;
       currentEmptySpaces?: number;
       childNode?: CollisionTree;
@@ -125,8 +127,8 @@ export type ReflowedSpace = {
   Y?: number;
   width?: number;
   height?: number;
-  horizontalDepth?: number;
-  verticalDepth?: number;
+  horizontalOccupiedLength?: number;
+  verticalOccupiedLength?: number;
   x?: number;
   y?: number;
   maxX?: number;
