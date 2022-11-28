@@ -12,7 +12,7 @@ import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 import { DebuggerHelper } from "../Pages/DebuggerHelper";
-import { AppSettings } from "../Pages/AppSettings";
+import { AppSettings } from "../Pages/AppSettings/AppSettings";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
