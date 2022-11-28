@@ -1,6 +1,11 @@
 import { focusWidget } from "actions/widgetActions";
-import React, { CSSProperties, memo, useEffect, useMemo } from "react";
-import { useState } from "react";
+import React, {
+  CSSProperties,
+  memo,
+  useEffect,
+  useMemo,
+  useReducer,
+} from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
@@ -18,6 +23,11 @@ import { useHoverState, usePositionedStyles } from "./hooks";
 import { getSnappedValues } from "./utils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { LayersContext } from "constants/Layers";
+import {
+  AutoHeightOverlayUIStateReducer,
+  createInitialAutoHeightUIState,
+} from "./store";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 interface StyledAutoHeightOverlayProps {
   layerIndex: number;
@@ -72,41 +82,93 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
       getParentToOpenSelector(props.widgetId),
     );
     const showTableFilterPane = useShowTableFilterPane();
-    const { setIsAutoHeightWithLimitsChanging } = useAutoHeightUIState();
-    const isAutoHeightWithLimitsChanging = useSelector(
-      (state: AppState) => state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,
+    const {
+      isAutoHeightWithLimitsChanging,
+      setIsAutoHeightWithLimitsChanging,
+    } = useAutoHeightUIState();
+
+    const [autoHeightUIState, autoHeightUIStateDispatch] = useReducer(
+      AutoHeightOverlayUIStateReducer,
+      createInitialAutoHeightUIState({ maxDynamicHeight, minDynamicHeight }),
     );
 
-    const [isMinDotDragging, setIsMinDotDragging] = useState(false);
-    const [isMaxDotDragging, setIsMaxDotDragging] = useState(false);
+    const {
+      isMaxDotDragging,
+      isMinDotDragging,
+      maxdY,
+      maxY,
+      mindY,
+      minY,
+    } = autoHeightUIState;
 
-    const [maxY, setMaxY] = useState(
-      maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-    );
-    const [maxdY, setMaxdY] = useState(0);
+    function setIsMaxDotDragging(isMaxDotDragging: boolean) {
+      autoHeightUIStateDispatch({
+        type: "SET_IS_MAX_DOT_DRAGGING",
+        payload: {
+          isMaxDotDragging,
+        },
+      });
+    }
 
-    const [minY, setMinY] = useState(
-      minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-    );
-    const [mindY, setMindY] = useState(0);
+    function setIsMinDotDragging(isMinDotDragging: boolean) {
+      autoHeightUIStateDispatch({
+        type: "SET_IS_MIN_DOT_DRAGGING",
+        payload: {
+          isMinDotDragging,
+        },
+      });
+    }
+
+    function setMaxY(maxY: number) {
+      autoHeightUIStateDispatch({
+        type: "SET_MAX_Y",
+        payload: {
+          maxY,
+        },
+      });
+    }
+
+    function setMinY(minY: number) {
+      autoHeightUIStateDispatch({
+        type: "SET_MIN_Y",
+        payload: {
+          minY,
+        },
+      });
+    }
+
+    function setMaxdY(maxdY: number) {
+      autoHeightUIStateDispatch({
+        type: "SET_MAX_D_Y",
+        payload: {
+          maxdY,
+        },
+      });
+    }
+
+    function setMindY(mindY: number) {
+      autoHeightUIStateDispatch({
+        type: "SET_MIN_D_Y",
+        payload: {
+          mindY,
+        },
+      });
+    }
 
     const finalMaxY = maxY + maxdY;
     const finalMinY = minY + mindY;
-
-    // to be included when min and max fields are
-    // added back to the property pane
-    // const {
-    //   isPropertyPaneMaxFieldFocused,
-    //   isPropertyPaneMinFieldFocused,
-    // } = useMaxMinPropertyPaneFieldsFocused();
 
     useEffect(() => {
       setMaxY(maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
     }, [maxDynamicHeight]);
 
     function onAnyDotStop() {
-      setIsAutoHeightWithLimitsChanging &&
-        setIsAutoHeightWithLimitsChanging(false);
+      // Tell the Canvas that we've stopped resizing
+      // Put it later in the stack so that other updates like click, are not propagated to the parent container
+      setTimeout(() => {
+        setIsAutoHeightWithLimitsChanging &&
+          setIsAutoHeightWithLimitsChanging(false);
+      }, 0);
 
       selectWidget && selectWidget(props.widgetId);
 
@@ -317,11 +379,13 @@ const AutoHeightOverlayContainer: React.FC<AutoHeightOverlayContainerProps> = me
       selectedWidgets,
     } = useSelector((state: AppState) => state.ui.widgetDragResize);
 
+    const isPreviewMode = useSelector(previewModeSelector);
+
     const isWidgetSelected = selectedWidget === widgetId;
     const multipleWidgetsSelected = selectedWidgets.length > 1;
     const isHidden = multipleWidgetsSelected || isDragging || isResizing;
 
-    if (isWidgetSelected) {
+    if (isWidgetSelected && !isPreviewMode) {
       return <AutoHeightOverlay isHidden={isHidden} {...props} />;
     }
 

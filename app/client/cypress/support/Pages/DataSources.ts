@@ -28,6 +28,7 @@ export class DataSources {
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
   private _saveDs = ".t--save-datasource";
+  private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
@@ -333,6 +334,11 @@ export class DataSources {
     //     .then((xhr) => {
     //         cy.log(JSON.stringify(xhr.response!.body));
     //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
+  }
+
+  public AuthAPISaveAndAuthorize() {
+    cy.get(this._saveAndAuthorizeDS).click();
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
   }
 
   public DeleteDatasouceFromActiveTab(
