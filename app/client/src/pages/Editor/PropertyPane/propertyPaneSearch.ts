@@ -32,7 +32,7 @@ export const sendPropertyPaneSearchAnalytics = debounce(
   1000,
 );
 
-function match(text: string, searchQuery: string) {
+function tokenSearch(text: string, searchQuery: string) {
   const noMatch = {
     startsWith: false,
     contains: false,
@@ -81,7 +81,7 @@ function search(
     };
     const sectionName = sectionConfig.sectionName;
     let isPropertyStartsWith = false;
-    const sectionNameMatch = match(sectionName, query);
+    const sectionNameMatch = tokenSearch(sectionName, query);
     if (sectionNameMatch.startsWith) {
       searchResult.section.startsWith.push(sectionConfig);
     } else if (sectionNameMatch.contains) {
@@ -105,7 +105,7 @@ function search(
         }
         if ((child as PropertyPaneControlConfig).label) {
           const label = (child as PropertyPaneControlConfig).label;
-          const labelMatch = match(label, query);
+          const labelMatch = tokenSearch(label, query);
           if (labelMatch.startsWith) {
             isEmpty = false;
             isPropertyStartsWith = true;
