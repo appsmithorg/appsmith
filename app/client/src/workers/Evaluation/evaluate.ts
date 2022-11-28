@@ -393,6 +393,11 @@ export async function evaluateAsync(
           logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
           triggers: Array.from(self.TRIGGER_COLLECTOR),
         });
+      } finally {
+        for (const entity in GLOBAL_DATA) {
+          // @ts-expect-error: Types are not available
+          delete self[entity];
+        }
       }
     }
   })();
