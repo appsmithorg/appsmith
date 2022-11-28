@@ -36,7 +36,7 @@ import {
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 import {
-  createGlobalData,
+  createEvaluationContext,
   EvaluationScripts,
   EvaluationScriptType,
   getScriptToEval,
@@ -59,7 +59,7 @@ export function getlintErrorsFromTree(
   unEvalTree: DataTree,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
-  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({
+  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createEvaluationContext({
     dataTree: unEvalTree,
     resolvedFunctions: {},
     isTriggerBased: false,
@@ -99,7 +99,7 @@ export function getlintErrorsFromTree(
   if (triggerPaths.size || bindingPathsRequiringFunctions.size) {
     // we only create GLOBAL_DATA_WITH_FUNCTIONS if there are paths requiring it
     // In trigger based fields, functions such as showAlert, storeValue, etc need to be added to the global data
-    const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData({
+    const GLOBAL_DATA_WITH_FUNCTIONS = createEvaluationContext({
       dataTree: unEvalTree,
       resolvedFunctions: {},
       isTriggerBased: true,
@@ -155,7 +155,7 @@ function lintBindingPath(
   dynamicBinding: string,
   entity: DataTreeEntity,
   fullPropertyPath: string,
-  globalData: ReturnType<typeof createGlobalData>,
+  globalData: ReturnType<typeof createEvaluationContext>,
 ) {
   let lintErrors: LintError[] = [];
 
@@ -214,7 +214,7 @@ function lintBindingPath(
 function lintTriggerPath(
   userScript: string,
   entity: DataTreeEntity,
-  globalData: ReturnType<typeof createGlobalData>,
+  globalData: ReturnType<typeof createEvaluationContext>,
 ) {
   const { jsSnippets } = getDynamicBindings(userScript, entity);
   const script = getScriptToEval(jsSnippets[0], EvaluationScriptType.TRIGGERS);

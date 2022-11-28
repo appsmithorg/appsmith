@@ -1,4 +1,7 @@
-import { createGlobalData, EvalResult } from "workers/Evaluation/evaluate";
+import {
+  createEvaluationContext,
+  EvalResult,
+} from "workers/Evaluation/evaluate";
 const ctx: Worker = self as any;
 
 /*
@@ -66,7 +69,7 @@ export const promisifyAction = (
         } else {
           self.ALLOW_ASYNC = true;
           // Reset the global data with the correct request id for this promise
-          const globalData = createGlobalData({
+          const globalData = createEvaluationContext({
             dataTree: dataTreeEvaluator.evalTree,
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
             isTriggerBased: true,

@@ -1,6 +1,6 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
-import { createGlobalData } from "workers/Evaluation/evaluate";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
 import { enhanceDataTreeWithFunctions } from "../Actions";
 jest.mock("lodash/uniqueId");
@@ -31,7 +31,7 @@ describe("Add functions", () => {
     },
   };
   self.TRIGGER_COLLECTOR = [];
-  const dataTreeWithFunctions = createGlobalData({
+  const dataTreeWithFunctions = createEvaluationContext({
     dataTree,
     resolvedFunctions: {},
     isTriggerBased: true,

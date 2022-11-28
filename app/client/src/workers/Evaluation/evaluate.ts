@@ -123,7 +123,7 @@ export function setupEvaluationEnvironment() {
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
-export interface createGlobalDataArgs {
+export interface createEvaluationContextArgs {
   dataTree: DataTree;
   resolvedFunctions: Record<string, any>;
   context?: EvaluateContext;
@@ -132,8 +132,13 @@ export interface createGlobalDataArgs {
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
 }
-
-export const createGlobalData = (args: createGlobalDataArgs) => {
+/**
+ * This method adds the required entity properties, appsmith's framework actions to the worker global scope for the JS code evaluation to then consume it.
+ *
+ * Example:
+ * - For `eval("Table1.tableData")` code to work as expected, we define Table1.tableData in worker global scope.
+ */
+export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   const {
     context,
     dataTree,
@@ -265,7 +270,7 @@ export default function evaluateSync(
       userLogs.resetLogs();
     }
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = createGlobalData({
+    const GLOBAL_DATA: Record<string, any> = createEvaluationContext({
       dataTree,
       resolvedFunctions,
       isTriggerBased: isJSCollection,
@@ -340,7 +345,7 @@ export async function evaluateAsync(
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });
-    const GLOBAL_DATA: Record<string, any> = createGlobalData({
+    const GLOBAL_DATA: Record<string, any> = createEvaluationContext({
       dataTree,
       resolvedFunctions,
       isTriggerBased: true,

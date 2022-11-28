@@ -1,4 +1,4 @@
-import { createGlobalData } from "workers/Evaluation/evaluate";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import _ from "lodash";
 jest.mock("../evaluation.worker.ts", () => {
   return {
@@ -12,7 +12,7 @@ jest.mock("../evaluation.worker.ts", () => {
 describe("promise execution", () => {
   const postMessageMock = jest.fn();
   const requestId = _.uniqueId("TEST_REQUEST");
-  const dataTreeWithFunctions = createGlobalData({
+  const dataTreeWithFunctions = createEvaluationContext({
     dataTree: {},
     resolvedFunctions: {},
     isTriggerBased: true,

@@ -1,4 +1,4 @@
-import { createGlobalData } from "./evaluate";
+import { createEvaluationContext } from "./evaluate";
 import { dataTreeEvaluator } from "./evaluation.worker";
 
 export const _internalSetTimeout = self.setTimeout;
@@ -13,7 +13,7 @@ export default function overrideTimeout() {
         self.IS_ASYNC = true;
         throw new Error("Async function called in a sync field");
       }
-      const globalData = createGlobalData({
+      const globalData = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
         isTriggerBased: true,

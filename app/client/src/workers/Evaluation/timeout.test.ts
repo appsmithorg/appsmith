@@ -1,6 +1,6 @@
 import { PluginType } from "entities/Action";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { createGlobalData } from "./evaluate";
+import { createEvaluationContext } from "./evaluate";
 import "./TimeoutOverride";
 import overrideTimeout from "./TimeoutOverride";
 
@@ -107,7 +107,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
       },
     };
     self.ALLOW_ASYNC = true;
-    const dataTreeWithFunctions = createGlobalData({
+    const dataTreeWithFunctions = createEvaluationContext({
       dataTree,
       resolvedFunctions: {},
       isTriggerBased: true,
