@@ -16,6 +16,7 @@ import {
   textGetter,
   textSetter,
   callBackFieldSetter,
+  callBackFieldGetter,
 } from "../utils";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -178,13 +179,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     defaultText: "",
     options: () => null,
     getter: (value: string) => {
-      const requiredValue = getDynamicBindings(value).jsSnippets[0];
-      const funcExpr = getFuncExpressionAtPosition(
-        requiredValue,
-        0,
-        self.evaluationVersion,
-      );
-      return `{{${funcExpr}}}`;
+      return callBackFieldGetter(value);
     },
     setter: (value, currentValue) => {
       return callBackFieldSetter(value, currentValue, 0);

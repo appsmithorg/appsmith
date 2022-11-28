@@ -14,6 +14,7 @@ import {generate} from "astring";
 
 const LENGTH_OF_QUOTES = 2;
 const NEXT_POSITION = 1;
+
 export const getTextArgumentAtPosition = (value: string, argNum: number, evaluationVersion: number): string => {
     let ast: Node = { end: 0, start: 0, type: "" };
     let requiredArgument: string = "";
@@ -75,7 +76,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: str
                 const startPosition = node.callee.end + NEXT_POSITION;
                 node.arguments[argNum] = {
                     type: NodeTypes.Literal,
-                    value: `'${changeValue}'`,
+                    value: `${changeValue}`,
                     raw: String.raw`'${changeValue}'`,
                     start: startPosition,
                     // add 2 for quotes

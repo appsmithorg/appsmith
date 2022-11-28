@@ -9,6 +9,7 @@ import {
   setTextArgumentAtPosition,
   setEnumArgumentAtPosition,
   setCallbackFunctionField,
+  getFuncExpressionAtPosition,
 } from "@shared/ast";
 
 export const stringToJS = (string: string): string => {
@@ -18,7 +19,7 @@ export const stringToJS = (string: string): string => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return jsSnippets[index];
       } else {
-        return `'${segment}'`;
+        return `${segment}`;
       }
     })
     .join(" + ");
@@ -73,12 +74,11 @@ export const textSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  // requiredValue is value minus the surrounding {{ }}
-  // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+  const requiredValue = stringToJS(currentValue);
+  const requiredChangeValue = stringToJS(changeValue);
   return setTextArgumentAtPosition(
     requiredValue,
-    changeValue,
+    requiredChangeValue,
     argNum,
     self.evaluationVersion,
   );
@@ -132,14 +132,26 @@ export const callBackFieldSetter = (
   currentValue: string,
   argNum: number,
 ): string => {
-  const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
-  const requiredChangeValue = getDynamicBindings(changeValue).jsSnippets[0];
-  return setCallbackFunctionField(
+  const requiredValue = stringToJS(currentValue);
+  const requiredChangeValue = stringToJS(changeValue);
+  return (
+    setCallbackFunctionField(
+      requiredValue,
+      requiredChangeValue,
+      argNum,
+      self.evaluationVersion,
+    ) || currentValue
+  );
+};
+
+export const callBackFieldGetter = (value: string) => {
+  const requiredValue = stringToJS(value);
+  const funcExpr = getFuncExpressionAtPosition(
     requiredValue,
-    requiredChangeValue,
-    argNum,
+    0,
     self.evaluationVersion,
   );
+  return `{{${funcExpr}}}`;
 };
 
 /*
