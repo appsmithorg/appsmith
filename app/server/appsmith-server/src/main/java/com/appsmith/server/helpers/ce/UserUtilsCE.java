@@ -155,9 +155,9 @@ public class UserUtilsCE {
         return permissionGroupRepository.save(instanceAdminPermissionGroup)
                 .flatMap(savedPermissionGroup -> {
                     Set<Permission> permissions = Set.of(
-                            new Permission(savedPermissionGroup.getId(), permissionGroupPermission.getMembersReadPermission()),
-                            new Permission(savedPermissionGroup.getId(), permissionGroupPermission.getAssignPermission()),
-                            new Permission(savedPermissionGroup.getId(), permissionGroupPermission.getUnAssignPermission())
+                            new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUP_MEMBERS),
+                            new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
+                            new Permission(savedPermissionGroup.getId(), UNASSIGN_PERMISSION_GROUPS)
                     );
                     savedPermissionGroup.setPermissions(permissions);
 

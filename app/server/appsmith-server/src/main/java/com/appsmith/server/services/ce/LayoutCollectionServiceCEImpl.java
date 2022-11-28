@@ -91,7 +91,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
         final String pageId = collection.getPageId();
         Mono<NewPage> pageMono = newPageService
-                .findById(pageId, pagePermission.getEditPermission())
+                .findById(pageId, pagePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .cache();
@@ -234,7 +234,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return newPageService.findById(collection.getPageId(), pagePermission.getEditPermission())
+        return newPageService.findById(collection.getPageId(), pagePermission.getActionCreatePermission())
                 .flatMap(newPage -> {
                     // Insert defaultPageId and defaultAppId from page
                     DefaultResources defaultResources = newPage.getDefaultResources();
@@ -262,7 +262,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         Mono<String> branchedPageIdMono = StringUtils.isEmpty(branchName)
                 ? Mono.just(pageId)
                 : newPageService
-                .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getEditPermission())
+                .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getReadPermission())
                 .map(NewPage::getId)
                 .cache();
 
@@ -329,7 +329,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final String collectionId = actionCollectionMoveDTO.getCollectionId();
         final String destinationPageId = actionCollectionMoveDTO.getDestinationPageId();
 
-        Mono<NewPage> destinationPageMono = newPageService.findById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission())
+        Mono<NewPage> destinationPageMono = newPageService.findById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, destinationPageId)))
                 .cache();
 
@@ -394,7 +394,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                         .collect(toSet());
                             })
                             // fetch the unpublished destination page
-                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getEditPermission(), false))
+                            .then(newPageService.findPageById(actionCollectionMoveDTO.getDestinationPageId(), pagePermission.getActionCreatePermission(), false))
                             .flatMap(page -> {
                                 if (page.getLayouts() == null) {
                                     return Mono.empty();

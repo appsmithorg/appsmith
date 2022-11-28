@@ -20,6 +20,6 @@ public class PagePermissionCEImpl implements PagePermissionCE {
 
     @Override
     public AclPermission getActionCreatePermission() {
-        return AclPermission.PAGE_CREATE_PAGE_ACTIONS;
+        return AclPermission.MANAGE_PAGES;
     }
 }

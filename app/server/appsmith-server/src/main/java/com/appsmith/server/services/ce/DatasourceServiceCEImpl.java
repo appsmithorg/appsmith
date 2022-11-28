@@ -445,8 +445,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
-                // Earlier, using MANAGE_DATASOURCES in order to delete datasources.
-                // Now, we get that permission using the datasourcePermission.getDeletePermission().
                 .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)))
                 .zipWhen(datasource -> newActionRepository.countByDatasourceId(datasource.getId()))

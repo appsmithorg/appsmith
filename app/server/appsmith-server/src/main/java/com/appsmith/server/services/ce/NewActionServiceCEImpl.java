@@ -107,6 +107,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -1254,7 +1255,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(action -> generateActionByViewMode(action, viewMode));
     }
 
-    //TODO: Should this be read or edit permission
     @Override
     public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId) {
         return repository
@@ -1269,7 +1269,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param pageId Id of the Page within which to look for Actions.
      * @return A Flux of Actions that are identified to be executed on page-load.
      */
-    //TODO: Should this be read or edit
     @Override
     public Flux<NewAction> findUnpublishedActionsInPageByNames(Set<String> names, String pageId) {
         return repository
@@ -1962,11 +1961,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 }
 
                                 Policy executePolicy = Policy.builder()
-                                        .permission(datasourcePermission.getExecutePermission().getValue())
+                                        .permission(EXECUTE_DATASOURCES.getValue())
                                         .permissionGroups(Set.of(publicPermissionGroupId))
                                         .build();
                                 Map<String, Policy> datasourcePolicyMap = Map.of(
-                                        datasourcePermission.getExecutePermission().getValue(), executePolicy
+                                        EXECUTE_DATASOURCES.getValue(), executePolicy
                                 );
 
                                 Datasource updatedDatasource =
