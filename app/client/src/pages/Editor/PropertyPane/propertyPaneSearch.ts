@@ -3,6 +3,7 @@ import {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
+import { debounce } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface SearchResultType {
@@ -23,12 +24,13 @@ interface PropertyPaneSearchAnalytics {
   searchPath: string;
 }
 
-export function sendPropertyPaneSearchAnalytics(
-  param: PropertyPaneSearchAnalytics,
-) {
-  if (param.searchText !== "")
-    AnalyticsUtil.logEvent("WIDGET_PROPERTY_SEARCH", param);
-}
+export const sendPropertyPaneSearchAnalytics = debounce(
+  (param: PropertyPaneSearchAnalytics) => {
+    if (param.searchText !== "")
+      AnalyticsUtil.logEvent("WIDGET_PROPERTY_SEARCH", param);
+  },
+  1000,
+);
 
 function match(text: string, searchQuery: string) {
   const noMatch = {
