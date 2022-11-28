@@ -315,7 +315,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return actionUpdatesFlux
                             .then(actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection))
                             .then(branchedPageIdMono)
-                            .flatMap(branchedPageId -> refactoringSolution.refactorName(branchedPageId, layoutId, oldName, newName));
+                            .flatMap(branchedPageId -> refactoringSolution.refactorActionCollectionName(
+                                    branchedActionCollection.getApplicationId(),
+                                    branchedPageId,
+                                    layoutId,
+                                    oldName,
+                                    newName));
                 })
                 .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }

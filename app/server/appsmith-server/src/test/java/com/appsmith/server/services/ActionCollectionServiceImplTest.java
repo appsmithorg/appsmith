@@ -264,7 +264,7 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
-                            return Mono.just(actionCollectionDTO.getPageId());
+                    return Mono.just(actionCollectionDTO.getPageId());
                 });
 
         Mockito
@@ -509,7 +509,7 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
-                            return Mono.just(actionCollection.getUnpublishedCollection().getPageId());
+                    return Mono.just(actionCollection.getUnpublishedCollection().getPageId());
                 });
 
 
@@ -784,7 +784,7 @@ public class ActionCollectionServiceImplTest {
         layout.setDsl(jsonObject);
         Mockito
                 .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(layout));
+                .thenReturn(Mono.zip(Mono.just(layout), Mono.just(Set.of())));
 
         Mockito
                 .when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
@@ -862,7 +862,7 @@ public class ActionCollectionServiceImplTest {
         layout.setLayoutOnLoadActions(new ArrayList<>());
         Mockito
                 .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(layout));
+                .thenReturn(Mono.zip(Mono.just(layout), Mono.just(Set.of())));
 
         Mockito
                 .when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))

@@ -60,7 +60,12 @@ public enum AnalyticsEvents {
     // Events to log execution time
     GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE,
     GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE,
-    ;
+
+    // Entity refactor related events
+    REFACTOR_JSOBJECT,
+    REFACTOR_ACTION,
+    REFACTOR_JSACTION,
+    REFACTOR_WIDGET;
 
     private final String eventName;
 

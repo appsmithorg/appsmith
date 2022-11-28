@@ -3,6 +3,8 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -24,6 +27,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,28 +88,35 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .flatMapIterable(getIdentifiersResponseDetails -> getIdentifiersResponseDetails)
                 .index()
                 .flatMap(tuple2 -> {
-                        long currentIndex = tuple2.getT1();
-                        Set<String> references = tuple2.getT2().getReferences();
-                        return Mono.zip(Mono.just(bindingValues.get((int) currentIndex)), Mono.just(references));
+                    long currentIndex = tuple2.getT1();
+                    Set<String> references = tuple2.getT2().getReferences();
+                    return Mono.zip(Mono.just(bindingValues.get((int) currentIndex)), Mono.just(references));
                 });
         // TODO: add error handling scenario for when RTS is not accessible in fat container
     }
 
     @Override
-    public Mono<Map<String, String>> refactorNameInDynamicBindings(Set<String> bindingValues, String oldName, String newName, int evalVersion) {
+    public Mono<Map<String, String>> refactorNameInDynamicBindings(Set<String> bindingValues, String oldName, String newName, int evalVersion, boolean isJSObject) {
         if (bindingValues == null || bindingValues.isEmpty()) {
             return Mono.empty();
         }
 
         return Flux.fromIterable(bindingValues)
                 .flatMap(bindingValue -> {
+                    EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(bindingValue, oldName, newName, evalVersion, isJSObject);
                     return webClient
                             .post()
                             .uri(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/entity-refactor")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(BodyInserters.fromValue(new EntityRefactorRequest(bindingValue, oldName, newName, evalVersion)))
+                            .body(BodyInserters.fromValue(entityRefactorRequest))
                             .retrieve()
-                            .bodyToMono(EntityRefactorResponse.class)
+                            .toEntity(EntityRefactorResponse.class)
+                            .flatMap(entityRefactorResponseResponseEntity -> {
+                                if (HttpStatus.OK.equals(entityRefactorResponseResponseEntity.getStatusCode())) {
+                                    return Mono.just(Objects.requireNonNull(entityRefactorResponseResponseEntity.getBody()));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            })
                             .elapsed()
                             .map(tuple -> {
                                 log.debug("Time elapsed since AST refactor call: {} ms", tuple.getT1());
@@ -194,6 +205,7 @@ public class AstServiceCEImpl implements AstServiceCE {
         String oldName;
         String newName;
         int evalVersion;
+        Boolean isJSObject;
     }
 
     @NoArgsConstructor

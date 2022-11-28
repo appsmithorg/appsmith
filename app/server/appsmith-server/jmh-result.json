@@ -1,0 +1,124 @@
+[
+    {
+        "jmhVersion" : "1.35",
+        "benchmark" : "com.appsmith.server.services.ce.FeatureFlagServiceCEBenchmark.updateLayoutBenchmark",
+        "mode" : "avgt",
+        "threads" : 12,
+        "forks" : 0,
+        "jvm" : "/Library/Java/JavaVirtualMachines/temurin-11.jdk/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-agentlib:jdwp=transport=dt_socket,address=127.0.0.1:59509,suspend=y,server=n",
+            "-ea",
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "--add-opens=java.base/java.time=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED",
+            "-Didea.test.cyclic.buffer.size=1048576",
+            "-javaagent:/Users/cataclysm/Library/Caches/JetBrains/IdeaIC2022.2/captureAgent/debugger-agent.jar",
+            "-Dfile.encoding=UTF-8"
+        ],
+        "jdkVersion" : "11.0.16.1",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11.0.16.1+1",
+        "warmupIterations" : 3,
+        "warmupTime" : "20 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "20 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "type" : "basic"
+        },
+        "primaryMetric" : {
+            "score" : 98.92888665859972,
+            "scoreError" : 68.60735902460317,
+            "scoreConfidence" : [
+                30.321527633996553,
+                167.53624568320288
+            ],
+            "scorePercentiles" : {
+                "0.0" : 95.3725755244631,
+                "50.0" : 98.5491249159057,
+                "90.0" : 102.86495953543039,
+                "95.0" : 102.86495953543039,
+                "99.0" : 102.86495953543039,
+                "99.9" : 102.86495953543039,
+                "99.99" : 102.86495953543039,
+                "99.999" : 102.86495953543039,
+                "99.9999" : 102.86495953543039,
+                "100.0" : 102.86495953543039
+            },
+            "scoreUnit" : "ms/op",
+            "rawData" : [
+                [
+                    98.5491249159057,
+                    95.3725755244631,
+                    102.86495953543039
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    },
+    {
+        "jmhVersion" : "1.35",
+        "benchmark" : "com.appsmith.server.services.ce.FeatureFlagServiceCEBenchmark.updateLayoutBenchmark",
+        "mode" : "avgt",
+        "threads" : 12,
+        "forks" : 0,
+        "jvm" : "/Library/Java/JavaVirtualMachines/temurin-11.jdk/Contents/Home/bin/java",
+        "jvmArgs" : [
+            "-agentlib:jdwp=transport=dt_socket,address=127.0.0.1:59509,suspend=y,server=n",
+            "-ea",
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "--add-opens=java.base/java.time=ALL-UNNAMED",
+            "--add-opens=java.base/java.util=ALL-UNNAMED",
+            "-Didea.test.cyclic.buffer.size=1048576",
+            "-javaagent:/Users/cataclysm/Library/Caches/JetBrains/IdeaIC2022.2/captureAgent/debugger-agent.jar",
+            "-Dfile.encoding=UTF-8"
+        ],
+        "jdkVersion" : "11.0.16.1",
+        "vmName" : "OpenJDK 64-Bit Server VM",
+        "vmVersion" : "11.0.16.1+1",
+        "warmupIterations" : 3,
+        "warmupTime" : "20 s",
+        "warmupBatchSize" : 1,
+        "measurementIterations" : 3,
+        "measurementTime" : "20 s",
+        "measurementBatchSize" : 1,
+        "params" : {
+            "type" : "general"
+        },
+        "primaryMetric" : {
+            "score" : 168.17353273294785,
+            "scoreError" : 104.46022420410323,
+            "scoreConfidence" : [
+                63.71330852884462,
+                272.6337569370511
+            ],
+            "scorePercentiles" : {
+                "0.0" : 164.63572365861518,
+                "50.0" : 165.1052981555092,
+                "90.0" : 174.7795763847192,
+                "95.0" : 174.7795763847192,
+                "99.0" : 174.7795763847192,
+                "99.9" : 174.7795763847192,
+                "99.99" : 174.7795763847192,
+                "99.999" : 174.7795763847192,
+                "99.9999" : 174.7795763847192,
+                "100.0" : 174.7795763847192
+            },
+            "scoreUnit" : "ms/op",
+            "rawData" : [
+                [
+                    165.1052981555092,
+                    164.63572365861518,
+                    174.7795763847192
+                ]
+            ]
+        },
+        "secondaryMetrics" : {
+        }
+    }
+]
+
+
