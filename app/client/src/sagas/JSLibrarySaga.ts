@@ -72,7 +72,8 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const applicationId: string = yield select(getCurrentApplicationId);
 
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
-  const [version] = versionMatch ? versionMatch : [];
+  let [version] = versionMatch ? versionMatch : [];
+  version = version.startsWith("@") ? version.slice(1) : version;
 
   let stringifiedDefs = "";
 

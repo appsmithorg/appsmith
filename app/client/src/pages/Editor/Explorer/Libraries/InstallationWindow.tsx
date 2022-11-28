@@ -1,5 +1,5 @@
 import { Popover2 } from "@blueprintjs/popover2";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import {
   Button,
@@ -38,7 +38,9 @@ import {
 } from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
-import recommendedLibraries from "./recommendedLibraries";
+import recommendedLibraries, {
+  TRecommendedLibrary,
+} from "./recommendedLibraries";
 import { AppState } from "ce/reducers";
 import { TJSLibrary } from "utils/DynamicBindingUtils";
 import { clearInstalls, installLibraryInit } from "actions/JSLibraryActions";
@@ -95,7 +97,6 @@ const Wrapper = styled.div`
     }
     .search-results {
       .library-card {
-        cursor: pointer;
         gap: 8px;
         padding: 8px 0;
         display: flex;
@@ -207,7 +208,15 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   }
 `;
 
-function getStatusIcon(status: InstallState, isInstalled = false) {
+function StatusIcon(props: {
+  status: InstallState;
+  isInstalled?: boolean;
+  action?: any;
+}) {
+  const { action, isInstalled = false, status } = props;
+  const actionProps = useMemo(() => (action ? { onClick: action } : {}), [
+    action,
+  ]);
   if (status === InstallState.Success || isInstalled)
     return <SaveSuccessIcon color={Colors.GREEN} size={18} />;
   if (status === InstallState.Failed)
@@ -215,7 +224,14 @@ function getStatusIcon(status: InstallState, isInstalled = false) {
       <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
     );
   if (status === InstallState.Queued) return <Spinner />;
-  return <Icon fillColor={Colors.GRAY} name="download" size={IconSize.XL} />;
+  return (
+    <Icon
+      fillColor={Colors.GRAY}
+      name="download"
+      size={IconSize.XL}
+      {...actionProps}
+    />
+  );
 }
 
 function ProgressTracker({
@@ -242,7 +258,9 @@ function ProgressTracker({
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-center gap-2 fw-500 text-sm">
           <div className="install-url text-sm font-medium">{url}</div>
-          <div className="shrink-0">{getStatusIcon(status)}</div>
+          <div className="shrink-0">
+            <StatusIcon status={status} />
+          </div>
         </div>
         {status === InstallState.Failed && (
           <div className="gap-2 error-card items-start">
@@ -433,23 +451,35 @@ function LibraryCard({
   lib,
   onClick,
 }: {
-  lib: any;
+  lib: TRecommendedLibrary;
   onClick: (url: string) => void;
 }) {
   const status = useSelector(selectStatusForURL(lib.url));
   const isInstalled = useSelector((state: AppState) =>
     selectIsLibraryInstalled(state, lib.url),
   );
+  const openDocs = useCallback((url: string) => window.open(url), []);
   return (
-    <div className="library-card" onClick={() => onClick(lib.url)}>
+    <div className="library-card">
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row gap-2 items-center">
           <Text type={TextType.P0} weight="500">
             {lib.name}
           </Text>
-          <Icon fillColor={Colors.GRAY} name="share-2" size={IconSize.XS} />
+          <Icon
+            fillColor={Colors.GRAY}
+            name="share-2"
+            onClick={() => openDocs(lib.docsURL)}
+            size={IconSize.SMALL}
+          />
         </div>
-        <div className="mr-2">{getStatusIcon(status, isInstalled)}</div>
+        <div className="mr-2">
+          <StatusIcon
+            action={onClick}
+            isInstalled={isInstalled}
+            status={status}
+          />
+        </div>
       </div>
       <div className="flex flex-row description">{lib.description}</div>
       <div className="flex flex-row items-center gap-1">
