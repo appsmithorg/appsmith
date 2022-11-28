@@ -274,6 +274,18 @@ describe("RichTextEditor Widget Functionality", function() {
     });
   });
 
+  it("Check if button for Underline exists within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Underline"]').should("exist");
+  });
+
+  it("Check if button for Background Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Background color"]').should("have.length", 1);
+  });
+
+  it("Check if button for Text Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Text color"]').should("have.length", 1);
+  });
+
   afterEach(() => {
     cy.goToEditFromPublish();
   });
