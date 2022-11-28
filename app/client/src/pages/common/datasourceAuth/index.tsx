@@ -252,6 +252,7 @@ function DatasourceAuth({
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
+          tag="button"
           text={
             confirmDelete && !isDeleting
               ? createMessage(CONFIRM_CONTEXT_DELETE)
@@ -267,6 +268,7 @@ function DatasourceAuth({
           className="t--test-datasource"
           loading={isTesting}
           onClick={handleDatasourceTest}
+          tag="button"
           text="Test"
           variant={Variant.success}
         />
@@ -280,6 +282,7 @@ function DatasourceAuth({
           loading={isSaving}
           onClick={handleDefaultAuthDatasourceSave}
           size="small"
+          tag="button"
           text="Save"
           variant={Variant.success}
         />
@@ -294,6 +297,7 @@ function DatasourceAuth({
           loading={isSaving}
           onClick={handleOauthDatasourceSave}
           size="small"
+          tag="button"
           text={isAuthorized ? "Save and Re-authorize" : "Save and Authorize"}
         />
       ),
