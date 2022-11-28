@@ -4,6 +4,7 @@ import styled from "styled-components";
 import {
   Button,
   Category,
+  FormGroup,
   Icon,
   IconSize,
   Size,
@@ -41,6 +42,7 @@ import recommendedLibraries from "./recommendedLibraries";
 import { AppState } from "ce/reducers";
 import { TJSLibrary } from "utils/DynamicBindingUtils";
 import { clearInstalls, installLibraryInit } from "actions/JSLibraryActions";
+import classNames from "classnames";
 
 type TInstallWindowProps = {
   onOpen: (open: boolean) => void;
@@ -54,7 +56,7 @@ const Wrapper = styled.div`
   width: 400px;
   max-height: 80vh;
   flex-direction: column;
-  padding: 0 16px;
+  padding: 0 24px;
   .installation-header {
     padding: 20px 0 0;
     display: flex;
@@ -69,6 +71,12 @@ const Wrapper = styled.div`
       .cs-icon {
         margin-right: 0;
       }
+    }
+    .bp3-form-group {
+      margin: 0;
+    }
+    .bp3-label {
+      font-size: 12px;
     }
     display: flex;
     flex-direction: column;
@@ -89,14 +97,11 @@ const Wrapper = styled.div`
       .library-card {
         cursor: pointer;
         gap: 8px;
-        padding: 8px;
+        padding: 8px 0;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         border-bottom: 1px solid var(--appsmith-color-black-100);
-        &:hover {
-          background-color: var(--appsmith-color-black-50);
-        }
         .description {
           overflow: hidden;
           text-overflow: ellipsis;
@@ -214,16 +219,23 @@ function getStatusIcon(status: InstallState, isInstalled = false) {
 }
 
 function ProgressTracker({
-  addBorder,
+  isFirst,
+  isLast,
   status,
   url,
 }: {
-  addBorder: boolean;
+  isFirst: boolean;
+  isLast: boolean;
   status: InstallState;
   url: string;
 }) {
   return (
-    <InstallationProgressWrapper addBorder={addBorder}>
+    <InstallationProgressWrapper
+      addBorder={!isFirst}
+      className={classNames({
+        "mb-2": isLast,
+      })}
+    >
       {[InstallState.Queued, InstallState.Installing].includes(status) && (
         <div className="text-gray-700 text-xs">Installing...</div>
       )}
@@ -262,9 +274,10 @@ function InstallationProgress() {
   if (urls.length === 0) return null;
   return (
     <div>
-      {urls.map((url, idx) => (
+      {urls.reverse().map((url, idx) => (
         <ProgressTracker
-          addBorder={idx !== 0}
+          isFirst={idx === 0}
+          isLast={idx === urls.length - 1}
           key={`${url}_${idx}`}
           status={installStatusMap[url]}
           url={url}
@@ -347,30 +360,32 @@ function InstallationPopoverContent(props: any) {
         />
       </div>
       <div className="search-area">
-        <div className="flex flex-row gap-2 justify-between items-center">
-          <TextInput
-            $padding="12px"
-            data-testid="library-url"
-            height="30px"
-            leftIcon="link-2"
-            onChange={updateURL}
-            padding="12px"
-            placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
-            validator={validate}
-            width="100%"
-          />
-          {URL && isValid && (
-            <Button
-              category={Category.primary}
-              data-testid="install-library-btn"
-              icon="download"
-              onClick={() => installLibrary()}
-              size={Size.medium}
-              tag="button"
-              text="INSTALL"
-              type="button"
+        <div className="flex flex-row gap-2 justify-between items-end">
+          <FormGroup className="flex-1" label={"Library URL"}>
+            <TextInput
+              $padding="12px"
+              data-testid="library-url"
+              height="30px"
+              label={"Library URL"}
+              leftIcon="link-2"
+              onChange={updateURL}
+              padding="12px"
+              placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
+              validator={validate}
+              width="100%"
             />
-          )}
+          </FormGroup>
+          <Button
+            category={Category.primary}
+            data-testid="install-library-btn"
+            disabled={!(URL && isValid)}
+            icon="download"
+            onClick={() => installLibrary()}
+            size={Size.medium}
+            tag="button"
+            text="INSTALL"
+            type="button"
+          />
         </div>
       </div>
       <div className="search-body">
@@ -434,7 +449,7 @@ function LibraryCard({
           </Text>
           <Icon fillColor={Colors.GRAY} name="share-2" size={IconSize.XS} />
         </div>
-        {getStatusIcon(status, isInstalled)}
+        <div className="mr-2">{getStatusIcon(status, isInstalled)}</div>
       </div>
       <div className="flex flex-row description">{lib.description}</div>
       <div className="flex flex-row items-center gap-1">
