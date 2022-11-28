@@ -1,9 +1,5 @@
 import { reduxBatch } from "@manaflair/redux-batch";
 import { createStore, applyMiddleware, compose } from "redux";
-import {
-  useSelector as useReduxSelector,
-  TypedUseSelectorHook,
-} from "react-redux";
 import appReducer, { AppState } from "@appsmith/reducers";
 import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "@appsmith/sagas";
@@ -52,5 +48,3 @@ export const testStore = (initialState: Partial<AppState>) =>
 // We don't want to run the saga middleware in tests, so exporting it from here
 // And running it only when the app runs
 export const runSagaMiddleware = () => sagaMiddleware.run(rootSaga);
-
-export const useSelector: TypedUseSelectorHook<AppState> = useReduxSelector;
