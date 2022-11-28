@@ -156,7 +156,7 @@
     "shallowequal": "^1.1.0",
     "showdown": "^1.9.1",
     "smartlook-client": "^4.5.1",
-    "socket.io-client": "^4.5.1",
+    "socket.io-client": "^4.5.4",
     "styled-components": "^5.2.0",
     "tern": "^0.21.0",
     "tinycolor2": "^1.4.2",
@@ -310,6 +310,7 @@
     "focus-trap-react/**/tabbable": "5.2.1",
     "json-schema": "0.4.0",
     "node-fetch": "2.6.7",
-    "babel-plugin-styled-components": "2.0.7"
+    "babel-plugin-styled-components": "2.0.7",
+    "minimatch": "^5.0.0"
   }
 }
