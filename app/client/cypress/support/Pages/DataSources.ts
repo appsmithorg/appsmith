@@ -334,7 +334,7 @@ export class DataSources {
 
   public AuthAPISaveAndAuthorize() {
     cy.get(this._saveAndAuthorizeDS).click();
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
   }
 
   public updateDatasource() {
