@@ -38,7 +38,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import omit from "lodash/omit";
 import produce from "immer";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -47,12 +46,6 @@ import { getMainCanvasProps } from "selectors/editorSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
-
-const themePropertiesDefaults = {
-  boxShadow: "none",
-  borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  accentColor: "{{appsmith.theme.colors.primaryColor}}",
-};
 
 type GeneratedWidgetPayload = {
   widgetId: string;
@@ -67,32 +60,6 @@ type WidgetAddTabChild = {
 function* getEntityNames() {
   const evalTree: DataTree = yield select(getDataTree);
   return Object.keys(evalTree);
-}
-
-/**
- * return stylesheet of widget
- * NOTE: a stylesheet is an object that contains
- * which property of widget will use which property of the theme
- *
- * @param type
- * @returns
- */
-function* getThemeDefaultConfig(type: string) {
-  const fallbackStylesheet: Record<string, string> = {
-    TABLE_WIDGET_V2: "TABLE_WIDGET",
-  };
-
-  const stylesheet: Record<string, unknown> = yield select(
-    getSelectedAppThemeStylesheet,
-  );
-
-  if (stylesheet[type]) {
-    return stylesheet[type];
-  } else if (fallbackStylesheet[type] && stylesheet[fallbackStylesheet[type]]) {
-    return stylesheet[fallbackStylesheet[type]];
-  } else {
-    return themePropertiesDefaults;
-  }
 }
 
 function* getChildWidgetProps(
@@ -113,10 +80,9 @@ function* getChildWidgetProps(
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
   ]);
-  const themeDefaultConfig: Record<string, unknown> = yield call(
-    getThemeDefaultConfig,
-    type,
-  );
+  const themeDefaultConfig =
+    WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
     const entityNames: string[] = yield call(getEntityNames);

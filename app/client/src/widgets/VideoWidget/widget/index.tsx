@@ -6,8 +6,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { ButtonBorderRadius } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -176,6 +177,13 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   getPageView() {
