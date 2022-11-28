@@ -114,7 +114,7 @@ export class DataSources {
   public StartDataSourceRoutes() {
     cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
     cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
-    cy.intercept("PUT", "/api/v1/datasources").as("updateDatasource");
+    cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   }
 
   private ReplaceApplicationIdForInterceptPages(fixtureFile: any) {
