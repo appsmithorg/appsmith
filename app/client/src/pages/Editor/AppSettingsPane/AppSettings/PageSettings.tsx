@@ -9,11 +9,11 @@ import {
   PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2,
   PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3,
   PAGE_SETTINGS_SET_AS_HOMEPAGE,
-  URL_FIELD_SPECIAL_CHARACTER_ERROR,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP,
   PAGE_SETTINGS_NAME_EMPTY_MESSAGE,
   PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
+  PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR as PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
@@ -190,7 +190,7 @@ function PageSettings(props: { page: Page }) {
           type="input"
           validator={checkRegex(
             specialCharacterCheckRegex,
-            URL_FIELD_SPECIAL_CHARACTER_ERROR(),
+            PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsPageNameValid,
             PAGE_SETTINGS_NAME_EMPTY_MESSAGE(),
@@ -240,7 +240,7 @@ function PageSettings(props: { page: Page }) {
           type="input"
           validator={checkRegex(
             specialCharacterCheckRegex,
-            URL_FIELD_SPECIAL_CHARACTER_ERROR(),
+            PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR(),
             false,
             setIsCustomSlugValid,
           )}

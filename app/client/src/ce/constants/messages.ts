@@ -1290,6 +1290,8 @@ export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
+export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
+  "Only alphanumeric or '-()' are allowed";
 export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
@@ -1302,6 +1304,8 @@ export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
 export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
 export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "Page name cannot be empty";
+export const PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
+  "Only alphanumeric or '-' are allowed";
 export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
@@ -1315,9 +1319,6 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
   "This is the current home page, you can change this by setting another page as the home page";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
-
-export const URL_FIELD_SPECIAL_CHARACTER_ERROR = () =>
-  "No special characters allowed";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

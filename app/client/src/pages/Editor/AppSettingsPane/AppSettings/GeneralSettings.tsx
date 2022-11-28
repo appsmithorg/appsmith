@@ -4,7 +4,7 @@ import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
-  URL_FIELD_SPECIAL_CHARACTER_ERROR,
+  GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import classNames from "classnames";
 import {
@@ -108,7 +108,7 @@ function GeneralSettings() {
           type="input"
           validator={checkRegex(
             appNameRegex,
-            URL_FIELD_SPECIAL_CHARACTER_ERROR(),
+            GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR(),
             true,
             setIsAppNameValid,
             GENERAL_SETTINGS_NAME_EMPTY_MESSAGE(),
