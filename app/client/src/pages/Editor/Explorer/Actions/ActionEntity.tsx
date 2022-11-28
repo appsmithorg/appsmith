@@ -1,4 +1,5 @@
 import React, { useCallback, memo, useMemo } from "react";
+import { useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
@@ -6,7 +7,6 @@ import { saveActionName } from "actions/pluginActionActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "store";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";

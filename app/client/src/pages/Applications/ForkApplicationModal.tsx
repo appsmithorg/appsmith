@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "store";
+import { useDispatch, useSelector } from "react-redux";
 import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";

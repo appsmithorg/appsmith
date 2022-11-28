@@ -11,7 +11,7 @@ import {
   getJSCollections,
   getPlugins,
 } from "selectors/entitiesSelector";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { EventLocation } from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
