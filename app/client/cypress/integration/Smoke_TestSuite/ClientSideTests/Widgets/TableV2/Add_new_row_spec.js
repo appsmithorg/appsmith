@@ -16,7 +16,7 @@ describe("Table widget Add new row feature's", () => {
       cy.addDsl(dsl);
     });
 
-    it("should test that allow Add new row property is present", () => {
+    it("1.1. should test that allow Add new row property is present", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.get(".t--property-control-allowaddingarow").should("exist");
       cy.get(
@@ -24,7 +24,7 @@ describe("Table widget Add new row feature's", () => {
       ).should("exist");
     });
 
-    it("should test that Add new row link appears on the UI when the allow add new row property is enabled", () => {
+    it("1.2. should test that Add new row link appears on the UI when the allow add new row property is enabled", () => {
       cy.get(".t--add-new-row").should("not.exist");
       propPane.ToggleOnOrOff("Allow adding a row", "On");
       cy.get(".t--add-new-row").should("exist");
@@ -32,7 +32,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--add-new-row").should("not.exist");
     });
 
-    it("should test that onSave, onDiscard and default row are showing up only when the allow add new property is enabled", () => {
+    it("1.3. should test that onSave, onDiscard and default row are showing up only when the allow add new property is enabled", () => {
       cy.get(".t--property-control-onsave").should("not.exist");
       cy.get(".t--property-control-ondiscard").should("not.exist");
       cy.get(".t--property-control-defaultvalues").should("not.exist");
@@ -42,14 +42,14 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--property-control-defaultvalues").should("exist");
     });
 
-    it("should test that add new row link is disabled during the inline editing flow", () => {
+    it("1.4. should test that add new row link is disabled during the inline editing flow", () => {
       cy.get(".t--add-new-row.disabled").should("not.exist");
       cy.makeColumnEditable("step");
       cy.editTableCell(0, 0);
       cy.get(".t--add-new-row.disabled").should("exist");
     });
 
-    it("should test that clicking on add new row link adds an empty row at the top of the table", () => {
+    it("1.5. should test that clicking on add new row link adds an empty row at the top of the table", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.get(".tableWrap .new-row").should("not.exist");
       cy.get(".t--add-new-row").click();
@@ -57,7 +57,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it("should test that new row is getting populated with the default row property value", () => {
+    it("1.6. should test that new row is getting populated with the default row property value", () => {
       cy.updateCodeInput(
         ".t--property-control-defaultvalues",
         "{{{step: 'newStepCell'}}}",
@@ -70,7 +70,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it("should test that inline editing, row selection, pagination, search, filters are actions cannot be performed while in add new row feature", () => {
+    it("1.7. should test that inline editing, row selection, pagination, search, filters are actions cannot be performed while in add new row feature", () => {
       cy.get(".t--widget-tablewidgetv2 .t--search-input").should("exist");
       cy.get(".t--widget-tablewidgetv2 .t--table-filter-toggle-btn").should(
         "exist",
@@ -111,7 +111,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it("should test that only editable column cells are in editmode in the new row", () => {
+    it("1.8. should test that only editable column cells are in editmode in the new row", () => {
       cy.get(".t--add-new-row").click();
       cy.get(
         `[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor`,
@@ -136,7 +136,7 @@ describe("Table widget Add new row feature's", () => {
       ).should("not.exist");
     });
 
-    it("should test that newRow property holds the entered data", () => {
+    it("1.9. should test that newRow property holds the entered data", () => {
       cy.makeColumnEditable("step");
       cy.makeColumnEditable("task");
       cy.enterTableCellValue(0, 0, "22");
@@ -150,7 +150,7 @@ describe("Table widget Add new row feature's", () => {
       );
     });
 
-    it("should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
+    it("1.10. should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       ["Button", "Menu Button", "Icon Button"].forEach((columnType) => {
@@ -174,7 +174,7 @@ describe("Table widget Add new row feature's", () => {
       cy.addDsl(dsl);
     });
 
-    it("should test that validation is working for a new row cell", () => {
+    it("2.1. should test that validation is working for a new row cell", () => {
       cy.openPropertyPane("tablewidgetv2");
       propPane.ToggleOnOrOff("Allow adding a row", "On");
       cy.get(".t--add-new-row").click();
@@ -262,7 +262,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it("should test that validation variable isNewRow is working", () => {
+    it("2.2. should test that validation variable isNewRow is working", () => {
       propPane.UpdatePropertyFieldValue(
         "Valid",
         "{{isNewRow ? (editedValue === 1) : (editedValue === 2)}}",
@@ -290,7 +290,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it("should test that validation is working for more than one add new row cell at a time", () => {
+    it("2.3. should test that validation is working for more than one add new row cell at a time", () => {
       propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === 1}}");
       cy.get(".t--property-pane-back-btn").click();
       cy.wait(500);
@@ -306,7 +306,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(`.t--inlined-cell-editor-has-error`).should("have.length", 2);
     });
 
-    it("should test that validation error message only appears when a cell is in focus", () => {
+    it("2.4. should test that validation error message only appears when a cell is in focus", () => {
       cy.get(".error-tooltip .bp3-popover-content").should("not.exist");
       cy.get(`[data-colindex=1][data-rowindex=0] input`).focus();
       cy.get(".error-tooltip .bp3-popover-content").should("have.length", 1);
@@ -316,7 +316,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".error-tooltip .bp3-popover-content").should("have.length", 1);
     });
 
-    it("should test that save button is disabled when there is an error", () => {
+    it("2.5. should test that save button is disabled when there is an error", () => {
       cy.get(".t--save-new-row").should("be.disabled");
       cy.get(`.t--inlined-cell-editor-has-error`).should("have.length", 2);
       cy.enterTableCellValue(0, 0, "1");
@@ -335,7 +335,7 @@ describe("Table widget Add new row feature's", () => {
       cy.addDsl(dsl);
     });
 
-    it("should test that discard button is undoing the add new feature", () => {
+    it("3.1. should test that discard button is undoing the add new feature", () => {
       cy.openPropertyPane("tablewidgetv2");
       propPane.ToggleOnOrOff("Allow adding a row", "On");
       cy.get(".tableWrap .new-row").should("not.exist");
@@ -344,7 +344,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
     });
 
-    it("should test that discard events is triggered when user clicks on the discard button", () => {
+    it("3.2. should test that discard events is triggered when user clicks on the discard button", () => {
       cy.get(
         ".t--property-control-ondiscard .t--open-dropdown-Select-Action",
       ).click({ force: true });
@@ -354,16 +354,11 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--discard-new-row").click({ force: true });
       cy.get(widgetsPage.toastAction).should("be.visible");
-      cy.get(widgetsPage.toastActionText)
-        .last()
-        .invoke("text")
-        .then((text) => {
-          expect(text).to.equal("discarded!!");
-        });
+      agHelper.AssertContains("discarded!!");
       cy.get(".tableWrap .new-row").should("not.exist");
     });
 
-    it("should test that save event is triggered when user clicks on the save button", () => {
+    it("3.3. should test that save event is triggered when user clicks on the save button", () => {
       cy.get(
         ".t--property-control-onsave .t--open-dropdown-Select-Action",
       ).click({ force: true });
@@ -373,12 +368,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--save-new-row").click({ force: true });
       cy.get(widgetsPage.toastAction).should("be.visible");
-      cy.get(widgetsPage.toastActionText)
-        .last()
-        .invoke("text")
-        .then((text) => {
-          expect(text).to.equal("saved!!");
-        });
+      agHelper.AssertContains("saved!!");
       cy.get(".tableWrap .new-row").should("not.exist");
     });
   });

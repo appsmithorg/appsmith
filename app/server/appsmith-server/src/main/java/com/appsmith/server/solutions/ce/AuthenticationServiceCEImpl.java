@@ -287,7 +287,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         Entity.PAGES + Entity.SLASH +
                         newPage.getId() + Entity.SLASH +
                         "edit" + Entity.SLASH +
-                        Entity.DATASOURCES + Entity.SLASH +
+                        Entity.DATASOURCE + Entity.SLASH +
                         datasourceId +
                         "?response_status=" + responseStatus +
                         "&view_mode=true")
