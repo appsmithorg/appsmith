@@ -821,4 +821,17 @@ export default {
     return validationMap;
   },
   //
+  getTableHeaders: (props, moment, _) => {
+    const columns = props.primaryColumns
+      ? Object.values(props.primaryColumns)
+      : [];
+    return columns
+      .sort((a, b) => a.index - b.index)
+      .map((column) => ({
+        id: column?.id,
+        label: column?.label,
+        isVisible: column?.isVisible,
+      }));
+  },
+  //
 };

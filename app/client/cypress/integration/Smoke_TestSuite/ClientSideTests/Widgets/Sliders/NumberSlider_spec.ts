@@ -85,13 +85,13 @@ describe("Number Slider spec", () => {
     propPane.UpdatePropertyFieldValue("Default Value", "-10");
 
     agHelper.VerifyEvaluatedErrorMessage(
-      "This value must be greater than min value",
+      "This value must be greater than or equal to the min value",
     );
 
     propPane.UpdatePropertyFieldValue("Default Value", "110");
 
     agHelper.VerifyEvaluatedErrorMessage(
-      "This value must be less than max value",
+      "This value must be less than or equal to the max value",
     );
 
     propPane.UpdatePropertyFieldValue("Default Value", "asd");

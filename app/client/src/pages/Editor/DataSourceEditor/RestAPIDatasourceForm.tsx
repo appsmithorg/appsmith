@@ -578,6 +578,7 @@ class DatasourceRestAPIEditor extends React.Component<
             <FormInputContainer>
               <AuthorizeButton
                 category={Category.primary}
+                className="t--save-and-authorize-datasource"
                 disabled={this.disableSave()}
                 isLoading={isSaving}
                 onClick={() =>
