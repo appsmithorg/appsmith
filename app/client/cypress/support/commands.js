@@ -892,7 +892,7 @@ Cypress.Commands.add("startRoutesForDatasource", () => {
   cy.server();
   cy.route("POST", "/api/v1/datasources").as("saveDatasource");
   cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.intercept("PUT", "/api/v1/datasources").as("updateDatasource");
+  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
@@ -1009,7 +1009,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/app-templates").as("fetchTemplate");
   cy.intercept("POST", "/api/v1/app-templates/*").as("importTemplate");
   cy.intercept("GET", "/api/v1/app-templates/*").as("getTemplatePages");
-  cy.intercept("PUT", "/api/v1/datasources").as("updateDatasource");
+  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
