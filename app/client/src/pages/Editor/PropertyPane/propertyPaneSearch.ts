@@ -31,6 +31,11 @@ export function sendPropertyPaneSearchAnalytics(
 }
 
 function match(text: string, searchQuery: string) {
+  const noMatch = {
+    startsWith: false,
+    contains: false,
+  };
+  if (!text) return noMatch;
   const regEx = new RegExp(`\\b${searchQuery}.*\\b`, "i");
   let matchPosition = text.search(regEx);
   if (matchPosition < 0) {
@@ -49,10 +54,7 @@ function match(text: string, searchQuery: string) {
       contains: true,
     };
   }
-  return {
-    startsWith: false,
-    contains: false,
-  };
+  return noMatch;
 }
 
 function search(
@@ -82,7 +84,7 @@ function search(
       searchResult.section.startsWith.push(sectionConfig);
     } else if (sectionNameMatch.contains) {
       searchResult.section.contains.push(sectionConfig);
-    } else {
+    } else if (sectionConfig.children) {
       // search through properties
       const childResult: SearchResultType = {
         section: {
