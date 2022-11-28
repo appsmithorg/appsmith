@@ -7,8 +7,12 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  getCanvasHeightOffset,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
+import { TreeNode } from "utils/autoHeight/constants";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);
@@ -50,27 +54,55 @@ export function* getChildOfContainerLikeWidget(
   }
 }
 
+export function getParentCurrentHeightInRows(
+  tree: Record<string, TreeNode>,
+  parentId: string,
+  changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
+) {
+  // Get the parentHeight in rows
+  let parentHeightInRows = tree[parentId].bottomRow - tree[parentId].topRow;
+
+  // If the parent has changed so far.
+  if (changesSoFar.hasOwnProperty(parentId)) {
+    parentHeightInRows =
+      changesSoFar[parentId].bottomRow - changesSoFar[parentId].topRow;
+  }
+  return parentHeightInRows;
+}
+
 export function* getMinHeightBasedOnChildren(
   widgetId: string,
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
   ignoreParent = false,
   tree: AutoHeightLayoutTreeReduxState,
 ) {
+  // Starting with no height
   let minHeightInRows = 0;
+
+  // Should we be able to collapse widgets
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
+  // Get all widgets in the DSL
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const { children = [], parentId } = stateWidgets[widgetId];
+  // If we need to consider the parent height
   if (parentId && !ignoreParent) {
-    let parentHeightInRows =
-      stateWidgets[parentId].bottomRow - stateWidgets[parentId].topRow;
-    if (changesSoFar.hasOwnProperty(parentId)) {
-      parentHeightInRows =
-        changesSoFar[parentId].bottomRow - changesSoFar[parentId].topRow;
-    }
-
+    const parent = stateWidgets[parentId];
+    const parentHeightInRows = getParentCurrentHeightInRows(
+      tree,
+      parentId,
+      changesSoFar,
+    );
+    // The canvas will be an extension smaller than the parent?
     minHeightInRows = parentHeightInRows - GridDefaults.CANVAS_EXTENSION_OFFSET;
 
+    // We will also remove any extra offsets the parent has
+    // As we're dealing with the child canvas widget here.
+    const canvasHeightOffset: number = getCanvasHeightOffset(
+      parent.type,
+      parent,
+    );
+    minHeightInRows = minHeightInRows - canvasHeightOffset;
     // If the canvas is empty return the parent's height in rows, without
     // the canvas extension offset
     if (!children.length) {
@@ -85,13 +117,17 @@ export function* getMinHeightBasedOnChildren(
     // We ignore widgets like ModalWidget which don't occupy parent's space.
     // detachFromLayout helps us identify such widgets
     if (detachFromLayout) continue;
+
+    // Get the child widget's dimenstions from the tree
     const { bottomRow, topRow } = tree[childWidgetId];
 
+    // If this child has changed so far during computations
     if (changesSoFar.hasOwnProperty(childWidgetId)) {
       const collapsing =
         changesSoFar[childWidgetId].bottomRow ===
         changesSoFar[childWidgetId].topRow;
 
+      // If this child is collapsing, don't consider it
       if (!(shouldCollapse && collapsing))
         minHeightInRows = Math.max(
           minHeightInRows,
@@ -99,6 +135,7 @@ export function* getMinHeightBasedOnChildren(
         );
       // If we need to get the existing bottomRow from the state
     } else {
+      // If this child is to collapse, don't consider it.
       if (!(shouldCollapse && bottomRow === topRow))
         minHeightInRows = Math.max(minHeightInRows, bottomRow);
     }

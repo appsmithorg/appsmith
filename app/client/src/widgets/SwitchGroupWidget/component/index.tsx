@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
-
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
@@ -20,6 +19,7 @@ export interface SwitchGroupContainerProps {
 export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
   ${labelLayoutStyles}
   & .${LABEL_CONTAINER_CLASS} {
+    align-self: center;
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
@@ -37,9 +37,8 @@ export interface InputContainerProps {
 }
 
 export const InputContainer = styled.div<ThemeProp & InputContainerProps>`
-  ${BlueprintRadioSwitchGroupTransform}
-  height: ${({ inline, isDynamicHeightEnabled }) =>
-    inline && !isDynamicHeightEnabled ? "32px" : "100%"};
+  ${BlueprintRadioSwitchGroupTransform};
+
   border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&
@@ -68,6 +67,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     onChange,
     options,
@@ -92,6 +92,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           inline={inline}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           optionCount={optionCount}
@@ -147,6 +148,7 @@ export interface SwitchGroupComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
+  labelTooltip?: string;
   widgetId: string;
   height: number;
   accentColor: string;

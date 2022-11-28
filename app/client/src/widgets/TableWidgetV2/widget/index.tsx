@@ -84,6 +84,7 @@ import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
+import { Stylesheet } from "entities/AppTheming";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -121,6 +122,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         order: null,
       },
       transientTableData: {},
+      updatedRowIndex: -1,
       editableCell: defaultEditableCell,
       columnEditableCellValue: {},
       selectColumnFilterText: {},
@@ -142,9 +144,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
       updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
       updatedRowIndices: `{{(()=>{ ${derivedProperties.getUpdatedRowIndices}})()}}`,
-      updatedRow: `{{this.triggeredRow}}`,
+      updatedRow: `{{(()=>{ ${derivedProperties.getUpdatedRow}})()}}`,
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
+      tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
     };
   }
 
@@ -158,6 +161,38 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getLoadingProperties(): Array<RegExp> | undefined {
     return [/\.tableData$/];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        menuButton: {
+          menuColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        iconButton: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        editActions: {
+          saveButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          saveBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
+          discardBorderRadius:
+            "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+      },
+    };
   }
 
   /*
@@ -595,6 +630,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      */
     if (isTableDataModified) {
       this.props.updateWidgetMetaProperty("transientTableData", {});
+      // reset updatedRowIndex whenever transientTableData is flushed.
+      this.props.updateWidgetMetaProperty("updatedRowIndex", -1);
+
       this.clearEditableCell(true);
       this.props.updateWidgetMetaProperty("selectColumnFilterText", {});
     }
@@ -1208,6 +1246,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...transientData,
       },
     });
+
+    this.props.updateWidgetMetaProperty("updatedRowIndex", __originalIndex__);
   };
 
   removeRowFromTransientTableData = (index: number) => {
@@ -1221,6 +1261,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         newTransientTableData,
       );
     }
+    this.props.updateWidgetMetaProperty("updatedRowIndex", -1);
   };
 
   getRowOriginalIndex = (index: number) => {
