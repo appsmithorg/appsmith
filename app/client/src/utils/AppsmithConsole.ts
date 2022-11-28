@@ -14,6 +14,7 @@ import {
 import moment from "moment";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
+import { isEmpty } from "lodash";
 
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);
@@ -90,6 +91,7 @@ function addErrors(
     category?: LOG_CATEGORY;
   }[],
 ) {
+  if (isEmpty(errors)) return;
   const refinedErrors = errors.map((error) => ({
     ...error.payload,
     severity: error.severity ?? Severity.ERROR,
@@ -103,6 +105,7 @@ function addErrors(
 
 // This is used to remove errors from the error tab of the debugger
 function deleteErrors(errors: { id: string; analytics?: Log["analytics"] }[]) {
+  if (isEmpty(errors)) return;
   dispatchAction(deleteErrorLogsInit(errors));
 }
 

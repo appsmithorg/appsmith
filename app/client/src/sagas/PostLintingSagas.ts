@@ -58,10 +58,6 @@ export function* logLatestLintPropertyErrors({
       },
     });
   }
-  if (!isEmpty(errorsToAdd)) {
-    AppsmithConsole.addErrors(errorsToAdd);
-  }
-  if (!isEmpty(errorsToRemove)) {
-    AppsmithConsole.deleteErrors(errorsToRemove);
-  }
+  AppsmithConsole.addErrors(errorsToAdd);
+  AppsmithConsole.deleteErrors(errorsToRemove);
 }

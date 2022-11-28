@@ -179,12 +179,9 @@ function logLatestEvalPropertyErrors(
       }
     }
   }
-  if (!isEmpty(errorsToAdd)) {
-    AppsmithConsole.addErrors(errorsToAdd);
-  }
-  if (!isEmpty(errorsToDelete)) {
-    AppsmithConsole.deleteErrors(errorsToDelete);
-  }
+  // Add and delete errors from debugger
+  AppsmithConsole.addErrors(errorsToAdd);
+  AppsmithConsole.deleteErrors(errorsToDelete);
 }
 
 export function* evalErrorHandler(
