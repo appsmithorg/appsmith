@@ -191,6 +191,11 @@ describe("Git sync apps", function() {
       cy.get(".t--context-menu").click({ force: true });
     });
     cy.selectAction("Clone");
+    cy.wait("@clonePage").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
     cy.get(`.t--entity-item:contains(${newPage} Copy)`).click();
     cy.wait("@getPage");
   });
