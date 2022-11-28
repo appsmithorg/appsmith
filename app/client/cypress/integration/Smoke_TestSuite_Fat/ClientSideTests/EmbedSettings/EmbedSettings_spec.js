@@ -72,7 +72,8 @@ describe("Embed settings options", function() {
         },
       );
       cy.get(adminSettings.saveButton).click();
-      cy.wait(60000);
+      // adding wait for server to restart
+      cy.wait(120000);
       cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
         const {
           APPSMITH_ALLOWED_FRAME_ANCESTORS,
@@ -107,7 +108,8 @@ describe("Embed settings options", function() {
         },
       );
       cy.get(adminSettings.saveButton).click();
-      cy.wait(50000);
+      // adding wait for server to restart
+      cy.wait(120000);
       cy.get(adminSettings.restartNotice).should("not.exist");
       cy.visit(this.deployUrl);
       getIframeBody()
@@ -126,7 +128,8 @@ describe("Embed settings options", function() {
         },
       );
       cy.get(adminSettings.saveButton).click();
-      cy.wait(60000);
+      // adding wait for server to restart
+      cy.wait(120000);
       cy.get(adminSettings.restartNotice).should("not.exist");
       cy.visit(this.deployUrl);
       cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
