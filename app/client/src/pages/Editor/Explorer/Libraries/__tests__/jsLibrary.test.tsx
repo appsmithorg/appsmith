@@ -4,8 +4,8 @@ import { Provider } from "react-redux";
 import store from "store";
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
-import InstallationWindow from "../InstallationWindow";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 
 export const fetchApplicationMockResponse = {
   responseMeta: {
@@ -46,7 +46,7 @@ describe("Contains all UI tests for JS libraries", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );
@@ -59,7 +59,7 @@ describe("Contains all UI tests for JS libraries", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );
@@ -74,7 +74,7 @@ describe("Contains all UI tests for JS libraries", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );
@@ -107,7 +107,7 @@ describe("Contains all UI tests for JS libraries", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );

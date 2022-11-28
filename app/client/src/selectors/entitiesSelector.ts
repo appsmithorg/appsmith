@@ -844,6 +844,8 @@ export const getNumberOfEntitiesInCurrentPage = createSelector(
   },
 );
 
+export const selectIsInstallerOpen = (state: AppState) =>
+  state.ui.libraries.isInstallerOpen;
 export const selectInstallationStatus = (state: AppState) =>
   state.ui.libraries.installationStatus;
 export const selectInstalledLibraries = (state: AppState) =>

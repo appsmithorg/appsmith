@@ -18,6 +18,7 @@ import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { routeChanged } from "actions/focusHistoryActions";
+import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -97,6 +98,7 @@ function MainContainer() {
           "transition-all transform duration-400": true,
         })}
       />
+      <Installer left={sidebarWidth} />
     </>
   );
 }

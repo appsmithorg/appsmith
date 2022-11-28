@@ -17,9 +17,11 @@ export enum InstallState {
 export type LibraryState = {
   installationStatus: Record<string, InstallState>;
   installedLibraries: TJSLibrary[];
+  isInstallerOpen: boolean;
 };
 
 const initialState = {
+  isInstallerOpen: false,
   installationStatus: {},
   installedLibraries: defaultLibraries.map((lib: TJSLibrary) => {
     return {
@@ -103,6 +105,12 @@ const jsLibraryReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_APPLICATION_SUCCESS]: (state: LibraryState) => {
     state.installedLibraries = [...defaultLibraries];
+  },
+  [ReduxActionTypes.TOGGLE_INSTALLER]: (
+    state: LibraryState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.isInstallerOpen = action.payload;
   },
 });
 

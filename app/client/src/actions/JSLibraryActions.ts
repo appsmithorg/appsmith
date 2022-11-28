@@ -15,6 +15,13 @@ export function installLibraryInit(payload: Partial<TJSLibrary>) {
   };
 }
 
+export function toggleInstaller(payload: boolean) {
+  return {
+    type: ReduxActionTypes.TOGGLE_INSTALLER,
+    payload,
+  };
+}
+
 export function uninstallLibraryInit(payload: TJSLibrary) {
   return {
     type: ReduxActionTypes.UNINSTALL_LIBRARY_INIT,

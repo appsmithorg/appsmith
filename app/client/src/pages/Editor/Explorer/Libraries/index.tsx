@@ -1,24 +1,33 @@
 import React, { MutableRefObject, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, Spinner, Toaster, Variant } from "design-system";
+import {
+  Icon,
+  IconSize,
+  Spinner,
+  Toaster,
+  TooltipComponent,
+  Variant,
+} from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
-import {
-  createMessage,
-  CREATE_DATASOURCE_TOOLTIP,
-} from "ce/constants/messages";
-import InstallationWindow from "./InstallationWindow";
+import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
+  selectIsInstallerOpen,
   selectLibrariesForExplorer,
 } from "selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
-import { uninstallLibraryInit } from "actions/JSLibraryActions";
+import {
+  toggleInstaller,
+  uninstallLibraryInit,
+} from "actions/JSLibraryActions";
 import { TJSLibrary } from "utils/DynamicBindingUtils";
+import EntityAddButton from "../Entity/AddButton";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const Library = styled.li`
   list-style: none;
@@ -214,22 +223,36 @@ function JSDependencies() {
   const dependencyList = libraries.map((lib) => (
     <LibraryEntity key={lib.name} lib={lib} />
   ));
-  const [isWindowOpen, openWindow] = React.useState(false);
+  const isOpen = useSelector(selectIsInstallerOpen);
+  const dispatch = useDispatch();
+
+  const openInstaller = useCallback(() => {
+    dispatch(toggleInstaller(true));
+  }, []);
 
   return (
     <Entity
-      addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"libraries"}
       customAddButton={
-        <InstallationWindow
-          className={`${EntityClassNames.ADD_BUTTON} group libraries h-100`}
-          onOpen={openWindow}
-          open={false}
-        />
+        <TooltipComponent
+          boundary="viewport"
+          className={EntityClassNames.TOOLTIP}
+          content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+          disabled={isOpen}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position="right"
+        >
+          <EntityAddButton
+            className={`${EntityClassNames.ADD_BUTTON} group libraries h-100 ${
+              isOpen ? "selected" : ""
+            }`}
+            onClick={openInstaller}
+          />
+        </TooltipComponent>
       }
       entityId="library_section"
       icon={null}
-      isDefaultExpanded={isWindowOpen}
+      isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
       step={0}

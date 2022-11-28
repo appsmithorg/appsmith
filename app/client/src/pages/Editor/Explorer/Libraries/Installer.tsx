@@ -1,5 +1,10 @@
-import { Popover2 } from "@blueprintjs/popover2";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import {
   Button,
@@ -13,18 +18,9 @@ import {
   TextInput,
   TextType,
   Toaster,
-  TooltipComponent as Tooltip,
   Variant,
 } from "design-system";
-import { EntityClassNames } from "../Entity";
-import {
-  ADD_PAGE_TOOLTIP,
-  createMessage,
-  customJSLibraryMessages,
-} from "ce/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
-import EntityAddButton from "../Entity/AddButton";
+import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
 import ProfileImage from "pages/common/ProfileImage";
 import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
@@ -32,6 +28,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
+  selectIsInstallerOpen,
   selectIsLibraryInstalled,
   selectQueuedLibraries,
   selectStatusForURL,
@@ -40,25 +37,28 @@ import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries, {
   TRecommendedLibrary,
-} from "./recommendedLibraries";
+} from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import { AppState } from "ce/reducers";
 import { TJSLibrary } from "utils/DynamicBindingUtils";
-import { clearInstalls, installLibraryInit } from "actions/JSLibraryActions";
+import {
+  clearInstalls,
+  installLibraryInit,
+  toggleInstaller,
+} from "actions/JSLibraryActions";
 import classNames from "classnames";
 
-type TInstallWindowProps = {
-  onOpen: (open: boolean) => void;
-  open: boolean;
-  className: string;
-};
-
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ left: number }>`
   display: flex;
   height: auto;
   width: 400px;
   max-height: 80vh;
   flex-direction: column;
-  padding: 0 24px;
+  padding: 0 24px 4px;
+  position: absolute;
+  background: white;
+  z-index: 25;
+  left: ${(props) => props.left}px;
+  bottom: 10px;
   .installation-header {
     padding: 20px 0 0;
     display: flex;
@@ -89,7 +89,6 @@ const Wrapper = styled.div`
   .search-body {
     display: flex;
     flex-direction: column;
-    overflow: auto;
     .search-CTA {
       margin-bottom: 16px;
       display: flex;
@@ -114,62 +113,12 @@ const Wrapper = styled.div`
           -webkit-box-orient: vertical;
         }
       }
+      .library-card.no-border {
+        border-bottom: none;
+      }
     }
   }
 `;
-
-export default function InstallationWindow(props: TInstallWindowProps) {
-  const { className, onOpen, open } = props;
-  const [show, setShow] = useState(open);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    setShow(open);
-  }, [open]);
-
-  const clearProcessedInstalls = useCallback(() => {
-    dispatch(clearInstalls());
-  }, [dispatch]);
-
-  const openWindow = useCallback(() => {
-    onOpen(true);
-    setShow(true);
-  }, []);
-
-  const closeWindow = useCallback(() => {
-    setShow(false);
-    clearProcessedInstalls();
-  }, [clearProcessedInstalls]);
-
-  return (
-    <Popover2
-      className="h-9"
-      content={<InstallationPopoverContent closeWindow={closeWindow} />}
-      isOpen={show}
-      minimal
-      onClose={() => {
-        clearProcessedInstalls();
-        setShow(false);
-      }}
-      placement="right-start"
-      transitionDuration={0}
-    >
-      <Tooltip
-        boundary="viewport"
-        className={EntityClassNames.TOOLTIP}
-        content={createMessage(ADD_PAGE_TOOLTIP)}
-        disabled={show}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position={Position.RIGHT}
-      >
-        <EntityAddButton
-          className={`${className} ${show ? "selected" : ""}`}
-          onClick={openWindow}
-        />
-      </Tooltip>
-    </Popover2>
-  );
-}
 
 const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   border-top: ${(props) =>
@@ -310,13 +259,37 @@ enum Repo {
   JsDelivr,
 }
 
-function InstallationPopoverContent(props: any) {
-  const { closeWindow } = props;
+export function Installer(props: { left: number }) {
+  const { left } = props;
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
   const queuedLibraries = useSelector(selectQueuedLibraries);
+  const isOpen = useSelector(selectIsInstallerOpen);
+  const installerRef = useRef<HTMLDivElement>(null);
+
+  const closeInstaller = useCallback(() => {
+    dispatch(clearInstalls());
+    dispatch(toggleInstaller(false));
+  }, []);
+
+  const handleOutsideClick = useCallback((e: MouseEvent) => {
+    const paths = e.composedPath();
+    if (
+      installerRef &&
+      installerRef.current &&
+      !paths?.includes(installerRef.current)
+    )
+      closeInstaller();
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [isOpen]);
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
@@ -364,8 +337,8 @@ function InstallationPopoverContent(props: any) {
     [URL, installedLibraries, queuedLibraries],
   );
 
-  return (
-    <Wrapper>
+  return !isOpen ? null : (
+    <Wrapper className="bp3-popover" left={left} ref={installerRef}>
       <div className="installation-header">
         <Text type={TextType.H1} weight={"bold"}>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
@@ -373,7 +346,7 @@ function InstallationPopoverContent(props: any) {
         <Icon
           fillColor={Colors.GRAY}
           name="close-modal"
-          onClick={closeWindow}
+          onClick={closeInstaller}
           size={IconSize.XXL}
         />
       </div>
@@ -406,7 +379,7 @@ function InstallationPopoverContent(props: any) {
           />
         </div>
       </div>
-      <div className="search-body">
+      <div className="search-body overflow-auto">
         <div className="search-CTA mb-3 text-xs">
           <span>
             Explore libraries on{" "}
@@ -436,6 +409,7 @@ function InstallationPopoverContent(props: any) {
         <div className="search-results">
           {recommendedLibraries.map((lib, idx) => (
             <LibraryCard
+              isLastCard={idx === recommendedLibraries.length - 1}
               key={`${idx}_${lib.name}`}
               lib={lib}
               onClick={() => installLibrary(lib)}
@@ -448,11 +422,13 @@ function InstallationPopoverContent(props: any) {
 }
 
 function LibraryCard({
+  isLastCard,
   lib,
   onClick,
 }: {
   lib: TRecommendedLibrary;
   onClick: (url: string) => void;
+  isLastCard: boolean;
 }) {
   const status = useSelector(selectStatusForURL(lib.url));
   const isInstalled = useSelector((state: AppState) =>
@@ -460,7 +436,9 @@ function LibraryCard({
   );
   const openDocs = useCallback((url: string) => window.open(url), []);
   return (
-    <div className="library-card">
+    <div
+      className={classNames({ "library-card": true, "no-border": isLastCard })}
+    >
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row gap-2 items-center">
           <Text type={TextType.P0} weight="500">
