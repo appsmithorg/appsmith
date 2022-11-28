@@ -42,6 +42,10 @@ export const fetchApplicationMockResponse = {
 };
 
 describe("Contains all UI tests for JS libraries", () => {
+  store.dispatch({
+    type: ReduxActionTypes.TOGGLE_INSTALLER,
+    payload: true,
+  });
   it("Headers should exist", () => {
     render(
       <Provider store={store}>
@@ -51,7 +55,7 @@ describe("Contains all UI tests for JS libraries", () => {
       </Provider>,
     );
     expect(screen.getByText("Add JS Libraries")).toBeDefined();
-    expect(screen.getByText("RECOMMENDED LIBRARIES")).toBeDefined();
+    expect(screen.getByText("Recommended Libraries")).toBeDefined();
     expect(screen.getByTestId("library-url")).toBeDefined();
   });
 
@@ -125,8 +129,12 @@ describe("Contains all UI tests for JS libraries", () => {
 
     store.dispatch({
       type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
-      payload:
-        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/dayjs.min.js",
+      payload: {
+        name: "dayjs",
+        version: "1.11.6",
+        accessor: ["dayjs"],
+        url: "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.6/dayjs.min.js",
+      },
     });
 
     expect(
