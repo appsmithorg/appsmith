@@ -1,12 +1,12 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -185,9 +185,11 @@ public class MigrationHelperMethods {
         userIds.forEach(userId -> {
             Query query = new Query(new Criteria(fieldName(QUser.user.id)).is(userId));
             User user = mongockTemplate.findOne(query, User.class);
-            // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
-            cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
-                    .block();
+            if (user != null) {
+                // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
+                cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
+                        .block();
+            }
         });
     }
 }

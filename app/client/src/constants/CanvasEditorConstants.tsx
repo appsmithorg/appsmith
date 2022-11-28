@@ -15,6 +15,7 @@ export type WidgetSpace = {
   id: string;
   type: string;
   parentId?: string;
+  fixedHeight?: number;
 };
 
 export const zIndexLayers = {

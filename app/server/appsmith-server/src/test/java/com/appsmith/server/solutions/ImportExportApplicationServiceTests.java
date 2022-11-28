@@ -3485,4 +3485,29 @@ public class ImportExportApplicationServiceTests {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_invalidJson_createdAppIsDeleted() {
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
+
+        List<Application> applicationList = applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList().block();
+
+        Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.PAGES, INVALID_JSON_FILE)))
+                .verify();
+
+        // Verify that the app card is not created
+        StepVerifier
+                .create(applicationService.findAllApplicationsByWorkspaceId(workspaceId).collectList())
+                .assertNext(applications -> {
+                    assertThat(applicationList.size()).isEqualTo(applications.size());
+                })
+                .verifyComplete();
+
+    }
 }

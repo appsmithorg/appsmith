@@ -20,12 +20,19 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  features: {
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
+  },
   searchTags: ["dialog", "popup", "notification"],
   defaults: {
     rows: 24,
     columns: 24,
     width: 456,
     height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
+    minDynamicHeight: 24,
     canEscapeKeyClose: true,
     animateLoading: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
@@ -179,6 +186,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 
