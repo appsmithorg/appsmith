@@ -15,7 +15,7 @@ const EmptySearchResultWrapper = styled.div`
 
 export function EmptySearchResult() {
   return (
-    <EmptySearchResultWrapper className="mt-12 p-3">
+    <EmptySearchResultWrapper className="mt-12 p-3 t--property-pane-no-search-results">
       <Icon
         className="flex justify-center"
         name={IconNames.SEARCH}

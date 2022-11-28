@@ -154,7 +154,11 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         onClick={handleSectionTitleClick}
       >
         <SectionTitle>{props.name}</SectionTitle>
-        {props.tag && <Label>{props.tag}</Label>}
+        {props.tag && (
+          <Label className={`t--property-section-tag-${props.tag}`}>
+            {props.tag}
+          </Label>
+        )}
         {props.collapsible && (
           <StyledIcon
             className="t--chevron-icon"

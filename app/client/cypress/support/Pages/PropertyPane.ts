@@ -37,6 +37,7 @@ export class PropertyPane {
     "']//ancestor::div[@class= 'space-y-1 group']";
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
+  private _tableEditColumnButton = ".t--edit-column-btn";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
@@ -95,9 +96,15 @@ export class PropertyPane {
       this.agHelper.GetNClick(this._colorPickerV2Popover);
       this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
     } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
@@ -259,5 +266,20 @@ export class PropertyPane {
     else this.TypeTextIntoField(endp, value);
 
     this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
+  }
+
+  public openTableColumnSettings(column: string) {
+    cy.get(
+      `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`,
+    ).click();
+  }
+
+  public search(query: string) {
+    cy.get(this.locator._propertyPaneSearchInput)
+      .first()
+      .then((el: any) => {
+        cy.get(el).clear();
+        if (query) cy.get(el).type(query, { force: true });
+      });
   }
 }
