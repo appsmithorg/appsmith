@@ -10,6 +10,7 @@ import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -487,6 +488,13 @@ class CheckboxGroupWidget extends BaseWidget<
     return {
       isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
       value: `{{this.selectedValues}}`,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
     };
   }
 
