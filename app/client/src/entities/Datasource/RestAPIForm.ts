@@ -91,6 +91,7 @@ export interface Basic {
   authenticationType: AuthType.basic;
   username: string;
   password: string;
+  secretExists?: boolean;
 }
 
 export interface ApiKey {

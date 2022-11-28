@@ -23,6 +23,7 @@ export interface DatasourceAuthentication {
   bearerToken?: string;
   authenticationStatus?: string;
   authenticationType?: string;
+  secretExists?: boolean;
 }
 
 export interface DatasourceColumns {
