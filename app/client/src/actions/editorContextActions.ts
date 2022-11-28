@@ -58,11 +58,9 @@ export type CodeEditorFocusState = {
   };
 };
 
-export const generateKeyAndSetCodeEditorLastFocus = (
-  payload: CodeEditorFocusState,
-) => {
+export const setEditorFieldFocusAction = (payload: CodeEditorFocusState) => {
   return {
-    type: ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_LAST_FOCUS,
+    type: ReduxActionTypes.SET_EDITOR_FIELD_FOCUS,
     payload,
   };
 };
