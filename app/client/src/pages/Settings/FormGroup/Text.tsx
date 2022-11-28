@@ -1,7 +1,7 @@
 import { Text, TextType } from "design-system";
 import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 

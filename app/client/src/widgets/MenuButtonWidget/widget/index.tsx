@@ -12,6 +12,7 @@ import styleConfig from "./propertyConfig/styleConfig";
 import equal from "fast-deep-equal/es6";
 import { isArray, orderBy } from "lodash";
 import { getSourceDataKeys } from "./helper";
+import { Stylesheet } from "entities/AppTheming";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -20,6 +21,14 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      menuColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   menuItemClickHandler = (onClick: string | undefined, index: number) => {

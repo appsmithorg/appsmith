@@ -18,6 +18,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ActionPermissionImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.ApplicationPermissionImpl;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.PagePermissionImpl;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,11 +97,17 @@ public class ActionCollectionServiceImplTest {
     ResponseUtils responseUtils;
     @MockBean
     RefactoringSolution refactoringSolution;
+    ApplicationPermission applicationPermission;
+    PagePermission pagePermission;
+    ActionPermission actionPermission;
 
     private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
 
     @BeforeEach
     public void setUp() {
+        applicationPermission = new ApplicationPermissionImpl();
+        pagePermission = new PagePermissionImpl();
+        actionPermission = new ActionPermissionImpl();
         actionCollectionService = new ActionCollectionServiceImpl(
                 scheduler,
                 validator,
@@ -106,7 +118,9 @@ public class ActionCollectionServiceImplTest {
                 newActionService,
                 policyGenerator,
                 applicationService,
-                responseUtils
+                responseUtils,
+                applicationPermission,
+                actionPermission
         );
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
@@ -117,7 +131,9 @@ public class ActionCollectionServiceImplTest {
                 newActionService,
                 analyticsService,
                 responseUtils,
-                actionCollectionRepository
+                actionCollectionRepository,
+                pagePermission,
+                actionPermission
         );
 
         Mockito

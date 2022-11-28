@@ -9,7 +9,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 3,
+      active: true,
+    },
   },
   searchTags: ["choice"],
   defaults: {
@@ -40,6 +43,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 
