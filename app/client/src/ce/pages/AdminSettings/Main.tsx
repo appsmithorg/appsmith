@@ -43,7 +43,7 @@ const Main = () => {
   ) {
     return (
       <Redirect
-        to={getDefaultAdminSettingsPath(isSuperUser, tenantPermissions)}
+        to={getDefaultAdminSettingsPath({ isSuperUser, tenantPermissions })}
       />
     );
   } else {

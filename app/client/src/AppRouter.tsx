@@ -151,10 +151,10 @@ function AppRouter(props: {
               <Redirect
                 exact
                 from={ADMIN_SETTINGS_PATH}
-                to={getDefaultAdminSettingsPath(
-                  user?.isSuperUser || false,
+                to={getDefaultAdminSettingsPath({
+                  isSuperUser: user?.isSuperUser || false,
                   tenantPermissions,
-                )}
+                })}
               />
               <SentryRoute
                 component={Settings}
