@@ -22,7 +22,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
 
     // TODO: add comment also mention why no branch
     @Override
-    public Mono<CustomJSLib> findByAccessorString(String accessorString) {
+    public Mono<CustomJSLib> findByUidString(String accessorString) {
         Criteria accessorNameMatchCriteria = where("accessorString").is(accessorString);
         ArrayList<Criteria> listOfCriterias = new ArrayList<>();
         listOfCriterias.add(accessorNameMatchCriteria);

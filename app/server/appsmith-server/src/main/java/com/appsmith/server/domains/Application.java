@@ -18,7 +18,6 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -80,7 +79,8 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
-    Set<CustomJSLibApplicationDTO> installedCustomJSLibs;
+    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
     GitApplicationMetadata gitApplicationMetadata;
 
@@ -172,7 +172,7 @@ public class Application extends BaseDomain {
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
         // TODO: check this
-        this.installedCustomJSLibs = application.getInstalledCustomJSLibs();
+        this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {

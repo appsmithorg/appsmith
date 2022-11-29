@@ -30,10 +30,11 @@ public class CustomJSLibControllerCE {
     @PatchMapping("/{applicationId}/add")
     public Mono<ResponseDTO<Boolean>> addJSLibToApplication(@RequestBody @Valid CustomJSLib customJSLib,
                                                             @PathVariable String applicationId, @RequestHeader(name =
-            FieldName.BRANCH_NAME, required = false) String branchName) {
+            FieldName.BRANCH_NAME, required = false) String branchName, @RequestHeader(name =
+            FieldName.IS_FORCE_INSTALL, defaultValue = "false") Boolean isForceInstall) {
         log.debug("Going to add JS lib: {}_{} to application: {}, on branch:{}", customJSLib.getName(),
                 customJSLib.getVersion(), applicationId, branchName);
-        return customJSLibService.addJSLibToApplication(applicationId, customJSLib, branchName)
+        return customJSLibService.addJSLibToApplication(applicationId, customJSLib, branchName, false)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
@@ -41,10 +42,12 @@ public class CustomJSLibControllerCE {
     public Mono<ResponseDTO<Boolean>> removeJSLibFromApplication(@RequestBody @Valid CustomJSLib customJSLib,
                                                                  @PathVariable String applicationId,
                                                                  @RequestHeader(name = FieldName.BRANCH_NAME,
-                                                                         required = false) String branchName) {
+                                                                         required = false) String branchName,
+                                                                 @RequestHeader(name = FieldName.IS_FORCE_INSTALL,
+                                                                         defaultValue = "false") Boolean isForceInstall) {
         log.debug("Going to remove JS lib: {}_{} from application: {}, on branch:{}", customJSLib.getName(),
                 customJSLib.getVersion(), applicationId, branchName);
-        return customJSLibService.removeJSLibFromApplication(applicationId, customJSLib, branchName)
+        return customJSLibService.removeJSLibFromApplication(applicationId, customJSLib, branchName, isForceInstall)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
@@ -53,8 +56,18 @@ public class CustomJSLibControllerCE {
                                                                                       @RequestHeader(name =
                                                                                               FieldName.BRANCH_NAME,
                                                                                               required = false) String branchName) {
-        log.debug("Going to get all JS libs in application: {}, on branch: {}", applicationId, branchName);
-        return customJSLibService.getAllJSLibsInApplication(applicationId, branchName)
+        log.debug("Going to get all unpublished JS libs in application: {}, on branch: {}", applicationId, branchName);
+        return customJSLibService.getAllJSLibsInApplication(applicationId, branchName, false)
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+    }
+
+    @GetMapping("/{applicationId}/view")
+    public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplicationForViewMode(@PathVariable String applicationId,
+                                                                                                 @RequestHeader(name =FieldName.BRANCH_NAME,
+                                                                                                         required = false)
+                                                                                                 String branchName) {
+        log.debug("Going to get all published JS libs in application: {}, on branch: {}", applicationId, branchName);
+        return customJSLibService.getAllJSLibsInApplication(applicationId, branchName, true)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 }

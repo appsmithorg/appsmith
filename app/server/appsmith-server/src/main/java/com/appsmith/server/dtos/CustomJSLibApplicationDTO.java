@@ -4,13 +4,17 @@ import com.appsmith.server.domains.CustomJSLib;
 import lombok.Getter;
 import lombok.Setter;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 @Getter
 @Setter
 public class CustomJSLibApplicationDTO {
+    /* This holds the ObjectId of corresponding object in CustomJSLib collection */
     String id;
-    String accessorString;
+
+    /**
+     * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
+     * JS library
+     */
+    String uidString;
 
     @Override
     public boolean equals(Object o) {
@@ -25,18 +29,18 @@ public class CustomJSLibApplicationDTO {
             return ((CustomJSLibApplicationDTO) o).getId().equals(this.id);
         }*/
 
-        return ((CustomJSLibApplicationDTO) o).getAccessorString().equals(this.accessorString);
+        return ((CustomJSLibApplicationDTO) o).getUidString().equals(this.uidString);
     }
 
     @Override
     public int hashCode() {
-        return this.accessorString.hashCode();
+        return this.uidString.hashCode();
     }
 
     public static CustomJSLibApplicationDTO getDTOFromCustomJSLib(CustomJSLib jsLib) {
         CustomJSLibApplicationDTO customJSLibApplicationDTO = new CustomJSLibApplicationDTO();
         customJSLibApplicationDTO.setId(jsLib.getId());
-        customJSLibApplicationDTO.setAccessorString(jsLib.getAccessorString());
+        customJSLibApplicationDTO.setUidString(jsLib.getUidString());
 
         return customJSLibApplicationDTO;
     }

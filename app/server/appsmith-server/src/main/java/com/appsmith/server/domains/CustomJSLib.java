@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -21,16 +22,23 @@ public class CustomJSLib extends BaseDomain {
     /* Library name */
     String name;
 
-    String accessorString;
+    /**
+     * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
+     * JS library
+     */
+    @Indexed(unique=true)
+    String uidString;
 
-    /* These are the namespaces under which the library functions reside. User would access lib methods like
-    `accessor.method` */
+    /**
+     * These are the namespaces under which the library functions reside. User would access lib methods like
+     * `accessor.method`
+     */
     Set<String> accessor;
     public void setAccessor(Set<String> accessor) {
         this.accessor = accessor;
         List<String> accessorList = new ArrayList(accessor);
         Collections.sort(accessorList);
-        this.accessorString = String.join("_", accessorList);
+        this.uidString = String.join("_", accessorList) + "_" + this.url;
     }
 
     /* Library UMD src url */
@@ -65,6 +73,6 @@ public class CustomJSLib extends BaseDomain {
          * accessors in the accessor set are defined by the installed library i.e. client or the server does not have
          * any logic defined to generate accessor values.
          */
-        return ((CustomJSLib) o).getAccessorString().equals(this.accessorString);
+        return ((CustomJSLib) o).getUidString().equals(this.uidString);
     }
 }
