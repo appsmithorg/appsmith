@@ -81,6 +81,7 @@ public enum AclPermission {
     MAKE_PUBLIC_APPLICATIONS("makePublic:applications", Application.class),
 
     // Can the user create a comment thread on a given application?
+    @Deprecated
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
 
     APPLICATION_CREATE_PAGES("create:pages", Application.class),

@@ -9,6 +9,7 @@ import RangeSliderComponent, {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface RangeSliderWidgetProps
   extends WidgetProps,
@@ -83,6 +84,12 @@ class RangeSliderWidget extends BaseWidget<
       start: 0,
       end: 20,
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
     };
   }
 
