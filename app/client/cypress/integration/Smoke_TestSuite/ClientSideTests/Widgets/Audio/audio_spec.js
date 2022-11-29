@@ -71,6 +71,7 @@ describe("Audio Widget Functionality", function() {
 
     cy.openPropertyPane("audiowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
+    // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
     cy.wait(1000);
     cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.get(widgetsPage.widgetBtn).click({ force: true });
