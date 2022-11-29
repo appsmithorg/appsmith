@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  ActionDispatcher,
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import {
   ActionDescription,
@@ -9,7 +13,13 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+import {
+  isAction,
+  isAppsmithEntity,
+  isTrueObject,
+  cleanSet,
+} from "./evaluationUtils";
+import { GlobalData } from "./evaluate";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -36,14 +46,9 @@ type ActionDispatcherWithExecutionType = (
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 
-export const DATA_TREE_FUNCTIONS: Record<
+export const PLATFORM_FUNCTIONS: Record<
   string,
-  | ActionDispatcherWithExecutionType
-  | {
-      qualifier: (entity: DataTreeEntity) => boolean;
-      func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
-      path?: string;
-    }
+  ActionDispatcherWithExecutionType
 > = {
   navigateTo: function(
     pageNameOrUrl: string,
@@ -135,6 +140,51 @@ export const DATA_TREE_FUNCTIONS: Record<
       executionType: ExecutionType.PROMISE,
     };
   },
+  setInterval: function(callback: Function, interval: number, id?: string) {
+    return {
+      type: ActionTriggerType.SET_INTERVAL,
+      payload: {
+        callback: callback.toString(),
+        interval,
+        id,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+  clearInterval: function(id: string) {
+    return {
+      type: ActionTriggerType.CLEAR_INTERVAL,
+      payload: {
+        id,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+  postWindowMessage: function(
+    message: unknown,
+    source: string,
+    targetOrigin: string,
+  ) {
+    return {
+      type: ActionTriggerType.POST_MESSAGE,
+      payload: {
+        message,
+        source,
+        targetOrigin,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+};
+
+const ENTITY_FUNCTIONS: Record<
+  string,
+  {
+    qualifier: (entity: DataTreeEntity) => boolean;
+    func: (entity: DataTreeEntity) => ActionDispatcherWithExecutionType;
+    path?: string;
+  }
+> = {
   run: {
     qualifier: (entity) => isAction(entity),
     func: (entity) =>
@@ -188,26 +238,6 @@ export const DATA_TREE_FUNCTIONS: Record<
           executionType: ExecutionType.PROMISE,
         };
       },
-  },
-  setInterval: function(callback: Function, interval: number, id?: string) {
-    return {
-      type: ActionTriggerType.SET_INTERVAL,
-      payload: {
-        callback: callback.toString(),
-        interval,
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
-  clearInterval: function(id: string) {
-    return {
-      type: ActionTriggerType.CLEAR_INTERVAL,
-      payload: {
-        id,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
   },
   getGeoLocation: {
     qualifier: (entity) => isAppsmithEntity(entity),
@@ -280,88 +310,67 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
-  postWindowMessage: function(
-    message: unknown,
-    source: string,
-    targetOrigin: string,
-  ) {
-    return {
-      type: ActionTriggerType.POST_MESSAGE,
-      payload: {
-        message,
-        source,
-        targetOrigin,
-      },
-      executionType: ExecutionType.TRIGGER,
-    };
-  },
 };
 
-export const enhanceDataTreeWithFunctions = (
-  dataTree: Readonly<DataTree>,
-  requestId = "",
-  // Whether not to add functions like "run", "clear" to entity
-  skipEntityFunctions = false,
-  eventType?: EventType,
-): DataTree => {
-  const entityFunctions: Record<string, Record<string, Function>> = {};
-
-  const newDataTree: DataTree = {};
+/**
+ * This method returns new dataTree with entity function and platform function
+ */
+export const addDataTreeToContext = (args: {
+  EVAL_CONTEXT: GlobalData;
+  dataTree: Readonly<DataTree>;
+  isTriggerBased?: boolean;
+  requestId?: string;
+  skipEntityFunctions?: boolean;
+  eventType?: EventType;
+}) => {
+  const {
+    dataTree,
+    EVAL_CONTEXT,
+    eventType,
+    isTriggerBased = true,
+    requestId = "",
+    skipEntityFunctions = false,
+  } = args;
+  const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
+  const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
+  const dataTreeEntries = Object.entries(dataTree);
 
   self.TRIGGER_COLLECTOR = [];
-  Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
-    if (
-      typeof funcOrFuncCreator === "object" &&
-      "qualifier" in funcOrFuncCreator
-    ) {
-      !skipEntityFunctions &&
-        Object.entries(dataTree).forEach(([entityName, entity]) => {
-          if (funcOrFuncCreator.qualifier(entity)) {
-            const func = funcOrFuncCreator.func(entity);
-            const funcName = `${funcOrFuncCreator.path ||
-              `${entityName}.${name}`}`;
-            _.set(
-              entityFunctions,
-              funcName,
-              pusher.bind(
-                {
-                  TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-                  REQUEST_ID: requestId,
-                  EVENT_TYPE: eventType,
-                },
-                func,
-              ),
-            );
-          }
-        });
-    } else {
-      _.set(
-        newDataTree,
-        name,
+
+  for (const [entityName, entity] of dataTreeEntries) {
+    EVAL_CONTEXT[entityName] = Object.assign({}, entity);
+    if (skipEntityFunctions) continue;
+    for (const [functionName, funcCreator] of entityFunctionEntries) {
+      if (!funcCreator.qualifier(entity)) continue;
+      const func = funcCreator.func(entity);
+      const funcName = `${funcCreator.path || `${entityName}.${functionName}`}`;
+      cleanSet(
+        EVAL_CONTEXT,
+        funcName,
         pusher.bind(
           {
             TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
             REQUEST_ID: requestId,
+            EVENT_TYPE: eventType,
           },
-          funcOrFuncCreator,
+          func,
         ),
       );
     }
-  });
+  }
 
-  Object.keys(dataTree).forEach((entityName) => {
-    if (entityFunctions[entityName]) {
-      newDataTree[entityName] = Object.assign(
-        {},
-        dataTree[entityName],
-        entityFunctions[entityName],
-      );
-    } else {
-      newDataTree[entityName] = Object.assign({}, dataTree[entityName]);
-    }
-  });
+  if (!isTriggerBased) return;
 
-  return newDataTree;
+  for (const [name, fn] of platformFunctionEntries) {
+    EVAL_CONTEXT[name] = pusher.bind(
+      {
+        TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+        REQUEST_ID: requestId,
+        EVENT_TYPE: eventType,
+      },
+      fn,
+    ) as ActionDispatcher;
+  }
 };
 
 /**

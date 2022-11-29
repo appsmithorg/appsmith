@@ -1,8 +1,11 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
-import { createEvaluationContext } from "workers/Evaluation/evaluate";
+import {
+  createEvaluationContext,
+  GlobalData,
+} from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
-import { enhanceDataTreeWithFunctions } from "../Actions";
+import { addDataTreeToContext } from "../Actions";
 jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
@@ -861,15 +864,16 @@ const dataTree = {
   },
 };
 
-describe("Test enhanceDataTreeWithFunctions method", () => {
-  let dataTreeWidgetFunctions: DataTree = {};
+describe("Test addDataTreeToContext method", () => {
+  const evalContext: GlobalData = {};
   beforeAll(() => {
-    dataTreeWidgetFunctions = enhanceDataTreeWithFunctions(
-      (dataTree as unknown) as DataTree,
-    );
+    addDataTreeToContext({
+      EVAL_CONTEXT: evalContext,
+      dataTree: (dataTree as unknown) as DataTree,
+    });
   });
 
-  it("1. Assert framework actions are added", () => {
+  it("1. Assert platform actions are added", () => {
     const frameworkActions = {
       navigateTo: true,
       showAlert: true,
@@ -887,18 +891,17 @@ describe("Test enhanceDataTreeWithFunctions method", () => {
     };
 
     for (const actionName of Object.keys(frameworkActions)) {
-      expect(dataTreeWidgetFunctions).toHaveProperty(actionName);
-      expect(typeof dataTreeWidgetFunctions[actionName]).toBe("function");
+      expect(evalContext).toHaveProperty(actionName);
+      expect(typeof evalContext[actionName]).toBe("function");
     }
   });
 
   it("2. Assert Api has run and clear method", () => {
-    expect(dataTreeWidgetFunctions.Api2).toHaveProperty("run");
-    expect(dataTreeWidgetFunctions.Api2).toHaveProperty("clear");
-    // @ts-expect-error: Action type missing
-    expect(typeof dataTreeWidgetFunctions.Api2.run).toBe("function");
-    // @ts-expect-error: Action type missing
-    expect(typeof dataTreeWidgetFunctions.Api2.clear).toBe("function");
+    expect(evalContext.Api2).toHaveProperty("run");
+    expect(evalContext.Api2).toHaveProperty("clear");
+
+    expect(typeof evalContext.Api2.run).toBe("function");
+    expect(typeof evalContext.Api2.clear).toBe("function");
   });
 
   it("3. Assert input dataTree is not mutated", () => {
