@@ -25,7 +25,7 @@ export const CONFIG = {
     isDisabled: false,
     tooltipAlwaysOn: false,
     rows: 8,
-    columns: 38,
+    columns: 40,
     widgetName: "NumberSlider",
     shouldScroll: false,
     shouldTruncate: false,
@@ -44,6 +44,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

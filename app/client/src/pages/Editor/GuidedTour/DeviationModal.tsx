@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import {
   enableGuidedTour,
   toggleShowDeviationDialog,
@@ -16,7 +17,6 @@ import {
   showDeviatingDialogSelector,
   showEndTourDialogSelector,
 } from "selectors/onboardingSelectors";
-import { useSelector } from "store";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
