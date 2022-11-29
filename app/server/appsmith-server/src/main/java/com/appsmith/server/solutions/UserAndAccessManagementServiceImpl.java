@@ -74,10 +74,11 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                                               UserGroupService userGroupService,
                                               TenantService tenantService,
                                               PermissionGroupRepository permissionGroupRepository,
-                                              UserGroupRepository userGroupRepository) {
+                                              UserGroupRepository userGroupRepository,
+                                              PermissionGroupPermission permissionGroupPermission) {
 
-        super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService,
-                userService, emailSender);
+        super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
+                permissionGroupPermission);
         this.permissionGroupService = permissionGroupService;
         this.userRepository = userRepository;
         this.userService = userService;

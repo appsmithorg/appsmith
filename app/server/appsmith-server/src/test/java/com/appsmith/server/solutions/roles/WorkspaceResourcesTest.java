@@ -6,6 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
@@ -20,6 +21,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -106,6 +108,9 @@ public class WorkspaceResourcesTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    ApplicationService applicationService;
 
     User api_user = null;
 
@@ -261,8 +266,13 @@ public class WorkspaceResourcesTest {
                     EntityView createdApplicationEntityView = createdWorkspaceView.getChildren().stream().findFirst().get();
                     assertThat(createdApplicationEntityView.getType()).isEqualTo(Application.class.getSimpleName());
                     // We created only one application in this workspace. Assert that the same has been read into the view
-                    assertThat(createdApplicationEntityView.getEntities().size()).isEqualTo(1);
-                    BaseView createdApplicationView = createdApplicationEntityView.getEntities().get(0);
+                    // We added 2 more applications to the same workspace, one with Page and No action and another with No pages
+                    assertThat(createdApplicationEntityView.getEntities().size()).isEqualTo(3);
+                    BaseView createdApplicationView = createdApplicationEntityView.getEntities()
+                            .stream()
+                            .filter(applicationEntity -> applicationEntity.getId().equals(createdApplication.getId()))
+                            .findFirst().get();
+                    assertThat(createdApplicationView).isNotNull();
                     assertThat(createdApplicationView.getName()).isEqualTo(createdApplication.getName());
                     assertThat(createdApplicationView.getId()).isEqualTo(createdApplication.getId());
                     // assert that all the permissions in this view are present and all of them are turned off for this application
@@ -274,8 +284,13 @@ public class WorkspaceResourcesTest {
                     EntityView createdPageEntityView = createdApplicationView.getChildren().stream().findFirst().get();
                     assertThat(createdPageEntityView.getType()).isEqualTo(NewPage.class.getSimpleName());
                     // We created only one page in this application. Assert that the same has been read into the view
-                    assertThat(createdPageEntityView.getEntities().size()).isEqualTo(1);
-                    BaseView createdPageView = createdPageEntityView.getEntities().get(0);
+                    // We have created 2 pages. 1 with actions, 1 without actions.
+                    assertThat(createdPageEntityView.getEntities().size()).isEqualTo(2);
+                    BaseView createdPageView = createdPageEntityView.getEntities()
+                            .stream()
+                            .filter(pageEntity -> pageEntity.getId().equals(createdApplication.getPages().get(0).getDefaultPageId()))
+                            .findFirst().get();
+                    assertThat(createdPageView).isNotNull();
                     assertThat(createdPageView.getId()).isEqualTo(createdApplication.getPages().get(0).getId());
                     // assert that only the first four permissions in this view are present and all of them are turned off for this page. The rest are disabled
                     perms = List.of(0, 0, 0, 0, -1, -1);
@@ -333,8 +348,13 @@ public class WorkspaceResourcesTest {
                     EntityView createdApplicationEntityView = createdWorkspaceView.getChildren().stream().findFirst().get();
                     assertThat(createdApplicationEntityView.getType()).isEqualTo(Application.class.getSimpleName());
                     // We created only one application in this workspace. Assert that the same has been read into the view
-                    assertThat(createdApplicationEntityView.getEntities().size()).isEqualTo(1);
-                    BaseView createdApplicationView = createdApplicationEntityView.getEntities().get(0);
+                    // We added 2 more applications to the same workspace, one with Page and No action and another with No pages
+                    assertThat(createdApplicationEntityView.getEntities().size()).isEqualTo(3);
+                    BaseView createdApplicationView = createdApplicationEntityView.getEntities()
+                            .stream()
+                            .filter(applicationEntity -> applicationEntity.getId().equals(createdApplication.getId()))
+                            .findFirst().get();
+                    assertThat(createdApplicationView).isNotNull();
                     assertThat(createdApplicationView.getName()).isEqualTo(createdApplication.getName());
                     assertThat(createdApplicationView.getId()).isEqualTo(createdApplication.getId());
                     // assert that all the permissions in this view are present and all of them are turned on for this application
@@ -346,8 +366,13 @@ public class WorkspaceResourcesTest {
                     EntityView createdPageEntityView = createdApplicationView.getChildren().stream().findFirst().get();
                     assertThat(createdPageEntityView.getType()).isEqualTo(NewPage.class.getSimpleName());
                     // We created only one page in this application. Assert that the same has been read into the view
-                    assertThat(createdPageEntityView.getEntities().size()).isEqualTo(1);
-                    BaseView createdPageView = createdPageEntityView.getEntities().get(0);
+                    // We have created 2 pages. 1 with actions, 1 without actions.
+                    assertThat(createdPageEntityView.getEntities().size()).isEqualTo(2);
+                    BaseView createdPageView = createdPageEntityView.getEntities()
+                            .stream()
+                            .filter(pageEntity -> pageEntity.getId().equals(createdApplication.getPages().get(0).getDefaultPageId()))
+                            .findFirst().get();
+                    assertThat(createdPageView).isNotNull();
                     assertThat(createdPageView.getId()).isEqualTo(createdApplication.getPages().get(0).getId());
                     // assert that create, edit, delete and view are turned on. The rest are disabled
                     perms = List.of(1, 1, 1, 1, -1, -1);
