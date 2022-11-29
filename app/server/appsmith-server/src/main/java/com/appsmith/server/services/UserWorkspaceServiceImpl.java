@@ -6,6 +6,8 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserWorkspaceServiceCEImpl;
+import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -21,9 +23,11 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                                     EmailSender emailSender,
                                     UserDataService userDataService,
                                     PermissionGroupService permissionGroupService,
-                                    TenantService tenantService) {
+                                    TenantService tenantService,
+                                    WorkspacePermission workspacePermission,
+                                    PermissionGroupPermission permissionGroupPermission) {
 
         super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policyUtils, emailSender,
-                userDataService, permissionGroupService, tenantService);
+                userDataService, permissionGroupService, tenantService, workspacePermission, permissionGroupPermission);
     }
 }
