@@ -9,7 +9,9 @@ function messageEventListener(e: MessageEvent<EvalWorkerRequest>) {
   const startTime = performance.now();
   const { method, requestData, requestId } = e.data;
   if (!method) return;
-  const responseData = handlerMap[method](e.data);
+  const messageHandler = handlerMap[method];
+  if (typeof messageHandler !== "function") return;
+  const responseData = messageHandler(e.data);
   if (!responseData) return;
   const endTime = performance.now();
   try {
