@@ -178,35 +178,6 @@ export const assignJSFunctionsToContext = (
   GLOBAL_DATA: GlobalData,
   resolvedFunctions: ResolvedFunctions,
 ) => {
-  if (!isEmpty(resolvedFunctions)) {
-    Object.keys(resolvedFunctions).forEach((datum: any) => {
-      const resolvedObject = resolvedFunctions[datum];
-      Object.keys(resolvedObject).forEach((key: any) => {
-        const dataTreeKey = GLOBAL_DATA[datum];
-        if (dataTreeKey) {
-          const data = dataTreeKey[key]?.data;
-          //do not remove we will be investigating this
-          //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
-          //const confirmBeforeExecute = dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
-          dataTreeKey[key] = resolvedObject[key];
-          // if (isAsync && confirmBeforeExecute) {
-          //   dataTreeKey[key] = confirmationPromise.bind(
-          //     {},
-          //     context?.requestId,
-          //     resolvedObject[key],
-          //     dataTreeKey.name + "." + key,
-          //   );
-          // } else {
-          //   dataTreeKey[key] = resolvedObject[key];
-          // }
-          if (!!data) {
-            dataTreeKey[key]["data"] = data;
-          }
-        }
-      });
-    });
-  }
-
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
@@ -428,10 +399,6 @@ export function isFunctionAsync(
       ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };
-    //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
-    ///// Adding Data tree with functions
-    Object.assign(GLOBAL_DATA, dataTreeWithFunctions);
 
     assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);
     // Set it to self so that the eval function can have access to it
