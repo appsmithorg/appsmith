@@ -1,7 +1,6 @@
 import { Icon, IconSize } from "design-system";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "store";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import { AppState } from "@appsmith/reducers";

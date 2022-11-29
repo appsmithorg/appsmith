@@ -20,9 +20,10 @@ public class EmailEventHandlerImpl extends EmailEventHandlerCEImpl implements Em
     public EmailEventHandlerImpl(ApplicationEventPublisher applicationEventPublisher, EmailSender emailSender,
                                  WorkspaceRepository workspaceRepository, ApplicationRepository applicationRepository,
                                  NewPageRepository newPageRepository, PolicyUtils policyUtils, EmailConfig emailConfig,
-                                 UserWorkspaceService userWorkspaceService) {
+                                 UserWorkspaceService userWorkspaceService,
+                                 ApplicationPermission applicationPermission) {
 
         super(applicationEventPublisher, emailSender, workspaceRepository, applicationRepository, newPageRepository,
-                policyUtils, emailConfig, userWorkspaceService);
+                policyUtils, emailConfig, userWorkspaceService, applicationPermission);
     }
 }

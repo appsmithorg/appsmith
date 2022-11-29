@@ -95,9 +95,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public static final Criteria notDeleted() {
-        return new Criteria().orOperator(
-                where(fieldName(QBaseDomain.baseDomain.deleted)).exists(false),
-                where(fieldName(QBaseDomain.baseDomain.deleted)).is(false)
+        return new Criteria().andOperator(
+                //Older check for deleted
+                new Criteria().orOperator(
+                        where(FieldName.DELETED).exists(false),
+                        where(FieldName.DELETED).is(false)
+                ),
+                //New check for deleted
+                new Criteria().orOperator(
+                        where(FieldName.DELETED_AT).exists(false),
+                        where(FieldName.DELETED_AT).is(null)
+                )
         );
     }
 

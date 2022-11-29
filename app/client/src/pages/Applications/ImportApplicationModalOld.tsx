@@ -10,8 +10,7 @@ import {
   Variant,
 } from "design-system";
 import { StyledDialog } from "./ForkModalStyles";
-import { useSelector } from "store";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { importApplication } from "actions/applicationActions";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "@appsmith/constants/messages";
 import { getIsImportingApplication } from "selectors/applicationSelectors";

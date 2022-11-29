@@ -1,7 +1,7 @@
 import CodeMirror from "codemirror";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export enum EditorModes {
   TEXT = "text/plain",

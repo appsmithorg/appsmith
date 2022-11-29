@@ -8,6 +8,7 @@ import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "./BaseWidget";
 import moment from "moment";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface WidgetConfiguration {
   type: string;
@@ -20,15 +21,17 @@ export interface WidgetConfiguration {
   isCanvas?: boolean;
   needsMeta?: boolean;
   features?: WidgetFeatures;
+  canvasHeightOffset?: (props: WidgetProps) => number;
   searchTags?: string[];
   properties: {
-    config: PropertyPaneConfig[];
+    config?: PropertyPaneConfig[];
     contentConfig?: PropertyPaneConfig[];
     styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
+    stylesheetConfig?: Stylesheet;
   };
 }
 

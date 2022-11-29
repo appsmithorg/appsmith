@@ -20,13 +20,13 @@ export function setAutoHeightLayoutTreeAction(
 }
 
 export function generateAutoHeightLayoutTreeAction(
-  shouldCheckContainersForDynamicHeightUpdates: boolean,
+  shouldCheckContainersForAutoHeightUpdates: boolean,
   layoutUpdated?: boolean,
 ) {
   return {
     type: ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE,
     payload: {
-      shouldCheckContainersForDynamicHeightUpdates,
+      shouldCheckContainersForAutoHeightUpdates,
       layoutUpdated: !!layoutUpdated,
     },
   };
