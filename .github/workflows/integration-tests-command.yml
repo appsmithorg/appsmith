@@ -575,7 +575,7 @@ jobs:
         env:
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-          APPSMITH_ENVFILE_PATH: app/server/envs/cypress.env
+          APPSMITH_ENVFILE_PATH: envs/cypress.env
           APPSMITH_AUDITLOG_ENABLED: true
         run: |
           ls -l
