@@ -639,5 +639,5 @@ export const updateCustomColumnAliasOnLabelChange = (
       propertyValue,
     });
   }
-  return propertyToUpdate;
+  return;
 };
