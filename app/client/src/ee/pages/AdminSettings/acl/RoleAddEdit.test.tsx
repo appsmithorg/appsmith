@@ -8,6 +8,9 @@ import { response1 } from "./mocks/mockRoleTreeResponse";
 import { BaseAclProps, RoleEditProps } from "./types";
 import { makeData } from "./RolesTree";
 import { MenuItemProps } from "design-system";
+import * as selectors from "@appsmith/selectors/aclSelectors";
+import { mockGetRolePermissions } from "./mocks/mockSelectors";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 let container: any = null;
 
@@ -42,6 +45,9 @@ function renderComponent() {
 }
 
 describe("<RoleAddEdit />", () => {
+  jest
+    .spyOn(selectors, "getRolePermissions")
+    .mockImplementation(mockGetRolePermissions as any);
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -215,6 +221,47 @@ describe("<RoleAddEdit />", () => {
     await clearButton?.click();
     saveButton = queryByText("Save Changes");
     expect(saveButton).not.toBeInTheDocument();
+  });
+  it("should display only the options which the user is permitted to", async () => {
+    jest
+      .spyOn(selectors, "getRolePermissions")
+      .mockImplementation(() =>
+        mockGetRolePermissions([PERMISSION_TYPE.DELETE_PERMISSIONGROUPS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(1);
+    await userEvent.click(moreMenu[0]);
+    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const editOption = document.getElementsByClassName("rename-menu-item");
+
+    expect(deleteOption).toHaveLength(0);
+    expect(editOption).toHaveLength(1);
+  });
+  it("should not display more option if the user doesn't have edit and delete permissions", () => {
+    jest
+      .spyOn(selectors, "getRolePermissions")
+      .mockImplementation(() =>
+        mockGetRolePermissions([
+          PERMISSION_TYPE.DELETE_PERMISSIONGROUPS,
+          PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+        ]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(0);
+  });
+  it("should not make title editable when user don't have edit permission", () => {
+    jest
+      .spyOn(selectors, "getRolePermissions")
+      .mockImplementation(() =>
+        mockGetRolePermissions([PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const editIcon = queryAllByTestId("t--action-name-edit-icon");
+    expect(editIcon).toHaveLength(0);
+    const editableTitle = queryAllByTestId("t--editable-title");
+    expect(editableTitle).toHaveLength(0);
   });
   /*it("should delete the group when Delete menu item is clicked", async () => {
     const { getAllByTestId, getByText } = renderComponent();

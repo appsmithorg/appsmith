@@ -125,6 +125,8 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_403 = (entity: string, userEmail: string) =>
+  `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;

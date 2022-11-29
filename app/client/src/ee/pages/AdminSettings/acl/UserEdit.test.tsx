@@ -4,6 +4,9 @@ import { render, screen, waitFor } from "test/testUtils";
 import { allUsers } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
 import { UserEdit } from "./UserEdit";
+import * as selectors from "@appsmith/selectors/aclSelectors";
+import { mockUserPermissions } from "./mocks/mockSelectors";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 let container: any = null;
 
@@ -24,6 +27,9 @@ function renderComponent() {
 }
 
 describe("<UserEdit />", () => {
+  jest
+    .spyOn(selectors, "getUserPermissions")
+    .mockImplementation(mockUserPermissions as any);
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -118,5 +124,44 @@ describe("<UserEdit />", () => {
     const activeGroups = screen.getAllByTestId("t--active-group-row");
     userEvent.click(activeGroups[0]);
     expect(activeGroups[0]).toHaveClass("removed");
+  });
+  it("should not display more option if the user doesn't have edit and delete permissions", () => {
+    jest
+      .spyOn(selectors, "getUserPermissions")
+      .mockImplementation(() =>
+        mockUserPermissions([
+          PERMISSION_TYPE.DELETE_USERS,
+          PERMISSION_TYPE.MANAGE_USERS,
+        ]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(0);
+  });
+  it("should show error message on save when there is no edit permission", async () => {
+    jest
+      .spyOn(selectors, "getUserPermissions")
+      .mockImplementation(() =>
+        mockUserPermissions([PERMISSION_TYPE.MANAGE_USERS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[1].click();
+    const activeGroups = queryAllByTestId("t--active-group-row");
+    userEvent.click(activeGroups[0]);
+    expect(activeGroups[0]).toHaveClass("removed");
+    let saveButton;
+    waitFor(() => {
+      saveButton = document.getElementsByClassName(
+        "t--admin-settings-save-button",
+      );
+      expect(saveButton).toHaveLength(1);
+      userEvent.click(saveButton[0]);
+      const errorMessage = document.getElementsByClassName("cs-text");
+      expect(errorMessage).toHaveLength(1);
+      expect(errorMessage[0]).toHaveTextContent(
+        "You do not have permissions to edit this user",
+      );
+    });
   });
 });

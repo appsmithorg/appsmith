@@ -1,12 +1,13 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "test/testUtils";
+import { render, screen } from "test/testUtils";
 import { UserListing } from "./UserListing";
 import { allUsers } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { MenuItemProps } from "design-system";
+import * as userSelectors from "selectors/usersSelectors";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -154,5 +155,33 @@ describe("<UserListing />", () => {
     expect(window.location.pathname).toEqual(
       `/settings/users/${allUsers[0].id}`,
     );
+  });
+  it("should display only the options which the user is permitted to", async () => {
+    const { queryAllByTestId, queryByText } = renderComponent();
+    const user = queryByText(allUsers[1].username);
+    expect(user).toBeInTheDocument();
+    const moreMenu = queryAllByTestId("actions-cell-menu-icon");
+    expect(moreMenu).toHaveLength(3);
+    await userEvent.click(moreMenu[1]);
+    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const editOption = document.getElementsByClassName("edit-menu-item");
+
+    expect(deleteOption).toHaveLength(1);
+    expect(editOption).toHaveLength(1);
+  });
+  it("should not display more option if the user doesn't have edit and delete permissions", () => {
+    const { queryAllByTestId, queryByText } = renderComponent();
+    const user = queryByText(allUsers[2].username);
+    expect(user).toBeInTheDocument();
+    const moreMenu = queryAllByTestId("actions-cell-menu-icon");
+    expect(moreMenu).toHaveLength(3);
+  });
+  it("should disable 'Add Users' CTA if the user is not super user", () => {
+    jest.spyOn(userSelectors, "getCurrentUser").mockReturnValue({
+      isSuperUser: false,
+    } as any);
+    renderComponent();
+    const button = screen.getAllByTestId("t--acl-page-header-input");
+    expect(button[0]).toHaveAttribute("disabled");
   });
 });

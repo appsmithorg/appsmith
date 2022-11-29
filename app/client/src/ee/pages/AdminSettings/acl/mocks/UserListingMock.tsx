@@ -23,6 +23,7 @@ export const allUsers: UserProps[] = [
     allRoles: [],
     username: "techak@appsmith.com",
     id: "123",
+    userPermissions: ["manage:users", "delete:users"],
   },
   {
     name: "Sangy Sivan",
@@ -38,6 +39,7 @@ export const allUsers: UserProps[] = [
     allRoles: [],
     username: "sangy@appsmith.com",
     id: "456",
+    userPermissions: ["manage:users"],
   },
   {
     name: "SS Sivan",
@@ -53,5 +55,6 @@ export const allUsers: UserProps[] = [
     allRoles: [],
     username: "sangy123@appsmith.com",
     id: "789",
+    userPermissions: [],
   },
 ];

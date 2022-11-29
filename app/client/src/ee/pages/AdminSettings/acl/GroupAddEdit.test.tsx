@@ -5,6 +5,9 @@ import { GroupAddEdit } from "./GroupAddEdit";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import userEvent from "@testing-library/user-event";
 import { GroupEditProps } from "./types";
+import * as selectors from "@appsmith/selectors/aclSelectors";
+import { mockGroupPermissions } from "./mocks/mockSelectors";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 let container: any = null;
 
@@ -37,6 +40,9 @@ function renderComponent() {
 }
 
 describe("<GroupAddEdit />", () => {
+  jest
+    .spyOn(selectors, "getGroupPermissions")
+    .mockImplementation(mockGroupPermissions as any);
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -230,5 +236,82 @@ describe("<GroupAddEdit />", () => {
     const allGroups = screen.getAllByTestId("t--all-group-row");
     userEvent.click(allGroups[0]);
     expect(allGroups[0]).toHaveClass("added");
+  });
+  it("should disable Add users CTA when there is no addUsers:userGroups permission", () => {
+    jest
+      .spyOn(selectors, "getGroupPermissions")
+      .mockImplementation(() =>
+        mockGroupPermissions([PERMISSION_TYPE.ADD_USERS_TO_USERGROUPS]),
+      );
+    renderComponent();
+    const addUsersButton = screen.getByTestId("t--add-users-button");
+    expect(addUsersButton).toHaveAttribute("disabled");
+  });
+  it("should display only the options which the user is permitted to", async () => {
+    jest
+      .spyOn(selectors, "getGroupPermissions")
+      .mockImplementation(() =>
+        mockGroupPermissions([PERMISSION_TYPE.DELETE_USERGROUPS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(1);
+    await userEvent.click(moreMenu[0]);
+    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const editOption = document.getElementsByClassName("rename-menu-item");
+
+    expect(deleteOption).toHaveLength(0);
+    expect(editOption).toHaveLength(1);
+  });
+  it("should not display more option if the user doesn't have edit and delete permissions", () => {
+    jest
+      .spyOn(selectors, "getGroupPermissions")
+      .mockImplementation(() =>
+        mockGroupPermissions([
+          PERMISSION_TYPE.DELETE_USERGROUPS,
+          PERMISSION_TYPE.MANAGE_USERGROUPS,
+        ]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const moreMenu = queryAllByTestId("t--page-header-actions");
+    expect(moreMenu).toHaveLength(0);
+  });
+  it("should not make title editable when user don't have edit permission", () => {
+    jest
+      .spyOn(selectors, "getGroupPermissions")
+      .mockImplementation(() =>
+        mockGroupPermissions([PERMISSION_TYPE.MANAGE_USERGROUPS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const editIcon = queryAllByTestId("t--action-name-edit-icon");
+    expect(editIcon).toHaveLength(0);
+    const editableTitle = queryAllByTestId("t--editable-title");
+    expect(editableTitle).toHaveLength(0);
+  });
+  it("should show error message on save when there is no edit permission", async () => {
+    jest
+      .spyOn(selectors, "getGroupPermissions")
+      .mockImplementation(() =>
+        mockGroupPermissions([PERMISSION_TYPE.MANAGE_USERGROUPS]),
+      );
+    const { queryAllByTestId } = renderComponent();
+    const tabs = screen.getAllByRole("tab");
+    tabs[1].click();
+    const activeGroups = queryAllByTestId("t--active-group-row");
+    await userEvent.click(activeGroups[0]);
+    expect(activeGroups[0]).toHaveClass("removed");
+    let saveButton;
+    waitFor(async () => {
+      saveButton = document.getElementsByClassName(
+        "t--admin-settings-save-button",
+      );
+      expect(saveButton).toHaveLength(1);
+      await userEvent.click(saveButton[0]);
+      const errorMessage = await document.getElementsByClassName("cs-text");
+      expect(errorMessage).toHaveLength(1);
+      expect(errorMessage[0]).toHaveTextContent(
+        "You do not have permissions to edit this group",
+      );
+    });
   });
 });

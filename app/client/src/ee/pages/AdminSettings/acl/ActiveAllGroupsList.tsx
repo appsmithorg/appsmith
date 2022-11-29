@@ -86,6 +86,10 @@ const EachGroup = styled.div`
       display: none;
     }
   }
+
+  &[aria-disabled="true"] {
+    pointer-events: none;
+  }
 `;
 
 const EmptyActiveGroups = styled.div`
@@ -109,6 +113,14 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
     searchValue = "",
   } = props;
 
+  const handleOnAddRoles = (group: any) => {
+    onAddGroup?.(group);
+  };
+
+  const handleOnRemoveRoles = (group: any) => {
+    onRemoveGroup?.(group);
+  };
+
   return (
     <ContentWrapper>
       <ActiveGroups data-testid="t--active-groups">
@@ -131,9 +143,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                 className={removedGroup ? "removed" : ""}
                 data-testid="t--active-group-row"
                 key={`group-${group.id}`}
-                onClick={() => {
-                  onRemoveGroup(group);
-                }}
+                onClick={() => handleOnRemoveRoles(group)}
               >
                 <Icon fillColor={Colors.ERROR_600} name="minus" />
                 <TooltipComponent
@@ -174,9 +184,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
                 className={addedGroup ? "added" : ""}
                 data-testid="t--all-group-row"
                 key={`group-${group.id}`}
-                onClick={() => {
-                  onAddGroup?.(group);
-                }}
+                onClick={() => handleOnAddRoles(group)}
               >
                 <Icon fillColor={Colors.GREEN} name="plus" />
                 <TooltipComponent

@@ -10,6 +10,8 @@ import {
   TabComponent,
   Table,
   TabProp,
+  Toaster,
+  Variant,
 } from "design-system";
 import styled from "styled-components";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -41,7 +43,7 @@ import {
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   addUsersInGroup,
   removeUsersFromGroup,
@@ -50,6 +52,11 @@ import {
 } from "@appsmith/actions/aclActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getFilteredData } from "./utils/getFilteredData";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import { getGroupPermissions } from "@appsmith/selectors/aclSelectors";
 
 const ListUsers = styled.div`
   margin-top: 4px;
@@ -145,6 +152,29 @@ export function GroupAddEdit(props: GroupEditProps) {
   const dispatch = useDispatch();
   const params = useParams() as any;
 
+  // TODO: Get it from redux selector once the API is fixed and mock this for tests.
+  const userPermissions = useSelector(getGroupPermissions);
+
+  const canAddUsersToGroup = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.ADD_USERS_TO_USERGROUPS,
+  );
+
+  const canManageGroup = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.MANAGE_USERGROUPS,
+  );
+
+  const canDeleteGroup = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.DELETE_USERGROUPS,
+  );
+
+  const canRemoveUserFromGroup = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.REMOVE_USERS_FROM_USERGROUPS,
+  );
+
   useEffect(() => {
     const saving = removedActiveGroups.length > 0 || addedAllGroups.length > 0;
     dispatch({
@@ -220,6 +250,14 @@ export function GroupAddEdit(props: GroupEditProps) {
   };
 
   const onSaveChanges = () => {
+    if (!canManageGroup) {
+      Toaster.show({
+        text: "You do not have permissions to edit this group",
+        variant: Variant.danger,
+      });
+      onClearChanges();
+      return;
+    }
     dispatch(
       updateRolesInGroup(
         { id: selected.id, name: selected.name },
@@ -287,7 +325,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         );
       },
     },
-    {
+    canRemoveUserFromGroup && {
       Header: "",
       accessor: "actions",
       Cell: function ActionsCell(props: any) {
@@ -352,7 +390,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         );
       },
     },
-  ];
+  ].filter(Boolean);
 
   const tabs: TabProp[] = [
     {
@@ -370,6 +408,7 @@ export function GroupAddEdit(props: GroupEditProps) {
               </NoUsersText>
               <StyledButton
                 data-testid="t--add-users-button"
+                disabled={!canAddUsersToGroup}
                 height="36"
                 onClick={onButtonClick}
                 tag="button"
@@ -400,20 +439,20 @@ export function GroupAddEdit(props: GroupEditProps) {
   ];
 
   const menuItems: MenuItemProps[] = [
-    {
+    canManageGroup && {
       className: "rename-menu-item",
       icon: "edit-underline",
       text: createMessage(ACL_RENAME),
       label: "rename",
     },
-    {
+    canDeleteGroup && {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
       text: createMessage(ACL_DELETE),
       label: "delete",
     },
-  ];
+  ].filter(Boolean);
 
   return isLoading ? (
     <LoaderContainer>
@@ -424,8 +463,9 @@ export function GroupAddEdit(props: GroupEditProps) {
       <BackButton />
       <PageHeader
         buttonText={createMessage(ADD_USERS)}
+        disableButton={!canAddUsersToGroup}
         isEditingTitle={isNew}
-        isTitleEditable
+        isTitleEditable={canManageGroup}
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}
         onSearch={onSearch}

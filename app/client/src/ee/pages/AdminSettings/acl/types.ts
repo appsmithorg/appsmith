@@ -38,6 +38,7 @@ export type RoleTreeProps = {
   updateTabCount?: (val: number) => void;
   currentTabName: string;
   roleId: string;
+  userPermissions: string[];
 };
 
 export type ActiveAllGroupsProps = {
@@ -85,6 +86,7 @@ export type ListingProps = {
   keyAccessor: string;
   isLoading: boolean;
   emptyState?: JSX.Element;
+  listingType: string;
 };
 
 export type PageHeaderProps = {
@@ -98,6 +100,7 @@ export type PageHeaderProps = {
   isEditingTitle?: boolean;
   onEditTitle?: (name: string) => void;
   searchValue: string;
+  disableButton?: boolean;
 };
 
 export type GroupsForUser = {
@@ -133,3 +136,9 @@ export type UpdateRoleData = {
   name: string;
   permissions: number[];
 };
+
+export enum ListingType {
+  ROLES = "permissionGroups",
+  GROUPS = "userGroups",
+  USERS = "users",
+}

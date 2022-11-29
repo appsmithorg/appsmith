@@ -7,6 +7,13 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "HR_Appsmith",
     autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
   },
   {
     id: "2",
@@ -14,6 +21,13 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "devops_design",
     autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
   },
   {
     id: "3",
@@ -21,6 +35,12 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "devops_eng_nov",
     autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
   },
   {
     id: "4",
@@ -28,6 +48,13 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "marketing_nov",
     autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
   },
   {
     id: "5",
@@ -35,6 +62,13 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "Administrator",
     autoCreated: true,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
   },
   {
     id: "6",
@@ -42,5 +76,6 @@ export const rolesTableData: RoleProps[] = [
     // isDeleting: false,
     name: "App Viewer",
     autoCreated: true,
+    userPermissions: [],
   },
 ];

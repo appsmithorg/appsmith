@@ -1,5 +1,16 @@
 export * from "ce/utils/adminSettingsHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { User } from "constants/userConstants";
+import {
+  ADMIN_SETTINGS_CATEGORY_ACL_PATH,
+  ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+} from "constants/routes";
+import {
+  PERMISSION_TYPE,
+  LOGIC_FILTER,
+  isPermitted,
+} from "@appsmith/utils/permissionHelpers";
 const {
   disableLoginForm,
   enableGithubOAuth,
@@ -41,3 +52,32 @@ export const saveAllowed = (settings: any) => {
     return connectedMethods.length >= 2;
   }
 };
+
+/* get default admin settings path */
+export const getDefaultAdminSettingsPath = ({
+  isSuperUser,
+  tenantPermissions = [],
+}: Record<string, any>): string => {
+  const redirectToAuditLogs = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.READ_AUDIT_LOGS,
+  );
+  const redirectToGroups = isPermitted(
+    tenantPermissions,
+    [
+      PERMISSION_TYPE.TENANT_READ_PERMISSION_GROUPS,
+      PERMISSION_TYPE.TENANT_READ_USER_GROUPS,
+    ],
+    LOGIC_FILTER.OR,
+  );
+  if (isSuperUser) {
+    return ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH;
+  } else if (redirectToAuditLogs && !redirectToGroups) {
+    return ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH;
+  } else {
+    return ADMIN_SETTINGS_CATEGORY_ACL_PATH;
+  }
+};
+
+export const showAdminSettings = (user?: User): boolean =>
+  (user && true) || false;

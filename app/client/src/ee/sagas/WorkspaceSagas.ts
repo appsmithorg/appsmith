@@ -12,8 +12,39 @@ import {
   uploadWorkspaceLogoSaga,
   deleteWorkspaceLogoSaga,
 } from "ce/sagas/WorkspaceSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { all, takeLatest } from "redux-saga/effects";
+import WorkspaceApi from "@appsmith/api/WorkspaceApi";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import { ApiResponse } from "api/ApiResponses";
+import { all, call, put, takeLatest } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
+
+export function* fetchInviteGroupsSuggestionsSaga() {
+  try {
+    const response: ApiResponse = yield call(
+      WorkspaceApi.fetchGroupSuggestions,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_GROUP_SUGGESTIONS_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_GROUP_SUGGESTIONS_ERROR,
+    });
+  }
+}
 
 export default function* workspaceSagas() {
   yield all([
@@ -34,5 +65,9 @@ export default function* workspaceSagas() {
     takeLatest(ReduxActionTypes.DELETE_WORKSPACE_INIT, deleteWorkspaceSaga),
     takeLatest(ReduxActionTypes.UPLOAD_WORKSPACE_LOGO, uploadWorkspaceLogoSaga),
     takeLatest(ReduxActionTypes.REMOVE_WORKSPACE_LOGO, deleteWorkspaceLogoSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
+      fetchInviteGroupsSuggestionsSaga,
+    ),
   ]);
 }

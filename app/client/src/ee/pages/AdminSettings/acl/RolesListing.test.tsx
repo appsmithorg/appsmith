@@ -164,4 +164,29 @@ describe("<RoleListing />", () => {
       `/settings/roles/${rolesTableData[0].id}`,
     );
   });
+  it("should display only the options which the user is permitted to", async () => {
+    const { queryAllByTestId, queryByText } = renderComponent();
+    const role = queryByText(rolesTableData[2].name);
+    expect(role).toBeInTheDocument();
+    const moreMenu = queryAllByTestId("actions-cell-menu-icon");
+    expect(moreMenu).toHaveLength(5);
+    await userEvent.click(moreMenu[2]);
+    const deleteOption = document.getElementsByClassName("delete-menu-item");
+    const editOption = document.getElementsByClassName("edit-menu-item");
+
+    expect(deleteOption).toHaveLength(0);
+    expect(editOption).toHaveLength(1);
+  });
+  it("should not display more option if the user doesn't have edit and delete permissions", () => {
+    const { queryAllByTestId, queryByText } = renderComponent();
+    const role = queryByText(rolesTableData[5].name);
+    expect(role).toBeInTheDocument();
+    const moreMenu = queryAllByTestId("actions-cell-menu-icon");
+    expect(moreMenu).toHaveLength(5);
+  });
+  it("should disable 'Add role' CTA if the tenat level manage roles permission is absent", () => {
+    renderComponent();
+    const button = screen.getAllByTestId("t--acl-page-header-input");
+    expect(button[0]).toHaveAttribute("disabled");
+  });
 });

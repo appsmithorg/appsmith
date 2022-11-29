@@ -15,15 +15,21 @@ import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
 import { Spinner } from "@blueprintjs/core";
 import { RoleEditProps } from "./types";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { useDispatch } from "react-redux";
 import { updateRoleName } from "@appsmith/actions/aclActions";
+import { useDispatch, useSelector } from "react-redux";
+import { getRolePermissions } from "@appsmith/selectors/aclSelectors";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
 
 export function EachTab(
   key: string,
   searchValue: string,
-  value: any,
+  tabs: any,
   roleId: string,
+  userPermissions: string[],
 ) {
   const [tabCount, setTabCount] = useState<number>(0);
 
@@ -42,8 +48,9 @@ export function EachTab(
         currentTabName={key}
         roleId={roleId}
         searchValue={searchValue}
-        tabData={value}
+        tabData={tabs}
         updateTabCount={(n) => setTabCount(n)}
+        userPermissions={userPermissions}
       />
     ),
   };
@@ -56,6 +63,18 @@ export function RoleAddEdit(props: RoleEditProps) {
   const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams() as any;
+
+  const userPermissions = useSelector(getRolePermissions);
+
+  const canManageRole = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+  );
+
+  const canDeleteRole = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.DELETE_PERMISSIONGROUPS,
+  );
 
   useEffect(() => {
     dispatch({
@@ -88,24 +107,30 @@ export function RoleAddEdit(props: RoleEditProps) {
   };
 
   const menuItems: MenuItemProps[] = [
-    {
+    canManageRole && {
       className: "rename-menu-item",
       icon: "edit-underline",
       text: createMessage(ACL_RENAME),
       label: "rename",
     },
-    {
+    canDeleteRole && {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
       text: createMessage(ACL_DELETE),
       label: "delete",
     },
-  ];
+  ].filter(Boolean);
 
   const tabs: TabProp[] = selected?.tabs
     ? Object.entries(selected?.tabs).map(([key, value]) =>
-        EachTab(key, searchValue, value, selected.id),
+        EachTab(
+          key,
+          searchValue,
+          value,
+          selected.id,
+          selected.userPermissions ?? [],
+        ),
       )
     : [];
 
@@ -121,7 +146,7 @@ export function RoleAddEdit(props: RoleEditProps) {
       <BackButton />
       <PageHeader
         isEditingTitle={isNew}
-        isTitleEditable
+        isTitleEditable={canManageRole}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}

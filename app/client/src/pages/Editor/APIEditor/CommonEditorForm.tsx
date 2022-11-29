@@ -64,7 +64,12 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
+import {
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
+import { executeCommandAction } from "actions/apiPaneActions";
 import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
 
@@ -433,6 +438,13 @@ function ImportedKeyValue(props: { datas: any }) {
 const BoundaryContainer = styled.div`
   border: 1px solid transparent;
   border-right: none;
+
+  /*.t--apiFormHttpMethod > div {
+    background: var(--appsmith-color-black-900);
+    .appsmith-select__single-value {
+      color: white;
+    }
+  }*/
 `;
 
 function renderImportedDatasButton(
@@ -573,6 +585,15 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
+  const isChangePermitted = hasManageActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
 
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, pluginId ?? ""),
@@ -607,12 +628,14 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
-              <ActionNameEditor page="API_PANE" />
+              <ActionNameEditor disabled={!isChangePermitted} page="API_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreActionsMenu
                 className="t--more-action-menu"
                 id={currentActionConfig ? currentActionConfig.id : ""}
+                isChangePermitted={isChangePermitted}
+                isDeletePermitted={isDeletePermitted}
                 name={currentActionConfig ? currentActionConfig.name : ""}
                 pageId={pageId}
               />
@@ -623,6 +646,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               />
               <Button
                 className="t--apiFormRunBtn"
+                disabled={!isExecutePermitted}
                 isLoading={isRunning}
                 onClick={() => {
                   onRunClick();
@@ -640,6 +664,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             >
               <RequestDropdownField
                 className={`t--apiFormHttpMethod ${replayHighlightClass}`}
+                disabled={!isChangePermitted}
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"110px"}
@@ -764,6 +789,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </TabbedViewContainer>
             <ApiResponseView
               apiName={actionName}
+              disabled={!isExecutePermitted}
               onRunClick={onRunClick}
               responseDataTypes={responseDataTypes}
               responseDisplayFormat={responseDisplayFormat}

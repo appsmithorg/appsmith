@@ -32,6 +32,7 @@ type EditableTextProps = {
   errorTooltipClass?: string;
   maxLength?: number;
   underline?: boolean;
+  disabled?: boolean;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -103,6 +104,7 @@ export function EditableText(props: EditableTextProps) {
     beforeUnmount,
     className,
     defaultValue,
+    disabled,
     editInteractionKind,
     errorTooltipClass,
     forceDefault,
@@ -114,6 +116,7 @@ export function EditableText(props: EditableTextProps) {
     onBlur,
     onTextChanged,
     placeholder,
+    underline,
     updating,
     valueTransform,
   } = props;
@@ -182,6 +185,13 @@ export function EditableText(props: EditableTextProps) {
 
   const errorMessage = isInvalid && isInvalid(value);
   const error = errorMessage ? errorMessage : undefined;
+  const showEditIcon = !(
+    disabled ||
+    minimal ||
+    hideEditIcon ||
+    updating ||
+    isEditing
+  );
   return (
     <EditableTextWrapper
       isEditing={isEditing}
@@ -201,11 +211,11 @@ export function EditableText(props: EditableTextProps) {
         <TextContainer
           isValid={!error}
           minimal={!!minimal}
-          underline={props.underline}
+          underline={underline}
         >
           <BlueprintEditableText
             className={className}
-            disabled={!isEditing}
+            disabled={disabled || !isEditing}
             isEditing={isEditing}
             maxLength={maxLength}
             onCancel={onBlur}
@@ -215,7 +225,7 @@ export function EditableText(props: EditableTextProps) {
             selectAllOnFocus
             value={value}
           />
-          {!minimal && !hideEditIcon && !updating && !isEditing && (
+          {showEditIcon && (
             <Icon
               className="t--action-name-edit-icon"
               fillColor="#939090"

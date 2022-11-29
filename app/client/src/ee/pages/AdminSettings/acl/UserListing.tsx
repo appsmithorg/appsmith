@@ -43,7 +43,8 @@ import {
   getRolesForInvite,
   getSelectedUser,
 } from "@appsmith/selectors/aclSelectors";
-import { BaseAclProps, UserProps } from "./types";
+import { BaseAclProps, ListingType, UserProps } from "./types";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -115,6 +116,10 @@ export function UserListing() {
   const [showModal, setShowModal] = useState(false);
 
   const selectedUserId = params?.selected;
+
+  const user = useSelector(getCurrentUser);
+
+  const canInviteUser = user?.isSuperUser;
 
   useEffect(() => {
     if (searchValue) {
@@ -433,6 +438,7 @@ export function UserListing() {
           <PageHeader
             buttonText="Add Users"
             data-testid="acl-user-listing-pageheader"
+            disableButton={!canInviteUser}
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
@@ -453,6 +459,7 @@ export function UserListing() {
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
+            listingType={ListingType.USERS}
           />
           <FormDialogComponent
             Form={WorkspaceInviteUsersForm}

@@ -12,7 +12,9 @@ import {
   initialAuditLogsFilterState,
 } from "@appsmith/reducers/auditLogsReducer";
 import { StyledAuditLogsRightPaneContainer as Container } from "./styled-components/container";
-import { getCurrentUser } from "selectors/usersSelectors";
+/*import {
+  getCurrentUser
+} from "selectors/usersSelectors";*/
 import ErrorPage from "pages/common/ErrorPage";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { urlToSearchFilters } from "./utils/urlToSearchFilters";
@@ -21,6 +23,9 @@ import {
   toEvent,
   toUserEmail,
 } from "@appsmith/pages/AuditLogs/utils/toDropdownOption";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { isPermitted } from "@appsmith/utils/permissionHelpers";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 export default function AuditLogsFeatureContainer() {
   const dispatch = useDispatch();
@@ -65,8 +70,13 @@ export default function AuditLogsFeatureContainer() {
     };
   }, []);
 
-  const user = useSelector(getCurrentUser);
-  if (!user?.isSuperUser) {
+  /* const user = useSelector(getCurrentUser); */
+  const tenantPermissions = useSelector(getTenantPermissions);
+  const readAuditLogs = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.READ_AUDIT_LOGS,
+  );
+  if (/*!user?.isSuperUser && */ !readAuditLogs) {
     return <ErrorPage code={ERROR_CODES.REQUEST_NOT_AUTHORISED} />;
   }
 

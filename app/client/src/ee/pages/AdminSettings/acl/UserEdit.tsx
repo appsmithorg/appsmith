@@ -441,32 +441,32 @@ export function UserEdit(props: UserEditProps) {
             variant={SearchVariant.BACKGROUND}
             width={"376px"}
           />
-          <Menu
-            canEscapeKeyClose
-            canOutsideClickClose
-            className="t--menu-actions-icon"
-            isOpen={showOptions}
-            menuItemWrapperWidth={"auto"}
-            onClose={() => setShowOptions(false)}
-            onClosing={() => {
-              setShowConfirmationText(false);
-              setShowOptions(false);
-            }}
-            onOpening={() => setShowOptions(true)}
-            position={Position.BOTTOM_RIGHT}
-            target={
-              <Icon
-                className="actions-icon"
-                data-testid="actions-cell-menu-icon"
-                name="more-2-fill"
-                onClick={() => setShowOptions(!showOptions)}
-                size={IconSize.XXL}
-              />
-            }
-          >
-            <HelpPopoverStyle />
-            {menuItems &&
-              menuItems.map((menuItem) => (
+          {menuItems && menuItems.length > 0 && (
+            <Menu
+              canEscapeKeyClose
+              canOutsideClickClose
+              className="t--menu-actions-icon"
+              isOpen={showOptions}
+              menuItemWrapperWidth={"auto"}
+              onClose={() => setShowOptions(false)}
+              onClosing={() => {
+                setShowConfirmationText(false);
+                setShowOptions(false);
+              }}
+              onOpening={() => setShowOptions(true)}
+              position={Position.BOTTOM_RIGHT}
+              target={
+                <Icon
+                  className="actions-icon"
+                  data-testid="actions-cell-menu-icon"
+                  name="more-2-fill"
+                  onClick={() => setShowOptions(!showOptions)}
+                  size={IconSize.XXL}
+                />
+              }
+            >
+              <HelpPopoverStyle />
+              {menuItems.map((menuItem) => (
                 <MenuItem
                   className={menuItem.className}
                   icon={menuItem.icon}
@@ -480,7 +480,8 @@ export function UserEdit(props: UserEditProps) {
                   {...(showConfirmationText ? { type: "warning" } : {})}
                 />
               ))}
-          </Menu>
+            </Menu>
+          )}
         </Container>
       </Header>
       <TabsWrapper data-testid="t--user-edit-tabs-wrapper" isSaving={isSaving}>

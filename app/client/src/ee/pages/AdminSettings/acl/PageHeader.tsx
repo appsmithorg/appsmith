@@ -102,6 +102,7 @@ export function PageHeader(props: PageHeaderProps) {
   const pageTitle = getSettingLabel(details?.title || (selected ?? category));
   const {
     buttonText,
+    disableButton,
     isTitleEditable,
     onEditTitle,
     onSearch,
@@ -197,38 +198,39 @@ export function PageHeader(props: PageHeaderProps) {
         {buttonText && (
           <StyledButton
             data-testid={"t--acl-page-header-input"}
+            disabled={disableButton}
             height="36"
             onClick={props.onButtonClick}
             tag="button"
             text={buttonText}
           />
         )}
-        <Menu
-          canEscapeKeyClose
-          canOutsideClickClose
-          className="t--menu-actions-icon"
-          isOpen={showOptions}
-          menuItemWrapperWidth={"auto"}
-          onClose={() => setShowOptions(false)}
-          onClosing={() => {
-            setShowConfirmationText(false);
-            setShowOptions(false);
-          }}
-          onOpening={() => setShowOptions(true)}
-          position={Position.BOTTOM_RIGHT}
-          target={
-            <Icon
-              className="actions-icon"
-              data-testid="t--page-header-actions"
-              name="more-2-fill"
-              onClick={() => setShowOptions(!showOptions)}
-              size={IconSize.XXL}
-            />
-          }
-        >
-          <HelpPopoverStyle />
-          {pageMenuItems &&
-            pageMenuItems.map((menuItem) => (
+        {pageMenuItems && pageMenuItems.length > 0 && (
+          <Menu
+            canEscapeKeyClose
+            canOutsideClickClose
+            className="t--menu-actions-icon"
+            isOpen={showOptions}
+            menuItemWrapperWidth={"auto"}
+            onClose={() => setShowOptions(false)}
+            onClosing={() => {
+              setShowConfirmationText(false);
+              setShowOptions(false);
+            }}
+            onOpening={() => setShowOptions(true)}
+            position={Position.BOTTOM_RIGHT}
+            target={
+              <Icon
+                className="actions-icon"
+                data-testid="t--page-header-actions"
+                name="more-2-fill"
+                onClick={() => setShowOptions(!showOptions)}
+                size={IconSize.XXL}
+              />
+            }
+          >
+            <HelpPopoverStyle />
+            {pageMenuItems.map((menuItem) => (
               <MenuItem
                 className={menuItem.className}
                 icon={menuItem.icon}
@@ -246,7 +248,8 @@ export function PageHeader(props: PageHeaderProps) {
                   : {})}
               />
             ))}
-        </Menu>
+          </Menu>
+        )}
       </Container>
     </Container>
   );

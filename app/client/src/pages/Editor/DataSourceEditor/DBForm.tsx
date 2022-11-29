@@ -26,6 +26,7 @@ import {
 } from "./JSONtoForm";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -43,6 +44,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   datasource: Datasource;
   datasourceButtonConfiguration: string[] | undefined;
   hiddenHeader?: boolean;
+  canManageDatasource?: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -104,6 +106,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      canManageDatasource,
       datasource,
       datasourceButtonConfiguration,
       formData,
@@ -122,7 +125,10 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           <Header>
             <FormTitleContainer>
               <PluginImage alt="Datasource" src={this.props.pluginImage} />
-              <FormTitle focusOnMount={this.props.isNewDatasource} />
+              <FormTitle
+                disabled={!canManageDatasource}
+                focusOnMount={this.props.isNewDatasource}
+              />
             </FormTitleContainer>
             {viewMode && (
               <EditDatasourceButton
@@ -159,7 +165,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                   APPSMITH_IP_ADDRESSES,
                 )}  on your database instance to connect to it. `}</span>
                 <a onClick={this.openOmnibarReadMore}>
-                  {"Read more "}
+                  {"Learn more "}
                   <StyledOpenDocsIcon icon="document-open" />
                 </a>
               </CollapsibleHelp>
@@ -203,11 +209,18 @@ const mapStateToProps = (state: AppState, props: any) => {
     props?.formData?.pluginId,
   );
 
+  const datasourcePermissions = datasource.userPermissions || [];
+
+  const canManageDatasource = hasManageDatasourcePermission(
+    datasourcePermissions,
+  );
+
   return {
     messages: hintMessages,
     datasource,
     datasourceButtonConfiguration,
     isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
+    canManageDatasource: canManageDatasource,
   };
 };
 

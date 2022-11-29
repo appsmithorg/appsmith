@@ -31,7 +31,12 @@ import {
   getGroups,
   getSelectedGroup,
 } from "@appsmith/selectors/aclSelectors";
-import { GroupProps } from "./types";
+import { GroupProps, ListingType } from "./types";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "@appsmith/utils/permissionHelpers";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 const CellContainer = styled.div`
   display: flex;
@@ -57,6 +62,13 @@ export function GroupListing() {
   const [isNewGroup, setIsNewGroup] = useState(false);
 
   const selectedUserGroupId = params?.selected;
+
+  const tenantPermissions = useSelector(getTenantPermissions);
+
+  const canCreateGroup = isPermitted(
+    tenantPermissions,
+    PERMISSION_TYPE.CREATE_USERGROUPS,
+  );
 
   useEffect(() => {
     if (searchValue) {
@@ -105,7 +117,20 @@ export function GroupListing() {
   ];
 
   const listMenuItems: MenuItemProps[] = [
+    /*{
+      className: "clone-menu-item",
+      icon: "duplicate",
+      onSelect: (e: React.MouseEvent, id: string) => {
+        const selectedUserGroup = data.find((userGroup) => userGroup.id === id);
+        selectedUserGroup &&
+          onCloneHandler({
+            ...selectedUserGroup,
+          });
+      },
+      text: createMessage(CLONE_GROUP),
+    },*/
     {
+      label: "edit",
       className: "edit-menu-item",
       icon: "edit-underline",
       onSelect: (e: React.MouseEvent, key: string) => {
@@ -183,6 +208,7 @@ export function GroupListing() {
         <>
           <PageHeader
             buttonText={createMessage(ADD_GROUP)}
+            disableButton={!canCreateGroup}
             onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
@@ -202,6 +228,7 @@ export function GroupListing() {
             isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
+            listingType={ListingType.GROUPS}
           />
         </>
       )}

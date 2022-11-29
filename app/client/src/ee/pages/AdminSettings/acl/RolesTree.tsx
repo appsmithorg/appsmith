@@ -15,6 +15,8 @@ import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { getIconLocations } from "@appsmith/selectors/aclSelectors";
 import { updateRoleById } from "@appsmith/actions/aclActions";
+import { isPermitted } from "ce/utils/permissionHelpers";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 let dataToBeSent: any[] = [];
 
@@ -540,13 +542,18 @@ export const getIcon = (iconLocations: any[], pluginId: string) => {
 };
 
 export default function RolesTree(props: RoleTreeProps) {
-  const { roleId, searchValue = "", tabData } = props;
+  const { roleId, searchValue = "", tabData, userPermissions } = props;
   const [filteredData, setFilteredData] = useState([]);
   const dataFromProps = makeData([tabData?.data]) || [];
   const [data, setData] = useState(dataFromProps);
   const [isSaving, setIsSaving] = useState(false);
   const iconLocations = useSelector(getIconLocations);
   const dispatch = useDispatch();
+
+  const canEditRole = isPermitted(
+    userPermissions,
+    PERMISSION_TYPE.MANAGE_PERMISSIONGROUPS,
+  );
 
   useEffect(() => {
     dataToBeSent = [];
@@ -689,6 +696,8 @@ export default function RolesTree(props: RoleTreeProps) {
           >
             <Checkbox
               className="design-system-checkbox"
+              disabled={!canEditRole}
+              /* indeterminate={row.permissions[i] === 3 ? true : false} */
               isDefaultChecked={isChecked}
               onCheckChange={(value: boolean) =>
                 onChangeHandler(value, `${rowData.id}_${column}`)
