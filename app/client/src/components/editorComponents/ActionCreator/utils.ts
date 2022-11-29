@@ -87,7 +87,7 @@ export const textSetter = (
 export const textGetter = (value: string, argNum: number): string => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = getDynamicBindings(value).jsSnippets[0];
+  const requiredValue = stringToJS(value);
   return getTextArgumentAtPosition(
     requiredValue,
     argNum,

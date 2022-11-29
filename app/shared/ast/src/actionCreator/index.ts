@@ -35,7 +35,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
 
     simple(astWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments.length > 0) {
+            if (isCallExpressionNode(node) && node.arguments[argNum]) {
                 let argument = node.arguments[argNum];
                 switch (argument.type) {
                     case NodeTypes.ObjectExpression:
@@ -135,7 +135,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
 
     simple(currentValueAstWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments.length > 0) {
+            if (isCallExpressionNode(node) && node.arguments[argNum]) {
                 requiredNode.start = node.arguments[0].start;
                 requiredNode.end = node.arguments[0].start + changedValue.length;
                 node.arguments[argNum] = requiredNode;
@@ -167,11 +167,13 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
 
     simple(astWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments.length > 0) {
-                let argument = node.arguments[argNum];
-                switch (argument.type) {
-                    case NodeTypes.Literal:
-                        requiredArgument = argument.raw as string;
+            if (isCallExpressionNode(node) && node.arguments[argNum]) {
+                if (node.arguments[argNum]) {
+                    let argument = node.arguments[argNum];
+                    switch (argument.type) {
+                        case NodeTypes.Literal:
+                            requiredArgument = argument.raw as string;
+                    }
                 }
             }
         },
@@ -312,7 +314,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
 
     simple(astWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && node.arguments.length > 0) {
+            if (isCallExpressionNode(node) && node.arguments[argNum]) {
                 let argument = node.arguments[argNum];
                 if (argument) {
                     requiredArgument = `${generate(argument, {comments: true})}`;
@@ -400,7 +402,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
 
     simple(astWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && isCallExpressionNode(node.callee)) {
+            if (isCallExpressionNode(node) && isCallExpressionNode(node.callee) && node.arguments[argNum]) {
                 // add 1 to get the starting position of the next
                 // node to ending position of previous
                 const startPosition = node.callee.end + NEXT_POSITION;
