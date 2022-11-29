@@ -5,8 +5,8 @@ import {
   Button,
   Icon,
   Menu,
-  MenuItem as BMenuItem,
-  Classes as BClasses,
+  MenuItem as BlueprintMenuItem,
+  Classes as BlueprintClasses,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
@@ -44,7 +44,7 @@ const PopoverStyles = createGlobalStyle<{
   id: string;
   borderRadius: string;
 }>`
-  .menu-button-popover, .${BClasses.MINIMAL}.menu-button-popover.${
+  .menu-button-popover, .${BlueprintClasses.MINIMAL}.menu-button-popover.${
   Classes.POPOVER2
 } {
     background: none;
@@ -56,7 +56,7 @@ const PopoverStyles = createGlobalStyle<{
     overflow: hidden;
   }
 
-  .menu-button-popover .${BClasses.MENU_ITEM} {
+  .menu-button-popover .${BlueprintClasses.MENU_ITEM} {
     padding: 9px 12px;
     border-radius: 0;
   }
@@ -182,7 +182,7 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       : ""}
 `;
 
-const BaseMenuItem = styled(BMenuItem)<ThemeProp & BaseStyleProps>`
+const BaseMenuItem = styled(BlueprintMenuItem)<ThemeProp & BaseStyleProps>`
   font-family: var(--wds-font-family);
 
   ${({ backgroundColor, theme }) =>
@@ -234,7 +234,7 @@ const StyledMenu = styled(Menu)<{
   min-width: 0px;
   overflow: hidden;
 
-  ${BClasses.MENU_ITEM}:hover {
+  ${BlueprintClasses.MENU_ITEM}:hover {
     background-color: ${({ backgroundColor }) => lightenColor(backgroundColor)};
   }
 `;
