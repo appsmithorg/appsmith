@@ -11,7 +11,7 @@ import {
   getIsRestartFailed,
   getRestartingState,
 } from "selectors/settingsSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import {
   createMessage,
