@@ -107,7 +107,7 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { Channel } from "redux-saga";
+import { channel, Channel } from "redux-saga";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
