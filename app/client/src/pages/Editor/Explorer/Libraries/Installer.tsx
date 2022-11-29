@@ -39,13 +39,13 @@ import recommendedLibraries, {
   TRecommendedLibrary,
 } from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import { AppState } from "ce/reducers";
-import { TJSLibrary } from "utils/DynamicBindingUtils";
 import {
   clearInstalls,
   installLibraryInit,
   toggleInstaller,
 } from "actions/JSLibraryActions";
 import classNames from "classnames";
+import { TJSLibrary } from "workers/common/JSLibrary";
 
 const Wrapper = styled.div<{ left: number }>`
   display: flex;

@@ -25,9 +25,9 @@ import {
   toggleInstaller,
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
-import { TJSLibrary } from "utils/DynamicBindingUtils";
 import EntityAddButton from "../Entity/AddButton";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { TJSLibrary } from "workers/common/JSLibrary";
 
 const Library = styled.li`
   list-style: none;
