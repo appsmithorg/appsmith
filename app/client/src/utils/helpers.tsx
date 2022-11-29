@@ -31,7 +31,6 @@ import {
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
-import { libraryReservedNames } from "workers/common/JSLibrary";
 
 export const snapToGrid = (
   columnWidth: number,
