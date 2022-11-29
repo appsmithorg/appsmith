@@ -1,7 +1,6 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/videoWidgetDsl.json");
-const buttondsl = require("../../../../../fixtures/buttondsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Video Widget Functionality", function() {
