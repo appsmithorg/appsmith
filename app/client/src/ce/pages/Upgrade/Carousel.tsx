@@ -9,7 +9,7 @@ const CarouselContainer = styled.div`
   gap: 64px;
   justify-content: center;
   align-items: center;
-  padding: 16px;
+  padding: 16px 52px;
 
   & .carousel-triggers {
     display: flex;
@@ -21,7 +21,7 @@ const CarouselContainer = styled.div`
 
     & .carousel-trigger {
       padding: 16px;
-      width: 384px;
+      width: 100%;
       height: 56px;
       cursor: pointer;
 
@@ -71,7 +71,6 @@ const CarouselContainer = styled.div`
 
   & .carousel-targets {
     width: 680px;
-    height: 472px;
     display: flex;
     justify-content: center;
     align-items: center;
