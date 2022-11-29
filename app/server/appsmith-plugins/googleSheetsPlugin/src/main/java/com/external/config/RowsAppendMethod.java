@@ -68,6 +68,9 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
         JsonNode bodyNode;
         try {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
+        } catch (IllegalArgumentException e) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    "Row Object cannot be empty");
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
@@ -237,10 +240,16 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
 
     private RowObject getRowObjectFromBody(JsonNode body) {
 
-        if (body.isArray() || body.isEmpty()) {
+        if (body.isArray()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                     "Expected a row object.");
         }
+
+        if (body.isEmpty()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    "Row Object cannot be empty");
+        }
+
         return new RowObject(this.objectMapper.convertValue(body, TypeFactory
                 .defaultInstance()
                 .constructMapType(LinkedHashMap.class, String.class, String.class)));

@@ -64,6 +64,9 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
         JsonNode bodyNode;
         try {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
+        } catch (IllegalArgumentException e) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    "Row Array Object cannot be empty");
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
@@ -249,10 +252,16 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
 
     private List<RowObject> getRowObjectListFromBody(JsonNode body) {
 
-        if (!body.isArray() || body.isEmpty()) {
+        if (!body.isArray()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                     "Expected an array of row objects");
         }
+
+        if (body.isEmpty()) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    "Row Array Object cannot be empty");
+        }
+
         return StreamSupport
                 .stream(body.spliterator(), false)
                 .map(rowJson -> new RowObject(
