@@ -23,6 +23,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1024,8 +1025,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(actionCollectionService::save)
                 .collectList();
 
+        Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono = applicationMono
+                .map(application -> {
+                    application.setPublishedCustomJSLibs(application.getUnpublishedCustomJSLibs());
+                    return application.getPublishedCustomJSLibs();
+                });
+
         return publishApplicationAndPages
-                .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono, publishThemeMono))
+                .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono,
+                        publishThemeMono, publishedJSLibDTOsMono))
                 .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
     }
 
