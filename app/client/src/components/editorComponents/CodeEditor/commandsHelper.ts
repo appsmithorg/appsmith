@@ -3,7 +3,7 @@ import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig"
 import {
   AutocompleteDataType,
   CommandsCompletion,
-} from "utils/autocomplete/TernServer";
+} from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
