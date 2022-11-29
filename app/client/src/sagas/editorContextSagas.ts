@@ -21,9 +21,7 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
  * This method appends the PageId along with the focusable propertyPath
  * @param action
  */
-function* generateKeyAndSetFocusableEditor(
-  action: ReduxAction<CodeEditorFocusState>,
-) {
+function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
   const { cursorPosition, key } = action.payload;
 
   const entityInfo = identifyEntityFromPath(
@@ -77,9 +75,6 @@ export default function* editorContextSagas() {
       ReduxActionTypes.SET_SELECTED_PROPERTY_TAB_INDEX,
       setSelectedPropertyTabIndexSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_LAST_FOCUS,
-      generateKeyAndSetFocusableEditor,
-    ),
+    takeLatest(ReduxActionTypes.SET_EDITOR_FIELD_FOCUS, setEditorFieldFocus),
   ]);
 }
