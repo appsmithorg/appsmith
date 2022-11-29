@@ -24,12 +24,7 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE {
     }
 
     @Override
-    public AclPermission getApplicationEditPermission() {
-        return AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-    }
-
-    @Override
-    public AclPermission getDatasourceEditPermission() {
+    public AclPermission getDatasourceCreatePermission() {
         return AclPermission.WORKSPACE_MANAGE_DATASOURCES;
     }
 }
