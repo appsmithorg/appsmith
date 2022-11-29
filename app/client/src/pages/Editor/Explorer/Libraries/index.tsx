@@ -113,6 +113,7 @@ const Library = styled.li`
       flex-grow: 1;
       border: 1px solid #b3b3b3;
       font-size: 12px;
+      font-family: monospace;
       background: white;
       display: flex;
       height: 26px;
