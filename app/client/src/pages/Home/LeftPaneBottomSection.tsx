@@ -23,7 +23,10 @@ import {
   getOnSelectAction,
 } from "../common/CustomizedDropdown/dropdownHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
+import {
+  getDefaultAdminSettingsPath,
+  showAdminSettings,
+} from "@appsmith/utils/adminSettingsHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 const Wrapper = styled.div`
@@ -61,18 +64,19 @@ function LeftPaneBottomSection() {
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
+
   return (
     <Wrapper>
-      {/* user?.isSuperUser && user?.isConfigurable && */ !isFetchingApplications && (
+      {showAdminSettings(user) && !isFetchingApplications && (
         <MenuItem
           className="admin-settings-menu-option"
           icon="setting"
           onSelect={() => {
             getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: getDefaultAdminSettingsPath(
-                user?.isSuperUser,
+              path: getDefaultAdminSettingsPath({
+                isSuperUser: user?.isSuperUser,
                 tenantPermissions,
-              ),
+              }),
             });
           }}
           text={createMessage(ADMIN_SETTINGS)}
