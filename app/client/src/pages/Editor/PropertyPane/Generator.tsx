@@ -117,7 +117,6 @@ const generatePropertyControl = (
             key={config.id + props.id}
             {...(config as PropertyPaneControlConfig)}
             panel={props.panel}
-            panelPropertyPath={props.panelPropertyPath}
             theme={props.theme}
           />
         </Boxed>
