@@ -795,29 +795,3 @@ export const isATriggerPath = (
 ) => {
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };
-
-/**
- * Avoids mutating targetObject by creating new parent object of the property being set on targetObject.
- * @param targetObj
- * @param path
- * @param value
- */
-export const cleanSet = (
-  targetObj: Record<string, unknown>,
-  path: string,
-  value: unknown,
-): Record<string, unknown> => {
-  const paths = path.split(".");
-  const propertyName = paths.pop() as string;
-  const newParentObj = paths.length
-    ? Object.assign({}, get(targetObj, paths, {}))
-    : targetObj;
-  if (!propertyName) {
-    // @ts-expect-error: value is unknown
-    targetObj = value;
-    // @ts-expect-error: value is unknown
-    return value;
-  }
-  newParentObj[propertyName] = value;
-  return cleanSet(targetObj, paths.join("."), newParentObj);
-};

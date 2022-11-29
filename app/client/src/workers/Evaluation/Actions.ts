@@ -13,13 +13,9 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  isAction,
-  isAppsmithEntity,
-  isTrueObject,
-  cleanSet,
-} from "./evaluationUtils";
+import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { GlobalData } from "./evaluate";
+import { cleanSet } from "workers/common/cleanSet";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
