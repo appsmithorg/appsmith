@@ -240,6 +240,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     const response: ApiResponse = yield call(
       LibraryApi.getLibraries,
       applicationId,
+      mode,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) return;
