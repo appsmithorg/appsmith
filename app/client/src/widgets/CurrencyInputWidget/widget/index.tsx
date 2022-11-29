@@ -36,6 +36,7 @@ import {
   getLocaleThousandSeparator,
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultValueValidation(
   value: any,
@@ -254,6 +255,14 @@ class CurrencyInputWidget extends BaseInputWidget<
     return _.merge(super.getDefaultPropertiesMap(), {
       currencyCode: "defaultCurrencyCode",
     });
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   componentDidMount() {

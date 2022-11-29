@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import styled from "constants/DefaultTheme";
-import { useSelector } from "store";
 import {
   getConnectingErrorDocUrl,
   getGitConnectError,

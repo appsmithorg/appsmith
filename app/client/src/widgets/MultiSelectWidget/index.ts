@@ -37,6 +37,7 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 
