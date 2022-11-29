@@ -398,6 +398,29 @@ function* deselectModalWidgetSaga(
     yield put(selectMultipleWidgetsAction([]));
 }
 
+function* selectModalWidgetSaga(
+  action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
+) {
+  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+
+  const modal: FlattenedWidgetProps | undefined = Object.values(widgets).find(
+    (widget: FlattenedWidgetProps) =>
+      widget.widgetId === action.payload.widgetId &&
+      widget.type === "MODAL_WIDGET",
+  );
+
+  if (modal && !action.payload.isMultiSelect) {
+    yield put({
+      type: ReduxActionTypes.SHOW_MODAL,
+      payload: {
+        modalId: modal.widgetId,
+      },
+    });
+  }
+}
+
 /**
  * Checks if the given widgetId is part of the children recursively
  * @param widgetId
@@ -443,6 +466,11 @@ export function* widgetSelectionSagas() {
       ReduxActionTypes.SELECT_WIDGET_INIT,
       canPerformSelectionSaga,
       deselectNonSiblingsOfWidgetSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SELECT_WIDGET_INIT,
+      canPerformSelectionSaga,
+      selectModalWidgetSaga,
     ),
     takeLatest(
       ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
