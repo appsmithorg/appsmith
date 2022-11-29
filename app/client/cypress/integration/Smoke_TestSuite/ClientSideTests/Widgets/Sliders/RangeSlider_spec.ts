@@ -39,8 +39,6 @@ describe("Range Slider spec", () => {
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Min. Value", "0");
-
-    // agHelper.VerifyEvaluatedValue("0");
   });
 
   it("2. Validates Max. Value", () => {
@@ -59,8 +57,6 @@ describe("Range Slider spec", () => {
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Max. Value", "100");
-
-    // agHelper.VerifyEvaluatedValue("100");
   });
 
   it("3. Validates Step Size", () => {
@@ -79,8 +75,6 @@ describe("Range Slider spec", () => {
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Step Size", "1");
-
-    // agHelper.VerifyEvaluatedValue("1");
   });
 
   it("4. Validates Min Range", () => {
@@ -101,15 +95,13 @@ describe("Range Slider spec", () => {
     agHelper.VerifyEvaluatedErrorMessage("This value must be less than 100");
 
     propPane.UpdatePropertyFieldValue("Min. Range", "10");
-
-    // agHelper.VerifyEvaluatedValue("10");
   });
 
   it("5. Validates Default Start Value", () => {
     propPane.UpdatePropertyFieldValue("Default Start Value", "-100");
 
     agHelper.VerifyEvaluatedErrorMessage(
-      "This value must be greater than min value",
+      "This value must be greater than or equal to the min value",
     );
 
     propPane.UpdatePropertyFieldValue("Default Start Value", "110");
@@ -123,8 +115,6 @@ describe("Range Slider spec", () => {
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Default Start Value", "10");
-
-    // agHelper.VerifyEvaluatedValue("10");
   });
 
   it("6. Validates Default End Value", () => {
@@ -137,7 +127,7 @@ describe("Range Slider spec", () => {
     propPane.UpdatePropertyFieldValue("Default End Value", "110");
 
     agHelper.VerifyEvaluatedErrorMessage(
-      "This value must be less than max value",
+      "This value must be less than or equal to the max value",
     );
 
     propPane.UpdatePropertyFieldValue("Default End Value", "asd");
@@ -145,8 +135,6 @@ describe("Range Slider spec", () => {
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
     propPane.UpdatePropertyFieldValue("Default End Value", "100");
-
-    // agHelper.VerifyEvaluatedValue("100");
   });
 
   it("7. Change Step Size and check if binding value changes", () => {
