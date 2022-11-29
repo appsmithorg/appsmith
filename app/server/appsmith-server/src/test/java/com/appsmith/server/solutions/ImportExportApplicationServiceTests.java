@@ -8,7 +8,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -61,7 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import org.assertj.core.api.AbstractBigDecimalAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -1473,7 +1471,7 @@ public class ImportExportApplicationServiceTests {
         // Now add a page and export the same import it to the app
         // Check if the policies and visibility flag are not reset
 
-        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, AclPermission.READ_WORKSPACES);
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
 
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
