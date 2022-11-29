@@ -402,6 +402,7 @@ export const GET_GEO_LOCATION = () => `Get Geolocation`;
 export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
 export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
 export const POST_MESSAGE = () => `Post message`;
+export const ADD_MESSAGE_HANDLER = () => `Add message handler`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>

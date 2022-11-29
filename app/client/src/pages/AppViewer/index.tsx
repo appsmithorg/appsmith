@@ -29,7 +29,6 @@ import webfontloader from "webfontloader";
 import { getSearchQuery } from "utils/helpers";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
-import BrandingBadge from "./BrandingBadge";
 import {
   BatchPropertyUpdatePayload,
   batchUpdateWidgetProperty,
@@ -43,7 +42,6 @@ import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
-import { getAppsmithConfigs } from "@appsmith/configs";
 
 import {
   checkContainersForAutoHeightAction,
@@ -65,12 +63,16 @@ const AppViewerBody = styled.section<{
 
 const AppViewerBodyContainer = styled.div<{
   width?: string;
-  backgroundColor: string;
+  backgroundColor?: string;
 }>`
   flex: 1;
   overflow: auto;
   margin: 0 auto;
-  background: ${({ backgroundColor }) => backgroundColor};
+  ${({ backgroundColor }) =>
+    backgroundColor &&
+    `
+    background: ${backgroundColor};
+  `}
 `;
 
 export type AppViewerProps = RouteComponentProps<BuilderRouteParams>;
@@ -94,7 +96,6 @@ function AppViewer(props: Props) {
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
-  const { hideWatermark } = getAppsmithConfigs();
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -261,9 +262,7 @@ function AppViewer(props: Props) {
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}
         />
-        <AppViewerBodyContainer
-          backgroundColor={selectedTheme.properties.colors.backgroundColor}
-        >
+        <AppViewerBodyContainer>
           <AppViewerBody
             className={CANVAS_SELECTOR}
             hasPages={pages.length > 1}
@@ -272,20 +271,9 @@ function AppViewer(props: Props) {
           >
             {isInitialized && registered && <AppViewerPageContainer />}
           </AppViewerBody>
-          {!hideWatermark && (
-            <a
-              className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
-              href="https://appsmith.com"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <BrandingBadge />
-            </a>
-          )}
         </AppViewerBodyContainer>
       </EditorContext.Provider>
     </ThemeProvider>
   );
 }
-
 export default withRouter(Sentry.withProfiler(AppViewer));

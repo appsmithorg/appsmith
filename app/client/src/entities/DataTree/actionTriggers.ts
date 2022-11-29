@@ -21,6 +21,7 @@ export enum ActionTriggerType {
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
   POST_MESSAGE = "POST_MESSAGE",
+  ADD_MESSAGE_HANDLER = "ADD_MESSAGE_HANDLER",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
@@ -43,6 +44,7 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
   [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
   [ActionTriggerType.POST_MESSAGE]: "postWindowMessage",
+  [ActionTriggerType.ADD_MESSAGE_HANDLER]: "addMessageHandler",
 };
 
 export type RunPluginActionDescription = {
@@ -193,6 +195,14 @@ export type PostMessageDescription = {
   };
 };
 
+// https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+export type AddMessageHandlerDescription = {
+  type: ActionTriggerType.ADD_MESSAGE_HANDLER;
+  payload: {
+    callback: string;
+  };
+};
+
 export type ActionDescription =
   | RunPluginActionDescription
   | ClearPluginActionDescription
@@ -212,4 +222,5 @@ export type ActionDescription =
   | WatchCurrentLocationDescription
   | StopWatchingCurrentLocationDescription
   | ConfirmationModal
-  | PostMessageDescription;
+  | PostMessageDescription
+  | AddMessageHandlerDescription;

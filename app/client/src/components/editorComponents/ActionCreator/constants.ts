@@ -12,6 +12,7 @@ export const APPSMITH_GLOBAL_FUNCTIONS = {
   setInterval: "setInterval",
   clearInterval: "clearInterval",
   postMessage: "postWindowMessage",
+  addMessageHandler: "addMessageHandler",
 };
 
 export const APPSMITH_NAMESPACED_FUNCTIONS = {

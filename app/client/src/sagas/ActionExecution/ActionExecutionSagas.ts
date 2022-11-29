@@ -53,6 +53,7 @@ import {
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { postMessageSaga } from "./PostMessageSaga";
+import { addMessageHandlerSaga } from "./AddMessageHandlerSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -154,6 +155,14 @@ export function* executeActionTriggers(
       break;
     case ActionTriggerType.POST_MESSAGE:
       yield call(postMessageSaga, trigger.payload, triggerMeta);
+      break;
+    case ActionTriggerType.ADD_MESSAGE_HANDLER:
+      yield call(
+        addMessageHandlerSaga,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
       break;
     default:
       log.error("Trigger type unknown", trigger);

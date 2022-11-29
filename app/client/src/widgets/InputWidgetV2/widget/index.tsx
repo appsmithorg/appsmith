@@ -85,6 +85,7 @@ export function defaultValueValidation(
     case "TEXT":
     case "PASSWORD":
     case "EMAIL":
+    case "COLOR":
       parsed = value;
       if (!_.isString(parsed)) {
         try {
@@ -202,6 +203,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                 {
                   label: "Email",
                   value: "EMAIL",
+                },
+                {
+                  label: "Color",
+                  value: "COLOR",
                 },
               ],
               isBindProperty: false,

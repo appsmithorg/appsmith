@@ -164,7 +164,7 @@ init_replica_set() {
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
   fi
 
-  if [[ $isUriLocal -gt 0 ]]; then
+  if [[ $isUriLocal -eq 0 ]]; then
     # Check mongodb cloud Replica Set
     echo "Checking Replica Set of external MongoDB"
 
