@@ -4,7 +4,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 describe("Dynamic Height Width validation", function () {
     it("Validate change with auto height width for widgets", function () {
         const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
         cy.addDsl(dsl);
         cy.wait(3000); //for dsl to settle
         cy.openPropertyPane("containerwidget");
@@ -24,10 +23,10 @@ describe("Dynamic Height Width validation", function () {
                         cy.get(".t--widget-containerwidget")
                             .invoke("css", "height")
                             .then((oheight) => {
-                                expect(oheight).to.not.equal(height);
+                                expect(oheight).to.equal(height);
+                                expect(oheight).to.not.equal(newheight);
                             })
                     });
             });
-        cy.wait(5000);
     });
 });
