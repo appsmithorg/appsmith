@@ -126,7 +126,7 @@
     "react-scripts": "^5.0.1",
     "react-select": "^3.0.8",
     "react-spring": "^9.4.0",
-    "react-syntax-highlighter": "^15.4.4",
+    "react-syntax-highlighter": "^15.5.0",
     "react-table": "^7.0.0",
     "react-tabs": "^3.0.0",
     "react-timer-hook": "^3.0.4",
