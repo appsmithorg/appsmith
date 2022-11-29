@@ -33,7 +33,7 @@ export function makeTernDefs(obj: any) {
   const defs: Record<string, unknown> = {};
   const cachedDefs: any = [];
   const visitedReferences: any = [];
-  const MAX_ITERATIONS = 10000;
+  const MAX_ITERATIONS = 5000;
   let iteration_count = 1;
   const baseObjPrototype = Object.getPrototypeOf({});
 

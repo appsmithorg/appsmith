@@ -157,6 +157,29 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   }
 `;
 
+const StatusIconWrapper = styled.div<{ addHoverState: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: initial;
+  ${(props) =>
+    props.addHoverState
+      ? `
+    &:hover {
+      cursor: pointer;
+      background: ${Colors.SHARK2} !important;
+      svg {
+        path {
+          fill: ${Colors.WHITE} !important;
+        }
+      }
+    }
+  `
+      : ""}
+`;
+
 function StatusIcon(props: {
   status: InstallState;
   isInstalled?: boolean;
@@ -167,19 +190,32 @@ function StatusIcon(props: {
     action,
   ]);
   if (status === InstallState.Success || isInstalled)
-    return <SaveSuccessIcon color={Colors.GREEN} size={18} />;
+    return (
+      <StatusIconWrapper addHoverState={false}>
+        <SaveSuccessIcon color={Colors.GREEN} size={18} />
+      </StatusIconWrapper>
+    );
   if (status === InstallState.Failed)
     return (
-      <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
+      <StatusIconWrapper addHoverState={false}>
+        <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
+      </StatusIconWrapper>
     );
-  if (status === InstallState.Queued) return <Spinner />;
+  if (status === InstallState.Queued)
+    return (
+      <StatusIconWrapper addHoverState={false}>
+        <Spinner />
+      </StatusIconWrapper>
+    );
   return (
-    <Icon
-      fillColor={Colors.GRAY}
-      name="download"
-      size={IconSize.XL}
-      {...actionProps}
-    />
+    <StatusIconWrapper addHoverState>
+      <Icon
+        fillColor={Colors.GRAY}
+        name="download"
+        size={IconSize.XL}
+        {...actionProps}
+      />
+    </StatusIconWrapper>
   );
 }
 
@@ -444,12 +480,14 @@ function LibraryCard({
           <Text type={TextType.P0} weight="500">
             {lib.name}
           </Text>
-          <Icon
-            fillColor={Colors.GRAY}
-            name="share-2"
-            onClick={() => openDocs(lib.docsURL)}
-            size={IconSize.SMALL}
-          />
+          <StatusIconWrapper addHoverState>
+            <Icon
+              fillColor={Colors.GRAY}
+              name="share-2"
+              onClick={() => openDocs(lib.docsURL)}
+              size={IconSize.SMALL}
+            />
+          </StatusIconWrapper>
         </div>
         <div className="mr-2">
           <StatusIcon

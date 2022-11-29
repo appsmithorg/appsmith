@@ -29,9 +29,18 @@ export function installLibrary(request: EvalWorkerRequest) {
       libraryReservedNames.add(acc);
     }
     defs["!name"] = `LIB/${name}`;
-    for (const key of accessor) {
-      //@ts-expect-error no types
-      defs[key] = makeTernDefs(self[key]);
+    try {
+      for (const key of accessor) {
+        //@ts-expect-error no types
+        defs[key] = makeTernDefs(self[key]);
+      }
+    } catch (e) {
+      for (const acc of accessor) {
+        libraryReservedNames.delete(acc);
+        //@ts-expect-error no types
+        self[acc] = undefined;
+      }
+      return { success: false, defs, message: (e as Error).message };
     }
     return { success: true, defs, accessor };
   } catch (e) {
@@ -59,17 +68,19 @@ export function loadLibraries(request: EvalWorkerRequest) {
   const { requestData } = request;
   const urls = requestData.map((lib: any) => lib.url);
   const keysBefore = Object.keys(self);
+  let message = "";
+
   try {
     //@ts-expect-error no types found
     self.importScripts(...urls);
-    const keysAfter = Object.keys(self);
-    const newKeys = difference(keysAfter, keysBefore);
-    for (const key of newKeys) {
-      libraryReservedNames.add(key);
-    }
-    JSLibraries.push(...requestData);
-    return { success: true };
   } catch (e) {
-    return { success: false, message: (e as Error).message };
+    message = (e as Error).message;
   }
+  const keysAfter = Object.keys(self);
+  const newKeys = difference(keysAfter, keysBefore);
+  for (const key of newKeys) {
+    libraryReservedNames.add(key);
+  }
+  JSLibraries.push(...requestData);
+  return { success: !message, message };
 }
