@@ -277,10 +277,7 @@ export default function evaluateSync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    for (const entity in GLOBAL_DATA) {
-      // @ts-expect-error: Types are not available
-      self[entity] = GLOBAL_DATA[entity];
-    }
+    Object.assign(self, GLOBAL_DATA);
 
     try {
       result = eval(script);
@@ -339,10 +336,7 @@ export async function evaluateAsync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    Object.keys(GLOBAL_DATA).forEach((key) => {
-      // @ts-expect-error: Types are not available
-      self[key] = GLOBAL_DATA[key];
-    });
+    Object.assign(self, GLOBAL_DATA);
 
     try {
       result = await eval(script);
@@ -399,6 +393,12 @@ export function isFunctionAsync(
       ALLOW_ASYNC: false,
       IS_ASYNC: false,
     };
+
+    addDataTreeToContext({
+      EVAL_CONTEXT: GLOBAL_DATA,
+      dataTree,
+      isTriggerBased: true,
+    });
 
     assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);
     // Set it to self so that the eval function can have access to it
