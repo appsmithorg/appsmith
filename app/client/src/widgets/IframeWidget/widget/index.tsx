@@ -4,158 +4,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
 
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "source",
-            helpText: "The URL of the page to embed",
-            label: "URL",
-            controlType: "INPUT_TEXT",
-            placeholderText: "https://docs.appsmith.com",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.SAFE_URL,
-              params: {
-                default: "https://www.example.com",
-              },
-            },
-          },
-          {
-            propertyName: "srcDoc",
-            helpText: "Inline HTML to embed, overriding the src attribute",
-            label: "srcDoc",
-            controlType: "INPUT_TEXT",
-            placeholderText: "<p>Inline HTML</p>",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-            },
-          },
-          {
-            propertyName: "title",
-            helpText: "Label the content of the page to embed",
-            label: "Title",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Documentation",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate Loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "Triggers an action when the source URL is changed",
-            propertyName: "onURLChanged",
-            label: "onURLChanged",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Triggers an action when the srcDoc is changed",
-            propertyName: "onSrcDocChanged",
-            label: "onSrcDocChanged",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Triggers an action when a message event is received",
-            propertyName: "onMessageReceived",
-            label: "onMessageReceived",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            propertyName: "borderColor",
-            label: "Border Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "borderOpacity",
-            label: "Border Opacity (%)",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            inputType: "NUMBER",
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: { min: 0, max: 100, default: 100 },
-            },
-          },
-          {
-            propertyName: "borderWidth",
-            label: "Border Width (px)",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            inputType: "NUMBER",
-            validation: {
-              type: ValidationTypes.NUMBER,
-              params: { min: 0, default: 1 },
-            },
-          },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
-  }
-
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -259,6 +110,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           {
             propertyName: "borderColor",
             label: "Border Color",
+            helpText: "Controls the color of the border",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -273,6 +125,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           {
             propertyName: "borderWidth",
             label: "Border Width (px)",
+            helpText: "Controls the size of the border in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -285,6 +138,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           {
             propertyName: "borderOpacity",
             label: "Border Opacity (%)",
+            helpText: "Controls the opacity of the border in percentage",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -325,6 +179,13 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     return {
       message: undefined,
       messageMetadata: undefined,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
   }
 
@@ -382,6 +243,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       srcDoc,
       title,
       widgetId,
+      widgetName,
     } = this.props;
 
     return (
@@ -399,6 +261,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         srcDoc={srcDoc}
         title={title}
         widgetId={widgetId}
+        widgetName={widgetName}
       />
     );
   }

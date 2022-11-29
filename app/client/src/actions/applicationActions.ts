@@ -138,10 +138,17 @@ export const setWorkspaceIdForImport = (workspaceId?: string) => ({
   payload: workspaceId,
 });
 
+export const setPageIdForImport = (pageId?: string) => ({
+  type: ReduxActionTypes.SET_PAGE_ID_FOR_IMPORT,
+  payload: pageId,
+});
+
+// pageId can be used to navigate to a particular page instead of the default one
 export const showReconnectDatasourceModal = (payload: {
   application: ApplicationResponsePayload;
   unConfiguredDatasourceList: Datasource[];
   workspaceId: string;
+  pageId?: string;
 }) => ({
   type: ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
   payload,

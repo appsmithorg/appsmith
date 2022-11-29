@@ -21,8 +21,8 @@ import {
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
-import { LabelWithTooltip } from "design-system";
 import { labelMargin } from "../../WidgetUtils";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
@@ -48,8 +48,16 @@ class SelectComponent extends React.Component<
   };
 
   componentDidMount = () => {
+    const newState: SelectComponentState = {
+      activeItemIndex: this.props.selectedIndex,
+    };
+
+    if (this.props.isOpen) {
+      newState.isOpen = this.props.isOpen;
+    }
+
     // set default selectedIndex as focused index
-    this.setState({ activeItemIndex: this.props.selectedIndex });
+    this.setState(newState);
   };
 
   componentDidUpdate = (prevProps: SelectComponentProps) => {
@@ -86,7 +94,10 @@ class SelectComponent extends React.Component<
 
     const filter = items.filter(
       (item) =>
-        item.label?.toLowerCase().includes(query.toLowerCase()) ||
+        item.label
+          ?.toString()
+          .toLowerCase()
+          .includes(query.toLowerCase()) ||
         String(item.value)
           .toLowerCase()
           .includes(query.toLowerCase()),
@@ -158,8 +169,12 @@ class SelectComponent extends React.Component<
        * Clear the search input on closing the widget
        * and when serverSideFiltering is off
        */
-      if (!this.props.serverSideFiltering) {
+      if (this.props.resetFilterTextOnClose && this.props.filterText?.length) {
         this.onQueryChange("");
+      }
+
+      if (this.props.onClose) {
+        this.props.onClose();
       }
     }
   };
@@ -244,6 +259,7 @@ class SelectComponent extends React.Component<
       boxShadow,
       compactMode,
       disabled,
+      isDynamicHeightEnabled,
       isLoading,
       labelAlignment,
       labelPosition,
@@ -284,7 +300,7 @@ class SelectComponent extends React.Component<
         this.spanRef.current.parentElement.scrollHeight ||
         this.spanRef.current.parentElement.offsetWidth <
           this.spanRef.current.parentElement.scrollWidth)
-        ? value
+        ? value.toString()
         : "";
 
     return (
@@ -309,6 +325,7 @@ class SelectComponent extends React.Component<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
             ref={this.labelRef}
@@ -317,10 +334,10 @@ class SelectComponent extends React.Component<
           />
         )}
         <StyledControlGroup
-          compactMode={compactMode}
+          $compactMode={compactMode}
+          $isDisabled={disabled}
+          $labelPosition={labelPosition}
           fill
-          isDisabled={disabled}
-          labelPosition={labelPosition}
         >
           <StyledSingleDropDown
             accentColor={accentColor}
@@ -369,18 +386,19 @@ class SelectComponent extends React.Component<
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
             query={this.props.filterText}
-            resetOnClose={!this.props.serverSideFiltering}
+            resetOnClose={this.props.resetFilterTextOnClose}
             scrollToActiveItem
             value={this.props.value as string}
           >
             <SelectButton
               disabled={disabled}
-              displayText={value}
+              displayText={value.toString()}
               handleCancelClick={this.handleCancelClick}
+              hideCancelIcon={this.props.hideCancelIcon}
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
-              value={this.props.value}
+              value={this.props.value?.toString()}
             />
           </StyledSingleDropDown>
         </StyledControlGroup>
@@ -404,6 +422,7 @@ export interface SelectComponentProps extends ComponentProps {
   compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];
+  isDynamicHeightEnabled?: boolean;
   isLoading: boolean;
   isFilterable: boolean;
   isValid: boolean;
@@ -413,12 +432,16 @@ export interface SelectComponentProps extends ComponentProps {
   serverSideFiltering: boolean;
   hasError?: boolean;
   onFilterChange: (text: string) => void;
-  value?: string;
-  label?: string;
+  value?: string | number;
+  label?: string | number;
   filterText?: string;
   borderRadius: string;
   boxShadow?: string;
   accentColor?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+  hideCancelIcon?: boolean;
+  resetFilterTextOnClose?: boolean;
 }
 
 export default React.memo(SelectComponent);

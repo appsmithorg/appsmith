@@ -7,8 +7,7 @@ import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,9 +23,10 @@ import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_LIM
 import static com.appsmith.external.services.ce.FilterDataServiceCE.PAGINATE_OFFSET_KEY;
 import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_COLUMN_NAME_KEY;
 import static com.appsmith.external.services.ce.FilterDataServiceCE.SORT_BY_TYPE_KEY;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FilterDataServiceTest {
 
@@ -134,11 +134,11 @@ public class FilterDataServiceTest {
             List<Condition> conditions = (List<Condition>) condition.getValue();
 
             String expression = filterDataService.generateLogicalExpression(conditions, new ArrayList<>(), schema, operator);
-            assertThat(expression.equals("( \"i\" >= ? )  and (  ( \"d\" <= ? )  and (  ( \"a\" <= ? )  )  )  and (  ( \"u\" <= ? )  ) "));
+            assertThat(expression).isEqualTo(" ( \"i\" >= ? )  and (  ( \"d\" <= ? )  and (  ( \"a\" <= ? )  )  )  and (  ( \"u\" <= ? )  ) ");
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -198,7 +198,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -272,7 +272,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -338,7 +338,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -403,7 +403,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -533,12 +533,11 @@ public class FilterDataServiceTest {
                     .map(n -> fieldNamesIterator.next())
                     .collect(Collectors.toList());
 
-            assertThat(columnNames.containsAll(List.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus")));
-
+            assertThat(columnNames).containsExactlyInAnyOrder("id", "email id", "userName", "productName", "orderAmount", "orderStatus");
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -599,7 +598,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -663,7 +662,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -722,7 +721,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -778,7 +777,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -839,7 +838,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -899,7 +898,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -959,7 +958,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -1023,7 +1022,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedColumns, returnedColumns);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -1098,7 +1097,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedOrder, returnedOrder);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -1167,7 +1166,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedOrderAmountValues, returnedOrderAmountValues);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -1242,7 +1241,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedOrderAmount, returnedOrderAmount);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -1313,7 +1312,7 @@ public class FilterDataServiceTest {
             assertEquals(expectedOrder, returnedOrder);
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 
@@ -1382,7 +1381,7 @@ public class FilterDataServiceTest {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         }
     }
 }

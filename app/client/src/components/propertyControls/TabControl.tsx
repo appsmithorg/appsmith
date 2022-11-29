@@ -6,7 +6,7 @@ import {
   BaseItemProps,
   DroppableComponent,
   RenderComponentProps,
-} from "components/ads/DraggableListComponent";
+} from "./DraggableListComponent";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
@@ -16,7 +16,7 @@ import * as Sentry from "@sentry/react";
 import { Category, Size } from "design-system";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { DraggableListCard } from "components/ads/DraggableListCard";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -29,6 +29,10 @@ const TabsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+`;
+
+const NumberOfTabs = styled.div`
+  margin: 1% 0;
 `;
 
 type DroppableItem = BaseItemProps;
@@ -193,14 +197,18 @@ class TabControl extends BaseControl<ControlProps, State> {
     });
   };
   render() {
+    const tabs = this.getTabItems();
     return (
       <TabsWrapper>
+        <NumberOfTabs className="t--number-of-tabs">
+          {tabs.length} tabs
+        </NumberOfTabs>
         <DroppableComponent
           deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={this.getTabItems()}
+          items={tabs}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}

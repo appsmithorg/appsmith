@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection } from "entities/JSCollection";
 import { CreateJSCollectionRequest } from "api/JSActionAPI";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 export type FetchJSCollectionsPayload = {
   applicationId: string;
@@ -22,9 +23,10 @@ export const fetchJSCollections = ({
   };
 };
 
-export const createJSCollectionRequest = (
-  payload: CreateJSCollectionRequest,
-) => {
+export const createJSCollectionRequest = (payload: {
+  request: CreateJSCollectionRequest;
+  from: EventLocation;
+}) => {
   return {
     type: ReduxActionTypes.CREATE_JS_ACTION_INIT,
     payload,

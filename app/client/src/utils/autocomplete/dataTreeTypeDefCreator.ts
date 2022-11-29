@@ -9,8 +9,8 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "workers/evaluationUtils";
-import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
+} from "workers/Evaluation/evaluationUtils";
+import { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 
 export type ExtraDef = Record<string, Def | string>;
 

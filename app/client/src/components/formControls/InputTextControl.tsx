@@ -32,6 +32,7 @@ export function InputText(props: {
   encrypted?: boolean;
   disabled?: boolean;
   customStyles?: Record<string, any>;
+  validator?: (value: string) => { isValid: boolean; message: string };
 }) {
   const { dataType, disabled, name, placeholder } = props;
 
@@ -54,6 +55,7 @@ function renderComponent(
     placeholder: string;
     dataType?: InputType;
     disabled?: boolean;
+    validator?: (value: string) => { isValid: boolean; message: string };
   } & {
     meta: Partial<WrappedFieldMetaProps>;
     input: Partial<WrappedFieldInputProps>;
@@ -68,6 +70,7 @@ function renderComponent(
       placeholder={props.placeholder}
       value={props.input.value}
       {...props.input}
+      validator={props.validator}
       width="100%"
     />
   );
@@ -85,6 +88,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
       propertyValue,
       subtitle,
       validationMessage,
+      validator,
     } = this.props;
 
     return (
@@ -98,6 +102,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
         placeholder={placeholderText}
         subtitle={subtitle}
         validationMessage={validationMessage}
+        validator={validator}
         value={propertyValue}
       />
     );
@@ -139,6 +144,7 @@ export interface InputControlProps extends ControlProps {
   subtitle?: string;
   encrypted?: boolean;
   disabled?: boolean;
+  validator?: (value: string) => { isValid: boolean; message: string };
 }
 
 export default InputTextControl;

@@ -2,11 +2,16 @@ const dsl = require("../../../../../fixtures/Table/InlineEditingDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
+import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table widget inline editing functionality", () => {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
@@ -257,6 +262,9 @@ describe("Table widget inline editing functionality", () => {
       "contain.value",
       "Save / Discard",
     );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
+    );
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
 
@@ -267,6 +275,9 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
       "Save / Discard",
+    );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
     );
     cy.get(
       `.t--property-control-columns .t--uber-editable-checkbox input+span`,
@@ -281,6 +292,9 @@ describe("Table widget inline editing functionality", () => {
       "contain.value",
       "Save / Discard",
     );
+    cy.get("[data-colindex='4'][data-rowindex='0'] button").should(
+      "be.disabled",
+    );
     cy.editColumn("step");
     cy.get(".t--property-control-editable .bp3-switch span").click();
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
@@ -293,38 +307,26 @@ describe("Table widget inline editing functionality", () => {
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Custom")
-      .click();
+    cy.get(".t--button-tab-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("task");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Row level")
-      .click();
+    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Custom")
-      .click();
+    cy.get(".t--button-tab-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("step");
     cy.makeColumnEditable("task");
     cy.get(".t--property-control-updatemode .bp3-popover-target")
       .last()
       .click();
-    cy.get(".t--dropdown-option")
-      .children()
-      .contains("Row level")
-      .click();
+    cy.get(".t--button-tab-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
@@ -412,7 +414,7 @@ describe("Table widget inline editing functionality", () => {
     cy.saveTableCellValue(0, 0);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
-      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅",      "action": ""    }  }]`,
+      `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
     );
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
@@ -657,14 +659,9 @@ describe("Table widget inline editing functionality", () => {
         expect(text).to.equal("discarded!!");
       });
   });
-});
-
-describe("Table widget inline editing functionality with Text wrapping functionality", () => {
-  beforeEach(() => {
-    cy.addDsl(dsl);
-  });
 
   it("22. should check that inline editing works with text wrapping disabled", () => {
+    cy.addDsl(dsl);
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editTableCell(0, 0);
@@ -692,11 +689,11 @@ describe("Table widget inline editing functionality with Text wrapping functiona
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "40px");
+    ).should("have.css", "height", "32px");
     cy.enterTableCellValue(0, 0, "this is a very long cell value");
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "40px");
+    ).should("have.css", "height", "32px");
   });
 
   it("25. should check that grows taller when text wrapping is enabled", () => {
@@ -709,10 +706,110 @@ describe("Table widget inline editing functionality with Text wrapping functiona
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("have.css", "height", "42px");
+    ).should("have.css", "height", "34px");
     cy.enterTableCellValue(0, 0, "this is a very long cell value");
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
-    ).should("not.have.css", "height", "42px");
+    ).should("not.have.css", "height", "34px");
+  });
+
+  it("26. should check if updatedRowIndex is getting updated for single row update mode", () => {
+    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
+    cy.get(".t--widget-textwidget").should("exist");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{Table1.updatedRowIndex}}`,
+    );
+
+    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
+    cy.get(".t--widget-buttonwidget").should("exist");
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(".t--property-control-label", "Reset");
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.onClick,
+      `{{resetWidget("Table1",true)}}`,
+    );
+
+    // case 1: check if updatedRowIndex has -1 as the default value:
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
+
+    cy.openPropertyPane("tablewidgetv2");
+
+    cy.makeColumnEditable("step");
+    cy.wait(1000);
+
+    // case 2: check if updatedRowIndex is 0, when cell at row 0 is updated.
+    cy.editTableCell(0, 0);
+    cy.enterTableCellValue(0, 0, "#12").type("{enter}");
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", 0);
+
+    // case 3: check if updatedRowIndex is -1 when changes are discarded.
+    cy.discardTableRow(4, 0);
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
+
+    // case 4: check if the updateRowIndex is -1 when widget is reset
+    cy.editTableCell(0, 1);
+    cy.enterTableCellValue(0, 1, "#13").type("{enter}");
+    cy.contains("Reset").click({ force: true });
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
+
+    // case 5: check if the updatedRowIndex changes to -1 when the table data changes.
+    cy.wait(1000);
+    cy.editTableCell(0, 2);
+    cy.enterTableCellValue(0, 2, "#14").type("{enter}");
+    cy.openPropertyPane("tablewidgetv2");
+    cy.get(widgetsPage.tabedataField).type("{backspace}");
+    cy.wait(300);
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
+  });
+
+  it.only("27. should check if updatedRowIndex is getting updated for multi row update mode", () => {
+    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
+    cy.get(".t--widget-textwidget").should("exist");
+    cy.updateCodeInput(
+      ".t--property-control-text",
+      `{{Table1.updatedRowIndex}}`,
+    );
+
+    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
+    cy.get(".t--widget-buttonwidget").should("exist");
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(".t--property-control-label", "Reset");
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.onClick,
+      `{{resetWidget("Table1",true)}}`,
+    );
+
+    cy.openPropertyPane("tablewidgetv2");
+
+    cy.makeColumnEditable("step");
+    cy.get(".t--button-tab-CUSTOM").click({ force: true });
+    cy.wait(1000);
+
+    // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.
+    cy.editTableCell(0, 0);
+    cy.enterTableCellValue(0, 0, "#12").type("{enter}");
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", 0);
+
+    // case 2: check if the updateRowIndex is -1 when widget is reset
+    cy.editTableCell(0, 1);
+    cy.enterTableCellValue(0, 1, "#13").type("{enter}");
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", 1);
+    cy.contains("Reset").click({ force: true });
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
+
+    // case 3: check if the updatedRowIndex changes to -1 when the table data changes.
+    cy.wait(1000);
+    cy.editTableCell(0, 2);
+    cy.enterTableCellValue(0, 2, "#14").type("{enter}");
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", 2);
+    cy.openPropertyPane("tablewidgetv2");
+    cy.get(widgetsPage.tabedataField).type("{backspace}");
+    cy.wait(300);
+    cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
   });
 });

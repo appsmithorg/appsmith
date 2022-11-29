@@ -7,7 +7,6 @@ describe("JSON Form Widget Field Change", () => {
   before(() => {
     cy.addDsl(dslWithSchema);
   });
-
   it("modifies field type text to number", () => {
     cy.openPropertyPane("jsonformwidget");
 
@@ -135,10 +134,15 @@ describe("JSON Form Widget Field Change", () => {
 
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Array");
+    cy.wait(2000);
+    /*
     cy.get(`${fieldPrefix}-name`)
       .find(".t--jsonformfield-array-add-btn")
       .should("exist");
-
+    */
+    cy.get('button span:contains("Add New")')
+      .first()
+      .should("be.visible");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
     cy.closePropertyPane();
   });

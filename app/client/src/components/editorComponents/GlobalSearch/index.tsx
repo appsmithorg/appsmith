@@ -52,7 +52,7 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { getSelectedWidget } from "selectors/ui";
+import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
@@ -66,8 +66,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 import {
   useFilteredActions,
   useFilteredFileOperations,
@@ -274,7 +273,7 @@ function GlobalSearch() {
   );
 
   const resetSearchQuery = useSelector(searchQuerySelector);
-  const selectedWidgetId = useSelector(getSelectedWidget);
+  const lastSelectedWidgetId = useSelector(getLastSelectedWidget);
 
   // keeping query in component state until we can figure out fixed for the perf issues
   // this is used to update query from outside the component, for ex. using the help button within prop. pane
@@ -398,7 +397,7 @@ function GlobalSearch() {
       activeItem.widgetId,
       activeItem.type,
       activeItem.pageId,
-      selectedWidgetId === activeItem.widgetId,
+      lastSelectedWidgetId === activeItem.widgetId,
       activeItem.parentModalId,
     );
   };

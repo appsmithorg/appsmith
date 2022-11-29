@@ -14,6 +14,10 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import {
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -75,16 +79,11 @@ function DraggableComponent(props: DraggableComponentProps) {
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();
   const showTableFilterPane = useShowTableFilterPane();
-  const selectedWidgets = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
-  );
+
+  const isSelected = useSelector(isWidgetSelected(props.widgetId));
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
-  const focusedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
-  const isCurrentWidgetFocused = focusedWidget === props.widgetId;
-  const isCurrentWidgetSelected = selectedWidgets.includes(props.widgetId);
+  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
@@ -105,18 +104,18 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
-  const isCurrentWidgetDragging = isDragging && isCurrentWidgetSelected;
-  const isCurrentWidgetResizing = isResizing && isCurrentWidgetSelected;
+  const isCurrentWidgetDragging = isDragging && isSelected;
+  const isCurrentWidgetResizing = isResizing && isSelected;
   // When mouse is over this draggable
   const handleMouseOver = (e: any) => {
     focusWidget &&
       !isResizingOrDragging &&
-      !isCurrentWidgetFocused &&
+      !isFocused &&
       !props.resizeDisabled &&
       focusWidget(props.widgetId);
     e.stopPropagation();
   };
-  const shouldRenderComponent = !(isCurrentWidgetSelected && isDragging);
+  const shouldRenderComponent = !(isSelected && isDragging);
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
     display: isCurrentWidgetDragging ? "none" : "block",
@@ -154,9 +153,9 @@ function DraggableComponent(props: DraggableComponentProps) {
     // allowDrag check is added as react jest test simulation is not respecting default behaviour
     // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
     if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
-      if (!isCurrentWidgetFocused) return;
+      if (!isFocused) return;
 
-      if (!isCurrentWidgetSelected) {
+      if (!isSelected) {
         selectWidget(props.widgetId);
       }
       const widgetHeight = props.bottomRow - props.topRow;
@@ -187,7 +186,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   return (
     <DraggableWrapper
       className={className}
-      data-testid={isCurrentWidgetSelected ? "t--selected" : ""}
+      data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
       onMouseOver={handleMouseOver}

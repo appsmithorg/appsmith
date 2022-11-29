@@ -6,8 +6,9 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { AppTheme } from "entities/AppTheming";
+import { Stylesheet } from "entities/AppTheming";
 import { WidgetProps } from "widgets/BaseWidget";
+import { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
@@ -33,7 +34,7 @@ export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
   panelIdPropertyName: string;
-  children: PropertyPaneConfig[];
+  children?: PropertyPaneConfig[];
   contentChildren?: PropertyPaneConfig[];
   styleChildren?: PropertyPaneConfig[];
   updateHook: (
@@ -47,7 +48,10 @@ export type PropertyPaneControlConfig = {
   id?: string;
   label: string | ((props: WidgetProps, propertyPath: string) => string);
   propertyName: string;
+  // Serves in the tooltip
   helpText?: string;
+  //Dynamic text serves below the property pane inputs
+  helperText?: ((props: any) => string) | string;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;
@@ -81,11 +85,18 @@ export type PropertyPaneControlConfig = {
   getStylesheetValue?: (
     props: any,
     propertyPath: string,
-    stylesheet?: AppTheme["stylesheet"][string],
-  ) => AppTheme["stylesheet"][string][string];
+    stylesheet?: Stylesheet,
+  ) => Stylesheet[string];
   // TODO(abhinav): To fix this, rename the options property of the controls which use this
   // Alternatively, create a new structure
   options?: any;
+  // The following should ideally be used internally
+  postUpdateAction?: ReduxActionType;
+  onBlur?: () => void;
+  onFocus?: () => void;
+
+  // Numeric Input Control
+  min?: number;
 };
 
 type ValidationConfigParams = {
@@ -118,12 +129,14 @@ type ValidationConfigParams = {
   ignoreCase?: boolean; //to ignore the case of key
   type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
   params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
+  passThroughOnZero?: boolean; // Used for ValidationType.NUMBER to allow 0 to be passed through. Deafults value is true
   limitLineBreaks?: boolean; // Used for ValidationType.TEXT to limit line breaks in a large json object.
 };
 
 export type ValidationConfig = {
   type: ValidationTypes;
   params?: ValidationConfigParams;
+  dependentPaths?: string[];
 };
 
 export type PropertyPaneConfig =

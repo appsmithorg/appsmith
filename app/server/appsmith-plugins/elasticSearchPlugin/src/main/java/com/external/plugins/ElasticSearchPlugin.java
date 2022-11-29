@@ -13,6 +13,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.StatusLine;
@@ -31,16 +32,13 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +52,8 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 
 public class ElasticSearchPlugin extends BasePlugin {
 
+    private static final long ELASTIC_SEARCH_DEFAULT_PORT = 9200L;
+
     public ElasticSearchPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -64,17 +64,18 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
-        public static final String esDatasourceNotFoundMessage = "Either your host URL is invalid or the page you are trying to access does not exist";
+        private static final String NOT_FOUND_ERROR_MESSAGE = "Either your host URL is invalid or the page you are trying to access does not exist";
 
-        public static final String esDatasourceUnauthorizedMessage = "Your username or password is not correct";
+        private static final String UNAUTHORIZED_ERROR_MESSAGE = "Your username or password is not correct";
 
-        public static final String esDatasourceUnauthorizedPattern = ".*unauthorized.*";
+        private static final Pattern patternForUnauthorized = Pattern.compile(
+                ".*unauthorized.*",
+                Pattern.CASE_INSENSITIVE
+        );
 
-        public static final String esDatasourceNotFoundPattern = ".*(?:not.?found)|(?:refused)|(?:not.?known)|(?:timed?\\s?out).*";
-
-        private static final Set<String> DISALLOWED_HOSTS = Set.of(
-                "169.254.169.254",
-                "metadata.google.internal"
+        private static final Pattern patternForNotFound = Pattern.compile(
+                ".*not.?found|refused|not.?known|timed?\\s?out.*",
+                Pattern.CASE_INSENSITIVE
         );
 
         @Override
@@ -151,21 +152,29 @@ public class ElasticSearchPlugin extends BasePlugin {
                         result.setErrorInfo(error);
                         return Mono.just(result);
                     })
-                    // Now set the request in the result to be returned back to the server
+                    // Now set the request in the result to be returned to the server
                     .map(result -> {
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
                         request.setRequestParams(requestParams);
-                        ActionExecutionResult actionExecutionResult = result;
-                        actionExecutionResult.setRequest(request);
-                        return actionExecutionResult;
+                        result.setRequest(request);
+                        return result;
                     })
                     .subscribeOn(scheduler);
         }
 
         private static boolean isBulkQuery(String path) {
             return path.split("\\?", 1)[0].matches(".*\\b_bulk$");
+        }
+
+        public Long getPort(Endpoint endpoint) {
+
+            if (endpoint.getPort() == null) {
+                return ELASTIC_SEARCH_DEFAULT_PORT;
+            }
+
+            return endpoint.getPort();
         }
 
         @Override
@@ -177,23 +186,16 @@ public class ElasticSearchPlugin extends BasePlugin {
                 URL url;
                 try {
                     url = new URL(endpoint.getHost());
-                    if (DISALLOWED_HOSTS.contains(url.getHost())
-                            || DISALLOWED_HOSTS.contains(InetAddress.getByName(url.getHost()).getHostAddress())) {
-                        return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Invalid host provided."));
-                    }
                 } catch (MalformedURLException e) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
-                } catch (UnknownHostException e) {
-                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                            esDatasourceNotFoundMessage));
                 }
                 String scheme = "http";
                 if (url.getProtocol() != null) {
                     scheme = url.getProtocol();
                 }
 
-                hosts.add(new HttpHost(url.getHost(), endpoint.getPort().intValue(), scheme));
+                hosts.add(new HttpHost(url.getHost(), getPort(endpoint).intValue(), scheme));
             }
 
             final RestClientBuilder clientBuilder = RestClient.builder(hosts.toArray(new HttpHost[]{}));
@@ -224,8 +226,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                 );
             }
 
-            return Mono.fromCallable(() -> Mono.just(clientBuilder.build()))
-                    .flatMap(obj -> obj)
+            return Mono.fromCallable(clientBuilder::build)
                     .subscribeOn(scheduler);
         }
 
@@ -251,21 +252,12 @@ public class ElasticSearchPlugin extends BasePlugin {
                         invalids.add("Missing host for endpoint");
                     } else {
                         try {
-                            URL url = new URL(endpoint.getHost());
-                            if (DISALLOWED_HOSTS.contains(url.getHost())
-                                    || DISALLOWED_HOSTS.contains(InetAddress.getByName(url.getHost()).getHostAddress())) {
-                                invalids.add("Invalid host provided.");
-                            }
+                            new URL(endpoint.getHost());
                         } catch (MalformedURLException e) {
                             invalids.add("Invalid host provided. It should be of the form http(s)://your-es-url.com");
-                        } catch (UnknownHostException e) {
-                            invalids.add(esDatasourceNotFoundMessage);
                         }
                     }
 
-                    if (endpoint.getPort() == null) {
-                        invalids.add("Missing port for endpoint");
-                    }
                 }
 
             }
@@ -274,63 +266,52 @@ public class ElasticSearchPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            return datasourceCreate(datasourceConfiguration)
-                    .map(client -> {
-                        if (client == null) {
-                            return new DatasourceTestResult("Null client object to ElasticSearch.");
-                        }
-                        // This HEAD request is to check if the base of datasource exists. It responds with 200 if the index exists,
-                        // 404 if it doesn't. We just check for either of these two.
-                        // Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
-                        Request request = new Request("HEAD", "/");
+        public Mono<DatasourceTestResult> testDatasource(RestClient connection) {
+            return Mono.fromCallable(() -> {
+                if (connection == null) {
+                    return new DatasourceTestResult("Null client object to ElasticSearch.");
+                }
+                // This HEAD request is to check if the base of datasource exists. It responds with 200 if the index exists,
+                // 404 if it doesn't. We just check for either of these two.
+                // Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
+                Request request = new Request("HEAD", "/");
 
-                        final Response response;
-                        try {
-                            response = client.performRequest(request);
-                        } catch (IOException e) {
+                final Response response;
+                try {
+                    response = connection.performRequest(request);
+                } catch (IOException e) {
+                    final String message = e.getMessage();
 
-                            /* since the 401, and 403 are registered as IOException, but for the given connection it
-                             * in the current rest-client. We will figure out with matching patterns with regexes.
-                             */
+                    /* since the 401, and 403 are registered as IOException, but for the given connection it
+                     * in the current rest-client. We will figure out with matching patterns with regexes.
+                     */
 
-                            Pattern patternForUnauthorized = Pattern.compile(esDatasourceUnauthorizedPattern, Pattern.CASE_INSENSITIVE);
-                            Pattern patternForNotFound = Pattern.compile(esDatasourceNotFoundPattern, Pattern.CASE_INSENSITIVE);
+                    if (patternForUnauthorized.matcher(message).find()) {
+                        return new DatasourceTestResult(UNAUTHORIZED_ERROR_MESSAGE);
+                    }
 
-                            if (patternForUnauthorized.matcher(e.getMessage()).find()) {
-                                return new DatasourceTestResult(esDatasourceUnauthorizedMessage);
-                            }
+                    if (patternForNotFound.matcher(message).find()) {
+                        return new DatasourceTestResult(NOT_FOUND_ERROR_MESSAGE);
+                    }
 
-                            if (patternForNotFound.matcher(e.getMessage()).find()) {
-                                return new DatasourceTestResult(esDatasourceNotFoundMessage);
-                            }
+                    return new DatasourceTestResult("Error running HEAD request: " + message);
+                }
 
+                final StatusLine statusLine = response.getStatusLine();
 
-                            return new DatasourceTestResult("Error running HEAD request: " + e.getMessage());
-                        }
+                // earlier it was 404 and 200, now it has been changed to just expect 200 status code
+                // here it checks if it is anything else than 200, even 404 is not allowed!
+                if (statusLine.getStatusCode() == 404) {
+                    return new DatasourceTestResult(NOT_FOUND_ERROR_MESSAGE);
+                }
 
-                        final StatusLine statusLine = response.getStatusLine();
+                if (statusLine.getStatusCode() != 200) {
+                    return new DatasourceTestResult(
+                            "Unexpected response from ElasticSearch: " + statusLine);
+                }
 
-                        try {
-                            client.close();
-                        } catch (IOException e) {
-                            log.warn("Error closing ElasticSearch client that was made for testing.", e);
-                        }
-                        // earlier it was 404 and 200, now it has been changed to just expect 200 status code
-                        // here it checks if it is anything else than 200, even 404 is not allowed!
-                        if (statusLine.getStatusCode() == 404) {
-                            return new DatasourceTestResult(esDatasourceNotFoundMessage);
-                        }
-
-                        if (statusLine.getStatusCode() != 200) {
-                            return new DatasourceTestResult(
-                                    "Unexpected response from ElasticSearch: " + statusLine);
-                        }
-
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
-                    .subscribeOn(scheduler);
+                return new DatasourceTestResult();
+            });
         }
     }
 }

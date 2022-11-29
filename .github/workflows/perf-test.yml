@@ -9,8 +9,6 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
-  repository_dispatch:
-    types: [perf-test-command]
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -60,7 +58,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -170,6 +168,18 @@ jobs:
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
+      - name: Load docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p ~/git-server/keys
+          mkdir -p ~/git-server/repos
+          docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+            
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
@@ -195,12 +205,19 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      - name: Get the performance-infra branch/ref
+        id: perf_infra_ref
+        run: |
+          ref=${{ github.event.client_payload.slash_command.args.named.ref }}
+          if [[ -z "$ref" ]]; then ref="main"; fi
+          echo ::set-output name=ref::$ref
+
       - name: Checkout Performance Infra code
         uses: actions/checkout@v3
         with:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
-          ref: main
+          ref: ${{ steps.perf_infra_ref.outputs.ref }}
           path: app/client/perf
 
       - name: Installing performance tests dependencies
@@ -224,6 +241,10 @@ jobs:
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME9 }}
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD9 }}
           APPSMITH_PERFORMANCE_DB_CONFIG: ${{ secrets.APPSMITH_PERFORMANCE_DB_CONFIG }}
+          APPSMITH_PERFORMANCE_S3_KEY: ${{secrets.APPSMITH_PERFORMANCE_S3_KEY}}
+          APPSMITH_PERFORMANCE_S3_SECRET: ${{secrets.APPSMITH_PERFORMANCE_S3_SECRET}}
+          APPSMITH_PERFORMANCE_DB_PASSWORD: ${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}
+          APPSMITH_PERFORMANCE_DB_HOST: ${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}
           PERF_GITHUB_PAT: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           APPSMITH_DISABLE_TELEMETRY: true
           POSTGRES_PASSWORD: postgres
@@ -241,24 +262,10 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       - uses: actions/upload-artifact@v2
+        if: success() || failure()
         with:
           name: performance-summaries
           path: app/client/perf/traces
-
-      - name: Read summary file
-        id: read_summary
-        uses: andstor/file-reader-action@v1
-        with:
-          path: app/client/perf/traces/reports/summary.md
-
-      - name: Add a comment with the results on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v1
-        with:
-          issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body: |
-            UI Performance test run logs and artifacts: <https://github.com/appsmithorg/appsmith/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.sha }}`.
-            Results: ${{ steps.read_summary.outputs.contents }}
 
         # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result

@@ -34,7 +34,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
-import { areIntersecting } from "utils/WidgetPropsUtils";
+import { areIntersecting } from "utils/boxHelpers";
 import {
   GridProps,
   PrevReflowState,
@@ -52,7 +52,8 @@ import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "../workers/evaluationUtils";
+import { isWidget } from "workers/Evaluation/evaluationUtils";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1456,16 +1457,13 @@ export const getParentBottomRowAfterAddingWidget = (
 ) => {
   const parentRowSpace =
     newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const newBottomRow =
+    (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+    parentRowSpace;
   const updateBottomRow =
     stateParent.type === "CANVAS_WIDGET" &&
-    newWidget.bottomRow * parentRowSpace > stateParent.bottomRow;
-  return updateBottomRow
-    ? Math.max(
-        (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
-          parentRowSpace,
-        stateParent.bottomRow,
-      )
-    : stateParent.bottomRow;
+    newBottomRow > stateParent.bottomRow;
+  return updateBottomRow ? newBottomRow : stateParent.bottomRow;
 };
 
 /**
@@ -1668,4 +1666,83 @@ export function mergeDynamicPropertyPaths(
   b?: DynamicPath[],
 ) {
   return _.unionWith(a, b, (a, b) => a.key === b.key);
+}
+
+/**
+ * returns the BottomRow for CANVAS_WIDGET
+ * @param finalWidgets
+ * @param canvasWidgetId
+ */
+export function resizeCanvasToLowestWidget(
+  finalWidgets: CanvasWidgetsReduxState,
+  canvasWidgetId: string | undefined,
+  currentBottomRow: number,
+  mainCanvasMinHeight?: number, //defined only if canvasWidgetId is MAIN_CONTAINER_ID
+) {
+  if (!canvasWidgetId) return currentBottomRow;
+
+  if (
+    !finalWidgets[canvasWidgetId] ||
+    finalWidgets[canvasWidgetId].type !== "CANVAS_WIDGET"
+  ) {
+    return currentBottomRow;
+  }
+
+  const defaultLowestBottomRow =
+    mainCanvasMinHeight ||
+    finalWidgets[canvasWidgetId].minHeight ||
+    CANVAS_DEFAULT_MIN_HEIGHT_PX;
+
+  const childIds = finalWidgets[canvasWidgetId].children || [];
+
+  let lowestBottomRow = 0;
+  // find the lowest row
+  childIds.forEach((cId) => {
+    const child = finalWidgets[cId];
+
+    if (!child.detachFromLayout && child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+
+  const canvasOffset =
+    canvasWidgetId === MAIN_CONTAINER_WIDGET_ID
+      ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
+      : GridDefaults.CANVAS_EXTENSION_OFFSET;
+
+  return Math.max(
+    defaultLowestBottomRow,
+    (lowestBottomRow + canvasOffset) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+}
+
+/**
+ * Note: Mutates widgets[0].bottomRow for CANVAS_WIDGET
+ * @param widgets
+ * @param parentId
+ */
+export function resizePublishedMainCanvasToLowestWidget(
+  widgets: CanvasWidgetsReduxState,
+) {
+  if (!widgets[MAIN_CONTAINER_WIDGET_ID]) {
+    return;
+  }
+
+  const childIds = widgets[MAIN_CONTAINER_WIDGET_ID].children || [];
+
+  let lowestBottomRow = 0;
+  // find the lowest row
+  childIds.forEach((cId) => {
+    const child = widgets[cId];
+
+    if (!child.detachFromLayout && child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+
+  widgets[MAIN_CONTAINER_WIDGET_ID].bottomRow = Math.max(
+    CANVAS_DEFAULT_MIN_HEIGHT_PX,
+    (lowestBottomRow + GridDefaults.VIEW_MODE_MAIN_CANVAS_EXTENSION_OFFSET) *
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
 }

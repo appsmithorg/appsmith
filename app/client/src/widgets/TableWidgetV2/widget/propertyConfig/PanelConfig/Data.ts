@@ -13,7 +13,7 @@ import {
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {
@@ -22,6 +22,8 @@ export default {
     {
       propertyName: "columnType",
       label: "Column Type",
+      helpText:
+        "Type of column to be shown corresponding to the data of the column",
       controlType: "DROP_DOWN",
       options: [
         {
@@ -55,6 +57,14 @@ export default {
         {
           label: "Plain Text",
           value: ColumnTypes.TEXT,
+        },
+        {
+          label: "Select",
+          value: ColumnTypes.SELECT,
+        },
+        {
+          label: "Switch",
+          value: ColumnTypes.SWITCH,
         },
         {
           label: "URL",
@@ -121,6 +131,7 @@ export default {
     {
       propertyName: "displayText",
       label: "Display Text",
+      helpText: "The text to be displayed in the column",
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -146,6 +157,8 @@ export default {
           ColumnTypes.VIDEO,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
+          ColumnTypes.SELECT,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -155,6 +168,7 @@ export default {
     {
       propertyName: "inputFormat",
       label: "Original Date Format",
+      helpText: "Date format of incoming data to the column",
       controlType: "DROP_DOWN",
       options: [
         {
@@ -283,6 +297,7 @@ export default {
     {
       propertyName: "outputFormat",
       label: "Display Date Format",
+      helpText: "Date format to be shown to users",
       controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,

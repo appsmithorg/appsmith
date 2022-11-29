@@ -3,22 +3,22 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.UserService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebFluxTest(WorkspaceController.class)
 @Import(SecurityTestConfig.class)
 public class WorkspaceControllerTest {
@@ -49,14 +49,14 @@ public class WorkspaceControllerTest {
                 exchange().
                 expectStatus().isEqualTo(400).
                 expectBody().json("{\n" +
-                "    \"responseMeta\": {\n" +
-                "        \"status\": 400,\n" +
-                "        \"success\": false,\n" +
-                "        \"error\": {\n" +
-                "            \"code\": 4028,\n" +
-                "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n" +
-                "        }\n" +
-                "    }\n" +
-                "}");
+                        "    \"responseMeta\": {\n" +
+                        "        \"status\": 400,\n" +
+                        "        \"success\": false,\n" +
+                        "        \"error\": {\n" +
+                        "            \"code\": 4028,\n" +
+                        "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n" +
+                        "        }\n" +
+                        "    }\n" +
+                        "}");
     }
 }

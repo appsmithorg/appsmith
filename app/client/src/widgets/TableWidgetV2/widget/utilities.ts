@@ -16,7 +16,6 @@ import {
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
-import { AppTheme } from "entities/AppTheming";
 import { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -25,6 +24,9 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import { ButtonVariantTypes } from "components/constants";
+import { dateFormatOptions } from "widgets/constants";
+import moment from "moment";
+import { Stylesheet } from "entities/AppTheming";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -172,6 +174,7 @@ export function getDefaultColumnProperties(
   index: number,
   widgetName: string,
   isDerived?: boolean,
+  columnType?: string,
 ): ColumnProperties {
   const columnProps = {
     allowCellWrapping: false,
@@ -182,7 +185,7 @@ export function getDefaultColumnProperties(
     alias: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
-    columnType: ColumnTypes.TEXT,
+    columnType: columnType || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
@@ -417,6 +420,24 @@ export const getCellProperties = (
         columnProperties.isDiscardDisabled,
         rowIndex,
       ),
+      imageSize: getPropertyValue(columnProperties.imageSize, rowIndex, true),
+      isFilterable: getBooleanPropertyValue(
+        columnProperties.isFilterable,
+        rowIndex,
+      ),
+      serverSideFiltering: getBooleanPropertyValue(
+        columnProperties.serverSideFiltering,
+        rowIndex,
+      ),
+      placeholderText: getPropertyValue(
+        columnProperties.placeholderText,
+        rowIndex,
+        true,
+      ),
+      resetFilterTextOnClose: getBooleanPropertyValue(
+        columnProperties.resetFilterTextOnClose,
+        rowIndex,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -427,6 +448,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.NUMBER,
   ColumnTypes.SELECT,
   ColumnTypes.CHECKBOX,
+  ColumnTypes.SWITCH,
 ];
 
 export function isColumnTypeEditable(columnType: string) {
@@ -491,7 +513,7 @@ export const getSelectedRowBgColor = (accentColor: string) => {
 export const getStylesheetValue = (
   props: TableWidgetProps,
   propertyPath: string,
-  widgetStylesheet?: AppTheme["stylesheet"][string],
+  widgetStylesheet?: Stylesheet,
 ) => {
   const propertyName = propertyPath.split(".").slice(-1)[0];
   const columnName = propertyPath.split(".").slice(-2)[0];
@@ -598,7 +620,10 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
   return [
     {
       propertyPath: `primaryColumns.${column.id}`,
-      propertyValue: column,
+      propertyValue: {
+        ...column,
+        ...editActionDynamicProperties,
+      },
     },
     {
       propertyPath: `columnOrder`,
@@ -610,4 +635,47 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
       isDynamicPropertyPath: true,
     })),
   ];
+};
+
+export const getColumnType = (
+  tableData: Array<Record<string, unknown>>,
+  columnKey: string,
+): string => {
+  if (!_.isArray(tableData) || tableData.length === 0 || !columnKey) {
+    return ColumnTypes.TEXT;
+  }
+  let columnValue: unknown = null,
+    row = 0;
+  const maxRowsToCheck = 5;
+  /*
+    In below while loop we are trying to get a non-null value from
+    subsequent rows in case first few rows are null
+    Limited to checking upto maxRowsToCheck
+  */
+  while (_.isNil(columnValue) && row < maxRowsToCheck) {
+    if (!_.isNil(tableData?.[row]?.[columnKey])) {
+      columnValue = tableData[row][columnKey];
+      break;
+    }
+    row++;
+  }
+
+  if (_.isNil(columnValue)) {
+    return ColumnTypes.TEXT;
+  }
+
+  switch (typeof columnValue) {
+    case "number":
+      return ColumnTypes.NUMBER;
+    case "boolean":
+      return ColumnTypes.CHECKBOX;
+    case "string":
+      return dateFormatOptions.some(({ value: format }) =>
+        moment(columnValue as string, format, true).isValid(),
+      )
+        ? ColumnTypes.DATE
+        : ColumnTypes.TEXT;
+    default:
+      return ColumnTypes.TEXT;
+  }
 };

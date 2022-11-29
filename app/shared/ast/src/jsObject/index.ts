@@ -8,15 +8,20 @@ import {
   isVariableDeclarator,
   isObjectExpression,
   PropertyNode,
-  functionParams,
+  functionParam,
 } from "../index";
 
 type JsObjectProperty = {
   key: string;
   value: string;
   type: string;
-  arguments?: Array<functionParams>;
+  arguments?: Array<functionParam>;
 };
+
+const jsObjectVariableName =
+  "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
+
+export const jsObjectDeclaration = `var ${jsObjectVariableName} =`;
 
 export const parseJSObjectWithAST = (
   jsObjectBody: string
@@ -26,9 +31,7 @@ export const parseJSObjectWithAST = (
       if the variable name will be same then also we won't have problem here as jsObjectVariableName will be last node in VariableDeclarator hence overriding the previous JSObjectProperties.
       Keeping this just for sanity check if any caveat was missed.
     */
-  const jsObjectVariableName =
-    "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
-  const jsCode = `var ${jsObjectVariableName} = ${jsObjectBody}`;
+  const jsCode = `${jsObjectDeclaration} ${jsObjectBody}`;
 
   const ast = getAST(jsCode);
 
@@ -49,7 +52,7 @@ export const parseJSObjectWithAST = (
   });
 
   JSObjectProperties.forEach((node) => {
-    let params = new Set<functionParams>();
+    let params = new Set<functionParam>();
     const propertyNode = node;
     let property: JsObjectProperty = {
       key: generate(propertyNode.key),

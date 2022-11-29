@@ -59,7 +59,7 @@ describe("Autocomplete bug fixes", function() {
       locator._hints,
       "columnAlias",
       "have.text",
-      1,
+      0,
     );
   });
 

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -55,11 +56,15 @@ public class SegmentConfig {
         final LogProcessor logProcessorWithErrorHandler = new LogProcessor();
         final Analytics analytics = Analytics.builder(analyticsWriteKey).log(logProcessorWithErrorHandler).build();
         logProcessorWithErrorHandler.onError(logData -> {
-            analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error")
+            final Throwable error = logData.getError();
+            // TODO remove this log statement once the issue with analytics is resolved
+            log.error(" UserId is null or empty inside error. Message from log data {}, stack trace {}, message from error {}, args {}", logData.getMessage(), error == null ? "null" : ExceptionUtils.getStackTrace(error), error == null ? "" : error.getMessage(), ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()));
+            analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error").userId("segmentError")
                     .properties(Map.of(
                             "message", logData.getMessage(),
-                            "error", logData.getError().getMessage(),
-                            "args", ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList())
+                            "error", error == null ? "" : error.getMessage(),
+                            "args", ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()),
+                            "stackTrace", ExceptionUtils.getStackTrace(error)
                     ))
             );
         });

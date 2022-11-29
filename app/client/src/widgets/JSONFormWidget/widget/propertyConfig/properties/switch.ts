@@ -7,58 +7,6 @@ import {
 } from "../helper";
 
 const PROPERTIES = {
-  general: [
-    {
-      propertyName: "defaultValue",
-      label: "Default Selected",
-      helpText: "Sets the On/Off default state of the field",
-      controlType: "SWITCH",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      customJSControl: "JSON_FORM_COMPUTE_VALUE",
-      validation: { type: ValidationTypes.BOOLEAN },
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
-      dependencies: ["schema", "sourceData"],
-    },
-    {
-      propertyName: "alignWidget",
-      helpText: "Sets the alignment of the field",
-      label: "Alignment",
-      controlType: "DROP_DOWN",
-      isBindProperty: true,
-      isTriggerProperty: false,
-      options: [
-        {
-          label: "Left",
-          value: "LEFT",
-        },
-        {
-          label: "Right",
-          value: "RIGHT",
-        },
-      ],
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
-      dependencies: ["schema"],
-    },
-  ],
-  actions: [
-    {
-      helpText: "Triggers an action when the switch state is changed",
-      propertyName: "onChange",
-      label: "onChange",
-      controlType: "ACTION_SELECTOR",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: true,
-      additionalAutoComplete: getAutocompleteProperties,
-      hidden: (...args: HiddenFnParams) =>
-        getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
-      dependencies: ["schema", "sourceData"],
-    },
-  ],
   content: {
     data: [
       {
@@ -81,7 +29,8 @@ const PROPERTIES = {
         propertyName: "alignWidget",
         helpText: "Sets the position of the field",
         label: "Position",
-        controlType: "DROP_DOWN",
+        controlType: "ICON_TABS",
+        fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         options: [

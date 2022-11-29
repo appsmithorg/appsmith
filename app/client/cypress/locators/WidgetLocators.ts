@@ -1,11 +1,11 @@
 export const WIDGET = {
   INPUT_V2: "inputwidgetv2",
   TEXT: "textwidget",
-  TEXTNAME : (index:string) => `Text${index}`,
+  TEXTNAME: (index: string) => `Text${index}`,
   PHONE_INPUT: "phoneinputwidget",
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
-  BUTTONNAME : (index:string) => `Button${index}`,
+  BUTTONNAME: (index: string) => `Button${index}`,
   MULTISELECT: "multiselectwidgetv2",
   BUTTON_GROUP: "buttongroupwidget",
   TREESELECT: "singleselecttreewidget",
@@ -26,6 +26,11 @@ export const WIDGET = {
   CAMERA: "camerawidget",
   FILEPICKER: "filepickerwidgetv2",
   DOCUMENT_VIEWER: "documentviewerwidget",
+  VIDEO: "videowidget",
+  CATEGORY_SLIDER: "categorysliderwidget",
+  NUMBER_SLIDER: "numbersliderwidget",
+  RANGE_SLIDER: "rangesliderwidget",
+  IFRAME: "iframewidget",
 } as const;
 
 // property pane element selector are maintained here
@@ -36,8 +41,8 @@ export const PROPERTY_SELECTOR = {
   text: ".t--property-control-text",
   defaultValue: ".t--property-control-defaultselectedvalues",
   propertyName: ".t--property-control-propertyname",
-  onClickFieldName : "onClick",
-  TextFieldName: "Text"
+  onClickFieldName: "onClick",
+  TextFieldName: "Text",
 };
 type ValueOf<T> = T[keyof T];
 

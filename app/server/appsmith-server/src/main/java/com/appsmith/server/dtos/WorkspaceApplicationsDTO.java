@@ -16,5 +16,5 @@ import java.util.List;
 public class WorkspaceApplicationsDTO {
     Workspace workspace;
     List<Application> applications;
-    List<UserAndPermissionGroupDTO> users;
+    List<WorkspaceMemberInfoDTO> users;
 }

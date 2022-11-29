@@ -1,4 +1,9 @@
-import { getIndextoUpdate, parseUrlForQueryParams } from "utils/ApiPaneUtils";
+import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
+import {
+  getContentTypeHeaderValue,
+  getIndextoUpdate,
+  parseUrlForQueryParams,
+} from "utils/ApiPaneUtils";
 
 describe("api pane header insertion or removal", () => {
   describe("index for header needs to be returned", () => {
@@ -54,5 +59,19 @@ describe("Api pane query parameters parsing", () => {
     expect(parseUrlForQueryParams(url4)).toEqual(params3);
     const url5 = "/";
     expect(parseUrlForQueryParams(url5)).toEqual(params3);
+  });
+});
+
+describe("API Body Format Test", () => {
+  it("it checks whether selected body format is as per the content-type header or not", () => {
+    const headers = [
+      {
+        key: "Content-Type",
+        value: "application/x-www-form-urlencoded",
+      },
+    ];
+    expect(getContentTypeHeaderValue(headers)).toEqual(
+      POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+    );
   });
 });

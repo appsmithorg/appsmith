@@ -24,7 +24,6 @@ import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { trimQueryString } from "utils/helpers";
-import { inviteModalLinks } from "@appsmith/constants/forms";
 import {
   createMessage,
   INVITE_USERS_MESSAGE,
@@ -118,7 +117,6 @@ export function PageMenu(props: AppViewerHeaderProps) {
                 bgColor: "transparent",
               }}
               isOpen={showAppInviteUsersDialog}
-              links={inviteModalLinks}
               message={createMessage(INVITE_USERS_MESSAGE)}
               placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
               title={application.name}

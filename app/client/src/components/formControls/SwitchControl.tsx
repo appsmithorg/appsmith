@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { Toggle } from "design-system";
+import { Switch } from "design-system";
 import { ControlType } from "constants/PropertyControlConstants";
 import { Field, WrappedFieldProps } from "redux-form";
 import styled from "styled-components";
@@ -12,29 +12,31 @@ type SwitchFieldProps = WrappedFieldProps & {
   disabled: boolean;
 };
 
-const StyledToggle = styled(Toggle)`
-  .slider {
-    margin-left: 10px;
-    width: 40px;
-    height: 20px;
-  }
-  .slider::before {
-    height: 16px;
-    width: 16px;
-  }
-  input:checked + .slider::before {
-    transform: translateX(19px);
-  }
-`;
-
 const SwitchWrapped = styled.div`
   flex-direction: row;
   display: flex;
   align-items: center;
+  position: relative;
   .bp3-control {
     margin-bottom: 0px;
   }
   max-width: 60vw;
+  && .bp3-control.bp3-switch .bp3-control-indicator {
+    width: 40px;
+    height: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    margin-left: 10px;
+  }
+  .bp3-control.bp3-switch .bp3-control-indicator::before {
+    width: 16px;
+    height: 16px;
+  }
+  .bp3-control.bp3-switch input:checked ~ .bp3-control-indicator::before {
+    left: calc(100% - 20px);
+  }
 `;
 
 export class SwitchField extends React.Component<SwitchFieldProps, any> {
@@ -47,21 +49,22 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
     }
   }
 
+  onChange: React.FormEventHandler<HTMLInputElement> = () => {
+    this.props.input.onChange(!this.value);
+  };
+
   render() {
     return (
-      <div>
-        <SwitchWrapped data-cy={this.props.input.name}>
-          <StyledToggle
-            className="switch-control"
-            disabled={this.props.disabled}
-            name={this.props.input.name}
-            onToggle={(value: boolean) => {
-              this.props.input.onChange(value);
-            }}
-            value={this.value}
-          />
-        </SwitchWrapped>
-      </div>
+      <SwitchWrapped data-cy={this.props.input.name}>
+        <Switch
+          checked={this.value}
+          className="switch-control"
+          disabled={this.props.disabled}
+          large
+          name={this.props.input.name}
+          onChange={this.onChange}
+        />
+      </SwitchWrapped>
     );
   }
 }

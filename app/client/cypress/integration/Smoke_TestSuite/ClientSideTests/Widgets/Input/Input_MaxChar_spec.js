@@ -2,15 +2,25 @@ const dsl = require("../../../../../fixtures/inputMaxCharDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("Input Widget Max Char Functionality", function() {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
   beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
   it("Text Input maxChar shows error if defaultText longer", () => {
     cy.get(widgetsPage.innertext).click();
     cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain("Default text length must be less than 5 characters");
+      expect($x).contain(
+        "Default text length must be less than or equal to 5 characters",
+      );
     });
   });
 

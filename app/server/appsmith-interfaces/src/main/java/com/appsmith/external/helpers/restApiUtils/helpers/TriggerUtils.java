@@ -35,10 +35,8 @@ import reactor.netty.resources.ConnectionProvider;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -46,7 +44,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.restApiUtils.helpers.URIUtils.DISALLOWED_HOSTS;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @NoArgsConstructor
@@ -204,14 +201,10 @@ public class TriggerUtils {
                          * It redirects to partial URI : /api/character/
                          * In this scenario we should convert the partial URI to complete URI
                          */
-                        URI redirectUri;
+                        final URI redirectUri;
                         try {
                             redirectUri = new URI(redirectUrl);
-                            if (DISALLOWED_HOSTS.contains(redirectUri.getHost())
-                                    || DISALLOWED_HOSTS.contains(InetAddress.getByName(redirectUri.getHost()).getHostAddress())) {
-                                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Host not allowed."));
-                            }
-                        } catch (URISyntaxException | UnknownHostException e) {
+                        } catch (URISyntaxException e) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 

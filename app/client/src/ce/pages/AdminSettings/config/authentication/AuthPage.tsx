@@ -12,7 +12,7 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { Callout, CalloutType } from "components/ads/CalloutV2";
+import { CalloutV2, CalloutType } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { Colors } from "constants/Colors";
 import { Button, Category, Icon, TooltipComponent } from "design-system";
@@ -23,7 +23,6 @@ const { intercomAppID } = getAppsmithConfigs();
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin-left: 112px;
   padding-top: 40px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
@@ -208,7 +207,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>
                   {method.calloutBanner && (
-                    <Callout
+                    <CalloutV2
                       actionLabel={method.calloutBanner.actionLabel}
                       desc={method.calloutBanner.title}
                       type={method.calloutBanner.type}

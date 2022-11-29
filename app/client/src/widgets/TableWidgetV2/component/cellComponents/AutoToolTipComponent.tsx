@@ -39,15 +39,14 @@ function useToolTip(
   const [showTooltip, updateToolTip] = useState(false);
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      const element = ref.current?.querySelector("div") as HTMLDivElement;
-      if (element && element.offsetWidth < element.scrollWidth) {
-        updateToolTip(true);
-      } else {
-        updateToolTip(false);
-      }
-    });
-  }, [children, ref.current]);
+    const element = ref.current?.querySelector("div") as HTMLDivElement;
+
+    if (element && element.offsetWidth < element.scrollWidth) {
+      updateToolTip(true);
+    } else {
+      updateToolTip(false);
+    }
+  }, [children]);
 
   return showTooltip && children ? (
     <Tooltip
@@ -83,6 +82,9 @@ interface Props {
   fontStyle?: string;
   cellBackground?: string;
   textSize?: string;
+  disablePadding?: boolean;
+  url?: string;
+  isCellDisabled?: boolean;
 }
 
 function LinkWrapper(props: Props) {
@@ -96,13 +98,14 @@ function LinkWrapper(props: Props) {
       compactMode={props.compactMode}
       fontStyle={props.fontStyle}
       horizontalAlignment={props.horizontalAlignment}
+      isCellDisabled={props.isCellDisabled}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
       isTextType
       onClick={(e: React.MouseEvent<HTMLDivElement>) => {
         e.stopPropagation();
-        window.open(props.title, "_blank");
+        window.open(props.url, "_blank");
       }}
       textColor={props.textColor}
       textSize={props.textSize}
@@ -130,8 +133,10 @@ function AutoToolTipComponent(props: Props) {
         cellBackground={props.cellBackground}
         className="cell-wrapper"
         compactMode={props.compactMode}
+        disablePadding={props.disablePadding}
         fontStyle={props.fontStyle}
         horizontalAlignment={props.horizontalAlignment}
+        isCellDisabled={props.isCellDisabled}
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
         isTextType

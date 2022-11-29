@@ -2,12 +2,12 @@ package com.appsmith.external.connections;
 
 import com.appsmith.external.helpers.restApiUtils.connections.ApiKeyAuthentication;
 import com.appsmith.external.models.ApiKeyAuth;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ApiKeyAuthenticationTest {
 

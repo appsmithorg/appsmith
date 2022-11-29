@@ -9,6 +9,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { WidgetProps } from "widgets/BaseWidget";
+import { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export const executeTrigger = (
   payload: ExecuteTriggerPayload,
@@ -47,11 +48,12 @@ export const focusWidget = (
   payload: { widgetId },
 });
 
-export const showModal = (id: string) => {
+export const showModal = (id: string, shouldSelectModal = true) => {
   return {
     type: ReduxActionTypes.SHOW_MODAL,
     payload: {
       modalId: id,
+      shouldSelectModal,
     },
   };
 };
@@ -151,5 +153,14 @@ export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
 export const groupWidgets = () => {
   return {
     type: ReduxActionTypes.GROUP_WIDGETS_INIT,
+  };
+};
+
+export const updateMultipleWidgetProperties = (
+  widgetsToUpdate: UpdateWidgetsPayload,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
+    payload: widgetsToUpdate,
   };
 };

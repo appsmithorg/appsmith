@@ -1,6 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 
-export const getSelectedWidget = (state: AppState) =>
+export const getLastSelectedWidget = (state: AppState) =>
   state.ui.widgetDragResize.lastSelectedWidget;
 
 export const getSelectedWidgets = (state: AppState) =>
@@ -29,3 +29,6 @@ export const getIsSavingForJSObjectName = (state: AppState, id: string) =>
  */
 export const getErrorForJSObjectName = (state: AppState, id: string) =>
   state.ui.jsObjectName.errors[id];
+
+export const getFocusedWidget = (state: AppState) =>
+  state.ui.widgetDragResize.focusedWidget;

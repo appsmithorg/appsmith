@@ -9,7 +9,13 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE, Log, LogActionPayload } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  Log,
+  LogActionPayload,
+  LogObject,
+  LOG_CATEGORY,
+} from "entities/AppsmithConsole";
 import {
   all,
   call,
@@ -35,11 +41,9 @@ import {
   getEvaluationInverseDependencyMap,
 } from "selectors/dataTreeSelectors";
 import {
-  getEntityNameAndPropertyPath,
-  isAction,
-  isWidget,
-} from "workers/evaluationUtils";
-import { getDependencyChain } from "components/editorComponents/Debugger/helpers";
+  createLogTitleString,
+  getDependencyChain,
+} from "components/editorComponents/Debugger/helpers";
 import {
   ACTION_CONFIGURATION_UPDATED,
   createMessage,
@@ -53,8 +57,12 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { LogObject, createLogTitleString } from "workers/UserLog";
 import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isWidget,
+} from "workers/Evaluation/evaluationUtils";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -224,6 +232,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     case LOG_TYPE.TRIGGER_EVAL_ERROR:
       yield put(debuggerLog([payload]));
     case LOG_TYPE.EVAL_ERROR:
+    case LOG_TYPE.LINT_ERROR:
     case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
@@ -490,9 +499,9 @@ export function* storeLogs(
   entityType: ENTITY_TYPE,
   entityId: string,
 ) {
-  logs.forEach((log: LogObject) => {
-    AppsmithConsole.addLog(
-      {
+  AppsmithConsole.addLogs(
+    logs.reduce((acc: Log[], log: LogObject) => {
+      acc.push({
         text: createLogTitleString(log.data),
         logData: log.data,
         source: {
@@ -500,11 +509,13 @@ export function* storeLogs(
           name: entityName,
           id: entityId,
         },
-      },
-      log.severity,
-      log.timestamp,
-    );
-  });
+        severity: log.severity,
+        timestamp: log.timestamp,
+        category: LOG_CATEGORY.USER_GENERATED,
+      });
+      return acc;
+    }, []),
+  );
 }
 
 export function* updateTriggerMeta(

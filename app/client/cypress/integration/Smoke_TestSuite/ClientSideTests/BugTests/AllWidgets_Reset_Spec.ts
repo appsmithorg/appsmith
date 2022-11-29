@@ -1,7 +1,6 @@
 import testdata from "../../../../fixtures/testdata.json";
 import commonlocators from "../../../../locators/commonlocators.json";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   deployMode = ObjectsRegistry.DeployMode,
@@ -308,13 +307,15 @@ function listwidgetAndReset() {
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "002",
-    "contain.text", 6
+    "contain.text",
+    6,
   );
   agHelper.ClickButton("Submit");
   agHelper.GetNAssertElementText(
     locator._textWidgetInDeployed,
     "001",
-    "contain.text", 6
+    "contain.text",
+    6,
   );
 }
 
@@ -421,13 +422,18 @@ function filePickerWidgetAndReset() {
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset assertWidgetReset`, () => {
-    before(() => {
-      cy.fixture("defaultMetaDsl").then((val: any) => {
-        agHelper.AddDsl(val);
-      });
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
+
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
     });
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
+      cy.fixture("defaultMetaDsl").then((val: any) => {
+        agHelper.AddDsl(val);
+      });
       ee.DragDropWidgetNVerify(widgetSelector, 300, 100);
     });
 

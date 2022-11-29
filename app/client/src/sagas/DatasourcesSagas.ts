@@ -53,8 +53,7 @@ import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -336,8 +335,6 @@ function* updateDatasourceSaga(
 
       const state: AppState = yield select();
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
-      const datasourceStructure =
-        state.entities.datasources.structure[response.data.id];
 
       // Dont redirect if action payload has an onSuccess
       yield put(
@@ -359,8 +356,9 @@ function* updateDatasourceSaga(
       if (actionPayload.onSuccess) {
         yield put(actionPayload.onSuccess);
       }
-      if (expandDatasourceId === response.data.id && !datasourceStructure) {
-        yield put(fetchDatasourceStructure(response.data.id));
+      //Refresh datasource structure on save
+      if (expandDatasourceId === response.data.id) {
+        yield put(fetchDatasourceStructure(response.data.id, true));
       }
 
       AppsmithConsole.info({

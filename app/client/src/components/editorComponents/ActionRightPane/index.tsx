@@ -1,19 +1,20 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import { Classes, Variant } from "components/ads/common";
 import {
   Button,
   Category,
+  Classes,
+  getTypographyByKey,
   Icon,
   IconSize,
   Size,
   Text,
   TextType,
+  Variant,
 } from "design-system";
 import { useState } from "react";
 import history from "utils/history";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
@@ -59,7 +60,7 @@ const SideBar = styled.div`
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
     .connection-type {
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
     }
   }
 
@@ -68,7 +69,7 @@ const SideBar = styled.div`
   }
 
   .description {
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${getTypographyByKey("p1")}
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
     padding-bottom: ${(props) => props.theme.spaces[7]}px;
   }
@@ -106,7 +107,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
 
   & > .icon-text:first-child {
     color: ${(props) => props.theme.colors.actionSidePane.collapsibleIcon};
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     cursor: pointer;
     .${Classes.ICON} {
       ${(props) => !props.isOpen && `transform: rotate(-90deg);`}
@@ -119,7 +120,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
 `;
 
 const SnipingWrapper = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
   img {

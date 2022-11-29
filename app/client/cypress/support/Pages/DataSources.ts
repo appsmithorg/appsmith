@@ -1,7 +1,7 @@
 import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 
-var DataSourceKVP = {
+const DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
@@ -28,7 +28,9 @@ export class DataSources {
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
   private _saveDs = ".t--save-datasource";
+  private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
+  _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
@@ -39,12 +41,13 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::label/parent::div/following-sibling::div/div/div";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@role='listbox']";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
   _runQueryBtn = ".t--run-query";
   _newDatabases = "#new-datasources";
+  _newDatasourceContainer = "#new-integrations-wrapper"
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
   _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
@@ -68,9 +71,7 @@ export class DataSources {
   _queryResponse = (responseType: string) =>
     "li[data-cy='t--tab-" + responseType + "']";
   _queryRecordResult = (recordCount: number) =>
-    "//div/span[text()='Result:']/span[contains(text(),'" +
-    recordCount +
-    " Record')]";
+    `//div/span[text()='Result:']/span[contains(text(),' ${recordCount} Record')]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
@@ -108,6 +109,7 @@ export class DataSources {
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
+  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -133,6 +135,12 @@ export class DataSources {
         cy.writeFile(fixtureFile, JSON.stringify(data));
       });
     });
+  }
+
+  public startRoutesForDatasource() {
+    cy.server();
+    cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
+    cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   }
 
   public StartInterceptRoutesForMySQL() {
@@ -213,7 +221,16 @@ export class DataSources {
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
+    cy.get(this._newDatasourceContainer).scrollTo("bottom");
     cy.get(this._newDatabases).should("be.visible");
+  }
+
+  CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._mockDB(dbName));
+    return cy
+      .wait("@getMockDb")
+      .then(($createdMock) => $createdMock.response?.body.data.name);
   }
 
   public FillPostgresDSForm(
@@ -319,6 +336,11 @@ export class DataSources {
     //     }).should("have.nested.property", "response.body.responseMeta.status", 200);
   }
 
+  public AuthAPISaveAndAuthorize() {
+    cy.get(this._saveAndAuthorizeDS).click();
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
+  }
+
   public DeleteDatasouceFromActiveTab(
     datasourceName: string,
     expectedRes = 200,
@@ -371,7 +393,7 @@ export class DataSources {
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
-    let btnLocator =
+    const btnLocator =
       createQuery == true
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
@@ -403,6 +425,11 @@ export class DataSources {
         cy.get(this._createQuery).click({ force: true });
       });
     this.agHelper.Sleep(2000); //for the CreateQuery
+  }
+
+  DeleteQuery(queryName: string) {
+    this.ee.ExpandCollapseEntity("Queries/JS");
+    this.ee.ActionContextMenuByEntityName(queryName, "Delete", "Are you sure?");
   }
 
   public ValidateNSelectDropdown(
@@ -507,7 +534,7 @@ export class DataSources {
   }
 
   public RunQueryNVerifyResponseViews(
-    expectdRecordCount = 1,
+    expectedRecordsCount = 1,
     tableCheck = true,
   ) {
     this.RunQuery();
@@ -515,39 +542,52 @@ export class DataSources {
       this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
     this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
     this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+    this.CheckResponseRecordsCount(expectedRecordsCount);
+  }
+
+  public CheckResponseRecordsCount(expectedRecordCount: number) {
     this.agHelper.AssertElementVisible(
-      this._queryRecordResult(expectdRecordCount),
+      this._queryRecordResult(expectedRecordCount),
     );
   }
 
   public CreateDataSource(
     dsType: "Postgres" | "Mongo" | "MySql",
     navigateToCreateNewDs = true,
+    verifyBeforeSave = true,
   ) {
     let guid: any;
+    let dataSourceName = "";
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       navigateToCreateNewDs && this.NavigateToDSCreateNew();
       this.CreatePlugIn(DataSourceKVP[dsType]);
       guid = uid;
-      this.agHelper.RenameWithInPane(dsType + " " + guid, false);
+      dataSourceName = dsType + " " + guid;
+      this.agHelper.RenameWithInPane(dataSourceName, false);
       if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
       else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
       else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
-      this.TestSaveDatasource();
-      cy.wrap(dsType + " " + guid).as("dsName");
+
+      if (verifyBeforeSave) {
+        this.TestSaveDatasource();
+      } else {
+        this.SaveDatasource();
+      }
+
+      cy.wrap(dataSourceName).as("dsName");
     });
   }
 
-  public CreateNewQueryInDS(
-    dsName: string,
-    query: string,
-    queryName: string = "",
-  ) {
+  public CreateNewQueryInDS(dsName: string, query = "", queryName = "") {
     this.ee.CreateNewDsQuery(dsName);
+
     if (queryName) this.agHelper.RenameWithInPane(queryName);
-    this.agHelper.GetNClick(this._templateMenu);
-    this.EnterQuery(query);
+
+    if (query) {
+      this.agHelper.GetNClick(this._templateMenu);
+      this.EnterQuery(query);
+    }
   }
 
   public CreateGraphqlDatasource(datasourceName: string) {
@@ -649,5 +689,20 @@ export class DataSources {
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
     this.agHelper.GetNClick(this._queryResponse("QUERY"));
+  }
+
+  //Update with new password in the datasource conf page
+  public updatePassword(newPassword: string){
+    cy.get(this._sectionAuthentication).click();
+    cy.get(this._password).type(newPassword);
+  }
+
+  //Fetch schema from server and validate UI for the updates
+  public verifySchema(schema: string){
+    cy.intercept("GET", this._getStructureReq).as("getDSStructure");
+    this.SaveDatasource();
+    cy.wait("@getDSStructure").then(() => {
+      cy.get(".bp3-collapse-body").contains(schema);
+    });
   }
 }

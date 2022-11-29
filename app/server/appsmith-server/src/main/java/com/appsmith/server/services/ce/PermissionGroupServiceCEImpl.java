@@ -17,6 +17,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Flux;
@@ -31,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static java.lang.Boolean.TRUE;
@@ -45,6 +47,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     private final PolicyUtils policyUtils;
 
     private final ConfigRepository configRepository;
+    private final PermissionGroupPermission permissionGroupPermission;
 
     private PermissionGroup publicPermissionGroup = null;
 
@@ -57,7 +60,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         SessionUserService sessionUserService,
                                         TenantService tenantService,
                                         UserRepository userRepository,
-                                        PolicyUtils policyUtils, ConfigRepository configRepository) {
+                                        PolicyUtils policyUtils,
+                                        ConfigRepository configRepository,
+                                        PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
@@ -65,16 +70,17 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         this.userRepository = userRepository;
         this.policyUtils = policyUtils;
         this.configRepository = configRepository;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
-        return super.create(permissionGroup)
+        return repository.save(permissionGroup)
                 .map(pg -> {
                     Set<Permission> permissions = new HashSet<>(Optional.ofNullable(pg.getPermissions()).orElse(Set.of()));
                     // Permission to unassign self is always given
                     // so user can unassign himself from permission group
-                    permissions.add(new Permission(pg.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
+                    permissions.add(new Permission(pg.getId(), UNASSIGN_PERMISSION_GROUPS));
                     pg.setPermissions(permissions);
                     Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
                     policyUtils.addPoliciesToExistingObject(policyMap, pg);
@@ -98,6 +104,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return repository.findById(id, permission);
     }
 
+    @Override
     public Mono<Void> delete(String id) {
 
         return repository.findById(id)
@@ -139,7 +146,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().addAll(userIds);
         Mono<PermissionGroup> permissionGroupUpdateMono = repository
-                .updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .updateById(pg.getId(), pg, permissionGroupPermission.getAssignPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
 
         return Mono.zip(
@@ -151,7 +158,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users) {
-        return repository.findById(permissionGroupId, AclPermission.ASSIGN_PERMISSION_GROUPS)
+        return repository.findById(permissionGroupId, permissionGroupPermission.getAssignPermission())
                 .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));
     }
 
@@ -172,7 +179,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().removeAll(userIds);
         return Mono.zip(
-                        repository.updateById(pg.getId(), pg, AclPermission.UNASSIGN_PERMISSION_GROUPS),
+                        repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission()),
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
                 .map(tuple -> tuple.getT1());
@@ -180,7 +187,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users) {
-        return repository.findById(permissionGroupId, AclPermission.UNASSIGN_PERMISSION_GROUPS)
+        return repository.findById(permissionGroupId, permissionGroupPermission.getUnAssignPermission())
                 .flatMap(permissionGroup -> bulkUnassignFromUsers(permissionGroup, users));
     }
 
@@ -188,7 +195,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         pg.getAssignedToUserIds().removeAll(userIds);
         return Mono.zip(
-                        repository.updateById(pg.getId(), pg, AclPermission.UNASSIGN_PERMISSION_GROUPS),
+                        repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission()),
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
                 .map(tuple -> tuple.getT1());

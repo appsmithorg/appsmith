@@ -1,5 +1,4 @@
 const dsl = require("../../../../../fixtures/modalScroll.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe("Modal Widget Functionality", function() {
   before(() => {

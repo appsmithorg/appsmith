@@ -1,7 +1,10 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
 import { RenderModes } from "constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
-import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
+import {
+  contentConfig,
+  styleConfig,
+} from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -507,7 +510,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       ],
       setAdaptiveYMin: "0",
     };
-    const config = chartPorpertyConfig;
+    const config = [...contentConfig, ...styleConfig];
 
     const bindingPaths = {
       chartType: EvaluationSubstitutionType.TEMPLATE,

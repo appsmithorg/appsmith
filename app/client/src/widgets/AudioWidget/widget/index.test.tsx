@@ -19,10 +19,10 @@ const urlTests = [
 ];
 
 describe("urlRegexValidation", () => {
-  const generalSectionProperties: PropertyPaneControlConfig[] = AudioWidget.getPropertyPaneConfig().filter(
-    (x) => x.sectionName === "General",
+  const dataSectionProperties: PropertyPaneControlConfig[] = AudioWidget.getPropertyPaneContentConfig().filter(
+    (x) => x.sectionName === "Data",
   )[0].children;
-  const urlPropertyControl = generalSectionProperties.filter(
+  const urlPropertyControl = dataSectionProperties.filter(
     (x) => x.propertyName === "url",
   )[0];
   const regEx = urlPropertyControl.validation?.params?.regex;

@@ -18,10 +18,11 @@ describe("RichTextEditor Widget Validation", function() {
     cy.wait(500);
 
     // check that input border is red
-    cy.get(
-      formWidgetsPage.richTextEditorWidget +
-        " div[data-testid='rte-container'] > div",
-    ).should("have.css", "border", "1px solid rgb(242, 43, 43)");
+    cy.get(formWidgetsPage.richTextEditorWidget + " .tox.tox-tinymce").should(
+      "have.css",
+      "border",
+      "1px solid rgb(217, 25, 33)",
+    );
 
     cy.closePropertyPane();
   });

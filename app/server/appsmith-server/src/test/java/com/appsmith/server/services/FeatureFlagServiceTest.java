@@ -4,23 +4,23 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.ff4j.FF4j;
 import org.ff4j.parser.yaml.YamlParser;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -77,10 +77,7 @@ public class FeatureFlagServiceTest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue("There should be a flag TEST_FEATURE_2",
-                            result.keySet().contains(FeatureFlagEnum.TEST_FEATURE_2.toString())
-                    );
-                    assertTrue(result.get(FeatureFlagEnum.TEST_FEATURE_2.toString()));
+                    assertTrue(result.containsKey(FeatureFlagEnum.TEST_FEATURE_2.toString()));
                 })
                 .verifyComplete();
     }
@@ -91,10 +88,7 @@ public class FeatureFlagServiceTest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue("There should be a flag TEST_FEATURE_3",
-                            result.keySet().contains(FeatureFlagEnum.TEST_FEATURE_3.toString())
-                    );
-                    assertFalse(result.get(FeatureFlagEnum.TEST_FEATURE_3.toString()));
+                    assertTrue(result.containsKey(FeatureFlagEnum.TEST_FEATURE_3.toString()));
                 })
                 .verifyComplete();
     }

@@ -33,6 +33,17 @@ module.exports = {
   globals: {
     "ts-jest": {
       isolatedModules: true,
+      diagnostics: {
+        ignoreCodes: [1343],
+      },
+      astTransformers: {
+        before: [
+          {
+            path: "node_modules/ts-jest-mock-import-meta",
+            options: { metaObjectReplacement: { url: "https://www.url.com" } },
+          },
+        ],
+      },
     },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
@@ -47,7 +58,6 @@ module.exports = {
       enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
       disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
       disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
-      disableTelemetry: parseConfig("__APPSMITH_DISABLE_TELEMETRY__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
       segment: {
         apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
@@ -78,6 +88,9 @@ module.exports = {
 
       disableTelemetry: "DISABLE_TELEMETRY" === "" || "DISABLE_TELEMETRY",
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
+      disableIframeWidgetSandbox: parseConfig(
+        "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
+      ),
     },
   },
 };

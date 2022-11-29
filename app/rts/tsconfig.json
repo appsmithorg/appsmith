@@ -14,8 +14,9 @@
       "@middlewares/*": ["./src/middlewares/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@rules/*": ["./src/middlewares/rules/*"],
-      "@utils/*": ["./src/utils/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
+  "exclude": ["jest.config.js", "src/test"],
   "lib": ["es2015"]
 }

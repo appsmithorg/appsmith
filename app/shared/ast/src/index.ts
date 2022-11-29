@@ -1,9 +1,9 @@
-import { parse, Node } from "acorn";
-import { ancestor } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from "./constants";
-import { isFinite, isString } from "lodash";
-import { sanitizeScript } from "./utils";
-
+import { parse, Node, SourceLocation, Options, Comment } from "acorn";
+import { ancestor, simple } from "acorn-walk";
+import { ECMA_VERSION, NodeTypes } from "./constants/ast";
+import { has, isFinite, isString, memoize, toPath } from "lodash";
+import { isTrueObject, sanitizeScript } from "./utils";
+import { jsObjectDeclaration } from "./jsObject/index";
 /*
  * Valuable links:
  *
@@ -85,6 +85,13 @@ interface LiteralNode extends Node {
   value: string | boolean | null | number | RegExp;
 }
 
+type NodeList = {
+  references: Set<string>;
+  functionalParams: Set<string>;
+  variableDeclarations: Set<string>;
+  identifierList: Array<IdentifierNode>;
+};
+
 // https://github.com/estree/estree/blob/master/es5.md#property
 export interface PropertyNode extends Node {
   type: NodeTypes.Property;
@@ -92,6 +99,18 @@ export interface PropertyNode extends Node {
   value: Node;
   kind: "init" | "get" | "set";
 }
+
+// Node with location details
+type NodeWithLocation<NodeType> = NodeType & {
+  loc: SourceLocation;
+};
+
+type AstOptions = Omit<Options, "ecmaVersion">;
+
+type EntityRefactorResponse = {
+  isSuccess: boolean;
+  body: { script: string; refactorCount: number } | { error: string };
+};
 
 /* We need these functions to typescript casts the nodes with the correct types */
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
@@ -114,6 +133,11 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
 
 const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
+};
+const isArrowFunctionExpression = (
+  node: Node
+): node is ArrowFunctionExpressionNode => {
+  return node.type === NodeTypes.ArrowFunctionExpression;
 };
 
 export const isObjectExpression = (node: Node): node is ObjectExpression => {
@@ -158,26 +182,42 @@ const wrapCode = (code: string) => {
   `;
 };
 
-export const getAST = (code: string) =>
-  parse(code, { ecmaVersion: ECMA_VERSION });
+const getFunctionalParamNamesFromNode = (
+  node:
+    | FunctionDeclarationNode
+    | FunctionExpressionNode
+    | ArrowFunctionExpressionNode
+) => {
+  return Array.from(getFunctionalParamsFromNode(node)).map(
+    (functionalParam) => functionalParam.paramName
+  );
+};
+
+// Memoize the ast generation code to improve performance.
+// Since this will be used by both the server and the client, we want to prevent regeneration of ast
+// for the the same code snippet
+export const getAST = memoize((code: string, options?: AstOptions) =>
+  parse(code, { ...options, ecmaVersion: ECMA_VERSION })
+);
 
 /**
- * An AST based extractor that fetches all possible identifiers in a given
+ * An AST based extractor that fetches all possible references in a given
  * piece of code. We use this to get any references to the global entities in Appsmith
  * and create dependencies on them. If the reference was updated, the given piece of code
  * should run again.
- * @param code: The piece of script where identifiers need to be extracted from
+ * @param code: The piece of script where references need to be extracted from
  */
-export const extractIdentifiersFromCode = (
+
+export interface IdentifierInfo {
+  references: string[];
+  functionalParams: string[];
+  variables: string[];
+}
+export const extractIdentifierInfoFromCode = (
   code: string,
-  evaluationVersion: number
-): string[] => {
-  // List of all identifiers found
-  const identifiers = new Set<string>();
-  // List of variables declared within the script. This will be removed from identifier list
-  const variableDeclarations = new Set<string>();
-  // List of functionalParams found. This will be removed from the identifier list
-  let functionalParams = new Set<functionParams>();
+  evaluationVersion: number,
+  invalidIdentifiers?: Record<string, unknown>
+): IdentifierInfo => {
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
@@ -192,99 +232,106 @@ export const extractIdentifiersFromCode = (
     */
     const wrappedCode = wrapCode(sanitizedScript);
     ast = getAST(wrappedCode);
+    let { references, functionalParams, variableDeclarations }: NodeList =
+      ancestorWalk(ast);
+    const referencesArr = Array.from(references).filter((reference) => {
+      // To remove references derived from declared variables and function params,
+      // We extract the topLevelIdentifier Eg. Api1.name => Api1
+      const topLevelIdentifier = toPath(reference)[0];
+      return !(
+        functionalParams.has(topLevelIdentifier) ||
+        variableDeclarations.has(topLevelIdentifier) ||
+        has(invalidIdentifiers, topLevelIdentifier)
+      );
+    });
+    return {
+      references: referencesArr,
+      functionalParams: Array.from(functionalParams),
+      variables: Array.from(variableDeclarations),
+    };
   } catch (e) {
     if (e instanceof SyntaxError) {
-      // Syntax error. Ignore and return 0 identifiers
-      return [];
+      // Syntax error. Ignore and return empty list
+      return {
+        references: [],
+        functionalParams: [],
+        variables: [],
+      };
     }
     throw e;
   }
-
-  /*
-   * We do an ancestor walk on the AST to get all identifiers. Since we need to know
-   * what surrounds the identifier, ancestor walk will give that information in the callback
-   * doc: https://github.com/acornjs/acorn/tree/master/acorn-walk
-   */
-  ancestor(ast, {
-    Identifier(node: Node, ancestors: Node[]) {
-      /*
-       * We are interested in identifiers. Due to the nature of AST, Identifier nodes can
-       * also be nested inside MemberExpressions. For deeply nested object references, there
-       * could be nesting of many MemberExpressions. To find the final reference, we will
-       * try to find the top level MemberExpression that does not have a MemberExpression parent.
-       * */
-      let candidateTopLevelNode: IdentifierNode | MemberExpressionNode =
-        node as IdentifierNode;
-      let depth = ancestors.length - 2; // start "depth" with first parent
-      while (depth > 0) {
-        const parent = ancestors[depth];
-        if (
-          isMemberExpressionNode(parent) &&
-          /* Member expressions that are "computed" (with [ ] search)
-             and the ones that have optional chaining ( a.b?.c )
-             will be considered top level node.
-             We will stop looking for further parents */
-          /* "computed" exception - isArrayAccessorNode
-             Member expressions that are array accessors with static index - [9]
-             will not be considered top level.
-             We will continue looking further. */
-          (!parent.computed || isArrayAccessorNode(parent)) &&
-          !parent.optional
-        ) {
-          candidateTopLevelNode = parent;
-          depth = depth - 1;
-        } else {
-          // Top level found
-          break;
-        }
-      }
-      if (isIdentifierNode(candidateTopLevelNode)) {
-        // If the node is an Identifier, just save that
-        identifiers.add(candidateTopLevelNode.name);
-      } else {
-        // For MemberExpression Nodes, we will construct a final reference string and then add
-        // it to the identifier list
-        const memberExpIdentifier = constructFinalMemberExpIdentifier(
-          candidateTopLevelNode
-        );
-        identifiers.add(memberExpIdentifier);
-      }
-    },
-    VariableDeclarator(node: Node) {
-      // keep a track of declared variables so they can be
-      // subtracted from the final list of identifiers
-      if (isVariableDeclarator(node)) {
-        variableDeclarations.add(node.id.name);
-      }
-    },
-    FunctionDeclaration(node: Node) {
-      // params in function declarations are also counted as identifiers so we keep
-      // track of them and remove them from the final list of identifiers
-      if (!isFunctionDeclaration(node)) return;
-      functionalParams = new Set([
-        ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
-      ]);
-    },
-    FunctionExpression(node: Node) {
-      // params in function experssions are also counted as identifiers so we keep
-      // track of them and remove them from the final list of identifiers
-      if (!isFunctionExpression(node)) return;
-      functionalParams = new Set([
-        ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
-      ]);
-    },
-  });
-
-  // Remove declared variables and function params
-  variableDeclarations.forEach((variable) => identifiers.delete(variable));
-  functionalParams.forEach((param) => identifiers.delete(param.paramName));
-
-  return Array.from(identifiers);
 };
 
-export type functionParams = { paramName: string; defaultValue: unknown };
+export const entityRefactorFromCode = (
+  script: string,
+  oldName: string,
+  newName: string,
+  isJSObject: boolean,
+  evaluationVersion: number,
+  invalidIdentifiers?: Record<string, unknown>
+): EntityRefactorResponse => {
+  //If script is a JSObject then replace export default to decalartion.
+  if (isJSObject) script = jsObjectToCode(script);
+  let ast: Node = { end: 0, start: 0, type: "" };
+  //Copy of script to refactor
+  let refactorScript = script;
+  //Difference in length of oldName and newName
+  let nameLengthDiff: number = newName.length - oldName.length;
+  //Offset index used for deciding location of oldName.
+  let refactorOffset: number = 0;
+  //Count of refactors on the script
+  let refactorCount: number = 0;
+  try {
+    const sanitizedScript = sanitizeScript(script, evaluationVersion);
+    ast = getAST(sanitizedScript);
+    let {
+      references,
+      functionalParams,
+      variableDeclarations,
+      identifierList,
+    }: NodeList = ancestorWalk(ast);
+    let identifierArray = Array.from(identifierList) as Array<IdentifierNode>;
+    Array.from(references).forEach((reference, index) => {
+      const topLevelIdentifier = toPath(reference)[0];
+      let shouldUpdateNode = !(
+        functionalParams.has(topLevelIdentifier) ||
+        variableDeclarations.has(topLevelIdentifier) ||
+        has(invalidIdentifiers, topLevelIdentifier)
+      );
+      //check if node should be updated
+      if (shouldUpdateNode && identifierArray[index].name === oldName) {
+        //Replace the oldName by newName
+        //Get start index from node and get subarray from index 0 till start
+        //Append above with new name
+        //Append substring from end index from the node till end of string
+        //Offset variable is used to alter the position based on `refactorOffset`
+        refactorScript =
+          refactorScript.substring(
+            0,
+            identifierArray[index].start + refactorOffset
+          ) +
+          newName +
+          refactorScript.substring(identifierArray[index].end + refactorOffset);
+        refactorOffset += nameLengthDiff;
+        ++refactorCount;
+      }
+    });
+    //If script is a JSObject then revert decalartion to export default.
+    if (isJSObject) refactorScript = jsCodeToObject(refactorScript);
+    return {
+      isSuccess: true,
+      body: { script: refactorScript, refactorCount },
+    };
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      // Syntax error. Ignore and return empty list
+      return { isSuccess: false, body: { error: "Syntax Error" } };
+    }
+    throw e;
+  }
+};
+
+export type functionParam = { paramName: string; defaultValue: unknown };
 
 export const getFunctionalParamsFromNode = (
   node:
@@ -292,8 +339,8 @@ export const getFunctionalParamsFromNode = (
     | FunctionExpressionNode
     | ArrowFunctionExpressionNode,
   needValue = false
-): Set<functionParams> => {
-  const functionalParams = new Set<functionParams>();
+): Set<functionParam> => {
+  const functionalParams = new Set<functionParam>();
   node.params.forEach((paramNode) => {
     if (isIdentifierNode(paramNode)) {
       functionalParams.add({
@@ -349,4 +396,228 @@ export const isTypeOfFunction = (type: string) => {
     type === NodeTypes.ArrowFunctionExpression ||
     type === NodeTypes.FunctionExpression
   );
+};
+
+export interface MemberExpressionData {
+  property: NodeWithLocation<IdentifierNode | LiteralNode>;
+  object: NodeWithLocation<IdentifierNode>;
+}
+
+/** Function returns Invalid top-level member expressions from code
+ * @param code
+ * @param data
+ * @param evaluationVersion
+ * @returns information about all invalid property/method assessment in code
+ * @example Given data {
+ * JSObject1: {
+ * name:"JSObject",
+ * data:[]
+ * },
+ * Api1:{
+ * name: "Api1",
+ * data: []
+ * }
+ * },
+ * For code {{Api1.name + JSObject.unknownProperty}}, function returns information about "JSObject.unknownProperty" node.
+ */
+export const extractInvalidTopLevelMemberExpressionsFromCode = (
+  code: string,
+  data: Record<string, any>,
+  evaluationVersion: number
+): MemberExpressionData[] => {
+  const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
+  const variableDeclarations = new Set<string>();
+  let functionalParams = new Set<string>();
+  let ast: Node = { end: 0, start: 0, type: "" };
+  try {
+    const sanitizedScript = sanitizeScript(code, evaluationVersion);
+    const wrappedCode = wrapCode(sanitizedScript);
+    ast = getAST(wrappedCode, { locations: true });
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      // Syntax error. Ignore and return empty list
+      return [];
+    }
+    throw e;
+  }
+  simple(ast, {
+    MemberExpression(node: Node) {
+      const { object, property } = node as MemberExpressionNode;
+      // We are only interested in top-level MemberExpression nodes
+      // Eg. for Api1.data.name, we are only interested in Api1.data
+      if (!isIdentifierNode(object)) return;
+      if (!(object.name in data) || !isTrueObject(data[object.name])) return;
+      // For computed member expressions (assessed via [], eg. JSObject1["name"] ),
+      // We are only interested in strings
+      if (
+        isLiteralNode(property) &&
+        isString(property.value) &&
+        !(property.value in data[object.name])
+      ) {
+        invalidTopLevelMemberExpressions.add({
+          object,
+          property,
+        } as MemberExpressionData);
+      }
+      if (isIdentifierNode(property) && !(property.name in data[object.name])) {
+        invalidTopLevelMemberExpressions.add({
+          object,
+          property,
+        } as MemberExpressionData);
+      }
+    },
+    VariableDeclarator(node: Node) {
+      if (isVariableDeclarator(node)) {
+        variableDeclarations.add(node.id.name);
+      }
+    },
+    FunctionDeclaration(node: Node) {
+      if (!isFunctionDeclaration(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    FunctionExpression(node: Node) {
+      if (!isFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    ArrowFunctionExpression(node: Node) {
+      if (!isArrowFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+  });
+
+  const invalidTopLevelMemberExpressionsArray = Array.from(
+    invalidTopLevelMemberExpressions
+  ).filter((MemberExpression) => {
+    return !(
+      variableDeclarations.has(MemberExpression.object.name) ||
+      functionalParams.has(MemberExpression.object.name)
+    );
+  });
+
+  return invalidTopLevelMemberExpressionsArray;
+};
+
+const ancestorWalk = (ast: Node): NodeList => {
+  //List of all Identifier nodes
+  const identifierList = new Array<IdentifierNode>();
+  // List of all references found
+  const references = new Set<string>();
+  // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
+  const variableDeclarations = new Set<string>();
+  // List of functional params declared within the script. All identifiers and member expressions derived from functional params will be removed
+  let functionalParams = new Set<string>();
+
+  /*
+   * We do an ancestor walk on the AST in order to extract all references. For example, for member expressions and identifiers, we need to know
+   * what surrounds the identifier (its parent and ancestors), ancestor walk will give that information in the callback
+   * doc: https://github.com/acornjs/acorn/tree/master/acorn-walk
+   */
+  ancestor(ast, {
+    Identifier(node: Node, ancestors: Node[]) {
+      /*
+       * We are interested in identifiers. Due to the nature of AST, Identifier nodes can
+       * also be nested inside MemberExpressions. For deeply nested object references, there
+       * could be nesting of many MemberExpressions. To find the final reference, we will
+       * try to find the top level MemberExpression that does not have a MemberExpression parent.
+       * */
+      let candidateTopLevelNode: IdentifierNode | MemberExpressionNode =
+        node as IdentifierNode;
+      let depth = ancestors.length - 2; // start "depth" with first parent
+      while (depth > 0) {
+        const parent = ancestors[depth];
+        if (
+          isMemberExpressionNode(parent) &&
+          /* Member expressions that are "computed" (with [ ] search)
+             and the ones that have optional chaining ( a.b?.c )
+             will be considered top level node.
+             We will stop looking for further parents */
+          /* "computed" exception - isArrayAccessorNode
+             Member expressions that are array accessors with static index - [9]
+             will not be considered top level.
+             We will continue looking further. */
+          (!parent.computed || isArrayAccessorNode(parent)) &&
+          !parent.optional
+        ) {
+          candidateTopLevelNode = parent;
+          depth = depth - 1;
+        } else {
+          // Top level found
+          break;
+        }
+      }
+      identifierList.push(node as IdentifierNode);
+      if (isIdentifierNode(candidateTopLevelNode)) {
+        // If the node is an Identifier, just save that
+        references.add(candidateTopLevelNode.name);
+      } else {
+        // For MemberExpression Nodes, we will construct a final reference string and then add
+        // it to the references list
+        const memberExpIdentifier = constructFinalMemberExpIdentifier(
+          candidateTopLevelNode
+        );
+        references.add(memberExpIdentifier);
+      }
+    },
+    VariableDeclarator(node: Node) {
+      // keep a track of declared variables so they can be
+      // removed from the final list of references
+      if (isVariableDeclarator(node)) {
+        variableDeclarations.add(node.id.name);
+      }
+    },
+    FunctionDeclaration(node: Node) {
+      // params in function declarations are also counted as references so we keep
+      // track of them and remove them from the final list of references
+      if (!isFunctionDeclaration(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    FunctionExpression(node: Node) {
+      // params in function expressions are also counted as references so we keep
+      // track of them and remove them from the final list of references
+      if (!isFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    ArrowFunctionExpression(node: Node) {
+      // params in arrow function expressions are also counted as references so we keep
+      // track of them and remove them from the final list of references
+      if (!isArrowFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+  });
+  return {
+    references,
+    functionalParams,
+    variableDeclarations,
+    identifierList,
+  };
+};
+
+//Replace export default by a variable declaration.
+//This is required for acorn to parse code into AST.
+const jsObjectToCode = (script: string) => {
+  return script.replace(/export default/g, jsObjectDeclaration);
+};
+
+//Revert the string replacement from 'jsObjectToCode'.
+//variable declaration is replaced back by export default.
+const jsCodeToObject = (script: string) => {
+  return script.replace(jsObjectDeclaration, "export default");
 };
