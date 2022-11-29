@@ -18,9 +18,8 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.google.gson.Gson;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,14 +34,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @DirtiesContext
 public class ImportApplicationTransactionServiceTest {
@@ -75,7 +72,7 @@ public class ImportApplicationTransactionServiceTest {
 
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
 
-    @Before
+    @BeforeEach
     public void setup() {
         Mockito
                 .when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
