@@ -27,6 +27,7 @@ import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.modelmapper.ModelMapper;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
@@ -86,10 +87,12 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       ModelMapper modelMapper,
                                       PolicyGenerator policyGenerator,
                                       UserGroupRepository userGroupRepository,
-                                      RoleConfigurationSolution roleConfigurationSolution) {
+                                      RoleConfigurationSolution roleConfigurationSolution,
+                                      PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                sessionUserService, tenantService, userRepository, policyUtils, configRepository);
+                sessionUserService, tenantService, userRepository, policyUtils, configRepository,
+                permissionGroupPermission);
         this.modelMapper = modelMapper;
         this.policyGenerator = policyGenerator;
         this.sessionUserService = sessionUserService;

@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 public class PageLoadActionsUtilImpl extends PageLoadActionsUtilCEImpl implements PageLoadActionsUtil {
 
     public PageLoadActionsUtilImpl(NewActionService newActionService,
-                                   AstService astService) {
-        super(newActionService, astService);
+                                   AstService astService,
+                                   ActionPermission actionPermission) {
+        super(newActionService, astService, actionPermission);
     }
 }
