@@ -1,3 +1,5 @@
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { Workspace } from "@appsmith/constants/workspaceConstants";
 import { ApplicationVersion } from "actions/applicationActions";
 import {
   ApplicationPagePayload,
@@ -7,8 +9,6 @@ import {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Workspace } from "@appsmith/constants/workspaceConstants";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
@@ -718,6 +718,7 @@ export const ReduxActionTypes = {
 
   AUTOLAYOUT_REORDER_WIDGETS: "AUTOLAYOUT_REORDER_WIDGETS",
   AUTOLAYOUT_ADD_NEW_WIDGETS: "AUTOLAYOUT_ADD_NEW_WIDGETS",
+  UPDATE_COLUMN_SPLIT_PROPERTY: "UPDATE_COLUMN_SPLIT_PROPERTY",
   REMOVE_CHILD_WRAPPERS: "REMOVE_CHILD_WRAPPERS",
   ADD_CHILD_WRAPPERS: "ADD_CHILD_WRAPPERS",
   UPDATE_FILL_CHILD_LAYER: "UPDATE_FILL_CHILD_LAYER",

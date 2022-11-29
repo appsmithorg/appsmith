@@ -1,13 +1,13 @@
-import React from "react";
-import _, { get, some } from "lodash";
-import equal from "fast-deep-equal/es6";
-import { WidgetProps } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
+import equal from "fast-deep-equal/es6";
+import _, { get, some } from "lodash";
+import React from "react";
+import { ContainerComponentProps } from "widgets/ContainerWidget/component";
 import {
   ContainerWidget,
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import { WidgetProps } from "../../BaseWidget";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -108,7 +108,7 @@ class FormWidget extends ContainerWidget {
       );
     }
 
-    return super.renderChildWidget(childContainer);
+    return super.renderChildWidget(childContainer, 1);
   }
 
   static getWidgetType(): WidgetType {

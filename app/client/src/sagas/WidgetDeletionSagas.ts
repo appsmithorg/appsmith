@@ -133,7 +133,7 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   }
 }
 
-type UpdatedDSLPostDelete =
+export type UpdatedDSLPostDelete =
   | {
       finalWidgets: CanvasWidgetsReduxState;
       otherWidgetsToDelete: (WidgetProps & {
@@ -143,7 +143,10 @@ type UpdatedDSLPostDelete =
     }
   | undefined;
 
-function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
+export function* getUpdatedDslAfterDeletingWidget(
+  widgetId: string,
+  parentId: string,
+) {
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   if (widgetId && parentId) {
     const widgets = { ...stateWidgets };

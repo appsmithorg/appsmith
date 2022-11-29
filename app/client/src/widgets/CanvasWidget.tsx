@@ -47,10 +47,16 @@ class CanvasWidget extends ContainerWidget {
 
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
+    const columnSplitRatio = this.props.columnSplitRatio || 1;
+    const snapSpaces = {
+      ...this.getSnapSpaces(),
+    };
+    snapSpaces.snapColumnSpace *= columnSplitRatio;
     return (
       <DropTargetComponent
         {...canvasProps}
-        {...this.getSnapSpaces()}
+        {...snapSpaces}
+        columnSplitRatio={columnSplitRatio}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
         useAutoLayout={this.props.useAutoLayout}
       >

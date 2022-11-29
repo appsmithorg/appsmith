@@ -84,6 +84,57 @@ export function getLayoutProperties(
   }
   return properties;
 }
+interface ColumnSplitOptionType {
+  label: string;
+  value: ColumnSplitTypes;
+}
+
+export type ColumnSplitTypes =
+  | "1-column"
+  | "2-column-50-50"
+  | "2-column-25-75"
+  | "2-column-75-25";
+
+export const ColumnSplitRatio: { [key in ColumnSplitTypes]: number[] } = {
+  "1-column": [1],
+  "2-column-50-50": [0.5, 0.5],
+  "2-column-25-75": [0.25, 0.75],
+  "2-column-75-25": [0.75, 0.25],
+};
+
+export const ColumnSplitOptions: ColumnSplitOptionType[] = [
+  {
+    label: "1 Column",
+    value: "1-column",
+  },
+  {
+    label: "2 Column 50-50",
+    value: "2-column-50-50",
+  },
+  {
+    label: "2 Column 25-75",
+    value: "2-column-25-75",
+  },
+  {
+    label: "2 Column 75-25",
+    value: "2-column-75-25",
+  },
+];
+
+export const getColumnSplittingConfig = () => {
+  return {
+    helpText: "Column Splitting configuration",
+    propertyName: "columnSplitType",
+    label: "Container Split",
+    controlType: "COLUMN_SPLIT_OPTIONS",
+    defaultValue: ColumnSplitOptions[0].value,
+    options: ColumnSplitOptions,
+    isJSConvertible: false,
+    isBindProperty: false,
+    isTriggerProperty: true,
+    validation: { type: ValidationTypes.TEXT },
+  };
+};
 
 export const generateResponsiveBehaviorConfig = (
   value: ResponsiveBehavior,

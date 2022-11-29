@@ -1,4 +1,3 @@
-import { isArray } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import {
   ReduxAction,
@@ -9,20 +8,30 @@ import {
   LayoutDirection,
   ResponsiveBehavior,
 } from "components/constants";
-import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import log from "loglevel";
-import { getWidgets } from "sagas/selectors";
 import {
   FlexLayer,
   LayerChild,
 } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
-import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { isArray } from "lodash";
+import log from "loglevel";
+import { HighlightInfo } from "pages/common/CanvasArenas/hooks/useAutoLayoutHighlights";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
   updateFlexChildColumns,
   updateSizeOfAllChildren,
 } from "sagas/AutoLayoutUtils";
+import { getWidgets } from "sagas/selectors";
+import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import {
+  ColumnSplitRatio,
+  ColumnSplitTypes,
+} from "utils/layoutPropertiesUtils";
+import { generateReactKey } from "widgets/WidgetUtils";
+import { moveWidget } from "./DraggingCanvasSagas";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -415,6 +424,129 @@ export function removeWidgetsFromCurrentLayers(
   }, []);
 }
 
+function* updateColumnSplitProperty(
+  actionPayload: ReduxAction<{
+    widgetId: string;
+    updatedValue: ColumnSplitTypes;
+  }>,
+) {
+  const { updatedValue, widgetId } = actionPayload.payload;
+  const canvasRatio = ColumnSplitRatio[updatedValue];
+  let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  allWidgets = {
+    ...allWidgets,
+    [widgetId]: {
+      ...allWidgets[widgetId],
+      columnSplitType: updatedValue,
+    },
+  };
+  const expectedCanvas = canvasRatio.length;
+  const widgetCanvases = allWidgets[widgetId].children || [];
+  const numberOfCanvas = widgetCanvases.length;
+  console.log("updating the prop", allWidgets[widgetCanvases[0]]);
+  console.log(
+    "flexLayer",
+    allWidgets[widgetCanvases[0]].flexLayers,
+    allWidgets[widgetCanvases[0]].children,
+  );
+
+  if (numberOfCanvas && expectedCanvas !== numberOfCanvas) {
+    const baseCanvasId = widgetCanvases[0];
+    const baseCanvas = allWidgets[baseCanvasId];
+    // add/remove the canvas widget
+    if (expectedCanvas < numberOfCanvas) {
+      // delete the last canvas and add widgets to first canvas
+
+      if (baseCanvas) {
+        const canvasToBeDeleted = widgetCanvases.slice(1);
+        const widgetsToMove = widgetCanvases.reduce((movingWidgets, each) => {
+          const widgetChildren = allWidgets[each].children || [];
+          movingWidgets = [...movingWidgets, ...widgetChildren];
+          return movingWidgets;
+        }, [] as string[]);
+
+        const updatedWidgets = widgetsToMove.reduce((widgetsObj, each) => {
+          const widgetProps = allWidgets[each];
+          return moveWidget({
+            ...widgetProps,
+            parentId: widgetProps.parentId || "0",
+            newParentId: baseCanvasId,
+            widgetId: each,
+            allWidgets: widgetsObj,
+          });
+        }, allWidgets);
+        const flexUpdatedWidgets = canvasToBeDeleted.reduce(
+          (widgetsObj, each) => {
+            const baseWidget = widgetsObj[baseCanvasId];
+            const container = widgetsObj[widgetId];
+            const updatedBaseWidget = {
+              ...baseWidget,
+              flexLayers: [
+                ...baseWidget.flexLayers,
+                ...widgetsObj[each].flexLayers,
+              ],
+            };
+            // update the parent
+            const widgetUpdate = {
+              ...container,
+              children: (container.children || []).filter(
+                (eachChild) => eachChild !== each,
+              ),
+            };
+            return {
+              ...widgetsObj,
+              [baseCanvasId]: updatedBaseWidget,
+              [widgetId]: widgetUpdate,
+            } as CanvasWidgetsReduxState;
+          },
+          updatedWidgets,
+        );
+        yield put(
+          updateAndSaveLayout({
+            ...flexUpdatedWidgets,
+            [widgetId]: {
+              ...flexUpdatedWidgets[widgetId],
+              columnSplitType: updatedValue,
+            },
+          }),
+        );
+      }
+    } else {
+      const newCanvasId = generateReactKey();
+
+      const canvasPayload: any = {
+        widgetId,
+        type: "CANVAS_WIDGET",
+        leftColumn: 0,
+        topRow: 0,
+        columns: baseCanvas.rightColumn - baseCanvas.leftColumn,
+        rows: baseCanvas.bottomRow - baseCanvas.topRow,
+        parentRowSpace: 1,
+        parentColumnSpace: 1,
+        newWidgetId: newCanvasId,
+      };
+      const updatedWidgets: {
+        [widgetId: string]: FlattenedWidgetProps;
+      } = yield call(getUpdateDslAfterCreatingChild, canvasPayload);
+      yield put(
+        updateAndSaveLayout({
+          ...updatedWidgets,
+          [widgetId]: {
+            ...updatedWidgets[widgetId],
+            columnSplitType: updatedValue,
+          },
+        }),
+      );
+
+      console.log("creating canvas", { updatedWidgets });
+      // add canvas
+    }
+  } else {
+    yield put(updateAndSaveLayout(allWidgets));
+  }
+  // set ratios based on column split selected
+}
+
 export default function* autoLayoutDraggingSagas() {
   yield all([
     takeLatest(
@@ -424,6 +556,10 @@ export default function* autoLayoutDraggingSagas() {
     takeLatest(
       ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       addWidgetAndReorderSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_COLUMN_SPLIT_PROPERTY,
+      updateColumnSplitProperty,
     ),
   ]);
 }
