@@ -16,7 +16,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
-import { defaultLibraryNames, isDynamicValue } from "./DynamicBindingUtils";
+import { isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -31,6 +31,7 @@ import {
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import { libraryReservedNames } from "workers/common/JSLibrary";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -415,7 +416,7 @@ export const isNameValid = (
     has(DATA_TREE_KEYWORDS, name) ||
     has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
     has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
-    has(defaultLibraryNames, name) ||
+    has(libraryReservedNames, name) ||
     has(invalidNames, name)
   );
 };

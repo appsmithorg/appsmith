@@ -2,8 +2,6 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  JSLibraries,
-  libraryReservedNames,
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
@@ -20,7 +18,11 @@ import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
 import SetupDOM, { DOM_APIS } from "./SetupDOM";
-import { resetJSLibraries } from "./JSLibrary";
+import {
+  JSLibraries,
+  libraryReservedNames,
+  resetJSLibraries,
+} from "../common/JSLibrary";
 
 export type EvalResult = {
   result: any;
@@ -434,21 +436,7 @@ export function isFunctionAsync(
           const dataTreeKey = GLOBAL_DATA[datum];
           if (dataTreeKey) {
             const data = dataTreeKey[key]?.data;
-            //do not remove, we will be investigating this
-            // const isAsync = dataTreeKey.meta[key]?.isAsync || false;
-            // const confirmBeforeExecute =
-            //   dataTreeKey.meta[key]?.confirmBeforeExecute || false;
             dataTreeKey[key] = resolvedObject[key];
-            // if (isAsync && confirmBeforeExecute) {
-            //   dataTreeKey[key] = confirmationPromise.bind(
-            //     {},
-            //     "",
-            //     resolvedObject[key],
-            //     key,
-            //   );
-            // } else {
-            //   dataTreeKey[key] = resolvedObject[key];
-            // }
             if (!!data) {
               dataTreeKey[key].data = data;
             }

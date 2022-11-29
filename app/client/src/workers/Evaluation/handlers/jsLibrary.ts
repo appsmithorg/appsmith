@@ -1,6 +1,6 @@
 import difference from "lodash/difference";
-import { JSLibraries, libraryReservedNames } from "utils/DynamicBindingUtils";
-import { makeTernDefs } from "../JSLibrary/ternDefinitionGenerator";
+import { JSLibraries, libraryReservedNames } from "../../common/JSLibrary";
+import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import { EvalWorkerRequest } from "../types";
 
 export function installLibrary(request: EvalWorkerRequest) {

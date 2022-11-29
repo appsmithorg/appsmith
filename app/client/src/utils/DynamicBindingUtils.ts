@@ -1,17 +1,13 @@
-import _, { get, isString, VERSION as lodashVersion } from "lodash";
+import _, { get, isString } from "lodash";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
-import moment from "moment-timezone";
 import { WidgetProps } from "widgets/BaseWidget";
-import parser from "fast-xml-parser";
-
 import { Severity } from "entities/AppsmithConsole";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
   isTrueObject,
 } from "workers/Evaluation/evaluationUtils";
-import forge from "node-forge";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
@@ -151,63 +147,6 @@ export enum EVAL_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
 }
 
-export type TJSLibrary = {
-  version?: string;
-  docsURL: string;
-  name: string;
-  accessor: string[];
-  lib?: any;
-  url?: string;
-};
-export const defaultLibraries: TJSLibrary[] = [
-  {
-    accessor: ["_"],
-    lib: _,
-    version: lodashVersion,
-    docsURL: `https://lodash.com/docs/${lodashVersion}`,
-    name: "lodash",
-  },
-  {
-    accessor: ["moment"],
-    lib: moment,
-    version: moment.version,
-    docsURL: `https://momentjs.com/docs/`,
-    name: "moment",
-  },
-  {
-    accessor: ["xmlParser"],
-    lib: parser,
-    version: "3.17.5",
-    docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
-    name: "xmlParser",
-  },
-  {
-    accessor: ["forge"],
-    // We are removing some functionalities of node-forge because they wont
-    // work in the worker thread
-    lib: _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
-    version: "1.3.0",
-    docsURL: "https://github.com/digitalbazaar/forge",
-    name: "forge",
-  },
-];
-
-export const JSLibraries = [...defaultLibraries];
-export const libraryReservedNames = new Set(
-  ...defaultLibraries.map((lib) => lib.accessor[0]),
-);
-/**
- * creates dynamic list of constants based on
- * current list of extra libraries i.e lodash("_"), moment etc
- * to be used in widget and entity name validations
- */
-export const defaultLibraryNames = defaultLibraries.reduce(
-  (prev: Record<string, string>, curr) => {
-    prev[curr.accessor[0]] = curr.accessor[0];
-    return prev;
-  },
-  {},
-);
 export interface DynamicPath {
   key: string;
   value?: string;

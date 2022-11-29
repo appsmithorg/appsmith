@@ -1,6 +1,6 @@
 import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
 import interceptAndOverrideHttpRequest from "../HTTPRequestOverride";
-import { resetJSLibraries } from "../JSLibrary";
+import { resetJSLibraries } from "../../common/JSLibrary";
 import SetupDOM from "../SetupDOM";
 import overrideTimeout from "../TimeoutOverride";
 import { EvalWorkerRequest } from "../types";

@@ -3,7 +3,6 @@ import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { Position } from "codemirror";
 import {
   EVAL_WORKER_ACTIONS,
-  JSLibraries,
   isDynamicValue,
   isPathADynamicBinding,
   LintError,
@@ -53,6 +52,7 @@ import {
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { JSUpdate } from "utils/JSPaneUtils";
 import { Severity } from "entities/AppsmithConsole";
+import { JSLibraries } from "workers/common/JSLibrary";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],

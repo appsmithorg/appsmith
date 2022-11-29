@@ -1,11 +1,11 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import { defaultLibraries, TJSLibrary } from "utils/DynamicBindingUtils";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
+import { defaultLibraries, TJSLibrary } from "workers/common/JSLibrary";
 
 export enum InstallState {
   Queued,

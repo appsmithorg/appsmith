@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { TJSLibrary } from "utils/DynamicBindingUtils";
+import { TJSLibrary } from "workers/common/JSLibrary";
 
 export function fetchJSLibraries(applicationId: string) {
   return {

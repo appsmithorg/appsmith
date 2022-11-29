@@ -1,6 +1,6 @@
 import { isEqual } from "lodash";
-import { JSLibraries } from "utils/DynamicBindingUtils";
 import { WorkerErrorTypes } from "workers/common/types";
+import { JSLibraries } from "workers/common/JSLibrary";
 import {
   LintWorkerRequest,
   LintTreeResponse,
