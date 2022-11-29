@@ -806,10 +806,18 @@ export const cleanSet = (
   targetObj: Record<string, unknown>,
   path: string,
   value: unknown,
-) => {
+): Record<string, unknown> => {
   const paths = path.split(".");
   const propertyName = paths.pop() as string;
-  const newParentObj = Object.assign({}, get(targetObj, paths, {}));
+  const newParentObj = paths.length
+    ? Object.assign({}, get(targetObj, paths, {}))
+    : targetObj;
+  if (!propertyName) {
+    // @ts-expect-error: value is unknown
+    targetObj = value;
+    // @ts-expect-error: value is unknown
+    return value;
+  }
   newParentObj[propertyName] = value;
-  set(targetObj, paths, newParentObj);
+  return cleanSet(targetObj, paths.join("."), newParentObj);
 };

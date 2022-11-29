@@ -9,6 +9,7 @@ import {
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import {
+  cleanSet,
   DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
@@ -30,6 +31,8 @@ import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
+import { waitFor } from "@testing-library/react";
+import { wait } from "@testing-library/user-event/dist/utils";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -777,5 +780,23 @@ describe("Evaluated Datatype of a given value", () => {
     expect(findDatatype([1, 2, 3])).toBe("array");
     expect(findDatatype(Array.of("a", "b", "c"))).toBe("array");
     expect(findDatatype("a, b, c")).not.toBe("array");
+  });
+});
+
+describe("Test cleanSet method", () => {
+  it("Assert targetObject source references are not mutated and property is set as expected", () => {
+    const sourceObj = {
+      a: {
+        b: { c: "hello" },
+      },
+    };
+    const targetObject = { ...sourceObj };
+    cleanSet(targetObject, "a.b.c", "Welcome to appsmith");
+
+    expect(targetObject.a.b.c).toEqual("Welcome to appsmith");
+    expect(sourceObj.a.b.c).toEqual("hello");
+    expect(sourceObj.a.b === targetObject.a.b).toEqual(false);
+    expect(sourceObj.a === targetObject.a).toEqual(false);
+    expect(sourceObj === targetObject).toEqual(false);
   });
 });

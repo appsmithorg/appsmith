@@ -9,7 +9,7 @@ import {
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
 import { addDataTreeToContext } from "./Actions";
-import { isEmpty, set } from "lodash";
+import { set } from "lodash";
 import { completePromise } from "workers/Evaluation/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
