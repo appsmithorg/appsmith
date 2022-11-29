@@ -519,6 +519,20 @@ Cypress.Commands.add("testJsontextclear", (endp) => {
     }
   });
 });
+
+Cypress.Commands.add("getCodeInput", ($selector, value) => {
+  cy.EnableAllCodeEditors();
+  cy.get($selector)
+    .first()
+    .click({ force: true })
+    .find(".CodeMirror")
+    .first()
+    .then((ins) => {
+      const input = ins[0];
+      return cy.wrap(input);
+    });
+});
+
 /**
  * Usage:
  * Find the element which has a code editor input and then pass it in the function
@@ -527,21 +541,67 @@ Cypress.Commands.add("testJsontextclear", (endp) => {
  *
  */
 Cypress.Commands.add("updateCodeInput", ($selector, value) => {
-  cy.EnableAllCodeEditors();
-  cy.get($selector)
-    .first()
-    .click({ force: true })
-    .find(".CodeMirror")
-    .first()
-    .then((ins) => {
-      const input = ins[0].CodeMirror;
-      input.focus();
-      cy.wait(200);
-      input.setValue(value);
-      cy.wait(1000); //time for value to set
-      //input.focus();
-    });
+  cy.getCodeInput($selector).then((input) => {
+    const codeMirrorInput = input[0].CodeMirror;
+    codeMirrorInput.focus();
+    cy.wait(200);
+    codeMirrorInput.setValue(value);
+    cy.wait(1000); //time for value to set
+  });
 });
+
+Cypress.Commands.add(
+  "focusCodeInput",
+  ($selector, cursor = { ch: 0, line: 0 }) => {
+    cy.getCodeInput($selector).then((input) => {
+      const codeMirrorInput = input[0].CodeMirror;
+      codeMirrorInput.focus();
+      cy.wait(200);
+      codeMirrorInput.setCursor(cursor);
+      cy.wait(1000); //time for value to set
+    });
+  },
+);
+
+Cypress.Commands.add(
+  "assertCursorOnCodeInput",
+  ($selector, cursor = { ch: 0, line: 0 }) => {
+    cy.EnableAllCodeEditors();
+    cy.get($selector)
+      .first()
+      .find(".CodeMirror")
+      .first()
+      .then((ins) => {
+        const input = ins[0].CodeMirror;
+        expect(input.hasFocus()).to.be.true;
+        const editorCursor = input.getCursor();
+        expect(editorCursor.ch).to.equal(cursor.ch);
+        expect(editorCursor.line).to.equal(cursor.line);
+      });
+  },
+);
+
+Cypress.Commands.add(
+  "assertSoftFocusOnPropertyPane",
+  ($selector, cursor = { ch: 0, line: 0 }) => {
+    cy.EnableAllCodeEditors();
+    cy.get($selector)
+      .find(".CodeEditorTarget")
+      .should("have.focus")
+      .find(".CodeMirror")
+      .first()
+      .then((ins) => {
+        const input = ins[0].CodeMirror;
+        if (!input.hasFocus()) {
+          input.focus();
+        }
+        expect(input.hasFocus()).to.be.true;
+        const editorCursor = input.getCursor();
+        expect(editorCursor.ch).to.equal(cursor.ch);
+        expect(editorCursor.line).to.equal(cursor.line);
+      });
+  },
+);
 
 Cypress.Commands.add("selectColor", (GivenProperty, colorOffset = -15) => {
   // Property pane of the widget is opened, and click given property.
@@ -1520,4 +1580,63 @@ Cypress.Commands.add("moveToContentTab", () => {
   cy.get(commonlocators.propertyContent)
     .first()
     .click({ force: true });
+});
+
+Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
+  const selector = `.t--draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .eq(index)
+    .scrollIntoView()
+    .trigger("mouseover", { force: true })
+    .wait(500);
+  cy.get(
+    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+  )
+    .eq(index)
+    .scrollIntoView()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("changeLayoutHeight", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .scrollIntoView()
+    .click({ force: true });
+  cy.get(locator).click({ force: true });
+  cy.wait("@updateLayout").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
+  cy.get(".t--property-control-height .remixicon-icon")
+    .scrollIntoView()
+    .click({ force: true });
+  cy.get(locator).click({ force: true });
+});
+
+Cypress.Commands.add("checkMinDefaultValue", (endp, value) => {
+  cy.get(".cm-m-null")
+    .first()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      cy.log(someText);
+      expect(someText).to.equal(value);
+    });
+});
+
+Cypress.Commands.add("checkMaxDefaultValue", (endp, value) => {
+  cy.get(".cm-m-null")
+    .last()
+    .invoke("text")
+    .then((text) => {
+      const someText = text;
+      cy.log(someText);
+      expect(someText).to.equal(value);
+    });
 });

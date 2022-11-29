@@ -18,6 +18,7 @@ import styled, { useTheme } from "styled-components";
 import {
   Button,
   Category,
+  getTypographyByKey,
   LabelContainer,
   Size,
   TextInput,
@@ -37,7 +38,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey, Theme } from "constants/DefaultTheme";
+import { Theme } from "constants/DefaultTheme";
 
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
@@ -56,9 +57,11 @@ import GitChangesList from "../components/GitChangesList";
 import {
   Icon,
   IconSize,
+  ScrollIndicator,
   Text,
   TextType,
   TooltipComponent as Tooltip,
+  Variant,
 } from "design-system";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
@@ -73,10 +76,8 @@ import {
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import useAutoGrow from "utils/hooks/useAutoGrow";
 import { Space, Title } from "../components/StyledComponents";
-import { Variant } from "components/ads";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
-import { ScrollIndicator } from "design-system";
 import { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 
 const Section = styled.div`
@@ -90,7 +91,7 @@ const Row = styled.div`
 `;
 
 const SectionTitle = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   color: ${Colors.CHARCOAL};
   display: inline-flex;
 

@@ -7,7 +7,7 @@ import applicationsReducer from "@appsmith/reducers/uiReducers/applicationsReduc
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
-import workspaceReducer from "./workspaceReducer";
+import workspaceReducer from "@appsmith/reducers/uiReducers/workspaceReducer";
 import templateReducer from "./templateReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
@@ -39,7 +39,10 @@ import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
 import appThemingReducer from "./appThemingReducer";
 import mainCanvasReducer from "./mainCanvasReducer";
+import focusHistoryReducer from "./focusHistoryReducer";
+import { editorContextReducer } from "./editorContextReducer";
 import guidedTourReducer from "./guidedTourReducer";
+import autoHeightUIReducer from "./autoHeightReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -83,6 +86,9 @@ const uiReducer = combineReducers({
   widgetReflow: widgetReflowReducer,
   appTheming: appThemingReducer,
   mainCanvas: mainCanvasReducer,
+  focusHistory: focusHistoryReducer,
+  editorContext: editorContextReducer,
+  autoHeightUI: autoHeightUIReducer,
 });
 
 export default uiReducer;

@@ -43,6 +43,11 @@ import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
+
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
@@ -228,6 +233,18 @@ function AppViewer(props: Props) {
     [triggerEvalOnMetaUpdate, dispatch],
   );
 
+  const updateWidgetAutoHeightCallback = useCallback(
+    (widgetId: string, height: number) => {
+      dispatch(updateWidgetAutoHeightAction(widgetId, height));
+    },
+    [updateWidgetAutoHeightAction, dispatch],
+  );
+
+  const checkContainersForAutoHeightCallback = useCallback(
+    () => dispatch(checkContainersForAutoHeightAction()),
+    [checkContainersForAutoHeightAction],
+  );
+
   return (
     <ThemeProvider theme={lightTheme}>
       <EditorContext.Provider
@@ -237,6 +254,8 @@ function AppViewer(props: Props) {
           batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
           syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
           triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
+          updateWidgetAutoHeight: updateWidgetAutoHeightCallback,
+          checkContainersForAutoHeight: checkContainersForAutoHeightCallback,
         }}
       >
         <WidgetGlobaStyles

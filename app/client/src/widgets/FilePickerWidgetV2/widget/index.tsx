@@ -24,6 +24,7 @@ import { Colors } from "constants/Colors";
 import Papa from "papaparse";
 import { klona } from "klona";
 import { UppyFile } from "@uppy/utils";
+import { Stylesheet } from "entities/AppTheming";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
@@ -205,8 +206,11 @@ class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
 > {
+  private isWidgetUnmounting: boolean;
+
   constructor(props: FilePickerWidgetProps) {
     super(props);
+    this.isWidgetUnmounting = false;
     this.state = {
       isLoading: false,
       uppy: this.initializeUppy(),
@@ -374,7 +378,12 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 5 },
+              params: {
+                min: 1,
+                max: 100,
+                default: 5,
+                passThroughOnZero: false,
+              },
             },
           },
         ],
@@ -497,6 +506,14 @@ class FilePickerWidget extends BaseWidget<
       selectedFiles: [],
       uploadedFileData: {},
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
     };
   }
 
@@ -636,6 +653,10 @@ class FilePickerWidget extends BaseWidget<
           "selectedFiles",
           updatedFiles ?? [],
         );
+      }
+
+      if (reason === "cancel-all" && !this.isWidgetUnmounting) {
+        this.props.updateWidgetMetaProperty("selectedFiles", []);
       }
     });
 
@@ -796,6 +817,7 @@ class FilePickerWidget extends BaseWidget<
   }
 
   componentWillUnmount() {
+    this.isWidgetUnmounting = true;
     this.state.uppy.close();
   }
 

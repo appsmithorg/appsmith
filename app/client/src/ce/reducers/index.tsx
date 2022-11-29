@@ -18,7 +18,7 @@ import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
-import { WorkspaceReduxState } from "reducers/uiReducers/workspaceReducer";
+import { WorkspaceReduxState } from "@appsmith/reducers/uiReducers/workspaceReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
@@ -64,6 +64,13 @@ import { CanvasWidgetStructure } from "widgets/constants";
 import tenantReducer, {
   TenantReduxState,
 } from "@appsmith/reducers/tenantReducer";
+import { FocusHistoryState } from "reducers/uiReducers/focusHistoryReducer";
+import { EditorContextState } from "reducers/uiReducers/editorContextReducer";
+import { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
+import { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
+import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
+import lintErrorReducer from "reducers/lintingReducers";
+import { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -72,6 +79,7 @@ export const reducerObject = {
   form: formReducer,
   settings: SettingsReducer,
   tenant: tenantReducer,
+  linting: lintErrorReducer,
 };
 
 export interface AppState {
@@ -117,6 +125,9 @@ export interface AppState {
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
+    focusHistory: FocusHistoryState;
+    editorContext: EditorContextState;
+    autoHeightUI: AutoHeightUIState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
@@ -129,6 +140,8 @@ export interface AppState {
     meta: MetaState;
     app: AppDataState;
     jsActions: JSCollectionDataState;
+    autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
+    canvasLevels: CanvasLevelsReduxState;
   };
   evaluations: {
     tree: EvaluatedTreeState;
@@ -136,6 +149,9 @@ export interface AppState {
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
     triggers: TriggerValuesEvaluationState;
+  };
+  linting: {
+    errors: LintErrors;
   };
   form: {
     [key: string]: any;

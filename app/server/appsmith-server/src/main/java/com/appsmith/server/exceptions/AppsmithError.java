@@ -89,6 +89,7 @@ public enum AppsmithError {
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR(400, 4038, "The last admin cannot be removed from the workspace", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_CRUD_PAGE_REQUEST(400, 4039, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     UNSUPPORTED_OPERATION_FOR_REMOTE_BRANCH(400, 4040, "This operation is not supported for remote branch {0}. Please use local branches only to proceed", AppsmithErrorAction.DEFAULT, "Unsupported Operation!", ErrorType.BAD_REQUEST, null),
+    ROLES_FROM_SAME_WORKSPACE(400, 4041, "Roles for the same Workspace provided or already exists.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Please try again later.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +
@@ -136,12 +137,12 @@ public enum AppsmithError {
     SSH_KEY_GENERATION_ERROR(500, 5015, "Failed to generate SSH keys, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     GIT_GENERIC_ERROR(504, 5016, "Git command execution error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     GIT_UPSTREAM_CHANGES(400, 4048, "Looks like there are pending upstream changes. To prevent you from losing history, we will pull the changes and push them to your repo.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_UPSTREAM_CHANGES_PUSH_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_UPSTREAM_CHANGES.getDocUrl()),
-    GENERIC_JSON_IMPORT_ERROR(400, 4049, "Unable to import application in workspace {0} with error {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
+    GENERIC_JSON_IMPORT_ERROR(400, 4049, "Unable to import application in workspace {0}, {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     FILE_PART_DATA_BUFFER_ERROR(500, 5017, "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     MIGRATION_ERROR(500, 5018, "This action is already migrated", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     REPOSITORY_NOT_FOUND(404, 4051, "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository Not Found Exception", ErrorType.REPOSITORY_NOT_FOUND, null),
-    UNKNOWN_PLUGIN_REFERENCE(400, 4052, " Unable to find the {0} plugin. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
+    UNKNOWN_PLUGIN_REFERENCE(400, 4052, " Unable to find the plugin. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     PUBLIC_APP_NO_PERMISSION_GROUP(500, 5020, "Invalid state. Public application does not have the required roles set for public access. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     ;

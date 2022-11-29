@@ -19,6 +19,10 @@ import * as selectWidgetMigration from "./migrations/SelectWidget";
 import * as mapChartReskinningMigrations from "./migrations/MapChartReskinningMigrations";
 import { LATEST_PAGE_VERSION } from "constants/WidgetConstants";
 import { originalDSLForDSLMigrations } from "./testDSLs";
+import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
+import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
+import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
+import * as migrateAutoHeight from "./migrations/autoHeightMigrations";
 
 type Migration = {
   functionLookup: {
@@ -623,6 +627,51 @@ const migrations: Migration[] = [
       },
     ],
     version: 63,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: rateWidgetMigrations,
+        functionName: "migrateRateWidgetDisabledState",
+      },
+    ],
+    version: 64,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: codeScannerWidgetMigrations,
+        functionName: "migrateCodeScannerLayout",
+      },
+    ],
+    version: 65,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2ValidationBinding",
+      },
+    ],
+    version: 66,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateLabelPosition,
+        functionName: "migrateLabelPosition",
+      },
+    ],
+    version: 67,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: migrateAutoHeight,
+        functionName: "migratePropertiesForDynamicHeight",
+      },
+    ],
+    version: 68,
   },
 ];
 

@@ -246,16 +246,10 @@ describe("RichTextEditor Widget Functionality", function() {
 
     // Changing the input type to markdown and again testing the cursor position
     cy.openPropertyPane("richtexteditorwidget");
-    cy.selectDropdownValue(
-      ".t--property-control-inputtype .bp3-popover-target",
-      "Markdown",
-    );
+    cy.get(".t--button-tab-markdown").click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
-    cy.selectDropdownValue(
-      ".t--property-control-inputtype .bp3-popover-target",
-      "HTML",
-    );
+    cy.get(".t--button-tab-html").click({ force: true });
   });
 
   it("Check if different font size texts are supported inside the RTE widget", function() {
@@ -278,6 +272,18 @@ describe("RichTextEditor Widget Functionality", function() {
       expect(getCurrentHtmlContent).contains("<h1>");
       expect(getCurrentHtmlContent).contains("<p>");
     });
+  });
+
+  it("Check if button for Underline exists within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Underline"]').should("exist");
+  });
+
+  it("Check if button for Background Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Background color"]').should("have.length", 1);
+  });
+
+  it("Check if button for Text Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Text color"]').should("have.length", 1);
   });
 
   afterEach(() => {

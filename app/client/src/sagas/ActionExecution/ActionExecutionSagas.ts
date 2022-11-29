@@ -10,13 +10,16 @@ import {
 import * as log from "loglevel";
 import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
-  evaluateArgumentSaga,
   evaluateAndExecuteDynamicTrigger,
+  evaluateArgumentSaga,
   evaluateSnippetSaga,
   setAppVersionOnWorkerSaga,
 } from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
-import storeValueLocally from "sagas/ActionExecution/StoreActionSaga";
+import storeValueLocally, {
+  clearLocalStore,
+  removeLocalValue,
+} from "sagas/ActionExecution/StoreActionSaga";
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
 import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
@@ -36,12 +39,12 @@ import {
   logActionExecutionError,
   TriggerFailureError,
   UncaughtPromiseError,
+  UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import {
   clearIntervalSaga,
   setIntervalSaga,
 } from "sagas/ActionExecution/SetIntervalSaga";
-import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
@@ -49,6 +52,7 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { postMessageSaga } from "./PostMessageSaga";
 import { addMessageHandlerSaga } from "./AddMessageHandlerSaga";
 
 export type TriggerMeta = {
@@ -96,6 +100,12 @@ export function* executeActionTriggers(
     case ActionTriggerType.STORE_VALUE:
       yield call(storeValueLocally, trigger.payload);
       break;
+    case ActionTriggerType.REMOVE_VALUE:
+      yield call(removeLocalValue, trigger.payload);
+      break;
+    case ActionTriggerType.CLEAR_STORE:
+      yield call(clearLocalStore);
+      break;
     case ActionTriggerType.DOWNLOAD:
       yield call(downloadSaga, trigger.payload);
       break;
@@ -142,6 +152,9 @@ export function* executeActionTriggers(
       if (!flag) {
         throw new UserCancelledActionExecutionError();
       }
+      break;
+    case ActionTriggerType.POST_MESSAGE:
+      yield call(postMessageSaga, trigger.payload, triggerMeta);
       break;
     case ActionTriggerType.ADD_MESSAGE_HANDLER:
       yield call(

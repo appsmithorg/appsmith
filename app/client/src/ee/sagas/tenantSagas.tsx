@@ -1,5 +1,5 @@
 export * from "ce/sagas/tenantSagas";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { fetchCurrentTenantConfigSaga } from "ce/sagas/tenantSagas";
 import { all, takeLatest } from "redux-saga/effects";
 

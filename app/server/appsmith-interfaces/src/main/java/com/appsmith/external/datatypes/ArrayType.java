@@ -9,7 +9,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.parser.JSONParser;
 import reactor.core.Exceptions;
 
-import java.util.List;
 
 public class ArrayType implements AppsmithType {
 
@@ -20,23 +19,7 @@ public class ArrayType implements AppsmithType {
     public boolean test(String s) {
         final String trimmedValue = s.trim();
 
-        if (trimmedValue.startsWith("[") && trimmedValue.endsWith("]")) {
-            String betweenBraces = trimmedValue.substring(1, trimmedValue.length() - 1);
-            String trimmedInputBetweenBraces = betweenBraces.trim();
-            // In case of no values in the array, set this as null otherwise plugins like postgres and ms-sql
-            // would break while creating a SQL array.
-            if (!trimmedInputBetweenBraces.isEmpty()) {
-                try {
-                    new ObjectMapper().readValue(trimmedValue, List.class);
-                    return true;
-                } catch (JsonProcessingException e) {
-                    return false;
-                }
-
-            }
-        }
-
-        return false;
+        return (trimmedValue.startsWith("[") && trimmedValue.endsWith("]"));
     }
 
     @Override

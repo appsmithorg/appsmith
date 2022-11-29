@@ -6,7 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -26,6 +26,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
           {
             propertyName: "url",
             label: "URL",
+            helpText: "Link to the audio file which should be played",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter url",
             inputType: "TEXT",

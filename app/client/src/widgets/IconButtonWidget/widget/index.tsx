@@ -9,6 +9,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IconButtonComponent from "../component";
 import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariant, ButtonVariantTypes } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -116,7 +117,8 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
           {
             propertyName: "buttonVariant",
             label: "Button Variant",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Sets the variant of the icon button",
             options: [
               {
@@ -197,6 +199,14 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   getPageView() {

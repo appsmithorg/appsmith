@@ -36,8 +36,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Toaster } from "design-system";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -108,7 +107,7 @@ function DatasourceAuth({
     formData &&
     formData?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const { id: datasourceId } = datasource;
+  const { id: datasourceId, isDeleting } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
 
   // hooks
@@ -124,11 +123,6 @@ function DatasourceAuth({
       delayConfirmDeleteToFalse();
     }
   }, [confirmDelete]);
-
-  const delayConfirmDeleteToFalse = debounce(
-    () => setConfirmDelete(false),
-    2200,
-  );
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -165,8 +159,13 @@ function DatasourceAuth({
 
   // selectors
   const {
-    datasources: { isDeleting, isTesting, loading: isSaving },
+    datasources: { isTesting, loading: isSaving },
   } = useSelector(getEntities);
+
+  const delayConfirmDeleteToFalse = debounce(
+    () => setConfirmDelete(false),
+    2200,
+  );
 
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasourceId),
@@ -241,7 +240,7 @@ function DatasourceAuth({
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
           text={
-            confirmDelete
+            confirmDelete && !isDeleting
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }

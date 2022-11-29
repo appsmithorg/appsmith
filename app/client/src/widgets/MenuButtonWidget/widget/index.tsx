@@ -14,6 +14,7 @@ import {
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { MinimumPopupRows } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -145,7 +146,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       label: "Icon",
                       helpText: "Sets the icon to be used for a menu item",
                       controlType: "ICON_SELECT",
-                      isBindProperty: false,
+                      isJSConvertible: true,
+                      isBindProperty: true,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
                     },
@@ -154,6 +156,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       label: "Position",
                       helpText: "Sets the icon alignment of a menu item",
                       controlType: "ICON_TABS",
+                      fullWidth: true,
                       options: [
                         {
                           icon: "VERTICAL_LEFT",
@@ -261,7 +264,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           {
             propertyName: "menuVariant",
             label: "Button Variant",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Sets the variant of the menu button",
             options: [
               {
@@ -302,7 +306,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Icon",
             helpText: "Sets the icon to be used for the menu button",
             controlType: "ICON_SELECT",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             updateHook: (
               props: MenuButtonWidgetProps,
@@ -328,6 +333,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Position",
             helpText: "Sets the icon alignment of the menu button",
             controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 icon: "VERTICAL_LEFT",
@@ -350,7 +356,8 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           {
             propertyName: "placement",
             label: "Placement",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             helpText: "Sets the space between items",
             options: [
               {
@@ -427,6 +434,14 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      menuColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   menuItemClickHandler = (onClick: string | undefined) => {

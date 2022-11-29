@@ -74,6 +74,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("4. Update table json data and check the derived column values after update", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.moveToContentTab();
     cy.tableV2ColumnDataValidation("id");
     cy.tableV2ColumnDataValidation("name");
     cy.tableV2ColumnDataValidation("status");

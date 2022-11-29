@@ -28,7 +28,7 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
 export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
-  `Default text length must be less than ${max} characters`;
+  `Default text length must be less than or equal to ${max} characters`;
 export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
   `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
@@ -390,15 +390,18 @@ export const SHOW_MESSAGE = () => `Show message`;
 export const OPEN_MODAL = () => `Open modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const STORE_VALUE = () => `Store value`;
+export const REMOVE_VALUE = () => `Remove value`;
+export const CLEAR_STORE = () => `Clear store`;
 export const DOWNLOAD = () => `Download`;
 export const COPY_TO_CLIPBOARD = () => `Copy to clipboard`;
 export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
+export const GET_GEO_LOCATION = () => `Get Geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const POST_MESSAGE = () => `Post message`;
 export const ADD_MESSAGE_HANDLER = () => `Add message handler`;
 
 //js actions
@@ -1023,8 +1026,28 @@ export const DISCONNECT_AUTH_ERROR = () =>
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
-export const AUDIT_LOGS = () => "Audit logs";
-export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
+export const AUDIT_LOGS = () => "Audit Logs";
+
+// Audit logs Upgrade page begin
+export const INTRODUCING = (featureName: string) =>
+  `Introducing ${featureName}`;
+export const AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING = () =>
+  "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.";
+export const SECURITY_AND_COMPLIANCE = () => "Security & Compliance";
+export const SECURITY_AND_COMPLIANCE_DETAIL1 = () =>
+  "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.";
+export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
+  "Exports to popular compliance tools coming soon";
+export const DEBUGGING = () => "Debugging";
+export const DEBUGGING_DETAIL1 = () =>
+  "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.";
+export const INCIDENT_MANAGEMENT = () => "Incident Management";
+export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
+  "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
+export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
+export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
+  `The ${featureName} feature is exclusive to workspaces on the Enterprise Plan`;
+// Audit logs Upgrade page end
 // Audit logs end
 
 //
@@ -1159,6 +1182,7 @@ export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
+export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
 export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
@@ -1259,7 +1283,34 @@ export const INVALID_URL = () =>
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
-  { label: "Success", value: "'success'", id: "success" },
+  {
+    label: "Success",
+    value: "'success'",
+    id: "success",
+  },
   { label: "Error", value: "'error'", id: "error" },
   { label: "Warning", value: "'warning'", id: "warning" },
 ];
+
+export const USAGE_AND_BILLING = {
+  usage: () => "Usage",
+  billing: () => "Billing",
+  usageAndBilling: () => "Usage & Billing",
+  usageOverNDays: (days: number) => `Usage over the past ${days} days!`,
+  usageDetails: () =>
+    "This is how much you have used Appsmith to build and run apps.",
+  unit: () => "minutes/day",
+  averaged: () => "*averaged",
+  approximated: () => "*approximated",
+  sell: () => "Figure out your usage before purchasing Appsmith",
+  upgradeToBusiness: () => "UPGRADE TO BUSINESS EDITION",
+  rbacHeading: () => "Role Based Access Control",
+  rbacDetails: () =>
+    "RBAC is here to allow you to control access to appsmith as easy as you maintain your organization.",
+  ssoHeading: () => "SSO and Custom Authentication",
+  ssoDetails: () => "SSO and custom auth allow you to onboard users faster.",
+  gitHeading: () => "Unlimited private git repositories",
+  gitDetails: () => "Expand your single source of truth capability to infinite",
+  exclusive: () =>
+    "These features are exclusively available on business edition.",
+};

@@ -23,7 +23,6 @@
     "queryDelete": "//div[contains(@class, 't--template-menu')]//div[text()='Delete']",
     "queryFromEmail":".CodeMirror-lines",
     "codeTextArea": "//div[@class='CodeMirror-code']//span/span",
-    "countText": "//span[contains(@class, 'cs-text')][text()='Result:']/span",
     "searchFilefield": "//input[@placeholder='Search File Prefix']",
     "copyURLicon": "//button/span[@icon='link']",
     "deleteFileicon": "//button/span[@icon='trash']/ancestor::div[contains(@class,'t--widget-iconbuttonwidget')]",

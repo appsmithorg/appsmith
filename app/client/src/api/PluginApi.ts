@@ -1,11 +1,10 @@
 import Api from "api/Api";
 import { AxiosPromise } from "axios";
 import { ApiResponse } from "api/ApiResponses";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
 export type PluginId = string;
-export type PluginPackageName = string;
 export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;
 
 export enum UIComponentTypes {
@@ -24,7 +23,7 @@ export interface Plugin {
   id: string;
   name: string;
   type: PluginType;
-  packageName: string;
+  packageName: PluginPackageName;
   iconLocation?: string;
   uiComponent: UIComponentTypes;
   datasourceComponent: DatasourceComponentTypes;

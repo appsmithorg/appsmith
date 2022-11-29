@@ -37,7 +37,10 @@ describe("Table Widget and Navigate to functionality validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
-    cy.get(widgetsPage.tableOnRowSelect).click();
+    cy.focused().blur();
+    cy.get(widgetsPage.tableOnRowSelect)
+      .scrollIntoView()
+      .click();
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Navigate to")

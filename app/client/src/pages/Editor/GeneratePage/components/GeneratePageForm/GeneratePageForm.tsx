@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -28,6 +27,7 @@ import {
   Category,
   Dropdown,
   DropdownOption,
+  getTypographyByKey,
   IconName,
   IconSize,
   RenderDropdownOptionType,
@@ -54,7 +54,6 @@ import {
   DropdownOptions,
   DatasourceTableDropdownOption,
   PluginFormInputFieldMap,
-  PLUGIN_PACKAGE_NAME,
   DEFAULT_DROPDOWN_OPTION,
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
@@ -70,6 +69,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
+import { PluginPackageName } from "entities/Action";
 
 //  ---------- Styles ----------
 
@@ -105,7 +105,7 @@ const FormWrapper = styled.div`
 `;
 
 const FormSubmitButton = styled(Button)<{ disabled?: boolean }>`
-  ${(props) => getTypographyByKey(props, "btnLarge")};
+  ${getTypographyByKey("btnLarge")};
   color: ${Colors.DOVE_GRAY2};
   margin: 10px 0px;
 `;
@@ -122,7 +122,7 @@ const DescWrapper = styled.div`
 `;
 
 const Title = styled.p`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   font-weight: 500;
   color: ${Colors.CODE_GRAY};
   font-size: 24px;
@@ -223,10 +223,10 @@ function GeneratePageForm() {
     generateCRUDSupportedPlugin[selectedDatasourcePluginId];
 
   const isGoogleSheetPlugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
+    selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS;
 
   const isS3Plugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
+    selectedDatasourcePluginPackageName === PluginPackageName.S3;
 
   const isFetchingSheetPluginForm = useSelector((state: AppState) => {
     if (isGoogleSheetPlugin) {
@@ -287,7 +287,7 @@ function GeneratePageForm() {
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
-            case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
+            case PluginPackageName.GOOGLE_SHEETS:
               break;
             default: {
               if (dataSourceObj.id) {
@@ -598,7 +598,7 @@ function GeneratePageForm() {
 
   const showSearchableColumn =
     !!selectedTable.value &&
-    PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
+    PluginPackageName.S3 !== selectedDatasourcePluginPackageName;
 
   const showSubmitButton =
     selectedTable.value &&

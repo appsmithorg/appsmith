@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -247,9 +248,12 @@ class RefactoringSolutionCETest {
         action.setDatasource(datasource);
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "firstWidgetId");
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.addAll(List.of(new JSONObject(Map.of("key", "innerArrayReference[0].innerK")),
+                new JSONObject(Map.of("key", "innerObjectReference.k")),
+                new JSONObject(Map.of("key", "testField"))));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ \tbeforeNameChange.data }}");
         final JSONObject innerObjectReference = new JSONObject();
@@ -311,9 +315,12 @@ class RefactoringSolutionCETest {
         action.setDatasource(datasource);
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "firstWidgetId");
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.addAll(List.of(new JSONObject(Map.of("key", "innerArrayReference[0].innerK")),
+                new JSONObject(Map.of("key", "innerObjectReference.k")),
+                new JSONObject(Map.of("key", "testField"))));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "{{ \tbeforeNameChange.data }}");
         final JSONObject innerObjectReference = new JSONObject();
@@ -477,6 +484,7 @@ class RefactoringSolutionCETest {
         action.setDatasource(datasource);
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "firstWidgetId");
         dsl.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
         temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
@@ -545,6 +553,7 @@ class RefactoringSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "testId");
         dsl.put("widgetName", "Table1");
         dsl.put("type", "TABLE_WIDGET");
         Map primaryColumns = new HashMap<String, Object>();
@@ -591,6 +600,7 @@ class RefactoringSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "simpleRefactorId");
         dsl.put("widgetName", "Table1");
         dsl.put("type", "TABLE_WIDGET");
         Layout layout = testPage.getLayouts().get(0);
@@ -626,13 +636,17 @@ class RefactoringSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "testId");
         dsl.put("widgetName", "List1");
         dsl.put("type", "LIST_WIDGET");
         JSONObject template = new JSONObject();
-        template.put("oldWidgetName", "irrelevantContent");
+        JSONObject oldWidgetTemplate = new JSONObject();
+        oldWidgetTemplate.put("widgetName", "oldWidgetName");
+        template.put("oldWidgetName", oldWidgetTemplate);
         dsl.put("template", template);
         final JSONArray children = new JSONArray();
         final JSONObject defaultWidget = new JSONObject();
+        defaultWidget.put("widgetId", "testId2");
         defaultWidget.put("widgetName", "oldWidgetName");
         defaultWidget.put("type", "TEXT_WIDGET");
         children.add(defaultWidget);
@@ -648,7 +662,7 @@ class RefactoringSolutionCETest {
         refactorNameDTO.setOldName("oldWidgetName");
         refactorNameDTO.setNewName("newWidgetName");
 
-        Mono<LayoutDTO> widgetRenameMono = refactoringSolution.refactorWidgetName(refactorNameDTO).cache();
+        Mono<LayoutDTO> widgetRenameMono = refactoringSolution.refactorWidgetName(refactorNameDTO);
 
         StepVerifier
                 .create(widgetRenameMono)
@@ -667,6 +681,7 @@ class RefactoringSolutionCETest {
 
         // Set up table widget in DSL
         JSONObject dsl = new JSONObject();
+        dsl.put("widgetId", "testId");
         dsl.put("widgetName", "Table1");
         dsl.put("type", "TABLE_WIDGET");
         Layout layout = testPage.getLayouts().get(0);
@@ -681,11 +696,16 @@ class RefactoringSolutionCETest {
         actionCollectionDTO1.setApplicationId(testApp.getId());
         actionCollectionDTO1.setWorkspaceId(testApp.getWorkspaceId());
         actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
         action1.getActionConfiguration().setBody("\tTable1");
-        actionCollectionDTO1.setBody("\tTable1");
+        action1.setDynamicBindingPathList(List.of(new Property("body", null)));
+        action1.setPluginType(PluginType.JS);
+
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setBody("export default { x : \tTable1 }");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
@@ -710,7 +730,7 @@ class RefactoringSolutionCETest {
                 .assertNext(tuple -> {
                     final ActionCollection actionCollection = tuple.getT1();
                     final NewAction action = tuple.getT2();
-                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("\tNewNameTable1");
+                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("export default { x : \tNewNameTable1 }");
                     final ActionDTO unpublishedAction = action.getUnpublishedAction();
                     assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
                     final Optional<String> first = unpublishedAction.getJsonPathKeys().stream().findFirst();
@@ -734,6 +754,7 @@ class RefactoringSolutionCETest {
         originalActionCollectionDTO.setPageId(testPage.getId());
         originalActionCollectionDTO.setPluginId(jsDatasource.getPluginId());
         originalActionCollectionDTO.setPluginType(PluginType.JS);
+        originalActionCollectionDTO.setBody("export default { x: 1 }");
 
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
@@ -747,7 +768,7 @@ class RefactoringSolutionCETest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         assert dto != null;
         actionCollectionDTO.setId(dto.getId());
-        actionCollectionDTO.setBody("body");
+        actionCollectionDTO.setBody("export default { x: Table1 }");
         actionCollectionDTO.setName("newName");
 
         RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO = new RefactorActionNameInCollectionDTO();
@@ -772,7 +793,7 @@ class RefactoringSolutionCETest {
                     final ActionCollectionDTO actionCollectionDTOResult = tuple.getT1().getUnpublishedCollection();
                     final NewAction newAction = tuple.getT2();
                     assertEquals("originalName", actionCollectionDTOResult.getName());
-                    assertEquals("body", actionCollectionDTOResult.getBody());
+                    assertEquals("export default { x: Table1 }", actionCollectionDTOResult.getBody());
                     assertEquals("newTestAction", newAction.getUnpublishedAction().getName());
                     assertEquals("originalName.newTestAction", newAction.getUnpublishedAction().getFullyQualifiedName());
                 })

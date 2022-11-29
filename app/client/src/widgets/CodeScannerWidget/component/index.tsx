@@ -3,24 +3,36 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import Modal from "react-modal";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, css } from "styled-components";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { getBrowserInfo, getPlatformOS, PLATFORM_OS } from "utils/helpers";
 import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { ReactComponent as CameraOfflineIcon } from "assets/icons/widget/camera/camera-offline.svg";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import log from "loglevel";
 import { Popover2 } from "@blueprintjs/popover2";
 import Interweave from "interweave";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { ButtonPlacement } from "components/constants";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonPlacement,
+  ButtonVariant,
+  ButtonVariantTypes,
+} from "components/constants";
+import { ScannerLayout } from "../constants";
+import { ThemeProp } from "widgets/constants";
+import { ReactComponent as FlipImageIcon } from "assets/icons/widget/codeScanner/flip.svg";
+import { usePageVisibility } from "react-page-visibility";
 
 const CodeScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
   boxShadow?: string;
+  disabled: boolean;
+  scannerLayout: ScannerLayout;
 }>`
   .code-scanner-content {
     position: fixed;
@@ -66,7 +78,7 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
       right: -36px;
     }
   }
-  
+
   @keyframes scan {
     from {top: 0%}
     to {top: calc(100% - 4px);}
@@ -74,6 +86,11 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
 
   .code-scanner-camera-container {
     border-radius: ${({ borderRadius }) => borderRadius};
+    background: ${({ disabled }) =>
+      disabled ? "var(--wds-color-bg-disabled)" : "#000"};
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow, scannerLayout }) =>
+      scannerLayout === ScannerLayout.ALWAYS_ON ? boxShadow : "none"};
     overflow: hidden;
     height: 100%;
     position: relative;
@@ -94,14 +111,45 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
       z-index: 1;
       border-radius: ${({ borderRadius }) => borderRadius};
     }
+
+    &.mirror-video {
+      video {
+        transform: scaleX(-1);
+      }
+    }
   }
 
   .code-scanner-camera-container video {
     height: 100%;
     position: relative;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: ${({ borderRadius }) => borderRadius};
   }
+`;
+
+const overlayerMixin = css`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export interface DisabledOverlayerProps {
+  disabled: boolean;
+}
+
+const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
+  ${overlayerMixin};
+  display: ${({ disabled }) => (disabled ? `flex` : `none`)};
+  height: 100%;
+  z-index: 2;
+  background: var(--wds-color-bg-disabled);
 `;
 
 const DeviceButtonContainer = styled.div`
@@ -140,7 +188,7 @@ const ControlPanelOverlayer = styled.div<ControlPanelOverlayerProps>`
 const MediaInputsContainer = styled.div`
   display: flex;
   flex: 1;
-  justify-content: flex-end;
+  justify-content: space-between;
 
   & .bp3-minimal {
     height: 30px;
@@ -170,7 +218,10 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
-const ErrorMessageWrapper = styled.div`
+const ErrorMessageWrapper = styled.div<{
+  borderRadius?: string;
+  boxShadow?: string;
+}>`
   height: 100%;
   width: 100%;
   padding: 0.5em 0;
@@ -180,6 +231,37 @@ const ErrorMessageWrapper = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  background-color: black;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => boxShadow};
+`;
+
+export interface StyledButtonProps {
+  variant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+}
+
+const StyledButton = styled(Button)<ThemeProp & StyledButtonProps>`
+  z-index: 1;
+  height: 32px;
+  width: 32px;
+  margin: 0 1%;
+  box-shadow: none !important;
+  ${({ borderRadius }) =>
+    borderRadius === ButtonBorderRadiusTypes.CIRCLE &&
+    `
+    border-radius: 50%;
+  `}
+  border: ${({ variant }) =>
+    variant === ButtonVariantTypes.SECONDARY ? `1px solid white` : `none`};
+  background: ${({ theme, variant }) =>
+    variant === ButtonVariantTypes.PRIMARY
+      ? theme.colors.button.primary.primary.bgColor
+      : `none`} !important;
+
+  &:hover {
+    background: rgba(167, 182, 194, 0.3) !important;
+  }
 `;
 
 // Device menus (microphone, camera)
@@ -246,6 +328,7 @@ export interface ControlPanelProps {
   appLayoutType?: SupportedLayouts;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
   updateDeviceInputs: () => void;
+  handleImageMirror: () => void;
 }
 
 function ControlPanel(props: ControlPanelProps) {
@@ -302,6 +385,12 @@ function ControlPanel(props: ControlPanelProps) {
     <ControlPanelContainer>
       <ControlPanelOverlayer appLayoutType={appLayoutType}>
         <MediaInputsContainer>
+          <StyledButton
+            borderRadius={ButtonBorderRadiusTypes.SHARP}
+            icon={<Icon color="white" icon={<FlipImageIcon />} iconSize={20} />}
+            onClick={props.handleImageMirror}
+            variant={ButtonVariantTypes.TERTIARY}
+          />
           {renderMediaDeviceSelectors()}
         </MediaInputsContainer>
       </ControlPanelOverlayer>
@@ -313,11 +402,18 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
   const [error, setError] = useState<string>("");
+  const [isImageMirrored, setIsImageMirrored] = useState(false);
   const [videoConstraints, setVideoConstraints] = useState<
     MediaTrackConstraints
   >({
     facingMode: "environment",
   });
+
+  /**
+   * Check if the tab is active.
+   * If not, stop scanning and detecting codes in background.
+   */
+  const isTabActive = usePageVisibility();
 
   const openModal = () => {
     setIsOpen(true);
@@ -368,6 +464,10 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
     setError((error as DOMException).message);
   }, []);
 
+  const handleImageMirror = () => {
+    setIsImageMirrored(!isImageMirrored);
+  };
+
   const renderComponent = () => {
     const handleOnResult = (err: any, result: any) => {
       if (!!result) {
@@ -382,54 +482,86 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
       }
     };
 
-    return (
-      <>
-        <CodeScannerGlobalStyles
-          borderRadius={props.borderRadius}
-          boxShadow={props.boxShadow}
-        />
+    const errorMessage = (
+      <ErrorMessageWrapper
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+      >
+        <CameraOfflineIcon />
+        <span className="error-text">{error}&ensp;</span>
+        {error === "Permission denied" && (
+          <a
+            href="https://support.google.com/chrome/answer/2693767"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Know more
+          </a>
+        )}
+      </ErrorMessageWrapper>
+    );
 
-        <Modal
-          className="code-scanner-content"
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          overlayClassName="code-scanner-overlay"
-        >
-          {error && (
-            <ErrorMessageWrapper>
-              <CameraOfflineIcon />
-              <span className="error-text">{error}&ensp;</span>
-              {error === "Permission denied" && (
-                <a
-                  href="https://support.google.com/chrome/answer/2693767"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  Know more
-                </a>
-              )}
-            </ErrorMessageWrapper>
-          )}
-
-          {modalIsOpen && !error && (
-            <div className="code-scanner-camera-container">
+    const codeScannerCameraContainer = (
+      <div
+        className={`code-scanner-camera-container ${
+          isImageMirrored ? "mirror-video" : ""
+        }`}
+      >
+        {props.isDisabled ? (
+          <DisabledOverlayer disabled={props.isDisabled}>
+            <CameraOfflineIcon />
+          </DisabledOverlayer>
+        ) : (
+          <>
+            {isTabActive && (
               <BarcodeScannerComponent
+                delay={1000}
                 key={JSON.stringify(videoConstraints)}
                 onError={handleCameraErrors}
                 onUpdate={handleOnResult}
                 videoConstraints={videoConstraints}
               />
-              <ControlPanel
-                appLayoutType={appLayout?.type}
-                onMediaInputChange={handleMediaDeviceChange}
-                updateDeviceInputs={updateDeviceInputs}
-                videoInputs={videoInputs}
-              />
-            </div>
-          )}
+            )}
 
-          <button className="code-scanner-close" onClick={closeModal} />
-        </Modal>
+            <ControlPanel
+              appLayoutType={appLayout?.type}
+              handleImageMirror={handleImageMirror}
+              onMediaInputChange={handleMediaDeviceChange}
+              updateDeviceInputs={updateDeviceInputs}
+              videoInputs={videoInputs}
+            />
+          </>
+        )}
+      </div>
+    );
+
+    const scanAlways = error ? errorMessage : codeScannerCameraContainer;
+
+    const scanInAModal = (
+      <Modal
+        className="code-scanner-content"
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        overlayClassName="code-scanner-overlay"
+      >
+        {error ? errorMessage : modalIsOpen && codeScannerCameraContainer}
+
+        <button className="code-scanner-close" onClick={closeModal} />
+      </Modal>
+    );
+
+    return (
+      <>
+        <CodeScannerGlobalStyles
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
+          disabled={props.isDisabled}
+          scannerLayout={props.scannerLayout}
+        />
+
+        {props.scannerLayout === ScannerLayout.ALWAYS_ON
+          ? scanAlways
+          : scanInAModal}
       </>
     );
   };
@@ -450,23 +582,24 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
 
   return (
     <>
-      {!props.tooltip ? (
-        baseButtonWrapper
-      ) : (
-        <ToolTipWrapper>
-          <TooltipStyles />
-          <Popover2
-            autoFocus={false}
-            content={<Interweave content={props.tooltip} />}
-            hoverOpenDelay={200}
-            interactionKind="hover"
-            portalClassName="iconBtnTooltipContainer"
-            position={Position.TOP}
-          >
-            {baseButtonWrapper}
-          </Popover2>
-        </ToolTipWrapper>
-      )}
+      {props.scannerLayout !== ScannerLayout.ALWAYS_ON &&
+        (!props.tooltip ? (
+          baseButtonWrapper
+        ) : (
+          <ToolTipWrapper>
+            <TooltipStyles />
+            <Popover2
+              autoFocus={false}
+              content={<Interweave content={props.tooltip} />}
+              hoverOpenDelay={200}
+              interactionKind="hover"
+              portalClassName="iconBtnTooltipContainer"
+              position={Position.TOP}
+            >
+              {baseButtonWrapper}
+            </Popover2>
+          </ToolTipWrapper>
+        ))}
 
       {renderComponent()}
     </>
@@ -483,6 +616,7 @@ export interface CodeScannerComponentProps extends ComponentProps {
   iconAlign?: Alignment;
   placement?: ButtonPlacement;
   onCodeDetected: (value: string) => void;
+  scannerLayout: ScannerLayout;
 }
 
 export default CodeScannerComponent;

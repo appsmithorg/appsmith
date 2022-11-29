@@ -9,7 +9,10 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 import showdown from "showdown";
+import { Stylesheet } from "entities/AppTheming";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -36,7 +39,8 @@ class RichTextEditorWidget extends BaseWidget<
             helpText:
               "Sets the input type of the default text property in widget.",
             label: "Input Type",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
               {
                 label: "Markdown",
@@ -80,12 +84,14 @@ class RichTextEditorWidget extends BaseWidget<
             helpText: "Sets the label position of the widget",
             propertyName: "labelPosition",
             label: "Position",
-            controlType: "DROP_DOWN",
+            controlType: "ICON_TABS",
+            fullWidth: true,
             options: [
+              { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
-              { label: "Auto", value: LabelPosition.Auto },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -220,6 +226,7 @@ class RichTextEditorWidget extends BaseWidget<
           {
             propertyName: "labelTextColor",
             label: "Font Color",
+            helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -229,6 +236,7 @@ class RichTextEditorWidget extends BaseWidget<
           {
             propertyName: "labelTextSize",
             label: "Font Size",
+            helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -269,6 +277,7 @@ class RichTextEditorWidget extends BaseWidget<
           {
             propertyName: "labelStyle",
             label: "Emphasis",
+            helpText: "Control if the label should be bold or italics",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -316,6 +325,13 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -379,6 +395,7 @@ class RichTextEditorWidget extends BaseWidget<
             )
           }
           isDisabled={this.props.isDisabled}
+          isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}
           isValid={this.props.isValid}

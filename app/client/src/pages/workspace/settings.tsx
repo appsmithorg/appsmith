@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { MenuItemProps, TabComponent, TabProp } from "design-system";
 import styled from "styled-components";
 
-import MemberSettings from "./Members";
+import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";

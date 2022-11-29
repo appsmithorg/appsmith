@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -1473,18 +1474,22 @@ public class FirestorePluginTest {
         Param param = new Param();
         param.setKey("Input1.text");
         param.setValue("Jon");
+        param.setClientDataType(ClientDataType.STRING);
         params.add(param);
         param = new Param();
         param.setKey("Input2.text");
         param.setValue("Von Neumann");
+        param.setClientDataType(ClientDataType.STRING);
         params.add(param);
         param = new Param();
         param.setKey("Input3.text");
         param.setValue("[\"Zuric\", \"Gottingen\"]");
+        param.setClientDataType(ClientDataType.ARRAY);
         params.add(param);
         param = new Param();
         param.setKey("Input4.text");
         param.setValue("{\"computational complexity\": 100, \"math\": 100}");
+        param.setClientDataType(ClientDataType.OBJECT);
         params.add(param);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
