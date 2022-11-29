@@ -269,7 +269,12 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
+            makeDataTreeEntityConfigAsProperty(
+              dataTreeEvaluator.oldUnEvalTree,
+              {
+                sanitizeDataTree: false,
+              },
+            ),
             requiresLinting,
           );
 
@@ -306,7 +311,12 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
+            makeDataTreeEntityConfigAsProperty(
+              dataTreeEvaluator.oldUnEvalTree,
+              {
+                sanitizeDataTree: false,
+              },
+            ),
             requiresLinting,
           );
 
@@ -334,7 +344,12 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
+            makeDataTreeEntityConfigAsProperty(
+              dataTreeEvaluator.oldUnEvalTree,
+              {
+                sanitizeDataTree: false,
+              },
+            ),
             requiresLinting,
           );
           nonDynamicFieldValidationOrder =

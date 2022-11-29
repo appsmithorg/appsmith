@@ -831,12 +831,18 @@ export function createUnEvalTreeForEval(unevalTree: UnEvalTree) {
  * This method loops through each entity object of dataTree and sets the entity config from prototype as object properties.
  * This is done to send back dataTree in the format expected by mainThread.
  */
-export function makeDataTreeEntityConfigAsProperty(dataTree: DataTree) {
+export function makeDataTreeEntityConfigAsProperty(
+  dataTree: DataTree,
+  option = {} as { sanitizeDataTree: boolean },
+) {
+  const { sanitizeDataTree = true } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
     const entity = dataTree[entityName];
     newDataTree[entityName] = { ...entityConfig, ...entity };
   }
-  return JSON.parse(JSON.stringify(newDataTree));
+  return sanitizeDataTree
+    ? JSON.parse(JSON.stringify(newDataTree))
+    : newDataTree;
 }
