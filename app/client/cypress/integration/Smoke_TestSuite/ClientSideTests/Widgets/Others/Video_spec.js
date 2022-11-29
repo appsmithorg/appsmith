@@ -6,7 +6,6 @@ const testdata = require("../../../../../fixtures/testdata.json");
 
 describe("Video Widget Functionality", function() {
   before(() => {
-    cy.addDsl(buttondsl);
     cy.addDsl(dsl);
   });
 
