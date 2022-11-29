@@ -12,6 +12,7 @@ import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -20,14 +21,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
+
 @Component
 public class UserUtils extends UserUtilsCE {
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final PolicyUtils policyUtils;
     private final PermissionGroupRepository permissionGroupRepository;
-
     private final TenantRepository tenantRepository;
+    private final ConfigRepository configRepository;
 
     public UserUtils(ConfigRepository configRepository,
                      PermissionGroupRepository permissionGroupRepository,
@@ -41,6 +45,7 @@ public class UserUtils extends UserUtilsCE {
         this.policyUtils = policyUtils;
         this.permissionGroupRepository = permissionGroupRepository;
         this.tenantRepository = tenantRepository;
+        this.configRepository = configRepository;
     }
 
     @Override
@@ -78,6 +83,15 @@ public class UserUtils extends UserUtilsCE {
                                 );
                             })
                             .thenReturn(instanceConfig);
+                });
+    }
+
+    public Mono<PermissionGroup> getDefaultUserPermissionGroup() {
+        return configRepository.findByName(DEFAULT_USER_PERMISSION_GROUP)
+                .flatMap(defaultRoleConfig -> {
+                    JSONObject config = defaultRoleConfig.getConfig();
+                    String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
+                    return permissionGroupRepository.findById(defaultPermissionGroup);
                 });
     }
 }

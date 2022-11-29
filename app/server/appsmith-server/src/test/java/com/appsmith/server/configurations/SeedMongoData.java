@@ -18,14 +18,17 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,6 +57,8 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -71,6 +76,8 @@ public class SeedMongoData {
                            UserService userService,
                            CommonConfig commonConfig,
                            PermissionGroupRepository permissionGroupRepository,
+                           PermissionGroupService permissionGroupService,
+                           ConfigRepository configRepository,
                            PolicyUtils policyUtils) {
 
         log.info("Seeding the data");
@@ -220,12 +227,29 @@ public class SeedMongoData {
                 .flatMapMany(tuple -> {
                     List<User> users = tuple.getT1();
                     String tenantId = tuple.getT2();
-                    return Flux.fromIterable(users)
+
+                    Mono<PermissionGroup> bulkAssignDefaultPermissionGroupMono = configRepository.findByName(DEFAULT_USER_PERMISSION_GROUP)
+                            .flatMap(defaultRoleConfig -> {
+                                JSONObject config = defaultRoleConfig.getConfig();
+                                String defaultPermissionGroup = (String) config.getOrDefault(PERMISSION_GROUP_ID, "");
+                                return permissionGroupRepository.findById(defaultPermissionGroup);
+                            })
+                            .flatMap(defaultPermissionGroup -> {
+                                Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+                                defaultPermissionGroup.getAssignedToUserIds().addAll(userIds);
+                                return permissionGroupRepository.save(defaultPermissionGroup);
+                            });
+
+
+                    Flux<User> updatedUsersWithTenantId = Flux.fromIterable(users)
                             .map(user -> {
                                 user.setTenantId(tenantId);
                                 log.debug("Creating user: {}", user);
                                 return user;
                             });
+
+                    return bulkAssignDefaultPermissionGroupMono
+                            .thenMany(updatedUsersWithTenantId);
                 })
                 .flatMap(userRepository::save)
                 .cache();

@@ -192,5 +192,6 @@ public class FieldName {
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
 
     public static final String AUDIT_LOGS = "Audit Logs";
+    public static final String DEFAULT_USER_PERMISSION_GROUP = "Default User Role";
 
 }

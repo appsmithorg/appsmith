@@ -37,8 +37,9 @@ import java.util.Set;
 @Service
 public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final UserDataService userDataService;
-    private final UserRepository userRepository;
     private final TenantService tenantService;
+    private final UserUtils userUtils;
+    private final PermissionGroupService permissionGroupService;
     private static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo-full.png";
 
     public UserServiceImpl(Scheduler scheduler,
@@ -69,8 +70,9 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                 permissionGroupService, userUtils);
 
         this.userDataService = userDataService;
-        this.userRepository = repository;
         this.tenantService = tenantService;
+        this.userUtils = userUtils;
+        this.permissionGroupService = permissionGroupService;
     }
 
     @Override
@@ -124,5 +126,17 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     return params;
                 });
     }
+
+    @Override
+    public Mono<User> userCreate(User user, boolean isAdminUser) {
+        return super.userCreate(user, isAdminUser)
+                // After creating the user, assign the default role to the newly created user.
+                .flatMap(createdUser -> userUtils.getDefaultUserPermissionGroup()
+                        .flatMap(permissionGroup -> permissionGroupService.assignToUser(permissionGroup, createdUser))
+                        .then(Mono.just(createdUser))
+                );
+    }
+
+
 
 }
