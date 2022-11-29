@@ -416,7 +416,6 @@ export const isNameValid = (
     has(DATA_TREE_KEYWORDS, name) ||
     has(DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS, name) ||
     has(APPSMITH_GLOBAL_FUNCTIONS, name) ||
-    has(libraryReservedNames, name) ||
     has(invalidNames, name)
   );
 };
