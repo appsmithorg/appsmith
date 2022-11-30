@@ -45,7 +45,7 @@ function* updateRecentEntitySaga(action: ReduxAction<RecentActionEntity>) {
     updatedRecentActions.unshift(
       updatedRecentActions.splice(actionIndex, 1)[0],
     );
-    console.log("RECENT_ACTION_ENTITY_CLICK", {
+    AnalyticsUtil.logEvent("RECENT_ACTION_ENTITY_CLICK", {
       ...newAction,
       isRecent: true,
       recentActionslength: updatedRecentActions.length,
@@ -53,7 +53,7 @@ function* updateRecentEntitySaga(action: ReduxAction<RecentActionEntity>) {
   } else {
     updatedRecentActions.length === 5 && updatedRecentActions.pop();
     updatedRecentActions.unshift(newAction);
-    console.log("RECENT_ACTION_ENTITY_CLICK", {
+    AnalyticsUtil.logEvent("RECENT_ACTION_ENTITY_CLICK", {
       ...newAction,
       isRecent: false,
       recentActionslength: updatedRecentActions.length,
