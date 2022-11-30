@@ -18,13 +18,15 @@ public class DatasourceTriggerSolutionImpl extends DatasourceTriggerSolutionCEIm
                                          PluginService pluginService,
                                          DatasourceStructureSolution datasourceStructureSolution,
                                          AuthenticationValidator authenticationValidator,
-                                         DatasourceContextService datasourceContextService) {
+                                         DatasourceContextService datasourceContextService,
+                                         DatasourcePermission datasourcePermission) {
 
         super(datasourceService,
                 pluginExecutorHelper,
                 pluginService,
                 datasourceStructureSolution,
                 authenticationValidator,
-                datasourceContextService);
+                datasourceContextService,
+                datasourcePermission);
     }
 }

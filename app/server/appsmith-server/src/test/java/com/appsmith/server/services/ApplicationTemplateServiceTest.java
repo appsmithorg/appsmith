@@ -5,6 +5,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,6 +59,8 @@ public class ApplicationTemplateServiceTest {
 
     @MockBean
     private ResponseUtils responseUtils;
+    @MockBean
+    ApplicationPermission applicationPermission;
 
     private static MockWebServer mockCloudServices;
 
@@ -80,7 +83,8 @@ public class ApplicationTemplateServiceTest {
         Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
 
         applicationTemplateService = new ApplicationTemplateServiceImpl(
-                cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService, applicationService, responseUtils
+                cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService,
+                userDataService, applicationService, responseUtils, applicationPermission
         );
     }
 
