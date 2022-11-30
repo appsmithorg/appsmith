@@ -1,0 +1,52 @@
+name: Cypress Add Known failed tests
+
+on:
+  issues:
+    types: [opened, closed]
+   
+jobs:
+  IssueOpened:
+    if: github.event.action == 'opened' && contains( github.event.issue.labels.*.name, 'cypress_failed_test')
+    runs-on: ubuntu-latest
+    permissions:
+        issues: write
+    steps:
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: View issue information
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          XATATOKEN: ${{ secrets.XATA_TOKEN }}
+        run: |
+          echo "Issue title: ${{ github.event.issue.title }}"
+          echo "Issue body: ${{ github.event.issue.body }}"
+          #echo "$GITHUB_CONTEXT"
+          chmod a+x app/client/cypress/xataadd.sh
+          echo "${{ github.event.issue.title }}"|awk '{print $2}'
+          echo "${{ github.event.issue.title }}"|awk '{print $2}'|xargs app/client/cypress/xataadd.sh
+          
+  IssueClosed:
+    if: github.event.action == 'closed' && contains( github.event.issue.labels.*.name, 'cypress_failed_test')
+    runs-on: ubuntu-latest
+    permissions:
+        issues: write
+    steps:     
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: View issue information
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          XATATOKEN: ${{ secrets.XATA_TOKEN }}
+        run: |
+          echo "Issue title: ${{ github.event.issue.title }}"
+          echo "Issue body: ${{ github.event.issue.body }}"
+          #echo "$GITHUB_CONTEXT"
+          chmod a+x app/client/cypress/xatadel.sh
+          echo "${{ github.event.issue.title }}"|awk '{print $2}'|xargs app/client/cypress/xatadel.sh
+          
+          
+          
