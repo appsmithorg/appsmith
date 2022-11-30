@@ -152,6 +152,12 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setExplorerSwitchIndex,
       defaultValue: 0,
     },
+    {
+      name: FocusElement.PropertyPanelContext,
+      selector: getPropertyPanelState,
+      setter: setPanelPropertiesState,
+      defaultValue: {},
+    },
   ],
   [FocusEntity.CANVAS]: [
     {
@@ -236,12 +242,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
   ],
   [FocusEntity.PROPERTY_PANE]: [
-    {
-      name: FocusElement.PropertyPanelContext,
-      selector: getPropertyPanelState,
-      setter: setPanelPropertiesState,
-      defaultValue: {},
-    },
     {
       name: FocusElement.PropertyTabs,
       selector: getWidgetSelectedPropertyTabIndex,
