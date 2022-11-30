@@ -28,6 +28,11 @@ import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
 import { TJSLibrary } from "workers/common/JSLibrary";
+import { getUsedActionNames } from "selectors/actionSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import moment from "moment";
 
 export function parseErrorMessage(text: string) {
   return text
@@ -36,7 +41,11 @@ export function parseErrorMessage(text: string) {
     .join("");
 }
 
-function* handleInstallationFailure(url: string, accessor?: string[]) {
+function* handleInstallationFailure(
+  url: string,
+  message: string,
+  accessor?: string[],
+) {
   if (accessor) {
     yield call(
       EvalWorker.request,
@@ -44,8 +53,20 @@ function* handleInstallationFailure(url: string, accessor?: string[]) {
       accessor,
     );
   }
+
+  AppsmithConsole.addLogs([
+    {
+      severity: Severity.ERROR,
+      logType: LOG_TYPE.LIBRARY_INSTALLATION_ERROR,
+      timestamp: moment().format("hh:mm:ss"),
+      category: LOG_CATEGORY.PLATFORM_GENERATED,
+      text: `Failed to install library script at ${url}`,
+      messages: [{ message }],
+    },
+  ]);
+
   Toaster.show({
-    text: createMessage(customJSLibraryMessages.INSTALLATION_FAILED),
+    text: message,
     variant: Variant.danger,
   });
   yield put({
@@ -57,15 +78,21 @@ function* handleInstallationFailure(url: string, accessor?: string[]) {
 
 export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const { url } = lib;
-  const { accessor, defs, success } = yield call(
+
+  const takenNamesMap: Record<string, true> = yield select(
+    getUsedActionNames,
+    "",
+  );
+
+  const { accessor, defs, message, success } = yield call(
     EvalWorker.request,
     EVAL_WORKER_ACTIONS.INSTALL_LIBRARY,
-    url,
+    { url, takenNamesMap },
   );
 
   if (!success) {
     log.debug("Failed to install locally");
-    yield call(handleInstallationFailure, url as string);
+    yield call(handleInstallationFailure, url as string, message);
     return;
   }
 
@@ -102,11 +129,16 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse || !response.data) {
       log.debug("Install API failed");
-      yield call(handleInstallationFailure, url as string, accessor);
+      yield call(handleInstallationFailure, url as string, "", accessor);
       return;
     }
   } catch (e) {
-    yield call(handleInstallationFailure, url as string, accessor);
+    yield call(
+      handleInstallationFailure,
+      url as string,
+      (e as Error).message,
+      accessor,
+    );
     return;
   }
 
@@ -115,7 +147,10 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   } catch (e) {
     Toaster.show({
       text: createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
-      variant: Variant.info,
+      variant: Variant.warning,
+    });
+    AppsmithConsole.warning({
+      text: `Failed to generate code definitions for ${name}`,
     });
     AnalyticsUtil.logEvent(LIBRARY_EVENTS.DEFINITIONS_FAILED, { url });
     log.debug("Failed to update Tern defs", e);
@@ -157,6 +192,10 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     variant: Variant.success,
   });
   AnalyticsUtil.logEvent(LIBRARY_EVENTS.INSTALL_SUCCESS, { url });
+
+  AppsmithConsole.info({
+    text: `${name} installed successfully`,
+  });
 }
 
 function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
