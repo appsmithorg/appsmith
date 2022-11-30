@@ -86,8 +86,10 @@ export const handleCodeComment = (cm: CodeMirror.Editor) => {
         for (let i = from.line; i < end; ++i) {
           const line = self.getLine(i);
 
+          /* Added below code to handle baseString individually for each line */
           const baseString =
             line.search(nonWS) === -1 ? line : line.slice(0, firstNonWS(line));
+          /* Changes end */
 
           const cut = (baseString || "").length;
 
