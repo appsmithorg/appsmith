@@ -104,6 +104,31 @@ describe("Property configuration search", () => {
         },
       ],
     },
+    {
+      sectionName: "Special Char Section",
+      children: [
+        {
+          label: "Star *",
+          propertyName: "star",
+          ...commonProperties,
+        },
+        {
+          label: "Plus +",
+          propertyName: "plus",
+          ...commonProperties,
+        },
+      ],
+    },
+    {
+      sectionName: "Special Char (/) Section 2",
+      children: [
+        {
+          label: "test",
+          propertyName: "test",
+          ...commonProperties,
+        },
+      ],
+    },
   ];
 
   it("Should return configuration as it is for empty searchQuery", () => {
@@ -324,5 +349,11 @@ describe("Property configuration search", () => {
 
     result = searchPropertyPaneConfig(config, "Invalid Forms");
     expect(result).toEqual(disableInvalidFormsConfig);
+  });
+
+  it("Ensure special characters doesn't throw errors", () => {
+    expect(() => {
+      searchPropertyPaneConfig(config, "*");
+    }).not.toThrowError();
   });
 });
