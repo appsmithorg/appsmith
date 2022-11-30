@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GitServiceConfig {
 
+    // TODO: revert it
     @Value("${appsmith.git.root:~/data/git-storage}")
     private String gitRootPath;
 

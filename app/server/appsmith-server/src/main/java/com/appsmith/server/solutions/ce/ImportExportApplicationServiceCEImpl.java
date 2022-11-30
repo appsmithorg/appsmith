@@ -20,6 +20,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -50,6 +51,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -57,6 +59,7 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.ce.CustomJSLibServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -126,6 +129,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final ThemeService themeService;
     private final PolicyUtils policyUtils;
     private final AnalyticsService analyticsService;
+
+    private final CustomJSLibService customJSLibService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
@@ -176,6 +181,22 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         AclPermission permission = isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+
+        Mono<List<CustomJSLib>> unpublishedCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplication(applicationId, null, false);
+        Mono<List<CustomJSLib>> publishedCustomJSLibListMono =
+                customJSLibService.getAllJSLibsInApplication(applicationId, null, true);
+        Mono<Set<CustomJSLib>> allCustomJSLibSetMono = Mono.zip(unpublishedCustomJSLibListMono,
+                        publishedCustomJSLibListMono)
+                .map(tuple -> {
+                    List<CustomJSLib> unpublishedCustomJSLibList = tuple.getT1();
+                    List<CustomJSLib> publishedCustomJSLibList = tuple.getT2();
+
+                    Set<CustomJSLib> allCustomJSLibSet = new HashSet<>();
+                    allCustomJSLibSet.addAll(unpublishedCustomJSLibList);
+                    allCustomJSLibSet.addAll(publishedCustomJSLibList);
+                    return allCustomJSLibSet;
+                });
 
         Mono<Application> applicationMono =
                 // Find the application with appropriate permission
@@ -469,6 +490,11 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             "executionTime", stopwatch.getExecutionTime()
                     );
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
+                    return applicationJson;
+                })
+                .then(allCustomJSLibSetMono)
+                .map(allCustomJSLibSet -> {
+                    applicationJson.setCustomJSLibSet(allCustomJSLibSet);
                     return applicationJson;
                 })
                 .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))

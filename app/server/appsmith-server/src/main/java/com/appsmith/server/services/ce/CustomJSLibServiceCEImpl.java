@@ -90,17 +90,15 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                                                     @NotNull CustomJSLib jsLib, String branchName,
                                                     Boolean isForceRemove) {
         return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
-                .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, false))
-                .map(tuple -> {
+                .map(jsLibDTOSet -> {
                     /**
                      * TODO: try to convert it into a single update op where reading of list is not required
                      * Tracked here: https://github.com/appsmithorg/appsmith/issues/18226
                      */
-                    Set<CustomJSLibApplicationDTO> jsLibDTOsInApplication = tuple.getT1();
-                    CustomJSLibApplicationDTO currentJSLibDTO = tuple.getT2();
-                    jsLibDTOsInApplication.remove(currentJSLibDTO);
+                    CustomJSLibApplicationDTO currentJSLibDTO = getDTOFromCustomJSLib(jsLib);
+                    jsLibDTOSet.remove(currentJSLibDTO);
 
-                    return jsLibDTOsInApplication;
+                    return jsLibDTOSet;
                 })
                 .flatMap(updatedJSLibDTOList -> applicationService.update(applicationId,
                         UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList, branchName))

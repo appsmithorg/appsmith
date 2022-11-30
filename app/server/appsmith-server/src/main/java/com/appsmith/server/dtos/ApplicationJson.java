@@ -5,6 +5,7 @@ import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -36,6 +37,8 @@ public class ApplicationJson {
     Integer serverSchemaVersion;
 
     Application exportedApplication;
+
+    Set<CustomJSLib> customJSLibSet;
 
     List<Datasource> datasourceList;
 

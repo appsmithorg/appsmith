@@ -25,10 +25,6 @@ public class CustomJSLibApplicationDTO {
         /**
          * TODO: add comment
          */
-        /*if (!isBlank(((CustomJSLibApplicationDTO) o).getId()) && !isBlank(this.id)) {
-            return ((CustomJSLibApplicationDTO) o).getId().equals(this.id);
-        }*/
-
         return ((CustomJSLibApplicationDTO) o).getUidString().equals(this.uidString);
     }
 
