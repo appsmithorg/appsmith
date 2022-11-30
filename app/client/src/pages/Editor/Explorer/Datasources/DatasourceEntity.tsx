@@ -8,8 +8,8 @@ import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
 import {
   fetchDatasourceStructure,
-  saveDatasourceName,
   expandDatasourceEntity,
+  updateDatasourceName,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
@@ -73,8 +73,8 @@ const ExplorerDatasourceEntity = React.memo(
       getAction(state, queryId || ""),
     );
 
-    const updateDatasourceName = (id: string, name: string) =>
-      saveDatasourceName({ id: props.datasource.id, name });
+    const updateDatasourceNameCall = (id: string, name: string) =>
+      updateDatasourceName({ id: props.datasource.id, name });
 
     const datasourceStructure = useSelector((state: AppState) => {
       return state.entities.datasources.structure[props.datasource.id];
@@ -132,7 +132,7 @@ const ExplorerDatasourceEntity = React.memo(
         onToggle={getDatasourceStructure}
         searchKeyword={props.searchKeyword}
         step={props.step}
-        updateEntityName={updateDatasourceName}
+        updateEntityName={updateDatasourceNameCall}
       >
         <DatasourceStructureContainer
           datasourceId={props.datasource.id}
