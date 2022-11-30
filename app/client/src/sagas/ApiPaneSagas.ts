@@ -35,7 +35,12 @@ import { Property } from "api/ActionAPI";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getActions,
+  getDatasourceActionRouteInfo,
+  getPlugin,
+} from "selectors/entitiesSelector";
 import {
   ActionData,
   ActionDataState,
@@ -44,7 +49,6 @@ import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { Datasource } from "entities/Datasource";
 import {
   Action,
   ApiAction,
@@ -78,6 +82,10 @@ import {
   integrationEditorURL,
 } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  CreateDatasourceSuccessAction,
+  removeTempDatasource,
+} from "actions/datasourceActions";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -530,7 +538,9 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   }
 }
 
-function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+function* handleDatasourceCreatedSaga(
+  actionPayload: CreateDatasourceSuccessAction,
+) {
   const plugin: Plugin | undefined = yield select(
     getPlugin,
     actionPayload.payload.pluginId,
@@ -539,16 +549,61 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   // Only look at API plugins
   if (plugin && plugin.type !== PluginType.API) return;
 
-  history.push(
-    datasourcesEditorIdURL({
-      pageId,
-      datasourceId: actionPayload.payload.id,
-      params: {
-        from: "datasources",
-        ...getQueryParams(),
-      },
-    }),
-  );
+  const actionRouteInfo: Partial<{
+    apiId: string;
+    datasourceId: string;
+    pageId: string;
+    applicationId: string;
+  }> = yield select(getDatasourceActionRouteInfo);
+
+  // This will ensure that API if saved as datasource, will get attached with datasource
+  // once the datasource is saved
+  if (!!actionRouteInfo.apiId) {
+    yield put(
+      setActionProperty({
+        actionId: actionRouteInfo.apiId,
+        propertyName: "datasource",
+        value: actionPayload.payload,
+      }),
+    );
+
+    // we need to wait for action to be updated with respective datasource,
+    // before redirecting back to action page, hence added take operator to
+    // wait for update action to be complete.
+    yield take(ReduxActionTypes.UPDATE_ACTION_SUCCESS);
+
+    yield put({
+      type: ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE,
+    });
+
+    // temp datasource data is deleted here, because we need temp data before
+    // redirecting to api page, otherwise it will lead to invalid url page
+    yield put(removeTempDatasource());
+  }
+
+  const { redirect } = actionPayload;
+
+  // redirect back to api page
+  if (actionRouteInfo && redirect) {
+    history.push(
+      apiEditorIdURL({
+        pageId: actionRouteInfo?.pageId ?? "",
+        apiId: actionRouteInfo.apiId ?? "",
+      }),
+    );
+  } else {
+    history.push(
+      datasourcesEditorIdURL({
+        pageId,
+        datasourceId: actionPayload.payload.id,
+        params: {
+          from: "datasources",
+          ...getQueryParams(),
+          pluginId: plugin?.id,
+        },
+      }),
+    );
+  }
 }
 
 /**

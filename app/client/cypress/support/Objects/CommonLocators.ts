@@ -45,7 +45,7 @@ export class CommonLocators {
   _contextMenuSubItemDiv = (item: string) =>
     "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
-  _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
+  _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _crossBtn = "span.cancel-icon";
