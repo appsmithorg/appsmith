@@ -17,10 +17,6 @@ import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { setPropertySectionState } from "actions/propertyPaneActions";
 
-const SectionTitleWrapper = styled.div`
-  cursor: pointer;
-`;
-
 const Label = styled.div`
   font-size: 11px;
   background: ${Colors.GRAY_100};
@@ -56,12 +52,12 @@ const SectionWrapper = styled.div`
     }
   }
 
-  & & ${SectionTitleWrapper} {
+  & & .section-title-wrapper {
     margin-top: 10px;
     margin-bottom: 7px;
   }
 
-  & & ${SectionTitleWrapper} span {
+  & & .section-title-wrapper span {
     color: ${Colors.GRAY_700};
     font-size: 12px;
   }
@@ -100,7 +96,6 @@ type PropertySectionProps = {
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
   return prev.id === next.id && prev.childCount === next.childCount;
-  // return false;
 };
 
 //Context is being provided to re-render anything that subscribes to this context on open and close
@@ -135,11 +130,6 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   }, []);
 
   if (!widgetProps) return null;
-  // if (props.hidden) {
-  //   if (props.hidden(widgetProps, props.propertyPath || "")) {
-  //     return null;
-  //   }
-  // }
 
   const className = props.name
     .split(" ")
@@ -149,8 +139,10 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     <SectionWrapper
       className={`t--property-pane-section-wrapper ${props.className}`}
     >
-      <SectionTitleWrapper
-        className={`t--property-pane-section-collapse-${className} flex items-center`}
+      <div
+        className={`section-title-wrapper t--property-pane-section-collapse-${className} flex items-center ${
+          !props.tag ? "cursor-pointer" : "cursor-default"
+        }`}
         onClick={handleSectionTitleClick}
       >
         <SectionTitle>{props.name}</SectionTitle>
@@ -166,7 +158,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
             size={Size.small}
           />
         )}
-      </SectionTitleWrapper>
+      </div>
       {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
           <div
