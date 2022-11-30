@@ -216,8 +216,11 @@ const getFunctionalParamNamesFromNode = (
 // Memoize the ast generation code to improve performance.
 // Since this will be used by both the server and the client, we want to prevent regeneration of ast
 // for the the same code snippet
-export const getAST = memoize((code: string, options?: AstOptions) =>
-  parse(code, { ...options, ecmaVersion: ECMA_VERSION })
+export const getAST = memoize(
+    (code: string, options?: AstOptions) => {
+      console.log("****** LOGGG", code);
+      return parse(code, { ...options, ecmaVersion: ECMA_VERSION });
+    }
 );
 
 export const getAstWithCommentsAttached = (ast: Node, commentArray: Array<Comment>) => {

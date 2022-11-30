@@ -1,5 +1,5 @@
 import {
-    ArrowFunctionExpressionNode,
+    ArrowFunctionExpressionNode, getAST,
     getAstWithCommentsAttached,
     isArrowFunctionExpression,
     isCallExpressionNode,
@@ -8,9 +8,10 @@ import {
 } from "../index";
 import {sanitizeScript} from "../utils";
 import {simple} from "acorn-walk";
-import {Node, parse, Comment} from "acorn";
-import {ECMA_VERSION, NodeTypes} from "../constants";
+import {Node, Comment} from "acorn";
+import {NodeTypes} from "../constants";
 import {generate} from "astring";
+import {klona} from "klona/json";
 
 const LENGTH_OF_QUOTES = 2;
 const NEXT_POSITION = 1;
@@ -22,12 +23,12 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = parse(wrappedCode, {
+        const __ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return requiredArgument;
     }
@@ -57,12 +58,12 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: str
     let commentArray: Array<Comment> = [];
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = parse(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return changedValue;
     }
@@ -105,20 +106,20 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     };
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = parse(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: currentValueCommentArray,
         });
+        ast = klona(__ast);
 
         const sanitizedChangeValue = sanitizeScript(changeValue, evaluationVersion);
-        changeValueAst = parse(sanitizedChangeValue, {
+        const __changeValueAst = getAST(sanitizedChangeValue, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: changedValueCommentArray,
         });
+        ast = klona(__changeValueAst);
     } catch (error) {
         return changedValue;
     }
@@ -154,12 +155,12 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = parse(wrappedCode, {
+        const __ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return defaultValue;
     }
@@ -188,12 +189,12 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     let commentArray: Array<Comment> = [];
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = parse(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return changedValue;
     }
@@ -228,12 +229,12 @@ export const getModalName = (value: string, evaluationVersion: number): string =
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = parse(wrappedCode, {
+        const __ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return modalName;
     }
@@ -260,12 +261,12 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
     let commentArray: Array<Comment> = [];
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        ast = parse(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return changedValue;
     }
@@ -301,12 +302,12 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = parse(wrappedCode, {
+        const __ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return requiredArgument;
     }
@@ -332,12 +333,12 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        ast = parse(wrappedCode, {
+        const __ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
     } catch (error) {
         return requiredFunction;
     }
@@ -370,20 +371,20 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
     let changeActionCommentArray: Array<Comment> = [];
     try {
         const sanitizedScript = sanitizeScript(query, evaluationVersion);
-        ast = parse(sanitizedScript, {
+        const __ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: commentArray,
         });
+        ast = klona(__ast);
 
         const sanitizedChangeAction = sanitizeScript(changeAction, evaluationVersion);
-        changeActionAst = parse(sanitizedChangeAction, {
+        const __changeActionAst = getAST(sanitizedChangeAction, {
             locations: true,
             ranges: true,
-            ecmaVersion: ECMA_VERSION,
             onComment: changeActionCommentArray,
         });
+        ast = klona(__changeActionAst);
     } catch (error) {
         return requiredQuery;
     }
