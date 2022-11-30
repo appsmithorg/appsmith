@@ -105,7 +105,7 @@ export const useFilteredFileOperations = (query = "") => {
           ])
             ? {
                 title: `New ${ds.name} Query`,
-                shortTitle: `${ds.name} Queryssss`,
+                shortTitle: `${ds.name} Query`,
                 desc: `Create a query in ${ds.name}`,
                 pluginId: ds.pluginId,
                 kind: SEARCH_ITEM_TYPES.actionOperation,
@@ -126,7 +126,7 @@ export const useFilteredFileOperations = (query = "") => {
           ])
             ? {
                 title: `New ${ds.name} Query`,
-                shortTitle: `${ds.name} Queryddd`,
+                shortTitle: `${ds.name} Query`,
                 desc: `Create a query in ${ds.name}`,
                 kind: SEARCH_ITEM_TYPES.actionOperation,
                 pluginId: ds.pluginId,
