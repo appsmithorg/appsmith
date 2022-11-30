@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 export class LibraryInstaller {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
   private _installer_trigger_locator = ".t--entity-add-btn.group.libraries";
-  private _installer_close_locator = ".";
+  private _installer_close_locator = ".t--close-installer";
 
   private getLibraryLocatorInExplorer(libraryName: string) {
     return `.t--installed-library-${libraryName}`;

@@ -375,6 +375,7 @@ export function Installer(props: { left: number }) {
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
         </Text>
         <Icon
+          className="t--close-installer"
           fillColor={Colors.GRAY}
           name="close-modal"
           onClick={closeInstaller}

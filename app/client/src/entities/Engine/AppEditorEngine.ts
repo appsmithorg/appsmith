@@ -105,6 +105,7 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_SUCCESS,
+      ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
     ];
 
     const failureActionEffects = [

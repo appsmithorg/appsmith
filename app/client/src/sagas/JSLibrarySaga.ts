@@ -136,7 +136,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     },
   });
 
-  // Check if we could avoid this.
+  //TODO: Check if we could avoid this.
   yield call(evaluateTreeSaga, [], false, true, true);
 
   yield put({

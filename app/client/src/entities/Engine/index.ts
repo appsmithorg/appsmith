@@ -41,7 +41,6 @@ export class PluginFormConfigsNotFoundError extends AppEngineApiError {}
 
 export default abstract class AppEngine {
   private _mode: APP_MODE;
-  protected _debugMode = false;
   constructor(mode: APP_MODE) {
     this._mode = mode;
     this._urlRedirect = null;
