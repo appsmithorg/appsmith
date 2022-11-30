@@ -47,7 +47,7 @@ export class DataSources {
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
   _runQueryBtn = ".t--run-query";
   _newDatabases = "#new-datasources";
-  _newDatasourceContainer = "#new-integrations-wrapper"
+  _newDatasourceContainer = "#new-integrations-wrapper";
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
   _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
@@ -112,8 +112,9 @@ export class DataSources {
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
 
   public StartDataSourceRoutes() {
-    cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
+    cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
     cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
+    cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   }
 
   private ReplaceApplicationIdForInterceptPages(fixtureFile: any) {
@@ -135,12 +136,6 @@ export class DataSources {
         cy.writeFile(fixtureFile, JSON.stringify(data));
       });
     });
-  }
-
-  public startRoutesForDatasource() {
-    cy.server();
-    cy.route("PUT", "/api/v1/datasources/*").as("saveDatasource");
-    cy.route("POST", "/api/v1/datasources/test").as("testDatasource");
   }
 
   public StartInterceptRoutesForMySQL() {
@@ -207,13 +202,14 @@ export class DataSources {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
       .trigger("click", { force: true });
-    this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);
+    this.agHelper.Sleep();
+    //this.agHelper.WaitUntilEleAppear(this.locator._toastMsg);
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("Duplicate key error"),
     );
-    if (waitForToastDisappear)
-      this.agHelper.WaitUntilToastDisappear("datasource created");
-    else this.agHelper.AssertContains("datasource created");
+    // if (waitForToastDisappear)
+    //   this.agHelper.WaitUntilToastDisappear("datasource created");
+    // else this.agHelper.AssertContains("datasource created");
   }
 
   public NavigateToDSCreateNew() {
@@ -326,9 +322,9 @@ export class DataSources {
   }
 
   public SaveDatasource() {
-    cy.get(this._saveDs).click();
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
-    this.agHelper.AssertContains("datasource updated successfully");
+    this.agHelper.GetNClick(this._saveDs);
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+    this.agHelper.AssertContains("datasource created");
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -338,7 +334,13 @@ export class DataSources {
 
   public AuthAPISaveAndAuthorize() {
     cy.get(this._saveAndAuthorizeDS).click();
-    this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+  }
+
+  public updateDatasource() {
+    this.agHelper.GetNClick(this._saveDs);
+    // this.agHelper.ValidateNetworkStatus("@updateDatasource", 200);
+    this.agHelper.AssertContains("datasource updated");
   }
 
   public DeleteDatasouceFromActiveTab(
@@ -373,8 +375,9 @@ export class DataSources {
       .should("be.visible")
       .click();
     this.agHelper.Sleep(2000); //for the Datasource page to open
-    this.agHelper.ClickButton("Delete");
-    this.agHelper.ClickButton("Are you sure?");
+    //this.agHelper.ClickButton("Delete");
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
     if (expectedRes == 200)
       this.agHelper.AssertContains("datasource deleted successfully");
@@ -382,8 +385,8 @@ export class DataSources {
   }
 
   public DeleteDSDirectly() {
-    this.agHelper.ClickButton("Delete");
-    this.agHelper.ClickButton("Are you sure?");
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.agHelper.AssertContains("deleted successfully");
   }
 
@@ -595,21 +598,12 @@ export class DataSources {
     //Click on Authenticated Graphql API
     cy.get(this._createGraphQLDatasource).click({ force: true });
     //Verify weather Authenticated Graphql Datasource is successfully created.
-    cy.wait("@createDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-
+    // this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
     this.FillGraphQLDSForm(datasourceName);
 
     // save datasource
-    cy.get(".t--save-datasource").click({ force: true });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    this.agHelper.GetNClick(this._saveDs);
+    this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
   }
 
   public UpdateGraphqlQueryAndVariable(options?: {
@@ -692,17 +686,41 @@ export class DataSources {
   }
 
   //Update with new password in the datasource conf page
-  public updatePassword(newPassword: string){
+  public updatePassword(newPassword: string) {
     cy.get(this._sectionAuthentication).click();
     cy.get(this._password).type(newPassword);
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(schema: string){
+  public verifySchema(schema: string, isUpdate = false) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
-    this.SaveDatasource();
+    if (isUpdate) {
+      this.updateDatasource();
+    } else {
+      this.SaveDatasource();
+    }
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });
+  }
+
+  public SaveDSFromDialog(save = true) {
+    this.agHelper.GoBack();
+    if (save) {
+      this.agHelper.GetNClick(
+        this.locator._visibleTextSpan("SAVE"),
+        0,
+        false,
+        0,
+      );
+      this.agHelper.ValidateNetworkStatus("@saveDatasource", 201);
+      this.agHelper.AssertContains("datasource created");
+    } else
+      this.agHelper.GetNClick(
+        this.locator._visibleTextSpan("DON'T SAVE"),
+        0,
+        false,
+        0,
+      );
   }
 }
