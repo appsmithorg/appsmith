@@ -355,6 +355,7 @@ export const useSheetColumnHeaders = () => {
     (error: string) => {
       setIsFetchingColumnHeaderList(false);
       setErrorFetchingColumnHeaderList(error);
+      setColumnHeaderList([]);
     },
     [setErrorFetchingColumnHeaderList, setIsFetchingColumnHeaderList],
   );
