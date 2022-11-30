@@ -165,10 +165,10 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
             subText: prettifyCodeKeyboardShortCut,
             onSelect: () => {
               /*
-        PS: Please do not remove ts-ignore from here, TS keeps suggesting that
-        the object is null, but that is not the case, and we need an
-        instance of the editor to pass to autoIndentCode function
-        */
+              PS: Please do not remove ts-ignore from here, TS keeps suggesting that
+              the object is null, but that is not the case, and we need an
+              instance of the editor to pass to autoIndentCode function
+              */
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               const editor = document.querySelector(".CodeMirror").CodeMirror;
