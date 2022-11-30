@@ -5,12 +5,14 @@ import { Spring, animated } from "react-spring";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { ReflowDirection } from "reflow/reflowTypes";
+import { isHandleResizeAllowed } from "components/editorComponents/ResizableUtils";
 
-const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
+const ResizeWrapper = styled(animated.div)<{ $prevents: boolean }>`
   display: block;
   & {
     * {
-      pointer-events: ${(props) => !props.prevents && "none"};
+      pointer-events: ${(props) => !props.$prevents && "none"};
     }
   }
 `;
@@ -29,6 +31,7 @@ const getSnappedValues = (
 type ResizableHandleProps = {
   allowResize: boolean;
   showLightBorder?: boolean;
+  disableDot: boolean;
   dragCallback: (x: number, y: number) => void;
   component: StyledComponent<"div", Record<string, unknown>>;
   onStart: () => void;
@@ -62,6 +65,7 @@ function ResizableHandle(props: ResizableHandleProps) {
     ...bind(),
     showAsBorder: !props.allowResize,
     showLightBorder: props.showLightBorder,
+    disableDot: props.disableDot,
   };
 
   return <props.component {...propsToPass} />;
@@ -88,7 +92,8 @@ type ResizableProps = {
     position: { x: number; y: number },
   ) => void;
   snapGrid: { x: number; y: number };
-  enable: boolean;
+  enableVerticalResize: boolean;
+  enableHorizontalResize: boolean;
   isColliding: (
     size: { width: number; height: number },
     position: { x: number; y: number },
@@ -140,6 +145,14 @@ export const Resizable = forwardRef(function Resizable(
     y: number;
   }) => {
     const { height, width, x, y } = rect;
+    const shouldUpdateHeight =
+      props.componentHeight !== height && props.enableVerticalResize;
+    if (!shouldUpdateHeight) rect.height = props.componentHeight;
+
+    const shouldUpdateWidth =
+      props.componentWidth !== width && props.enableHorizontalResize;
+    if (!shouldUpdateWidth) rect.width = props.componentWidth;
+
     const isColliding = props.isColliding({ width, height }, { x, y });
     if (!isColliding) {
       set({ ...rect, reset: false });
@@ -169,6 +182,7 @@ export const Resizable = forwardRef(function Resizable(
         });
       },
       component: props.handles.left,
+      handleDirection: ReflowDirection.LEFT,
     });
   }
 
@@ -183,6 +197,7 @@ export const Resizable = forwardRef(function Resizable(
         });
       },
       component: props.handles.top,
+      handleDirection: ReflowDirection.TOP,
     });
   }
 
@@ -197,6 +212,7 @@ export const Resizable = forwardRef(function Resizable(
         });
       },
       component: props.handles.right,
+      handleDirection: ReflowDirection.RIGHT,
     });
   }
 
@@ -211,6 +227,7 @@ export const Resizable = forwardRef(function Resizable(
         });
       },
       component: props.handles.bottom,
+      handleDirection: ReflowDirection.BOTTOM,
     });
   }
 
@@ -283,20 +300,28 @@ export const Resizable = forwardRef(function Resizable(
     );
   };
 
-  const renderHandles = handles.map((handle, index) => (
-    <ResizableHandle
-      {...handle}
-      allowResize={props.allowResize}
-      key={index}
-      onStart={() => {
-        togglePointerEvents(false);
-        props.onStart();
-      }}
-      onStop={onResizeStop}
-      showLightBorder={props.showLightBorder}
-      snapGrid={props.snapGrid}
-    />
-  ));
+  const renderHandles = handles.map((handle, index) => {
+    const disableDot = !isHandleResizeAllowed(
+      props.enableHorizontalResize,
+      props.enableVerticalResize,
+      handle.handleDirection,
+    );
+    return (
+      <ResizableHandle
+        {...handle}
+        allowResize={props.allowResize}
+        disableDot={disableDot}
+        key={index}
+        onStart={() => {
+          togglePointerEvents(false);
+          props.onStart();
+        }}
+        onStop={onResizeStop}
+        showLightBorder={props.showLightBorder}
+        snapGrid={props.snapGrid}
+      />
+    );
+  });
 
   return (
     <Spring
@@ -318,13 +343,13 @@ export const Resizable = forwardRef(function Resizable(
     >
       {(_props) => (
         <ResizeWrapper
+          $prevents={pointerEvents}
           className={props.className}
-          prevents={pointerEvents}
           ref={ref}
           style={_props}
         >
           {props.children}
-          {props.enable && renderHandles}
+          {props.enableHorizontalResize && renderHandles}
         </ResizeWrapper>
       )}
     </Spring>

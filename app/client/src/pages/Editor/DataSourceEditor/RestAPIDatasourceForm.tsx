@@ -547,6 +547,7 @@ class DatasourceRestAPIEditor extends React.Component<
             GrantType.AuthorizationCode && (
             <FormInputContainer>
               <AuthorizeButton
+                className="t--save-and-authorize-datasource"
                 disabled={this.disableSave()}
                 filled
                 intent="primary"

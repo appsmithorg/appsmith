@@ -18,7 +18,9 @@ describe("Input Widget Max Char Functionality", function() {
   it("Text Input maxChar shows error if defaultText longer", () => {
     cy.get(widgetsPage.innertext).click();
     cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain("Default text length must be less than 5 characters");
+      expect($x).contain(
+        "Default text length must be less than or equal to 5 characters",
+      );
     });
   });
 

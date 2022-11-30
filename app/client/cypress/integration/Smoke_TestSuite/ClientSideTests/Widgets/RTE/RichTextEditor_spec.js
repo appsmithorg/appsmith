@@ -233,7 +233,7 @@ describe("RichTextEditor Widget Functionality", function() {
     });
   });
 
-  it.only("Check if the cursor position is at the end for the RTE widget", function() {
+  it("Check if the cursor position is at the end for the RTE widget", function() {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
     const testStringLen = testString.length;
@@ -272,6 +272,18 @@ describe("RichTextEditor Widget Functionality", function() {
       expect(getCurrentHtmlContent).contains("<h1>");
       expect(getCurrentHtmlContent).contains("<p>");
     });
+  });
+
+  it("Check if button for Underline exists within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Underline"]').should("exist");
+  });
+
+  it("Check if button for Background Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Background color"]').should("have.length", 1);
+  });
+
+  it("Check if button for Text Color is rendered only once within the Toolbar of RTE widget", () => {
+    cy.get('[aria-label="Text color"]').should("have.length", 1);
   });
 
   afterEach(() => {
