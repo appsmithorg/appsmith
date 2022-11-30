@@ -1,7 +1,0 @@
-cypress/integration/Smoke_TestSuite/ClientSideTests/Templates/Fork_Template_To_App_spec.js
-cypress/integration/Smoke_TestSuite/ClientSideTests/Templates/Fork_Template_Existing_app_spec.js
-cypress/integration/Smoke_TestSuite/ClientSideTests/Templates/ForkTemplateToGitConnectedApp.js
-cypress/integration/Smoke_TestSuite/ServerSideTests/OnLoadTests/JSOnLoad1_Spec.ts
-cypress/integration/Smoke_TestSuite/ClientSideTests/DynamicHeight/DynamicHeight_Multiple_Container_spec.js
-cypress/integration/Smoke_TestSuite/ServerSideTests/GenerateCRUD/Postgres2_Spec.ts
-cypress/integration/Smoke_TestSuite/ClientSideTests/BugTests/Bug16702_Spec.ts
