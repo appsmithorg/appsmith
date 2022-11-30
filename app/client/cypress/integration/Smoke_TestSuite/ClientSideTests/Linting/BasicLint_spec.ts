@@ -6,7 +6,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  installer = ObjectsRegistry.LibraryInstaller;
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -271,7 +272,7 @@ describe("Linting", () => {
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     createMySQLDatasourceQuery();
-    agHelper.RefreshPage();//Since this seems failing a bit
+    agHelper.RefreshPage(); //Since this seems failing a bit
     clickButtonAndAssertLintError(false);
   });
 
@@ -290,5 +291,34 @@ describe("Linting", () => {
     });
     // expect no lint error
     agHelper.AssertElementAbsence(locator._lintErrorElement);
+  });
+
+  it("9. Shows lint errors for usage of library that are not installed yet", () => {
+    const JS_OBJECT_WITH_LIB_API = `export default {
+      myFun1: () => {
+        return UUID.generate();
+      },
+    }`;
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
+
+    // install the library
+    installer.openInstaller();
+    installer.installLibrary("uuidjs");
+    installer.closeInstaller();
+
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
+
+    installer.openInstaller();
+    installer.uninstallLibrary("uuidjs");
+    installer.closeInstaller();
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
   });
 });
