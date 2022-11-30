@@ -12,6 +12,7 @@ import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 import { DebuggerHelper } from "../Pages/DebuggerHelper";
+import { LibraryInstaller } from "../Pages/LibraryInstaller";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -124,6 +125,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.DebuggerHelper__ = new DebuggerHelper();
     }
     return ObjectsRegistry.DebuggerHelper__;
+  }
+
+  private static LibraryInstaller__: LibraryInstaller;
+  static get LibraryInstaller(): LibraryInstaller {
+    if (ObjectsRegistry.LibraryInstaller__ === undefined) {
+      ObjectsRegistry.LibraryInstaller__ = new LibraryInstaller();
+    }
+    return ObjectsRegistry.LibraryInstaller__;
   }
 }
 

@@ -191,24 +191,24 @@ function StatusIcon(props: {
   ]);
   if (status === InstallState.Success || isInstalled)
     return (
-      <StatusIconWrapper addHoverState={false}>
+      <StatusIconWrapper addHoverState={false} className="installed">
         <SaveSuccessIcon color={Colors.GREEN} size={18} />
       </StatusIconWrapper>
     );
   if (status === InstallState.Failed)
     return (
-      <StatusIconWrapper addHoverState={false}>
+      <StatusIconWrapper addHoverState={false} className="failed">
         <Icon fillColor={Colors.GRAY} name="warning-line" size={IconSize.XL} />
       </StatusIconWrapper>
     );
   if (status === InstallState.Queued)
     return (
-      <StatusIconWrapper addHoverState={false}>
+      <StatusIconWrapper addHoverState={false} className="queued">
         <Spinner />
       </StatusIconWrapper>
     );
   return (
-    <StatusIconWrapper addHoverState>
+    <StatusIconWrapper addHoverState className="t--download">
       <Icon
         fillColor={Colors.GRAY}
         name="download"
@@ -386,7 +386,7 @@ export function Installer(props: { left: number }) {
           size={IconSize.XXL}
         />
       </div>
-      <div className="search-area">
+      <div className="search-area t--library-container">
         <div className="flex flex-row gap-2 justify-between items-end">
           <FormGroup className="flex-1" label={"Library URL"}>
             <TextInput
@@ -473,7 +473,10 @@ function LibraryCard({
   const openDocs = useCallback((url: string) => window.open(url), []);
   return (
     <div
-      className={classNames({ "library-card": true, "no-border": isLastCard })}
+      className={classNames({
+        [`library-card t--${lib.name}`]: true,
+        "no-border": isLastCard,
+      })}
     >
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row gap-2 items-center">
