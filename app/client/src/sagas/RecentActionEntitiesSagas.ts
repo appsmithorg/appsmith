@@ -42,17 +42,24 @@ function* updateRecentEntitySaga(action: ReduxAction<RecentActionEntity>) {
   );
 
   if (actionIndex > -1) {
+    // entity visited recently
+    // move it to the top of the list
     updatedRecentActions.unshift(
       updatedRecentActions.splice(actionIndex, 1)[0],
     );
+
     AnalyticsUtil.logEvent("RECENT_ACTION_ENTITY_CLICK", {
       ...newAction,
       isRecent: true,
       recentActionslength: updatedRecentActions.length,
     });
   } else {
+    // entity not visited recently
+    // delete last entry if 5 entries already exist
     updatedRecentActions.length === 5 && updatedRecentActions.pop();
+    // add new entity to the top
     updatedRecentActions.unshift(newAction);
+
     AnalyticsUtil.logEvent("RECENT_ACTION_ENTITY_CLICK", {
       ...newAction,
       isRecent: false,
