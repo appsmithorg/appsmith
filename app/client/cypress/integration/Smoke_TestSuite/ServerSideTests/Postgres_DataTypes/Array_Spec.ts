@@ -22,11 +22,7 @@ describe("Array Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
-    appSettings.theme.ChangeThemeColor(-31, "Primary");
-    appSettings.theme.ChangeThemeColor(-27, "Background");
-    appSettings.closePane();
+    appSettings.openPaneAndChangeThemeColors(-31, -27);
   });
 
   it("1. Creating table query - arraytypes", () => {

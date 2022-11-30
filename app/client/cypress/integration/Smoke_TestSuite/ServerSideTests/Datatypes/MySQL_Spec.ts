@@ -15,10 +15,7 @@ describe("MySQL Datatype tests", function() {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
-    appSettings.theme.ChangeTheme("Moon");
-    appSettings.closePane();
+    appSettings.openPaneAndChangeTheme("Moon");
   });
 
   it("1. Create Mysql DS", function() {

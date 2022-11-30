@@ -38,4 +38,22 @@ export class AppSettings {
   public goToPageSettings(pageName: string) {
     this.agHelper.GetNClick(this.locators._getPageSettingsHeader(pageName));
   }
+
+  public openPaneAndChangeTheme(themeName: string) {
+    this.openPaneFromCta();
+    this.goToThemeSettings();
+    this.theme.ChangeTheme(themeName);
+    this.closePane();
+  }
+
+  public openPaneAndChangeThemeColors(
+    primaryColorIndex: number,
+    backgroundColorIndex: number,
+  ) {
+    this.openPaneFromCta();
+    this.goToThemeSettings();
+    this.theme.ChangeThemeColor(primaryColorIndex, "Primary");
+    this.theme.ChangeThemeColor(backgroundColorIndex, "Background");
+    this.closePane();
+  }
 }

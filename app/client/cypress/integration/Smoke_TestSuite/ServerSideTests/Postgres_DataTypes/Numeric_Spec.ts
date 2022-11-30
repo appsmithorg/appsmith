@@ -14,10 +14,7 @@ describe("Numeric Datatype tests", function() {
     cy.fixture("Datatypes/NumericDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
-    appSettings.theme.ChangeTheme("Moon");
-    appSettings.closePane();
+    appSettings.openPaneAndChangeTheme("Moon");
   });
 
   it("1. Create Postgress DS", function() {

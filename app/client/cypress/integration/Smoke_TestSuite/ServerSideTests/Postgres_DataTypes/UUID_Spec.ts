@@ -23,10 +23,7 @@ describe("UUID Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
-    appSettings.theme.ChangeTheme("Earth");
-    appSettings.closePane();
+    appSettings.openPaneAndChangeTheme("Earth");
   });
 
   it("1. Creating supporting api's for generating random UUID's", () => {

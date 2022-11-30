@@ -32,11 +32,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
-    appSettings.theme.ChangeThemeColor(33, "Primary");
-    appSettings.theme.ChangeThemeColor(39, "Background");
-    appSettings.closePane();
+    appSettings.openPaneAndChangeThemeColors(33, 39);
   });
 
   it("1. Creating table query - jsonbooks", () => {

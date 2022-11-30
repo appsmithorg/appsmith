@@ -5,11 +5,9 @@ let dsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
-  homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   deployMode = ObjectsRegistry.DeployMode,
   table = ObjectsRegistry.Table,
-  propPane = ObjectsRegistry.PropertyPane,
   appSettings = ObjectsRegistry.AppSettings;
 
 describe("Validate Mongo CRUD with JSON Form", () => {
@@ -25,10 +23,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
-    appSettings.theme.ChangeTheme("Water Lily");
-    appSettings.closePane();
+    appSettings.openPaneAndChangeTheme("Water Lily");
 
     dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
