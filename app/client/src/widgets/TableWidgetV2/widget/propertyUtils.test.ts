@@ -479,7 +479,7 @@ describe("updateCustomColumnAliasOnLabelChange", () => {
         "primaryColumns.resume_url.label",
         "customColumn12",
       ),
-    ).toEqual([]);
+    ).toEqual(undefined);
   });
 
   it("should not return the propertyToUpdate array to update alias when any property other than label property of the custom column gets changed", () => {
@@ -489,7 +489,7 @@ describe("updateCustomColumnAliasOnLabelChange", () => {
         "primaryColumns.customColumn1.notlabel",
         "customColumn12",
       ),
-    ).toEqual([]);
+    ).toEqual(undefined);
   });
 
   it("should return the propertyToUpdate array to update alias for any given custom column", () => {

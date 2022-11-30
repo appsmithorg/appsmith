@@ -632,12 +632,12 @@ export const updateCustomColumnAliasOnLabelChange = (
 ): Array<PropertyHookUpdates> | undefined => {
   // alias will be updated along with label change only for custom columns
   const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
-  const propertyToUpdate = [];
   if (propertyPath?.length && regex.test(propertyPath)) {
-    propertyToUpdate.push({
-      propertyPath: propertyPath.replace("label", "alias"),
-      propertyValue,
-    });
+    return [
+      {
+        propertyPath: propertyPath.replace("label", "alias"),
+        propertyValue: propertyValue,
+      },
+    ];
   }
-  return;
 };
