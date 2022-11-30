@@ -15,7 +15,7 @@ import {
 import { Size, Category } from "design-system";
 import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 const Wrapper = styled.div`

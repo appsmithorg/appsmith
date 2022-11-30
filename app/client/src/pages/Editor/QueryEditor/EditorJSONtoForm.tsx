@@ -742,6 +742,11 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
+  const responsePaneHeight = useSelector(getQueryPaneResponsePaneHeight);
+  const setResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setQueryPaneResponsePaneHeight(height));
+  }, []);
+
   const responseBodyTabs =
     responseDataTypes &&
     responseDataTypes.map((dataType, index) => {
@@ -752,7 +757,7 @@ export function EditorJSONtoForm(props: Props) {
         panelComponent: responseTabComponent(
           dataType.key,
           output,
-          // tableBodyHeight,
+          responsePaneHeight,
         ),
       };
     });
@@ -910,11 +915,6 @@ export function EditorJSONtoForm(props: Props) {
 
   const setSelectedResponseTab = useCallback((tabKey: string) => {
     dispatch(setQueryPaneResponseSelectedTab(tabKey));
-  }, []);
-
-  const responsePaneHeight = useSelector(getQueryPaneResponsePaneHeight);
-  const setResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setQueryPaneResponsePaneHeight(height));
   }, []);
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
