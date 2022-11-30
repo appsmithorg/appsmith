@@ -250,6 +250,6 @@ public class Application extends BaseDomain {
     public static class EmbedSetting {
         private String height;
         private String width;
-        private boolean showNavigationBar;
+        private Boolean showNavigationBar;
     }
 }
