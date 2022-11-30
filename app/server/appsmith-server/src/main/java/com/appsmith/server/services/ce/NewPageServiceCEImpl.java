@@ -344,6 +344,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     Application application = tuple.getT1();
                     application.setPages(null);
                     application.setPublishedPages(null);
+                    application.setViewMode(view);
                     List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
                     ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
                     applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
