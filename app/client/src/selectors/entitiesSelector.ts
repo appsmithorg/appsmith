@@ -205,6 +205,10 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
   return {};
 };
 
+export const getDatasourceActionRouteInfo = (state: AppState) => {
+  return state.ui.datasourcePane.actionRouteInfo;
+};
+
 export const getDatasourcesByPluginId = (
   state: AppState,
   id: string,
