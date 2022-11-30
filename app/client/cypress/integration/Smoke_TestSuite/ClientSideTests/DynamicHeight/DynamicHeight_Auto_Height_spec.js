@@ -54,8 +54,10 @@ describe("Dynamic Height Width validation", function () {
     //cy.openPropertyPane("containerwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("checkboxgroupwidget");
+    cy.get(commonlocators.generalSectionHeight).scrollIntoView().should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("inputwidgetv2");
+    cy.get(commonlocators.generalSectionHeight).scrollIntoView().should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")

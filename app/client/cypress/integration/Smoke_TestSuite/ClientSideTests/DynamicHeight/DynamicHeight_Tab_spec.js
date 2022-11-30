@@ -30,7 +30,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
           });
       });
   }
-  it("Tab widget validation of height with dynamic height feature", function () {
+  it("Tab widget validation of height with dynamic height feature with publish mode", function () {
     //changing the Text Name and verifying
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
@@ -59,7 +59,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
       });
   });
 
-  it("Tab widget validation of height with fixed height", function () {
+  it("Tab widget validation of height with preview mode", function () {
     cy.get(".t--switch-comment-mode-off").should("be.visible");
     cy.get(".t--switch-comment-mode-off").click({force: true});    
     cy.wait(3000);
@@ -97,19 +97,18 @@ describe("Dynamic Height Width validation for Tab widget", function () {
   it("Tab widget validation of height with reload", function () {
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
+    cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.get(commonlocators.showTabsControl).click({ force: true });
+    cy.changeLayoutHeight(commonlocators.autoHeight);
+    cy.wait(3000);
     cy.get(".t--tabid-tab1").click({ force: true });
     cy.wait(5000);
     cy.get(".t--widget-tabswidget")
       .invoke("css", "height")
       .then((theight) => {
         cy.get(".t--tabid-tab2").click({ force: true });
+        cy.changeLayoutHeight(commonlocators.fixed);
         cy.wait(3000);
-        cy.wait("@updateLayout").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
         cy.reload();
         cy.openPropertyPane("tabswidget");
         cy.get(".t--widget-tabswidget")
