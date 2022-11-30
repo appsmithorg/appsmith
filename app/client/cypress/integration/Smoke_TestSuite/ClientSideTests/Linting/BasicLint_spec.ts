@@ -49,14 +49,14 @@ const createMySQLDatasourceQuery = () => {
 };
 
 describe("Linting", () => {
-  before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
-    dataSources.CreateDataSource("MySql");
-    cy.get("@dsName").then(($dsName) => {
-      dsName = ($dsName as unknown) as string;
-    });
-  });
+  // before(() => {
+  //   ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
+  //   ee.NavigateToSwitcher("explorer");
+  //   dataSources.CreateDataSource("MySql");
+  //   cy.get("@dsName").then(($dsName) => {
+  //     dsName = ($dsName as unknown) as string;
+  //   });
+  // });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
     ee.SelectEntityByName("Button1", "Widgets");
@@ -293,7 +293,7 @@ describe("Linting", () => {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 
-  it("9. Shows lint errors for usage of library that are not installed yet", () => {
+  it.only("9. Shows lint errors for usage of library that are not installed yet", () => {
     const JS_OBJECT_WITH_LIB_API = `export default {
       myFun1: () => {
         return UUID.generate();
@@ -315,9 +315,7 @@ describe("Linting", () => {
 
     agHelper.AssertElementAbsence(locator._lintErrorElement);
 
-    installer.openInstaller();
     installer.uninstallLibrary("uuidjs");
-    installer.closeInstaller();
 
     agHelper.AssertElementExist(locator._lintErrorElement);
   });
