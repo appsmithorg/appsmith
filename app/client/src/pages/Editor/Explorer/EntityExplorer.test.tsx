@@ -8,7 +8,7 @@ import { MockPageDSL } from "test/testCommon";
 import Sidebar from "components/editorComponents/Sidebar";
 import { generateReactKey } from "utils/generators";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
-import store from "store";
+import store, { runSagaMiddleware } from "store";
 import Datasources from "./Datasources";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
@@ -23,6 +23,10 @@ pushState.mockImplementation((state: any, title: any, url: any) => {
 });
 
 describe("Entity Explorer tests", () => {
+  beforeAll(() => {
+    runSagaMiddleware();
+  });
+
   beforeEach(() => {
     urlBuilder.updateURLParams(
       {
