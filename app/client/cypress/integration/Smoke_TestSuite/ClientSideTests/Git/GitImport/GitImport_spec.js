@@ -39,19 +39,22 @@ describe("Git import flow", function() {
       cy.wait(1000);
       cy.fillPostgresDatasourceForm();
       cy.get(datasourceEditor.sectionAuthentication).click();
-      cy.testSaveDatasource();
+      cy.testDatasource(true);
+      cy.get(".t--save-datasource").click({ force: true });
       cy.wait(1000);
       cy.ReconnectDatasource("TEDMySQL");
       cy.wait(500);
       cy.fillMySQLDatasourceForm();
       cy.get(datasourceEditor.sectionAuthentication).click();
-      cy.testSaveDatasource();
+      cy.testDatasource(true);
+      cy.get(".t--save-datasource").click({ force: true });
       cy.wait(1000);
       cy.ReconnectDatasource("TEDMongo");
       cy.wait(1000);
       cy.fillMongoDatasourceForm();
       cy.get(datasourceEditor.sectionAuthentication).click();
-      cy.testSaveDatasource();
+      cy.testDatasource(true);
+      cy.get(".t--save-datasource").click({ force: true });
       cy.wait(2000);
       /*cy.get(homePage.toastMessage).should(
         "contain",
@@ -69,6 +72,7 @@ describe("Git import flow", function() {
       });
     });
   });
+
   it("2. Import an app from Git and reconnect Postgres, MySQL and Mongo db ", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -91,19 +95,22 @@ describe("Git import flow", function() {
     cy.wait(500);
     cy.fillPostgresDatasourceForm();
     cy.get(datasourceEditor.sectionAuthentication).click();
-    cy.testSaveDatasource();
+    cy.testDatasource(true);
+    cy.get(".t--save-datasource").click({ force: true });
     cy.wait(500);
     cy.ReconnectDatasource("TEDMySQL");
     cy.wait(500);
     cy.fillMySQLDatasourceForm();
     cy.get(datasourceEditor.sectionAuthentication).click();
-    cy.testSaveDatasource();
+    cy.testDatasource(true);
+    cy.get(".t--save-datasource").click({ force: true });
     cy.wait(500);
     cy.ReconnectDatasource("TEDMongo");
     cy.wait(500);
     cy.fillMongoDatasourceForm();
     cy.get(datasourceEditor.sectionAuthentication).click();
-    cy.testSaveDatasource();
+    cy.testDatasource(true);
+    cy.get(".t--save-datasource").click({ force: true });
     cy.wait(2000);
     cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
@@ -119,6 +126,7 @@ describe("Git import flow", function() {
       cy.wait(1000);
     });
   });
+
   it("3. Verfiy imported app should have all the data binding visible in view and edit mode", () => {
     // verify postgres data binded to table
     cy.get(".tbody")
@@ -133,6 +141,7 @@ describe("Git import flow", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
+
   it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     cy.createGitBranch(newBranch);
     cy.get(".tbody")
@@ -202,6 +211,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
+
   it("5. Switch to master and verify data in edit and view mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
@@ -224,6 +234,7 @@ describe("Git import flow", function() {
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });
+
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
