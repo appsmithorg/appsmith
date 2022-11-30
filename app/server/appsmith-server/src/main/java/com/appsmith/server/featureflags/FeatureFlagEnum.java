@@ -30,7 +30,7 @@ public enum FeatureFlagEnum {
     APP_TEMPLATE,
     TEMPLATES_PHASE_2,
     CONTEXT_SWITCHING,
-    DATASOURCE_ENVIRONMENTS
+    DATASOURCE_ENVIRONMENTS,
 
     // Put EE flags below this line, to avoid conflicts.
     RBAC,
