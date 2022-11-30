@@ -10,13 +10,14 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { Layers } from "constants/Layers";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import derivedProperties from "./parseDerivedProperties";
+import { Stylesheet } from "entities/AppTheming";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -309,6 +310,14 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getPropertyPaneStyleConfig() {

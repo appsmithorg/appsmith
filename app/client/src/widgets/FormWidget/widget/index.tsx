@@ -113,6 +113,13 @@ class FormWidget extends ContainerWidget {
   static getWidgetType(): WidgetType {
     return "FORM_WIDGET";
   }
+
+  static getStylsheetConfig() {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
+  }
 }
 
 export interface FormWidgetProps extends ContainerComponentProps {
