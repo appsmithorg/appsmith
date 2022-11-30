@@ -481,6 +481,10 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
+  public GoBack(){
+    this.GetNClick(this.locator._visibleTextSpan("Back"));
+  }
+
   public SelectNRemoveLineText(selector: string) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
