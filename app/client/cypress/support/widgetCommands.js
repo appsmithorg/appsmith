@@ -842,8 +842,10 @@ Cypress.Commands.add("addColumnV2", (colId) => {
   cy.get(widgetsPage.defaultColNameV2).type(colId, { force: true });
 });
 
-Cypress.Commands.add("editColumn", (colId) => {
-  cy.backFromPropertyPanel();
+Cypress.Commands.add("editColumn", (colId, shouldReturnToMainPane = true) => {
+  if (shouldReturnToMainPane) {
+    cy.backFromPropertyPanel();
+  }
   cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
     force: true,
   });
