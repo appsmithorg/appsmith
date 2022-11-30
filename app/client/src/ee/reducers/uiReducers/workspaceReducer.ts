@@ -45,6 +45,68 @@ export interface WorkspaceReduxState {
 
 const handlers = {
   ...CE_handlers,
+  [ReduxActionTypes.CHANGE_WORKSPACE_USER_ROLE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{
+      userId: string;
+      username: string;
+      name: string;
+      permissionGroupId: string;
+      permissionGroupName: string;
+      userGroupId?: string;
+    }>,
+  ) => {
+    draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
+      if (
+        action.payload.userGroupId
+          ? user.userGroupId === action.payload.userGroupId
+          : user.username === action.payload.username
+      ) {
+        user.permissionGroupId = action.payload.permissionGroupId;
+        user.permissionGroupName = action.payload.permissionGroupName;
+        user.isChangingRole = false;
+      }
+    });
+  },
+  [ReduxActionTypes.CHANGE_WORKSPACE_USER_ROLE_INIT]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{ username: string; userGroupId: string }>,
+  ) => {
+    draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
+      if (
+        action.payload.userGroupId
+          ? user.userGroupId === action.payload.userGroupId
+          : user.username === action.payload.username
+      ) {
+        user.isChangingRole = true;
+      }
+    });
+  },
+  [ReduxActionTypes.DELETE_WORKSPACE_USER_INIT]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{ username: string; userGroupId: string }>,
+  ) => {
+    draftState.workspaceUsers.forEach((user: WorkspaceUser) => {
+      if (
+        action.payload.userGroupId
+          ? user.userGroupId === action.payload.userGroupId
+          : user.username === action.payload.username
+      ) {
+        user.isDeleting = true;
+      }
+    });
+  },
+  [ReduxActionTypes.DELETE_WORKSPACE_USER_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{ username: string; userGroupId: string }>,
+  ) => {
+    draftState.workspaceUsers = draftState.workspaceUsers.filter(
+      (user: WorkspaceUser) =>
+        action.payload.userGroupId
+          ? user.userGroupId !== action.payload.userGroupId
+          : user.username !== action.payload.username,
+    );
+  },
   [ReduxActionTypes.FETCH_GROUP_SUGGESTIONS_SUCCESS]: (
     draftState: WorkspaceReduxState,
     action: ReduxAction<any>,

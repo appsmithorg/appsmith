@@ -27,7 +27,6 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
@@ -82,20 +81,28 @@ import { useHistory } from "react-router-dom";
 /*import { selectFeatureFlags } from "selectors/usersSelectors";*/
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
+import TagListField from "../../utils/TagInput";
 
 const { cloudHosting } = getAppsmithConfigs();
 
-const validateFormValues = (values: {
-  users: string;
-  role?: string | string[];
-}) => {
+const validateFormValues = (
+  values: {
+    users: string;
+    role?: string | string[];
+  },
+  isAclFlow: boolean,
+) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);
 
     _users.forEach((user) => {
       if (!isEmail(user) && !isUserGroup(user)) {
         throw new SubmissionError({
-          _error: createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST),
+          _error: createMessage(
+            isAclFlow || cloudHosting
+              ? CE_INVITE_USERS_VALIDATION_EMAIL_LIST
+              : INVITE_USERS_VALIDATION_EMAIL_LIST,
+          ),
         });
       }
     });
@@ -127,15 +134,22 @@ const validate = (values: any) => {
 
     _users.forEach((user: string) => {
       if (!isEmail(user) && !isUserGroup(user)) {
-        errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+        errors["users"] = createMessage(
+          cloudHosting
+            ? CE_INVITE_USERS_VALIDATION_EMAIL_LIST
+            : INVITE_USERS_VALIDATION_EMAIL_LIST,
+        );
       }
     });
   }
   return errors;
 };
 
-const isUserGroup = (user: string) =>
-  getGroupSuggestions(store.getState()).some((ug: any) => ug.name === user);
+const isUserGroup = (user: string) => {
+  return getGroupSuggestions(store.getState())?.some(
+    (ug: any) => ug.id === user,
+  );
+};
 
 const StyledInviteFieldGroupEE = styled(StyledInviteFieldGroup)`
   .wrapper {
@@ -254,6 +268,7 @@ function WorkspaceInviteUsersForm(props: any) {
       allUsers.map(
         (user: {
           userId: string;
+          userGroupId: string;
           username: string;
           permissionGroupId: string;
           permissionGroupName: string;
@@ -283,11 +298,6 @@ function WorkspaceInviteUsersForm(props: any) {
     setSelectedOption(updatedItems);
   };
 
-  const getUserGroupId = (user: string) => {
-    const ug = groupSuggestions.find((ug) => ug.name === user);
-    return ug?.id || "";
-  };
-
   const getLabel = (selectedOption: Partial<DropdownOption>[]) => {
     return (
       <span data-testid="t--dropdown-label" style={{ width: "100%" }}>
@@ -307,9 +317,10 @@ function WorkspaceInviteUsersForm(props: any) {
       );
       let error = "";
       if (hasInvalidUser) {
-        error = isAclFlow
-          ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST)
-          : createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
+        error =
+          isAclFlow || cloudHosting
+            ? createMessage(CE_INVITE_USERS_VALIDATION_EMAIL_LIST)
+            : createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
       }
       setEmailError(error);
     } else {
@@ -340,7 +351,7 @@ function WorkspaceInviteUsersForm(props: any) {
       )}
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
-          validateFormValues(values);
+          validateFormValues(values, isAclFlow);
           AnalyticsUtil.logEvent("INVITE_USER", values);
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
@@ -348,11 +359,8 @@ function WorkspaceInviteUsersForm(props: any) {
           const users = usersAsStringsArray
             .filter((user: any) => isEmail(user))
             .join(",");
-          const groupNames = usersAsStringsArray.filter(
-            (user: any) => !isEmail(user),
-          );
-          const groups = groupNames
-            .map((group: string) => getUserGroupId(group))
+          const groups = usersAsStringsArray
+            .filter((user: any) => !isEmail(user))
             .join(",");
           if (onSubmitHandler) {
             return onSubmitHandler({
@@ -460,19 +468,42 @@ function WorkspaceInviteUsersForm(props: any) {
                     permissionGroupId: string;
                     permissionGroupName: string;
                     initials: string;
+                    userGroupId: string;
+                    userId: string;
                   }) => {
                     return (
-                      <Fragment key={user.username}>
+                      <Fragment
+                        key={
+                          user?.userGroupId ? user.userGroupId : user.username
+                        }
+                      >
                         <User>
                           <UserInfo>
-                            <ProfileImage
-                              source={`/api/${UserApi.photoURL}/${user.username}`}
-                              userName={user.name || user.username}
-                            />
-                            <UserName>
-                              <Text type={TextType.H5}>{user.name}</Text>
-                              <Text type={TextType.P2}>{user.username}</Text>
-                            </UserName>
+                            {user?.userGroupId ? (
+                              <>
+                                <Icon
+                                  className="user-icons"
+                                  name="group-line"
+                                  size={IconSize.XXL}
+                                />
+                                <UserName>
+                                  <Text type={TextType.H5}>{user.name}</Text>
+                                </UserName>
+                              </>
+                            ) : (
+                              <>
+                                <ProfileImage
+                                  source={`/api/${UserApi.photoURL}/${user.username}`}
+                                  userName={user.name || user.username}
+                                />
+                                <UserName>
+                                  <Text type={TextType.H5}>{user.name}</Text>
+                                  <Text type={TextType.P2}>
+                                    {user.username}
+                                  </Text>
+                                </UserName>
+                              </>
+                            )}
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>

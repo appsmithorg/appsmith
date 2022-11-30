@@ -15,7 +15,7 @@ import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { getIconLocations } from "@appsmith/selectors/aclSelectors";
 import { updateRoleById } from "@appsmith/actions/aclActions";
-import { isPermitted } from "ce/utils/permissionHelpers";
+import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 let dataToBeSent: any[] = [];

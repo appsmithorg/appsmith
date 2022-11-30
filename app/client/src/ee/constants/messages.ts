@@ -23,8 +23,12 @@ export const ACL_CLONE = () => `Clone`;
 export const ACL_RENAME = () => `Rename`;
 export const ACL_EDIT = () => `Edit`;
 export const NO_USERS_MESSAGE = () => `There are no users added to this group`;
-export const NO_ROLES_MESSAGE = () => `There are no roles assigned yet. Choose from the list of
-roles below to add them.`;
+export const NO_ACTIVE_ENTITIES_MESSAGE = (
+  entity: string,
+) => `There are no ${entity}s assigned. Choose from the list of
+${entity}s below to add them.`;
+export const EMPTY_ENTITIES_MESSAGE = (entity: string) =>
+  `There are no ${entity}s created.`;
 export const BOTTOM_BAR_SAVE_MESSAGE = () => `These changes will affect the users ability to interact with various
 aspects of the application. Are you sure?`;
 export const BOTTOM_BAR_SAVE_BTN = () => `Save Changes`;
@@ -36,6 +40,8 @@ export const INVITE_USERS_MESSAGE = () => `Invite users or user groups`;
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address or group`;
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid email address(es) or user group(s) found`;
+export const MEMBERS_TAB_TITLE = (length: number) =>
+  `Users / User Groups (${length})`;
 
 // Audit logs begin
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";

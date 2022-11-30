@@ -37,6 +37,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const CellContainer = styled.div`
   display: flex;
@@ -161,9 +162,13 @@ export function GroupListing() {
   ];
 
   const onAddButtonClick = () => {
+    const newGroupName = getNextEntityName(
+      "Untitled Group ",
+      userGroups.map((el: any) => el.name),
+    );
     dispatch(
       createGroup({
-        name: "Untitled Group",
+        name: newGroupName,
       }),
     );
     setIsNewGroup(true);

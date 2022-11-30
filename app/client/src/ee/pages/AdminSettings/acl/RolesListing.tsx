@@ -41,6 +41,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const CellContainer = styled.div`
   display: flex;
@@ -153,9 +154,13 @@ export function RolesListing() {
   ];
 
   const onAddButtonClick = () => {
+    const newRoleName = getNextEntityName(
+      "Untitled Role ",
+      roles.map((el: any) => el.name),
+    );
     dispatch(
       createRole({
-        name: "Untitled Role",
+        name: newRoleName,
       }),
     );
     setIsNewRole(true);
