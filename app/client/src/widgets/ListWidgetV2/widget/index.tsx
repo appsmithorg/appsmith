@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import React, { createRef, RefObject } from "react";
-import { get, range, omit, isEmpty, floor } from "lodash";
+import { get, range, isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
 import derivedProperties from "./parseDerivedProperties";
@@ -10,7 +10,6 @@ import MetaWidgetGenerator, { GeneratorOptions } from "../MetaWidgetGenerator";
 import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
-import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import {
@@ -127,7 +126,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
-      pageSize: 0,
       currentViewRows: "{{[]}}",
       selectedRow: "{{{}}}",
       triggeredRow: "{{{}}}",
@@ -162,7 +160,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   componentDidMount() {
     this.pageSize = this.getPageSize();
-    this.updatePageSizeMetaValue();
+    if (this.shouldUpdatePageSize()) {
+      this.updatePageSize();
+    }
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
     // Mounts the virtualizer
@@ -171,8 +171,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     if (this.props.infiniteScroll) {
       this.generateMetaWidgets();
     }
-
-    this.generateChildrenEntityDefinitions(this.props);
 
     // add privateWidgets to ListWidget
     this.addPrivateWidgetsForChildren(this.props);
@@ -185,30 +183,20 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
     this.pageSize = this.getPageSize();
 
-    if (this.shouldUpdatePageSizeMetaValue()) {
-      this.updatePageSizeMetaValue();
+    if (this.shouldUpdatePageSize()) {
+      this.updatePageSize();
       if (this.shouldFireOnPageSizeChange()) {
         // run onPageSizeChange if user resize widgets
-        super.executeAction({
-          triggerPropertyName: "onPageSizeChange",
-          dynamicString: this.props.onPageSizeChange as string,
-          event: {
-            type: EventType.ON_PAGE_SIZE_CHANGE,
-          },
-        });
+        this.triggerOnPageSizeChange();
       }
-      if (this.props.listData && this.shouldUpdatePageNumber()) {
-        const totalPages = Math.ceil(
-          this.props.listData.length / this.pageSize,
-        );
-        this.props.updateWidgetMetaProperty("pageNo", totalPages, {
-          triggerPropertyName: "onPageChange",
-          dynamicString: this.props.onPageChange,
-          event: {
-            type: EventType.ON_PREV_PAGE,
-          },
-        });
-      }
+    }
+
+    if (this.isCurrPageNoGreaterThanMaxPageNo()) {
+      const maxPageNo = Math.ceil(
+        (this.props?.listData?.length || 0) / this.pageSize,
+      );
+
+      this.onPageChange(maxPageNo);
     }
 
     if (this.props.primaryKeys !== prevProps.primaryKeys) {
@@ -439,11 +427,11 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return isNaN(pageSize) ? 0 : floor(pageSize);
   };
 
-  updatePageSizeMetaValue = () => {
-    this.props.updateWidgetMetaProperty("pageSize", this.pageSize);
+  updatePageSize = () => {
+    super.updateWidgetProperty("pageSize", this.pageSize);
   };
 
-  shouldUpdatePageSizeMetaValue = () => {
+  shouldUpdatePageSize = () => {
     return this.props.pageSize !== this.pageSize;
   };
 
@@ -451,18 +439,28 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return this.props.serverSidePagination && this.props.onPageSizeChange;
   };
 
-  shouldUpdatePageNumber = () => {
+  isCurrPageNoGreaterThanMaxPageNo = () => {
     if (
       this.props.listData &&
       !this.props.infiniteScroll &&
       !this.props.serverSidePagination
     ) {
-      const totalPages = Math.ceil(this.props.listData?.length / this.pageSize);
+      const maxPageNo = Math.ceil(this.props.listData?.length / this.pageSize);
 
-      return totalPages < this.props.pageNo ? true : false;
+      return maxPageNo < this.props.pageNo;
     }
 
     return false;
+  };
+
+  triggerOnPageSizeChange = () => {
+    super.executeAction({
+      triggerPropertyName: "onPageSizeChange",
+      dynamicString: this.props.onPageSizeChange as string,
+      event: {
+        type: EventType.ON_PAGE_SIZE_CHANGE,
+      },
+    });
   };
 
   mainMetaCanvasWidget = () => {
@@ -492,7 +490,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   mainMetaCanvasWidgetBottomRow = () => {
     const { componentHeight } = this.getComponentDimensions();
-    const { shouldPaginate } = this.shouldPaginate();
 
     if (this.props.infiniteScroll) {
       return Math.max(
@@ -500,54 +497,10 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         componentHeight,
       );
     } else {
-      return shouldPaginate
+      return this.shouldPaginate()
         ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
         : componentHeight;
     }
-  };
-
-  /**
-   * generates the children entity definitions for children
-   *
-   * by entity definition we mean properties that will be open for users for autocomplete
-   *
-   * @param props
-   */
-  generateChildrenEntityDefinitions(props: ListWidgetProps) {
-    const template = props.template;
-    const childrenEntityDefinitions: Record<string, any> = {};
-
-    if (template) {
-      Object.keys(template).map((key: string) => {
-        const currentTemplate = template[key];
-        const widgetType = currentTemplate?.type;
-
-        if (widgetType) {
-          childrenEntityDefinitions[widgetType] = Object.keys(
-            omit(
-              get(entityDefinitions, `${widgetType}`) as Record<
-                string,
-                unknown
-              >,
-              ["!doc", "!url"],
-            ),
-          );
-        }
-      });
-    }
-
-    if (this.props.updateWidgetMetaProperty) {
-      this.props.updateWidgetMetaProperty(
-        "childrenEntityDefinitions",
-        childrenEntityDefinitions,
-      );
-    }
-  }
-
-  getEntityDefinitionsFor = (widgetType: string) => {
-    return Object.keys(
-      omit(get(entityDefinitions, widgetType), ["!doc", "!url"]),
-    );
   };
 
   // updates the "privateWidgets" field of the List Widget
@@ -571,13 +524,17 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
 
-    this.props.updateWidgetMetaProperty("pageNo", page, {
-      triggerPropertyName: "onPageChange",
-      dynamicString: this.props.onPageChange,
-      event: {
-        type: eventType,
-      },
-    });
+    if (this.props.serverSidePagination && this.props.onPageChange) {
+      this.props.updateWidgetMetaProperty("pageNo", page, {
+        triggerPropertyName: "onPageChange",
+        dynamicString: this.props.onPageChange,
+        event: {
+          type: eventType,
+        },
+      });
+    } else {
+      this.props.updateWidgetMetaProperty("pageNo", page);
+    }
   };
 
   onRowClick = (rowIndex: number) => {
@@ -707,34 +664,18 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       ? this.props.gridGap
       : 0;
 
-  /**
-   * 400
-   * 200
-   * can data be paginated
-   */
   shouldPaginate = () => {
-    const {
-      infiniteScroll = false,
-      listData,
-      serverSidePagination,
-    } = this.props;
-    const pageSize = this.pageSize;
-
-    if (infiniteScroll) {
-      return { shouldPaginate: false, pageSize };
-    }
-
-    if (serverSidePagination) {
-      return { shouldPaginate: true, pageSize };
-    }
-
-    if (!listData?.length) {
-      return { shouldPaginate: false, pageSize: 0 };
-    }
-
-    const shouldPaginate = pageSize < listData.length;
-
-    return { shouldPaginate, pageSize };
+    /**
+     * if client side pagination and not infinite scroll and data is more than page size
+     * or
+     * server side pagination enabled
+     */
+    return (
+      (!this.props.serverSidePagination &&
+        !this.props.infiniteScroll &&
+        this.pageSize < (this.props.listData?.length || 0)) ||
+      this.props.serverSidePagination
+    );
   };
 
   getRowIndex = (viewIndex: number) => {
@@ -753,7 +694,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         };
         child.parentColumnSpace = this.props.parentColumnSpace;
         child.rightColumn = componentWidth;
-        // child.shouldScrollContents = true;
         child.canExtend = true;
         child.children = child.children?.map((container, viewIndex) => {
           const rowIndex = this.getRowIndex(viewIndex);
@@ -834,7 +774,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   getPageView() {
     const { componentHeight } = this.getComponentDimensions();
     const { pageNo, serverSidePagination } = this.props;
-    const { pageSize, shouldPaginate } = this.shouldPaginate();
     const templateHeight =
       this.getTemplateBottomRow() * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
@@ -898,7 +837,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         >
           {this.renderChildren()}
         </MetaWidgetContextProvider>
-        {shouldPaginate &&
+        {this.shouldPaginate() &&
           (serverSidePagination ? (
             <ServerSideListPagination
               nextPageClick={() => this.onPageChange(pageNo + 1)}
@@ -913,7 +852,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
               onChange={this.onPageChange}
               pageNo={this.props.pageNo}
-              pageSize={pageSize}
+              pageSize={this.pageSize}
               total={(this.props.listData || []).length}
             />
           ))}

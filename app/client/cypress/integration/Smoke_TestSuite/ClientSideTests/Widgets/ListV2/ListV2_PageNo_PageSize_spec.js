@@ -1,5 +1,10 @@
 const dsl = require("../../../../../fixtures/listv2PaginationDsl.json");
+const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+const datasource = require("../../../../../locators/DatasourcesEditor.json");
+const queryLocators = require("../../../../../locators/QueryEditor.json");
+
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const listData = [
   {
@@ -80,9 +85,19 @@ const listData = [
   },
 ];
 
+let agHelper = ObjectsRegistry.AggregateHelper;
+
 describe("List widget V2 page number and page size", () => {
   before(() => {
     cy.addDsl(dsl);
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   it("1. List widget V2 with client side pagination", () => {
@@ -156,5 +171,70 @@ describe("List widget V2 page number and page size", () => {
     cy.get(commonlocators.bodyTextStyle)
       .first()
       .should("have.text", "PageSize 2");
+  });
+
+  it("3. should reset page no if higher than max when switched from server side to client side", () => {
+    cy.addDsl(dslWithServerSide);
+    // Open Datasource editor
+    cy.wait(2000);
+    cy.NavigateToDatasourceEditor();
+
+    // Click on sample(mock) user database.
+    cy.get(datasource.mockUserDatabase).click();
+
+    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
+    cy.get(`${datasource.datasourceCard}`)
+      .contains("Users")
+      .get(`${datasource.createQuery}`)
+      .last()
+      .click({ force: true });
+
+    // Click the editing field
+    cy.get(".t--action-name-edit-field").click({ force: true });
+
+    // Click the editing field
+    cy.get(queryLocators.queryNameField).type("Query1");
+
+    // switching off Use Prepared Statement toggle
+    cy.get(queryLocators.switch)
+      .last()
+      .click({ force: true });
+
+    //.1: Click on Write query area
+    cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.query).click({ force: true });
+
+    // writing query to get the schema
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type(
+        "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
+        {
+          force: true,
+          parseSpecialCharSequences: false,
+        },
+      );
+    cy.WaitAutoSave();
+
+    cy.runQuery();
+
+    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+
+    cy.wait(1000);
+
+    // Click next page in list widget
+    cy.get(".t--list-widget-next-page")
+      .find("button")
+      .click({ force: true })
+      .wait(1000);
+
+    // Change to client side pagination
+    cy.openPropertyPane("listwidgetv2");
+    cy.togglebarDisable(".t--property-control-serversidepagination input");
+
+    cy.wait(2000);
+
+    cy.get(".t--widget-containerwidget").should("have.length", 3);
   });
 });

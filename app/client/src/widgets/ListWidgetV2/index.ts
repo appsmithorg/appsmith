@@ -106,6 +106,7 @@ export const CONFIG = {
       },
     },
     gridGap: 0,
+    pageSize: 3,
     templateBottomRow: 16,
     listData: [
       {
