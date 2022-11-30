@@ -28,6 +28,7 @@ import {
   getSettingConfig,
   getActions,
   getPlugins,
+  getGenerateCRUDEnabledPluginMap,
 } from "selectors/entitiesSelector";
 import {
   Action,
@@ -62,13 +63,20 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   datasourcesEditorIdURL,
+  generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
 } from "RouteBuilder";
-import { Plugin, UIComponentTypes } from "api/PluginApi";
+import {
+  GenerateCRUDEnabledPluginMap,
+  Plugin,
+  UIComponentTypes,
+} from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -265,12 +273,12 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   );
 }
 
-function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+function* handleDatasourceCreatedSaga(
+  actionPayload: CreateDatasourceSuccessAction,
+) {
   const pageId: string = yield select(getCurrentPageId);
-  const plugin: Plugin | undefined = yield select(
-    getPlugin,
-    actionPayload.payload.pluginId,
-  );
+  const { isDBCreated, payload } = actionPayload;
+  const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   // Only look at db plugins
   if (
     plugin &&
@@ -279,16 +287,49 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   )
     return;
 
-  yield put(
-    initialize(DATASOURCE_DB_FORM, omit(actionPayload.payload, "name")),
+  yield put(initialize(DATASOURCE_DB_FORM, omit(payload, "name")));
+
+  const queryParams = getQueryParams();
+  const updatedDatasource = payload;
+
+  const isGeneratePageInitiator = getIsGeneratePageInitiator(
+    queryParams.isGeneratePageMode,
   );
-  history.push(
-    datasourcesEditorIdURL({
-      pageId,
-      datasourceId: actionPayload.payload.id,
-      params: { from: "datasources", ...getQueryParams() },
-    }),
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
+    getGenerateCRUDEnabledPluginMap,
   );
+
+  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
+  // then we check if the current plugin is supported for generate page with data functionality
+  // and finally isDBCreated ensures that datasource is not in temporary state and
+  // user has explicitly saved the datasource, before redirecting back to generate page
+  if (
+    isGeneratePageInitiator &&
+    updatedDatasource.pluginId &&
+    generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
+    isDBCreated
+  ) {
+    history.push(
+      generateTemplateFormURL({
+        pageId,
+        params: {
+          datasourceId: updatedDatasource.id,
+        },
+      }),
+    );
+  } else {
+    history.push(
+      datasourcesEditorIdURL({
+        pageId,
+        datasourceId: payload.id,
+        params: {
+          from: "datasources",
+          ...getQueryParams(),
+          pluginId: plugin?.id,
+        },
+      }),
+    );
+  }
 }
 
 function* handleNameChangeSaga(
