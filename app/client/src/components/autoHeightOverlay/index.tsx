@@ -159,6 +159,9 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     const finalMinY = minY + mindY;
 
     useEffect(() => {
+      // reset the diff on backend update
+      setMindY(0);
+      setMaxdY(0);
       setMaxY(maxDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
     }, [maxDynamicHeight]);
 
@@ -220,8 +223,6 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
 
       if (heightToSet === minY + mindY) {
         batchUpdate(heightToSet);
-        setMindY(0);
-        setMaxdY(0);
       } else {
         updateMaxHeight(heightToSet);
         setMaxdY(0);
@@ -231,6 +232,9 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
     }
 
     useEffect(() => {
+      // reset the diff on backend update
+      setMindY(0);
+      setMaxdY(0);
       setMinY(minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
     }, [minDynamicHeight]);
 
@@ -258,8 +262,6 @@ const AutoHeightOverlay: React.FC<AutoHeightOverlayProps> = memo(
 
       if (heightToSet === maxY + maxdY) {
         batchUpdate(heightToSet);
-        setMindY(0);
-        setMaxdY(0);
       } else {
         updateMinHeight(heightToSet);
         setMindY(0);
