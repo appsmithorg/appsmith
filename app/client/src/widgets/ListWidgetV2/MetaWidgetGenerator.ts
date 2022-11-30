@@ -1,6 +1,6 @@
 import hash from "object-hash";
 import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, isString, without } from "lodash";
+import { difference, omit, set, get, isEmpty, isString } from "lodash";
 import {
   elementScroll,
   observeElementOffset,
@@ -119,7 +119,6 @@ type AddDynamicPathsPropertiesOptions = {
 
 enum MODIFICATION_TYPE {
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
-  UPDATE_PRIMARY_KEY = "UPDATE_PRIMARY_KEY",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -288,40 +287,6 @@ class MetaWidgetGenerator {
       this.containerParentId
     ];
     let metaWidgets: MetaWidgets = {};
-    let resetMetaWidgetIds: string[] = [];
-
-    if (this.modificationsQueue.has(MODIFICATION_TYPE.UPDATE_PRIMARY_KEY)) {
-      /**
-       * On primary key change, why reset cache and not use existing cache remapping new primary key?
-       *
-       * While remapping makes sense when data is coming as client side. To the generator the complete data
-       * is always available to modify all the old primary key related cache to the new primary key
-       *
-       * Eg. [{
-       *  id: "abc",
-       *  uuid: "zxy"
-       * }]
-       *
-       * If primaryKey updates from "id" -> "uuid", the value for all the data items are known therefore a complete
-       * re-mapping can be done.
-       *
-       * But when data is server side then only partial data is known and it is very difficult to modify the cache
-       * as it would be left partially updated and making partially stale. Which may lead to a bad state.
-       *
-       * In order to avoid this a complete cache resetting is done.
-       *
-       * As the cache is completely reset, the widgetIds that were generated previously are
-       * no longer valid and will the deleted. Thus resulting in new meta widgets being generated with same content
-       * but different widgetId. This will lead to unnecessary re-rendering and meta data loss.
-       *
-       * The assumption here is that the primaryKey change is not a high frequency operation and would be only done
-       * in the edit mode.
-       *
-       */
-      resetMetaWidgetIds = this.getAllCachedMetaWidgetIds();
-      this.resetCache();
-      this.prevViewMetaWidgetIds = [];
-    }
 
     // Reset
     this.currViewMetaWidgetIds = [];
@@ -360,9 +325,7 @@ class MetaWidgetGenerator {
 
     this.cacheRowIndices(this.cacheIndexArr);
 
-    const removedMetaWidgetIds = this.getRemovedMetaWidgetIds(
-      resetMetaWidgetIds,
-    );
+    const removedMetaWidgetIds = this.getRemovedMetaWidgetIds();
 
     this.cachedRows.prev = new Set(this.cachedRows.curr);
 
@@ -403,41 +366,29 @@ class MetaWidgetGenerator {
   /**
    * The removed widgets are
    * 1. The removed widgets from view i.e diff from previous View and Current View
-   * 2. The resetWidgets i.e when Primary Keys changes and caches are cleared
-   * 3. The previously cached rows that are not in the current view
+   * 2. The previously cached rows that are not in the current view
    */
 
-  private getRemovedMetaWidgetIds = (resetMetaWidgetIds: string[]) => {
+  private getRemovedMetaWidgetIds = () => {
     const {
       cachedMetaWidgetIds,
       removedCachedMetaWidgetIds,
     } = this.getMetaWidgetIdsInCachedRows();
 
-    const removedWidgetsFromView = difference(
-      this.prevViewMetaWidgetIds,
-      this.currViewMetaWidgetIds,
+    const removedWidgetsFromView = new Set(
+      difference(this.prevViewMetaWidgetIds, this.currViewMetaWidgetIds),
     );
-
-    const resetWidgetExcludingCurrent = without(
-      resetMetaWidgetIds,
-      ...this.currViewMetaWidgetIds,
-    );
-
-    const removedFromCurrentView = new Set<string>([
-      ...removedWidgetsFromView,
-      ...resetWidgetExcludingCurrent,
-    ]);
 
     removedCachedMetaWidgetIds.forEach((widgetId) => {
       if (!this.currViewMetaWidgetIds.includes(widgetId))
-        removedFromCurrentView.add(widgetId);
+        removedWidgetsFromView.add(widgetId);
     });
 
     cachedMetaWidgetIds.forEach((widgetId) => {
-      removedFromCurrentView.delete(widgetId);
+      removedWidgetsFromView.delete(widgetId);
     });
 
-    return Array.from(removedFromCurrentView);
+    return Array.from(removedWidgetsFromView);
   };
 
   private cacheRowIndices = (indices: number[]) => {
@@ -978,12 +929,6 @@ class MetaWidgetGenerator {
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
-
-    if (this.primaryKeys !== nextOptions?.primaryKeys) {
-      this.modificationsQueue.add({
-        type: MODIFICATION_TYPE.UPDATE_PRIMARY_KEY,
-      });
-    }
   };
 
   private flushModificationQueue = () => {
@@ -1232,23 +1177,6 @@ class MetaWidgetGenerator {
     });
 
     return metaWidgets;
-  };
-
-  private getAllCachedMetaWidgetIds = () => {
-    const cache = this.getCache();
-    const metaWidgetIds: string[] = [];
-
-    if (cache) {
-      Object.values(cache).forEach((cacheRow) => {
-        if (cacheRow) {
-          Object.values(cacheRow).forEach((cacheItem) => {
-            metaWidgetIds.push(cacheItem.metaWidgetId);
-          });
-        }
-      });
-    }
-
-    return metaWidgetIds;
   };
 
   private getEntityDefinitionsFor = (widgetType: string) => {

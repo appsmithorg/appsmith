@@ -338,7 +338,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     }
 
     if (!equal(this.prevMetaMainCanvasWidget, mainCanvasWidget)) {
-      this.prevMetaMainCanvasWidget = mainCanvasWidget;
+      this.prevMetaMainCanvasWidget = klona(mainCanvasWidget);
       return mainCanvasWidget;
     }
   };
