@@ -251,5 +251,123 @@
         "!type": "fn(timeout: number)",
         "!url": "https://developer.mozilla.org/en/docs/DOM/window.clearTimeout",
         "!doc": "Clears the delay set by window.setTimeout()."
+    },
+    "Response": {
+        "!type": "fn()",
+        "error": {
+            "!type": "fn() -> +Response"
+        },
+        "redirect": {
+            "!type": "fn() -> +Response"
+        },
+        "prototype": {
+            "status": {
+                "!type": "number"
+            },
+            "statusText": {
+                "!type": "string"
+            },
+            "type": {
+                "!type": "string"
+            },
+            "url": {
+                "!type": "string"
+            },
+            "ok": {},
+            "body": {
+                "!type": "?"
+            },
+            "bodyUsed": {
+                "!type": "bool"
+            },
+            "headers": {
+                "!type": "?"
+            },
+            "redirected": {
+                "!type": "bool"
+            },
+            "json": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "text": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "clone": {
+                "!type": "fn() -> +Response"
+            },
+            "formData": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "arrayBuffer": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "blob": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            }
+        }
+    },
+    "Request": {
+        "!type": "fn(url: string, options?: ?)",
+        "prototype": {
+            "type": {
+                "!type": "string"
+            },
+            "url": {
+                "!type": "string"
+            },
+            "cache": {
+                "!type": "string"
+            },
+            "credentials": {
+                "!type": "string"
+            },
+            "destination": {
+                "!type": "string"
+            },
+            "method": {
+                "!type": "string"
+            },
+            "mode": {
+                "!type": "string"
+            },
+            "priority": {
+                "!type": "string"
+            },
+            "redirect": {
+                "!type": "string"
+            },
+            "referrer": {
+                "!type": "string"
+            },
+            "referrerPolicy": {
+                "!type": "string"
+            },
+            "body": {
+                "!type": "?"
+            },
+            "json": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "text": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "clone": {
+                "!type": "fn() -> +Request"
+            },
+            "formData": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "arrayBuffer": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            },
+            "blob": {
+                "!type": "fn() -> +Promise[:t=!0.<i>.:t]"
+            }
+        }
+    },
+    "fetch": {
+        "!url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API",
+        "!doc": "The Fetch API provides an interface for fetching resources (including across the network).",
+        "!type": "fn(url: string, options?: ?) -> +Promise[:t=+Response]"
     }
 }
