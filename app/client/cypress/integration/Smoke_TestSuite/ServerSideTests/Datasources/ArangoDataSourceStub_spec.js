@@ -1,12 +1,8 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
-
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
-
-let datasourceName;
 
 describe("Arango datasource test cases", function() {
   beforeEach(() => {
@@ -18,9 +14,6 @@ describe("Arango datasource test cases", function() {
     dataSources.CreatePlugIn("ArangoDB");
     agHelper.RenameWithInPane("ArangoWithnoTrailing", false);
     cy.fillArangoDBDatasourceForm();
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
     }).as("testDatasource");
@@ -37,12 +30,10 @@ describe("Arango datasource test cases", function() {
       fixture: "testAction.json",
     }).as("testDatasource");
     cy.testSaveDatasource(false);
-    //dataSources.DeleteDatasouceFromActiveTab("ArangoWithTrailing");
   });
 
   it("3. Create a new query from the datasource editor", function() {
-    // cy.get(datasource.createQuery).click();
-    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuery}`)
+    cy.get(datasource.createQuery)
       .last()
       .click();
     cy.wait("@createNewApi").should(
@@ -60,6 +51,6 @@ describe("Arango datasource test cases", function() {
     agHelper
       .GetText(dataSources._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
-    dataSources.DeleteDSDirectly();
+    dataSources.SaveDSFromDialog(false);
   });
 });
