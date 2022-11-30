@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 @Getter
 @Setter
 @Document
@@ -22,5 +21,5 @@ public class Environment extends BaseDomain {
 
     public void sanitiseToExportDBObject() {
         this.sanitiseToExportBaseObject();
-     }
+    }
 }

@@ -9,7 +9,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -19,9 +18,9 @@ import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +40,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final DatasourceContextService datasourceContextService;
     private final CustomDatasourceRepository datasourceRepository;
     private final AuthenticationValidator authenticationValidator;
+    private final DatasourcePermission datasourcePermission;
+
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache) {
         return datasourceService.getById(datasourceId)
@@ -145,7 +146,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
             2. Check plugin is present
             3. Execute DB query from the information provided present in pluginSpecifiedTemplates
          */
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId
                 )))

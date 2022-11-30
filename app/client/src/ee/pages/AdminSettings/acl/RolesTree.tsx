@@ -356,13 +356,13 @@ export const makeData = (data: any) => {
 
 export function getSearchData(data: any, searchValue: string) {
   return data.filter((item: any) => {
-    if (item.subRows) {
+    const nameIncludesSearchValue = item.name
+      .toLowerCase()
+      .includes(searchValue.toLowerCase());
+    if (item.subRows && !nameIncludesSearchValue) {
       item.subRows = getSearchData(item.subRows, searchValue);
     }
-    return (
-      item.subRows?.length > 0 ||
-      item.name.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    return item.subRows?.length > 0 || nameIncludesSearchValue;
   });
 }
 

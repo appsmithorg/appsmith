@@ -570,7 +570,7 @@ describe("json/form viewTypes test", () => {
             node3: { data: "value1" },
             node2: { data: "value1", viewType: ViewTypes.JSON },
             node4: {
-              data: "value2",
+              data: "value1",
               viewType: ViewTypes.JSON,
               jsonData: "value2",
               componentData: "value1",

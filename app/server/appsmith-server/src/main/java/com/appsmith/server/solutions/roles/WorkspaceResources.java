@@ -237,8 +237,14 @@ public class WorkspaceResources {
 
                     // In case the workspace does not have any applications, proceed ahead by returning an empty list
                     if (!CollectionUtils.isEmpty(applications)) {
-                        applicationsDTOsMono = getApplicationDTOs(permissionGroupId, applicationPageMap, pageActionsMap, pageActionCollectionMap, applications, RoleTab.DATASOURCES_QUERIES)
-                                .collectList();
+                        applicationsDTOsMono = getFilteredApplicationDTOMonoForDatasourceTab(
+                                getApplicationDTOs(permissionGroupId,
+                                        applicationPageMap,
+                                        pageActionsMap,
+                                        pageActionCollectionMap,
+                                        applications,
+                                        RoleTab.DATASOURCES_QUERIES)
+                        ).collectList();
                     }
 
                     return applicationsDTOsMono
@@ -763,6 +769,23 @@ public class WorkspaceResources {
                 applicationPagesMapMono, pageActionsMapMono, pageActionCollectionMapMono, workspaceDatasourcesMapMono);
 
         return commonAppsmithObjectData;
+    }
+
+    private Flux<BaseView> getFilteredApplicationDTOMonoForDatasourceTab(Flux<BaseView> applicationDTOFlux) {
+        return applicationDTOFlux
+                .map(applicationDTOEntity -> {
+                    Set<EntityView> children = applicationDTOEntity.getChildren();
+                    for (EntityView child : children) {
+                        List<? extends BaseView> childEntities = child.getEntities();
+                        List<? extends BaseView> newChildEntities = childEntities.stream()
+                                .filter(childEntity -> ! childEntity.getChildren().isEmpty()).collect(Collectors.toList());
+                        child.setEntities(newChildEntities);
+                    }
+                    Set<EntityView> newChildren = children.stream().filter(child -> ! child.getEntities().isEmpty()).collect(Collectors.toSet());
+                    applicationDTOEntity.setChildren(newChildren);
+                    return applicationDTOEntity;
+                })
+                .filter(applicationDTOEntity -> ! applicationDTOEntity.getChildren().isEmpty());
     }
 
 

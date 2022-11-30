@@ -95,6 +95,11 @@ public class EnvironmentVariableServiceImpl extends EnvironmentVariableServiceCE
         return environmentVariableMono.flatMap(repository::archive);
     }
 
+    @Override
+    public Mono<Boolean> archiveAllById(List<String> ids) {
+        return repository.archiveAllById(ids);
+    }
+
     // Update
     @Override
     public Mono<EnvironmentVariable> update(String id, EnvironmentVariable envVariable) {

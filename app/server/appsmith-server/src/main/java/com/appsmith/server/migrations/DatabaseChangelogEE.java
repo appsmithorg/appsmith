@@ -4,6 +4,8 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.Environment;
+import com.appsmith.server.domains.EnvironmentVariable;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -191,6 +193,17 @@ public class DatabaseChangelogEE {
         Update update = new Update().set("policies.$.permissionGroups", Set.of());
 
         mongockTemplate.updateMulti(query, update, PermissionGroup.class);
+    }
+
+    @ChangeSet(order = "008", id = "add-index-for-environment", author = "")
+    public void addInitialIndexforEnvironmentAndEnvironmentVariable(MongockTemplate mongoTemplate) {
+        Index environmentUniqueness = makeIndex("name", "workspaceId", "deletedAt").unique()
+                .named("environment_compound_index");
+
+        Index createdAt = makeIndex("createdAt");
+
+        ensureIndexes(mongoTemplate, Environment.class, createdAt, environmentUniqueness);
+        ensureIndexes(mongoTemplate, EnvironmentVariable.class, createdAt);
     }
 
 }

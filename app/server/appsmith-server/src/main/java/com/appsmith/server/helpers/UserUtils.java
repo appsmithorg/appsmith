@@ -11,6 +11,7 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -32,9 +33,10 @@ public class UserUtils extends UserUtilsCE {
                      PermissionGroupRepository permissionGroupRepository,
                      CacheableRepositoryHelper cacheableRepositoryHelper,
                      PolicyUtils policyUtils,
-                     TenantRepository tenantRepository) {
+                     TenantRepository tenantRepository,
+                     PermissionGroupPermission permissionGroupPermission) {
 
-        super(configRepository, permissionGroupRepository, cacheableRepositoryHelper);
+        super(configRepository, permissionGroupRepository, cacheableRepositoryHelper, permissionGroupPermission);
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.policyUtils = policyUtils;
         this.permissionGroupRepository = permissionGroupRepository;

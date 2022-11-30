@@ -10,7 +10,7 @@ import {
   isTrueObject,
   isWidget,
 } from "workers/Evaluation/evaluationUtils";
-import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
+import { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 
 export type ExtraDef = Record<string, Def | string>;
 
