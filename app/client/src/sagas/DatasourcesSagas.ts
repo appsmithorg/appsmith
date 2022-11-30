@@ -716,11 +716,6 @@ function* createDatasourceFromFormSaga(
       yield put(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
-      // Todo: Refactor later.
-      // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
-      if (response.data.id !== TEMP_DATASOURCE_ID) {
-        yield put(setDatasourceViewMode(false));
-      }
 
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),

@@ -326,7 +326,6 @@ function* handleDatasourceCreatedSaga(
           from: "datasources",
           ...getQueryParams(),
           pluginId: plugin?.id,
-          viewMode: "false",
         },
       }),
     );

@@ -95,6 +95,8 @@ type Props = ReduxStateProps &
 type State = {
   showDialog: boolean;
   routesBlocked: boolean;
+  readUrlParams: boolean;
+
   unblock(): void;
   navigation(): void;
 };
@@ -276,6 +278,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state = {
       showDialog: false,
       routesBlocked: false,
+      readUrlParams: false,
       unblock: () => {
         return undefined;
       },
@@ -299,8 +302,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     if (this.props.isDatasourceBeingSaved) {
       this.closeDialogAndUnblockRoutes();
     }
-
-    this.setEditMode(false);
+    this.setViewModeFromQueryParams();
   }
 
   componentDidMount() {
@@ -319,18 +321,25 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     if (!this.props.viewMode) {
       this.blockRoutes();
     }
-
-    this.setEditMode(true);
   }
 
-  setEditMode(onMount: boolean) {
+  setViewModeFromQueryParams() {
     const params = getQueryParams();
-    if (params.viewMode === "false" && this.props.viewMode) {
-      this.props.setDatasourceViewMode(false);
-      if (!onMount) {
-        const url = new URL(location.href);
-        url.searchParams.delete("viewMode");
-        this.props.history.replace(url.pathname + url.search);
+    if (this.props.viewMode) {
+      if (
+        (params.viewMode === "false" && !this.state.readUrlParams) ||
+        this.props.isNewDatasource
+      ) {
+        // We just want to read the query params once. Cannot remove query params
+        // here as this triggers history.block
+        this.setState(
+          {
+            readUrlParams: true,
+          },
+          () => {
+            this.props.setDatasourceViewMode(false);
+          },
+        );
       }
     }
   }
