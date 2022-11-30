@@ -44,6 +44,7 @@ import {
   Hinter,
   HintHelper,
   isCloseKey,
+  isCtrlOrCmdKey,
   isModifierKey,
   MarkHelper,
   TabBehaviour,
@@ -210,6 +211,9 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
+  // Flag for determining whether the Ctrl or Cmd key is pressed or not so that
+  // the autocomplete is not shown when the user trying to comment code
+  isCtrlOrCmdPressed: boolean;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -237,6 +241,7 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
+      isCtrlOrCmdPressed: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -530,6 +535,12 @@ class CodeEditor extends Component<Props, State> {
           );
         }
         break;
+      case "Control":
+        this.setState({ isCtrlOrCmdPressed: true });
+        break;
+      case "Meta":
+        this.setState({ isCtrlOrCmdPressed: true });
+        break;
     }
   };
 
@@ -786,6 +797,16 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
+
+    if (isCtrlOrCmdKey(key)) {
+      // Add some delay to make sure the autocomplete doesn't open
+      // When users press cmd + / to comment the order in which they release the
+      // keys is cmd, /, cmd. This causes the autocomplete to open
+      setTimeout(() => {
+        this.setState({ isCtrlOrCmdPressed: false });
+      }, 2000);
+    }
+
     if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
     if (isCloseKey(code) || isCloseKey(key)) {
@@ -797,7 +818,7 @@ class CodeEditor extends Component<Props, State> {
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
-    if (key === "/") {
+    if (key === "/" && this.state.isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
       const prevChar = line[cursor.ch - 1];

@@ -105,6 +105,10 @@ export const isModifierKey = (key: any): key is MODIFIER => {
   return MODIFIER.hasOwnProperty(key);
 };
 
+export const isCtrlOrCmdKey = (key: any): boolean => {
+  return key === "Control" || key === "Meta";
+};
+
 export enum AUTOCOMPLETE_NAVIGATION {
   ArrowUp,
   ArrowDown,
