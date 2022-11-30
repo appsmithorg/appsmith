@@ -59,14 +59,20 @@ function* handlePageChange(
   }>,
 ) {
   const { currPath, pageId, paramString } = action.payload;
+  try {
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    if (featureFlags.CONTEXT_SWITCHING) {
+      if (previousPageId) {
+        yield call(storeStateOfPage, previousPageId);
+      }
 
-  if (previousPageId) {
-    yield call(storeStateOfPage, previousPageId);
+      yield call(setStateOfPage, pageId, currPath, paramString);
+    }
+  } catch (e) {
+    log.error("Error on page change", e);
+  } finally {
+    previousPageId = pageId;
   }
-
-  yield call(setStateOfPage, pageId, currPath, paramString);
-
-  previousPageId = pageId;
 }
 
 function* contextSwitchingSaga(pathname: string, hash?: string) {
