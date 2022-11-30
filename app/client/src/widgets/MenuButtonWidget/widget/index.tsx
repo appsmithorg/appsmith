@@ -61,8 +61,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
       menuItemsSource,
       sourceData,
     } = this.props;
-    const { config } = configureMenuItems;
-
     if (menuItemsSource === MenuItemsSource.STATIC) {
       const visibleItems = Object.keys(menuItems)
         .map((itemKey) => menuItems[itemKey])
@@ -72,8 +70,10 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     } else if (
       menuItemsSource === MenuItemsSource.DYNAMIC &&
       isArray(sourceData) &&
-      sourceData?.length
+      sourceData?.length &&
+      configureMenuItems?.config
     ) {
+      const { config } = configureMenuItems;
       const getValue = (propertyName: keyof MenuItem, index: number) => {
         const value = config[propertyName];
 
