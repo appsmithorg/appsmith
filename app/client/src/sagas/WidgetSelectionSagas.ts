@@ -6,6 +6,7 @@ import {
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 import {
+  getWidgetIdsByType,
   getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
@@ -32,12 +33,15 @@ import { getWidgetChildrenIds } from "./WidgetOperationUtils";
 import { AppState } from "@appsmith/reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
-import { showModal } from "actions/widgetActions";
+import { closeAllModals, showModal } from "actions/widgetActions";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
 import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
+import {
+  getAllWidgetsMap,
+  getCanvasWidgetsWithParentId,
+} from "selectors/entitiesSelector";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -401,24 +405,36 @@ function* deselectModalWidgetSaga(
 function* selectModalWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
-  const widgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
-    getWidgets,
+  if (!action.payload.widgetId) return;
+  if (action.payload.isMultiSelect) return;
+
+  const widgetMap: Record<string, FlattenedWidgetProps> = yield select(
+    getAllWidgetsMap,
   );
 
-  const modal: FlattenedWidgetProps | undefined = Object.values(widgets).find(
-    (widget: FlattenedWidgetProps) =>
-      widget.widgetId === action.payload.widgetId &&
-      widget.type === "MODAL_WIDGET",
+  const modalWidgetIds: string[] = yield select(
+    getWidgetIdsByType,
+    "MODAL_WIDGET",
   );
 
-  if (modal && !action.payload.isMultiSelect) {
-    yield put({
-      type: ReduxActionTypes.SHOW_MODAL,
-      payload: {
-        modalId: modal.widgetId,
-      },
-    });
+  const widget = widgetMap[action.payload.widgetId];
+
+  const widgetIsModal = modalWidgetIds.includes(widget.widgetId);
+
+  if (widgetIsModal) {
+    yield put(showModal(widget.widgetId));
+    return;
   }
+
+  if (widget.parentId) {
+    const widgetInModal = modalWidgetIds.includes(widget.parentModalId);
+    if (widgetInModal) {
+      yield put(showModal(widget.parentModalId));
+      return;
+    }
+  }
+
+  yield put(closeAllModals());
 }
 
 /**
