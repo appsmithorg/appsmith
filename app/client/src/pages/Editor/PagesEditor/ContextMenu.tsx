@@ -144,7 +144,7 @@ function ContextMenu(props: Props) {
    * opens the context menu on interaction ( on click )
    */
   const handleInteraction = useCallback((isOpen) => {
-    setIsOpen(isOpen);
+    (canManagePages || canDeletePages) && setIsOpen(isOpen);
   }, []);
 
   const pagePermissions =
@@ -251,7 +251,7 @@ function ContextMenu(props: Props) {
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
             color={Colors.GREY_9}
-            disabled={!canManagePages}
+            disabled={!canManagePages && !canDeletePages}
             height={16}
             onClick={noop}
             width={16}
