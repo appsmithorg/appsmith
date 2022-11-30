@@ -67,7 +67,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
             this.getRowObjectFromBody(this.objectMapper.readTree(body));
         } catch (IllegalArgumentException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Row Object cannot be empty");
+                    "Row object cannot be empty.");
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
                     "Unable to parse request body. Expected a row object.");
@@ -227,7 +227,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
         if (body.isEmpty()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Row Object cannot be empty");
+                    "Row object cannot be empty.");
         }
 
         return new RowObject(
