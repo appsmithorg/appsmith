@@ -5,10 +5,12 @@ export class LibraryInstaller {
   private _installer_trigger_locator = ".t--entity-add-btn.group.libraries";
   private _installer_close_locator = ".";
 
-  private getLibraryLocatorInExplorer(libraryName: string) {}
+  private getLibraryLocatorInExplorer(libraryName: string) {
+    return `.t--installed-library-${libraryName}`;
+  }
 
-  private getLibraryInstallButtonLocator(libraryName: string) {
-    return `div.library-card.t--${libraryName}.t--download`;
+  private getLibraryCardLocator(libraryName: string) {
+    return `div.library-card.t--${libraryName}`;
   }
 
   public openInstaller() {
@@ -20,21 +22,36 @@ export class LibraryInstaller {
   }
 
   public installLibrary(libraryName: string) {
-    this._aggregateHelper.GetNClick(
-      this.getLibraryInstallButtonLocator(libraryName),
-    );
+    cy.get(this.getLibraryCardLocator(libraryName))
+      .find(".t--download")
+      .click();
   }
 
-  public assertInstallation(libraryName: string) {
-    cy.get(this.getLibraryInstallButtonLocator(libraryName)).should(
-      "have.class",
-      "installed",
+  public assertInstall(libraryName: string, accessor: string) {
+    this._aggregateHelper.AssertContains(
+      `Installation Successful. You can access the library via ${accessor}`,
+    );
+    cy.get(this.getLibraryCardLocator(libraryName))
+      .find(".installed")
+      .should("be.visible");
+    this._aggregateHelper.AssertElementExist(
+      this.getLibraryLocatorInExplorer(libraryName),
     );
   }
 
   public uninstallLibrary(libraryName: string) {
-    this._aggregateHelper.GetNClick(
-      this.getLibraryInstallButtonLocator(libraryName),
+    cy.get(this.getLibraryLocatorInExplorer(libraryName))
+      .realHover()
+      .find(".t--uninstall-library")
+      .click();
+  }
+
+  public assertUnInstall(libraryName: string) {
+    this._aggregateHelper.AssertContains(
+      `${libraryName} is uninstalled successfully.`,
+    );
+    this._aggregateHelper.AssertElementAbsence(
+      this.getLibraryLocatorInExplorer(libraryName),
     );
   }
 }

@@ -161,7 +161,7 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
     return (
       <div className="delete" onClick={uninstallLibrary}>
         <Icon
-          className="uninstall-library"
+          className="uninstall-library t--uninstall-library"
           name="trash-outline"
           size={IconSize.MEDIUM}
         />
@@ -187,7 +187,7 @@ function LibraryEntity({ lib }: any) {
 
   const [isOpen, open] = React.useState(false);
   return (
-    <Library>
+    <Library className={`t--installed-library-${lib.name}`}>
       <div className="flex flex-row items-center h-full">
         <Icon
           className={isOpen ? "open-collapse" : ""}

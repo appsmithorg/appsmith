@@ -208,13 +208,8 @@ function StatusIcon(props: {
       </StatusIconWrapper>
     );
   return (
-    <StatusIconWrapper addHoverState className="t--download">
-      <Icon
-        fillColor={Colors.GRAY}
-        name="download"
-        size={IconSize.XL}
-        {...actionProps}
-      />
+    <StatusIconWrapper addHoverState className="t--download" {...actionProps}>
+      <Icon fillColor={Colors.GRAY} name="download" size={IconSize.XL} />
     </StatusIconWrapper>
   );
 }
