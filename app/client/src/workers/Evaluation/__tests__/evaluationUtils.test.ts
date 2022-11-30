@@ -31,6 +31,7 @@ import InputWidget, {
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
+import { createNewEntity } from "../dataTreeUtils";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
