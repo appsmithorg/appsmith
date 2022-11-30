@@ -80,6 +80,7 @@ import {
   jsCollectionIdURL,
 } from "RouteBuilder";
 import { getPlugins } from "selectors/entitiesSelector";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -243,7 +244,9 @@ function GlobalSearch() {
   }, [refinements]);
 
   const reducerDatasources = useSelector((state: AppState) => {
-    return state.entities.datasources.list;
+    return state.entities.datasources.list.filter(
+      (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
+    );
   });
   const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({

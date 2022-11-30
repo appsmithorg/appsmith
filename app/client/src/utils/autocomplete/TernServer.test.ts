@@ -1,9 +1,9 @@
-import TernServer, {
+import CodemirrorTernService, {
   AutocompleteDataType,
   Completion,
   createCompletionHeader,
   DataTreeDefEntityInformation,
-} from "./TernServer";
+} from "./CodemirrorTernService";
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
@@ -63,7 +63,9 @@ describe("Tern server", () => {
     ];
 
     testCases.forEach((testCase) => {
-      const { value } = TernServer.getFocusedDocValueAndPos(testCase.input);
+      const { value } = CodemirrorTernService.getFocusedDocValueAndPos(
+        testCase.input,
+      );
       expect(value).toBe(testCase.expectedOutput);
     });
   });
@@ -125,13 +127,12 @@ describe("Tern server", () => {
     ];
 
     testCases.forEach((testCase) => {
-      const request = TernServer.buildRequest(testCase.input, {});
+      const request = CodemirrorTernService.buildRequest(testCase.input, {});
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
   });
 
-  it(`Check whether the position is evaluated correctly for placing the selected
-      autocomplete value`, () => {
+  it(`Check whether the position is evaluated correctly for placing the selected autocomplete value`, () => {
     const testCases = [
       {
         input: {
@@ -186,12 +187,17 @@ describe("Tern server", () => {
         testCase.input.codeEditor.doc,
       );
 
-      const value: any = TernServer.requestCallback(
+      const mockAddFile = jest.fn();
+      CodemirrorTernService.server.addFile = mockAddFile;
+
+      const value: any = CodemirrorTernService.requestCallback(
         null,
         testCase.input.requestCallbackData,
         (MockCodemirrorEditor as unknown) as CodeMirror.Editor,
         () => null,
       );
+
+      expect(mockAddFile).toBeCalled();
 
       expect(value.from).toEqual(testCase.expectedOutput);
     });
@@ -342,12 +348,12 @@ describe("Tern server sorting", () => {
   ];
 
   it("shows best match results", () => {
-    TernServer.setEntityInformation({
+    CodemirrorTernService.setEntityInformation({
       entityName: "sameEntity",
       entityType: ENTITY_TYPE.WIDGET,
       expectedType: AutocompleteDataType.OBJECT,
     });
-    TernServer.defEntityInformation = defEntityInformation;
+    CodemirrorTernService.defEntityInformation = defEntityInformation;
     const sortedCompletions = AutocompleteSorter.sort(
       _.shuffle(completions),
       {

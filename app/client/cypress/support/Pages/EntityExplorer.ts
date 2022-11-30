@@ -230,4 +230,13 @@ export class EntityExplorer {
         else this.agHelper.Sleep(200); //do nothing
       });
   }
+
+  public RenameEntityFromExplorer(entityName: string, renameVal: string) {
+    cy.xpath(this._entityNameInExplorer(entityName)).dblclick()
+    cy.xpath(this.locator._entityNameEditing(entityName)).type(
+      renameVal + "{enter}",
+    );
+    this.AssertEntityPresenceInExplorer(renameVal);
+    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
+  }
 }

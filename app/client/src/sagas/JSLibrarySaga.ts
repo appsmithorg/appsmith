@@ -19,14 +19,22 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import TernServer from "utils/autocomplete/TernServer";
-import { EVAL_WORKER_ACTIONS, TJSLibrary } from "utils/DynamicBindingUtils";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
+import { TJSLibrary } from "workers/common/JSLibrary";
+
+export function parseErrorMessage(text: string) {
+  return text
+    .split(": ")
+    .slice(1)
+    .join("");
+}
 
 function* handleInstallationFailure(url: string, accessor?: string[]) {
   if (accessor) {
@@ -65,7 +73,8 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   const applicationId: string = yield select(getCurrentApplicationId);
 
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
-  const [version] = versionMatch ? versionMatch : [];
+  let [version = ""] = versionMatch ? versionMatch : [];
+  version = version.startsWith("@") ? version.slice(1) : version;
 
   let stringifiedDefs = "";
 
@@ -102,7 +111,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
   }
 
   try {
-    TernServer.updateDef(defs["!name"], defs);
+    CodemirrorTernService.updateDef(defs["!name"], defs);
   } catch (e) {
     Toaster.show({
       text: createMessage(customJSLibraryMessages.AUTOCOMPLETE_FAILED, name),
@@ -127,7 +136,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     },
   });
 
-  // Check if we could avoid this.
+  //TODO: Check if we could avoid this.
   yield call(evaluateTreeSaga, [], false, true, true);
 
   yield put({
@@ -195,7 +204,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
     }
 
     try {
-      TernServer.removeDef(`LIB/${name}`);
+      CodemirrorTernService.removeDef(`LIB/${name}`);
     } catch (e) {
       log.debug(`Failed to remove definitions for ${name}`, e);
     }
@@ -232,13 +241,17 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     const response: ApiResponse = yield call(
       LibraryApi.getLibraries,
       applicationId,
+      mode,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) return;
 
     const libraries = response.data as Array<TJSLibrary & { defs: string }>;
 
-    const { success }: { success: boolean } = yield call(
+    const {
+      message,
+      success,
+    }: { success: boolean; message: string } = yield call(
       EvalWorker.request,
       EVAL_WORKER_ACTIONS.LOAD_LIBRARIES,
       libraries.map((lib) => ({
@@ -250,9 +263,27 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
     );
 
     if (!success) {
-      yield put({
-        type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
-      });
+      if (mode === APP_MODE.EDIT) {
+        yield put({
+          type: ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
+          payload: libraries.map((lib) => ({
+            name: lib.name,
+            accessor: lib.accessor,
+            version: lib.version,
+            url: lib.url,
+            docsURL: lib.docsURL,
+          })),
+        });
+        const errorMessage = parseErrorMessage(message);
+        Toaster.show({
+          text: errorMessage,
+          variant: Variant.warning,
+        });
+      } else {
+        yield put({
+          type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
+        });
+      }
       return;
     }
 
@@ -260,7 +291,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       for (const lib of libraries) {
         try {
           const defs = JSON.parse(lib.defs);
-          TernServer.updateDef(defs["!name"], defs);
+          CodemirrorTernService.updateDef(defs["!name"], defs);
         } catch (e) {
           Toaster.show({
             text: createMessage(

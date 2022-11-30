@@ -4,8 +4,8 @@ import { Provider } from "react-redux";
 import store from "store";
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
-import InstallationWindow from "../InstallationWindow";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 
 export const fetchApplicationMockResponse = {
   responseMeta: {
@@ -42,16 +42,20 @@ export const fetchApplicationMockResponse = {
 };
 
 describe("Contains all UI tests for JS libraries", () => {
+  store.dispatch({
+    type: ReduxActionTypes.TOGGLE_INSTALLER,
+    payload: true,
+  });
   it("Headers should exist", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );
     expect(screen.getByText("Add JS Libraries")).toBeDefined();
-    expect(screen.getByText("RECOMMENDED LIBRARIES")).toBeDefined();
+    expect(screen.getByText("Recommended Libraries")).toBeDefined();
     expect(screen.getByTestId("library-url")).toBeDefined();
   });
 
@@ -59,7 +63,7 @@ describe("Contains all UI tests for JS libraries", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );
@@ -74,7 +78,7 @@ describe("Contains all UI tests for JS libraries", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );
@@ -107,7 +111,7 @@ describe("Contains all UI tests for JS libraries", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <InstallationWindow open />
+          <Installer left={250} />
         </ThemeProvider>
       </Provider>,
     );
@@ -125,8 +129,12 @@ describe("Contains all UI tests for JS libraries", () => {
 
     store.dispatch({
       type: ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
-      payload:
-        "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.5/dayjs.min.js",
+      payload: {
+        name: "dayjs",
+        version: "1.11.6",
+        accessor: ["dayjs"],
+        url: "https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.6/dayjs.min.js",
+      },
     });
 
     expect(

@@ -1,24 +1,33 @@
 import React, { MutableRefObject, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, Spinner, Toaster, Variant } from "design-system";
+import {
+  Icon,
+  IconSize,
+  Spinner,
+  Toaster,
+  TooltipComponent,
+  Variant,
+} from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
-import {
-  createMessage,
-  CREATE_DATASOURCE_TOOLTIP,
-} from "ce/constants/messages";
-import InstallationWindow from "./InstallationWindow";
+import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
+  selectIsInstallerOpen,
   selectLibrariesForExplorer,
 } from "selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
-import { uninstallLibraryInit } from "actions/JSLibraryActions";
-import { TJSLibrary } from "utils/DynamicBindingUtils";
+import {
+  toggleInstaller,
+  uninstallLibraryInit,
+} from "actions/JSLibraryActions";
+import EntityAddButton from "../Entity/AddButton";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { TJSLibrary } from "workers/common/JSLibrary";
 
 const Library = styled.li`
   list-style: none;
@@ -104,6 +113,7 @@ const Library = styled.li`
       flex-grow: 1;
       border: 1px solid #b3b3b3;
       font-size: 12px;
+      font-family: monospace;
       background: white;
       display: flex;
       height: 26px;
@@ -151,7 +161,7 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
     return (
       <div className="delete" onClick={uninstallLibrary}>
         <Icon
-          className="uninstall-library"
+          className="uninstall-library t--uninstall-library"
           name="trash-outline"
           size={IconSize.MEDIUM}
         />
@@ -177,7 +187,7 @@ function LibraryEntity({ lib }: any) {
 
   const [isOpen, open] = React.useState(false);
   return (
-    <Library>
+    <Library className={`t--installed-library-${lib.name}`}>
       <div className="flex flex-row items-center h-full">
         <Icon
           className={isOpen ? "open-collapse" : ""}
@@ -214,22 +224,36 @@ function JSDependencies() {
   const dependencyList = libraries.map((lib) => (
     <LibraryEntity key={lib.name} lib={lib} />
   ));
-  const [isWindowOpen, openWindow] = React.useState(false);
+  const isOpen = useSelector(selectIsInstallerOpen);
+  const dispatch = useDispatch();
+
+  const openInstaller = useCallback(() => {
+    dispatch(toggleInstaller(true));
+  }, []);
 
   return (
     <Entity
-      addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
       className={"libraries"}
       customAddButton={
-        <InstallationWindow
-          className={`${EntityClassNames.ADD_BUTTON} group libraries h-100`}
-          onOpen={openWindow}
-          open={false}
-        />
+        <TooltipComponent
+          boundary="viewport"
+          className={EntityClassNames.TOOLTIP}
+          content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+          disabled={isOpen}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position="right"
+        >
+          <EntityAddButton
+            className={`${EntityClassNames.ADD_BUTTON} group libraries h-100 ${
+              isOpen ? "selected" : ""
+            }`}
+            onClick={openInstaller}
+          />
+        </TooltipComponent>
       }
       entityId="library_section"
       icon={null}
-      isDefaultExpanded={isWindowOpen}
+      isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
       step={0}

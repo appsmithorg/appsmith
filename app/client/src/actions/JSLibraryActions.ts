@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { TJSLibrary } from "utils/DynamicBindingUtils";
+import { TJSLibrary } from "workers/common/JSLibrary";
 
 export function fetchJSLibraries(applicationId: string) {
   return {
@@ -11,6 +11,13 @@ export function fetchJSLibraries(applicationId: string) {
 export function installLibraryInit(payload: Partial<TJSLibrary>) {
   return {
     type: ReduxActionTypes.INSTALL_LIBRARY_INIT,
+    payload,
+  };
+}
+
+export function toggleInstaller(payload: boolean) {
+  return {
+    type: ReduxActionTypes.TOGGLE_INSTALLER,
     payload,
   };
 }

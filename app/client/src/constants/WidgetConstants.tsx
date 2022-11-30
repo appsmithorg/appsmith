@@ -34,15 +34,13 @@ export type RenderMode =
   | "COMPONENT_PANE"
   | "CANVAS"
   | "PAGE"
-  | "CANVAS_SELECTED"
-  | "PREVIEW";
+  | "CANVAS_SELECTED";
 
 export const RenderModes: { [id: string]: RenderMode } = {
   COMPONENT_PANE: "COMPONENT_PANE",
   CANVAS: "CANVAS",
   PAGE: "PAGE",
   CANVAS_SELECTED: "CANVAS_SELECTED",
-  PREVIEW: "PREVIEW",
 };
 
 export const CSSUnits: { [id: string]: CSSUnit } = {
@@ -167,4 +165,5 @@ export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
   MIN_HEIGHT_IN_ROWS: 4,
+  MIN_CANVAS_HEIGHT_IN_ROWS: 10,
 };

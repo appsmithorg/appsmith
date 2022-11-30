@@ -6,7 +6,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  installer = ObjectsRegistry.LibraryInstaller;
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -48,14 +49,14 @@ const createMySQLDatasourceQuery = () => {
 };
 
 describe("Linting", () => {
-  before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
-    dataSources.CreateDataSource("MySql");
-    cy.get("@dsName").then(($dsName) => {
-      dsName = ($dsName as unknown) as string;
-    });
-  });
+  // before(() => {
+  //   ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
+  //   ee.NavigateToSwitcher("explorer");
+  //   dataSources.CreateDataSource("MySql");
+  //   cy.get("@dsName").then(($dsName) => {
+  //     dsName = ($dsName as unknown) as string;
+  //   });
+  // });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
     ee.SelectEntityByName("Button1", "Widgets");
@@ -271,9 +272,10 @@ describe("Linting", () => {
     apiPage.CreateAndFillApi("https://jsonplaceholder.typicode.com/");
 
     createMySQLDatasourceQuery();
-
+    agHelper.RefreshPage(); //Since this seems failing a bit
     clickButtonAndAssertLintError(false);
   });
+
   it("8. Doesn't show lint errors for supported web apis", () => {
     const JS_OBJECT_WITH_WEB_API = `export default {
       myFun1: () => {
@@ -289,5 +291,32 @@ describe("Linting", () => {
     });
     // expect no lint error
     agHelper.AssertElementAbsence(locator._lintErrorElement);
+  });
+
+  it.only("9. Shows lint errors for usage of library that are not installed yet", () => {
+    const JS_OBJECT_WITH_LIB_API = `export default {
+      myFun1: () => {
+        return UUID.generate();
+      },
+    }`;
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
+
+    // install the library
+    installer.openInstaller();
+    installer.installLibrary("uuidjs");
+    installer.closeInstaller();
+
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
+
+    installer.uninstallLibrary("uuidjs");
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
   });
 });

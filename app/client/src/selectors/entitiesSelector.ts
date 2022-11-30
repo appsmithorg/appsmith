@@ -207,6 +207,10 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
   return {};
 };
 
+export const getDatasourceActionRouteInfo = (state: AppState) => {
+  return state.ui.datasourcePane.actionRouteInfo;
+};
+
 export const getDatasourcesByPluginId = (
   state: AppState,
   id: string,
@@ -844,6 +848,8 @@ export const getNumberOfEntitiesInCurrentPage = createSelector(
   },
 );
 
+export const selectIsInstallerOpen = (state: AppState) =>
+  state.ui.libraries.isInstallerOpen;
 export const selectInstallationStatus = (state: AppState) =>
   state.ui.libraries.installationStatus;
 export const selectInstalledLibraries = (state: AppState) =>

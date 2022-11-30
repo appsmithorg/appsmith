@@ -1,3 +1,4 @@
+import { APP_MODE } from "entities/App";
 import Api from "./Api";
 
 export default class LibraryApi extends Api {
@@ -16,8 +17,10 @@ export default class LibraryApi extends Api {
     return Api.patch(url, library);
   }
 
-  static getLibraries(applicationId: string) {
-    const url = LibraryApi.getUpdateLibraryBaseURL(applicationId);
+  static getLibraries(applicationId: string, mode: APP_MODE) {
+    const url = `${LibraryApi.getUpdateLibraryBaseURL(applicationId)}${
+      mode === APP_MODE.PUBLISHED ? "/view" : ""
+    }`;
     return Api.get(url);
   }
 }

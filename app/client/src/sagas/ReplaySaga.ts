@@ -221,13 +221,14 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
             shouldReplay: false,
           }),
         );
+
         if (isPropertyUpdate) {
-          yield put(generateAutoHeightLayoutTreeAction(true, false));
           yield call(openPropertyPaneSaga, replay);
         }
         if (!isPropertyUpdate) {
           yield call(postUndoRedoSaga, replay);
         }
+        yield put(generateAutoHeightLayoutTreeAction(true, false));
         break;
       }
       case ENTITY_TYPE.ACTION:

@@ -117,7 +117,7 @@ describe("evaluateSync", () => {
       logs: [],
       errors: [
         {
-          errorMessage: "ReferenceError: setImmediate is not defined",
+          errorMessage: "TypeError: setImmediate is not a function",
           errorType: "PARSE",
           raw: `
   function closedFunction () {

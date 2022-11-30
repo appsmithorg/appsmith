@@ -5,6 +5,7 @@ import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -16,7 +17,6 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 @Component
 @RequiredArgsConstructor
@@ -31,6 +31,7 @@ public class RedirectHelper {
     public static final String FIRST_TIME_USER_EXPERIENCE_PARAM = "enableFirstTimeUserExperience";
 
     private final ApplicationService applicationService;
+    private final ApplicationPermission applicationPermission;
 
     /**
      * This function determines the redirect url that the browser should redirect to post-login. The priority order
@@ -54,7 +55,7 @@ public class RedirectHelper {
         } else if (queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
             final String defaultRedirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
-            return applicationService.findByClonedFromApplicationId(forkAppId, READ_APPLICATIONS)
+            return applicationService.findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
                     .map(application -> {
                         // Get the default page in the application, or if there's no default page, get the first page
                         // in the application and redirect to edit that page.
