@@ -31,7 +31,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 import {
   getCurrentApplicationId,
-  getPagePermissions,
+  getPageById,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
@@ -152,7 +152,8 @@ function PageListItem(props: PageListItemProps) {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
   }, [dispatch, item]);
 
-  const pagePermissions = useSelector(getPagePermissions);
+  const pagePermissions =
+    useSelector(getPageById(item.pageId))?.userPermissions || [];
 
   const canManagePages = hasManagePagePermission(pagePermissions);
 
