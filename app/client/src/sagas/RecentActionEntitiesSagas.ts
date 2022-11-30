@@ -24,13 +24,13 @@ function* updateRecentEntitySaga(action: ReduxAction<RecentActionEntity>) {
   const pageId: string = yield select(getCurrentPageId);
   const applicationKey = getRecentActionEntitiesKey(applicationId, branch);
 
-  const currentRecentActions: any[] = yield call(
+  const currentRecentActions: RecentActionEntity[] = yield call(
     fetchRecentActionEntities,
     applicationKey,
     pageId,
   ) ?? [];
 
-  const newAction = {
+  const newAction: RecentActionEntity = {
     id: action.payload.id,
     type: action.payload.type,
     name: action.payload.name,

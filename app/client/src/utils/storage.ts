@@ -2,6 +2,7 @@ import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
 import _ from "lodash";
+import { RecentActionEntity } from "actions/recentActionEnititesActions";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -23,6 +24,11 @@ export const STORAGE_KEYS: {
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
   APP_THEMING_BETA_SHOWN: "APP_THEMING_BETA_SHOWN",
 };
+
+type RecentActionEntitiesList = Record<
+  string,
+  Record<string, RecentActionEntity[]>
+>;
 
 const store = localforage.createInstance({
   name: "Appsmith",
@@ -125,11 +131,11 @@ export const getPostWelcomeTourState = async () => {
 export const fetchRecentActionEntities = async (
   applicationKey: string,
   pageId: string,
-): Promise<any[] | undefined> => {
+): Promise<RecentActionEntity[] | undefined> => {
   try {
     const recentEntities = (await store.getItem(
       STORAGE_KEYS.RECENT_ACTION_ENTITIES,
-    )) as Record<string, Record<string, any[]>>;
+    )) as RecentActionEntitiesList;
     return (
       (recentEntities &&
         recentEntities[applicationKey] &&
@@ -143,16 +149,15 @@ export const fetchRecentActionEntities = async (
 };
 
 export const setRecentActionEntities = async (
-  entities: any[],
+  entities: RecentActionEntity[],
   applicationKey: string,
   pageId: string,
 ) => {
   try {
     const recentEntities =
-      ((await store.getItem(STORAGE_KEYS.RECENT_ACTION_ENTITIES)) as Record<
-        string,
-        Record<string, any[]>
-      >) || {};
+      ((await store.getItem(
+        STORAGE_KEYS.RECENT_ACTION_ENTITIES,
+      )) as RecentActionEntitiesList) || {};
     _.set(recentEntities, [applicationKey, pageId], entities);
     await store.setItem(STORAGE_KEYS.RECENT_ACTION_ENTITIES, recentEntities);
   } catch (error) {
