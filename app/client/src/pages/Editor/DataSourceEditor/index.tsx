@@ -77,18 +77,6 @@ class DataSourceEditor extends React.Component<Props> {
     ) {
       this.props.switchDatasource(this.props.datasourceId);
     }
-
-    this.setEditMode();
-  }
-
-  setEditMode() {
-    const params = getQueryParams();
-    if (
-      (this.props.isNewDatasource || params.viewMode === "false") &&
-      this.props.viewMode
-    ) {
-      this.props.setDatasourceViewMode(false);
-    }
   }
 
   componentDidMount() {
@@ -124,8 +112,6 @@ class DataSourceEditor extends React.Component<Props> {
         });
       }
     }
-
-    this.setEditMode();
   }
 
   render() {
@@ -228,6 +214,26 @@ export interface DatasourcePaneFunctions {
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {
+  componentDidMount(): void {
+    this.setEditMode(true);
+  }
+
+  componentDidUpdate() {
+    this.setEditMode(false);
+  }
+
+  setEditMode(onMount: boolean) {
+    const params = getQueryParams();
+    if (params.viewMode === "false" && this.props.viewMode) {
+      this.props.setDatasourceViewMode(false);
+      if (!onMount) {
+        const url = new URL(location.href);
+        url.searchParams.delete("viewMode");
+        this.props.history.replace(url.pathname + url.search);
+      }
+    }
+  }
+
   render() {
     const {
       datasourceId,

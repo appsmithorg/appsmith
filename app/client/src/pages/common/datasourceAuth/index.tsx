@@ -204,9 +204,9 @@ function DatasourceAuth({
       pageId: pageId,
       appId: applicationId,
     });
-    dispatch(setDatasourceViewMode(true));
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
+    dispatch(setDatasourceViewMode(true));
     dispatch(
       updateDatasource(
         getSanitizedFormData(),

@@ -353,10 +353,10 @@ function* updateDatasourceSaga(
       if (actionPayload.onSuccess) {
         yield put(actionPayload.onSuccess);
       }
-      yield put(setDatasourceViewMode(true));
       if (expandDatasourceId === response.data.id) {
         yield put(fetchDatasourceStructure(response.data.id));
       }
+      yield put(setDatasourceViewMode(true));
 
       AppsmithConsole.info({
         text: "Datasource configuration saved",
