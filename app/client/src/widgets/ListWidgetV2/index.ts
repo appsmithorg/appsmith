@@ -50,6 +50,24 @@ const computeWidgets = (
   };
 };
 
+const DEFAULT_LIST_DATA = [
+  {
+    id: "001",
+    name: "Blue",
+    img: "https://assets.appsmith.com/widgets/default.png",
+  },
+  {
+    id: "002",
+    name: "Green",
+    img: "https://assets.appsmith.com/widgets/default.png",
+  },
+  {
+    id: "003",
+    name: "Red",
+    img: "https://assets.appsmith.com/widgets/default.png",
+  },
+];
+
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "List V2",
@@ -106,25 +124,9 @@ export const CONFIG = {
       },
     },
     gridGap: 0,
-    pageSize: 3,
     templateBottomRow: 16,
-    listData: [
-      {
-        id: "001",
-        name: "Blue",
-        img: "https://assets.appsmith.com/widgets/default.png",
-      },
-      {
-        id: "002",
-        name: "Green",
-        img: "https://assets.appsmith.com/widgets/default.png",
-      },
-      {
-        id: "003",
-        name: "Red",
-        img: "https://assets.appsmith.com/widgets/default.png",
-      },
-    ],
+    listData: DEFAULT_LIST_DATA,
+    pageSize: DEFAULT_LIST_DATA.length,
     widgetName: "List",
     children: [],
     primaryKeys:
