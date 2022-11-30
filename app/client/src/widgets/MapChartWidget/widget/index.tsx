@@ -21,7 +21,8 @@ import {
   MapTypes,
 } from "../constants";
 import { MapType } from "../component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
@@ -329,6 +330,14 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
 
   static getWidgetType(): WidgetType {
     return "MAP_CHART_WIDGET";
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+    };
   }
 
   handleDataPointClick = (evt: any) => {

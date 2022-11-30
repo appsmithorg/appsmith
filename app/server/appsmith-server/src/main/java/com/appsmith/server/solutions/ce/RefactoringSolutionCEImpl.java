@@ -25,6 +25,8 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -66,6 +68,8 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final LayoutActionService layoutActionService;
     private final ApplicationService applicationService;
     private final AstService astService;
+    private final PagePermission pagePermission;
+    private final ActionPermission actionPermission;
     private final InstanceConfig instanceConfig;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
@@ -87,7 +91,9 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                                      AstService astService,
                                      InstanceConfig instanceConfig,
                                      AnalyticsService analyticsService,
-                                     SessionUserService sessionUserService) {
+                                     SessionUserService sessionUserService,
+                                     PagePermission pagePermission,
+                                     ActionPermission actionPermission) {
         this.objectMapper = objectMapper;
         this.newPageService = newPageService;
         this.newActionService = newActionService;
@@ -99,6 +105,8 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         this.instanceConfig = instanceConfig;
         this.analyticsService = analyticsService;
         this.sessionUserService = sessionUserService;
+        this.pagePermission = pagePermission;
+        this.actionPermission = actionPermission;
     }
 
     @Override
@@ -128,7 +136,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             return refactorWidgetName(refactorNameDTO);
         }
 
-        return newPageService.findByBranchNameAndDefaultPageId(branchName, refactorNameDTO.getPageId(), MANAGE_PAGES)
+        return newPageService.findByBranchNameAndDefaultPageId(branchName, refactorNameDTO.getPageId(), pagePermission.getEditPermission())
                 .flatMap(branchedPage -> {
                     refactorNameDTO.setPageId(branchedPage.getId());
                     return refactorWidgetName(refactorNameDTO);
@@ -162,7 +170,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                         return Mono.error(new AppsmithException(AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR, oldName, newName));
                     }
                     return newActionService
-                            .findActionDTObyIdAndViewMode(actionId, false, MANAGE_ACTIONS);
+                            .findActionDTObyIdAndViewMode(actionId, false, actionPermission.getEditPermission());
                 })
                 .flatMap(action -> {
                     analyticsProperties.put(FieldName.APPLICATION_ID, action.getApplicationId());
@@ -188,7 +196,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     public Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO, String branchName) {
 
         String defaultActionId = refactorActionNameDTO.getActionId();
-        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
+        return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(branchedAction -> {
                     refactorActionNameDTO.setActionId(branchedAction.getId());
                     refactorActionNameDTO.setPageId(branchedAction.getUnpublishedAction().getPageId());
@@ -226,7 +234,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
         Mono<PageDTO> pageMono = newPageService
                 // fetch the unpublished page
-                .findPageById(pageId, MANAGE_PAGES, false)
+                .findPageById(pageId, pagePermission.getEditPermission(), false)
                 .cache();
 
         Mono<Integer> evalVersionMono = pageMono
@@ -279,7 +287,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         Set<String> updatableCollectionIds = new HashSet<>();
 
         Mono<Set<String>> updateActionsMono = newActionService
-                .findByPageIdAndViewMode(pageId, false, MANAGE_ACTIONS)
+                .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
                 .flatMap(newAction -> Mono.just(newAction).zipWith(evalVersionMono))
                 /*
                  * Assuming that the datasource should not be dependent on the widget and hence not going through the same
@@ -324,7 +332,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     Integer evalVersion = tuple.getT2();
                     // If these actions belonged to collections, update the collection body
                     return Flux.fromIterable(updatableCollectionIds)
-                            .flatMap(collectionId -> actionCollectionService.findById(collectionId, MANAGE_ACTIONS))
+                            .flatMap(collectionId -> actionCollectionService.findById(collectionId, actionPermission.getEditPermission()))
                             .flatMap(actionCollection -> {
                                 final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 

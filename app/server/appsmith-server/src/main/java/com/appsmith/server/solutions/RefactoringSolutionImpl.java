@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions;
+    package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -29,7 +29,9 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                                    AstService astService,
                                    InstanceConfig instanceConfig,
                                    AnalyticsService analyticsService,
-                                   SessionUserService sessionUserService) {
+                                   SessionUserService sessionUserService,
+                                   PagePermission pagePermission,
+                                   ActionPermission actionPermission) {
         super(objectMapper,
                 newPageService,
                 newActionService,
@@ -40,6 +42,8 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                 astService,
                 instanceConfig,
                 analyticsService,
-                sessionUserService);
+                sessionUserService,
+                pagePermission,
+                actionPermission);
     }
 }

@@ -16,6 +16,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final AnalyticsService analyticsService;
     private final UserService userService;
     private final EmailSender emailSender;
+    private final PermissionGroupPermission permissionGroupPermission;
 
     public UserAndAccessManagementServiceCEImpl(SessionUserService sessionUserService,
                                                 PermissionGroupService permissionGroupService,
@@ -47,7 +49,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                                 UserRepository userRepository,
                                                 AnalyticsService analyticsService,
                                                 UserService userService,
-                                                EmailSender emailSender) {
+                                                EmailSender emailSender,
+                                                PermissionGroupPermission permissionGroupPermission) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -56,6 +59,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.analyticsService = analyticsService;
         this.userService = userService;
         this.emailSender = emailSender;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     /**
@@ -97,7 +101,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
-        Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
+        Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), permissionGroupPermission.getAssignPermission())
                 .filter(permissionGroup -> StringUtils.hasText(permissionGroup.getDefaultWorkspaceId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ROLE)))
                 .cache();

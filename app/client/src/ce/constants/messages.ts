@@ -1278,6 +1278,8 @@ export const GENERATE_PAGE_DESCRIPTION = () =>
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
+export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
+  `Unsaved changes will be lost if you exit this page, save the changes before exiting.`;
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
