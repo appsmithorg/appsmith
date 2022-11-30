@@ -17,6 +17,7 @@ import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
 import { fontSizeUtility } from "widgets/WidgetUtils";
 import { OverflowTypes } from "../constants";
+import LinkFilter from "./filters/LinkFilter";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
@@ -306,6 +307,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             >
               <Interweave
                 content={text}
+                filters={[new LinkFilter()]}
                 matchers={
                   disableLink
                     ? []
@@ -355,6 +357,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
             >
               <Interweave
                 content={text}
+                filters={[new LinkFilter()]}
                 matchers={
                   disableLink
                     ? []

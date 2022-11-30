@@ -28,7 +28,7 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
 export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
-  `Default text length must be less than ${max} characters`;
+  `Default text length must be less than or equal to ${max} characters`;
 export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
   `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
@@ -1278,6 +1278,8 @@ export const GENERATE_PAGE_DESCRIPTION = () =>
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
+export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
+  `Unsaved changes will be lost if you exit this page, save the changes before exiting.`;
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

@@ -9,6 +9,7 @@ import RangeSliderComponent, {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
+import { Stylesheet } from "entities/AppTheming";
 
 export interface RangeSliderWidgetProps
   extends WidgetProps,
@@ -86,6 +87,12 @@ class RangeSliderWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   onChangeEnd = ([start, end]: [number, number]) => {
     if (this.props.start !== start) {
       this.props.updateWidgetMetaProperty("start", start, {
@@ -135,9 +142,10 @@ class RangeSliderWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
-        loading={this.props.isLoading}
         // If showMarks is off don't show marks at all
+        loading={this.props.isLoading}
         marks={this.props.showMarksLabel ? this.props.marks : []}
         max={this.props.max}
         min={this.props.min}

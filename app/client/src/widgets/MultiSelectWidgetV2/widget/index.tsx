@@ -16,7 +16,8 @@ import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultOptionValueValidation(
@@ -590,6 +591,14 @@ class MultiSelectWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   static getDerivedPropertiesMap() {
