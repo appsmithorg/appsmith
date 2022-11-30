@@ -22,7 +22,10 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -40,9 +43,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 
 
 @Slf4j
@@ -63,6 +63,9 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
     private final UserWorkspaceService userWorkspaceService;
+    private final WorkspacePermission workspacePermission;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     private <Domain extends BaseDomain> Flux<Domain> sortDomain(Flux<Domain> domainFlux, List<String> sortOrder) {
         if (CollectionUtils.isEmpty(sortOrder)) {
@@ -115,7 +118,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
-                            .findAllUserApps(READ_APPLICATIONS)
+                            .findAllUserApps(applicationPermission.getReadPermission())
                             //sort transformation
                             .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedAppIds()))
                             // Git connected apps will have gitApplicationMetadat
@@ -134,7 +137,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             Application::getWorkspaceId, Function.identity()
                     );
 
-                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(READ_WORKSPACES)
+                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(workspacePermission.getReadPermission())
                             .cache();
 
                     Mono<List<Workspace>> workspaceListMono = workspacesFromRepoFlux
@@ -187,7 +190,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             ).flatMap(Collection::stream).collect(Collectors.toList());
 
                     // fetch the page slugs for the applications
-                    return newPageService.findPageSlugsByApplicationIds(applicationIds, READ_PAGES)
+                    return newPageService.findPageSlugsByApplicationIds(applicationIds, pagePermission.getReadPermission())
                             .collectMultimap(NewPage::getApplicationId)
                             .map(applicationPageMap -> {
                                 for (WorkspaceApplicationsDTO workspaceApps : userHomepageDTO.getWorkspaceApplications()) {
