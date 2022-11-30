@@ -50,6 +50,29 @@ const entityRefactor = [
     isJSObject: true,
     evalVersion: 2,
   },
+  {
+    script:
+      "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+    oldName: "ApiNever.data",
+    newName: "ApiNever.input",
+    isJSObject: false,
+    evalVersion: 2,
+  },
+  {
+    script:
+      "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+    oldName: "ApiNever.dat",
+    newName: "ApiNever.input",
+    isJSObject: false,
+    evalVersion: 2,
+  },
+  {
+    script:"\tApiNever.data",
+    "oldName": "ApiNever", 
+    "newName": "ApiForever", 
+    isJSObject: false,
+    evalVersion: 2,
+  },
 ];
 
 afterAll((done) => {
@@ -123,6 +146,20 @@ describe("AST tests", () => {
           script:
             "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\t\tsearch: () => {\n\t\tif(Input1.text.length==0){\n\t\t\treturn select_repair_db.data\n\t\t}\n\t\telse{\n\t\t\treturn(select_repair_db.data.filter(word => word.cust_name.toLowerCase().includes(Input1.text.toLowerCase())))\n\t\t}\n\t},\n}",
           refactorCount: 2,
+        },
+        {
+          script:
+            "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.input; \n if(true) { return ApiNever }}",
+          refactorCount: 1,
+        },
+        {
+          script:
+          "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+          refactorCount: 0,
+        },
+        {
+          script:"\tApiForever.data",
+          refactorCount: 1,
         },
       ];
 

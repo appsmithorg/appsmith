@@ -318,31 +318,28 @@ export const entityRefactorFromCode = (
         //Append substring from end index from the node till end of string
         //Offset variable is used to alter the position based on `refactorOffset`
         //In case of nested JS action get end postion fro the property.
-        if (oldNameArr.length > 1) {
-          const propertyNode = identifierArray[index].property;
-          //Check if the property mataches. If so refactor the script.
-          if (oldNameArr[1] === propertyNode?.name) {
-            refactorScript = propertyNode
-              ? refactorScript.substring(
-                  0,
-                  identifierArray[index].start + refactorOffset
-                ) +
-                newName +
-                refactorScript.substring(propertyNode.end + refactorOffset)
-              : refactorScript;
-            refactorOffset += nameLengthDiff;
-            ++refactorCount;
+        ///Default end index
+        let endIndex = identifierArray[index].end;
+        const propertyNode = identifierArray[index].property;
+        //Flag variable : true if property should be updated
+        //false if property should not be updated
+        let propertyCondFlag =
+          oldNameArr.length > 1 &&
+          propertyNode &&
+          oldNameArr[1] === propertyNode.name;
+        //Condition to validate if Identifier || Property should be updated??
+        if (oldNameArr.length === 1 || propertyCondFlag) {
+          //Condition to extend end index in case of property match
+          if (propertyCondFlag && propertyNode) {
+            endIndex = propertyNode.end;
           }
-        } else {
           refactorScript =
             refactorScript.substring(
               0,
               identifierArray[index].start + refactorOffset
             ) +
             newName +
-            refactorScript.substring(
-              identifierArray[index].end + refactorOffset
-            );
+            refactorScript.substring(endIndex + refactorOffset);
           refactorOffset += nameLengthDiff;
           ++refactorCount;
         }
