@@ -120,11 +120,12 @@ export function PageContextMenu(props: {
       onSelect: editPageName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
-    canCreatePages && {
-      value: "clone",
-      onSelect: clonePage,
-      label: createMessage(CONTEXT_CLONE),
-    },
+    canCreatePages &&
+      canManagePages && {
+        value: "clone",
+        onSelect: clonePage,
+        label: createMessage(CONTEXT_CLONE),
+      },
     canManagePages && {
       value: "visibility",
       onSelect: setHiddenField,

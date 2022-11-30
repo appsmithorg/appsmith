@@ -160,6 +160,8 @@ function ContextMenu(props: Props) {
 
   const canDeletePages = hasDeletePagePermission(pagePermissions);
 
+  const canClonePages = canCreatePages && canManagePages;
+
   return (
     <Popover2
       content={
@@ -174,9 +176,9 @@ function ContextMenu(props: Props) {
               <Action>
                 <CopyIcon
                   color={Colors.GREY_9}
-                  disabled={!canCreatePages}
+                  disabled={!canClonePages}
                   height={16}
-                  onClick={!canCreatePages ? noop : () => onCopy(page.pageId)}
+                  onClick={!canClonePages ? noop : () => onCopy(page.pageId)}
                   width={16}
                 />
               </Action>

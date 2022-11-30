@@ -39,6 +39,7 @@ import { AppState } from "@appsmith/reducers";
 import {
   hasCreatePagePermission,
   hasDeletePagePermission,
+  hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { noop } from "utils/AppsmithUtils";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -162,7 +163,11 @@ function PageListItem(props: PageListItemProps) {
 
   const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
+  const canManagePages = hasManagePagePermission(pagePermissions);
+
   const canDeletePages = hasDeletePagePermission(pagePermissions);
+
+  const canClonePages = canCreatePages && canManagePages;
 
   return (
     <Container>
@@ -218,9 +223,9 @@ function PageListItem(props: PageListItemProps) {
                 <Action type="button">
                   <CopyIcon
                     color={Colors.GREY_9}
-                    disabled={!canCreatePages}
+                    disabled={!canClonePages}
                     height={16}
-                    onClick={!canCreatePages ? noop : clonePageCallback}
+                    onClick={!canClonePages ? noop : clonePageCallback}
                     width={16}
                   />
                 </Action>
