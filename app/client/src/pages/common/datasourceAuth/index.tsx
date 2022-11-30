@@ -22,7 +22,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { AppState } from "@appsmith/reducers";
 import {
   AuthType,
@@ -33,7 +32,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Button, Category, Toaster, Variant } from "design-system";
+import { Category, Toaster, Variant } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,

@@ -265,7 +265,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             <Header>
               <FormTitleContainer>
                 <PluginImage alt="Datasource" src={this.props.pluginImage} />
-                <FormTitle disabled={canManageDatasource} focusOnMount={this.props.isNewDatasource} />
+                <FormTitle
+                  disabled={canManageDatasource}
+                  focusOnMount={this.props.isNewDatasource}
+                />
               </FormTitleContainer>
 
               {viewMode && (
