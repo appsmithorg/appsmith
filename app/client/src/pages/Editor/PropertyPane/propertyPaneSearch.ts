@@ -38,7 +38,9 @@ function tokenSearch(text: string, searchQuery: string) {
     contains: false,
   };
   if (!text) return noMatch;
-  const regEx = new RegExp(`\\b${searchQuery}.*\\b`, "i");
+  // RegEx escaping taken from: https://github.com/tc39/proposal-regex-escaping/blob/main/polyfill.js
+  const escapedSearchQuery = searchQuery.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
+  const regEx = new RegExp(`\\b${escapedSearchQuery}.*\\b`, "i");
   let matchPosition = text.search(regEx);
   if (matchPosition < 0) {
     // if no match found, see if it matches by splitting the camel case properties such as 'onClick'
