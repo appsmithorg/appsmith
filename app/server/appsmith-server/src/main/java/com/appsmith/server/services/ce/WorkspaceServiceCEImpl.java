@@ -229,7 +229,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(analyticsService::sendCreateEvent);
     }
 
-    private Mono<Boolean> isCreateWorkspaceAllowed() {
+    protected Mono<Boolean> isCreateWorkspaceAllowed() {
         return Mono.just(TRUE);
     }
 
