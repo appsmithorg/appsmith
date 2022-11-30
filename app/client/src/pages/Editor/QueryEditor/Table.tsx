@@ -241,12 +241,15 @@ function Table(props: TableProps) {
     return [];
   }, [data]);
 
+  const responseTypePanelHeight = 24;
+
   const tableBodyHeightComputed =
     (props.tableBodyHeight || window.innerHeight) -
     TABLE_SIZES.COLUMN_HEADER_HEIGHT -
     props.theme.tabPanelHeight -
     TABLE_SIZES.SCROLL_SIZE -
-    2 * props.theme.spaces[5]; //top and bottom padding
+    responseTypePanelHeight -
+    2 * props.theme.spaces[4]; //top and bottom padding
 
   const defaultColumn = React.useMemo(
     () => ({

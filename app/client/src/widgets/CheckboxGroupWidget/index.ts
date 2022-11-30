@@ -5,7 +5,10 @@ import Widget from "./widget";
 
 export const CONFIG = {
   features: {
-    dynamicHeight: true,
+    dynamicHeight: {
+      sectionIndex: 3,
+      active: true,
+    },
   },
   type: Widget.getWidgetType(),
   name: "Checkbox Group",
@@ -40,6 +43,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

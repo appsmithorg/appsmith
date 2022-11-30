@@ -349,15 +349,17 @@ function* appendSelectedWidgetToUrlSaga(
     canvasEditorURL = `${builderURL({
       pageId: currentPageId,
       hash: selectedWidgets[0],
+      persistExistingParams: true,
     })}`;
   } else {
     canvasEditorURL = `${builderURL({
       pageId: currentPageId,
+      persistExistingParams: true,
     })}`;
   }
 
   if (currentURL !== canvasEditorURL) {
-    history.push(canvasEditorURL);
+    history.replace(canvasEditorURL);
   }
 }
 
