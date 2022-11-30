@@ -479,11 +479,13 @@ function LibraryCard({
           <Text type={TextType.P0} weight="500">
             {lib.name}
           </Text>
-          <StatusIconWrapper addHoverState>
+          <StatusIconWrapper
+            addHoverState
+            onClick={() => openDocs(lib.docsURL)}
+          >
             <Icon
               fillColor={Colors.GRAY}
               name="share-2"
-              onClick={() => openDocs(lib.docsURL)}
               size={IconSize.SMALL}
             />
           </StatusIconWrapper>
