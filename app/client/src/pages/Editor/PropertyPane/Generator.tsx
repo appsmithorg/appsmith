@@ -44,8 +44,9 @@ const generatePropertyControl = (
           step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
           <PropertySection
-            childCount={config.children?.length ?? 0}
+            childrenId={sectionConfig.childrenId}
             collapsible={sectionConfig.collapsible ?? true}
+            hidden={sectionConfig.hidden}
             id={config.id || sectionConfig.sectionName}
             isDefaultOpen={sectionConfig.isDefaultOpen}
             key={config.id + props.id + props.searchQuery}
@@ -83,6 +84,7 @@ const generatePropertyControl = (
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const finalProps = evaluateHiddenProperty(props.config, widgetProps);
+  console.log("bla", finalProps);
   const searchResults = searchPropertyPaneConfig(
     finalProps as PropertyPaneSectionConfig[],
     props.searchQuery,

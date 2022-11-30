@@ -25,6 +25,10 @@ export function useSearchText(initialVal: string) {
   return { searchText, setSearchText: debouncedSetSearchText };
 }
 
+function generateId(conf: PropertyPaneConfig[]) {
+  return conf.map((configItem) => configItem.id).join("");
+}
+
 export function evaluateHiddenProperty(
   config: readonly PropertyPaneConfig[],
   widgetProps: any,
@@ -48,6 +52,7 @@ export function evaluateHiddenProperty(
         if (children.length > 0) {
           finalConfig.push({
             ...sectionConfig,
+            childrenId: generateId(children),
             children,
           });
         }

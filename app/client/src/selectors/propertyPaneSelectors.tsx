@@ -28,8 +28,8 @@ export const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
 
 export const getCurrentWidgetId = createSelector(
-  getPropertyPaneState,
-  (propertyPane: PropertyPaneReduxState) => propertyPane.widgetId,
+  getSelectedWidgets,
+  (widgetIds: string[]) => widgetIds[0],
 );
 
 export const getCurrentWidgetProperties = createSelector(

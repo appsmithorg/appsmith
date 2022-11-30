@@ -14,7 +14,7 @@ import { AppIcon as Icon, Size } from "design-system";
 import { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
 import { setPropertySectionState } from "actions/propertyPaneActions";
 
 const Label = styled.div`
@@ -83,19 +83,19 @@ const StyledIcon = styled(Icon)`
 type PropertySectionProps = {
   id: string;
   name: string;
-  childCount: number;
+  childrenId?: string;
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
-  // hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
   tag?: string; // Used to show a tag on the section title on search results
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
-  return prev.id === next.id && prev.childCount === next.childCount;
+  return prev.id === next.id && prev.childrenId === next.childrenId;
 };
 
 //Context is being provided to re-render anything that subscribes to this context on open and close
@@ -103,11 +103,11 @@ export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();
-  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  const currentWidgetId = useSelector(getCurrentWidgetId);
   const { isDefaultOpen = true } = props;
   const isDefaultContextOpen = useSelector(
     (state: AppState) =>
-      getPropertySectionState(state, `${widgetProps?.widgetId}.${props.id}`),
+      getPropertySectionState(state, `${currentWidgetId}.${props.id}`),
     () => true,
   );
   const isSearchResult = props.tag !== undefined;
@@ -122,14 +122,12 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible)
       setIsOpen((x) => {
-        dispatch(
-          setPropertySectionState(`${widgetProps?.widgetId}.${props.id}`, !x),
-        );
+        dispatch(setPropertySectionState(`${currentWidgetId}.${props.id}`, !x));
         return !x;
       });
-  }, []);
+  }, [props.collapsible, props.id, currentWidgetId]);
 
-  if (!widgetProps) return null;
+  if (!currentWidgetId) return null;
 
   const className = props.name
     .split(" ")
