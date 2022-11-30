@@ -49,6 +49,7 @@ public class ElasticSearchPluginTest {
 
     @Container
     public static final ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
+            .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(cmd.getHostConfig().withMemory(2 * 1024 * 1024 * 1024L)))
             .withEnv("discovery.type", "single-node")
             .withPassword("esPassword");
     private static String username = "elastic";
