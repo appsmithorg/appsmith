@@ -32,7 +32,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Button, Category, Toaster, Variant } from "design-system";
+import { Category, Toaster, Variant } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -83,20 +83,7 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const StyledActionButton = styled(ActionButton)`
-  &&& {
-    width: auto;
-    min-width: 74px;
-    margin-right: 9px;
-    min-height: 32px;
-
-    & > span {
-      max-width: 100%;
-    }
-  }
-`;
-
-const StyledButton = styled(StyledActionButton)<{ fluidWidth?: boolean }>`
+const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
   &&&& {
     height: 32px;
     width: ${(props) => (props.fluidWidth ? "" : "87px")};
@@ -315,7 +302,6 @@ function DatasourceAuth({
           className="t--save-datasource"
           disabled={isInvalid || !isFormDirty || !canManageDatasource}
           filled
-          intent="primary"
           key={buttonType}
           loading={isSaving}
           onClick={handleDefaultAuthDatasourceSave}
