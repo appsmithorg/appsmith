@@ -1,5 +1,5 @@
 import React, { useCallback, memo, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history from "utils/history";
@@ -14,6 +14,7 @@ import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import { updateRecentActionEntity } from "actions/recentActionEnititesActions";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -28,6 +29,7 @@ type ExplorerActionEntityProps = {
 };
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
+  const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
   const action = useSelector((state) => getAction(state, props.id)) as Action;
   const plugins = useSelector(getPlugins);
@@ -54,6 +56,13 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       toUrl: url,
       name: action.name,
     });
+    dispatch(
+      updateRecentActionEntity({
+        id: action.id,
+        name: action.name,
+        type: "QUERIES/APIs",
+      }),
+    );
   }, [url, location.pathname, action.name]);
 
   const contextMenu = (

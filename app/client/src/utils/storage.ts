@@ -11,6 +11,7 @@ export const STORAGE_KEYS: {
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
+  RECENT_ACTION_ENTITIES: "RecentActionEntities",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
   ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
@@ -117,6 +118,35 @@ export const getPostWelcomeTourState = async () => {
     return onboardingState;
   } catch (error) {
     log.error("An error occurred when getting post welcome tour state", error);
+  }
+};
+
+export const fetchRecentActionEntities = async (
+  recentEntitiesKey: string,
+): Promise<any[] | undefined> => {
+  try {
+    const recentEntities = (await store.getItem(
+      STORAGE_KEYS.RECENT_ACTION_ENTITIES,
+    )) as Record<string, any[]>;
+    return (recentEntities && recentEntities[recentEntitiesKey]) ?? [];
+  } catch (error) {
+    log.error("An error occurred while fetching recent action entities");
+    log.error(error);
+  }
+};
+
+export const setRecentActionEntities = async (entities: any, appId: string) => {
+  try {
+    const recentEntities =
+      ((await store.getItem(STORAGE_KEYS.RECENT_ACTION_ENTITIES)) as Record<
+        string,
+        any
+      >) || {};
+    recentEntities[appId] = entities;
+    await store.setItem(STORAGE_KEYS.RECENT_ACTION_ENTITIES, recentEntities);
+  } catch (error) {
+    log.error("An error occurred while saving recent action entities");
+    log.error(error);
   }
 };
 

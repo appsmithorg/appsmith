@@ -3,7 +3,7 @@ import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
 import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getJSCollection } from "selectors/entitiesSelector";
 import { AppState } from "@appsmith/reducers";
@@ -13,6 +13,7 @@ import { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import { updateRecentActionEntity } from "actions/recentActionEnititesActions";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
@@ -28,6 +29,7 @@ const getUpdateJSObjectName = (id: string, name: string) => {
 
 export const ExplorerJSCollectionEntity = memo(
   (props: ExplorerJSCollectionEntityProps) => {
+    const dispatch = useDispatch();
     const pageId = useSelector(getCurrentPageId) as string;
     const jsAction = useSelector((state: AppState) =>
       getJSCollection(state, props.id),
@@ -46,6 +48,13 @@ export const ExplorerJSCollectionEntity = memo(
           toUrl: navigateToUrl,
           name: jsAction.name,
         });
+        dispatch(
+          updateRecentActionEntity({
+            id: jsAction.id,
+            name: jsAction.name,
+            type: "JSOBJECT",
+          }),
+        );
         history.push(navigateToUrl);
       }
     }, [pageId, jsAction.id, jsAction.name, location.pathname]);
