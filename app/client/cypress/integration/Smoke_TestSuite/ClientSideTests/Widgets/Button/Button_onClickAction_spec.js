@@ -69,11 +69,6 @@ describe("Button Widget Functionality", function() {
         .should("have.value", postgresDatasourceName)
         .blur();
 
-      cy.wait("@saveDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
       cy.fillPostgresDatasourceForm();
       cy.saveDatasource();
       cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
