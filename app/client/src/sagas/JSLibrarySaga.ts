@@ -30,9 +30,7 @@ import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
-import moment from "moment";
+import { selectInstalledLibraries } from "selectors/entitiesSelector";
 
 export function parseErrorMessage(text: string) {
   return text
@@ -54,16 +52,9 @@ function* handleInstallationFailure(
     );
   }
 
-  AppsmithConsole.addLogs([
-    {
-      severity: Severity.ERROR,
-      logType: LOG_TYPE.LIBRARY_INSTALLATION_ERROR,
-      timestamp: moment().format("hh:mm:ss"),
-      category: LOG_CATEGORY.PLATFORM_GENERATED,
-      text: `Failed to install library script at ${url}`,
-      messages: [{ message }],
-    },
-  ]);
+  AppsmithConsole.error({
+    text: `Failed to install library script at ${url}`,
+  });
 
   Toaster.show({
     text: message,
@@ -71,7 +62,7 @@ function* handleInstallationFailure(
   });
   yield put({
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
-    payload: url,
+    payload: { url, show: false },
   });
   AnalyticsUtil.logEvent(LIBRARY_EVENTS.INSTALL_FAILED, { url });
 }
@@ -84,15 +75,27 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     "",
   );
 
-  const { accessor, defs, message, success } = yield call(
+  const installedLibraries: TJSLibrary[] = yield select(
+    selectInstalledLibraries,
+  );
+
+  const takenAccessors = ([] as string[]).concat(
+    ...installedLibraries.map((lib) => lib.accessor),
+  );
+
+  const { accessor, defs, error, success } = yield call(
     EvalWorker.request,
     EVAL_WORKER_ACTIONS.INSTALL_LIBRARY,
-    { url, takenNamesMap },
+    {
+      url,
+      takenNamesMap,
+      takenAccessors,
+    },
   );
 
   if (!success) {
     log.debug("Failed to install locally");
-    yield call(handleInstallationFailure, url as string, message);
+    yield call(handleInstallationFailure, url as string, error.message);
     return;
   }
 

@@ -73,9 +73,9 @@ const jsLibraryReducer = createImmerReducer(initialState, {
   },
   [ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED]: (
     state: LibraryState,
-    action: ReduxAction<string>,
+    action: ReduxAction<{ url: string }>,
   ) => {
-    state.installationStatus[action.payload] = InstallState.Failed;
+    state.installationStatus[action.payload.url] = InstallState.Failed;
   },
   [ReduxActionTypes.CLEAR_PROCESSED_INSTALLS]: (state: LibraryState) => {
     for (const key in state.installationStatus) {

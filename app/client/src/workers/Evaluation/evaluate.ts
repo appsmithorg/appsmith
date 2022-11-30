@@ -3,7 +3,6 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
-  unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
@@ -13,16 +12,10 @@ import { completePromise } from "workers/Evaluation/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
-import SetupDOM, { DOM_APIS } from "./SetupDOM";
-import {
-  JSLibraries,
-  libraryReservedNames,
-  resetJSLibraries,
-} from "../common/JSLibrary";
+import { DOM_APIS } from "./SetupDOM";
+import { JSLibraries, libraryReservedNames } from "../common/JSLibrary";
 
 export type EvalResult = {
   result: any;
@@ -105,7 +98,7 @@ export const getScriptType = (
   return scriptType;
 };
 
-export let additionalLibrariesNames: string[] = [];
+export const additionalLibrariesNames: string[] = [];
 
 export const getScriptToEval = (
   userScript: string,
@@ -116,29 +109,7 @@ export const getScriptToEval = (
   return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
-export function setupEvaluationEnvironment() {
-  resetJSLibraries();
-  ///// Adding extra libraries separately
-  JSLibraries.forEach((library) => {
-    // @ts-expect-error: Types are not available
-    self[library.accessor] = library.lib;
-  });
-
-  ///// Remove all unsafe functions
-  unsafeFunctionForEval.forEach((func) => {
-    // @ts-expect-error: Types are not available
-    self[func] = undefined;
-  });
-  self.window = self;
-  additionalLibrariesNames = [];
-  userLogs.overrideConsoleAPI();
-  overrideTimeout();
-  interceptAndOverrideHttpRequest();
-  SetupDOM();
-}
-
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
-
 export interface createGlobalDataArgs {
   dataTree: DataTree;
   resolvedFunctions: Record<string, any>;

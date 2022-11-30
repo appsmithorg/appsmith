@@ -1,5 +1,4 @@
 import evaluate, {
-  setupEvaluationEnvironment,
   evaluateAsync,
   isFunctionAsync,
 } from "workers/Evaluation/evaluate";
@@ -9,6 +8,7 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
+import setupEvalEnv from "../handlers/setupEvalEnv";
 
 describe("evaluateSync", () => {
   // @ts-expect-error: meta property not provided
@@ -40,7 +40,7 @@ describe("evaluateSync", () => {
     Input1: widget,
   };
   beforeAll(() => {
-    setupEvaluationEnvironment();
+    setupEvalEnv();
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
