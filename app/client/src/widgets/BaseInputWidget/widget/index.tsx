@@ -245,16 +245,6 @@ class BaseInputWidget<
             isTriggerProperty: true,
           },
           {
-            helpText:
-              "Triggers an action on submit (when the enter key is pressed)",
-            propertyName: "onSubmit",
-            label: "onSubmit",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
             helpText: "Triggers an action when the input field receives focus",
             propertyName: "onFocus",
             label: "onFocus",
@@ -267,6 +257,16 @@ class BaseInputWidget<
             helpText: "Triggers an action when the input field loses focus",
             propertyName: "onBlur",
             label: "onBlur",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
