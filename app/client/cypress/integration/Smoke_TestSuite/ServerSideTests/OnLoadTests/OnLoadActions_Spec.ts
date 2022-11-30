@@ -36,6 +36,8 @@ describe("Layout OnLoad Actions tests", function() {
     });
   });
 
+  //Skipping others tests due to RTS server changes
+
   it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function() {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._imageWidget);

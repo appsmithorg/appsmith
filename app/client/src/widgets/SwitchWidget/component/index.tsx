@@ -21,6 +21,7 @@ export interface SwitchComponentProps extends ComponentProps {
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const SwitchComponentContainer = styled.div<{
@@ -39,6 +40,7 @@ const SwitchLabel = styled.div<{
   labelTextColor?: string;
   labelTextSize?: string;
   labelStyle?: string;
+  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: inline-block;
@@ -52,43 +54,43 @@ const SwitchLabel = styled.div<{
     labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : "normal"
   };
   `}
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 `;
 
 export const StyledSwitch = styled(Switch)<{
-  accentColor: string;
+  $accentColor: string;
   inline?: boolean;
 }>`
   &.${Classes.CONTROL} {
-    margin: 0;
-  }
-
-  &.${Classes.CONTROL} {
     & input:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ accentColor }) => `${accentColor}`} !important;
-      border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
+      background: ${({ $accentColor }) => `${$accentColor}`} !important;
+      border: 1px solid ${({ $accentColor }) => `${$accentColor}`} !important;
     }
 
     &:hover input:checked:not(:disabled) ~ .bp3-control-indicator {
-      background: ${({ accentColor }) =>
-        `${darkenColor(accentColor)}`} !important;
-      border: 1px solid ${({ accentColor }) =>
-        `${darkenColor(accentColor)}`} !important;
+      background: ${({ $accentColor }) =>
+        `${darkenColor($accentColor)}`} !important;
+      border: 1px solid ${({ $accentColor }) =>
+        `${darkenColor($accentColor)}`} !important;
     }
   }
 
   &.${Classes.SWITCH} {
     ${({ inline }) => (!!inline ? "" : "width: 100%;")}
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${({ accentColor }) => `${accentColor}`} !important;
+      background: ${({ $accentColor }) => `${$accentColor}`} !important;
     }
   }
 `;
 
-export default function SwitchComponent({
+function SwitchComponent({
   accentColor,
   alignWidget = AlignWidgetTypes.LEFT,
   inputRef,
   isDisabled,
+  isDynamicHeightEnabled,
   isLoading,
   isSwitchedOn,
   label,
@@ -97,18 +99,14 @@ export default function SwitchComponent({
   labelTextColor,
   labelTextSize,
   onChange,
-}: SwitchComponentProps) {
-  /**
-   * When the label position is left align switch to the right
-   * When the label position is right align switch to the left
-   */
+}: SwitchComponentProps): JSX.Element {
   const switchAlignClass =
     labelPosition === LabelPosition.Right ? "left" : "right";
 
   return (
     <SwitchComponentContainer accentColor={accentColor}>
       <StyledSwitch
-        accentColor={accentColor}
+        $accentColor={accentColor}
         alignIndicator={switchAlignClass}
         checked={isSwitchedOn}
         className={
@@ -127,6 +125,7 @@ export default function SwitchComponent({
             alignment={alignWidget}
             className="t--switch-widget-label"
             disabled={isDisabled}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             labelStyle={labelStyle}
             labelTextColor={labelTextColor}
             labelTextSize={labelTextSize}
@@ -139,3 +138,5 @@ export default function SwitchComponent({
     </SwitchComponentContainer>
   );
 }
+
+export default SwitchComponent;

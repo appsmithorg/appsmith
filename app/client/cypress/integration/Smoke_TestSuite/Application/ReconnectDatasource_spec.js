@@ -53,7 +53,8 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             cy.ReconnectDatasource("Untitled Datasource");
             cy.wait(1000);
             cy.fillPostgresDatasourceForm();
-            cy.testSaveDatasource();
+            cy.testDatasource(true);
+            cy.get(".t--save-datasource").click({ force: true });
             cy.wait(2000);
 
             // cy.get(reconnectDatasourceModal.SkipToAppBtn).click({

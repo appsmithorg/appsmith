@@ -1,10 +1,16 @@
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
-import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 0,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "Stats Box",
   iconSVG: IconSVG,
@@ -12,12 +18,13 @@ export const CONFIG = {
   isCanvas: true,
   defaults: {
     rows: 14,
-    columns: 16,
+    columns: 22,
     animateLoading: true,
     widgetName: "Statbox",
     backgroundColor: "white",
     borderWidth: "1",
     borderColor: Colors.GREY_5,
+    minDynamicHeight: 14,
     children: [],
     blueprint: {
       view: [
@@ -41,7 +48,7 @@ export const CONFIG = {
                   position: { top: 0, left: 1 },
                   props: {
                     text: "Page Views",
-                    fontSize: "0.75rem",
+                    fontSize: "0.875rem",
                     textColor: "#999999",
                     version: 1,
                   },
@@ -58,7 +65,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "2.6 M",
-                    fontSize: THEMEING_TEXT_SIZES.lg,
+                    fontSize: "1.25rem",
                     fontStyle: "BOLD",
                     version: 1,
                   },
@@ -75,7 +82,7 @@ export const CONFIG = {
                   },
                   props: {
                     text: "21% more than last month",
-                    fontSize: "0.75rem",
+                    fontSize: "0.875rem",
                     textColor: Colors.GREEN,
                     version: 1,
                   },
@@ -111,6 +118,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 
