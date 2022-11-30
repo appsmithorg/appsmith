@@ -354,7 +354,7 @@ function* updateDatasourceSaga(
         yield put(actionPayload.onSuccess);
       }
       if (expandDatasourceId === response.data.id) {
-        yield put(fetchDatasourceStructure(response.data.id));
+        yield put(fetchDatasourceStructure(response.data.id, true));
       }
       yield put(setDatasourceViewMode(true));
 

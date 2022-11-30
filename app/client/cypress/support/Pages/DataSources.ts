@@ -110,7 +110,7 @@ export class DataSources {
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
-  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=*";
+  _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
