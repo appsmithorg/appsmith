@@ -1,7 +1,11 @@
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
+
+let dataSources = ObjectsRegistry.DataSources;
 
 describe("Git discard changes:", function() {
   let datasourceName;
@@ -20,7 +24,10 @@ describe("Git discard changes:", function() {
 
     cy.testSaveDatasource();
 
-    cy.get("@createDatasource").then((httpResponse) => {
+    // go back to active ds list
+    dataSources.NavigateToActiveTab();
+
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
       cy.get(datasource.datasourceCard)
