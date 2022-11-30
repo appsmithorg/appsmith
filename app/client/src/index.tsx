@@ -6,7 +6,7 @@ import "./index.css";
 import { ThemeProvider } from "constants/DefaultTheme";
 import { appInitializer } from "utils/AppUtils";
 import { Slide } from "react-toastify";
-import store from "./store";
+import store, { runSagaMiddleware } from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "./AppRouter";
 import * as Sentry from "@sentry/react";
@@ -24,6 +24,8 @@ import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "AppErrorBoundry";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
+
+runSagaMiddleware();
 
 appInitializer();
 
