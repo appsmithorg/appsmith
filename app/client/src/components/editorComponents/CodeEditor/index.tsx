@@ -18,6 +18,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/comment/comment";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -111,6 +112,7 @@ import {
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
+import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -275,6 +277,7 @@ class CodeEditor extends Component<Props, State> {
       const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
         [moveCursorLeftKey]: "goLineStartSmart",
+        [getCodeCommentKeyMap()]: handleCodeComment,
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
