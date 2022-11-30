@@ -17,6 +17,7 @@ export type URLBuilderParams = {
   hash?: string;
   params?: Record<string, any>;
   pageId: string;
+  persistExistingParams?: boolean;
 };
 
 export const fillPathname = (

@@ -216,7 +216,12 @@ function* evaluateTreeSaga(
       isCreateFirstTree,
     );
 
-    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+    yield fork(
+      updateTernDefinitions,
+      updatedDataTree,
+      unEvalUpdates,
+      isCreateFirstTree,
+    );
   }
   yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {

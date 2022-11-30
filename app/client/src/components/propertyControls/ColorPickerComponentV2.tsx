@@ -15,7 +15,7 @@ import {
 import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
 import { Colors } from "constants/Colors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import {
   colorsPropertyName,

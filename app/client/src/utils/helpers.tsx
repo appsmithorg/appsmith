@@ -228,7 +228,10 @@ export const quickScrollToWidget = (widgetId?: string) => {
     const canvas = document.getElementById("canvas-viewport");
 
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
-      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      el.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
     }
   }, 200);
 };
@@ -242,10 +245,14 @@ function isElementVisibleInContainer(
   const elementRect = element.getBoundingClientRect();
   const containerRect = container.getBoundingClientRect();
   return (
-    elementRect.top >= containerRect.top &&
-    elementRect.left >= containerRect.left &&
-    elementRect.bottom <= containerRect.bottom &&
-    elementRect.right <= containerRect.right
+    ((elementRect.top > containerRect.top &&
+      elementRect.top < containerRect.bottom) ||
+      (elementRect.bottom < containerRect.bottom &&
+        elementRect.bottom > containerRect.top)) &&
+    ((elementRect.left > containerRect.left &&
+      elementRect.left < containerRect.right) ||
+      (elementRect.right < containerRect.right &&
+        elementRect.right > containerRect.left))
   );
 }
 
