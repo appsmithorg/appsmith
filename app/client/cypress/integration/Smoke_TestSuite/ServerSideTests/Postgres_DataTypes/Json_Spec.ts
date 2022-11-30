@@ -356,11 +356,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
-    appSettings.theme.ChangeThemeColor(12, "Primary");
-    appSettings.theme.ChangeThemeColor(23, "Background");
-    appSettings.closePane();
+    appSettings.openPaneAndChangeThemeColors(12, 23);
   });
 
   it("15. Creating enum & table queries - jsonBbooks", () => {
