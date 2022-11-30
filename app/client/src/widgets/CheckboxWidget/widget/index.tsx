@@ -7,6 +7,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
@@ -275,6 +276,13 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     return {
       isChecked: undefined,
       isDirty: false,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
     };
   }
 
