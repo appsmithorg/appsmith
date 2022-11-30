@@ -1,5 +1,6 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import "@testing-library/jest-dom/extend-expect";
 import { Provider } from "react-redux";
 import store from "store";
 import { ThemeProvider } from "styled-components";
@@ -46,6 +47,8 @@ describe("Contains all UI tests for JS libraries", () => {
     type: ReduxActionTypes.TOGGLE_INSTALLER,
     payload: true,
   });
+  afterEach(cleanup);
+
   it("Headers should exist", () => {
     render(
       <Provider store={store}>
@@ -57,6 +60,7 @@ describe("Contains all UI tests for JS libraries", () => {
     expect(screen.getByText("Add JS Libraries")).toBeDefined();
     expect(screen.getByText("Recommended Libraries")).toBeDefined();
     expect(screen.getByTestId("library-url")).toBeDefined();
+    expect(screen.getByTestId("install-library-btn")).toBeDisabled();
   });
 
   it("Validates URL", () => {
@@ -69,9 +73,11 @@ describe("Contains all UI tests for JS libraries", () => {
     );
     const input = screen.getByTestId("library-url");
     fireEvent.change(input, { target: { value: "https://valid.com" } });
+    expect(screen.getByTestId("install-library-btn")).toBeEnabled();
     expect(screen.queryByText("Please enter a valid URL")).toBeNull();
     fireEvent.change(input, { target: { value: "23" } });
     expect(screen.queryByText("Please enter a valid URL")).toBeDefined();
+    expect(screen.getByTestId("install-library-btn")).toBeDisabled();
   });
 
   it("Renders progress bar", () => {
