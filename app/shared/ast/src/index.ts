@@ -42,7 +42,7 @@ interface IdentifierNode extends Node {
 }
 
 //Using this to handle the Variable property refactor
-interface IdentifierNodeRefactor extends Node {
+interface RefactorIdentifierNode extends Node {
   type: NodeTypes.Identifier;
   name: string;
   property?: IdentifierNode;
@@ -300,7 +300,7 @@ export const entityRefactorFromCode = (
     }: NodeList = ancestorWalk(ast);
     const identifierArray = Array.from(
       identifierList
-    ) as Array<IdentifierNodeRefactor>;
+    ) as Array<RefactorIdentifierNode>;
     Array.from(references).forEach((reference, index) => {
       const topLevelIdentifier = toPath(reference)[0];
       let shouldUpdateNode = !(
@@ -537,7 +537,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
 
 const ancestorWalk = (ast: Node): NodeList => {
   //List of all Identifier nodes with their property(if exists).
-  const identifierList = new Array<IdentifierNodeRefactor>();
+  const identifierList = new Array<RefactorIdentifierNode>();
   // List of all references found
   const references = new Set<string>();
   // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
@@ -591,7 +591,7 @@ const ancestorWalk = (ast: Node): NodeList => {
           ...(node as IdentifierNode),
           property: parentNode.property as IdentifierNode,
         });
-      } else identifierList.push(node as IdentifierNodeRefactor);
+      } else identifierList.push(node as RefactorIdentifierNode);
       if (isIdentifierNode(candidateTopLevelNode)) {
         // If the node is an Identifier, just save that
         references.add(candidateTopLevelNode.name);
