@@ -217,6 +217,7 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
+  ctrlPressed: boolean;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -244,6 +245,7 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
+      ctrlPressed: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -387,6 +389,7 @@ class CodeEditor extends Component<Props, State> {
       // put that code into `options.finishInit()`.
     }
     window.addEventListener("keydown", this.handleKeydown);
+    window.addEventListener("keyup", this.handleKeyUp);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -508,6 +511,7 @@ class CodeEditor extends Component<Props, State> {
     }
 
     window.removeEventListener("keydown", this.handleKeydown);
+    window.removeEventListener("keyup", this.handleKeyUp);
 
     // return if component unmounts before editor is created
     if (!this.editor) return;
@@ -554,6 +558,21 @@ class CodeEditor extends Component<Props, State> {
           );
         }
         break;
+      case "Control":
+      case "Meta":
+        this.setState({
+          ctrlPressed: true,
+        });
+    }
+  };
+
+  private handleKeyUp = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Control":
+      case "Meta":
+        this.setState({
+          ctrlPressed: false,
+        });
     }
   };
 
@@ -1035,6 +1054,7 @@ class CodeEditor extends Component<Props, State> {
               isInvalid ? "t--codemirror-has-error" : ""
             }`}
             codeEditorVisibleOverflow={codeEditorVisibleOverflow}
+            ctrlPressed={this.state.ctrlPressed}
             disabled={disabled}
             editorTheme={this.props.theme}
             fill={fill}

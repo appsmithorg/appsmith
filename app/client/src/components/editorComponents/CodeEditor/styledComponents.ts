@@ -53,6 +53,7 @@ export const EditorWrapper = styled.div<{
   fill?: boolean;
   className?: string;
   codeEditorVisibleOverflow?: boolean;
+  ctrlPressed: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -161,7 +162,7 @@ export const EditorWrapper = styled.div<{
       font-weight: 700;
     }
     .navigable-entity-highlight {
-      cursor: pointer;
+      cursor: ${(props) => (props.ctrlPressed ? "pointer" : "selection")};
       &:hover {
         text-decoration: underline;
       }
