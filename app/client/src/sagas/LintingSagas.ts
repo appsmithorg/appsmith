@@ -6,8 +6,8 @@ import {
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
-import { TJSLibrary } from "utils/DynamicBindingUtils";
 import { GracefulWorkerService } from "utils/WorkerUtil";
+import { TJSLibrary } from "workers/common/JSLibrary";
 import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
 import {
   LintTreeRequest,

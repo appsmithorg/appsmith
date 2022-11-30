@@ -1,8 +1,8 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
-import { TJSLibrary } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { FlattenedWidgetProps } from "widgets/constants";
+import { TJSLibrary } from "workers/common/JSLibrary";
 import { getDataTree } from "./dataTreeSelectors";
 import {
   getExistingPageNames,
