@@ -13,7 +13,7 @@ public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
     public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
                                                String branchName, Boolean isForceInstall);
     public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
-                                                    String branchName, Boolean isForceInstall);
+                                                    String branchName, Boolean isForceRemove);
     public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId, String branchName,
                                                              Boolean isViewMode);
 

@@ -5,5 +5,5 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Mono;
 
 public interface CustomJSLibRepositoryCE extends AppsmithRepository<CustomJSLib> {
-    Mono<CustomJSLib> findByUidString(String accessorString);
+    Mono<CustomJSLib> findByUidString(String uidString);
 }

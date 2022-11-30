@@ -34,7 +34,7 @@ public class CustomJSLibControllerCE {
             FieldName.IS_FORCE_INSTALL, defaultValue = "false") Boolean isForceInstall) {
         log.debug("Going to add JS lib: {}_{} to application: {}, on branch:{}", customJSLib.getName(),
                 customJSLib.getVersion(), applicationId, branchName);
-        return customJSLibService.addJSLibToApplication(applicationId, customJSLib, branchName, false)
+        return customJSLibService.addJSLibToApplication(applicationId, customJSLib, branchName, isForceInstall)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
@@ -43,11 +43,11 @@ public class CustomJSLibControllerCE {
                                                                  @PathVariable String applicationId,
                                                                  @RequestHeader(name = FieldName.BRANCH_NAME,
                                                                          required = false) String branchName,
-                                                                 @RequestHeader(name = FieldName.IS_FORCE_INSTALL,
-                                                                         defaultValue = "false") Boolean isForceInstall) {
+                                                                 @RequestHeader(name = FieldName.IS_FORCE_REMOVE,
+                                                                         defaultValue = "false") Boolean isForceRemove) {
         log.debug("Going to remove JS lib: {}_{} from application: {}, on branch:{}", customJSLib.getName(),
                 customJSLib.getVersion(), applicationId, branchName);
-        return customJSLibService.removeJSLibFromApplication(applicationId, customJSLib, branchName, isForceInstall)
+        return customJSLibService.removeJSLibFromApplication(applicationId, customJSLib, branchName, isForceRemove)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 

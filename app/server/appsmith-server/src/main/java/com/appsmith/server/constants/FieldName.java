@@ -152,5 +152,6 @@ public class FieldName {
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
     public static final String IS_FORCE_INSTALL = "forceInstall";
+    public static final String IS_FORCE_REMOVE = "forceRemove";
 
 }

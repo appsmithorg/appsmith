@@ -26,8 +26,8 @@ import static reactor.core.publisher.Mono.zip;
 
 @Slf4j
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String> implements CustomJSLibServiceCE {
-    private static final String UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "unpublishedCustomJSLibs";
-    private static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "publishedCustomJSLibs";
+    public static final String UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "unpublishedCustomJSLibs";
+    public static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "publishedCustomJSLibs";
 
     ApplicationService applicationService;
 
@@ -69,15 +69,15 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     private Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(CustomJSLib jsLib,
                                                                                               Boolean isForceInstall) {
         return repository.findByUidString(jsLib.getUidString())
-                .map(foundJSLib -> {
+                .flatMap(foundJSLib -> {
                     // TODO: add comment
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
-                        repository.save(jsLib);
-                        return getDTOFromCustomJSLib(jsLib);
+                        return repository.save(jsLib)
+                                        .then(Mono.just(getDTOFromCustomJSLib(jsLib)));
                     }
 
-                    return getDTOFromCustomJSLib(foundJSLib);
+                    return Mono.just(getDTOFromCustomJSLib(foundJSLib));
                 })
                 .switchIfEmpty(
                         repository.save(jsLib)
@@ -87,9 +87,10 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId,
-                                                    @NotNull CustomJSLib jsLib, String branchName, Boolean isForceInstall) {
+                                                    @NotNull CustomJSLib jsLib, String branchName,
+                                                    Boolean isForceRemove) {
         return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, false)
-                .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
+                .zipWith(persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, false))
                 .map(tuple -> {
                     /**
                      * TODO: try to convert it into a single update op where reading of list is not required

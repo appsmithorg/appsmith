@@ -1,6 +1,8 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,7 +28,6 @@ public class CustomJSLib extends BaseDomain {
      * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
      * JS library
      */
-    @Indexed(unique=true)
     String uidString;
 
     /**
@@ -34,12 +35,6 @@ public class CustomJSLib extends BaseDomain {
      * `accessor.method`
      */
     Set<String> accessor;
-    public void setAccessor(Set<String> accessor) {
-        this.accessor = accessor;
-        List<String> accessorList = new ArrayList(accessor);
-        Collections.sort(accessorList);
-        this.uidString = String.join("_", accessorList) + "_" + this.url;
-    }
 
     /* Library UMD src url */
     String url;
@@ -53,6 +48,25 @@ public class CustomJSLib extends BaseDomain {
     /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
     String defs;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public CustomJSLib(@JsonProperty("name") String name, @JsonProperty("accessor") Set<String> accessor,
+                       @JsonProperty("url") String url, @JsonProperty("docsUrl") String docsUrl,
+                       @JsonProperty("version") String version, @JsonProperty("defs") String defs) {
+            this.name = name;
+            this.accessor = accessor;
+            this.url = url;
+            this.docsUrl = docsUrl;
+            this.defs = defs;
+            this.version = version;
+            setUidString();
+    }
+
+    public void setUidString() {
+        List<String> accessorList = new ArrayList(this.accessor);
+        Collections.sort(accessorList);
+        this.uidString = String.join("_", accessorList) + "_" + this.url;
+    }
 
     /**
      * The equality operator has been overridden here so that when two custom JS library objects are compared, they
