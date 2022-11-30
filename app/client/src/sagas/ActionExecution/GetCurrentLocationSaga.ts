@@ -30,7 +30,7 @@ const getUserLocation = (options?: PositionOptions) =>
  * return value is a "class" with functions as well and
  * that cant be stored in the data tree
  **/
-const extractGeoLocation = (
+export const extractGeoLocation = (
   location: GeolocationPosition,
 ): GeolocationPosition => {
   const {
@@ -58,6 +58,28 @@ const extractGeoLocation = (
     timestamp: location.timestamp,
   };
 };
+
+/**
+ * When location access is turned off in the browser, the error is a GeolocationPositionError instance
+ * We can't pass this instance to the worker thread as it uses structured cloning for copying the objects
+ * https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm
+ * It doesn't support some entities like DOM Nodes, functions etc. for copying
+ * And will throw an error if we try to pass it
+ * GeolocationPositionError instance doesn't exist in worker thread hence not supported by structured cloning
+ * https://developer.mozilla.org/en-US/docs/Web/API/GeolocationPositionError
+ * Hence we're creating a new object with same structure which can be passed to the worker thread
+ */
+function sanitizeGeolocationError(error: any) {
+  if (error instanceof GeolocationPositionError) {
+    const { code, message } = error;
+    return {
+      code,
+      message,
+    };
+  }
+
+  return error;
+}
 
 let successChannel: Channel<any> | undefined;
 let errorChannel: Channel<any> | undefined;
@@ -92,11 +114,17 @@ function* errorCallbackHandler() {
       if (callback) {
         yield call(executeAppAction, {
           dynamicString: callback,
-          callbackData: [error],
+          callbackData: [sanitizeGeolocationError(error)],
           event: { type: eventType },
           triggerPropertyName: triggerMeta.triggerPropertyName,
           source: triggerMeta.source,
         });
+
+        logActionExecutionError(
+          (error as Error).message,
+          triggerMeta.source,
+          triggerMeta.triggerPropertyName,
+        );
       } else {
         throw new TriggerFailureError(error.message, triggerMeta);
       }
@@ -118,8 +146,29 @@ export function* getCurrentLocationSaga(
     const currentLocation = extractGeoLocation(location);
 
     yield put(setUserCurrentGeoLocation(currentLocation));
+
+    if (actionPayload.onSuccess) {
+      yield call(executeAppAction, {
+        dynamicString: actionPayload.onSuccess,
+        callbackData: [currentLocation],
+        event: { type: eventType },
+        triggerPropertyName: triggerMeta.triggerPropertyName,
+        source: triggerMeta.source,
+      });
+    }
+
     return [currentLocation];
   } catch (error) {
+    if (actionPayload.onError) {
+      yield call(executeAppAction, {
+        dynamicString: actionPayload.onError,
+        callbackData: [sanitizeGeolocationError(error)],
+        event: { type: eventType },
+        triggerPropertyName: triggerMeta.triggerPropertyName,
+        source: triggerMeta.source,
+      });
+    }
+
     logActionExecutionError(
       (error as Error).message,
       triggerMeta.source,
@@ -142,6 +191,8 @@ export function* watchCurrentLocation(
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
+
+    return;
   }
   successChannel = channel();
   errorChannel = channel();
@@ -159,6 +210,13 @@ export function* watchCurrentLocation(
       }
     },
     (error) => {
+      // When location is turned off, the watch fails but watchId is generated
+      // Resetting the watchId to undefined so that a new watch can be started
+      if (watchId && error instanceof GeolocationPositionError) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = undefined;
+      }
+
       if (errorChannel) {
         errorChannel.put({
           error,
