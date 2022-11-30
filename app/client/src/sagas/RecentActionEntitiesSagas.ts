@@ -1,9 +1,13 @@
+import { RecentActionEntity } from "actions/recentActionEnititesActions";
 import {
   ReduxAction,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import { all, call, select, takeLatest } from "redux-saga/effects";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -11,23 +15,19 @@ import {
   setRecentActionEntities,
 } from "utils/storage";
 
-export interface RecentActionEntity {
-  id: string;
-  name: string;
-  type: string;
-}
-
 const getRecentActionEntitiesKey = (applicationId: string, branch?: string) =>
   branch ? `${applicationId}-${branch}` : applicationId;
 
 function* updateRecentEntitySaga(action: ReduxAction<RecentActionEntity>) {
   const branch: string | undefined = yield select(getCurrentGitBranch);
   const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
   const applicationKey = getRecentActionEntitiesKey(applicationId, branch);
 
   const currentRecentActions: any[] = yield call(
     fetchRecentActionEntities,
     applicationKey,
+    pageId,
   ) ?? [];
 
   const newAction = {
@@ -60,7 +60,12 @@ function* updateRecentEntitySaga(action: ReduxAction<RecentActionEntity>) {
     });
   }
 
-  yield call(setRecentActionEntities, updatedRecentActions, applicationKey);
+  yield call(
+    setRecentActionEntities,
+    updatedRecentActions,
+    applicationKey,
+    pageId,
+  );
 }
 
 export default function* recentActionEntitiesSagas() {

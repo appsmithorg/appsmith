@@ -1,6 +1,7 @@
 import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
+import _ from "lodash";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -122,27 +123,37 @@ export const getPostWelcomeTourState = async () => {
 };
 
 export const fetchRecentActionEntities = async (
-  recentEntitiesKey: string,
+  applicationKey: string,
+  pageId: string,
 ): Promise<any[] | undefined> => {
   try {
     const recentEntities = (await store.getItem(
       STORAGE_KEYS.RECENT_ACTION_ENTITIES,
-    )) as Record<string, any[]>;
-    return (recentEntities && recentEntities[recentEntitiesKey]) ?? [];
+    )) as Record<string, Record<string, any[]>>;
+    return (
+      (recentEntities &&
+        recentEntities[applicationKey] &&
+        recentEntities[applicationKey][pageId]) ??
+      []
+    );
   } catch (error) {
     log.error("An error occurred while fetching recent action entities");
     log.error(error);
   }
 };
 
-export const setRecentActionEntities = async (entities: any, appId: string) => {
+export const setRecentActionEntities = async (
+  entities: any[],
+  applicationKey: string,
+  pageId: string,
+) => {
   try {
     const recentEntities =
       ((await store.getItem(STORAGE_KEYS.RECENT_ACTION_ENTITIES)) as Record<
         string,
-        any
+        Record<string, any[]>
       >) || {};
-    recentEntities[appId] = entities;
+    _.set(recentEntities, [applicationKey, pageId], entities);
     await store.setItem(STORAGE_KEYS.RECENT_ACTION_ENTITIES, recentEntities);
   } catch (error) {
     log.error("An error occurred while saving recent action entities");
