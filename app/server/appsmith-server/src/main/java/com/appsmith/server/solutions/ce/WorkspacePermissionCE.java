@@ -7,6 +7,5 @@ public interface WorkspacePermissionCE {
     AclPermission getReadPermission();
     AclPermission getDeletePermission();
     AclPermission getApplicationCreatePermission();
-    AclPermission getApplicationEditPermission();
-    AclPermission getDatasourceEditPermission();
+    AclPermission getDatasourceCreatePermission();
 }
