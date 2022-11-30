@@ -6,6 +6,8 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -32,10 +34,13 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                                   ResponseUtils responseUtils,
                                   PermissionGroupService permissionGroupService,
                                   TenantService tenantService,
-                                  UserRepository userRepository) {
+                                  UserRepository userRepository,
+                                  DatasourcePermission datasourcePermission,
+                                  ApplicationPermission applicationPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, policyUtils,
-                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService, userRepository);
+                configService, commentThreadRepository, sessionUserService, responseUtils, permissionGroupService, tenantService, userRepository,
+                datasourcePermission, applicationPermission);
 
     }
 }

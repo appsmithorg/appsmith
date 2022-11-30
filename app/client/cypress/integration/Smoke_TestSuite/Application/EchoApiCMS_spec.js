@@ -11,7 +11,7 @@ describe("Content Management System App", function() {
     cy.startRoutesForDatasource();
   });
 
-  it.only("1.Create Get echo Api call", function() {
+  it("1.Create Get echo Api call", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("get_data");
     // creating get request using echo
