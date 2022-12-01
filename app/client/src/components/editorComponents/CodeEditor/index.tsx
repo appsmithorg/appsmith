@@ -587,6 +587,8 @@ class CodeEditor extends Component<Props, State> {
   }
 
   handleClick = (cm: CodeMirror.Editor, event: MouseEvent) => {
+    const entityInfo = this.getEntityInformation();
+
     // Event targets are html elements that have node methods
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -608,6 +610,11 @@ class CodeEditor extends Component<Props, State> {
         if (navigationData.type === ENTITY_TYPE.WIDGET) {
           this.props.selectWidget(navigationData.id);
         }
+
+        AnalyticsUtil.logEvent("Cmd+Click Navigation", {
+          toType: navigationData.type,
+          fromType: entityInfo.entityType,
+        });
       }
     }
   };
