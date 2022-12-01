@@ -106,25 +106,24 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     };
     try {
         const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
-        const __ast = getAST(sanitizedScript, {
+        ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             onComment: currentValueCommentArray,
         });
-        ast = klona(__ast);
 
         const sanitizedChangeValue = sanitizeScript(changeValue, evaluationVersion);
-        const __changeValueAst = getAST(sanitizedChangeValue, {
+        changeValueAst = getAST(sanitizedChangeValue, {
             locations: true,
             ranges: true,
             onComment: changedValueCommentArray,
         });
-        changeValueAst = klona(__changeValueAst);
     } catch (error) {
         return changedValue;
     }
-    const changeValueAstWithComments = getAstWithCommentsAttached(changeValueAst, changedValueCommentArray);
-    const currentValueAstWithComments = getAstWithCommentsAttached(ast, currentValueCommentArray);
+    const changeValueAstWithComments = klona(getAstWithCommentsAttached(changeValueAst, changedValueCommentArray));
+    const currentValueAstWithComments = klona(getAstWithCommentsAttached(ast, currentValueCommentArray));
+
 
     simple(changeValueAstWithComments, {
         ArrowFunctionExpression(node) {
@@ -302,16 +301,15 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        const __ast = getAST(wrappedCode, {
+        ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
             onComment: commentArray,
         });
-        ast = klona(__ast);
     } catch (error) {
         return requiredArgument;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = klona(getAstWithCommentsAttached(ast, commentArray));
 
     simple(astWithComments, {
         CallExpression(node) {
