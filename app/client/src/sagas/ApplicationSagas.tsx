@@ -242,6 +242,7 @@ export function* fetchAppAndPagesSaga(
             isHidden: !!page.isHidden,
             slug: page.slug,
             customSlug: page.customSlug,
+            userPermissions: page.userPermissions,
           })),
           applicationId: response.data.application?.id,
         },
