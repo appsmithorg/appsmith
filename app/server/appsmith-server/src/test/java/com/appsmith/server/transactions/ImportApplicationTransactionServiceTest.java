@@ -40,6 +40,8 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// All the test case are for failure or exception. Test cases for valid json file is already present in ImportExportApplicationServiceTest class
+
 @SpringBootTest
 @DirtiesContext
 public class ImportApplicationTransactionServiceTest {
@@ -83,10 +85,6 @@ public class ImportApplicationTransactionServiceTest {
         pageCount = mongoTemplate.count(new Query(), NewPage.class);
         actionCount = mongoTemplate.count(new Query(), NewAction.class);
         actionCollectionCount = mongoTemplate.count(new Query(), ActionCollection.class);
-        // Check mongo seed data count
-        assertThat(applicationCount).isNotEqualTo(0);
-        assertThat(pageCount).isNotEqualTo(0);
-        assertThat(actionCount).isNotEqualTo(0);
     }
 
 
