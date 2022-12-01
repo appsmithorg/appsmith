@@ -282,4 +282,18 @@ export class PropertyPane {
         if (query) cy.get(el).type(query, { force: true });
       });
   }
+
+  public toggleSection(section: string) {
+    cy.get(`.t--property-pane-section-collapse-${section}`).click({
+      force: true,
+    });
+  }
+
+  public assertSearchInputValue(value: string) {
+    this.agHelper.AssertText(
+      this.locator._propertyPaneSearchInput,
+      "val",
+      value,
+    );
+  }
 }
