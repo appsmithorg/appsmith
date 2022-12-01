@@ -842,18 +842,25 @@ function ApplicationsSection(props: any) {
                             }
                             text="Settings"
                           />
-                          {enableImportExport && (
-                            <MenuItem
-                              cypressSelector="t--workspace-import-app"
-                              icon="download"
-                              onSelect={() =>
-                                setSelectedWorkspaceIdForImportApplication(
-                                  workspace.id,
-                                )
-                              }
-                              text="Import"
-                            />
-                          )}
+                        </>
+                      )}
+                      {hasCreateNewApplicationPermission && (
+                        <MenuItem
+                          cypressSelector="t--workspace-import-app"
+                          icon="download"
+                          onSelect={() =>
+                            setSelectedWorkspaceIdForImportApplication(
+                              workspace.id,
+                            )
+                          }
+                          text="Import"
+                        />
+                      )}
+                      {isPermitted(
+                        workspace.userPermissions,
+                        PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+                      ) && (
+                        <>
                           <MenuItem
                             icon="share-line"
                             onSelect={() =>
@@ -873,25 +880,28 @@ function ApplicationsSection(props: any) {
                             }
                             text="Members"
                           />
+                          <MenuItem
+                            icon="logout"
+                            onSelect={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              !warnLeavingWorkspace
+                                ? setWarnLeavingWorkspace(true)
+                                : leaveWS(workspace.id);
+                            }}
+                            text={
+                              !warnLeavingWorkspace
+                                ? "Leave Workspace"
+                                : "Are you sure?"
+                            }
+                            type={!warnLeavingWorkspace ? undefined : "warning"}
+                          />
                         </>
                       )}
-                      <MenuItem
-                        icon="logout"
-                        onSelect={(e: React.MouseEvent) => {
-                          e.stopPropagation();
-                          !warnLeavingWorkspace
-                            ? setWarnLeavingWorkspace(true)
-                            : leaveWS(workspace.id);
-                        }}
-                        text={
-                          !warnLeavingWorkspace
-                            ? "Leave Workspace"
-                            : "Are you sure?"
-                        }
-                        type={!warnLeavingWorkspace ? undefined : "warning"}
-                      />
                       {applications.length === 0 &&
-                        hasManageWorkspacePermissions && (
+                        isPermitted(
+                          workspace.userPermissions,
+                          PERMISSION_TYPE.DELETE_WORKSPACE,
+                        ) && (
                           <MenuItem
                             icon="trash"
                             onSelect={(e: React.MouseEvent) => {
