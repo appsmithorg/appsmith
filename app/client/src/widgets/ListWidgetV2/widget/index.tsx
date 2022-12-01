@@ -220,7 +220,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     if (this.props.infiniteScroll && prevProps?.infiniteScroll) {
       this.metaWidgetGenerator.recalculateVirtualList(() => {
         return (
-          this.props.gridGap !== prevProps.gridGap ||
+          this.props.rowGap !== prevProps.rowGap ||
           // eslint-disable-next-line
           this.props.flattenedChildCanvasWidgets !==
             prevProps.flattenedChildCanvasWidgets ||
@@ -253,7 +253,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
       data: listData,
-      gridGap: this.getGridGap(),
+      rowGap: this.getRowGap(),
       infiniteScroll: this.props.infiniteScroll ?? false,
       levelData: this.props.levelData,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
@@ -380,16 +380,16 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   getContainerRowHeight = () => {
     const { listData, parentRowSpace } = this.props;
     const templateBottomRow = this.getTemplateBottomRow();
-    const gridGap = this.getGridGap();
+    const rowGap = this.getRowGap();
 
     const itemsCount = (listData || []).length;
 
     const templateHeight = templateBottomRow * parentRowSpace;
 
-    const averageGridGap = itemsCount
-      ? gridGap * ((itemsCount - 1) / itemsCount)
+    const averageRowGap = itemsCount
+      ? rowGap * ((itemsCount - 1) / itemsCount)
       : 0;
-    return templateHeight + averageGridGap;
+    return templateHeight + averageRowGap;
   };
 
   getPageSize = () => {
@@ -659,9 +659,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
   };
 
-  getGridGap = () =>
-    this.props.gridGap && this.props.gridGap >= MINIMUM_ROW_GAP
-      ? this.props.gridGap
+  getRowGap = () =>
+    this.props.rowGap && this.props.rowGap >= MINIMUM_ROW_GAP
+      ? this.props.rowGap
       : 0;
 
   shouldPaginate = () => {
@@ -876,7 +876,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   boxShadow?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
-  gridGap?: number;
+  rowGap?: number;
   infiniteScroll?: boolean;
   level?: number;
   levelData?: LevelData;
