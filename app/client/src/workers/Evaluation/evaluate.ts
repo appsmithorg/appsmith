@@ -9,7 +9,6 @@ import {
 import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
 import { addDataTreeToContext } from "./Actions";
-import { set } from "lodash";
 import { completePromise } from "workers/Evaluation/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
@@ -184,12 +183,15 @@ export const assignJSFunctionsToContext = (
     for (const fnName of Object.keys(resolvedObject)) {
       const fn = resolvedObject[fnName];
       if (typeof fn !== "function") continue;
-      set(GLOBAL_DATA, `${jsObjectName}.${fnName}`, fn);
       // Investigate promisify of JSObject function confirmation
       // Task: https://github.com/appsmithorg/appsmith/issues/13289
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-      const data = GLOBAL_DATA[jsObjectName][fnName]?.data;
-      data && set(GLOBAL_DATA, `${jsObjectName}.${fnName}.data`, data);
+      const jsObject = GLOBAL_DATA[jsObjectName];
+      const data = jsObject[fnName]?.data;
+      jsObject[fnName] = fn;
+      if (!!data) {
+        jsObject[fnName]["data"] = data;
+      }
     }
   }
 };
