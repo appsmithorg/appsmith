@@ -190,7 +190,9 @@ const IconWrapper = styled.span`
 
 export type EntityProps = {
   entityId: string;
+  showAddButton?: boolean;
   className?: string;
+  canEditEntityName?: boolean;
   name: string;
   children?: ReactNode;
   highlight?: boolean;
@@ -225,6 +227,7 @@ export const Entity = forwardRef(
       getEntityCollapsibleState(state, props.name),
     );
     const isDefaultExpanded = useMemo(() => !!props.isDefaultExpanded, []);
+    const { canEditEntityName = false, showAddButton = false } = props;
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
     const dispatch = useDispatch();
@@ -275,6 +278,7 @@ export const Entity = forwardRef(
     }, [dispatch]);
 
     const enterEditMode = useCallback(() => {
+      if (!canEditEntityName) return;
       if (guidedTourEnabled) {
         dispatch(toggleShowDeviationDialog(true));
         return;
@@ -369,7 +373,7 @@ export const Entity = forwardRef(
                 {props.rightIcon}
               </IconWrapper>
             )}
-            {addButton}
+            {showAddButton && addButton}
             {props.contextMenu && (
               <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
             )}

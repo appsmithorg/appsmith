@@ -4,7 +4,6 @@ const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
-const appPage = require("../../../../locators/PgAdminlocators.json");
 
 describe("GlobalSearch", function() {
   before(() => {

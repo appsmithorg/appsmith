@@ -293,6 +293,9 @@ const PropertyControl = memo((props: Props) => {
           id: widgetProperties.widgetId,
           // TODO: Check whether these properties have
           // dependent properties
+          // We should send the path that the user sends
+          // instead of sending the path that was updated
+          // as a side effect
           propertyPath: propertiesToUpdate[0].propertyPath,
         },
         state: allUpdates,

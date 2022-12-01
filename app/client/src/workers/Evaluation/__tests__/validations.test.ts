@@ -1348,7 +1348,7 @@ describe("Validate Validators", () => {
       ["a", "b", "x", "y"],
     ];
     const config = {
-      type: ValidationTypes.TABLE_PROPERTY,
+      type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
       params: {
         type: ValidationTypes.TEXT,
         params: {
