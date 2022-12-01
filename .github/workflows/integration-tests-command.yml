@@ -573,15 +573,9 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/server
         env:
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-          APPSMITH_ENCRYPTION_PASSWORD: "password"
-          APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
-          APPSMITH_CLOUD_SERVICES_BASE_URL: https://release-cs.appsmith.com
-          APPSMITH_CLOUD_SERVICES_USERNAME: ""
-          APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+          APPSMITH_ENVFILE_PATH: "${{ github.workspace }}/app/server/envs/cypress.env"
           APPSMITH_AUDITLOG_ENABLED: true
         run: |
           ls -l
@@ -616,7 +610,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: ./app/rts
         run: |
-          cp .env.example .env        
+          cp app/server/envs/cypress.env .env     
           ./start-server.sh &
 
       - name: Setting up the cypress tests
