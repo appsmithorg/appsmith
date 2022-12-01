@@ -1010,13 +1010,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
   /**
    *
-   * TABLE_PROPERTY can be used in scenarios where we wanted to validate
+   * ARRAY_OF_TYPE_OR_TYPE can be used in scenarios where we wanted to validate
    * using ValidationTypes.ARRAY or ValidationTypes.* at the same time.
-   * This is needed in case of properties inside Table widget where we use COMPUTE_VALUE
-   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
    *
+   * This is needed in case of properties inside
+   * 1. Table widget where we use COMPUTE_VALUE
+   * 2. Menu button widget where we use MENU_BUTTON_DYNAMIC_ITEMS
+   *
+   * For more info: https://github.com/appsmithorg/appsmith/pull/9396
    */
-  [ValidationTypes.TABLE_PROPERTY]: (
+  [ValidationTypes.ARRAY_OF_TYPE_OR_TYPE]: (
     config: ValidationConfig,
     value: unknown,
     props: Record<string, unknown>,

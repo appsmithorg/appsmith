@@ -14,6 +14,10 @@ import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import {
+  hasDeleteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -56,8 +60,16 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     });
   }, [url, location.pathname, action.name]);
 
+  const actionPermissions = action.userPermissions || [];
+
+  const canDeleteAction = hasDeleteActionPermission(actionPermissions);
+
+  const canManageAction = hasManageActionPermission(actionPermissions);
+
   const contextMenu = (
     <ActionEntityContextMenu
+      canDeleteAction={canDeleteAction}
+      canManageAction={canManageAction}
       className={EntityClassNames.CONTEXT_MENU}
       id={action.id}
       name={action.name}
@@ -68,6 +80,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
     <Entity
       action={switchToAction}
       active={props.isActive}
+      canEditEntityName={canManageAction}
       className="action"
       contextMenu={contextMenu}
       entityId={action.id}

@@ -1,5 +1,7 @@
 const dsl = require("../../../../../fixtures/menuButtonDsl.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const { modifierKey } = require("../../../../../support/Constants");
 
 describe("Menu Button Widget Functionality", () => {
   before(() => {
@@ -76,7 +78,7 @@ describe("Menu Button Widget Functionality", () => {
       .contains("Third Menu Item");
 
     // Undo
-    cy.get("body").type("{ctrl+z}");
+    cy.get("body").type(`{${modifierKey}}+z`);
     // Check first menu item
     cy.get(".bp3-menu-item")
       .eq(0)
@@ -101,5 +103,116 @@ describe("Menu Button Widget Functionality", () => {
     cy.get(".t--property-pane-title").contains("Second Menu Item");
     // Navigate Back
     cy.get(".t--property-pane-back-btn").click();
+  });
+
+  it("3. MenuButton widget functionality to add dynamic menu items", function() {
+    cy.openPropertyPane("menubuttonwidget");
+    cy.moveToContentTab();
+
+    // Select menu items source as Dynamic
+    cy.get(`${commonlocators.menuButtonMenuItemsSource} .t--button-tab-DYNAMIC`)
+      .last()
+      .click({
+        force: true,
+      });
+
+    cy.wait(200);
+
+    // Add sample source data
+    cy.testJsontext(
+      "sourcedata",
+      JSON.stringify(this.data.MenuButtonSourceData),
+    );
+
+    // Open configure array item panel
+    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+      force: true,
+    });
+
+    // Update label binding
+    cy.testJsontext("label", `{{currentItem.first_name}}`);
+    cy.wait(1000);
+
+    cy.closePropertyPane();
+
+    // Check if a total of 3 menu items have been added
+    cy.get(`${formWidgetsPage.menuButtonWidget} button`).click({
+      force: true,
+    });
+    cy.wait(500);
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .contains("Michael");
+    cy.get(".bp3-menu-item")
+      .eq(1)
+      .contains("Lindsay");
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .contains("Brock");
+
+    cy.closePropertyPane();
+  });
+
+  it("4. Disable one dynamic item using {{currentItem}} binding", function() {
+    cy.openPropertyPane("menubuttonwidget");
+    cy.moveToContentTab();
+
+    // Open configure array item panel
+    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+      force: true,
+    });
+
+    // Update disabled JS binding
+    cy.get(commonlocators.Disablejs)
+      .find(".t--js-toggle")
+      .first()
+      .click({ force: true });
+    cy.testJsontext("disabled", `{{currentItem.first_name === "Lindsay"}}`);
+    cy.wait(1000);
+
+    // Check if the 2nd item is disabled
+    cy.get(`${formWidgetsPage.menuButtonWidget} button`).click({
+      force: true,
+    });
+    cy.wait(500);
+    cy.get(".bp3-menu-item")
+      .eq(1)
+      .should("have.class", "bp3-disabled");
+
+    cy.closePropertyPane();
+  });
+
+  it("5. Apply background color to dynamic items using {{currentItem}} binding", function() {
+    cy.openPropertyPane("menubuttonwidget");
+    cy.moveToContentTab();
+
+    // Open configure array item panel
+    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+      force: true,
+    });
+    cy.moveToStyleTab();
+
+    // Update disabled JS binding
+    cy.get(".t--property-control-backgroundcolor .t--js-toggle").click();
+    cy.updateCodeInput(
+      ".t--property-control-backgroundcolor",
+      `{{currentItem.first_name === "Michael" ? "rgb(255, 165, 0)" : "rgb(0, 128, 0)"}}`,
+    );
+    cy.wait(1000);
+
+    cy.get(`${formWidgetsPage.menuButtonWidget} button`).click({
+      force: true,
+    });
+    cy.wait(500);
+
+    // Check if the 1st item has orange background color
+    cy.get(".bp3-menu-item")
+      .eq(0)
+      .should("have.css", "background-color", "rgb(255, 165, 0)");
+
+    // Check if the 3rd item has green background color
+    cy.get(".bp3-menu-item")
+      .eq(2)
+      .should("have.css", "background-color", "rgb(0, 128, 0)");
   });
 });
