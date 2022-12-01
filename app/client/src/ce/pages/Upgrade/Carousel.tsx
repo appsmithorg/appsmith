@@ -55,10 +55,6 @@ const CarouselContainer = styled.div`
              */
             margin-top: -2px;
           }
-
-          & .trigger-details-container {
-            width: 290px;
-          }
         }
       }
     }
