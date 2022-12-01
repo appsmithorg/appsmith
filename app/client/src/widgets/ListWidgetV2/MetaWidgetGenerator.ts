@@ -41,7 +41,7 @@ export type GeneratorOptions = {
   currTemplateWidgets: TemplateWidgets;
   prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
-  rowGap: number;
+  itemGap: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   levelData?: LevelData;
   pageNo?: number;
@@ -159,7 +159,7 @@ class MetaWidgetGenerator {
   private currViewMetaWidgetIds: string[];
   private data: GeneratorOptions["data"];
   private getWidgetCache: ConstructorProps["getWidgetCache"];
-  private rowGap: GeneratorOptions["rowGap"];
+  private itemGap: GeneratorOptions["itemGap"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
   private level: ConstructorProps["level"];
@@ -194,7 +194,7 @@ class MetaWidgetGenerator {
     this.currViewMetaWidgetIds = [];
     this.data = [];
     this.getWidgetCache = props.getWidgetCache;
-    this.rowGap = 0;
+    this.itemGap = 0;
     this.infiniteScroll = props.infiniteScroll;
     this.isListCloned = props.isListCloned;
     this.level = props.level;
@@ -228,7 +228,7 @@ class MetaWidgetGenerator {
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
-    this.rowGap = options.rowGap;
+    this.itemGap = options.itemGap;
     this.infiniteScroll = options.infiniteScroll;
     this.levelData = options.levelData;
     this.pageNo = options.pageNo;
@@ -864,7 +864,7 @@ class MetaWidgetGenerator {
     viewIndex: number,
   ) => {
     const mainContainer = this.getContainerWidget();
-    const gap = this.rowGap;
+    const gap = this.itemGap;
     const virtualItems = this.virtualizer?.getVirtualItems() || [];
     const virtualItem = virtualItems[viewIndex];
     const index = virtualItem ? virtualItem.index : viewIndex;
@@ -879,9 +879,9 @@ class MetaWidgetGenerator {
     }
 
     metaWidget.topRow =
-      start + index * (this.rowGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+      start + index * (this.itemGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
     metaWidget.bottomRow =
-      end + index * (this.rowGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+      end + index * (this.itemGap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
   };
 
   /**
@@ -924,7 +924,7 @@ class MetaWidgetGenerator {
 
   private updateModificationsQueue = (nextOptions: GeneratorOptions) => {
     if (
-      this.rowGap !== nextOptions.rowGap ||
+      this.itemGap !== nextOptions.itemGap ||
       this.infiniteScroll != nextOptions.infiniteScroll
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
@@ -1280,9 +1280,9 @@ class MetaWidgetGenerator {
         count: this.data?.length || 0,
         estimateSize: () => {
           const listCount = this.data?.length || 0;
-          const rowGap =
-            listCount && ((listCount - 1) * this.rowGap) / listCount;
-          return this.templateBottomRow * 10 + rowGap;
+          const itemGap =
+            listCount && ((listCount - 1) * this.itemGap) / listCount;
+          return this.templateBottomRow * 10 + itemGap;
         },
         getScrollElement: () => scrollElement,
         observeElementOffset,

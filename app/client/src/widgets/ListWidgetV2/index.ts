@@ -63,7 +63,7 @@ export const CONFIG = {
         },
       },
     },
-    rowGap: 0,
+    itemGap: 0,
     templateBottomRow: 16,
     listData: DEFAULT_LIST_DATA,
     pageSize: DEFAULT_LIST_DATA.length,
