@@ -149,12 +149,15 @@ describe("MaintainContext&Focus", function() {
 
   it("7. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith");
+    dataSources.EditDatasource();
+    dataSources.SaveDSFromDialog(false);
     ee.SelectEntityByName("Github");
     dataSources.AssertViewMode();
     ee.SelectEntityByName("Appsmith");
     dataSources.AssertEditMode();
   });
-  it("Datasource collapse state has to be maintained", () => {
+
+  it("8. Datasource collapse state has to be maintained", () => {
     // Create datasource 1
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
