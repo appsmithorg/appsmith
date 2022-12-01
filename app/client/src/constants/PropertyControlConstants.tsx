@@ -127,8 +127,8 @@ type ValidationConfigParams = {
   expected?: CodeEditorExpected; // FUNCTION type expected type and example
   strict?: boolean; //for strict string validation of TEXT type
   ignoreCase?: boolean; //to ignore the case of key
-  type?: ValidationTypes; // Used for ValidationType.TABLE_PROPERTY to define sub type
-  params?: ValidationConfigParams; // Used for ValidationType.TABLE_PROPERTY to define sub type params
+  type?: ValidationTypes; // Used for ValidationType.ARRAY_OF_TYPE_OR_TYPE to define sub type
+  params?: ValidationConfigParams; // Used for ValidationType.ARRAY_OF_TYPE_OR_TYPE to define sub type params
   passThroughOnZero?: boolean; // Used for ValidationType.NUMBER to allow 0 to be passed through. Deafults value is true
   limitLineBreaks?: boolean; // Used for ValidationType.TEXT to limit line breaks in a large json object.
 };
