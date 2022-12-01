@@ -81,7 +81,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ $backend == release ]]; then
+if [[ ${backend-} == release ]]; then
   # Special shortcut for release environment.
   backend=https://release.app.appsmith.com
 fi
