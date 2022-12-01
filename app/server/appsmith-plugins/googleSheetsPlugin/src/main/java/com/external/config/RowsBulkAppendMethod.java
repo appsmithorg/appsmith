@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -65,8 +66,12 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
         try {
             bodyNode = this.objectMapper.readTree(methodConfig.getRowObjects());
         } catch (IllegalArgumentException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Row array object cannot be empty.");
+            if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                        "Row array object cannot be empty.");
+            } else {
+                throw e;
+            }
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
