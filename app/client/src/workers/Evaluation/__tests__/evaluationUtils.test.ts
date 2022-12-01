@@ -30,8 +30,6 @@ import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
-import { waitFor } from "@testing-library/react";
-import { wait } from "@testing-library/user-event/dist/utils";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
