@@ -117,6 +117,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartData = () => {
     const chartData: AllChartData = this.props.chartData;
     const dataLength = Object.keys(chartData).length;
+    const chartType = this.props.chartType;
 
     // if datalength is zero, just pass a empty datum
     if (dataLength === 0) {
@@ -149,7 +150,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return {
         label: item.x,
         value: item.y,
-        color: color ?? this.props.primaryColor,
+        color:
+          chartType === "PIE_CHART"
+            ? ""
+            : color
+            ? color
+            : this.props.primaryColor,
       };
     });
   };
@@ -232,7 +238,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       >> = this.getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
-        color: item.color ?? index === 0 ? this.props.primaryColor : "",
+        color: item.color
+          ? item.color
+          : index === 0
+          ? this.props.primaryColor
+          : "",
         data: seriesChartData,
       };
     });

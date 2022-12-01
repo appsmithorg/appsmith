@@ -18,8 +18,6 @@ import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 import ColorPickerComponent from "./ColorPickerComponentV2";
-import { useSelector } from "react-redux";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>
@@ -95,7 +93,7 @@ type RenderComponentProps = {
     color: string;
   };
   theme: EditorTheme;
-  chartData?: AllChartData;
+  isPieChart?: boolean;
 };
 
 const expectedSeriesName: CodeEditorExpected = {
@@ -116,17 +114,15 @@ const expectedSeriesData: CodeEditorExpected = {
 
 function DataControlComponent(props: RenderComponentProps) {
   const {
-    chartData,
     dataTreePath,
     deleteOption,
     evaluated,
     index,
+    isPieChart,
     item,
     length,
     updateOption,
   } = props;
-
-  const selectedTheme = useSelector(getSelectedAppTheme);
 
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
@@ -166,28 +162,27 @@ function DataControlComponent(props: RenderComponentProps) {
           theme={props.theme}
         />
       </StyledOptionControlWrapper>
-      <StyledLabel>Series Color</StyledLabel>
-      <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
-        <ColorPickerComponent
-          changeColor={(
-            event: React.ChangeEvent<HTMLTextAreaElement> | string,
-          ) => {
-            let value: string = event as string;
-            if (typeof event !== "string") {
-              value = event.target.value;
-            }
-            updateOption(index, "color", value);
-          }}
-          color={
-            item.color || ""
-            // item.color ?? (chartData && Object.keys(chartData)[0] === index)
-            //   ? selectedTheme.properties.colors.primaryColor
-            //   : ""
-          }
-          showApplicationColors
-          showThemeColors
-        />
-      </StyledOptionControlWrapper>
+      {!isPieChart && (
+        <>
+          <StyledLabel>Series Color</StyledLabel>
+          <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
+            <ColorPickerComponent
+              changeColor={(
+                event: React.ChangeEvent<HTMLTextAreaElement> | string,
+              ) => {
+                let value: string = event as string;
+                if (typeof event !== "string") {
+                  value = event.target.value;
+                }
+                updateOption(index, "color", value);
+              }}
+              color={item.color || ""}
+              placeholderText="enter color hexcode"
+              showApplicationColors
+            />
+          </StyledOptionControlWrapper>
+        </>
+      )}
       <StyledLabel>Series Data</StyledLabel>
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
@@ -245,6 +240,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
           deleteOption={this.deleteOption}
           evaluated={get(evaluatedValue, `${firstKey}`)}
           index={firstKey}
+          isPieChart
           item={data}
           length={1}
           theme={this.props.theme}
@@ -261,7 +257,6 @@ class ChartDataControl extends BaseControl<ControlProps> {
 
             return (
               <DataControlComponent
-                chartData={chartData}
                 dataTreePath={`${this.props.dataTreePath}.${key}`}
                 deleteOption={this.deleteOption}
                 evaluated={get(evaluatedValue, `${key}`)}
