@@ -1314,6 +1314,16 @@ export const customJSLibraryMessages = {
   AUTOCOMPLETE_FAILED: (name: string) =>
     `Code completion for ${name} will not work.`,
   CLIENT_LOAD_FAILED: (url: string) => `Failed to load the script at ${url}.`,
+  LIB_OVERRIDE_ERROR: (
+    name: string,
+  ) => `The library ${name} is already installed. 
+  If you are trying to install a different version, uninstall the library first.`,
+  DEFS_FAILED_ERROR: (name: string) =>
+    `Failed to generate autocomplete definitions for ${name}.`,
+  IMPORT_URL_ERROR: (url: string) =>
+    `The script at ${url} cannot be installed.`,
+  NAME_COLLISION_ERROR: (accessors: string) =>
+    `Name collision detected: ${accessors}`,
 };
 
 export const USAGE_AND_BILLING = {

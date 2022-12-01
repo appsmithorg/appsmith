@@ -1,3 +1,4 @@
+import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
 import difference from "lodash/difference";
 import { JSLibraries, libraryReservedNames } from "../../common/JSLibrary";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
@@ -11,39 +12,36 @@ enum LibraryInstallError {
 }
 
 class NameCollisionError extends Error {
-  code: number = LibraryInstallError.NameCollisionError;
+  code = LibraryInstallError.NameCollisionError;
   constructor(accessors: string) {
-    const message = `Name collision detected: ${accessors}`;
-    super(message);
+    super(
+      createMessage(customJSLibraryMessages.NAME_COLLISION_ERROR, accessors),
+    );
     this.name = "NameCollisionError";
   }
 }
 
 class ImportError extends Error {
-  code: number = LibraryInstallError.ImportError;
+  code = LibraryInstallError.ImportError;
   constructor(url: string) {
-    const message = `The script at ${url} cannot be installed.`;
-    super(message);
+    super(createMessage(customJSLibraryMessages.IMPORT_URL_ERROR, url));
     this.name = "ImportError";
   }
 }
 
 class TernDefinitionError extends Error {
-  code: number = LibraryInstallError.TernDefinitionError;
+  code = LibraryInstallError.TernDefinitionError;
   constructor(name: string) {
-    const message = `Failed to generate autocomplete definitions for ${name}.`;
-    super(message);
+    super(createMessage(customJSLibraryMessages.DEFS_FAILED_ERROR, name));
     this.name = "TernDefinitionError";
   }
 }
 
 class LibraryOverrideError extends Error {
-  code: number = LibraryInstallError.LibraryOverrideError;
+  code = LibraryInstallError.LibraryOverrideError;
   data: any;
   constructor(name: string, data: any) {
-    const message = `The library ${name} is already installed. 
-    If you are trying to install a different version, uninstall the library first.`;
-    super(message);
+    super(createMessage(customJSLibraryMessages.LIB_OVERRIDE_ERROR, name));
     this.name = "LibraryOverrideError";
     this.data = data;
   }
