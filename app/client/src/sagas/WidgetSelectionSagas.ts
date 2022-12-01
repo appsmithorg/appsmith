@@ -313,15 +313,9 @@ function* selectMultipleWidgetsSaga(
     });
     if (doesNotMatchParent) {
       return;
-    } else if (
-      widgetIds.length === 1 &&
-      allWidgets[widgetIds[0]]?.type === "MODAL_WIDGET"
-    ) {
-      yield put(showModal(widgetIds[0]));
+    } else if (widgetIds.length === 1) {
+      yield put(selectWidgetInitAction(widgetIds[0]));
     } else {
-      if (widgetIds.length > 0 && allWidgets[widgetIds[0]]?.parentModalId) {
-        yield put(showModal(allWidgets[widgetIds[0]]?.parentModalId, false));
-      }
       yield put(selectWidgetAction());
       yield put(selectMultipleWidgetsAction(widgetIds));
     }
@@ -402,7 +396,7 @@ function* deselectModalWidgetSaga(
     yield put(selectMultipleWidgetsAction([]));
 }
 
-function* selectModalWidgetSaga(
+function* openOrCloseModalSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
   if (!action.payload.widgetId) return;
@@ -486,7 +480,7 @@ export function* widgetSelectionSagas() {
     takeLatest(
       ReduxActionTypes.SELECT_WIDGET_INIT,
       canPerformSelectionSaga,
-      selectModalWidgetSaga,
+      openOrCloseModalSaga,
     ),
     takeLatest(
       ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
