@@ -1,6 +1,10 @@
 import React, { useLayoutEffect } from "react";
 import { AppState } from "@appsmith/reducers";
-import { Link, withRouter, RouteComponentProps } from "react-router-dom";
+import {
+  Link as RouterLink,
+  withRouter,
+  RouteComponentProps,
+} from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
@@ -98,7 +102,9 @@ export function ResetPassword(props: ResetPasswordProps) {
     );
     messageActions = [
       {
-        linkElement: <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>,
+        linkElement: (
+          <RouterLink to={FORGOT_PASSWORD_URL}>{messageActionText}</RouterLink>
+        ),
         text: messageActionText,
         intent: "primary",
       },
@@ -118,7 +124,9 @@ export function ResetPassword(props: ResetPasswordProps) {
     message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
-        linkElement: <Link to={AUTH_LOGIN_URL}>{messageActionText}</Link>,
+        linkElement: (
+          <RouterLink to={AUTH_LOGIN_URL}>{messageActionText}</RouterLink>
+        ),
         text: messageActionText,
         intent: "success",
       },
@@ -139,7 +147,9 @@ export function ResetPassword(props: ResetPasswordProps) {
       messageActions = [
         {
           linkElement: (
-            <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>
+            <RouterLink to={FORGOT_PASSWORD_URL}>
+              {messageActionText}
+            </RouterLink>
           ),
           text: messageActionText,
           intent: "primary",
