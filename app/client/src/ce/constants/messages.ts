@@ -28,7 +28,7 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
 export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
-  `Default text length must be less than ${max} characters`;
+  `Default text length must be less than or equal to ${max} characters`;
 export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
   `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
@@ -125,6 +125,8 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_403 = (entity: string, userEmail: string) =>
+  `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
@@ -1278,6 +1280,8 @@ export const GENERATE_PAGE_DESCRIPTION = () =>
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
+export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
+  `Unsaved changes will be lost if you exit this page, save the changes before exiting.`;
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

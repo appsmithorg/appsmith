@@ -79,6 +79,7 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
+  getPageById,
 } from "selectors/editorSelectors";
 import {
   executePageLoadActions,
@@ -120,12 +121,14 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
 import { showModal } from "actions/widgetActions";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -154,6 +157,7 @@ export function* fetchPageListSaga(
         isDefault: page.isDefault,
         isHidden: !!page.isHidden,
         slug: page.slug,
+        userPermissions: page.userPermissions,
       }));
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
@@ -228,6 +232,7 @@ export function* handleFetchedPage({
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
   const pageSlug = fetchPageResponse.data.slug;
+  const pagePermissions = fetchPageResponse.data.userPermissions;
 
   if (isValidResponse) {
     // Clear any existing caches
@@ -239,7 +244,7 @@ export function* handleFetchedPage({
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
     // set current page
-    yield put(updateCurrentPage(pageId, pageSlug));
+    yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
     // dispatch fetch page success
     yield put(fetchPageSuccess());
     // restore selected widgets while loading the page.
@@ -259,6 +264,10 @@ export function* handleFetchedPage({
       type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
       payload: extractedDSL,
     });
+
+    // Since new page has new layout, we need to generate a data structure
+    // to compute dynamic height based on the new layout.
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     if (willPageBeMigrated) {
       yield put(saveLayout());
@@ -348,6 +357,10 @@ export function* fetchPublishedPageSaga(
 
       // dispatch fetch page success
       yield put(fetchPublishedPageSuccess());
+
+      // Since new page has new layout, we need to generate a data structure
+      // to compute dynamic height based on the new layout.
+      yield put(generateAutoHeightLayoutTreeAction(true, true));
 
       /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
        */
@@ -548,6 +561,17 @@ function getLayoutSavePayload(
 
 export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
+    const currentPageId: string = yield select(getCurrentPageId);
+    const currentPage: Page = yield select(getPageById(currentPageId));
+
+    if (!hasManagePagePermission(currentPage?.userPermissions || [])) {
+      yield validateResponse({
+        status: 403,
+        resourceType: "Page",
+        resourceId: currentPage.pageId,
+      });
+    }
+
     const appMode: APP_MODE | undefined = yield select(getAppMode);
     if (appMode === APP_MODE.EDIT) {
       yield put(saveLayout(action.payload.isRetry));
@@ -584,6 +608,7 @@ export function* createPageSaga(
           layoutId: response.data.layouts[0].id,
           slug: response.data.slug,
           customSlug: response.data.customSlug,
+          userPermissions: response.data.userPermissions,
         },
       });
       // Add this to the page DSLs for entity explorer
@@ -925,6 +950,7 @@ function* fetchPageDSLSaga(pageId: string) {
       return {
         pageId: pageId,
         dsl: extractCurrentDSL(fetchPageResponse),
+        userPermissions: fetchPageResponse.data?.userPermissions,
       };
     }
   } catch (error) {
@@ -955,6 +981,10 @@ export function* populatePageDSLsSaga() {
     );
     yield put({
       type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+      payload: pageDSLs,
+    });
+    yield put({
+      type: ReduxActionTypes.UPDATE_PAGE_LIST,
       payload: pageDSLs,
     });
   } catch (error) {

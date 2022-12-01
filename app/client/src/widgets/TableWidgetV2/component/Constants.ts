@@ -8,6 +8,7 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import { ColumnTypes } from "../constants";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -17,6 +18,7 @@ export type TableSizes = {
   VERTICAL_PADDING: number;
   EDIT_ICON_TOP: number;
   ROW_VIRTUAL_OFFSET: number;
+  VERTICAL_EDITOR_PADDING: number;
 };
 
 export enum CompactModeTypes {
@@ -50,6 +52,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 10,
     ROW_VIRTUAL_OFFSET: 3,
   },
@@ -59,6 +62,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 30,
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
+    VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 5,
     ROW_VIRTUAL_OFFSET: 1,
   },
@@ -68,6 +72,7 @@ export const TABLE_SIZES: { [key: string]: TableSizes } = {
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
+    VERTICAL_EDITOR_PADDING: 16,
     EDIT_ICON_TOP: 21,
     ROW_VIRTUAL_OFFSET: 3,
   },
@@ -179,6 +184,7 @@ export interface BaseCellProperties {
   borderRadius: string;
   boxShadow: string;
   isCellVisible: boolean;
+  isCellDisabled?: boolean;
 }
 
 export interface CellLayoutProperties
@@ -214,7 +220,7 @@ export interface TableColumnMetaProps {
   isHidden: boolean;
   format?: string;
   inputFormat?: string;
-  type: string;
+  type: ColumnTypes;
 }
 
 export interface TableColumnProps {
@@ -451,6 +457,7 @@ export type BaseCellComponentProps = {
   fontStyle?: string;
   textColor?: string;
   textSize?: string;
+  isCellDisabled?: boolean;
 };
 
 export enum CheckboxState {
@@ -483,3 +490,10 @@ export const scrollbarOnHoverCSS = `
 `;
 
 export const MULTISELECT_CHECKBOX_WIDTH = 40;
+
+export enum AddNewRowActions {
+  SAVE = "SAVE",
+  DISCARD = "DISCARD",
+}
+
+export const EDITABLE_CELL_PADDING_OFFSET = 8;

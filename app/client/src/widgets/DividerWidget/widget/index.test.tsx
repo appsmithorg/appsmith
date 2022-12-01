@@ -29,6 +29,9 @@ describe("<DividerWidget />", () => {
       widgetReflow: {
         enableReflow: true,
       },
+      autoHeightUI: {
+        isAutoHeightWithLimitsChanging: false,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

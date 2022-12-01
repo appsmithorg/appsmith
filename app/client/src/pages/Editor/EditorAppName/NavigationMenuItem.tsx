@@ -4,9 +4,8 @@ import styled from "styled-components";
 import { Classes, MenuItem } from "@blueprintjs/core";
 import _, { noop } from "lodash";
 
-import { CommonComponentProps } from "design-system";
+import { getTypographyByKey, CommonComponentProps } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import { HeaderIcons } from "icons/HeaderIcons";
 
 const ShareIcon = HeaderIcons.SHARE;
@@ -43,7 +42,7 @@ const StyledMenuItem = styled((props) => {
     props.theme.colors.navigationMenu.backgroundInactive};
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
   border-radius: 0;
-  ${(props) => getTypographyByKey(props, "h5")};
+  ${getTypographyByKey("h5")};
   height: ${(props) => props.theme.navbarMenuHeight};
   line-height: ${(props) => props.theme.navbarMenuLineHeight};
   padding: 5px 10px;
