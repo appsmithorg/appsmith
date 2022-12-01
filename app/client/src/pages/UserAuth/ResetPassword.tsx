@@ -1,6 +1,6 @@
 import React, { useLayoutEffect } from "react";
 import { AppState } from "@appsmith/reducers";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
