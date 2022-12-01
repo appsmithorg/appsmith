@@ -16,6 +16,7 @@ import {
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
+  hasDeleteApplicationPermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -512,6 +513,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
+  const hasDeletePermission = hasDeleteApplicationPermission(
+    props.application?.userPermissions,
+  );
   const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&
@@ -574,7 +578,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     setMoreActionItems(updatedActionItems);
   };
   const addDeleteOption = () => {
-    if (props.delete && hasEditPermission) {
+    if (props.delete && hasDeletePermission) {
       const index = moreActionItems.findIndex(
         (el) => el.icon === "delete-blank",
       );

@@ -1,10 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
 import {
@@ -74,9 +71,8 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
 
   const workspaceList = useMemo(() => {
     const filteredUserWorkspaces = userWorkspaces.filter((item) => {
-      const permitted = isPermitted(
+      const permitted = hasCreateNewAppPermission(
         item.workspace.userPermissions ?? [],
-        PERMISSION_TYPE.CREATE_APPLICATION,
       );
       return permitted;
     });
