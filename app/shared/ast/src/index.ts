@@ -218,7 +218,6 @@ const getFunctionalParamNamesFromNode = (
 // for the the same code snippet
 export const getAST = memoize(
     (code: string, options?: AstOptions) => {
-      console.log("****** LOGGG", code);
       return parse(code, { ...options, ecmaVersion: ECMA_VERSION });
     }
 );

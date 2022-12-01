@@ -119,7 +119,7 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
             ranges: true,
             onComment: changedValueCommentArray,
         });
-        ast = klona(__changeValueAst);
+        changeValueAst = klona(__changeValueAst);
     } catch (error) {
         return changedValue;
     }
@@ -384,7 +384,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
             ranges: true,
             onComment: changeActionCommentArray,
         });
-        ast = klona(__changeActionAst);
+        changeActionAst = klona(__changeActionAst);
     } catch (error) {
         return requiredQuery;
     }
