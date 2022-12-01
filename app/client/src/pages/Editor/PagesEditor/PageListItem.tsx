@@ -31,10 +31,16 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 import {
   getCurrentApplicationId,
+  getPagePermissions,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
 import { AppState } from "@appsmith/reducers";
+import {
+  hasDeletePagePermission,
+  hasManagePagePermission,
+} from "@appsmith/utils/permissionHelpers";
+import { noop } from "utils/AppsmithUtils";
 
 export const Container = styled.div`
   display: flex;
@@ -146,6 +152,12 @@ function PageListItem(props: PageListItemProps) {
     return dispatch(updatePage(item.pageId, item.pageName, !item.isHidden));
   }, [dispatch, item]);
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canManagePages = hasManagePagePermission(pagePermissions);
+
+  const canDeletePages = hasDeletePagePermission(pagePermissions);
+
   return (
     <Container>
       <ListItem>
@@ -200,8 +212,9 @@ function PageListItem(props: PageListItemProps) {
                 <Action type="button">
                   <CopyIcon
                     color={Colors.GREY_9}
+                    disabled={!canManagePages}
                     height={16}
-                    onClick={clonePageCallback}
+                    onClick={!canManagePages ? noop : clonePageCallback}
                     width={16}
                   />
                 </Action>
@@ -218,9 +231,13 @@ function PageListItem(props: PageListItemProps) {
                         ? get(theme, "colors.propertyPane.deleteIconColor")
                         : Colors.GREY_9
                     }
-                    disabled={item.isDefault}
+                    disabled={item.isDefault || !canDeletePages}
                     height={16}
-                    onClick={deletePageCallback}
+                    onClick={
+                      item.isDefault || !canDeletePages
+                        ? noop
+                        : deletePageCallback
+                    }
                     width={16}
                   />
                 </Action>

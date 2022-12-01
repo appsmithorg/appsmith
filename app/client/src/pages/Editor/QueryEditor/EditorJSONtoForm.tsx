@@ -108,7 +108,12 @@ import {
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
+import {
+  hasDeleteActionPermission,
+  hasExecuteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
+import { executeCommandAction } from "actions/apiPaneActions";
 import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneResponsePaneHeight,
@@ -507,6 +512,15 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
+  const isChangePermitted = hasManageActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isExecutePermitted = hasExecuteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
+  const isDeletePermitted = hasDeleteActionPermission(
+    currentActionConfig?.userPermissions,
+  );
 
   // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
@@ -847,6 +861,7 @@ export function EditorJSONtoForm(props: Props) {
               <Text type={TextType.P1}>
                 {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
                 <InlineButton
+                  disabled={!isExecutePermitted}
                   isLoading={isRunning}
                   onClick={responeTabOnRunClick}
                   size={Size.medium}
@@ -930,12 +945,14 @@ export function EditorJSONtoForm(props: Props) {
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>
-            <ActionNameEditor />
+            <ActionNameEditor disabled={!isChangePermitted} />
           </NameWrapper>
           <ActionsWrapper>
             <MoreActionsMenu
               className="t--more-action-menu"
               id={currentActionConfig ? currentActionConfig.id : ""}
+              isChangePermitted={isChangePermitted}
+              isDeletePermitted={isDeletePermitted}
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
@@ -959,6 +976,7 @@ export function EditorJSONtoForm(props: Props) {
               <DropdownField
                 className={"t--switch-datasource"}
                 components={{ MenuList, Option: CustomOption, SingleValue }}
+                isDisabled={!isChangePermitted}
                 maxMenuHeight={200}
                 name="datasource.id"
                 options={DATASOURCES_OPTIONS}
@@ -969,6 +987,7 @@ export function EditorJSONtoForm(props: Props) {
             <Button
               className="t--run-query"
               data-guided-tour-iid="run-query"
+              disabled={!isExecutePermitted}
               isLoading={isRunning}
               onClick={onRunClick}
               size={Size.medium}

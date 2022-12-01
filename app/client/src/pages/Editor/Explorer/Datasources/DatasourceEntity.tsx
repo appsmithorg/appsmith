@@ -34,6 +34,7 @@ type ExplorerDatasourceEntityProps = {
   searchKeyword?: string;
   pageId: string;
   isActive: boolean;
+  canManageDatasource?: boolean;
 };
 
 const ExplorerDatasourceEntity = React.memo(
@@ -115,6 +116,7 @@ const ExplorerDatasourceEntity = React.memo(
       <Entity
         action={switchDatasource}
         active={props.isActive}
+        canEditEntityName={props.canManageDatasource}
         className="datasource"
         contextMenu={
           <DataSourceContextMenu

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { SaveButtonContainer } from "pages/Editor/DataSourceEditor/JSONtoForm";
+import {
+  ActionButton,
+  SaveButtonContainer,
+} from "pages/Editor/DataSourceEditor/JSONtoForm";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
@@ -30,7 +33,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Button, Category, Toaster, Variant } from "design-system";
+import { Category, Toaster, Variant } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -38,6 +41,11 @@ import {
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+
+import {
+  hasDeleteDatasourcePermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 
 interface Props {
   datasource: Datasource;
@@ -76,19 +84,6 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const ActionButton = styled(Button)`
-  &&& {
-    width: auto;
-    min-width: 74px;
-    margin-right: 9px;
-    min-height: 32px;
-
-    & > span {
-      max-width: 100%;
-    }
-  }
-`;
-
 const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
   &&&& {
     height: 32px;
@@ -123,6 +118,16 @@ function DatasourceAuth({
 
   const { id: datasourceId, isDeleting } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
+
+  const datasourcePermissions = datasource.userPermissions || [];
+
+  const canManageDatasource = hasManageDatasourcePermission(
+    datasourcePermissions,
+  );
+
+  const canDeleteDatasource = hasDeleteDatasourcePermission(
+    datasourcePermissions,
+  );
 
   // hooks
   const dispatch = useDispatch();
@@ -265,9 +270,9 @@ function DatasourceAuth({
         <ActionButton
           category={Category.primary}
           className="t--delete-datasource"
-          disabled={datasourceId === TEMP_DATASOURCE_ID}
-          isLoading={isDeleting}
+          disabled={!canDeleteDatasource || datasourceId === TEMP_DATASOURCE_ID}
           key={buttonType}
+          loading={isDeleting}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
@@ -289,6 +294,7 @@ function DatasourceAuth({
           key={buttonType}
           onClick={handleDatasourceTest}
           size="medium"
+          tag="button"
           text="Test"
           variant={Variant.success}
         />
@@ -297,9 +303,10 @@ function DatasourceAuth({
         <ActionButton
           category={Category.primary}
           className="t--save-datasource"
-          disabled={isInvalid || !isFormDirty}
-          isLoading={isSaving}
+          disabled={isInvalid || !isFormDirty || !canManageDatasource}
+          filled
           key={buttonType}
+          loading={isSaving}
           onClick={handleDefaultAuthDatasourceSave}
           size="medium"
           tag="button"
@@ -311,7 +318,8 @@ function DatasourceAuth({
         <StyledButton
           category={Category.primary}
           className="t--save-datasource"
-          disabled={isInvalid}
+          disabled={isInvalid || !canManageDatasource}
+          filled
           fluidWidth
           isLoading={isSaving}
           key={buttonType}
