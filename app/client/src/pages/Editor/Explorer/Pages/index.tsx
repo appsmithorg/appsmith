@@ -10,7 +10,6 @@ import {
   getCurrentApplication,
   getCurrentApplicationId,
   getCurrentPageId,
-  getPagePermissions,
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
@@ -162,11 +161,7 @@ function Pages() {
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
 
-  const pagePermissions = useSelector(getPagePermissions);
-
   const canCreatePages = hasCreatePagePermission(userAppPermissions);
-
-  const canManagePages = hasManagePagePermission(pagePermissions);
 
   const pageElements = useMemo(
     () =>
@@ -174,6 +169,8 @@ function Pages() {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
         const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
         const isCurrentPage = currentPageId === page.pageId;
+        const pagePermissions = page.userPermissions;
+        const canManagePages = hasManagePagePermission(pagePermissions);
         const contextMenu = (
           <PageContextMenu
             applicationId={applicationId as string}
@@ -216,7 +213,6 @@ function Pages() {
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
-        canEditEntityName={canManagePages}
         className="group pages"
         collapseRef={pageResizeRef}
         customAddButton={

@@ -16,7 +16,7 @@ import {
   PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR as PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
-import { hasManagePagePermission } from "ce/utils/permissionHelpers";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
 import { Colors } from "constants/Colors";
 import { Text, TextInput, TextType } from "design-system";
