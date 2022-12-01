@@ -134,9 +134,6 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         document.activeElement &&
         !document.activeElement?.closest(".t--property-control-wrapper") &&
         shouldFocusOnPropertyControl()
-        // ["input", "textarea"].indexOf(
-        //   document.activeElement?.tagName?.toLowerCase(),
-        // ) === -1
       ) {
         document
           .querySelector(".t--property-pane-search-input-wrapper")

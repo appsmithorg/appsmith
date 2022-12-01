@@ -61,6 +61,22 @@ function tokenSearch(text: string, searchQuery: string) {
   return noMatch;
 }
 
+function computeChildrenIdAndInsertSection(
+  configArray: PropertyPaneConfig[],
+  ...sectionConfig: PropertyPaneSectionConfig[]
+) {
+  configArray.push(
+    ...sectionConfig.map((section) => {
+      if (section.childrenId)
+        return {
+          ...section,
+          childrenId: section.children.map((child) => child.id).join(""),
+        };
+      return section;
+    }),
+  );
+}
+
 function search(
   sectionConfigs: PropertyPaneSectionConfig[],
   searchQuery: string,
@@ -85,9 +101,15 @@ function search(
     let isPropertyStartsWith = false;
     const sectionNameMatch = tokenSearch(sectionName, query);
     if (sectionNameMatch.startsWith) {
-      searchResult.section.startsWith.push(sectionConfig);
+      computeChildrenIdAndInsertSection(
+        searchResult.section.startsWith,
+        sectionConfig,
+      );
     } else if (sectionNameMatch.contains) {
-      searchResult.section.contains.push(sectionConfig);
+      computeChildrenIdAndInsertSection(
+        searchResult.section.contains,
+        sectionConfig,
+      );
     } else if (sectionConfig.children) {
       // search through properties
       const childResult: SearchResultType = {
@@ -144,9 +166,15 @@ function search(
       if (!isEmpty) {
         sectionConfigCopy.children = sortSearchResult(childResult);
         if (isPropertyStartsWith) {
-          searchResult.property.startsWith.push(sectionConfigCopy);
+          computeChildrenIdAndInsertSection(
+            searchResult.property.startsWith,
+            sectionConfigCopy,
+          );
         } else {
-          searchResult.property.contains.push(sectionConfigCopy);
+          computeChildrenIdAndInsertSection(
+            searchResult.property.contains,
+            sectionConfigCopy,
+          );
         }
       }
     }

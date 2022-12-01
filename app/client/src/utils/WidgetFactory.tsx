@@ -11,7 +11,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
-  manipulateOnlyFirst,
+  addSearchConfigToPanelConfig,
   PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
@@ -136,7 +136,7 @@ class WidgetFactory {
           serializablePropertyPaneConfig,
         );
 
-        const finalPropertyPaneConfig = manipulateOnlyFirst(
+        const finalPropertyPaneConfig = addSearchConfigToPanelConfig(
           propertyPaneConfigWithIds,
         );
 
@@ -161,7 +161,7 @@ class WidgetFactory {
           serializablePropertyPaneConfig,
         );
 
-        const finalPropertyPaneConfig = manipulateOnlyFirst(
+        const finalPropertyPaneConfig = addSearchConfigToPanelConfig(
           propertyPaneConfigWithIds,
         );
 

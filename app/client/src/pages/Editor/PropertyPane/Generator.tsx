@@ -38,7 +38,7 @@ const generatePropertyControl = (
         <Boxed
           key={config.id + props.id}
           show={
-            (config as PropertyPaneSectionConfig).sectionName !== "General" &&
+            sectionConfig.sectionName !== "General" &&
             props.type === "TABLE_WIDGET"
           }
           step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
@@ -49,7 +49,6 @@ const generatePropertyControl = (
             hidden={sectionConfig.hidden}
             id={config.id || sectionConfig.sectionName}
             isDefaultOpen={sectionConfig.isDefaultOpen}
-            key={config.id + props.id + props.searchQuery}
             name={sectionConfig.sectionName}
             propertyPath={sectionConfig.propertySectionPath}
             tag={sectionConfig.tag}
@@ -84,7 +83,6 @@ const generatePropertyControl = (
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const finalProps = evaluateHiddenProperty(props.config, widgetProps);
-  console.log("bla", finalProps);
   const searchResults = searchPropertyPaneConfig(
     finalProps as PropertyPaneSectionConfig[],
     props.searchQuery,

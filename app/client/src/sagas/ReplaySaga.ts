@@ -113,7 +113,6 @@ export function* openPropertyPaneSaga(replay: any) {
       getIsPropertyPaneVisible,
     );
     const selectedWidgetId: string = yield select(getCurrentWidgetId);
-    console.log("bla undooo", selectedWidgetId);
 
     //if property pane is not visible, select the widget and force open property pane
     if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {

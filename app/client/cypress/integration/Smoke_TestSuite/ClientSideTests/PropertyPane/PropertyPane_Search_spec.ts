@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-// const dsl = require("../../../../fixtures/TextTabledsl.json");
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
@@ -29,16 +28,16 @@ describe("Property Pane Search", function() {
     ee.SelectEntityByName("Table1", "Widgets");
 
     // Initially the search input will only be soft focused
-    // We need to press Enter so that the search will properly gets focused
+    // We need to press Enter to properly focus it
     agHelper.PressEnter();
     cy.get(locator._propertyPaneSearchInput).should("be.focused");
+
+    // Pressing Escape should soft focus the search input
     agHelper.PressEscape();
     cy.get(locator._propertyPaneSearchInput).should("not.be.focused");
   });
 
   it("2. Search for Properties", function() {
-    ee.SelectEntityByName("Table1", "Widgets");
-
     // Search for a property inside content tab
     propPane.search("visible");
     assertIfPropertyOrSectionExists("general", "CONTENT", "visible");
@@ -50,6 +49,10 @@ describe("Property Pane Search", function() {
     // search for a camel case property
     propPane.search("on row selected");
     assertIfPropertyOrSectionExists("rowselection", "CONTENT", "onrowselected");
+
+    // search for another variation of camel case property
+    propPane.search("onSort");
+    assertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
   });
 
   it("3. Search for Sections", function() {
@@ -61,6 +64,7 @@ describe("Property Pane Search", function() {
     propPane.search("text formatting");
     assertIfPropertyOrSectionExists("textformatting", "STYLE");
 
+    // Clear the search input for the next test
     propPane.search("");
   });
 
@@ -89,15 +93,15 @@ describe("Property Pane Search", function() {
   it("6. Search for gibberish and verify if empty results message is shown", function() {
     // Searching Gibberish inside a panel
     propPane.search("pigglywiggly");
-    agHelper.AssertElementExist(".t--property-pane-no-search-results");
+    agHelper.AssertElementExist(locator._propertyPaneEmptySearchResult);
 
     // Searching Gibberish inside main property panel
     propPane.NavigateBackToPropertyPane();
     propPane.search("pigglywiggly");
-    agHelper.AssertElementExist(".t--property-pane-no-search-results");
+    agHelper.AssertElementExist(locator._propertyPaneEmptySearchResult);
   });
 
-  it("7. Verify behaviour with Dynamically hidden properties", function() {
+  it("7. Verify behaviour with Dynamically hidden properties inside search results", function() {
     // Search for a Section with Dynamically hidden properties
     propPane.search("pagination");
     assertIfPropertyOrSectionExists("pagination", "CONTENT");
@@ -142,5 +146,23 @@ describe("Property Pane Search", function() {
 
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.assertSearchInputValue("");
+  });
+
+  // Ensuring a bug won't come back
+  it.only("10. Verify searching for properties inside the same section one after the other works", function() {
+    ee.SelectEntityByName("Table1", "Widgets");
+
+    // Search for a property
+    propPane.search("onsort");
+    assertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
+
+    // Search for another property in the same section
+    propPane.search("column sorting");
+    assertIfPropertyOrSectionExists("sorting", "CONTENT", "columnsorting");
+
+    // Search for the same section name and verify all the properties under it are visible
+    propPane.search("sorting");
+    assertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
+    assertIfPropertyOrSectionExists("sorting", "CONTENT", "columnsorting");
   });
 });

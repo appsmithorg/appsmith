@@ -19,17 +19,20 @@ export enum PropertyPaneConfigTypes {
   CONTENT = "CONTENT",
 }
 
-// TODO(aswathkk): Cleanup all the identifiers
-export function manipulateOnlyFirst(config: readonly PropertyPaneConfig[]) {
+export function addSearchConfigToPanelConfig(
+  config: readonly PropertyPaneConfig[],
+) {
   return config.map((configItem) => {
     if ((configItem as PropertyPaneSectionConfig).sectionName) {
-      const obj = {
+      const sectionConfig = {
         ...configItem,
       };
       if (configItem.children) {
-        obj.children = manipulateOnlyFirst(configItem.children);
+        sectionConfig.children = addSearchConfigToPanelConfig(
+          configItem.children,
+        );
       }
-      return obj;
+      return sectionConfig;
     } else if ((configItem as PropertyPaneControlConfig).controlType) {
       const controlConfig = configItem as PropertyPaneControlConfig;
       if (controlConfig.panelConfig) {
@@ -50,23 +53,24 @@ export function manipulateOnlyFirst(config: readonly PropertyPaneConfig[]) {
   });
 }
 
-// TODO(aswathkk): Cleanup all the identifiers
-function manipulate(
+function addSearchSpecificPropertiesToConfig(
   config: readonly PropertyPaneConfig[],
   tag: string,
 ): PropertyPaneConfig[] {
   return config.map((configItem) => {
     if ((configItem as PropertyPaneSectionConfig).sectionName) {
-      // const sectionConfig: PropertyPaneSectionConfig = configItem as PropertyPaneSectionConfig;
-      const obj = {
+      const sectionConfig = {
         ...configItem,
         collapsible: false,
         tag,
       };
       if (configItem.children) {
-        obj.children = manipulate(configItem.children, tag);
+        sectionConfig.children = addSearchSpecificPropertiesToConfig(
+          configItem.children,
+          tag,
+        );
       }
-      return obj;
+      return sectionConfig;
     } else if ((configItem as PropertyPaneControlConfig).controlType) {
       const controlConfig = configItem as PropertyPaneControlConfig;
       if (controlConfig.panelConfig) {
@@ -92,8 +96,8 @@ export function generatePropertyPaneSearchConfig(
   styleConfig: readonly PropertyPaneConfig[],
 ) {
   return [
-    ...manipulate(contentConfig, "CONTENT"),
-    ...manipulate(styleConfig, "STYLE"),
+    ...addSearchSpecificPropertiesToConfig(contentConfig, "CONTENT"),
+    ...addSearchSpecificPropertiesToConfig(styleConfig, "STYLE"),
   ];
 }
 
