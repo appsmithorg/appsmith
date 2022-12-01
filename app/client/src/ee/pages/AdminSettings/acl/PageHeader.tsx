@@ -26,14 +26,19 @@ import { HelpPopoverStyle, StyledSearchInput } from "./components";
 import {
   ARE_YOU_SURE,
   createMessage,
-  ENTER_GROUP_NAME,
+  ENTER_ENTITY_DESC,
+  ENTER_ENTITY_NAME,
 } from "@appsmith/constants/messages";
 import { PageHeaderProps } from "./types";
 
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+
+  > div:first-child {
+    flex: 1 0 50%;
+  }
 
   h2 {
     text-transform: unset;
@@ -66,20 +71,41 @@ const StyledSettingsHeader = styled(SettingsHeader)`
     -webkit-box-orient: vertical;
   }
 
-  span.bp3-popover-target {
-    width: 100%;
-
-    > * {
+  &.settings-header {
+    span.bp3-popover-target.t--editname {
       width: 100%;
-      flex-grow: unset;
 
       > * {
-        width: 100%;
+        max-width: 100%;
+        flex-grow: unset;
 
-        .bp3-editable-text-content {
-          display: block;
+        > * {
+          width: 100%;
+
+          .bp3-editable-text-content {
+            display: block;
+          }
         }
       }
+    }
+  }
+`;
+
+const StyledSettingsSubHeader = styled(SettingsSubHeader)`
+  width: 90%;
+  margin: 5px 0 5px 5px;
+
+  &.settings-sub-header {
+    .bp3-editable-text {
+      padding: 0;
+
+      &.bp3-editable-text-editing {
+        padding: 5px;
+      }
+    }
+
+    .bp3-editable-text-content {
+      white-space: break-spaces;
     }
   }
 `;
@@ -95,14 +121,21 @@ function getSettingDetail(category: string, selected: string) {
 export function PageHeader(props: PageHeaderProps) {
   const [showConfirmationText, setShowConfirmationText] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
-  const [isEditing, setIsEditing] = useState(props.isEditingTitle || false);
+  const [isEditingTitle, setIsEditingTitle] = useState(
+    props.isEditingTitle || false,
+  );
+  const [isEditingDesc, setIsEditingDesc] = useState(
+    props.isEditingDesc || false,
+  );
   const params = useParams() as any;
   const { category, selected } = params;
   const details = getSettingDetail(category, selected);
   const pageTitle = getSettingLabel(details?.title || (selected ?? category));
   const {
     buttonText,
-    isTitleEditable,
+    description = "",
+    isHeaderEditable,
+    onEditDesc,
     onEditTitle,
     onSearch,
     pageMenuItems,
@@ -112,8 +145,12 @@ export function PageHeader(props: PageHeaderProps) {
   } = props;
 
   useEffect(() => {
-    setIsEditing(props.isEditingTitle || false);
+    setIsEditingTitle(props.isEditingTitle || false);
   }, [props.isEditingTitle]);
+
+  useEffect(() => {
+    setIsEditingDesc(props.isEditingDesc || false);
+  }, [props.isEditingDesc]);
 
   const handleSearch = (search: string) => {
     onSearch?.(search.toLocaleUpperCase());
@@ -128,7 +165,10 @@ export function PageHeader(props: PageHeaderProps) {
       setShowConfirmationText(true);
       showConfirmationText && menuItem?.onSelect?.(e, "delete");
     } else if (menuItem.label === "rename") {
-      setIsEditing(true);
+      setIsEditingTitle(true);
+      setShowOptions(false);
+    } else if (menuItem.label === "rename-desc") {
+      setIsEditingDesc(true);
       setShowOptions(false);
     } else {
       setShowConfirmationText(false);
@@ -140,8 +180,11 @@ export function PageHeader(props: PageHeaderProps) {
   return (
     <Container>
       <HeaderWrapper margin={`0px`}>
-        {isTitleEditable ? (
-          <StyledSettingsHeader data-testid="t--page-title">
+        {isHeaderEditable && onEditTitle ? (
+          <StyledSettingsHeader
+            className="settings-header"
+            data-testid="t--page-title"
+          >
             <TooltipComponent
               boundary="viewport"
               content={title ?? pageTitle}
@@ -153,11 +196,11 @@ export function PageHeader(props: PageHeaderProps) {
                 className="t--editable-title"
                 defaultValue={title ?? pageTitle}
                 editInteractionKind={EditInteractionKind.SINGLE}
-                isEditingDefault={isEditing}
+                isEditingDefault={isEditingTitle}
                 isInvalid={(name) => !name || name.trim().length === 0}
-                onBlur={() => setIsEditing(false)}
+                onBlur={() => setIsEditingTitle(false)}
                 onTextChanged={(name) => onEditTitle?.(name)}
-                placeholder={createMessage(ENTER_GROUP_NAME)}
+                placeholder={createMessage(ENTER_ENTITY_NAME)}
                 type="text"
               />
             </TooltipComponent>
@@ -171,15 +214,42 @@ export function PageHeader(props: PageHeaderProps) {
             position={PopoverPosition.BOTTOM_LEFT}
           >
             <StyledSettingsHeader
-              className="not-editable"
+              className="not-editable settings-header"
               data-testid="t--page-title"
             >
               {title ?? pageTitle}
             </StyledSettingsHeader>
           </TooltipComponent>
         )}
-        {details?.subText && (
-          <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+        {isHeaderEditable && onEditDesc && (description || isEditingDesc) ? (
+          <StyledSettingsSubHeader
+            className="settings-sub-header"
+            data-testid="t--page-description"
+          >
+            <EditableText
+              className="t--editable-description"
+              customErrorTooltip="Invalid description"
+              defaultValue={description}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              isEditingDefault={isEditingDesc}
+              isInvalid={(desc) => !desc || desc.trim().length === 0}
+              maxLength={140}
+              maxLines={3}
+              minLines={1}
+              multiline
+              onBlur={() => setIsEditingDesc(false)}
+              onTextChanged={(desc) => onEditDesc?.(desc)}
+              placeholder={createMessage(ENTER_ENTITY_DESC)}
+              type="text"
+            />
+          </StyledSettingsSubHeader>
+        ) : (
+          <StyledSettingsSubHeader
+            className="not-editable settings-sub-header"
+            data-testid="t--page-description"
+          >
+            {description}
+          </StyledSettingsSubHeader>
         )}
       </HeaderWrapper>
       <Container>

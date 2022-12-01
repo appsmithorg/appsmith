@@ -76,6 +76,7 @@ export const rolesReducers = {
     selectedRole: {
       ...state.selectedRole,
       name: action.payload.name,
+      description: action.payload.description,
     },
     isSaving: false,
   }),

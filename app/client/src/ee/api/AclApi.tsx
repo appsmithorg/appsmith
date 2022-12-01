@@ -149,6 +149,7 @@ export class AclApi extends Api {
   ): Promise<AxiosPromise<ApiResponse>> {
     const response = await Api.put(`${AclApi.roles}/${payload.id}`, {
       name: payload.name,
+      description: payload.description,
     });
     return response;
   }
