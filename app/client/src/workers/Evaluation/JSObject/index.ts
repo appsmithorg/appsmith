@@ -106,7 +106,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       const actions: Actions[] = [];
       const variables: Variables[] = [];
       if (!!parsedObject) {
-        parsedObject.forEach((parsedElement) => {
+        for (const parsedElement of parsedObject) {
           if (isTypeOfFunction(parsedElement.type)) {
             try {
               const { result } = evaluateSync(
@@ -163,7 +163,8 @@ export function saveResolvedFunctionsAndJSUpdates(
               parsedElement.value,
             );
           }
-        });
+        }
+
         const parsedBody = {
           body: entity.body,
           actions: actions,
@@ -207,8 +208,8 @@ export function viewModeSaveResolvedFunctionsAndJSUpdates(
     delete dataTreeEvalRef.resolvedFunctions[`${entityName}`];
     delete dataTreeEvalRef.currentJSCollectionState[`${entityName}`];
     const jsActions = entity.meta;
-    //think about adding variables as currentJSCollectionState
-    Object.keys(jsActions).forEach((jsAction: string) => {
+    const jsActionList = Object.keys(jsActions);
+    for (const jsAction of jsActionList) {
       try {
         const { result } = evaluateSync(
           jsActions[jsAction].body,
@@ -237,7 +238,7 @@ export function viewModeSaveResolvedFunctionsAndJSUpdates(
       } catch {
         // in case we need to handle error state
       }
-    });
+    }
   } catch (e) {
     //if we need to push error as popup in case
   }
@@ -253,7 +254,8 @@ export function parseJSActions(
   let jsUpdates: Record<string, JSUpdate> = {};
   const isViewMode = getAppMode(unEvalDataTree) === APP_MODE.PUBLISHED;
   if (isViewMode) {
-    Object.keys(unEvalDataTree).forEach((entityName) => {
+    const unEvalDataTreeKeys = Object.keys(unEvalDataTree);
+    for (const entityName of unEvalDataTreeKeys) {
       const entity = unEvalDataTree[entityName];
       if (!isJSAction(entity)) {
         return;
@@ -265,12 +267,13 @@ export function parseJSActions(
         unEvalDataTree,
         entityName,
       );
-    });
+    }
   } else {
     if (!!differences && !!oldUnEvalTree) {
-      differences.forEach((diff) => {
+      for (const diff of differences) {
+        const payLoadPropertyPath = diff.payload.propertyPath;
         const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-          diff.payload.propertyPath,
+          payLoadPropertyPath,
         );
         const entity = unEvalDataTree[entityName];
 
@@ -281,7 +284,6 @@ export function parseJSActions(
         switch (diff.event) {
           case DataTreeDiffEvent.DELETE:
             // when JSObject is deleted, we remove it from currentJSCollectionState & resolvedFunctions
-            const payLoadPropertyPath = diff.payload.propertyPath;
             if (
               dataTreeEvalRef.currentJSCollectionState &&
               dataTreeEvalRef.currentJSCollectionState[payLoadPropertyPath]
@@ -320,9 +322,10 @@ export function parseJSActions(
             }
             break;
         }
-      });
+      }
     } else {
-      Object.keys(unEvalDataTree).forEach((entityName) => {
+      const unEvalDataTreeKeys = Object.keys(unEvalDataTree);
+      for (const entityName of unEvalDataTreeKeys) {
         const entity = unEvalDataTree[entityName];
         if (!isJSAction(entity)) {
           return;
@@ -334,10 +337,11 @@ export function parseJSActions(
           unEvalDataTree,
           entityName,
         );
-      });
+      }
     }
 
-    Object.keys(jsUpdates).forEach((entityName) => {
+    const jsUpdateKeys = Object.keys(jsUpdates);
+    for (const entityName of jsUpdateKeys) {
       const parsedBody = jsUpdates[entityName].parsedBody;
       if (!parsedBody) return;
       parsedBody.actions = parsedBody.actions.map((action) => {
@@ -353,18 +357,19 @@ export function parseJSActions(
           parsedFunction: undefined,
         } as ParsedJSSubAction;
       });
-    });
+    }
   }
   return { jsUpdates };
 }
 
 export function getJSEntities(dataTree: DataTree) {
   const jsCollections: Record<string, DataTreeJSAction> = {};
-  Object.keys(dataTree).forEach((key: string) => {
+  const dataTreeKeys = Object.keys(dataTree);
+  for (const key of dataTreeKeys) {
     const entity = dataTree[key];
     if (isJSAction(entity)) {
       jsCollections[entity.name] = entity;
     }
-  });
+  }
   return jsCollections;
 }

@@ -214,12 +214,9 @@ describe("DataTreeEvaluator", () => {
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
-      expect(
-        result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
-      ).toBe(true);
-      expect(
-        result.jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync,
-      ).toBe(true);
+      const jsUpdates = result ? result.jsUpdates : {};
+      expect(jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync).toBe(true);
+      expect(jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync).toBe(true);
     });
   });
 
