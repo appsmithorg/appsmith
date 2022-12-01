@@ -99,7 +99,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   prevMetaContainerNames: string[];
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
-  isDataLoading: boolean;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -158,7 +157,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
-    this.isDataLoading = false;
   }
 
   componentDidMount() {
@@ -207,10 +205,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       this.resetSelectedRow();
       this.resetTriggeredRowIndex();
       this.resetTriggeredRow();
-    }
-
-    if (this.hasListDataUpdated(prevProps.listData)) {
-      this.resetIsDataLoading();
     }
 
     this.setupMetaWidgets(prevProps);
@@ -440,10 +434,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return this.props.serverSidePagination && this.props.onPageSizeChange;
   };
 
-  hasListDataUpdated = (prevListData: ListWidgetProps["listData"]) => {
-    return this.isDataLoading && prevListData !== this.props.listData;
-  };
-
   isCurrPageNoGreaterThanMaxPageNo = () => {
     if (
       this.props.listData &&
@@ -525,10 +515,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   onPageChange = (page: number) => {
     const currentPage = this.props.pageNo;
-
-    if (this.props.serverSidePagination) {
-      this.setIsDataLoading();
-    }
 
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
@@ -656,9 +642,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  setIsDataLoading = () => (this.isDataLoading = true);
-  resetIsDataLoading = () => (this.isDataLoading = false);
-
   updateTriggeredRowIndex = (rowIndex: number) => {
     this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
   };
@@ -785,7 +768,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     const { pageNo, parentRowSpace, serverSidePagination } = this.props;
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
 
-    if (this.isDataLoading || this.props.isLoading) {
+    if (this.props.isLoading) {
       return (
         <Loader
           gridGap={this.props.gridGap}
