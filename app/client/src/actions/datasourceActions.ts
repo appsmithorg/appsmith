@@ -8,10 +8,26 @@ import { Datasource } from "entities/Datasource";
 import { PluginType } from "entities/Action";
 import { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import { ResponseMeta } from "api/ApiResponses";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
-export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
+export const createDatasourceFromForm = (
+  payload: CreateDatasourceConfig & Datasource,
+  onSuccess?: ReduxAction<unknown>,
+  onError?: ReduxAction<unknown>,
+) => {
   return {
     type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+    payload,
+    onSuccess,
+    onError,
+  };
+};
+
+export const createTempDatasourceFromForm = (
+  payload: CreateDatasourceConfig | Datasource,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS,
     payload,
   };
 };
@@ -36,6 +52,13 @@ export type UpdateDatasourceSuccessAction = {
   queryParams?: Record<string, string>;
 };
 
+export type CreateDatasourceSuccessAction = {
+  type: string;
+  payload: Datasource;
+  isDBCreated: boolean;
+  redirect: boolean;
+};
+
 export const updateDatasourceSuccess = (
   payload: Datasource,
   redirect = true,
@@ -45,6 +68,17 @@ export const updateDatasourceSuccess = (
   payload,
   redirect,
   queryParams,
+});
+
+export const createDatasourceSuccess = (
+  payload: Datasource,
+  isDBCreated = false,
+  redirect = false,
+): CreateDatasourceSuccessAction => ({
+  type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
+  payload,
+  isDBCreated,
+  redirect,
 });
 
 export const redirectAuthorizationCode = (
@@ -90,6 +124,14 @@ export const refreshDatasourceStructure = (id: string) => {
 
 export const saveDatasourceName = (payload: { id: string; name: string }) => ({
   type: ReduxActionTypes.SAVE_DATASOURCE_NAME,
+  payload: payload,
+});
+
+export const updateDatasourceName = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.UPDATE_DATASOURCE_NAME,
   payload: payload,
 });
 
@@ -249,6 +291,39 @@ export const setUnconfiguredDatasourcesDuringImport = (
   type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
   payload,
 });
+
+export const removeTempDatasource = () => {
+  return {
+    type: ReduxActionTypes.REMOVE_TEMP_DATASOURCE_SUCCESS,
+  };
+};
+
+export const deleteTempDSFromDraft = () => {
+  return {
+    type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
+    payload: {
+      id: TEMP_DATASOURCE_ID,
+    },
+  };
+};
+
+export const toggleSaveActionFlag = (isDSSaved: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_SAVE_ACTION_FLAG,
+    payload: {
+      isDSSaved: isDSSaved,
+    },
+  };
+};
+
+export const toggleSaveActionFromPopupFlag = (isDSSavedFromPopup: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_SAVE_ACTION_FROM_POPUP_FLAG,
+    payload: {
+      isDSSavedFromPopup: isDSSavedFromPopup,
+    },
+  };
+};
 
 export default {
   fetchDatasources,
