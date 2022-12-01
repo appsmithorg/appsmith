@@ -16,7 +16,7 @@ export default {
       isJSConvertible: false,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.ARRAY,
           params: {

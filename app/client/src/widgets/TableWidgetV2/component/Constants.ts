@@ -309,7 +309,7 @@ export interface EditActionColumnProperties {
   serverSideFiltering?: boolean;
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
-  selectOptions?: DropdownOption[];
+  selectOptions?: DropdownOption[] | DropdownOption[][];
 }
 
 export interface ColumnProperties
