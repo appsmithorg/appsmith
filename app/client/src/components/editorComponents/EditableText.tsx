@@ -32,6 +32,10 @@ type EditableTextProps = {
   errorTooltipClass?: string;
   maxLength?: number;
   underline?: boolean;
+  multiline?: boolean;
+  maxLines?: number;
+  minLines?: number;
+  customErrorTooltip?: string;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -102,6 +106,7 @@ export function EditableText(props: EditableTextProps) {
   const {
     beforeUnmount,
     className,
+    customErrorTooltip = "",
     defaultValue,
     editInteractionKind,
     errorTooltipClass,
@@ -110,7 +115,10 @@ export function EditableText(props: EditableTextProps) {
     isEditingDefault,
     isInvalid,
     maxLength,
+    maxLines,
     minimal,
+    minLines,
+    multiline,
     onBlur,
     onTextChanged,
     placeholder,
@@ -161,7 +169,7 @@ export function EditableText(props: EditableTextProps) {
         setIsEditing(false);
       } else {
         Toaster.show({
-          text: "Invalid name",
+          text: customErrorTooltip || "Invalid name",
           variant: Variant.danger,
         });
       }
@@ -208,6 +216,9 @@ export function EditableText(props: EditableTextProps) {
             disabled={!isEditing}
             isEditing={isEditing}
             maxLength={maxLength}
+            maxLines={maxLines}
+            minLines={minLines}
+            multiline={multiline}
             onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}
