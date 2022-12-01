@@ -126,7 +126,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.DatasourceAccordions,
       selector: getAllDatasourceCollapsibleState,
       setter: setAllDatasourceCollapsible,
-      defaultValue: {},
     },
   ],
   [FocusEntity.JS_OBJECT]: [

@@ -147,6 +147,8 @@ describe("MaintainContext&Focus", function() {
 
   it("8. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith");
+    dataSources.EditDatasource();
+    dataSources.SaveDSFromDialog(false);
     ee.SelectEntityByName("Github");
     dataSources.AssertViewMode();
     ee.SelectEntityByName("Appsmith");
@@ -155,20 +157,24 @@ describe("MaintainContext&Focus", function() {
 
   it("9. Datasource collapse state has to be maintained", () => {
     // Create datasource 1
+    dataSources.SaveDSFromDialog(false);
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.RenameWithInPane("Postgres1", false);
     // Expand section with index 1
     dataSources.ExpandSection(1);
     // Create and switch to datasource 2
+    dataSources.SaveDSFromDialog(true);
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("MongoDB");
     agHelper.RenameWithInPane("Mongo1", false);
     // Validate if section with index 1 is collapsed
-    dataSources.AssertSectionCollapseState(1, true);
+    dataSources.AssertSectionCollapseState(1, false);
     // Switch back to datasource 1
+    dataSources.SaveDSFromDialog(false);
     dataSources.CreateNewQueryInDS("Postgres1");
     ee.SelectEntityByName("Postgres1");
+    dataSources.EditDatasource();
     // Validate if section with index 1 is expanded
     dataSources.AssertSectionCollapseState(1, false);
   });

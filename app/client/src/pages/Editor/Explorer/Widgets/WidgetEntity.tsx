@@ -13,6 +13,8 @@ import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -88,6 +90,10 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const shouldExpand = widgetsToExpand.includes(props.widgetId);
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canManagePages = hasManagePagePermission(pagePermissions);
+
   const {
     isWidgetSelected,
     lastSelectedWidget,
@@ -131,6 +137,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const contextMenu = (
     <WidgetContextMenu
+      canManagePages={canManagePages}
       className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
       widgetId={props.widgetId}
@@ -146,6 +153,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     <Entity
       action={switchWidget}
       active={isWidgetSelected}
+      canEditEntityName={canManagePages}
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
@@ -158,6 +166,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       }
       name={props.widgetName}
       searchKeyword={props.searchKeyword}
+      showAddButton={canManagePages}
       step={props.step}
       updateEntityName={updateWidgetName}
     >
