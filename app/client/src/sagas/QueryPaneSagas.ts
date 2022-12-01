@@ -18,7 +18,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { autofill, change, initialize } from "redux-form";
+import { autofill, change, initialize, reset } from "redux-form";
 import {
   getAction,
   getDatasource,
@@ -28,6 +28,7 @@ import {
   getSettingConfig,
   getActions,
   getPlugins,
+  getGenerateCRUDEnabledPluginMap,
 } from "selectors/entitiesSelector";
 import {
   Action,
@@ -44,8 +45,7 @@ import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { Variant } from "components/ads/common";
-import { Toaster } from "design-system";
+import { Toaster, Variant } from "design-system";
 import { Datasource } from "entities/Datasource";
 import omit from "lodash/omit";
 import {
@@ -63,13 +63,22 @@ import AnalyticsUtil, { EventLocation } from "utils/AnalyticsUtil";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   datasourcesEditorIdURL,
+  generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
 } from "RouteBuilder";
-import { Plugin, UIComponentTypes } from "api/PluginApi";
+import {
+  GenerateCRUDEnabledPluginMap,
+  Plugin,
+  UIComponentTypes,
+} from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { validateResponse } from "./ErrorSagas";
+import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -155,82 +164,100 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { field, form } = actionPayload.meta;
-  if (field === "dynamicBindingPathList" || field === "name") return;
-  if (form !== QUERY_EDITOR_FORM_NAME) return;
-  const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
-  const hasRouteChanged = field === "id";
+  try {
+    const { field, form } = actionPayload.meta;
+    if (field === "dynamicBindingPathList" || field === "name") return;
+    if (form !== QUERY_EDITOR_FORM_NAME) return;
+    const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
+    const hasRouteChanged = field === "id";
 
-  if (field === "datasource.id") {
-    const datasource: Datasource | undefined = yield select(
-      getDatasource,
-      actionPayload.payload,
-    );
+    if (!hasManageActionPermission(values.userPermissions)) {
+      yield validateResponse({
+        status: 403,
+        resourceType: values?.pluginType,
+        resourceId: values.id,
+      });
+    }
 
-    // Update the datasource not just the datasource id.
-    yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: "datasource",
-        value: datasource,
-      }),
-    );
+    if (field === "datasource.id") {
+      const datasource: Datasource | undefined = yield select(
+        getDatasource,
+        actionPayload.payload,
+      );
 
-    // Update the datasource of the form as well
-    yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
-
-    AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
-
-    return;
-  }
-
-  const plugins: Plugin[] = yield select(getPlugins);
-  const uiComponent = getUIComponent(values.pluginId, plugins);
-
-  // Editing form fields triggers evaluations.
-  // We pass the action to run form evaluations when the dataTree evaluation is complete
-  const postEvalActions =
-    uiComponent === UIComponentTypes.UQIDbEditorForm
-      ? [
-          startFormEvaluations(
-            values.id,
-            values.actionConfiguration,
-            values.datasource.id,
-            values.pluginId,
-            field,
-            hasRouteChanged,
-          ),
-        ]
-      : [];
-
-  if (
-    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
-    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
-  ) {
-    const value = get(values, field);
-    yield put(
-      setActionProperty(
-        {
+      // Update the datasource not just the datasource id.
+      yield put(
+        setActionProperty({
           actionId: values.id,
-          propertyName: field,
-          value,
-        },
-        postEvalActions,
-      ),
-    );
-  } else {
-    yield put(
-      setActionProperty(
-        {
-          actionId: values.id,
-          propertyName: field,
-          value: actionPayload.payload,
-        },
-        postEvalActions,
-      ),
-    );
+          propertyName: "datasource",
+          value: datasource,
+        }),
+      );
+
+      // Update the datasource of the form as well
+      yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
+
+      AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
+
+      return;
+    }
+
+    const plugins: Plugin[] = yield select(getPlugins);
+    const uiComponent = getUIComponent(values.pluginId, plugins);
+
+    // Editing form fields triggers evaluations.
+    // We pass the action to run form evaluations when the dataTree evaluation is complete
+    const postEvalActions =
+      uiComponent === UIComponentTypes.UQIDbEditorForm
+        ? [
+            startFormEvaluations(
+              values.id,
+              values.actionConfiguration,
+              values.datasource.id,
+              values.pluginId,
+              field,
+              hasRouteChanged,
+            ),
+          ]
+        : [];
+
+    if (
+      actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+      actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+    ) {
+      const value = get(values, field);
+      yield put(
+        setActionProperty(
+          {
+            actionId: values.id,
+            propertyName: field,
+            value,
+          },
+          postEvalActions,
+        ),
+      );
+    } else {
+      yield put(
+        setActionProperty(
+          {
+            actionId: values.id,
+            propertyName: field,
+            value: actionPayload.payload,
+          },
+          postEvalActions,
+        ),
+      );
+    }
+    yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+    yield put(reset(QUERY_EDITOR_FORM_NAME));
   }
-  yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
@@ -266,12 +293,12 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   );
 }
 
-function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
+function* handleDatasourceCreatedSaga(
+  actionPayload: CreateDatasourceSuccessAction,
+) {
   const pageId: string = yield select(getCurrentPageId);
-  const plugin: Plugin | undefined = yield select(
-    getPlugin,
-    actionPayload.payload.pluginId,
-  );
+  const { isDBCreated, payload } = actionPayload;
+  const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   // Only look at db plugins
   if (
     plugin &&
@@ -280,16 +307,49 @@ function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   )
     return;
 
-  yield put(
-    initialize(DATASOURCE_DB_FORM, omit(actionPayload.payload, "name")),
+  yield put(initialize(DATASOURCE_DB_FORM, omit(payload, "name")));
+
+  const queryParams = getQueryParams();
+  const updatedDatasource = payload;
+
+  const isGeneratePageInitiator = getIsGeneratePageInitiator(
+    queryParams.isGeneratePageMode,
   );
-  history.push(
-    datasourcesEditorIdURL({
-      pageId,
-      datasourceId: actionPayload.payload.id,
-      params: { from: "datasources", ...getQueryParams() },
-    }),
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = yield select(
+    getGenerateCRUDEnabledPluginMap,
   );
+
+  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
+  // then we check if the current plugin is supported for generate page with data functionality
+  // and finally isDBCreated ensures that datasource is not in temporary state and
+  // user has explicitly saved the datasource, before redirecting back to generate page
+  if (
+    isGeneratePageInitiator &&
+    updatedDatasource.pluginId &&
+    generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
+    isDBCreated
+  ) {
+    history.push(
+      generateTemplateFormURL({
+        pageId,
+        params: {
+          datasourceId: updatedDatasource.id,
+        },
+      }),
+    );
+  } else {
+    history.push(
+      datasourcesEditorIdURL({
+        pageId,
+        datasourceId: payload.id,
+        params: {
+          from: "datasources",
+          ...getQueryParams(),
+          pluginId: plugin?.id,
+        },
+      }),
+    );
+  }
 }
 
 function* handleNameChangeSaga(

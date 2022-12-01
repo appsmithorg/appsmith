@@ -59,8 +59,8 @@ export class AggregateHelper {
     dsl: string,
     elementToCheckPresenceaftDslLoad: string | "" = "",
   ) {
-    let pageid: string, layoutId, appId: string | null;
-    appId = localStorage.getItem("applicationId");
+    let pageid: string, layoutId;
+    const appId: string | null = localStorage.getItem("applicationId");
     cy.url().then((url) => {
       pageid = url
         .split("/")[5]
@@ -426,9 +426,14 @@ export class AggregateHelper {
       .invoke("text");
   }
 
-  public EnterActionValue(actionName: string, value: string, paste = true) {
+  public EnterActionValue(
+    actionName: string,
+    value: string,
+    paste = true,
+    index = 0,
+  ) {
     cy.xpath(this.locator._actionTextArea(actionName))
-      .first()
+      .eq(index)
       .scrollIntoView()
       .focus()
       .type("{uparrow}", { force: true })
@@ -437,7 +442,7 @@ export class AggregateHelper {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
         cy.xpath(this.locator._actionTextArea(actionName))
-          .first()
+          .eq(index)
           .scrollIntoView()
           .click({ force: true })
           .focused()
@@ -447,7 +452,7 @@ export class AggregateHelper {
       }
       this.Sleep();
       cy.xpath(this.locator._actionTextArea(actionName))
-        .first()
+        .eq(index)
         .scrollIntoView()
         .then((el: any) => {
           if (paste) {
@@ -474,6 +479,10 @@ export class AggregateHelper {
       .scrollIntoView()
       .click({ force: force })
       .wait(waitTimeInterval);
+  }
+
+  public GoBack(){
+    this.GetNClick(this.locator._visibleTextSpan("Back"));
   }
 
   public SelectNRemoveLineText(selector: string) {
@@ -768,6 +777,12 @@ export class AggregateHelper {
         this.Sleep(200);
         expect(inputVal).to.eq(expectedValue);
       });
+  }
+
+  public VerifyEvaluatedErrorMessage(errorMessage: string) {
+    cy.get(this.locator._evaluatedErrorMessage)
+      .should("be.visible")
+      .should("have.text", errorMessage);
   }
 
   public VerifyEvaluatedValue(currentValue: string) {

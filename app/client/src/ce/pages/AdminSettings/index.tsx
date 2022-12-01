@@ -22,12 +22,11 @@ function Settings() {
   const isLoading = useSelector(getSettingsLoadingState);
 
   useEffect(() => {
-    dispatch({
-      type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
-    });
-    dispatch({
-      type: ReduxActionTypes.FETCH_RELEASES,
-    });
+    if (user?.isSuperUser) {
+      dispatch({
+        type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
+      });
+    }
   }, []);
 
   useEffect(() => {

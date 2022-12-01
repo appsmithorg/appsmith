@@ -7,8 +7,6 @@ import { IconName } from "@blueprintjs/icons";
 
 import { Theme } from "constants/DefaultTheme";
 
-import { ThemeProp } from "components/ads/common";
-
 import _ from "lodash";
 import {
   ButtonStyleTypes,
@@ -19,6 +17,7 @@ import {
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
+import { ThemeProp } from "widgets/constants";
 
 const getCustomTextColor = (
   theme: Theme,

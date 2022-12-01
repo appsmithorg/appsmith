@@ -95,7 +95,9 @@ export class PropertyPane {
       this.agHelper.GetNClick(this._colorPickerV2Popover);
       this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
     } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear();
+      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
+      this.agHelper.TypeText(this._colorInput(type), colorIndex);
+      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
@@ -121,6 +123,8 @@ export class PropertyPane {
     cy.get("@fieldNames").each(($filedName: any) => {
       field = $filedName;
       this.agHelper.GetNClick(this._fieldConfig(field as string));
+      this.agHelper.Sleep(200);
+      this.RemoveText("Default Value", false);
       this.agHelper
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
@@ -128,7 +132,7 @@ export class PropertyPane {
           this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
       cy.focused().blur();
-      this.RemoveText("Default Value", false);
+      //this.RemoveText("Default Value", false);
       //this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });

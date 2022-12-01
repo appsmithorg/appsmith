@@ -1,26 +1,25 @@
 import React from "react";
 import { compact, xor } from "lodash";
-
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-
+import { Alignment } from "@blueprintjs/core";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import CheckboxGroupComponent from "../component";
+import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
 } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-
-import CheckboxGroupComponent from "../component";
-import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -147,6 +146,7 @@ class CheckboxGroupWidget extends BaseWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -215,6 +215,16 @@ class CheckboxGroupWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             propertyName: "isVisible",
             label: "Visible",
@@ -481,6 +491,13 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
     if (
       Array.isArray(prevProps.options) &&
@@ -497,13 +514,24 @@ class CheckboxGroupWidget extends BaseWidget<
         .filter((option) => !options.includes(option))
         .concat(options.filter((option) => !prevOptions.includes(option)));
 
-      let selectedValues = this.props.selectedValues.filter(
+      // TODO(abhinav): Not sure why we have to do this.
+      // Stuff breaks after release merge, fixing it here.
+      let _selectedValues = this.props.selectedValues;
+      if (!Array.isArray(_selectedValues)) {
+        if (
+          this.props.defaultSelectedValues &&
+          this.props.defaultSelectedValues.length &&
+          !Array.isArray(this.props.defaultSelectedValues)
+        ) {
+          _selectedValues = [this.props.defaultSelectedValues];
+        } else {
+          _selectedValues = [];
+        }
+      }
+
+      const selectedValues = _selectedValues.filter(
         (selectedValue: string) => !diffOptions.includes(selectedValue),
       );
-      // if selectedValues empty, and options have changed, set defaultSelectedValues
-      if (!selectedValues.length && this.props.defaultSelectedValues.length) {
-        selectedValues = this.props.defaultSelectedValues;
-      }
 
       this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
         triggerPropertyName: "onSelectionChange",
@@ -536,6 +564,7 @@ class CheckboxGroupWidget extends BaseWidget<
           )
         }
         isDisabled={this.props.isDisabled}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInline={this.props.isInline}
         isRequired={this.props.isRequired}
         isSelectAll={this.props.isSelectAll}
@@ -547,6 +576,7 @@ class CheckboxGroupWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}

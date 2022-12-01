@@ -57,3 +57,50 @@ export type ActionCreatorProps = {
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
   pageDropdownOptions: TreeDropdownOption[];
 };
+
+export type Field = {
+  field: FieldType;
+  value?: string;
+  label?: string;
+  index?: number;
+};
+
+export type FieldProps = {
+  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
+  value: string;
+  field: Field;
+  label?: string;
+  widgetOptionTree: TreeDropdownOption[];
+  modalDropdownList: TreeDropdownOption[];
+  pageDropdownOptions: TreeDropdownOption[];
+  integrationOptionTree: TreeDropdownOption[];
+  depth: number;
+  maxDepth: number;
+  additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  activeNavigateToTab: SwitchType;
+  navigateToSwitches: Array<SwitchType>;
+};
+
+export type FieldsProps = Omit<FieldProps, "field"> & {
+  fields: Array<Field>;
+};
+
+export type OptionListType = { label: string; value: string; id: string };
+
+export type AppsmithFunctionConfigValues = {
+  label: (args: FieldProps) => string;
+  defaultText: string;
+  options: (args: FieldProps) => null | TreeDropdownOption[] | OptionListType;
+  getter: (arg1: string, arg2: number) => string;
+  setter: (
+    arg1: string | TreeDropdownOption,
+    arg2: string,
+    arg3?: number,
+  ) => string;
+  view: ViewType;
+  toolTip?: string;
+};
+
+export type AppsmithFunctionConfigType = {
+  [key: string]: AppsmithFunctionConfigValues;
+};

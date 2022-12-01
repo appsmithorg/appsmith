@@ -7,8 +7,8 @@ import {
   Size,
   Text,
   TextType,
+  Variant,
 } from "design-system";
-import { Variant } from "components/ads/common";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,

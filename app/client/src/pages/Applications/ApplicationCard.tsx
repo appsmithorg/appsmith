@@ -16,6 +16,7 @@ import {
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
+  hasDeleteApplicationPermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -30,6 +31,7 @@ import {
   AppIconName,
   Button,
   Category,
+  Classes as CsClasses,
   ColorSelector,
   EditableText,
   EditInteractionKind,
@@ -47,6 +49,7 @@ import {
   Text,
   TextType,
   TooltipComponent,
+  Variant,
 } from "design-system";
 import { useSelector } from "react-redux";
 import {
@@ -58,10 +61,8 @@ import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
-import { Classes as CsClasses } from "components/ads/common";
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
@@ -512,6 +513,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
+  const hasDeletePermission = hasDeleteApplicationPermission(
+    props.application?.userPermissions,
+  );
   const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&
@@ -574,7 +578,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     setMoreActionItems(updatedActionItems);
   };
   const addDeleteOption = () => {
-    if (props.delete && hasEditPermission) {
+    if (props.delete && hasDeletePermission) {
       const index = moreActionItems.findIndex(
         (el) => el.icon === "delete-blank",
       );

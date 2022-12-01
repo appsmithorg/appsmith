@@ -84,12 +84,19 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public AddNewPage() {
+  public AddNewPage(
+    option:
+      | "add-page"
+      | "generate-page"
+      | "add-page-from-template" = "add-page",
+  ) {
     cy.get(this.locator._newPage)
       .first()
       .click();
-    cy.get("[data-cy='add-page']").click();
-    this.agHelper.ValidateNetworkStatus("@createPage", 201);
+    cy.get(`[data-cy='${option}']`).click();
+    if (option === "add-page") {
+      this.agHelper.ValidateNetworkStatus("@createPage", 201);
+    }
   }
 
   public NavigateToSwitcher(navigationTab: "explorer" | "widgets") {
@@ -164,7 +171,11 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(widgetType: string, x: number = 200, y: number =200) {
+  public DragDropWidgetNVerify(
+    widgetType: string,
+    x: number = 200,
+    y: number = 200,
+  ) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
@@ -218,5 +229,14 @@ export class EntityExplorer {
           this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
         else this.agHelper.Sleep(200); //do nothing
       });
+  }
+
+  public RenameEntityFromExplorer(entityName: string, renameVal: string) {
+    cy.xpath(this._entityNameInExplorer(entityName)).dblclick()
+    cy.xpath(this.locator._entityNameEditing(entityName)).type(
+      renameVal + "{enter}",
+    );
+    this.AssertEntityPresenceInExplorer(renameVal);
+    this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 }

@@ -13,7 +13,7 @@ import apiPaneSagas from "sagas/ApiPaneSagas";
 import jsPaneSagas from "sagas/JSPaneSagas";
 import userSagas from "@appsmith/sagas/userSagas";
 import pluginSagas from "sagas/PluginSagas";
-import workspaceSagas from "sagas/WorkspaceSagas";
+import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
 import importedCollectionsSagas from "sagas/CollectionSagas";
 import providersSagas from "sagas/ProvidersSaga";
 import curlImportSagas from "sagas/CurlImportSagas";
@@ -41,6 +41,7 @@ import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import NavigationSagas from "sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
+import AutoHeightSagas from "sagas/autoHeightSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
 
 export const sagas = [
@@ -87,5 +88,6 @@ export const sagas = [
   NavigationSagas,
   editorContextSagas,
   PageVisibilitySaga,
+  AutoHeightSagas,
   tenantSagas,
 ];
