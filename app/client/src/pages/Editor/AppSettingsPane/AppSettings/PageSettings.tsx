@@ -16,6 +16,7 @@ import {
   PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR as PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
+import { hasManagePagePermission } from "ce/utils/permissionHelpers";
 import classNames from "classnames";
 import { Colors } from "constants/Colors";
 import { Text, TextInput, TextType } from "design-system";
@@ -90,6 +91,10 @@ function PageSettings(props: { page: Page }) {
 
   const appNeedsUpdate = applicationVersion < ApplicationVersion.SLUG_URL;
 
+  const [canManagePages, setCanManagePages] = useState(
+    hasManagePagePermission(page?.userPermissions || []),
+  );
+
   const [pageName, setPageName] = useState(page.pageName);
   const [isPageNameSaving, setIsPageNameSaving] = useState(false);
   const [isPageNameValid, setIsPageNameValid] = useState(true);
@@ -117,6 +122,7 @@ function PageSettings(props: { page: Page }) {
     setCustomSlug(page.customSlug || "");
     setIsShown(!!!page.isHidden);
     setIsDefault(!!page.isDefault);
+    setCanManagePages(hasManagePagePermission(page?.userPermissions || []));
   }, [page, page.pageName, page.customSlug, page.isHidden, page.isDefault]);
 
   useEffect(() => {
@@ -134,7 +140,8 @@ function PageSettings(props: { page: Page }) {
   }, [isUpdatingEntity]);
 
   const savePageName = useCallback(() => {
-    if (!isPageNameValid || page.pageName === pageName) return;
+    if (!canManagePages || !isPageNameValid || page.pageName === pageName)
+      return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       name: pageName,
@@ -144,7 +151,8 @@ function PageSettings(props: { page: Page }) {
   }, [page.pageId, page.pageName, pageName, isPageNameValid]);
 
   const saveCustomSlug = useCallback(() => {
-    if (!isCustomSlugValid || page.customSlug === customSlug) return;
+    if (!canManagePages || !isCustomSlugValid || page.customSlug === customSlug)
+      return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       customSlug: customSlug || "",
@@ -155,6 +163,7 @@ function PageSettings(props: { page: Page }) {
 
   const saveIsShown = useCallback(
     (isShown: boolean) => {
+      if (!canManagePages) return;
       const payload: UpdatePageRequest = {
         id: page.pageId,
         isHidden: !isShown,
@@ -177,6 +186,7 @@ function PageSettings(props: { page: Page }) {
         {isPageNameSaving && <TextLoaderIcon />}
         <TextInput
           defaultValue={pageName}
+          disabled={!canManagePages}
           fill
           id="t--page-settings-name"
           onBlur={savePageName}
@@ -226,6 +236,7 @@ function PageSettings(props: { page: Page }) {
         {isCustomSlugSaving && <TextLoaderIcon />}
         <TextInput
           defaultValue={customSlug}
+          disabled={!canManagePages}
           fill
           id="t--page-settings-custom-slug"
           onBlur={saveCustomSlug}
@@ -298,7 +309,7 @@ function PageSettings(props: { page: Page }) {
           <AdsSwitch
             checked={isShown}
             className="mb-0"
-            disabled={isShownSaving}
+            disabled={isShownSaving || !canManagePages}
             id="t--page-settings-show-nav-control"
             large
             onChange={() => {
@@ -326,10 +337,11 @@ function PageSettings(props: { page: Page }) {
           <AdsSwitch
             checked={isDefault}
             className="mb-0"
-            disabled={isDefaultSaving || page.isDefault}
+            disabled={isDefaultSaving || page.isDefault || !canManagePages}
             id="t--page-settings-home-page-control"
             large
             onChange={() => {
+              if (!canManagePages) return;
               setIsDefault(!isDefault);
               setIsDefaultSaving(true);
               dispatch(setPageAsDefault(page.pageId, applicationId));
