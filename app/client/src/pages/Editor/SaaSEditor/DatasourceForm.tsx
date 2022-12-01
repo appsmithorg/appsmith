@@ -36,6 +36,7 @@ import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import { isDatasourceInViewMode } from "selectors/ui";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
@@ -49,6 +50,7 @@ import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatas
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
+  canManageDatasource?: boolean;
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
@@ -240,6 +242,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      canManageDatasource,
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
@@ -262,7 +265,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             <Header>
               <FormTitleContainer>
                 <PluginImage alt="Datasource" src={this.props.pluginImage} />
-                <FormTitle focusOnMount={this.props.isNewDatasource} />
+                <FormTitle
+                  disabled={!canManageDatasource}
+                  focusOnMount={this.props.isNewDatasource}
+                />
               </FormTitleContainer>
 
               {viewMode && (
@@ -347,6 +353,12 @@ const mapStateToProps = (state: AppState, props: any) => {
       ? true
       : isDirty(DATASOURCE_SAAS_FORM)(state);
 
+  const datsourcePermissions = datasource?.userPermissions || [];
+
+  const canManageDatasource = hasManageDatasourcePermission(
+    datsourcePermissions,
+  );
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -366,6 +378,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
     applicationId: getCurrentApplicationId(state),
+    canManageDatasource: canManageDatasource,
     datasourceName: datasource?.name ?? "",
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
     isDatasourceBeingSavedFromPopup:

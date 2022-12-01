@@ -5,7 +5,7 @@ import * as chartWidgetReskinningMigrations from "./migrations/ChartWidgetReskin
 import * as tableMigrations from "./migrations/TableWidget";
 import * as IncorrectDynamicBindingPathLists from "./migrations/IncorrectDynamicBindingPathLists";
 import * as TextStyleFromTextWidget from "./migrations/TextWidget";
-import * as MenuButtonWidgetButtonProperties from "./migrations/MenuButtonWidget";
+import * as menuButtonWidgetMigrations from "./migrations/MenuButtonWidget";
 import * as modalMigration from "./migrations/ModalWidget";
 import * as mapWidgetMigration from "./migrations/MapWidget";
 import * as checkboxMigration from "./migrations/CheckboxGroupWidget";
@@ -352,7 +352,7 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: MenuButtonWidgetButtonProperties,
+        moduleObj: menuButtonWidgetMigrations,
         functionName: "migrateMenuButtonWidgetButtonProperties",
       },
     ],
@@ -672,6 +672,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 68,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: menuButtonWidgetMigrations,
+        functionName: "migrateMenuButtonDynamicItems",
+      },
+    ],
+    version: 69,
   },
 ];
 

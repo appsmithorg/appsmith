@@ -322,11 +322,16 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.blockRoutes();
     }
 
-    if (this.props.pluginDatasourceForm === "RestAPIDatasourceForm") {
+    if (
+      this.props.pluginDatasourceForm ===
+      DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
       this.setViewModeFromQueryParams();
     }
   }
 
+  // To move to edit state for new datasources and when we want to move to edit state
+  // from outside the datasource route
   setViewModeFromQueryParams() {
     const params = getQueryParams();
     if (this.props.viewMode) {

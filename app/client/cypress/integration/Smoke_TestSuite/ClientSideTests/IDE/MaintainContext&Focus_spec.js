@@ -147,7 +147,7 @@ describe("MaintainContext&Focus", function() {
     apiPage.AssertRightPaneSelectedTab("connections");
   });
 
-  it("7. Datasource edit mode has to be maintained", () => {
+  it("8. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith");
     dataSources.EditDatasource();
     dataSources.SaveDSFromDialog(false);

@@ -10,7 +10,7 @@ import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import { Button } from "design-system";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -41,7 +41,7 @@ export const SaveButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-export const ActionButton = styled(BaseButton)`
+export const ActionButton = styled(Button)`
   &&& {
     width: auto;
     min-width: 74px;
