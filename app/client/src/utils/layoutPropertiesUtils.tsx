@@ -1,3 +1,7 @@
+import { ReactComponent as Column100 } from "assets/icons/control/1-column.svg";
+import { ReactComponent as Column25_75 } from "assets/icons/control/2-column-25-75.svg";
+import { ReactComponent as Column50_50 } from "assets/icons/control/2-column-50-50.svg";
+import { ReactComponent as Column75_25 } from "assets/icons/control/2-column-75-25.svg";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
   AlignItems,
@@ -11,7 +15,7 @@ import {
   FlexVerticalAlignment,
 } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-
+import React from "react";
 export interface LayoutProperties {
   flexDirection: FlexDirection;
   justifyContent: JustifyContent;
@@ -87,6 +91,7 @@ export function getLayoutProperties(
 interface ColumnSplitOptionType {
   label: string;
   value: ColumnSplitTypes;
+  icon: any;
 }
 
 export type ColumnSplitTypes =
@@ -106,26 +111,30 @@ export const ColumnSplitOptions: ColumnSplitOptionType[] = [
   {
     label: "1 Column",
     value: "1-column",
+    icon: <Column100 />,
   },
   {
     label: "2 Column 50-50",
     value: "2-column-50-50",
+    icon: <Column50_50 />,
   },
   {
     label: "2 Column 25-75",
     value: "2-column-25-75",
+    icon: <Column25_75 />,
   },
   {
     label: "2 Column 75-25",
     value: "2-column-75-25",
+    icon: <Column75_25 />,
   },
 ];
 
 export const getColumnSplittingConfig = () => {
   return {
-    helpText: "Column Splitting configuration",
+    helpText: "Layout Preset",
     propertyName: "columnSplitType",
-    label: "Container Split",
+    label: "Layout preset",
     controlType: "COLUMN_SPLIT_OPTIONS",
     defaultValue: ColumnSplitOptions[0].value,
     options: ColumnSplitOptions,

@@ -71,8 +71,11 @@ export class ContainerWidget extends BaseWidget<
           },
           generatePositioningConfig(Positioning.Vertical),
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-          getColumnSplittingConfig(),
         ],
+      },
+      {
+        sectionName: "Layout",
+        children: [getColumnSplittingConfig()],
       },
     ];
   }
@@ -231,6 +234,10 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    // ToDo(Ashok) create a HOC instead of this
+
+    // const stretchFlexBox = !this.props.children || !this.props.children?.length;
+
     return (
       <ContainerComponent {...props}>
         <WidgetsMultiSelectBox
@@ -239,8 +246,17 @@ export class ContainerWidget extends BaseWidget<
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />
+        {/* <FlexBoxComponent
+          direction={LayoutDirection.Horizontal}
+          flexLayers={this.props.flexLayers || []}
+          overflow={Overflow.Wrap}
+          stretchHeight={stretchFlexBox}
+          useAutoLayout={this.props.useAutoLayout || false}
+          widgetId={this.props.widgetId}
+        > */}
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
+        {/* </FlexBoxComponent> */}
       </ContainerComponent>
     );
   }

@@ -31,7 +31,7 @@ const options = ColumnSplitOptions.map((optionKey, i) => ({
       key={i}
       openOnTargetFocus={false}
     >
-      <button tabIndex={-1}>{i}</button>
+      <button tabIndex={-1}>{optionKey.icon}</button>
     </TooltipComponent>
   ),
   value: optionKey.value,
