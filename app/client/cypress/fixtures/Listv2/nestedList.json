@@ -51,7 +51,7 @@
                 "topRow": 0,
                 "bottomRow": 95,
                 "parentRowSpace": 10,
-                "currentViewItems": "{{[]}}",
+                "currentItemsView": "{{[]}}",
                 "type": "LIST_WIDGET_V2",
                 "hideCard": false,
                 "gridGap": 0,
@@ -62,7 +62,7 @@
                 "dynamicTriggerPathList": [],
                 "dynamicBindingPathList": [
                     {
-                        "key": "currentViewItems"
+                        "key": "currentItemsView"
                     },
                     {
                         "key": "borderRadius"
@@ -528,7 +528,7 @@
                                                 "topRow": 1,
                                                 "bottomRow": 41,
                                                 "parentRowSpace": 10,
-                                                "currentViewItems": "{{[]}}",
+                                                "currentItemsView": "{{[]}}",
                                                 "type": "LIST_WIDGET_V2",
                                                 "hideCard": false,
                                                 "gridGap": 0,
@@ -539,7 +539,7 @@
                                                 "dynamicTriggerPathList": [],
                                                 "dynamicBindingPathList": [
                                                     {
-                                                        "key": "currentViewItems"
+                                                        "key": "currentItemsView"
                                                     },
                                                     {
                                                         "key": "borderRadius"
@@ -1245,7 +1245,7 @@
                                                     "animateLoading": true,
                                                     "gridType": true,
                                                     "dynamicBindingPathList": true,
-                                                    "currentViewItems": true,
+                                                    "currentItemsView": true,
                                                     "enhancements": true,
                                                     "gridGap": true,
                                                     "templateBottomRow": true,

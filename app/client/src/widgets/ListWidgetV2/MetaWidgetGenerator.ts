@@ -104,7 +104,7 @@ type CachedRows = {
 type LevelProperty = {
   currentIndex: number;
   currentItem: string;
-  currentRow: Record<string, string>;
+  currentView: Record<string, string>;
 };
 
 type VirtualizerInstance = Virtualizer<HTMLDivElement, HTMLDivElement>;
@@ -124,18 +124,18 @@ enum MODIFICATION_TYPE {
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
 const ROOT_ROW_KEY = "__$ROOT_KEY$__";
 const BLACKLISTED_ENTITY_DEFINITION: Record<string, string[] | undefined> = {
-  LIST_WIDGET_V2: ["currentViewItems"],
+  LIST_WIDGET_V2: ["currentItemsView"],
 };
 /**
  * LEVEL_PATH_REGEX gives out following matches:
  * Inputs
- * {{() => { level_1.currentIndex+ level_22.currentRow.something.test}()}}
- * {{level_1.currentIndex + level_1.currentRow.something.test}}
+ * {{() => { level_1.currentIndex+ level_22.currentView.something.test}()}}
+ * {{level_1.currentIndex + level_1.currentView.something.test}}
  * {{Text1.value}}
  *
  * Outputs
- * ["level_1.currentIndex", level_22.currentRow.something.test]
- * ["level_1.currentIndex", level_1.currentRow.something.test]
+ * ["level_1.currentIndex", level_22.currentView.something.test]
+ * ["level_1.currentIndex", level_1.currentView.something.test]
  * null
  */
 // eslint-disable-next-line prettier/prettier
@@ -145,8 +145,8 @@ const hasCurrentItem = (value: string) =>
   isString(value) && value.indexOf("currentItem") > -1;
 const hasCurrentIndex = (value: string) =>
   isString(value) && value.indexOf("currentIndex") > -1;
-const hasCurrentRow = (value: string) =>
-  isString(value) && value.indexOf("currentRow") > -1;
+const hasCurrentView = (value: string) =>
+  isString(value) && value.indexOf("currentView") > -1;
 const hasLevel = (value: string) =>
   isString(value) && value.indexOf("level_") > -1;
 
@@ -627,10 +627,10 @@ class MetaWidgetGenerator {
   /**
    *
    * levelData provides 2 information to the child list widget.
-   * 1. parent list widget's currentRow, currentItem and complete row's cache
+   * 1. parent list widget's currentView, currentItem and complete row's cache
    *  This helps child widget to fill in information where level_1 or level_2 property is used.
    * 2. provides auto-complete information.
-   *  In the derived property of the List widget, the childAutoComplete property uses the currentItem and currentRow
+   *  In the derived property of the List widget, the childAutoComplete property uses the currentItem and currentView
    *  to define the autocomplete suggestions.
    */
   private addLevelData = (metaWidget: MetaWidget, viewIndex: number) => {
@@ -652,7 +652,7 @@ class MetaWidgetGenerator {
           currentItem: data?.[0],
           // Uses any one of the row's container present on the List widget to
           // get the object of current row for autocomplete
-          currentRow: `{{${metaContainerName}.data}}`,
+          currentView: `{{${metaContainerName}.data}}`,
         },
       },
     };
@@ -665,7 +665,7 @@ class MetaWidgetGenerator {
       levels.forEach((level) => {
         metaWidget.dynamicBindingPathList = [
           ...(metaWidget.dynamicBindingPathList || []),
-          { key: `levelData.${level}.autocomplete.currentRow` },
+          { key: `levelData.${level}.autocomplete.currentView` },
         ];
       });
     }
@@ -706,16 +706,16 @@ class MetaWidgetGenerator {
         pathTypes.add(DynamicPathType.CURRENT_INDEX);
       }
 
-      if (hasCurrentRow(propertyValue)) {
+      if (hasCurrentView(propertyValue)) {
         referencesEntityDef = {
           ...referencesEntityDef,
           ...this.getReferencesEntityDefMap(propertyValue, key),
         };
-        pathTypes.add(DynamicPathType.CURRENT_ROW);
+        pathTypes.add(DynamicPathType.CURRENT_VIEW);
       }
 
       if (hasLevel(propertyValue)) {
-        pathTypes.add(DynamicPathType.CURRENT_ROW);
+        pathTypes.add(DynamicPathType.CURRENT_VIEW);
         const levelPaths = propertyValue.match(LEVEL_PATH_REGEX);
 
         if (levelPaths) {
@@ -738,7 +738,7 @@ class MetaWidgetGenerator {
       set(metaWidget, path, propertyBinding);
     });
 
-    this.addCurrentRowProperty(metaWidget, Object.values(referencesEntityDef));
+    this.addCurrentViewProperty(metaWidget, Object.values(referencesEntityDef));
   };
 
   private addCurrentItemProperty = (
@@ -755,17 +755,17 @@ class MetaWidgetGenerator {
   };
 
   /**
-   * This method adds a currentRow property to the meta widget.
-   * The currentRow property has the corresponding row's widget's properties
+   * This method adds a currentView property to the meta widget.
+   * The currentView property has the corresponding row's widget's properties
    * based on the entity definition of that widget.
    * The way it is decided as to which meta widget's properties go in depends on the
-   * widgets being referenced in the property value using the currentRow
+   * widgets being referenced in the property value using the currentView
    *
-   * Ex - {{currentRow.Input1.value + currentRow.Input2.value}}
-   * In this case Input1's properties and Input2's properties are part of currentRow
+   * Ex - {{currentView.Input1.value + currentView.Input2.value}}
+   * In this case Input1's properties and Input2's properties are part of currentView
    *
-   * The currentRow in this case can look like (2nd row of list)
-   * currentRow = "{{
+   * The currentView in this case can look like (2nd row of list)
+   * currentView = "{{
    *  Input1: {
    *    value: List1_Input1_1.value,
    *    text: List1_Input1_1.text
@@ -777,16 +777,16 @@ class MetaWidgetGenerator {
    * }}"
    *
    */
-  private addCurrentRowProperty = (
+  private addCurrentViewProperty = (
     metaWidget: MetaWidget,
     references: string[],
   ) => {
-    const currentRowBinding = Object.values(references).join(",");
+    const currentViewBinding = Object.values(references).join(",");
 
-    metaWidget.currentRow = `{{{${currentRowBinding}}}}`;
+    metaWidget.currentView = `{{{${currentViewBinding}}}}`;
     metaWidget.dynamicBindingPathList = [
       ...(metaWidget.dynamicBindingPathList || []),
-      { key: "currentRow" },
+      { key: "currentView" },
     ];
   };
 
@@ -818,20 +818,20 @@ class MetaWidgetGenerator {
         dynamicBindingPathList.push(`${level}.currentItem`);
       }
 
-      if (dynamicPathType === DynamicPathType.CURRENT_ROW) {
+      if (dynamicPathType === DynamicPathType.CURRENT_VIEW) {
         const { entityDefinition } =
           lookupLevel?.currentRowCache?.[widgetName] || {};
 
         if (entityDefinition) {
           levelProps[level] = {
             ...(levelProps[level] || {}),
-            currentRow: {
-              ...(levelProps[level]?.currentRow || {}),
+            currentView: {
+              ...(levelProps[level]?.currentView || {}),
               [widgetName]: `{{{${entityDefinition}}}}`,
             },
           };
 
-          dynamicBindingPathList.push(`${level}.currentRow.${widgetName}`);
+          dynamicBindingPathList.push(`${level}.currentView.${widgetName}`);
         }
       }
     });
@@ -1089,7 +1089,7 @@ class MetaWidgetGenerator {
      * Loop through all the template widget names and check if the
      * property have uses any of the template widgets name
      * Eg -
-     *  property value -> "{{currentRow.Input1.value}}"
+     *  property value -> "{{currentView.Input1.value}}"
      *  templateWidgetNames -> ["Text1", "Input1", "Image1"]
      *  dependantTemplateWidgets -> ["Input1"]
      */

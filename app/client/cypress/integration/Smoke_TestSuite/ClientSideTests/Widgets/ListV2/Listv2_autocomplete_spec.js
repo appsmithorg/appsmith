@@ -15,7 +15,7 @@ describe("List v2 - Property autocomplete", () => {
     cy.addDsl(level3NestedList);
   });
 
-  it("1. shows autocomplete for currentItem/currentIndex/currentRow for level_1 list", () => {
+  it("1. shows autocomplete for currentItem/currentIndex/currentView for level_1 list", () => {
     // Open the property pane of level 1 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text1", "textwidget");
 
@@ -24,11 +24,11 @@ describe("List v2 - Property autocomplete", () => {
       force: true,
     });
     checkAutosuggestion("currentItem", "Object");
-    checkAutosuggestion("currentRow", "Object");
+    checkAutosuggestion("currentView", "Object");
     checkAutosuggestion("currentIndex", "Number");
   });
 
-  it("2. shows autocomplete for currentItem/currentIndex/currentRow for level_2 list", () => {
+  it("2. shows autocomplete for currentItem/currentIndex/currentView for level_2 list", () => {
     // Open the property pane of level 2 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text3", "textwidget");
 
@@ -37,11 +37,11 @@ describe("List v2 - Property autocomplete", () => {
       force: true,
     });
     checkAutosuggestion("currentItem", "Object");
-    checkAutosuggestion("currentRow", "Object");
+    checkAutosuggestion("currentView", "Object");
     checkAutosuggestion("currentIndex", "Number");
   });
 
-  it("3. shows autocomplete for level_1's currentItem/currentIndex/currentRow for level_2 list", () => {
+  it("3. shows autocomplete for level_1's currentItem/currentIndex/currentView for level_2 list", () => {
     // Open the property pane of level 2 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text3", "textwidget");
 
@@ -51,11 +51,11 @@ describe("List v2 - Property autocomplete", () => {
       { force: true },
     );
     checkAutosuggestion("currentItem", "Object");
-    checkAutosuggestion("currentRow", "Object");
+    checkAutosuggestion("currentView", "Object");
     checkAutosuggestion("currentIndex", "Number");
   });
 
-  it("4. shows autocomplete for currentItem/currentIndex/currentRow for level_3 list", () => {
+  it("4. shows autocomplete for currentItem/currentIndex/currentView for level_3 list", () => {
     // Open the property pane of level 3 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text6", "textwidget");
 
@@ -64,11 +64,11 @@ describe("List v2 - Property autocomplete", () => {
       force: true,
     });
     checkAutosuggestion("currentItem", "Object");
-    checkAutosuggestion("currentRow", "Object");
+    checkAutosuggestion("currentView", "Object");
     checkAutosuggestion("currentIndex", "Number");
   });
 
-  it("5. shows autocomplete for level_1's currentItem/currentIndex/currentRow for level_3 list", () => {
+  it("5. shows autocomplete for level_1's currentItem/currentIndex/currentView for level_3 list", () => {
     // Open the property pane of level 3 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text6", "textwidget");
 
@@ -78,11 +78,11 @@ describe("List v2 - Property autocomplete", () => {
       { force: true },
     );
     checkAutosuggestion("currentItem", "Object");
-    checkAutosuggestion("currentRow", "Object");
+    checkAutosuggestion("currentView", "Object");
     checkAutosuggestion("currentIndex", "Number");
   });
 
-  it("6. shows autocomplete for level_2's currentItem/currentIndex/currentRow for level_3 list", () => {
+  it("6. shows autocomplete for level_2's currentItem/currentIndex/currentView for level_3 list", () => {
     // Open the property pane of level 3 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text6", "textwidget");
 
@@ -92,30 +92,30 @@ describe("List v2 - Property autocomplete", () => {
       { force: true },
     );
     checkAutosuggestion("currentItem", "Object");
-    checkAutosuggestion("currentRow", "Object");
+    checkAutosuggestion("currentView", "Object");
     checkAutosuggestion("currentIndex", "Number");
   });
 
-  it("7. should not show List's currentViewItems in currentRow of level_1/level_2 properties", () => {
+  it("7. should not show List's currentItemsView in currentView of level_1/level_2 properties", () => {
     // Open the property pane of level 3 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text6", "textwidget");
 
-    // level_1 List currentViewItems should not exist
+    // level_1 List currentItemsView should not exist
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentRow.List5.", { force: true });
+    ).type("{{level_1.currentView.List5.", { force: true });
     cy.get(".CodeMirror-hints")
-      .contains("currentViewItems")
+      .contains("currentItemsView")
       .should("not.exist");
 
-    // level_2 List currentViewItems should not exist
+    // level_2 List currentItemsView should not exist
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_2.currentRow.List6.", { force: true });
+    ).type("{{level_2.currentView.List6.", { force: true });
     cy.get(".CodeMirror-hints")
-      .contains("currentViewItems")
+      .contains("currentItemsView")
       .should("not.exist");
   });
 
@@ -133,40 +133,40 @@ describe("List v2 - Property autocomplete", () => {
     checkAutosuggestion("positions", "Array");
   });
 
-  it("9. currentRow should reflect appropriate widgets for level_1 for level_3 list", () => {
+  it("9. currentView should reflect appropriate widgets for level_1 for level_3 list", () => {
     // Open the property pane of level 3 list widget's Text widget
     cy.openPropertyPaneByWidgetName("Text6", "textwidget");
 
-    // level_1.currentRow
+    // level_1.currentView
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentRow.", { force: true });
+    ).type("{{level_1.currentView.", { force: true });
     checkAutosuggestion("Text1", "Object");
     checkAutosuggestion("Text2", "Object");
     checkAutosuggestion("List5", "Object");
 
-    // level_1.currentRow.Text1
+    // level_1.currentView.Text1
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentRow.Text1.", { force: true });
+    ).type("{{level_1.currentView.Text1.", { force: true });
     checkAutosuggestion("text", "String");
     checkAutosuggestion("isVisible", "Boolean");
 
-    // level_1.currentRow.Text2
+    // level_1.currentView.Text2
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentRow.Text2.", { force: true });
+    ).type("{{level_1.currentView.Text2.", { force: true });
     checkAutosuggestion("text", "String");
     checkAutosuggestion("isVisible", "Boolean");
 
-    // level_1.currentRow.List5
+    // level_1.currentView.List5
     cy.testJsontext("text", "");
     cy.get(
       ".t--property-control-text .CodeMirror textarea",
-    ).type("{{level_1.currentRow.List5.", { force: true });
+    ).type("{{level_1.currentView.List5.", { force: true });
     checkAutosuggestion("backgroundColor", "String");
     checkAutosuggestion("gridGap", "Number");
     checkAutosuggestion("isVisible", "Boolean");

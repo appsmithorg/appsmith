@@ -44,7 +44,7 @@ const MINIMUM_ROW_GAP = -8;
 export enum DynamicPathType {
   CURRENT_ITEM = "currentItem",
   CURRENT_INDEX = "currentIndex",
-  CURRENT_ROW = "currentRow",
+  CURRENT_VIEW = "currentView",
   LEVEL = "level",
 }
 export type DynamicPathMap = Record<string, DynamicPathType[]>;
@@ -53,7 +53,7 @@ export type MetaWidgets = Record<string, MetaWidget>;
 
 export type MetaWidget = FlattenedWidgetProps & {
   currentIndex: number;
-  currentRow: string;
+  currentView: string;
   currentItem: string;
 };
 

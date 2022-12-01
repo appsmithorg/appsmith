@@ -30,7 +30,7 @@
             "topRow": 0,
             "bottomRow": 90,
             "parentRowSpace": 10,
-            "currentViewItems": "{{[]}}",
+            "currentItemsView": "{{[]}}",
             "type": "LIST_WIDGET_V2",
             "hideCard": false,
             "gridGap": 0,
@@ -42,7 +42,7 @@
             "dynamicTriggerPathList": [],
             "dynamicBindingPathList": [
                 {
-                    "key": "currentViewItems"
+                    "key": "currentItemsView"
                 },
                 {
                     "key": "primaryKeys"
@@ -346,7 +346,7 @@
                                             "topRow": 0,
                                             "bottomRow": 37,
                                             "parentRowSpace": 10,
-                                            "currentViewItems": "{{[]}}",
+                                            "currentItemsView": "{{[]}}",
                                             "type": "LIST_WIDGET_V2",
                                             "hideCard": false,
                                             "gridGap": 0,
@@ -357,7 +357,7 @@
                                             "parentColumnSpace": 40.1298828125,
                                             "dynamicBindingPathList": [
                                                 {
-                                                    "key": "currentViewItems"
+                                                    "key": "currentItemsView"
                                                 },
                                                 {
                                                     "key": "primaryKeys"
@@ -661,7 +661,7 @@
                                                                             "topRow": 0,
                                                                             "bottomRow": 12,
                                                                             "parentRowSpace": 10,
-                                                                            "currentViewItems": "{{[]}}",
+                                                                            "currentItemsView": "{{[]}}",
                                                                             "type": "LIST_WIDGET_V2",
                                                                             "hideCard": false,
                                                                             "gridGap": 0,
@@ -673,7 +673,7 @@
                                                                             "dynamicTriggerPathList": [],
                                                                             "dynamicBindingPathList": [
                                                                                 {
-                                                                                    "key": "currentViewItems"
+                                                                                    "key": "currentItemsView"
                                                                                 },
                                                                                 {
                                                                                     "key": "primaryKeys"
@@ -1292,7 +1292,7 @@
                                                 "animateLoading": true,
                                                 "gridType": true,
                                                 "dynamicBindingPathList": true,
-                                                "currentViewItems": true,
+                                                "currentItemsView": true,
                                                 "enhancements": true,
                                                 "gridGap": true,
                                                 "templateBottomRow": true,
