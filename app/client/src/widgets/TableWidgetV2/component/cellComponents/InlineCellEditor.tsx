@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { isNil } from "lodash";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
@@ -69,7 +69,7 @@ const Wrapper = styled.div<{
        * component styles has !important
        */
       box-shadow: none !important;
-      padding: 0px 8px;
+      padding: 0px 5px 0px 6px;
       min-height: 34px;
       font-size: ${(props) => props.textSize};
     }
@@ -81,8 +81,9 @@ const Wrapper = styled.div<{
       &,
       &:focus {
         line-height: 28px;
-        padding-top: ${(props) =>
-          TABLE_SIZES[props.compactMode].VERTICAL_PADDING}px;
+        padding: ${(props) =>
+            TABLE_SIZES[props.compactMode].VERTICAL_EDITOR_PADDING}px
+          6px 0px 6px;
       }
     }
 
@@ -191,17 +192,15 @@ export function InlineCellEditor({
     [setCursorPos, onChange, inputType],
   );
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.selectionStart = cursorPos;
+  useLayoutEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.selectionStart = cursorPos;
 
-        if (cursorPos < value.length) {
-          inputRef.current.selectionEnd = cursorPos;
-        }
+      if (cursorPos < value.length) {
+        inputRef.current.selectionEnd = cursorPos;
       }
-    }, 0);
-  }, [cursorPos, inputRef.current, value]);
+    }
+  }, [multiline]);
 
   return (
     <Wrapper
