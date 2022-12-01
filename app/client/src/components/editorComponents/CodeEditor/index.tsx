@@ -1057,7 +1057,7 @@ class CodeEditor extends Component<Props, State> {
             ctrlPressed={this.state.ctrlPressed}
             disabled={disabled}
             editorTheme={this.props.theme}
-            fill={fill}
+            fillUp={fill}
             hasError={isInvalid}
             height={height}
             hoverInteraction={hoverInteraction}
