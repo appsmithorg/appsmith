@@ -99,13 +99,13 @@
                 ],
                 "dynamicBindingPathList": [
                     {
-                        "key": "currentViewRows"
+                        "key": "currentItemsView"
                     },
                     {
-                        "key": "selectedRow"
+                        "key": "selectedItemView"
                     },
                     {
-                        "key": "triggeredRow"
+                        "key": "triggeredItemView"
                     },
                     {
                         "key": "primaryKeys"
@@ -790,12 +790,12 @@
                         "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
                     }
                 ],
-                "selectedRow": "{{{}}}",
+                "selectedItemView": "{{{}}}",
                 "privateWidgets": {
                     "undefined": true
                 },
                 "key": "xsmyy7mmc6",
-                "currentViewRows": "{{[]}}",
+                "currentItemsView": "{{[]}}",
                 "backgroundColor": "transparent",
                 "isDeprecated": false,
                 "rightColumn": 59,
@@ -806,7 +806,7 @@
                 "isVisible": true,
                 "parentId": "0",
                 "hasMetaWidgets": true,
-                "triggeredRow": "{{{}}}",
+                "triggeredItemView": "{{{}}}",
                 "renderMode": "CANVAS",
                 "isLoading": false,
                 "mainCanvasId": "joj5b884cn",

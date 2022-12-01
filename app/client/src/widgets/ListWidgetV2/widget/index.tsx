@@ -34,7 +34,7 @@ import ListPagination, {
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
 
-const getCurrentViewRowsBindingTemplate = () => ({
+const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
   suffix: "]}}",
 });
@@ -67,10 +67,10 @@ export type LevelData = {
 
 export type MetaWidgetCacheProps = {
   entityDefinition: Record<string, string>;
-  index: number;
+  rowIndex: number;
   metaWidgetId: string;
   metaWidgetName: string;
-  rowIndex: number;
+  viewIndex: number;
   templateWidgetId: string;
   templateWidgetName: string;
   type: string;
@@ -126,11 +126,11 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
-      currentViewRows: "{{[]}}",
-      selectedRow: "{{{}}}",
-      triggeredRow: "{{{}}}",
-      selectedRowIndex: -1,
-      triggeredRowIndex: -1,
+      currentItemsView: "{{[]}}",
+      selectedItemView: "{{{}}}",
+      triggeredItemView: "{{{}}}",
+      selectedItemIndex: -1,
+      triggeredItemIndex: -1,
     };
   }
 
@@ -200,10 +200,10 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     }
 
     if (this.props.primaryKeys !== prevProps.primaryKeys) {
-      this.resetSelectedRowIndex();
-      this.resetSelectedRow();
-      this.resetTriggeredRowIndex();
-      this.resetTriggeredRow();
+      this.resetSelectedItemViewIndex();
+      this.resetSelectedItemView();
+      this.resetTriggeredItemViewIndex();
+      this.resetTriggeredItemView();
     }
 
     this.setupMetaWidgets(prevProps);
@@ -275,7 +275,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       removedMetaWidgetIds,
     } = this.metaWidgetGenerator.withOptions(generatorOptions).generate();
 
-    this.updateCurrentViewRowsBinding();
+    this.updateCurrentItemsViewBinding();
     const mainCanvasWidget = this.generateMainMetaCanvasWidget();
     this.syncMetaContainerNames();
 
@@ -331,23 +331,23 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     }
   };
 
-  updateCurrentViewRowsBinding = () => {
+  updateCurrentItemsViewBinding = () => {
     const {
       names: currMetaContainerNames,
     } = this.metaWidgetGenerator.getMetaContainers();
 
-    const { prefix, suffix } = getCurrentViewRowsBindingTemplate();
+    const { prefix, suffix } = getCurrentItemsViewBindingTemplate();
 
     if (!equal(this.prevMetaContainerNames, currMetaContainerNames)) {
-      const currentViewRowsBinding = `${prefix}${currMetaContainerNames.map(
+      const currentItemsViewBinding = `${prefix}${currMetaContainerNames.map(
         (name) => `${name}.data`,
       )}${suffix}`;
 
       // This doesn't trigger another evaluation
       this.context?.syncUpdateWidgetMetaProperty?.(
         this.props.widgetId,
-        "currentViewRows",
-        currentViewRowsBinding,
+        "currentItemsView",
+        currentItemsViewBinding,
       );
     }
   };
@@ -538,8 +538,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
 
   onRowClick = (rowIndex: number) => {
-    this.updateSelectedRowIndex(rowIndex);
-    this.updateSelectedRow(rowIndex);
+    this.updateSelectedItemViewIndex(rowIndex);
+    this.updateSelectedItemView(rowIndex);
 
     if (!this.props.onRowClick) return;
 
@@ -568,35 +568,35 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
 
   onRowClickCapture = (rowIndex: number) => {
-    this.updateTriggeredRowIndex(rowIndex);
-    this.updateTriggeredRow(rowIndex);
+    this.updateTriggeredItemViewIndex(rowIndex);
+    this.updateTriggeredItemView(rowIndex);
   };
 
   getCachedRowIndexes = () => {
     const cachedRowIndexes = new Set<number>();
 
-    cachedRowIndexes.add(this.props.selectedRowIndex ?? -1);
-    cachedRowIndexes.add(this.props.triggeredRowIndex ?? -1);
+    cachedRowIndexes.add(this.props.selectedItemIndex ?? -1);
+    cachedRowIndexes.add(this.props.triggeredItemIndex ?? -1);
 
     return Array.from(cachedRowIndexes);
   };
 
-  updateSelectedRowIndex = (rowIndex: number) => {
-    const { selectedRowIndex } = this.props;
+  updateSelectedItemViewIndex = (rowIndex: number) => {
+    const { selectedItemIndex } = this.props;
 
-    if (rowIndex === selectedRowIndex) {
-      this.resetSelectedRowIndex();
+    if (rowIndex === selectedItemIndex) {
+      this.resetSelectedItemViewIndex();
       return;
     }
 
-    this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
+    this.props.updateWidgetMetaProperty("selectedItemIndex", rowIndex);
   };
 
-  updateSelectedRow = (rowIndex: number) => {
-    const { selectedRowIndex } = this.props;
+  updateSelectedItemView = (rowIndex: number) => {
+    const { selectedItemIndex } = this.props;
 
-    if (rowIndex === selectedRowIndex) {
-      this.resetSelectedRow();
+    if (rowIndex === selectedItemIndex) {
+      this.resetSelectedItemView();
       return;
     }
 
@@ -604,59 +604,59 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       rowIndex,
     );
 
-    const selectedRowBinding = triggeredContainer
+    const selectedItemViewBinding = triggeredContainer
       ? `{{ ${triggeredContainer}.data }}`
       : "{{{}}}";
 
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
-      "selectedRow",
-      selectedRowBinding,
+      "selectedItemView",
+      selectedItemViewBinding,
     );
   };
 
-  updateTriggeredRow = (rowIndex: number) => {
+  updateTriggeredItemView = (rowIndex: number) => {
     const triggeredContainer = this.metaWidgetGenerator.getRowContainerWidgetName(
       rowIndex,
     );
 
-    const triggeredRowBinding = triggeredContainer
+    const triggeredItemViewBinding = triggeredContainer
       ? `{{ ${triggeredContainer}.data }}`
       : "{{{}}}";
 
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
-      "triggeredRow",
-      triggeredRowBinding,
+      "triggeredItemView",
+      triggeredItemViewBinding,
     );
   };
 
-  resetSelectedRow = () => {
+  resetSelectedItemView = () => {
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
-      "selectedRow",
+      "selectedItemView",
       "{{{}}}",
     );
   };
 
-  resetTriggeredRow = () => {
+  resetTriggeredItemView = () => {
     this.context?.syncUpdateWidgetMetaProperty?.(
       this.props.widgetId,
-      "triggeredRow",
+      "triggeredItemView",
       "{{{}}}",
     );
   };
 
-  updateTriggeredRowIndex = (rowIndex: number) => {
-    this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
+  updateTriggeredItemViewIndex = (rowIndex: number) => {
+    this.props.updateWidgetMetaProperty("triggeredItemIndex", rowIndex);
   };
 
-  resetSelectedRowIndex = () => {
-    this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
+  resetSelectedItemViewIndex = () => {
+    this.props.updateWidgetMetaProperty("selectedItemIndex", -1);
   };
 
-  resetTriggeredRowIndex = () => {
-    this.props.updateWidgetMetaProperty("triggeredRowIndex", -1);
+  resetTriggeredItemViewIndex = () => {
+    this.props.updateWidgetMetaProperty("triggeredItemIndex", -1);
   };
 
   getRowGap = () =>
@@ -685,7 +685,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   renderChildren = () => {
     const { componentWidth } = this.getComponentDimensions();
-    const { selectedRowIndex } = this.props;
+    const { selectedItemIndex } = this.props;
 
     return (this.props.metaWidgetChildrenStructure || []).map(
       (childWidgetStructure) => {
@@ -702,7 +702,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
           return {
             ...container,
             focused,
-            selected: selectedRowIndex === rowIndex,
+            selected: selectedItemIndex === rowIndex,
             onClick: (e: React.MouseEvent<HTMLElement>) => {
               e.stopPropagation();
               this.onRowClick(rowIndex);
@@ -887,10 +887,10 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   onPageSizeChange?: string;
   pageNo: number;
   pageSize: number;
-  currentViewRows: string;
-  selectedRowIndex?: number;
-  selectedRow: Record<string, unknown>;
-  triggeredRowIndex?: number;
+  currentItemsView: string;
+  selectedItemIndex?: number;
+  selectedItemView: Record<string, unknown>;
+  triggeredItemIndex?: number;
   primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
 }
