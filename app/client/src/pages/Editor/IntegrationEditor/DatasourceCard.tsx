@@ -14,7 +14,7 @@ import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
-import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
+import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import {
@@ -389,7 +389,10 @@ function DatasourceCard(props: DatasourceCardProps) {
         >
           <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
             <DatasourceInfo>
-              {renderDatasourceSection(currentFormConfig[0], datasource)}
+              <RenderDatasourceInformation
+                config={currentFormConfig[0]}
+                datasource={datasource}
+              />
             </DatasourceInfo>
           </CollapseComponent>
         </CollapseComponentWrapper>
