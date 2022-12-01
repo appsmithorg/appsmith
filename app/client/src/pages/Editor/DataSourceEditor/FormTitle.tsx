@@ -27,6 +27,7 @@ const Wrapper = styled.div`
 
 interface ComponentProps {
   focusOnMount: boolean;
+  disabled?: boolean;
 }
 
 type FormTitleProps = ComponentProps;
@@ -139,6 +140,7 @@ function FormTitle(props: FormTitleProps) {
       <EditableText
         className="t--edit-datasource-name"
         defaultValue={currentDatasource ? currentDatasource.name : ""}
+        disabled={props.disabled}
         editInteractionKind={EditInteractionKind.SINGLE}
         forceDefault={forceUpdate}
         isEditingDefault={props.focusOnMount}
