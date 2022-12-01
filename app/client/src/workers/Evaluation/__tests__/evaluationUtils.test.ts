@@ -9,7 +9,6 @@ import {
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
 import {
-  cleanSet,
   DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
