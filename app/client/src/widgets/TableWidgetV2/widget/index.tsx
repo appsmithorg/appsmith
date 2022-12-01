@@ -29,6 +29,8 @@ import {
   OperatorTypes,
   AddNewRowActions,
 } from "../component/Constants";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 import {
   ActionColumnTypes,
   ColumnTypes,
@@ -85,6 +87,9 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import { Stylesheet } from "entities/AppTheming";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import store from "store";
+import { getAppStoreName } from "constants/AppConstants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -200,7 +205,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * based on columnType
    */
   getTableColumns = () => {
-    const { columnWidthMap = {}, orderedTableColumns = [] } = this.props;
+    const {
+      columnWidthMap = {},
+      orderedTableColumns = [],
+      widgetName,
+    } = this.props;
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
 
@@ -297,8 +306,24 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
     }
+    const branch =
+      getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
+    const applicationId = getCurrentApplicationId(store.getState());
 
-    return columns.filter((column: ReactTableColumnProps) => !!column.id);
+    const appStoreName = getAppStoreName(applicationId, branch);
+    const existingStore = localStorage.getItem(appStoreName) || "{}";
+    const parsedStore = JSON.parse(existingStore);
+    const customColumn = [];
+    columns = columns.filter((column: ReactTableColumnProps) => !!column.id);
+    if (parsedStore[`${widgetName}_customColumns`] != undefined) {
+      for (const col of parsedStore[`${widgetName}_customColumns`]) {
+        const find = columns.find((x) => x.Header == col);
+        if (find) {
+          customColumn.push(find);
+        }
+      }
+    }
+    return customColumn.length > 0 ? customColumn : columns;
   };
 
   transformData = (
@@ -874,7 +899,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.isAddRowInProgress) {
       transformedData.unshift(this.props.newRowContent);
     }
-
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
