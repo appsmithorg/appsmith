@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 import { WidgetProps } from "widgets/BaseWidget";
 import { PanelConfig } from "constants/PropertyControlConstants";
-import PropertyControlsGenerator from "./Generator";
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";

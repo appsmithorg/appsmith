@@ -11,7 +11,7 @@ import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelecto
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
-import PropertyControlsGenerator from "./Generator";
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
