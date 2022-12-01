@@ -11,7 +11,7 @@ const newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName;
 
-describe("Git import flow", function() {
+describe("Git import flow ", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
