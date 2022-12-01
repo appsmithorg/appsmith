@@ -161,19 +161,6 @@ export function PageContextMenu(props: {
       label: createMessage(CONTEXT_SETTINGS),
     },
     !props.isDefaultPage &&
-      canDeletePages && {
-        className: "t--apiFormDeleteBtn single-select",
-        confirmDelete: confirmDelete,
-        value: "delete",
-        onSelect: () => {
-          confirmDelete ? deletePageCallback() : setConfirmDelete(true);
-        },
-        label: confirmDelete
-          ? createMessage(CONFIRM_CONTEXT_DELETE)
-          : createMessage(CONTEXT_DELETE),
-        intent: "danger",
-      },
-    !props.isDefaultPage &&
       canManagePages && {
         value: "setdefault",
         onSelect: setPageAsDefaultCallback,
@@ -185,6 +172,19 @@ export function PageContextMenu(props: {
         disabled: true,
         value: "setdefault",
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
+      },
+    !props.isDefaultPage &&
+      canDeletePages && {
+        className: "t--apiFormDeleteBtn single-select",
+        confirmDelete: confirmDelete,
+        value: "delete",
+        onSelect: () => {
+          confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+        },
+        label: confirmDelete
+          ? createMessage(CONFIRM_CONTEXT_DELETE)
+          : createMessage(CONTEXT_DELETE),
+        intent: "danger",
       },
   ].filter(Boolean);
 
