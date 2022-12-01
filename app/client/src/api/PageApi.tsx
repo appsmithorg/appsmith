@@ -46,6 +46,7 @@ export type FetchPageResponseData = {
   layouts: Array<PageLayout>;
   lastUpdatedTime: number;
   customSlug?: string;
+  userPermissions?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
 
@@ -93,6 +94,7 @@ export type FetchPageListResponseData = {
     isHidden?: boolean;
     layouts: Array<PageLayout>;
     slug: string;
+    userPermissions?: string[];
   }>;
   workspaceId: string;
 };

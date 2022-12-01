@@ -14,6 +14,7 @@ import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { useSelector } from "react-redux";
 import {
   createMessage,
+  LEARN_MORE,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { CalloutV2 } from "design-system";
@@ -164,7 +165,7 @@ export default function Group({
                   >
                     {setting.action ? (
                       <CalloutV2
-                        actionLabel="READ MORE"
+                        actionLabel={createMessage(LEARN_MORE)}
                         desc={createMessage(() => setting.label || "")}
                         onClick={
                           ((() => {
@@ -177,7 +178,7 @@ export default function Group({
                       />
                     ) : (
                       <CalloutV2
-                        actionLabel="READ MORE"
+                        actionLabel={createMessage(LEARN_MORE)}
                         desc={createMessage(() => setting.label || "")}
                         type={setting.calloutType || "Notify"}
                         url={setting.url}
