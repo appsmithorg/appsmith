@@ -131,10 +131,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     };
   }
 
-  static getLoadingProperties(): Array<RegExp> | undefined {
-    return [/\.listData$/];
-  }
-
   constructor(props: ListWidgetProps | Readonly<ListWidgetProps>) {
     super(props);
     const { referencedWidgetId, widgetId } = props;
