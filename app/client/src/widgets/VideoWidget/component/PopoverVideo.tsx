@@ -51,7 +51,7 @@ function PopoverVideo(props: VideoComponentProps) {
         position={PopoverPosition.AUTO}
         usePortal
       >
-        <PlayIcon />
+        <PlayIcon className="play-icon" />
         <PlayerWrapper>
           <VideoComponent
             backgroundColor={props.backgroundColor}

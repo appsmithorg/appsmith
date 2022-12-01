@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
-import Button, { Category } from "components/ads/Button";
 import {
   ENABLE,
   ADMIN_AUTH_SETTINGS_SUBTITLE,
@@ -13,15 +12,10 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { Callout, CalloutType } from "components/ads/CalloutV2";
+import { CalloutV2, CalloutType } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
-import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { Button, Category, Icon, TooltipComponent } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -29,7 +23,6 @@ const { intercomAppID } = getAppsmithConfigs();
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin-left: 112px;
   padding-top: 40px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
@@ -135,11 +128,6 @@ const Label = styled.span<{ enterprise?: boolean }>`
 
 export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const history = useHistory();
-  const user = useSelector(getCurrentUser);
-
-  useEffect(() => {
-    bootIntercom(user);
-  }, [user?.email]);
 
   const triggerIntercom = (authLabel: string) => {
     if (intercomAppID && window.Intercom) {
@@ -163,7 +151,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
       history.push(
         adminSettingsCategoryUrl({
           category: SettingCategories.AUTHENTICATION,
-          subCategory: method.category,
+          selected: method.category,
         }),
       );
     } else {
@@ -207,7 +195,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                         hoverOpenDelay={0}
                         minWidth={"180px"}
                         openOnTargetFocus={false}
-                        position={Position.RIGHT}
+                        position="right"
                       >
                         <Icon
                           className={`${method.category}-green-check`}
@@ -219,9 +207,9 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>
                   {method.calloutBanner && (
-                    <Callout
+                    <CalloutV2
                       actionLabel={method.calloutBanner.actionLabel}
-                      title={method.calloutBanner.title}
+                      desc={method.calloutBanner.title}
                       type={method.calloutBanner.type}
                     />
                   )}

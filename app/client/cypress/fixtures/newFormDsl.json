@@ -278,8 +278,8 @@
                 "parentRowSpace": 38,
                 "leftColumn": 10,
                 "rightColumn": 14,
-                "topRow": 11,
-                "bottomRow": 12,
+                "topRow": 17,
+                "bottomRow": 18,
                 "parentId": "e3tq9qwta6",
                 "widgetId": "ca22py6vlv"
               },
@@ -346,18 +346,18 @@
                 "parentColumnSpace": 6.6856445312499995,
                 "leftColumn": 2,
                 "options": [
-                    {
-                        "label": "Blue",
-                        "value": "BLUE"
-                    },
-                    {
-                        "label": "Green",
-                        "value": "GREEN"
-                    },
-                    {
-                        "label": "Red",
-                        "value": "RED"
-                    }
+                  {
+                    "label": "Blue",
+                    "value": "BLUE"
+                  },
+                  {
+                    "label": "Green",
+                    "value": "GREEN"
+                  },
+                  {
+                    "label": "Red",
+                    "value": "RED"
+                  }
                 ],
                 "isDisabled": false,
                 "key": "vrhzyvir7s",

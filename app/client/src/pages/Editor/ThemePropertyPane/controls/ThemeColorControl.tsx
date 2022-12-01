@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import { AppTheme } from "entities/AppTheming";
-import TooltipComponent from "components/ads/Tooltip";
-import ColorPickerComponent from "components/ads/ColorPickerComponentV2";
+import { TooltipComponent } from "design-system";
+import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
 interface ThemeColorControlProps {
   theme: AppTheme;
@@ -20,8 +20,9 @@ const ColorBox = styled.div<{
 
 function ThemeColorControl(props: ThemeColorControlProps) {
   const { theme, updateTheme } = props;
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [autoFocus, setAutoFocus] = useState(false);
   const userDefinedColors = theme.properties.colors;
+  const [selectedColor, setSelectedColor] = useState<string>("primaryColor");
 
   return (
     <div className="space-y-2">
@@ -37,9 +38,10 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                     "ring-1": selectedColor === colorName,
                   })}
                   onClick={() => {
-                    setSelectedColor(
-                      colorName !== selectedColor ? colorName : null,
+                    setAutoFocus(
+                      selectedColor === colorName ? !autoFocus : true,
                     );
+                    setSelectedColor(colorName);
                   }}
                 />
               </TooltipComponent>
@@ -48,9 +50,10 @@ function ThemeColorControl(props: ThemeColorControlProps) {
         )}
       </div>
       {selectedColor && (
-        <div className="pt-1">
+        <div className="pt-1 space-y-1">
+          <h3>{startCase(selectedColor)}</h3>
           <ColorPickerComponent
-            autoFocus
+            autoFocus={autoFocus}
             changeColor={(color: string) => {
               updateTheme({
                 ...theme,
@@ -64,6 +67,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
               });
             }}
             color={userDefinedColors[selectedColor]}
+            isOpen={autoFocus}
             key={selectedColor}
           />
         </div>

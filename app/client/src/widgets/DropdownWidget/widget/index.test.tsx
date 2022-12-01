@@ -27,14 +27,14 @@ describe("<DropdownWidget />", () => {
       debugger: {
         errors: {},
       },
-      comments: {
-        dragPointerOffset: null,
-      },
       editor: {
         isPreviewMode: false,
       },
       widgetReflow: {
         enableReflow: true,
+      },
+      autoHeightUI: {
+        isAutoHeightWithLimitsChanging: false,
       },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
@@ -79,6 +79,7 @@ describe("<DropdownWidget />", () => {
       onFilterUpdate: "mock-update",
       updateWidgetMetaProperty: jest.fn(),
     };
+    // @ts-expect-error: type mismatch
     renderDropdownWidget(mockDataWithEmptyOptions);
 
     const selectElement = screen.getByText("-- Select --");

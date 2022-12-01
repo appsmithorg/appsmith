@@ -1,0 +1,223 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 744,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1120,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 46,
+        "minHeight": 1100,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+          {
+            "widgetName": "Text1",
+            "dynamicPropertyPathList": [],
+            "displayName": "Text",
+            "iconSVG": "/static/media/icon.97c59b52.svg",
+            "topRow": 23,
+            "bottomRow": 41,
+            "parentRowSpace": 10,
+            "type": "TEXT_WIDGET",
+            "hideCard": false,
+            "parentColumnSpace": 26.59375,
+            "dynamicTriggerPathList": [],
+            "leftColumn": 6,
+            "dynamicBindingPathList": [
+              {
+                "key": "text"
+              }
+            ],
+            "text": "{{Table1.selectedRowIndices}}",
+            "key": "zzkmsgz6bl",
+            "rightColumn": 30,
+            "backgroundColor": "",
+            "textAlign": "LEFT",
+            "widgetId": "vmo0ewamhx",
+            "isVisible": true,
+            "fontStyle": "BOLD",
+            "textColor": "#231F20",
+            "version": 1,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "fontSize": "PARAGRAPH"
+          },
+          {
+            "multiRowSelection": false,
+            "widgetName": "Table1",
+            "defaultPageSize": 0,
+            "columnOrder": [
+              "step",
+              "task",
+              "status",
+              "action"
+            ],
+            "aliasMap": {
+              "step": "step",
+              "task": "task",
+              "status": "status",
+              "action": "action"
+            },
+            "isVisibleDownload": true,
+            "dynamicPropertyPathList": [],
+            "displayName": "Table",
+            "iconSVG": "/static/media/icon.db8a9cbd.svg",
+            "topRow": 41,
+            "bottomRow": 69,
+            "isSortable": true,
+            "parentRowSpace": 10,
+            "type": "TABLE_WIDGET_V2",
+            "defaultSelectedRowIndex": "0",
+            "defaultSelectedRowIndices": "[]",
+            "hideCard": false,
+            "parentColumnSpace": 25.6875,
+            "dynamicTriggerPathList": [],
+            "dynamicBindingPathList": [
+              {
+                "key": "primaryColumns.step.computedValue"
+              },
+              {
+                "key": "primaryColumns.task.computedValue"
+              },
+              {
+                "key": "primaryColumns.status.computedValue"
+              },
+              {
+                "key": "primaryColumns.action.computedValue"
+              }
+            ],
+            "leftColumn": 19,
+            "primaryColumns": {
+              "step": {
+                "index": 0,
+                "width": 150,
+                "id": "step",
+                "alias": "step",
+                "originalId": "step",
+                "horizontalAlignment": "LEFT",
+                "verticalAlignment": "CENTER",
+                "columnType": "text",
+                "textSize": "PARAGRAPH",
+                "enableFilter": true,
+                "enableSort": true,
+                "isVisible": true,
+                "isCellVisible": true,
+                "isDerived": false,
+                "label": "step",
+                "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.step))}}"
+              },
+              "task": {
+                "index": 1,
+                "width": 150,
+                "id": "task",
+                "alias": "task",
+                "originalId": "task",
+                "horizontalAlignment": "LEFT",
+                "verticalAlignment": "CENTER",
+                "columnType": "text",
+                "textSize": "PARAGRAPH",
+                "enableFilter": true,
+                "enableSort": true,
+                "isVisible": true,
+                "isCellVisible": true,
+                "isDerived": false,
+                "label": "task",
+                "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.task))}}"
+              },
+              "status": {
+                "index": 2,
+                "width": 150,
+                "id": "status",
+                "alias": "status",
+                "originalId": "status",
+                "horizontalAlignment": "LEFT",
+                "verticalAlignment": "CENTER",
+                "columnType": "text",
+                "textSize": "PARAGRAPH",
+                "enableFilter": true,
+                "enableSort": true,
+                "isVisible": true,
+                "isCellVisible": true,
+                "isDerived": false,
+                "label": "status",
+                "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.status))}}"
+              },
+              "action": {
+                "index": 3,
+                "width": 150,
+                "id": "action",
+                "alias": "action",
+                "originalId": "action",
+                "horizontalAlignment": "LEFT",
+                "verticalAlignment": "CENTER",
+                "columnType": "button",
+                "textSize": "PARAGRAPH",
+                "enableFilter": true,
+                "enableSort": true,
+                "isVisible": true,
+                "isCellVisible": true,
+                "isDisabled": false,
+                "isDerived": false,
+                "label": "action",
+                "onClick": "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
+                "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.action))}}"
+              }
+            },
+            "delimiter": ",",
+            "key": "fzi9jh5j7j",
+            "derivedColumns": {},
+            "rightColumn": 44,
+            "textSize": "PARAGRAPH",
+            "widgetId": "2tk8bgzwaz",
+            "isVisibleFilters": true,
+            "tableData": [
+              {
+                "step": "#1",
+                "task": "Drop a table",
+                "status": "✅",
+                "action": ""
+              },
+              {
+                "step": "#2",
+                "task": "Create a query fetch_users with the Mock DB",
+                "status": "--",
+                "action": ""
+              },
+              {
+                "step": "#3",
+                "task": "Bind the query using => fetch_users.data",
+                "status": "--",
+                "action": ""
+              }
+            ],
+            "isVisible": true,
+            "label": "Data",
+            "searchKey": "",
+            "version": 3,
+            "totalRecordsCount": 0,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "horizontalAlignment": "LEFT",
+            "isVisibleSearch": true,
+            "isVisiblePagination": true,
+            "verticalAlignment": "CENTER",
+            "columnSizeMap": {
+              "task": 245,
+              "step": 62,
+              "status": 75
+            }
+          }
+        ]
+      }
+}

@@ -5,7 +5,7 @@ import {
   ValidationTypes,
   ValidationResponse,
 } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -64,10 +64,10 @@ class DocumentViewerWidget extends BaseWidget<
   DocumentViewerWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             helpText:
@@ -90,6 +90,11 @@ class DocumentViewerWidget extends BaseWidget<
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             helpText: "Controls visibility of the widget",
             propertyName: "isVisible",

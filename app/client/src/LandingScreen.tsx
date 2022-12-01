@@ -1,5 +1,5 @@
 import React from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getCurrentUser, getUserAuthError } from "selectors/usersSelectors";
 import { connect } from "react-redux";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";

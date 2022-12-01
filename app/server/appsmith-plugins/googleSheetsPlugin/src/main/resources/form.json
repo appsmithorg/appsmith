@@ -26,15 +26,19 @@
           "isRequired": true,
           "options": [
             {
-              "label": "Read Only",
+              "label": "Read Files",
               "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             },
             {
-              "label": "Read and Write",
+              "label": "Read, Edit and Create Files",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read, Edit, Create and Delete Files",
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
             }
           ],
-          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
         }
       ]
     }

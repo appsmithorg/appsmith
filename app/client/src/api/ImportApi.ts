@@ -7,19 +7,19 @@ export interface CurlImportRequest {
   pageId: string;
   name: string;
   curl: string;
-  organizationId: string;
+  workspaceId: string;
 }
 
 class CurlImportApi extends Api {
   static curlImportURL = `v1/import`;
 
   static curlImport(request: CurlImportRequest): AxiosPromise<ApiResponse> {
-    const { curl, name, organizationId, pageId } = request;
+    const { curl, name, pageId, workspaceId } = request;
     return Api.post(CurlImportApi.curlImportURL, curl, {
       type: "CURL",
       pageId,
       name,
-      organizationId,
+      workspaceId,
     });
   }
 }

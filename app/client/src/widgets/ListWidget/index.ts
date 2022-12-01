@@ -3,6 +3,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
@@ -122,6 +123,9 @@ export const CONFIG = {
                     isDeletable: false,
                     disallowCopy: true,
                     disablePropertyPane: true,
+                    disabledWidgetFeatures: [
+                      RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
+                    ],
                     openParentPropertyPane: true,
                     children: [],
                     blueprint: {
@@ -293,6 +297,11 @@ export const CONFIG = {
                 propertyName: "template",
                 propertyValue: template,
               },
+              {
+                widgetId: container.widgetId,
+                propertyName: "dynamicHeight",
+                propertyValue: "FIXED",
+              },
             ];
 
             // add logBlackList to updateProperyMap for all children
@@ -400,6 +409,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

@@ -3,10 +3,10 @@ package com.external.plugins.constants;
 public class FieldName {
 
     // Common field paths
-    public static final String BODY = "body.data";
-    public static final String SMART_SUBSTITUTION = "smartSubstitution.data";
-    public static final String COMMAND = "command.data";
-    public static final String COLLECTION = "collection.data";
+    public static final String BODY = "body";
+    public static final String SMART_SUBSTITUTION = "smartSubstitution";
+    public static final String COMMAND = "command";
+    public static final String COLLECTION = "collection";
 
     // Command paths
     public static final String FIND = "find";
@@ -18,15 +18,15 @@ public class FieldName {
     public static final String INSERT = "insert";
 
     // Command field paths
-    public static final String QUERY = "query.data";
-    public static final String SORT = "sort.data";
-    public static final String PROJECTION = "projection.data";
-    public static final String LIMIT = "limit.data";
-    public static final String SKIP = "skip.data";
-    public static final String UPDATE = "update.data";
-    public static final String KEY = "key.data";
-    public static final String PIPELINES = "arrayPipelines.data";
-    public static final String DOCUMENTS = "documents.data";
+    public static final String QUERY = "query";
+    public static final String SORT = "sort";
+    public static final String PROJECTION = "projection";
+    public static final String LIMIT = "limit";
+    public static final String SKIP = "skip";
+    public static final String UPDATE = "update";
+    public static final String KEY = "key";
+    public static final String PIPELINES = "arrayPipelines";
+    public static final String DOCUMENTS = "documents";
 
     public static final String AGGREGATE_PIPELINES = AGGREGATE + "." + PIPELINES;
     public static final String AGGREGATE_LIMIT = AGGREGATE + "." + LIMIT;

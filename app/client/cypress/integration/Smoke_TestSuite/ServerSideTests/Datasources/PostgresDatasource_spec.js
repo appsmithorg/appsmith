@@ -1,7 +1,7 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
+let dataSource = ObjectsRegistry.DataSources;
 let datasourceName;
 
 describe("Postgres datasource test cases", function() {
@@ -12,28 +12,30 @@ describe("Postgres datasource test cases", function() {
   it("1. Create, test, save then delete a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
     cy.testSaveDatasource();
+    cy.get("@saveDatasource").then((httpResponse) => {
+      datasourceName = JSON.stringify(httpResponse.response.body.data.name);
+      dataSource.DeleteDatasouceFromActiveTab(
+        datasourceName.replace(/['"]+/g, ""),
+      );
+    });
   });
 
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm(true);
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
     cy.testSaveDatasource();
+    cy.get("@saveDatasource").then((httpResponse) => {
+      datasourceName = JSON.stringify(
+        httpResponse.response.body.data.name,
+      ).replace(/['"]+/g, "");
+    });
   });
 
   it("3. Create a new query from the datasource editor", function() {
-    // cy.get(datasource.createQuerty).click();
-    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
+    cy.get(datasource.createQuery)
       .last()
       .click();
     cy.wait("@createNewApi").should(
@@ -41,9 +43,7 @@ describe("Postgres datasource test cases", function() {
       "response.body.responseMeta.status",
       201,
     );
-
     cy.deleteQueryUsingContext();
-
     cy.deleteDatasource(datasourceName);
   });
 });

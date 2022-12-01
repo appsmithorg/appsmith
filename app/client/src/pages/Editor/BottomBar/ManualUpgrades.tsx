@@ -9,10 +9,8 @@ import {
   IconSize,
   IconWrapper,
   Size,
-  Text,
-  TextType,
-} from "components/ads";
-import TooltipComponent from "components/ads/Tooltip";
+} from "design-system";
+import { TooltipComponent, Text, TextType } from "design-system";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
 import React, { useState } from "react";
@@ -248,7 +246,6 @@ function ManualUpgrades() {
       >
         <Icon
           className="t--upgrade"
-          disabled={applicationVersion < latestVersion}
           fillColor={Colors.SCORPION}
           name="upgrade"
           onClick={() => {

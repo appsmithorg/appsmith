@@ -34,7 +34,7 @@
 		],
 		"suggestedWidgets": [
 			{
-				"type": "DROP_DOWN_WIDGET",
+				"type": "SELECT_WIDGET",
 				"bindingQuery": "data.map( (obj) =>{ return  {'label': obj.hobbiesname, 'value': obj.hobbiesname } })"
 			},
 			{

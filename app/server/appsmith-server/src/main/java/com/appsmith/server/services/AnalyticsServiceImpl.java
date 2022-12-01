@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ce.AnalyticsServiceCEImpl;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +18,11 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
                                 SessionUserService sessionUserService,
                                 CommonConfig commonConfig,
                                 ConfigService configService,
-                                PolicyUtils policyUtils) {
+                                PolicyUtils policyUtils,
+                                UserUtils userUtils) {
 
-        super(analytics, sessionUserService, commonConfig, configService, policyUtils);
+        super(analytics, sessionUserService, commonConfig, configService, policyUtils, userUtils);
     }
+
+
 }

@@ -13,7 +13,7 @@ public class UserProfileDTO {
 
     String email;
 
-    Set<String> organizationIds;
+    Set<String> workspaceIds;
 
     String username;
 

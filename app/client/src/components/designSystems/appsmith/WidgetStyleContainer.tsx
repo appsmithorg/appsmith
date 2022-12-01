@@ -19,6 +19,7 @@ export interface WidgetStyleContainerProps {
   containerStyle?: ContainerStyle;
   children?: ReactNode;
   borderColor?: Color;
+  backgroundColor?: Color;
   borderWidth?: number;
   borderRadius?: number;
   boxShadow?: BoxShadow;
@@ -29,17 +30,18 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   height: 100%;
   width: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
-  box-shadow:  ${(props) => props.boxShadow} !important;
+  box-shadow: ${(props) => props.boxShadow} !important;
   border-width: ${(props) => props.borderWidth}px;
   border-color: ${(props) => props.borderColor || "transparent"};
   border-style: solid;
+  background-color: ${(props) => props.backgroundColor || "transparent"};
 
   & > div {
     height: 100%;
     width: 100%;
     overflow: hidden;
   }
-}`;
+`;
 
 // wrapper component for apply styles on any widget boundary
 function WidgetStyleContainer(props: WidgetStyleContainerProps) {

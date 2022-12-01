@@ -32,5 +32,6 @@
     "Chartlabel": ".t--draggable-chartwidget g:nth-child(5) text",
     "PieChartLabel": ".t--draggable-chartwidget g g:nth-child(1) g text",
     "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']",
-    "mapChartEntityLabels": ".t--draggable-mapchartwidget g[class*='-entityLabels'] text"
+    "mapChartEntityLabels": ".t--draggable-mapchartwidget g[class*='-entityLabels'] text",
+    "listWidget": ".t--draggable-listwidget"
 }

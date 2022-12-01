@@ -25,6 +25,7 @@ describe("<InputComponent />", () => {
       ReactDOM.render(
         <Provider store={store}>
           <ThemeProvider theme={theme}>
+            {/* @ts-expect-error: type mismatch */}
             <InputComponent
               inputType="TEXT"
               isInvalid={false}

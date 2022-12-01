@@ -44,17 +44,17 @@ public class DatasourceUtils {
 
     private static final int REGEX_GROUP_TAIL = 6;
 
-    private static final String KEY_USERNAME = "username";
+    public static final String KEY_USERNAME = "username";
 
-    private static final String KEY_PASSWORD = "password";
+    public static final String KEY_PASSWORD = "password";
 
-    private static final String KEY_HOST_PORT = "hostPort";
+    public static final String KEY_HOST_PORT = "hostPort";
 
-    private static final String KEY_URI_HEAD = "uriHead";
+    public static final String KEY_URI_HEAD = "uriHead";
 
-    private static final String KEY_URI_TAIL = "uriTail";
+    public static final String KEY_URI_TAIL = "uriTail";
 
-    private static final String KEY_URI_DBNAME = "dbName";
+    public static final String KEY_URI_DEFAULT_DBNAME = "defaultDbName";
 
     private static final String YES = "Yes";
 
@@ -94,7 +94,7 @@ public class DatasourceUtils {
                 extractedInfoMap.put(KEY_USERNAME, matcher.group(REGEX_GROUP_USERNAME));
                 extractedInfoMap.put(KEY_PASSWORD, matcher.group(REGEX_GROUP_PASSWORD));
                 extractedInfoMap.put(KEY_HOST_PORT, matcher.group(REGEX_HOST_PORT));
-                extractedInfoMap.put(KEY_URI_DBNAME, matcher.group(REGEX_GROUP_DBNAME));
+                extractedInfoMap.put(KEY_URI_DEFAULT_DBNAME, matcher.group(REGEX_GROUP_DBNAME));
                 extractedInfoMap.put(KEY_URI_TAIL, matcher.group(REGEX_GROUP_TAIL));
                 return extractedInfoMap;
             }
@@ -113,7 +113,7 @@ public class DatasourceUtils {
             userInfo += "@";
         }
 
-        final String dbInfo = "/" + (extractedInfo.get(KEY_URI_DBNAME) == null ? "" : extractedInfo.get(KEY_URI_DBNAME));
+        final String dbInfo = "/" + (extractedInfo.get(KEY_URI_DEFAULT_DBNAME) == null ? "" : extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
 
         String tailInfo = (String) (extractedInfo.get(KEY_URI_TAIL) == null ? "" : extractedInfo.get(KEY_URI_TAIL));
         tailInfo = "?" + buildURITail(tailInfo);

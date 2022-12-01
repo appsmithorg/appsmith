@@ -6,8 +6,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { ButtonBorderRadius } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -19,14 +20,15 @@ export enum PlayState {
 }
 
 class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "url",
             label: "URL",
+            helpText: "Link to the video file which should be played",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter URL",
             inputType: "TEXT",
@@ -44,9 +46,14 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "autoPlay",
-            label: "Auto Play",
+            label: "Autoplay",
             helpText:
               "Video will be automatically played, by enabling this feature, video will be muted by default.",
             controlType: "SWITCH",
@@ -110,19 +117,29 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "backgroundColor",
             helpText: "Sets the background color of the widget",
-            label: "Background color",
+            label: "Background Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -149,6 +166,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       },
     ];
   }
+
   private _player = React.createRef<ReactPlayer>();
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -159,6 +177,13 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {};
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   getPageView() {

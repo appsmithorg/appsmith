@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { BranchListItemContainer } from "./BranchListItemContainer";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
-import { Position } from "@blueprintjs/core";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import DefaultTag from "./DefaultTag";
 import { useHover } from "../hooks";
 import BranchMoreMenu from "./BranchMoreMenu";
@@ -36,6 +35,7 @@ export function BranchListItem({
     <BranchListItemContainer
       active={active}
       className={className}
+      data-testid="t--branch-list-item"
       isDefault={isDefault}
       ref={itemRef}
       selected={selected}
@@ -44,7 +44,7 @@ export function BranchListItem({
         boundary="window"
         content={branch}
         disabled={!isEllipsisActive(textRef.current)}
-        position={Position.TOP}
+        position="top"
       >
         <Text onClick={onClick} ref={textRef} type={TextType.P1}>
           {branch}

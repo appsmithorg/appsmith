@@ -106,6 +106,13 @@ export enum EventType {
   ON_ENTER_KEY_PRESS = "ON_ENTER_KEY_PRESS",
   ON_BLUR = "ON_BLUR",
   ON_FOCUS = "ON_FOCUS",
+  ON_BULK_SAVE = "ON_BULK_SAVE",
+  ON_BULK_DISCARD = "ON_BULK_DISCARD",
+  ON_ROW_SAVE = "ON_ROW_SAVE",
+  ON_ROW_DISCARD = "ON_ROW_DISCARD",
+  ON_CODE_DETECTED = "ON_CODE_DETECTED",
+  ON_ADD_NEW_ROW_SAVE = "ON_ADD_NEW_ROW_SAVE",
+  ON_ADD_NEW_ROW_DISCARD = "ON_ADD_NEW_ROW_DISCARD",
 }
 
 export interface PageAction {
@@ -122,6 +129,12 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
   actionId: string;
   isPageLoad?: boolean;
   data: ActionResponse;
+}
+
+export interface LayoutOnLoadActionErrors {
+  errorType: string;
+  code: number;
+  message: string;
 }
 
 // Group 1 = datasource (https://www.domain.com)

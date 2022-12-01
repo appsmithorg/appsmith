@@ -14,10 +14,12 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
 
     Flux<Application> findByIdIn(List<String> ids);
 
-    Flux<Application> findByOrganizationId(String organizationId);
+    Flux<Application> findByWorkspaceId(String workspaceId);
 
     Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
 
     Mono<Long> countByDeletedAtNull();
+
+    Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
 
 }

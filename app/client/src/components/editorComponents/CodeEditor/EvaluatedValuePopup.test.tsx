@@ -13,6 +13,7 @@ describe("EvaluatedValuePopup", () => {
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <EvaluatedValuePopup
+            errors={[]}
             hasError={false}
             hideEvaluatedValue={false}
             isOpen
@@ -33,6 +34,7 @@ describe("EvaluatedValuePopup", () => {
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <EvaluatedValuePopup
+            errors={[]}
             hasError={false}
             hideEvaluatedValue
             isOpen

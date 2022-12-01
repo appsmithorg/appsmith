@@ -24,7 +24,7 @@ import {
   TableStyles,
   MenuItems,
 } from "./Constants";
-import { isString, isEmpty, findIndex, isNil, isNaN } from "lodash";
+import { isString, isEmpty, findIndex, isNil, isNaN, get, set } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
@@ -532,11 +532,19 @@ export const renderEmptyRows = (
             renderCheckBoxCell(false, accentColor, borderRadius)}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
-            if (columns[0]?.columnProperties?.cellBackground) {
-              cellProps.style.background =
-                columns[0].columnProperties.cellBackground;
-            }
-            return <div {...cellProps} className="td" key={cellIndex} />;
+            set(
+              cellProps,
+              "style.backgroundColor",
+              get(cell, "column.columnProperties.cellBackground"),
+            );
+            return (
+              <div
+                {...cellProps}
+                className="td"
+                data-cy={`empty-row-${index}-cell-${cellIndex}`}
+                key={cellIndex}
+              />
+            );
           })}
         </div>
       );
@@ -568,6 +576,10 @@ export const renderEmptyRows = (
                       width: column.width + "px",
                       boxSizing: "border-box",
                       flex: `${column.width} 0 auto`,
+                      backgroundColor: get(
+                        column,
+                        "columnProperties.cellBackground",
+                      ),
                     }}
                   />
                 );

@@ -1,11 +1,9 @@
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
-import { useSelector } from "store";
-import { FileType, SetProgress } from "components/ads/FilePicker";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
-  setOrgIdForImport,
+  setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import {
   createMessage,
@@ -15,19 +13,28 @@ import {
   IMPORT_APP_FROM_GIT_TITLE,
   IMPORT_APPLICATION_MODAL_LABEL,
   IMPORT_APPLICATION_MODAL_TITLE,
+  UPLOADING_APPLICATION,
+  UPLOADING_JSON,
 } from "@appsmith/constants/messages";
-import FilePickerV2 from "components/ads/FilePickerV2";
 import { Colors } from "constants/Colors";
-import Text, { TextType } from "components/ads/Text";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  DialogComponent as Dialog,
+  FilePickerV2,
+  FileType,
+  Icon,
+  IconSize,
+  SetProgress,
+  Text,
+  TextType,
+} from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
-import { selectFeatureFlags } from "selectors/usersSelectors";
+import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {
@@ -72,10 +79,13 @@ const Row = styled.div`
   padding: 0;
   margin: 0;
   justify-content: space-between;
+  &.t-import-app-progress-wrapper {
+    justify-content: center;
+  }
 `;
 
-const FileImportCard = styled.div<{ gitEnabled?: boolean }>`
-  width: ${(props) => (props.gitEnabled ? "320px" : "100%")};
+const FileImportCard = styled.div`
+  width: 320px;
   height: 200px;
   border: 1px solid ${Colors.GREY_4};
   display: flex;
@@ -170,9 +180,33 @@ const CardWrapper = styled.div`
   }
 `;
 
+const StatusbarWrapper = styled.div`
+  width: 252px;
+  height: 199px;
+  .cs-icon {
+    margin: auto;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+    background: var(--appsmith-color-black-200);
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  .cs-text.importing-app-name {
+    display: flex;
+    justify-content: center;
+  }
+`;
+
 function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   const theme = useTheme() as Theme;
   const onClick = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_IMPORT_VIA_GIT_CARD_CLICK");
     props.handler && props.handler();
   }, []);
   const message = createMessage(IMPORT_APP_FROM_GIT_MESSAGE);
@@ -196,14 +230,13 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
 }
 
 type ImportApplicationModalProps = {
-  // import?: (file: any) => void;
-  organizationId?: string;
+  workspaceId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { isModalOpen, onClose, organizationId } = props;
+  const { isModalOpen, onClose, workspaceId } = props;
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -215,7 +248,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     dispatch({
       type: ReduxActionTypes.GIT_INFO_INIT,
     });
-    dispatch(setOrgIdForImport(organizationId));
+    dispatch(setWorkspaceIdForImport(workspaceId));
 
     dispatch(
       setIsGitSyncModalOpen({
@@ -238,11 +271,10 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         });
         dispatch(
           importApplication({
-            orgId: organizationId as string,
+            workspaceId: workspaceId as string,
             applicationFile: file,
           }),
         );
-        onClose && onClose();
       } else {
         setAppFileToBeUploaded(null);
       }
@@ -254,14 +286,12 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     // finished of importing application
     if (appFileToBeUploaded && !importingApplication) {
       setAppFileToBeUploaded(null);
+      onClose && onClose();
       // should open "Add credential" modal
     }
   }, [appFileToBeUploaded, importingApplication]);
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
-
-  const featureFlags = useSelector(selectFeatureFlags);
-  const { GIT_IMPORT: isGitImportFeatureEnabled } = featureFlags;
 
   return (
     <StyledDialog
@@ -279,27 +309,45 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     >
       <TextWrapper>
         <Text color={Colors.COD_GRAY} type={TextType.P1}>
-          {createMessage(IMPORT_APPLICATION_MODAL_LABEL)}
+          {createMessage(
+            importingApplication
+              ? UPLOADING_JSON
+              : IMPORT_APPLICATION_MODAL_LABEL,
+          )}
         </Text>
       </TextWrapper>
-      <Row>
-        <FileImportCard
-          className="t--import-json-card"
-          gitEnabled={isGitImportFeatureEnabled}
-        >
-          <FilePickerV2
-            containerClickable
-            description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
-            fileType={FileType.JSON}
-            fileUploader={FileUploader}
-            iconFillColor={Colors.GREY_800}
-            onFileRemoved={onRemoveFile}
-            title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
-            uploadIcon="file-line"
-          />
-        </FileImportCard>
-        {isGitImportFeatureEnabled && <GitImportCard handler={onGitImport} />}
-      </Row>
+      {!importingApplication && (
+        <Row>
+          <FileImportCard className="t--import-json-card">
+            <FilePickerV2
+              containerClickable
+              description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
+              fileType={FileType.JSON}
+              fileUploader={FileUploader}
+              iconFillColor={Colors.GREY_800}
+              onFileRemoved={onRemoveFile}
+              title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
+              uploadIcon="file-line"
+            />
+          </FileImportCard>
+          <GitImportCard handler={onGitImport} />
+        </Row>
+      )}
+      {importingApplication && (
+        <Row className="t-import-app-progress-wrapper">
+          <StatusbarWrapper className="t--importing-app-statusbar">
+            <Icon fillColor={Colors.GREY_800} name="file-line" />
+            <Text className="importing-app-name" type={TextType.P2}>
+              {appFileToBeUploaded?.file?.name || "filename.json"}
+            </Text>
+            <Statusbar
+              completed={!importingApplication}
+              message={createMessage(UPLOADING_APPLICATION)}
+              period={4}
+            />
+          </StatusbarWrapper>
+        </Row>
+      )}
     </StyledDialog>
   );
 }

@@ -1,23 +1,25 @@
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useState } from "react";
 import Save2LineIcon from "remixicon-react/Save2LineIcon";
+import ArrowGoBackIcon from "remixicon-react/ArrowGoBackFillIcon";
 
 import ThemeCard from "./ThemeCard";
 import {
-  Dropdown,
+  DropdownV2,
   DropdownList,
   DropdownItem,
   DropdownTrigger,
-} from "components/ads/DropdownV2";
+} from "design-system";
 import {
   AppThemingMode,
   getAppThemingStack,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import {
+  resetThemeAction,
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
@@ -27,14 +29,18 @@ import { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Classes as CsClasses, Size } from "design-system";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
-import { Classes as CsClasses } from "components/ads/common";
+import { Colors } from "constants/Colors";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
+
+const Title = styled.h3`
+  color: ${Colors.GRAY_800};
+`;
 
 const PopoverStyles = createGlobalStyle`
 .${THEMING_BETA_CARD_POPOVER_CLASSNAME} .bp3-popover-content {
@@ -105,19 +111,26 @@ function ThemeEditor() {
     setSaveModalOpen(false);
   }, [setSaveModalOpen]);
 
+  /**
+   * resets theme
+   */
+  const onResetTheme = useCallback(() => {
+    dispatch(resetThemeAction());
+  }, [dispatch, resetThemeAction]);
+
   return (
     <>
       <div>
-        <header className="px-3 space-y-2">
+        <header className="px-4 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <h3 className="text-sm font-normal capitalize">
+              <Title className="text-sm font-normal capitalize">
                 Theme Properties
-              </h3>
+              </Title>
               <BetaCard />
             </div>
             <div>
-              <Dropdown position="bottom-right">
+              <DropdownV2 position="bottom-right">
                 <DropdownTrigger>
                   <button className="p-1 hover:bg-gray-100 active:bg-gray-100">
                     <MoreIcon className="w-5 h-5" />
@@ -130,25 +143,34 @@ function ThemeEditor() {
                     onClick={onOpenSaveModal}
                     text="Save theme"
                   />
+                  <DropdownItem
+                    className="flex items-center"
+                    icon={<ArrowGoBackIcon className="w-4 h-4" />}
+                    onClick={onResetTheme}
+                    text="Reset widget styles"
+                  />
                 </DropdownList>
-              </Dropdown>
+              </DropdownV2>
             </div>
           </div>
 
-          <ThemeCard theme={selectedTheme} />
+          <ThemeCard theme={selectedTheme}>
+            <aside
+              className={`absolute left-0 top-0 bottom-0 right-0 items-center justify-center hidden group-hover:flex  backdrop-filter bg-gray-900 bg-opacity-50 backdrop-blur-sm `}
+            >
+              <Button
+                category={Category.primary}
+                className="t--change-theme-btn"
+                onClick={onClickChangeThemeButton}
+                size={Size.medium}
+                text="Change Theme"
+              />
+            </aside>
+          </ThemeCard>
         </header>
-        <div className="px-3 mt-4">
-          <Button
-            category={Category.tertiary}
-            className="t--change-theme-btn"
-            onClick={onClickChangeThemeButton}
-            size={Size.medium}
-            text="Change Theme"
-          />
-        </div>
         <main className="mt-1">
           {/* FONT  */}
-          <SettingSection className="px-3 py-3" isDefaultOpen title="Font">
+          <SettingSection className="px-4 py-3" isDefaultOpen title="Font">
             {Object.keys(selectedTheme.config.fontFamily).map(
               (fontFamilySectionName: string, index: number) => {
                 return (
@@ -175,7 +197,7 @@ function ThemeEditor() {
           </SettingSection>
           {/* COLORS */}
           <SettingSection
-            className="px-3 py-3 border-t"
+            className="px-4 py-3 border-t"
             isDefaultOpen
             title="Color"
           >
@@ -189,7 +211,7 @@ function ThemeEditor() {
 
           {/* BORDER RADIUS */}
           <SettingSection
-            className="px-3 py-3 border-t "
+            className="px-4 py-3 border-t "
             isDefaultOpen
             title="Border"
           >
@@ -220,7 +242,7 @@ function ThemeEditor() {
 
           {/* BOX SHADOW */}
           <SettingSection
-            className="px-3 py-3 border-t "
+            className="px-4 py-3 border-t "
             isDefaultOpen
             title="Shadow"
           >

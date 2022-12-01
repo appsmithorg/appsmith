@@ -9,7 +9,9 @@ import BaseInputComponent, {
 import { CountryCode } from "libphonenumber-js";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 
-class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
+class PhoneInputComponent extends React.PureComponent<
+  PhoneInputComponentProps
+> {
   onTextChange = (
     event:
       | React.ChangeEvent<HTMLInputElement>
@@ -68,6 +70,7 @@ class PhoneInputComponent extends React.Component<PhoneInputComponentProps> {
         inputHTMLType="TEL"
         inputType={InputTypes.PHONE_NUMBER}
         intent={this.props.intent}
+        isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

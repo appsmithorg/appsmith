@@ -14,6 +14,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 
 export const config: AdminConfigType = {
+  icon: "mail-line",
   type: SettingCategories.EMAIL,
   controlType: SettingTypes.GROUP,
   title: "Email",
@@ -64,6 +65,21 @@ export const config: AdminConfigType = {
         "You will need to verify your from email address to begin sending emails",
     },
     {
+      id: "APPSMITH_REPLY_TO",
+      category: SettingCategories.EMAIL,
+      controlType: SettingTypes.TEXTINPUT,
+      controlSubType: SettingSubtype.TEXT,
+      label: "Reply-To Address",
+      placeholder: "admin@appsmith.com",
+      validate: (value: string) => {
+        if (value && !isEmail(value)) {
+          return "Please enter a valid email id";
+        }
+      },
+      subText:
+        "You will need to verify your to email address to begin receiving emails",
+    },
+    {
       id: "APPSMITH_MAIL_SMTP_TLS_ENABLED",
       category: SettingCategories.EMAIL,
       controlType: SettingTypes.TOGGLE,
@@ -76,7 +92,7 @@ export const config: AdminConfigType = {
       controlSubType: SettingSubtype.TEXT,
       label: "SMTP Username",
       isVisible: (values: Record<string, any>) => {
-        return values && !values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
+        return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
       },
     },
     {
@@ -86,7 +102,7 @@ export const config: AdminConfigType = {
       controlSubType: SettingSubtype.PASSWORD,
       label: "SMTP Password",
       isVisible: (values: Record<string, any>) => {
-        return values && !values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
+        return values && values["APPSMITH_MAIL_SMTP_TLS_ENABLED"];
       },
     },
     {

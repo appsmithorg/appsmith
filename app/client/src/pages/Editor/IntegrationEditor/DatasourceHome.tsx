@@ -4,14 +4,17 @@ import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
-import { DATASOURCE_DB_FORM } from "constants/forms";
-import { createDatasourceFromForm } from "actions/datasourceActions";
-import { AppState } from "reducers";
+import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
+import {
+  createDatasourceFromForm,
+  createTempDatasourceFromForm,
+} from "actions/datasourceActions";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
@@ -37,17 +40,15 @@ const DatasourceHomePage = styled.div`
   .textBtn {
     justify-content: center;
     text-align: center;
-    color: #2e3d49;
-    font-weight: 500;
+    color: ${Colors.BLACK};
+    font-weight: 400;
     text-decoration: none !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    letter-spacing: -0.17px;
+    letter-spacing: -0.24px;
     margin: 0;
   }
 `;
@@ -68,20 +69,17 @@ const DatasourceCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background: ${Colors.GREY_1};
     cursor: pointer;
   }
 
   .dataSourceImageWrapper {
-    width: 40px;
-    height: 40px;
-    padding: 6px 0;
-    border-radius: 20px;
-    margin: 0 8px;
-    background: #f0f0f0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: ${Colors.GREY_2};
     display: flex;
     align-items: center;
-
     .dataSourceImage {
       height: 28px;
       width: auto;
@@ -105,6 +103,8 @@ const DatasourceCard = styled.div`
 const DatasourceContentWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
 `;
 
 interface DatasourceHomeScreenProps {
@@ -122,6 +122,7 @@ interface DatasourceHomeScreenProps {
 interface ReduxDispatchProps {
   initializeForm: (data: Record<string, any>) => void;
   createDatasource: (data: any) => void;
+  createTempDatasource: (data: any) => void;
 }
 
 interface ReduxStateProps {
@@ -151,9 +152,9 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     /* When isGeneratePageMode is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
         If YES => continue creating datasource
-        If NO => 
-          Show user a UnsupportedPluginDialog to choose 
-            1. "create unsupported datasource" 
+        If NO =>
+          Show user a UnsupportedPluginDialog to choose
+            1. "create unsupported datasource"
             2. "continue" generate page flow by selecting other supported datasource
         goToCreateDatasource function is passed as a callback with params.skipValidPluginCheck = true.
         Whenever user click on "continue" in UnsupportedPluginDialog, this callback function is invoked.
@@ -179,7 +180,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
       }
     }
 
-    this.props.createDatasource({
+    this.props.createTempDatasource({
       pluginId,
     });
   };
@@ -189,11 +190,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     return (
       <DatasourceHomePage>
-        <DatasourceCardsContainer>
+        <DatasourceCardsContainer data-testid="database-datasource-card-container">
           {plugins.map((plugin, idx) => {
             return (
               <DatasourceCard
-                className="eachDatasourceCard"
+                data-testid="database-datasource-card"
                 key={`${plugin.id}_${idx}`}
                 onClick={() => {
                   AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -206,11 +207,12 @@ class DatasourceHomeScreen extends React.Component<Props> {
                   });
                 }}
               >
-                <DatasourceContentWrapper>
+                <DatasourceContentWrapper data-testid="database-datasource-content-wrapper">
                   <div className="dataSourceImageWrapper">
                     <img
                       alt="Datasource"
                       className="dataSourceImage"
+                      data-testid="database-datasource-image"
                       src={pluginImages[plugin.id]}
                     />
                   </div>
@@ -241,6 +243,8 @@ const mapDispatchToProps = (dispatch: any) => {
     initializeForm: (data: Record<string, any>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
+    createTempDatasource: (data: any) =>
+      dispatch(createTempDatasourceFromForm(data)),
   };
 };
 

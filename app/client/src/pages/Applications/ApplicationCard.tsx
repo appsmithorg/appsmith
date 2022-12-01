@@ -3,8 +3,8 @@ import React, {
   useState,
   useRef,
   useContext,
-  useMemo,
   useCallback,
+  useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import {
@@ -16,50 +16,59 @@ import {
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
+  hasDeleteApplicationPermission,
   isPermitted,
   PERMISSION_TYPE,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import {
   getInitialsAndColorCode,
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import Text, { TextType } from "components/ads/Text";
-import Button, { Category, Size, IconPositions } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
-import Menu from "components/ads/Menu";
-import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
-import AppIcon, { AppIconName } from "components/ads/AppIcon";
-import EditableText, {
+import {
+  AppIcon,
+  AppIconName,
+  Button,
+  Category,
+  Classes as CsClasses,
+  ColorSelector,
+  EditableText,
   EditInteractionKind,
+  IconPositions,
+  Icon,
+  IconSelector,
+  IconSize,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  MenuItemProps,
   SavingState,
-} from "components/ads/EditableText";
-import ColorSelector from "components/ads/ColorSelector";
-import MenuDivider from "components/ads/MenuDivider";
-import IconSelector from "components/ads/IconSelector";
+  Size,
+  Toaster,
+  Text,
+  TextType,
+  TooltipComponent,
+  Variant,
+} from "design-system";
 import { useSelector } from "react-redux";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  UpdateApplicationPayload,
+} from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
-import { Classes as CsClasses } from "components/ads/common";
-import TooltipComponent from "components/ads/Tooltip";
-import {
-  isVerticalEllipsisActive,
-  truncateString,
-  howMuchTimeBeforeText,
-} from "utils/helpers";
+import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -319,6 +328,8 @@ const CircleAppIcon = styled(AppIcon)`
   border-radius: 50%;
 
   svg {
+    width: 100%;
+    height: 100%;
     path {
       fill: #000 !important;
     }
@@ -439,12 +450,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
-  const defaultPageSlug = useMemo(() => {
-    const pages = props.application.pages || [];
-    const defaultPage = pages.find((page) => page.isDefault);
-    return defaultPage?.slug || defaultPage?.name;
-  }, []);
-
   useEffect(() => {
     let colorCode;
     if (props.application.color) {
@@ -508,6 +513,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
+  const hasDeletePermission = hasDeleteApplicationPermission(
+    props.application?.userPermissions,
+  );
   const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&
@@ -538,9 +546,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     link.href = getExportAppAPIRoute(applicationId);
     link.id = id;
     document.body.appendChild(link);
-    // will fetch the file manually during cypress test run.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     if (!window.Cypress) {
       link.click();
     }
@@ -552,7 +558,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const forkApplicationInitiate = () => {
     // open fork application modal
-    // on click on an organisation, create app and take to app
+    // on click on an workspace, create app and take to app
     setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {
@@ -572,7 +578,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     setMoreActionItems(updatedActionItems);
   };
   const addDeleteOption = () => {
-    if (props.delete && hasEditPermission) {
+    if (props.delete && hasDeletePermission) {
       const index = moreActionItems.findIndex(
         (el) => el.icon === "delete-blank",
       );
@@ -597,22 +603,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
   if (showGitBadge) {
     params.branch = showGitBadge;
   }
-  const viewApplicationURL = viewerURL({
-    applicationSlug: props.application.slug as string,
-    applicationVersion: props.application.applicationVersion,
-    pageSlug: defaultPageSlug || "page",
-    applicationId: props.application.id,
-    pageId: props.application.defaultPageId as string,
-    params,
-  });
-  const editApplicationURL = builderURL({
-    applicationSlug: props.application.slug as string,
-    applicationVersion: props.application.applicationVersion,
-    applicationId: props.application.id,
-    pageSlug: defaultPageSlug || "page",
-    pageId: props.application.defaultPageId as string,
-    params,
-  });
 
   const appNameText = (
     <Text cypressSelector="t--app-card-name" type={TextType.H3}>
@@ -623,6 +613,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
+        autoFocus={false}
         className="more"
         onClosing={() => {
           setIsMenuOpen(false);
@@ -741,14 +732,77 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
-  const LaunchAppInMobile = useCallback(() => {
-    history.push(viewApplicationURL);
-  }, [viewApplicationURL]);
+  function setURLParams() {
+    const page:
+      | ApplicationPagePayload
+      | undefined = props.application.pages.find(
+      (page) => page.id === props.application.defaultPageId,
+    );
+    if (!page) return;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: props.application.slug,
+        applicationVersion: props.application.applicationVersion,
+        applicationId: props.application.id,
+      },
+      props.application.pages.map((page) => ({
+        pageSlug: page.slug,
+        customSlug: page.customSlug,
+        pageId: page.id,
+      })),
+    );
+  }
+
+  const editModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return builderURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
+  const viewModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return viewerURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
+  const launchApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        viewerURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
+
+  const editApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        builderURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
 
   return (
     <Container
       isMobile={props.isMobile}
-      onClick={props.isMobile ? LaunchAppInMobile : noop}
+      onClick={props.isMobile ? launchApp : noop}
     >
       <NameWrapper
         className="t--application-card"
@@ -781,16 +835,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             isFetching={isFetchingApplications}
             ref={appNameWrapperRef}
           >
-            {isVerticalEllipsisActive(appNameWrapperRef?.current) ? (
-              <TooltipComponent
-                content={props.application.name}
-                maxWidth="400px"
-              >
-                {appNameText}
-              </TooltipComponent>
-            ) : (
-              appNameText
-            )}
+            {appNameText}
           </AppNameWrapper>
           {showOverlay && !props.isMobile && (
             <div className="overlay">
@@ -801,14 +846,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
+                      href={editModeURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        history.push(editApplicationURL);
-                      }}
+                      onClick={editApp}
                       size={Size.medium}
-                      tag="button"
                       text="Edit"
                     />
                   )}
@@ -817,14 +859,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
+                      href={viewModeURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        history.push(viewApplicationURL);
-                      }}
+                      onClick={launchApp}
                       size={Size.medium}
-                      tag="button"
                       text="Launch"
                     />
                   )}

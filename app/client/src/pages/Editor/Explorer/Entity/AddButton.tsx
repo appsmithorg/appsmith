@@ -15,6 +15,14 @@ const Wrapper = styled(EntityTogglesWrapper)`
       }
     }
   }
+  &.selected {
+    background: ${Colors.SHARK2} !important;
+    svg {
+      path {
+        fill: ${Colors.WHITE} !important;
+      }
+    }
+  }
 `;
 
 const PlusIcon = ControlIcons.INCREASE_CONTROL_V2;

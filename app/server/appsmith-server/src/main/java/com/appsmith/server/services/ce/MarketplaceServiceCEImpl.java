@@ -182,7 +182,7 @@ public class MarketplaceServiceCEImpl implements MarketplaceServiceCE {
     /**
      * This function searches for providers and returns the providers with exact match in name.
      * In the future the search should support 'like' for providers and search could expand to include
-     * the actions used in the organization (across all applications) and templates as well.
+     * the actions used in the workspace (across all applications) and templates as well.
      */
     public Mono<List<Provider>> searchProviderByName(String name) {
         URI uri = buildFullURI(null, PROVIDER_PATH + "/name/" + URLEncoder.encode(name, StandardCharsets.UTF_8));

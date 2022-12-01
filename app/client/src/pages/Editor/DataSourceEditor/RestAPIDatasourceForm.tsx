@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
-import { DATASOURCE_REST_API_FORM } from "constants/forms";
+import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
-import Button from "components/editorComponents/Button";
 import { Datasource } from "entities/Datasource";
 import {
   getFormMeta,
@@ -16,16 +15,17 @@ import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import { Button, Category, Toaster, Variant } from "design-system";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
+  createDatasourceFromForm,
   deleteDatasource,
   redirectAuthorizationCode,
+  toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -42,22 +42,19 @@ import {
 } from "entities/Datasource/RestAPIForm";
 import {
   createMessage,
-  REST_API_AUTHORIZATION_APPSMITH_ERROR,
-  REST_API_AUTHORIZATION_FAILED,
-  REST_API_AUTHORIZATION_SUCCESSFUL,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
+  INVALID_URL,
 } from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import Callout from "components/ads/Callout";
+import { Callout } from "design-system";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -84,6 +81,15 @@ interface DatasourceRestApiEditorProps {
   hiddenHeader?: boolean;
   responseStatus?: string;
   responseMessage?: string;
+  datasourceName: string;
+  createDatasource: (
+    data: Datasource,
+    onSuccess?: ReduxAction<unknown>,
+  ) => void;
+  toggleSaveActionFlag: (flag: boolean) => void;
+  triggerSave?: boolean;
+  isFormDirty: boolean;
+  datasourceDeleteTrigger: () => void;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -138,7 +144,7 @@ const SaveButtonContainer = styled.div`
   justify-content: flex-end;
 `;
 
-const ActionButton = styled(BaseButton)`
+const ActionButton = styled(Button)`
   &&& {
     width: auto;
     min-width: 74px;
@@ -173,39 +179,20 @@ class DatasourceRestAPIEditor extends React.Component<
     this.state = { confirmDelete: false };
   }
   componentDidMount() {
-    const status = this.props.responseStatus;
-
     // set replay data
     this.props.initializeReplayEntity(
       this.props.datasource.id,
       this.props.initialValues,
     );
-
-    if (status) {
-      // Set default error message
-      let message = REST_API_AUTHORIZATION_FAILED;
-      let variant = Variant.danger;
-      if (status === "success") {
-        message = REST_API_AUTHORIZATION_SUCCESSFUL;
-        variant = Variant.success;
-      } else if (status === "appsmith_error") {
-        message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
-      }
-      Toaster.show({
-        text: this.props.responseMessage || createMessage(message),
-        variant,
-      });
-    }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
     if (!this.props.formData) return;
 
     if (this.state.confirmDelete) {
-      const delayConfirmDeleteToFalse = _.debounce(
-        () => this.setState({ confirmDelete: false }),
-        2200,
-      );
+      const delayConfirmDeleteToFalse = _.debounce(() => {
+        if (!this.props.isDeleting) this.setState({ confirmDelete: false });
+      }, 2200);
 
       delayConfirmDeleteToFalse();
     }
@@ -216,6 +203,14 @@ class DatasourceRestAPIEditor extends React.Component<
       this.ensureOAuthDefaultsAreCorrect();
     } else if (authType === AuthType.apiKey) {
       this.ensureAPIKeyDefaultsAreCorrect();
+    }
+
+    // if trigger save changed, save datasource
+    if (
+      prevProps.triggerSave !== this.props.triggerSave &&
+      this.props.triggerSave
+    ) {
+      this.save();
     }
   }
 
@@ -261,6 +256,12 @@ class DatasourceRestAPIEditor extends React.Component<
       }
     }
 
+    if (_.get(authentication, "grantType") === GrantType.ClientCredentials) {
+      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
+        this.props.change("authentication.isAuthorizationHeader", false);
+      }
+    }
+
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (
         _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
@@ -287,10 +288,11 @@ class DatasourceRestAPIEditor extends React.Component<
   disableSave = (): boolean => {
     const { formData } = this.props;
     if (!formData) return true;
-    return !formData.url;
+    return !formData.url || !this.props.isFormDirty;
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
+    this.props.toggleSaveActionFlag(true);
     const normalizedValues = formValuesToDatasource(
       this.props.datasource,
       this.props.formData,
@@ -300,7 +302,17 @@ class DatasourceRestAPIEditor extends React.Component<
       appId: this.props.applicationId,
     });
 
-    this.props.updateDatasource(normalizedValues, onSuccess);
+    if (this.props.datasource.id !== TEMP_DATASOURCE_ID) {
+      return this.props.updateDatasource(normalizedValues, onSuccess);
+    }
+
+    this.props.createDatasource(
+      {
+        ...normalizedValues,
+        name: this.props.datasourceName,
+      },
+      onSuccess,
+    );
   };
 
   createApiAction = () => {
@@ -347,6 +359,27 @@ class DatasourceRestAPIEditor extends React.Component<
     );
   };
 
+  urlValidator = (value: string) => {
+    const validationRegex = "^(http|https)://";
+    if (value) {
+      const regex = new RegExp(validationRegex);
+
+      return regex.test(value)
+        ? { isValid: true, message: "" }
+        : {
+            isValid: false,
+            message: createMessage(INVALID_URL),
+          };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
+  handleDeleteDatasource = (datasourceId: string) => {
+    this.props.deleteDatasource(datasourceId);
+    this.props.datasourceDeleteTrigger();
+  };
+
   render = () => {
     return (
       <>
@@ -380,44 +413,41 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderSave = () => {
-    const {
-      datasourceId,
-      deleteDatasource,
-      hiddenHeader,
-      isDeleting,
-      isSaving,
-    } = this.props;
+    const { datasourceId, hiddenHeader, isDeleting, isSaving } = this.props;
+
     return (
       <SaveButtonContainer>
         {!hiddenHeader && (
           <ActionButton
-            // accent="error"
-            buttonStyle="DANGER"
-            buttonVariant={ButtonVariantTypes.PRIMARY}
+            category={Category.primary}
             className="t--delete-datasource"
-            loading={isDeleting}
+            disabled={datasourceId === TEMP_DATASOURCE_ID}
+            isLoading={isDeleting}
             onClick={() => {
               this.state.confirmDelete
-                ? deleteDatasource(datasourceId)
+                ? this.handleDeleteDatasource(datasourceId)
                 : this.setState({ confirmDelete: true });
             }}
+            size="medium"
+            tag="button"
             text={
               this.state.confirmDelete
                 ? createMessage(CONFIRM_CONTEXT_DELETE)
                 : createMessage(CONTEXT_DELETE)
             }
+            variant={Variant.danger}
           />
         )}
-
         <StyledButton
+          category={Category.primary}
           className="t--save-datasource"
           disabled={this.disableSave()}
-          filled
-          intent="primary"
-          loading={isSaving}
+          isLoading={isSaving}
           onClick={() => this.save()}
-          size="small"
+          size="medium"
+          tag="button"
           text="Save"
+          variant={Variant.success}
         />
       </SaveButtonContainer>
     );
@@ -455,6 +485,7 @@ class DatasourceRestAPIEditor extends React.Component<
             "TEXT",
             false,
             true,
+            this.urlValidator,
           )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("headers")}>
@@ -546,10 +577,10 @@ class DatasourceRestAPIEditor extends React.Component<
             GrantType.AuthorizationCode && (
             <FormInputContainer>
               <AuthorizeButton
+                category={Category.primary}
+                className="t--save-and-authorize-datasource"
                 disabled={this.disableSave()}
-                filled
-                intent="primary"
-                loading={isSaving}
+                isLoading={isSaving}
                 onClick={() =>
                   this.save(
                     redirectAuthorizationCode(
@@ -559,10 +590,11 @@ class DatasourceRestAPIEditor extends React.Component<
                     ),
                   )
                 }
-                size="small"
+                tag="button"
                 text={
                   isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
                 }
+                variant={Variant.success}
               />
             </FormInputContainer>
           )}
@@ -800,6 +832,7 @@ class DatasourceRestAPIEditor extends React.Component<
             "TEXT",
             false,
             false,
+            this.urlValidator,
           )}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("authentication.clientId")}>
@@ -834,15 +867,39 @@ class DatasourceRestAPIEditor extends React.Component<
             false,
           )}
         </FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isAuthorizationHeader")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isAuthorizationHeader",
+            [
+              {
+                label: "Send as Basic Auth header",
+                value: true,
+              },
+              {
+                label: "Send client credentials in body",
+                value: false,
+              },
+            ],
+            "Client Authentication",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
       </>
     );
   };
 
   renderOauth2AdvancedSettings = () => {
-    const { authentication, authType } = this.props.formData;
+    const { authentication, authType, connection } = this.props.formData;
     const isGrantTypeAuthorizationCode =
       _.get(authentication, "grantType") === GrantType.AuthorizationCode;
     const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
+    const isConnectSelfSigned =
+      _.get(connection, "ssl.authType") === SSLType.SELF_SIGNED_CERTIFICATE;
+
     return (
       <>
         {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
@@ -913,6 +970,16 @@ class DatasourceRestAPIEditor extends React.Component<
             "DEFAULT",
           )}
         </FormInputContainer>
+        {isAuthenticationTypeOAuth2 && isConnectSelfSigned && (
+          <FormInputContainer data-replay-id={btoa("selfsignedcert")}>
+            {this.renderCheckboxViaFormControl(
+              "authentication.useSelfSignedCert",
+              "Use Self-Signed Certificate for Authorization requests",
+              "",
+              false,
+            )}
+          </FormInputContainer>
+        )}
       </>
     );
   };
@@ -995,27 +1062,6 @@ class DatasourceRestAPIEditor extends React.Component<
             false,
           )}
         </FormInputContainer>
-        <FormInputContainer
-          data-replay-id={btoa("authentication.isAuthorizationHeader")}
-        >
-          {this.renderDropdownControlViaFormControl(
-            "authentication.isAuthorizationHeader",
-            [
-              {
-                label: "Send as Basic Auth header",
-                value: true,
-              },
-              {
-                label: "Send client credentials in body",
-                value: false,
-              },
-            ],
-            "Client Authentication",
-            "",
-            false,
-            "",
-          )}
-        </FormInputContainer>
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
           this.renderOauth2CommonAdvanced()}
@@ -1032,6 +1078,7 @@ class DatasourceRestAPIEditor extends React.Component<
     dataType: "TEXT" | "PASSWORD" | "NUMBER",
     encrypted: boolean,
     isRequired: boolean,
+    fieldValidator?: (value: string) => { isValid: boolean; message: string },
   ) {
     return (
       <FormControl
@@ -1047,6 +1094,7 @@ class DatasourceRestAPIEditor extends React.Component<
           conditionals: {},
           placeholderText: placeholderText,
           formName: DATASOURCE_REST_API_FORM,
+          validator: fieldValidator,
         }}
         formName={DATASOURCE_REST_API_FORM}
         multipleConfig={[]}
@@ -1142,6 +1190,30 @@ class DatasourceRestAPIEditor extends React.Component<
       />
     );
   }
+
+  renderCheckboxViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+  ) {
+    return (
+      <FormControl
+        config={{
+          id: "",
+          isValid: false,
+          isRequired: isRequired,
+          controlType: "CHECKBOX",
+          configProperty: configProperty,
+          label: label,
+          conditionals: {},
+          placeholderText: placeholderText,
+          formName: DATASOURCE_REST_API_FORM,
+        }}
+        formName={DATASOURCE_REST_API_FORM}
+      />
+    );
+  }
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
@@ -1150,13 +1222,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   ) as Datasource;
 
   const hintMessages = datasource && datasource.messages;
-  let responseStatus = props.responseStatus;
-  let responseMessage = props.responseMessage;
-  if (props.location) {
-    const search = new URLSearchParams(props.location.search);
-    responseStatus = search.get("response_status");
-    responseMessage = search.get("display_message");
-  }
 
   return {
     initialValues: datasourceToFormValues(datasource),
@@ -1167,8 +1232,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
-    responseStatus,
-    responseMessage,
+    datasourceName: datasource?.name ?? "",
   };
 };
 
@@ -1178,7 +1242,13 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
-    deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
+    deleteDatasource: (id: string) => {
+      dispatch(deleteDatasource({ id }));
+    },
+    createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
+      dispatch(createDatasourceFromForm(formData, onSuccess)),
+    toggleSaveActionFlag: (flag: boolean) =>
+      dispatch(toggleSaveActionFlag(flag)),
   };
 };
 

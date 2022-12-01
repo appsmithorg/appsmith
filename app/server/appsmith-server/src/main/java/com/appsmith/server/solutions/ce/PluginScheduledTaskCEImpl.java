@@ -1,11 +1,12 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -70,8 +70,8 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                     });
 
                     // Save new data for this plugin,
-                    // then make sure to install to organizations in case the default installation flag changed
-                    final Mono<List<Organization>> updatedPluginsOrganizationFlux = pluginService
+                    // then make sure to install to workspaces in case the default installation flag changed
+                    final Mono<List<Workspace>> updatedPluginsWorkspaceFlux = pluginService
                             .saveAll(updatablePlugins)
                             .filter(Plugin::getDefaultInstall)
                             .collectList()
@@ -79,8 +79,8 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                             .collectList();
 
                     // Create plugin,
-                    // then install to all organizations if default installation is turned on
-                    final Mono<List<Organization>> organizationFlux =
+                    // then install to all workspaces if default installation is turned on
+                    final Mono<List<Workspace>> workspaceFlux =
                             Flux.fromIterable(insertablePlugins)
                                     .flatMap(pluginService::create)
                                     .filter(Plugin::getDefaultInstall)
@@ -88,8 +88,8 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
                                     .flatMapMany(pluginService::installDefaultPlugins)
                                     .collectList();
 
-                    return updatedPluginsOrganizationFlux
-                            .zipWith(organizationFlux)
+                    return updatedPluginsWorkspaceFlux
+                            .zipWith(workspaceFlux)
                             .then();
                 })
                 .subscribeOn(Schedulers.single())
@@ -99,18 +99,17 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
     private Mono<Map<PluginIdentifier, Plugin>> getRemotePlugins() {
 
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        if (StringUtils.isEmpty(baseUrl)) {
+        if (!StringUtils.hasLength(baseUrl)) {
             return Mono.empty();
         }
 
         return configService.getInstanceId()
-                .flatMap(instanceId -> WebClient
+                .flatMap(instanceId -> WebClientUtils
                         .create(
                                 baseUrl + "/api/v1/plugins?instanceId=" + instanceId
                                         + "&lastUpdatedAt=" + lastUpdatedAt)
                         .get()
-                        .exchange()
-                        .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {
+                        .exchangeToMono(clientResponse -> clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<List<Plugin>>>() {
                         }))
                         .map(ResponseDTO::getData)
                         .map(plugins -> {

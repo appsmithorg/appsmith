@@ -62,7 +62,8 @@ describe("#parse", () => {
     );
   });
 
-  it("returns unmodified schema when existing field's value in data source changes to null/undefined", () => {
+  it("returns unmodified schema when existing field's value in data source changes to null and back", () => {
+    // Get the initial schema
     const initialSchema = SchemaParser.parse(widgetName, {
       currSourceData: testData.initialDataset.dataSource,
       schema: {},
@@ -71,45 +72,390 @@ describe("#parse", () => {
 
     expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
 
-    // With null field
-    const nulledDataSource = klona(testData.initialDataset.dataSource);
-    set(nulledDataSource, "dob", null);
+    // Set all keys to null
+    const nulledSourceData = klona(testData.initialDataset.dataSource);
+    set(nulledSourceData, "name", null);
+    set(nulledSourceData, "age", null);
+    set(nulledSourceData, "dob", null);
+    set(nulledSourceData, "boolean", null);
+    set(nulledSourceData, "hobbies", null);
+    set(nulledSourceData, "%%", null);
+    set(nulledSourceData, "हिन्दि", null);
+    set(nulledSourceData, "education", null);
+    set(nulledSourceData, "address", null);
 
-    const expectedNulledSchema = klona(initialSchema);
-    set(expectedNulledSchema, "__root_schema__.children.dob.sourceData", null);
-    set(expectedNulledSchema, "__root_schema__.sourceData.dob", null);
+    // Set the sourceData entry in each SchemaItem to null (only property that changes)
+    const expectedSchema = klona(initialSchema);
+    set(expectedSchema, "__root_schema__.children.name.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData.name", null);
+    set(expectedSchema, "__root_schema__.children.age.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData.age", null);
+    set(expectedSchema, "__root_schema__.children.dob.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData.dob", null);
+    set(expectedSchema, "__root_schema__.children.boolean.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData.boolean", null);
+    set(expectedSchema, "__root_schema__.children.hobbies.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData.hobbies", null);
+    set(expectedSchema, "__root_schema__.children.education.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData.education", null);
+    set(expectedSchema, "__root_schema__.children.__.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData['%%']", null);
+    set(
+      expectedSchema,
+      "__root_schema__.children.xn__j2bd4cyac6f.sourceData",
+      null,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.हिन्दि", null);
+    set(expectedSchema, "__root_schema__.children.address.sourceData", null);
+    set(expectedSchema, "__root_schema__.sourceData.address", null);
 
-    const schemaWithNulledField = SchemaParser.parse(widgetName, {
-      currSourceData: nulledDataSource,
+    // Parse with the nulled sourceData
+    const schemaWithNullKeys = SchemaParser.parse(widgetName, {
+      currSourceData: nulledSourceData,
       schema: initialSchema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithNulledField).toEqual(expectedNulledSchema);
+    expect(schemaWithNullKeys).toEqual(expectedSchema);
 
-    // With undefined field
-    const undefinedDataSource = klona(nulledDataSource);
-    set(undefinedDataSource, "boolean", undefined);
-
-    const expectedUndefinedSchema = klona(expectedNulledSchema);
-    set(
-      expectedUndefinedSchema,
-      "__root_schema__.children.boolean.sourceData",
-      undefined,
-    );
-    set(
-      expectedUndefinedSchema,
-      "__root_schema__.sourceData.boolean",
-      undefined,
-    );
-
-    const schemaWithUndefinedField = SchemaParser.parse(widgetName, {
-      currSourceData: undefinedDataSource,
-      schema: schemaWithNulledField,
+    /**
+     * Parse with initial sourceData to check if previous schema with null sourceData
+     * can still retain the schema structure
+     */
+    const schemaWithRevertedData = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: schemaWithNullKeys,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
 
-    expect(schemaWithUndefinedField).toEqual(expectedUndefinedSchema);
+    expect(schemaWithRevertedData).toEqual(
+      testData.initialDataset.schemaOutput,
+    );
+  });
+
+  it("returns unmodified schema when existing fields value in data source changes to undefined and back", () => {
+    // Get the initial schema
+    const initialSchema = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
+
+    // Set all keys to undefined
+    const undefinedDataSource = klona(testData.initialDataset.dataSource);
+    set(undefinedDataSource, "name", undefined);
+    set(undefinedDataSource, "age", undefined);
+    set(undefinedDataSource, "dob", undefined);
+    set(undefinedDataSource, "boolean", undefined);
+    set(undefinedDataSource, "hobbies", undefined);
+    set(undefinedDataSource, "%%", undefined);
+    set(undefinedDataSource, "हिन्दि", undefined);
+    set(undefinedDataSource, "education", undefined);
+    set(undefinedDataSource, "address", undefined);
+
+    // Set the sourceData entry in each SchemaItem to undefined (only property that changes)
+    const expectedSchema = klona(initialSchema);
+    set(expectedSchema, "__root_schema__.children.name.sourceData", undefined);
+    set(expectedSchema, "__root_schema__.sourceData.name", undefined);
+    set(expectedSchema, "__root_schema__.children.age.sourceData", undefined);
+    set(expectedSchema, "__root_schema__.sourceData.age", undefined);
+    set(expectedSchema, "__root_schema__.children.dob.sourceData", undefined);
+    set(expectedSchema, "__root_schema__.sourceData.dob", undefined);
+    set(
+      expectedSchema,
+      "__root_schema__.children.boolean.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.boolean", undefined);
+    set(
+      expectedSchema,
+      "__root_schema__.children.hobbies.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.hobbies", undefined);
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.education", undefined);
+    set(expectedSchema, "__root_schema__.children.__.sourceData", undefined);
+    set(expectedSchema, "__root_schema__.sourceData['%%']", undefined);
+    set(
+      expectedSchema,
+      "__root_schema__.children.xn__j2bd4cyac6f.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.हिन्दि", undefined);
+    set(
+      expectedSchema,
+      "__root_schema__.children.address.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.address", undefined);
+
+    // Parse with the undefined sourceData keys
+    const schemaWithUndefinedKeys = SchemaParser.parse(widgetName, {
+      currSourceData: undefinedDataSource,
+      schema: initialSchema,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(schemaWithUndefinedKeys).toEqual(expectedSchema);
+
+    /**
+     * Parse with initial sourceData to check if previous schema with null sourceData
+     * can still retain the schema structure
+     */
+    const schemaWithRevertedData = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: schemaWithUndefinedKeys,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(schemaWithRevertedData).toEqual(
+      testData.initialDataset.schemaOutput,
+    );
+  });
+
+  it("returns unmodified schema when existing inner field's value in data source changes to null and back", () => {
+    // Get the initial schema
+    const initialSchema = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
+
+    // Set all keys to null
+    const nulledSourceData = klona(testData.initialDataset.dataSource);
+    set(nulledSourceData, "address.Line1", null);
+    set(nulledSourceData, "address.city", null);
+    set(nulledSourceData, "education[0].college", null);
+    set(nulledSourceData, "education[0].number", null);
+    set(nulledSourceData, "education[0].graduationDate", null);
+    set(nulledSourceData, "education[0].boolean", null);
+
+    // Set the sourceData entry in each SchemaItem to null (only property that changes)
+    const expectedSchema = klona(initialSchema);
+    set(
+      expectedSchema,
+      "__root_schema__.children.address.children.Line1.sourceData",
+      null,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.address.Line1", null);
+    set(
+      expectedSchema,
+      "__root_schema__.children.address.children.city.sourceData",
+      null,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.address.city", null);
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.college.sourceData",
+      null,
+    );
+    set(expectedSchema, "__root_schema__.children.address.sourceData", {
+      Line1: null,
+      city: null,
+    });
+
+    set(
+      expectedSchema,
+      "__root_schema__.sourceData.education[0].college",
+      null,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.number.sourceData",
+      null,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.education[0].number", null);
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.graduationDate.sourceData",
+      null,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.sourceData.education[0].graduationDate",
+      null,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.boolean.sourceData",
+      null,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.sourceData.education[0].boolean",
+      null,
+    );
+    set(expectedSchema, "__root_schema__.children.education.sourceData", [
+      {
+        college: null,
+        number: null,
+        graduationDate: null,
+        boolean: null,
+      },
+    ]);
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.sourceData",
+      {
+        college: null,
+        number: null,
+        graduationDate: null,
+        boolean: null,
+      },
+    );
+
+    // Parse with the nulled sourceData
+    const schemaWithNullKeys = SchemaParser.parse(widgetName, {
+      currSourceData: nulledSourceData,
+      schema: initialSchema,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(schemaWithNullKeys).toEqual(expectedSchema);
+
+    /**
+     * Parse with initial sourceData to check if previous schema with null sourceData
+     * can still retain the schema structure
+     */
+    const schemaWithRevertedData = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: schemaWithNullKeys,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(schemaWithRevertedData).toEqual(
+      testData.initialDataset.schemaOutput,
+    );
+  });
+
+  it("returns unmodified schema when existing inner field's value in data source changes to undefined and back", () => {
+    // Get the initial schema
+    const initialSchema = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: {},
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(initialSchema).toEqual(testData.initialDataset.schemaOutput);
+
+    // Set all keys to undefined
+    const undefinedSourceData = klona(testData.initialDataset.dataSource);
+    set(undefinedSourceData, "address.Line1", undefined);
+    set(undefinedSourceData, "address.city", undefined);
+    set(undefinedSourceData, "education[0].college", undefined);
+    set(undefinedSourceData, "education[0].number", undefined);
+    set(undefinedSourceData, "education[0].graduationDate", undefined);
+    set(undefinedSourceData, "education[0].boolean", undefined);
+
+    // Set the sourceData entry in each SchemaItem to undefined (only property that changes)
+    const expectedSchema = klona(initialSchema);
+    set(
+      expectedSchema,
+      "__root_schema__.children.address.children.Line1.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.address.Line1", undefined);
+    set(
+      expectedSchema,
+      "__root_schema__.children.address.children.city.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.sourceData.address.city", undefined);
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.college.sourceData",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.children.address.sourceData", {
+      Line1: undefined,
+      city: undefined,
+    });
+
+    set(
+      expectedSchema,
+      "__root_schema__.sourceData.education[0].college",
+      undefined,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.number.sourceData",
+      undefined,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.sourceData.education[0].number",
+      undefined,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.graduationDate.sourceData",
+      undefined,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.sourceData.education[0].graduationDate",
+      undefined,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.children.boolean.sourceData",
+      undefined,
+    );
+    set(
+      expectedSchema,
+      "__root_schema__.sourceData.education[0].boolean",
+      undefined,
+    );
+    set(expectedSchema, "__root_schema__.children.education.sourceData", [
+      {
+        college: undefined,
+        number: undefined,
+        graduationDate: undefined,
+        boolean: undefined,
+      },
+    ]);
+    set(
+      expectedSchema,
+      "__root_schema__.children.education.children.__array_item__.sourceData",
+      {
+        college: undefined,
+        number: undefined,
+        graduationDate: undefined,
+        boolean: undefined,
+      },
+    );
+
+    // Parse with the undefined sourceData
+    const schemaWithUndefinedKeys = SchemaParser.parse(widgetName, {
+      currSourceData: undefinedSourceData,
+      schema: initialSchema,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(schemaWithUndefinedKeys).toEqual(expectedSchema);
+
+    /**
+     * Parse with initial sourceData to check if previous schema with undefined sourceData
+     * can still retain the schema structure
+     */
+    const schemaWithRevertedData = SchemaParser.parse(widgetName, {
+      currSourceData: testData.initialDataset.dataSource,
+      schema: schemaWithUndefinedKeys,
+      fieldThemeStylesheets: testData.fieldThemeStylesheets,
+    });
+
+    expect(schemaWithRevertedData).toEqual(
+      testData.initialDataset.schemaOutput,
+    );
   });
 });
 

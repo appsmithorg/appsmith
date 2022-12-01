@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,

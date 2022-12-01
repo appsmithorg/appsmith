@@ -6,9 +6,7 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, Toaster, Variant } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -33,6 +31,12 @@ type EditableTextProps = {
   beforeUnmount?: (value?: string) => void;
   errorTooltipClass?: string;
   maxLength?: number;
+  underline?: boolean;
+  disabled?: boolean;
+  multiline?: boolean;
+  maxLines?: number;
+  minLines?: number;
+  customErrorTooltip?: string;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -71,7 +75,11 @@ const EditableTextWrapper = styled.div<{
 
 // using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
 // which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
-const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
+const TextContainer = styled.div<{
+  isValid: boolean;
+  minimal: boolean;
+  underline?: boolean;
+}>`
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {
@@ -80,7 +88,16 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
       }
     }
   }
-
+  &&& .${Classes.EDITABLE_TEXT_CONTENT}:hover {
+    ${(props) =>
+      props.underline
+        ? `
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        width: fit-content;
+      `
+        : null}
+  }
   & span.bp3-editable-text-content {
     height: auto !important;
   }
@@ -90,7 +107,9 @@ export function EditableText(props: EditableTextProps) {
   const {
     beforeUnmount,
     className,
+    customErrorTooltip = "",
     defaultValue,
+    disabled,
     editInteractionKind,
     errorTooltipClass,
     forceDefault,
@@ -98,10 +117,14 @@ export function EditableText(props: EditableTextProps) {
     isEditingDefault,
     isInvalid,
     maxLength,
+    maxLines,
     minimal,
+    minLines,
+    multiline,
     onBlur,
     onTextChanged,
     placeholder,
+    underline,
     updating,
     valueTransform,
   } = props;
@@ -149,12 +172,12 @@ export function EditableText(props: EditableTextProps) {
         setIsEditing(false);
       } else {
         Toaster.show({
-          text: "Invalid name",
+          text: customErrorTooltip || "Invalid name",
           variant: Variant.danger,
         });
       }
     },
-    [isInvalid],
+    [isInvalid, onTextChanged],
   );
 
   const onInputchange = useCallback(
@@ -170,6 +193,13 @@ export function EditableText(props: EditableTextProps) {
 
   const errorMessage = isInvalid && isInvalid(value);
   const error = errorMessage ? errorMessage : undefined;
+  const showEditIcon = !(
+    disabled ||
+    minimal ||
+    hideEditIcon ||
+    updating ||
+    isEditing
+  );
   return (
     <EditableTextWrapper
       isEditing={isEditing}
@@ -186,12 +216,19 @@ export function EditableText(props: EditableTextProps) {
         isOpen={!!error}
         message={errorMessage as string}
       >
-        <TextContainer isValid={!error} minimal={!!minimal}>
+        <TextContainer
+          isValid={!error}
+          minimal={!!minimal}
+          underline={underline}
+        >
           <BlueprintEditableText
             className={className}
-            disabled={!isEditing}
+            disabled={disabled || !isEditing}
             isEditing={isEditing}
             maxLength={maxLength}
+            maxLines={maxLines}
+            minLines={minLines}
+            multiline={multiline}
             onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}
@@ -199,7 +236,7 @@ export function EditableText(props: EditableTextProps) {
             selectAllOnFocus
             value={value}
           />
-          {!minimal && !hideEditIcon && !updating && !isEditing && (
+          {showEditIcon && (
             <Icon
               className="t--action-name-edit-icon"
               fillColor="#939090"

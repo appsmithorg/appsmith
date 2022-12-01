@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 export const getSafeCrash = (state: AppState) => {
   return state.ui.errors.safeCrash;

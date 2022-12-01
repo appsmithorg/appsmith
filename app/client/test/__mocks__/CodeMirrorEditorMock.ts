@@ -18,8 +18,7 @@ export const mockCodemirrorRender = () => {
 
     range.getBoundingClientRect = jest.fn();
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     range.getClientRects = jest.fn(() => ({
       item: () => null,
       length: 0,

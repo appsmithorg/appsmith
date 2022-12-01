@@ -68,14 +68,20 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.NUMBER,
-              params: { min: 1, max: 100, default: 5 },
+              params: {
+                min: 1,
+                max: 100,
+                default: 5,
+                passThroughOnZero: false,
+              },
             },
           },
           {
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
             label: "Allowed File Types",
-            controlType: "MULTI_SELECT",
+            controlType: "DROP_DOWN",
+            isMultiSelect: true,
             placeholderText: "Select file types",
             options: [
               {

@@ -15,6 +15,8 @@ describe("JS Toggle tests", () => {
       .find(".t--js-toggle")
       .should("have.class", "is-active");
 
+    cy.EnableAllCodeEditors();
+
     cy.testJsontext("visible", "false");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);

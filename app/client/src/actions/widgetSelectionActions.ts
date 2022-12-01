@@ -2,6 +2,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 export const selectWidgetAction = (
   widgetId?: string,
@@ -65,6 +66,16 @@ export const selectMultipleWidgetsInitAction = (widgetIds: string[]) => {
   };
 };
 
+export const deselectModalWidgetAction = (
+  modalId: string,
+  modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
+) => {
+  return {
+    type: ReduxActionTypes.DESELECT_MODAL_WIDGETS,
+    payload: { modalId, modalWidgetChildren },
+  };
+};
+
 export const shiftSelectWidgetsEntityExplorerInitAction = (
   widgetId: string,
   siblingWidgets: string[],
@@ -72,3 +83,10 @@ export const shiftSelectWidgetsEntityExplorerInitAction = (
   type: ReduxActionTypes.SHIFT_SELECT_WIDGET_INIT,
   payload: { widgetId, siblingWidgets },
 });
+
+export const appendSelectedWidgetToUrl = (selectedWidgets: string[]) => {
+  return {
+    type: ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
+    payload: { selectedWidgets },
+  };
+};

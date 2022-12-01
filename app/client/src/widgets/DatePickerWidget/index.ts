@@ -7,6 +7,8 @@ export const CONFIG = {
   name: "DatePicker",
   iconSVG: IconSVG,
   hideCard: true,
+  isDeprecated: true,
+  replacement: "DATE_PICKER_WIDGET2",
   needsMeta: true,
   defaults: {
     isDisabled: false,

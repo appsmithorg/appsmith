@@ -7,7 +7,6 @@ import WidgetStyleContainer, {
   BoxShadow,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { Color } from "constants/Colors";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   FIELD_MAP,
   MAX_ALLOWED_FIELDS,
@@ -17,7 +16,7 @@ import {
 import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
 import { RenderMode, RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
-import { JSONFormWidgetState } from "../widget";
+import { Action, JSONFormWidgetState } from "../widget";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
 type StyledContainerProps = {
@@ -32,7 +31,7 @@ export type JSONFormComponentProps<TValues = any> = {
   boxShadow?: BoxShadow;
   boxShadowColor?: string;
   disabledWhenInvalid?: boolean;
-  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
+  executeAction: (action: Action) => void;
   fieldLimitExceeded: boolean;
   fixedFooter: boolean;
   getFormData: () => TValues;
@@ -90,26 +89,32 @@ function InfoMessage({ children }: { children: React.ReactNode }) {
   );
 }
 
-function JSONFormComponent<TValues>({
-  backgroundColor,
-  executeAction,
-  fieldLimitExceeded,
-  getFormData,
-  isSubmitting,
-  isWidgetMounting,
-  onFormValidityUpdate,
-  registerResetObserver,
-  renderMode,
-  resetButtonLabel,
-  schema,
-  setMetaInternalFieldState,
-  submitButtonLabel,
-  unregisterResetObserver,
-  updateFormData,
-  updateWidgetMetaProperty,
-  updateWidgetProperty,
-  ...rest
-}: JSONFormComponentProps<TValues>) {
+function JSONFormComponent<TValues>(
+  {
+    backgroundColor,
+    executeAction,
+    fieldLimitExceeded,
+    getFormData,
+    isSubmitting,
+    isWidgetMounting,
+    onFormValidityUpdate,
+    registerResetObserver,
+    renderMode,
+    resetButtonLabel,
+    schema,
+    setMetaInternalFieldState,
+    submitButtonLabel,
+    unregisterResetObserver,
+    updateFormData,
+    updateWidgetMetaProperty,
+    updateWidgetProperty,
+    ...rest
+  }: JSONFormComponentProps<TValues>,
+  ref:
+    | ((instance: HTMLDivElement | null) => void)
+    | React.MutableRefObject<HTMLDivElement | null>
+    | null,
+) {
   const isSchemaEmpty = isEmpty(schema);
   const styleProps = pick(rest, [
     "borderColor",
@@ -180,6 +185,7 @@ function JSONFormComponent<TValues>({
           isWidgetMounting={isWidgetMounting}
           onFormValidityUpdate={onFormValidityUpdate}
           onSubmit={rest.onSubmit}
+          ref={ref}
           registerResetObserver={registerResetObserver}
           resetButtonLabel={resetButtonLabel}
           resetButtonStyles={rest.resetButtonStyles}
@@ -200,4 +206,4 @@ function JSONFormComponent<TValues>({
   );
 }
 
-export default React.memo(JSONFormComponent);
+export default React.memo(React.forwardRef(JSONFormComponent));

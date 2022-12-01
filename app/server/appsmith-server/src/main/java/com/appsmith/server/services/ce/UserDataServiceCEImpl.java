@@ -17,6 +17,7 @@ import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
@@ -58,6 +59,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private final ApplicationRepository applicationRepository;
 
+    private final TenantService tenantService;
+
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
 
@@ -74,7 +77,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                                  ReleaseNotesService releaseNotesService,
                                  FeatureFlagService featureFlagService,
                                  UserChangedHandler userChangedHandler,
-                                 ApplicationRepository applicationRepository) {
+                                 ApplicationRepository applicationRepository,
+                                 TenantService tenantService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
@@ -83,6 +87,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         this.featureFlagService = featureFlagService;
         this.userChangedHandler = userChangedHandler;
         this.applicationRepository = applicationRepository;
+        this.tenantService = tenantService;
     }
 
     @Override
@@ -108,14 +113,18 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> getForUserEmail(String email) {
-        return userRepository.findByEmail(email)
+        return tenantService.getDefaultTenantId()
+                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(email, tenantId))
                 .flatMap(this::getForUser);
     }
 
     @Override
     public Mono<UserData> updateForCurrentUser(UserData updates) {
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userRepository.findByEmail(user.getEmail()))
+                .flatMap(user ->
+                        tenantService.getDefaultTenantId()
+                                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
+                )
                 .flatMap(user -> updateForUser(user, updates));
     }
 
@@ -170,8 +179,9 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         }
 
         return Mono.justOrEmpty(user.getId())
-                .switchIfEmpty(userRepository
-                        .findByEmail(user.getEmail())
+                .switchIfEmpty(
+                        tenantService.getDefaultTenantId()
+                        .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
                 )
                 .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))
@@ -244,17 +254,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * The application.organizationId is prepended to the list {@link UserData#getRecentlyUsedOrgIds}.
+     * The application.workspaceId is prepended to the list {@link UserData#getRecentlyUsedWorkspaceIds}.
      * The application.id is prepended to the list {@link UserData#getRecentlyUsedAppIds()}.
      *
      * @param application@return Updated {@link UserData}
      */
     @Override
-    public Mono<UserData> updateLastUsedAppAndOrgList(Application application) {
+    public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
         return this.getForCurrentUser().flatMap(userData -> {
-            // set recently used organization ids
-            userData.setRecentlyUsedOrgIds(
-                    addIdToRecentList(userData.getRecentlyUsedOrgIds(), application.getOrganizationId(), 10)
+            // set recently used workspace ids
+            userData.setRecentlyUsedWorkspaceIds(
+                    addIdToRecentList(userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10)
             );
             // set recently used application ids
             userData.setRecentlyUsedAppIds(
@@ -264,18 +274,29 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         });
     }
 
+    @Override
+    public Mono<UserData> addTemplateIdToLastUsedList(String templateId) {
+        return this.getForCurrentUser().flatMap(userData -> {
+            // set recently used template ids
+            userData.setRecentlyUsedTemplateIds(
+                    addIdToRecentList(userData.getRecentlyUsedTemplateIds(), templateId, 5)
+            );
+            return repository.save(userData);
+        });
+    }
+
     private List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
-        if(srcIdList == null) {
+        if (srcIdList == null) {
             srcIdList = new ArrayList<>();
         }
         CollectionUtils.putAtFirst(srcIdList, newId);
 
         // check if there is any duplicates, remove if exists
-        if(srcIdList.size() > 1) {
+        if (srcIdList.size() > 1) {
             CollectionUtils.removeDuplicates(srcIdList);
         }
-        // keeping the last 10 org ids, there may be a lot of deleted organization ids which are not used anymore
-        if(srcIdList.size() > maxSize) {
+        // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
+        if (srcIdList.size() > maxSize) {
             srcIdList = srcIdList.subList(0, maxSize);
         }
         return srcIdList;
@@ -288,7 +309,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> setCommentState(CommentOnboardingState commentOnboardingState) {
-        if(commentOnboardingState != CommentOnboardingState.SKIPPED && commentOnboardingState != CommentOnboardingState.ONBOARDED) {
+        if (commentOnboardingState != CommentOnboardingState.SKIPPED && commentOnboardingState != CommentOnboardingState.ONBOARDED) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, QUserData.userData.commentOnboardingState));
         }
         return this.getForCurrentUser().flatMap(userData -> {
@@ -298,14 +319,15 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * Removes provided organization id and all other application id under that organization from the user data
-     * @param organizationId organization id
+     * Removes provided workspace id and all other application id under that workspace from the user data
+     *
+     * @param workspaceId workspace id
      * @return update result obtained from DB
      */
     @Override
-    public Mono<UpdateResult> removeRecentOrgAndApps(String userId, String organizationId) {
-        return applicationRepository.getAllApplicationId(organizationId).flatMap(appIdsList ->
-            repository.removeIdFromRecentlyUsedList(userId, organizationId, appIdsList)
+    public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+        return applicationRepository.getAllApplicationId(workspaceId).flatMap(appIdsList ->
+                repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList)
         );
     }
 }

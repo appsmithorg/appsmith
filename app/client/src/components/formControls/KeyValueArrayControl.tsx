@@ -13,7 +13,7 @@ import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { TextInput, TextInputProps } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -78,7 +78,9 @@ function KeyValueRow(
       if (value && keyFieldProps?.validationRegex) {
         const regex = new RegExp(keyFieldProps?.validationRegex);
 
-        return regex.test(value) ? undefined : keyFieldProps.validationMessage;
+        return regex.test(value)
+          ? { isValid: true }
+          : { isValid: false, message: keyFieldProps.validationMessage };
       }
 
       return undefined;

@@ -1,12 +1,18 @@
 import React from "react";
 import { Link, Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
-import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
+import {
+  InjectedFormProps,
+  reduxForm,
+  formValueSelector,
+  isDirty,
+  DecoratedFormProps,
+} from "redux-form";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { FORGOT_PASSWORD_URL, SETUP, SIGN_UP_URL } from "constants/routes";
 import {
   LOGIN_PAGE_TITLE,
@@ -24,10 +30,8 @@ import {
   NEW_TO_APPSMITH,
   createMessage,
 } from "@appsmith/constants/messages";
-import FormMessage from "components/ads/formFields/FormMessage";
-import FormGroup from "components/ads/formFields/FormGroup";
-import FormTextField from "components/ads/formFields/TextField";
-import Button, { Size } from "components/ads/Button";
+import { Button, FormGroup, FormMessage, Size } from "design-system";
+import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
@@ -53,16 +57,19 @@ import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 const { disableLoginForm } = getAppsmithConfigs();
 
-const validate = (values: LoginFormValues) => {
+const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
   const email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
   const password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
+  const { isPasswordFieldDirty, touch } = props;
   if (!password || isEmptyString(password)) {
+    isPasswordFieldDirty && touch?.(LOGIN_FORM_PASSWORD_FIELD_NAME);
     errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = createMessage(
       FORM_VALIDATION_EMPTY_PASSWORD,
     );
   }
   if (!isEmptyString(email) && !isEmail(email)) {
+    touch?.(LOGIN_FORM_EMAIL_FIELD_NAME);
     errors[LOGIN_FORM_EMAIL_FIELD_NAME] = createMessage(
       FORM_VALIDATION_INVALID_EMAIL,
     );
@@ -71,12 +78,18 @@ const validate = (values: LoginFormValues) => {
   return errors;
 };
 
-type LoginFormProps = { emailValue: string } & InjectedFormProps<
-  LoginFormValues,
-  { emailValue: string }
-> & {
+type LoginFormProps = {
+  emailValue: string;
+} & InjectedFormProps<LoginFormValues, { emailValue: string }> & {
     theme: Theme;
   };
+
+type ValidateProps = {
+  isPasswordFieldDirty?: boolean;
+} & DecoratedFormProps<
+  LoginFormValues,
+  { emailValue: string; isPasswordFieldDirty?: boolean }
+>;
 
 export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
@@ -84,6 +97,9 @@ export function Login(props: LoginFormProps) {
   const location = useLocation();
   const socialLoginList = ThirdPartyLoginRegistry.get();
   const queryParams = new URLSearchParams(location.search);
+  const invalidCredsForgotPasswordLinkText = createMessage(
+    LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+  );
   let showError = false;
   let errorMessage = "";
   const currentUser = useSelector(getCurrentUser);
@@ -132,15 +148,18 @@ export function Login(props: LoginFormProps) {
               ? []
               : [
                   {
-                    url: FORGOT_PASSWORD_URL,
-                    text: createMessage(
-                      LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+                    linkElement: (
+                      <Link to={FORGOT_PASSWORD_URL}>
+                        {invalidCredsForgotPasswordLinkText}
+                      </Link>
                     ),
+                    text: invalidCredsForgotPasswordLinkText,
                     intent: "success",
                   },
                 ]
           }
           intent="danger"
+          linkAs={Link}
           message={
             !!errorMessage && errorMessage !== "true"
               ? errorMessage
@@ -211,10 +230,14 @@ export function Login(props: LoginFormProps) {
 const selector = formValueSelector(LOGIN_FORM_NAME);
 export default connect((state) => ({
   emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
+  isPasswordFieldDirty: isDirty(LOGIN_FORM_NAME)(
+    state,
+    LOGIN_FORM_PASSWORD_FIELD_NAME,
+  ),
 }))(
   reduxForm<LoginFormValues, { emailValue: string }>({
     validate,
-    touchOnBlur: true,
+    touchOnBlur: false,
     form: LOGIN_FORM_NAME,
   })(withTheme(Login)),
 );

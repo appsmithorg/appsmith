@@ -16,7 +16,7 @@ import {
   getCountryCode,
   ISDCodeDropdownOptions,
 } from "../component/ISDCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import _ from "lodash";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import derivedProperties from "./parsedDerivedProperties";
@@ -30,6 +30,8 @@ import {
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -68,30 +70,41 @@ class PhoneInputWidget extends BaseInputWidget<
   PhoneInputWidgetProps,
   WidgetState
 > {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
         {
-          sectionName: "General",
+          sectionName: "Data",
           children: [
             {
-              propertyName: "allowDialCodeChange",
-              label: "Allow country code change",
-              helpText: "Search by country",
-              controlType: "SWITCH",
-              isJSConvertible: false,
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "(000) 000-0000",
               isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.BOOLEAN },
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "string",
+                    example: `(000) 000-0000`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
             },
             {
               helpText: "Changes the country code",
               propertyName: "defaultDialCode",
               label: "Default Country Code",
               enableSearch: true,
-              dropdownHeight: "195px",
+              dropdownHeight: "156px",
               controlType: "DROP_DOWN",
-              placeholderText: "Search by code or country name",
+              searchPlaceholderText: "Search by code or country name",
               options: ISDCodeDropdownOptions,
               isJSConvertible: true,
               isBindProperty: true,
@@ -101,30 +114,9 @@ class PhoneInputWidget extends BaseInputWidget<
               },
             },
             {
-              helpText:
-                "Sets the default text of the widget. The text is updated if the default text changes",
-              propertyName: "defaultText",
-              label: "Default Text",
-              controlType: "INPUT_TEXT",
-              placeholderText: "John Doe",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.FUNCTION,
-                params: {
-                  fn: defaultValueValidation,
-                  expected: {
-                    type: "string",
-                    example: `000 0000`,
-                    autocompleteDataType: AutocompleteDataType.STRING,
-                  },
-                },
-              },
-            },
-            {
-              propertyName: "allowFormatting",
-              label: "Enable Formatting",
-              helpText: "Formats the phone number as per the country selected",
+              propertyName: "allowDialCodeChange",
+              label: "Change Country Code",
+              helpText: "Search by country",
               controlType: "SWITCH",
               isJSConvertible: true,
               isBindProperty: true,
@@ -133,9 +125,47 @@ class PhoneInputWidget extends BaseInputWidget<
             },
           ],
         },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+          ],
+        },
+        // {
+        //   sectionName: "General",
+        //   children: [
+        //     {
+        //       propertyName: "allowFormatting",
+        //       label: "Enable Formatting",
+        //       helpText: "Formats the phone number as per the country selected",
+        //       controlType: "SWITCH",
+        //       isJSConvertible: true,
+        //       isBindProperty: true,
+        //       isTriggerProperty: false,
+        //       validation: { type: ValidationTypes.BOOLEAN },
+        //     },
+        //   ],
+        // },
       ],
-      super.getPropertyPaneConfig(),
+      super.getPropertyPaneContentConfig(),
     );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return super.getPropertyPaneStyleConfig();
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -155,6 +185,14 @@ class PhoneInputWidget extends BaseInputWidget<
     return _.merge(super.getDefaultPropertiesMap(), {
       dialCode: "defaultDialCode",
     });
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
   }
 
   getFormattedPhoneNumber(value: string) {
@@ -309,6 +347,7 @@ class PhoneInputWidget extends BaseInputWidget<
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}

@@ -3,7 +3,7 @@ import { Route, RouteComponentProps } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 import { connect } from "react-redux";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
 import equal from "fast-deep-equal/es6";
 const SentryRoute = Sentry.withSentryRouting(Route);

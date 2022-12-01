@@ -1,6 +1,5 @@
 import React, { PropsWithChildren, useMemo } from "react";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
 
 import Tooltip from "components/editorComponents/Tooltip";
 import { Colors } from "constants/Colors";
@@ -150,7 +149,7 @@ function FieldLabel({
             className={TOOLTIP_CLASSNAME}
             content={tooltip}
             hoverOpenDelay={200}
-            position={Position.TOP}
+            position="top"
           >
             <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
               <HelpIcon className="t--input-widget-tooltip" />

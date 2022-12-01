@@ -1,27 +1,28 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.OrganizationRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +30,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -41,7 +42,7 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class AuthenticationServiceTest {
 
@@ -58,13 +59,16 @@ public class AuthenticationServiceTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    OrganizationRepository organizationRepository;
+    WorkspaceRepository workspaceRepository;
 
     @Autowired
     UserService userService;
 
     @Autowired
     ApplicationPageService applicationPageService;
+
+    @Autowired
+    WorkspaceService workspaceService;
 
     @Test
     @WithUserDetails(value = "api_user")
@@ -85,14 +89,16 @@ public class AuthenticationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_invalidDatasourceWithNullAuthentication() {
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        String orgId = testOrg == null ? "" : testOrg.getId();
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Another Test Workspace");
+        testWorkspace = workspaceService.create(testWorkspace).block();
+        String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
         datasource.setName("Missing OAuth2 datasource");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
@@ -122,27 +128,31 @@ public class AuthenticationServiceTest {
 
         MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").headers(mockHeaders).build();
 
-        Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
-        String orgId = testOrg == null ? "" : testOrg.getId();
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Another Test Workspace");
+        testWorkspace = workspaceService.create(testWorkspace).block();
+        String workspaceId = testWorkspace == null ? "" : testWorkspace.getId();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO testPage = new PageDTO();
         testPage.setName("PageServiceTest TestApp");
-        User apiUser = userService.findByEmail("api_user").block();
-        orgId = apiUser.getOrganizationIds().iterator().next();
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        Application application = applicationPageService.createApplication(newApp, orgId).block();
+        Application application = applicationPageService.createApplication(newApp, workspaceId).block();
 
         testPage.setApplicationId(application.getId());
 
         PageDTO pageDto = applicationPageService.createPage(testPage).block();
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
+        // install plugin
+        pluginMono.flatMap(plugin -> {
+            return pluginService.installPlugin(PluginWorkspaceDTO.builder().pluginId(plugin.getId()).workspaceId(workspaceId).status(WorkspacePluginStatus.FREE).build());
+        }).block();
         Datasource datasource = new Datasource();
         datasource.setName("Valid datasource for OAuth2");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         OAuth2 authenticationDTO = new OAuth2();

@@ -1,7 +1,0 @@
-{
-    "debuggerIcon": ".t--debugger",
-    "debuggerLogState": ".t--debugger-log-state",
-    "errorCount": ".t--debugger-count",
-    "errorMessage": ".t--debugger-message",
-    "menuItem": ".t--debugger-contextual-menuitem"
-}

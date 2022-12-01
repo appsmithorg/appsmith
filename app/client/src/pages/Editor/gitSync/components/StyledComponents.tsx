@@ -1,21 +1,22 @@
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system";
 import { Colors } from "constants/Colors";
 
 export const Title = styled.p`
-  ${(props) => getTypographyByKey(props, "h1")};
+  ${getTypographyByKey("h1")};
   margin: ${(props) =>
     `${props.theme.spaces[7]}px 0px ${props.theme.spaces[3]}px 0px`};
-  color: ${Colors.COD_GRAY};
+  color: ${Colors.GREY_900};
 `;
 
-export const Subtitle = styled.span`
-  ${(props) => getTypographyByKey(props, "p1")};
-  color: ${Colors.COD_GRAY};
+export const Subtitle = styled.div`
+  margin-top: 8px;
+  ${getTypographyByKey("p1")};
+  color: ${Colors.GREY_900};
 `;
 
 export const Caption = styled.span`
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
 `;
 
 type sizeType =

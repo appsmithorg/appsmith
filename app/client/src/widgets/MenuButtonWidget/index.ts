@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
+import { MenuItemsSource } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -14,6 +15,7 @@ export const CONFIG = {
     isDisabled: false,
     isVisible: true,
     animateLoading: true,
+    menuItemsSource: MenuItemsSource.STATIC,
     menuItems: {
       menuItem1: {
         label: "First Menu Item",
@@ -50,6 +52,9 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

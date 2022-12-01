@@ -3,10 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 import ApiEditor from "../locators/ApiEditor";
 const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
@@ -28,8 +24,10 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
   cy.get(apiwidget.resourceUrl)
     .first()
     .click({ force: true })
-    .type(datasource, { parseSpecialCharSequences: false })
-    .type("{esc}}");
+    .type(datasource, { parseSpecialCharSequences: false });
+  //.type("{esc}}");
+  cy.wait(2000);
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
@@ -63,8 +61,10 @@ Cypress.Commands.add("CreateAPI", (apiname) => {
   cy.get(explorer.blankAPI).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.renameWithInPane(apiname);
-  cy.WaitAutoSave();
+  if (apiname) {
+    cy.renameWithInPane(apiname);
+    cy.WaitAutoSave();
+  }
   // Added because api name edit takes some time to
   // reflect in api sidebar after the call passes.
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -111,6 +111,10 @@ Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
 Cypress.Commands.add("RunAPI", () => {
   cy.get(ApiEditor.ApiRunBtn).click({ force: true });
   cy.wait("@postExecute");
+});
+
+Cypress.Commands.add("RunAPIWithoutWaitingForResolution", () => {
+  cy.get(ApiEditor.ApiRunBtn).click({ force: true });
 });
 
 Cypress.Commands.add("SaveAndRunAPI", () => {
@@ -465,4 +469,9 @@ Cypress.Commands.add("callApi", (apiname) => {
   cy.get(commonlocators.selectMenuItem)
     .contains(apiname)
     .click({ force: true });
+});
+
+Cypress.Commands.add("checkIfApiPaneIsVisible", () => {
+  cy.get(ApiEditor.datasourcesRightPane).should("exist");
+  cy.get(ApiEditor.datasourcesRightPane).should("be.visible");
 });

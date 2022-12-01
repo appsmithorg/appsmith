@@ -22,7 +22,7 @@ import {
 import { Layers } from "constants/Layers";
 import Resizable from "resizable/resize";
 import { getCanvasClassName } from "utils/generators";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
@@ -48,10 +48,13 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: 0;
+      top: var(--view-mode-header-height, 0);
       right: 0;
       bottom: 0;
-      height: 100vh;
+      height: ${(props) =>
+        props.isEditMode
+          ? "100vh"
+          : `calc(100vh - var(--view-mode-header-height, 0))`};
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -66,7 +69,7 @@ const Container = styled.div<{
 
           return `95%`;
         }};
-        max-height: 85%;
+        max-height: ${(props) => (props.isEditMode ? "85%" : "95%")};
         width: ${(props) => (props.width ? `${props.width}px` : "auto")};
         height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         min-height: ${(props) => `${props.minSize}px`};
@@ -130,6 +133,7 @@ export type ModalComponentProps = {
   widgetName: string;
   backgroundColor: string;
   borderRadius: string;
+  isDynamicHeightEnabled: boolean;
 };
 
 /* eslint-disable react/display-name */
@@ -176,6 +180,19 @@ export default function ModalComponent(props: ModalComponentProps) {
   }, []);
 
   useEffect(() => {
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  });
+
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      if (props.canEscapeKeyClose) props.onClose(e);
+    }
+  };
+
+  useEffect(() => {
     if (!props.scrollContents) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -204,6 +221,10 @@ export default function ModalComponent(props: ModalComponentProps) {
     });
   };
 
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !props.isDynamicHeightEnabled && enableResize;
+  }, [props.isDynamicHeightEnabled, enableResize]);
+
   const getResizableContent = () => {
     //id for Content is required for Copy Paste inside the modal
     return (
@@ -211,7 +232,8 @@ export default function ModalComponent(props: ModalComponentProps) {
         allowResize
         componentHeight={props.height || 0}
         componentWidth={props.width || 0}
-        enable={enableResize}
+        enableHorizontalResize={enableResize}
+        enableVerticalResize={isVerticalResizeEnabled}
         handles={handles}
         isColliding={() => false}
         onStart={onResizeStart}
@@ -236,6 +258,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const getEditorView = () => {
     return (
       <Overlay
+        autoFocus={false}
         canEscapeKeyClose={false}
         canOutsideClickClose={false}
         enforceFocus={false}
@@ -261,6 +284,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           }
         >
           <Overlay
+            autoFocus={false}
             canEscapeKeyClose={props.canEscapeKeyClose}
             canOutsideClickClose={props.canOutsideClickClose}
             className={props.overlayClassName}

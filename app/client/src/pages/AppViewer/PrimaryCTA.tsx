@@ -6,7 +6,7 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import {
   PERMISSION_TYPE,
   isPermitted,
-} from "pages/Applications/permissionHelpers";
+} from "@appsmith/utils/permissionHelpers";
 import {
   getCurrentApplication,
   getCurrentPageId,
@@ -24,6 +24,7 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
+import { useHref } from "pages/Editor/utils";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -40,7 +41,6 @@ type Props = {
  * COMPONENT
  * ---------------------------------------------------------------------------------------------------
  */
-const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
 
 function PrimaryCTA(props: Props) {
   const { className, url } = props;
@@ -54,17 +54,26 @@ function PrimaryCTA(props: Props) {
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
 
+  const appViewerURL = useHref(viewerURL, {
+    pageId: currentPageID,
+    suffix: "fork",
+  });
+
   // get the fork url
   const forkURL = useMemo(() => {
-    return `${LOGIN_URL}?redirectUrl=${window.location.origin}${viewerURL({
-      applicationId: currentApplication?.applicationId,
-      pageId: currentPageID,
-      suffix: "fork",
-    })}`;
-  }, [currentApplication?.applicationId, currentPageID]);
+    const encodedForkRedirectURL = `${encodeURIComponent(
+      `${window.location.origin}${appViewerURL}`,
+    )}`;
+    return `${AUTH_LOGIN_URL}?redirectUrl=${encodedForkRedirectURL}`;
+  }, [appViewerURL]);
+
+  const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+    window.location.href,
+  )}`;
 
   /**
    * returns the cta to be used based on user login status
+   *
    *
    * 1. if user can edit the app -> the back to edit app button
    * 2. if forking app is enabled and app is public but the user is not logged  -> fork button
@@ -145,7 +154,12 @@ function PrimaryCTA(props: Props) {
         />
       );
     }
-  }, [url, canEdit]);
+  }, [
+    url,
+    canEdit,
+    selectedTheme.properties.colors.primaryColor,
+    selectedTheme.properties.borderRadius.appBorderRadius,
+  ]);
 
   return <div>{PrimaryCTA}</div>;
 }

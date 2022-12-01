@@ -1,18 +1,16 @@
-import { takeLeading, all, put, select } from "redux-saga/effects";
+import { takeLeading, all, put, select, call } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { snipingModeBindToSelector } from "selectors/editorSelectors";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "actions/controlActions";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import {
@@ -21,7 +19,8 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { builderURL } from "RouteBuilder";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { setSnipingMode } from "actions/propertyPaneActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -30,19 +29,14 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const pageId: string = yield select(getCurrentPageId);
-  // console.log("Binding Data in Saga");
-  const currentURL = new URL(window.location.href);
-  const searchParams = currentURL.searchParams;
-  const queryId = searchParams.get("bindTo");
-  const currentAction = yield select((state) =>
+  const queryId: string = yield select(snipingModeBindToSelector);
+  const currentAction: ActionData | undefined = yield select((state) =>
     state.entities.actions.find(
       (action: ActionData) => action.config.id === queryId,
     ),
   );
-  const selectedWidget = (yield select(getCanvasWidgets))[
-    action.payload.widgetId
-  ];
+  const widgetState: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
+  const selectedWidget = widgetState[action.payload.widgetId];
 
   if (!selectedWidget || !selectedWidget.type) {
     Toaster.show({
@@ -55,6 +49,9 @@ export function* bindDataToWidgetSaga(
   let propertyPath = "";
   let propertyValue: any = "";
   let isValidProperty = true;
+
+  // Pranav has an Open PR for this file so just returning for now
+  if (!currentAction) return;
 
   switch (selectedWidget.type) {
     case WidgetTypes.BUTTON_WIDGET:
@@ -87,7 +84,7 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.LIST_WIDGET:
-      propertyPath = "items";
+      propertyPath = "listData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.MAP_WIDGET:
@@ -119,6 +116,10 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.TABLE_WIDGET:
+      propertyPath = "tableData";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
+    case WidgetTypes.TABLE_WIDGET_V2:
       propertyPath = "tableData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
@@ -159,11 +160,7 @@ export function* bindDataToWidgetSaga(
         force: true,
       },
     });
-    history.replace(
-      builderURL({
-        pageId,
-      }),
-    );
+    yield call(resetSnipingModeSaga);
   } else {
     queryId &&
       Toaster.show({
@@ -174,15 +171,12 @@ export function* bindDataToWidgetSaga(
 }
 
 function* resetSnipingModeSaga() {
-  const currentURL = new URL(window.location.href);
-  const searchParams = currentURL.searchParams;
-  searchParams.delete("isSnipingMode");
-  searchParams.delete("bindTo");
-  history.replace({
-    ...window.location,
-    pathname: currentURL.pathname,
-    search: searchParams.toString(),
-  });
+  yield put(
+    setSnipingMode({
+      isActive: false,
+      bindTo: undefined,
+    }),
+  );
 }
 
 export default function* snipingModeSagas() {

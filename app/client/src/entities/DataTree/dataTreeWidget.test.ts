@@ -289,7 +289,6 @@ describe("generateDataTreeWidget", () => {
       privateWidgets: {},
       deepObj: {
         level1: {
-          value: 10,
           metaValue: 10,
         },
       },

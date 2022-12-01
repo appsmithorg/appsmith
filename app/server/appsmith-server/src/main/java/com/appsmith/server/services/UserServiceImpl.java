@@ -1,13 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
@@ -25,12 +24,13 @@ import javax.validation.Validator;
 @Service
 public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
+
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
                            MongoConverter mongoConverter,
                            ReactiveMongoTemplate reactiveMongoTemplate,
                            UserRepository repository,
-                           OrganizationService organizationService,
+                           WorkspaceService workspaceService,
                            AnalyticsService analyticsService,
                            SessionUserService sessionUserService,
                            PasswordResetTokenRepository passwordResetTokenRepository,
@@ -38,21 +38,18 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            EmailSender emailSender,
                            ApplicationRepository applicationRepository,
                            PolicyUtils policyUtils,
-                           OrganizationRepository organizationRepository,
-                           UserOrganizationService userOrganizationService,
-                           RoleGraph roleGraph,
-                           ConfigService configService,
                            CommonConfig commonConfig,
                            EmailConfig emailConfig,
                            UserChangedHandler userChangedHandler,
                            EncryptionService encryptionService,
-                           ApplicationPageService applicationPageService,
-                           UserDataService userDataService) {
+                           UserDataService userDataService,
+                           TenantService tenantService,
+                           PermissionGroupService permissionGroupService,
+                           UserUtils userUtils) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, organizationService,
-                analyticsService, sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender,
-                applicationRepository, policyUtils, organizationRepository, userOrganizationService, roleGraph,
-                configService, commonConfig, emailConfig, userChangedHandler, encryptionService, applicationPageService,
-                userDataService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService, analyticsService,
+                sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender, applicationRepository,
+                policyUtils, commonConfig, emailConfig, userChangedHandler, encryptionService, userDataService, tenantService,
+                permissionGroupService, userUtils);
     }
 }

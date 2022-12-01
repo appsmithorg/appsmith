@@ -3,6 +3,7 @@ import styled from "styled-components";
 import AppCrashImage from "assets/images/404-image.png";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,6 +43,7 @@ class AppErrorBoundary extends Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     log.error({ error, errorInfo });
     Sentry.captureException(error);
+    AnalyticsUtil.logEvent("APP_CRASH", { error, errorInfo });
     this.setState({
       hasError: true,
     });

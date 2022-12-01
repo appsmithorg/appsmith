@@ -1,8 +1,10 @@
-import marked from "marked";
+import { marked } from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
 import log from "loglevel";
 
+const aisOpenHTMLTag = `<${algoliaHighlightTag}>`;
+const aisCloseHTMLTag = `</${algoliaHighlightTag}>`;
 /**
  * @param {String} HTML representing a single element
  * @return {Element}
@@ -20,32 +22,28 @@ export const htmlToElement = (html: string) => {
  */
 const strip = (text: string) => text.replace(/{% .*?%}/gm, "");
 
-export const YT_EMBEDDING_SELECTION_REGEX = [
-  /{% embed url="<a href="https:\/\/www.youtube.com\/watch\?v=(.*?)\&.*? %}/m,
-  /{% embed url="<a href="https:\/\/youtu.be.*?>https:\/\/youtu.be\/(.*?)".*? %}/m,
-];
-
 const getYtIframe = (videoId: string) => {
   return `<iframe width="100%" height="280" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
 };
-const updateYoutubeEmbeddingsWithIframe = (text: string) => {
+
+const updateVideoEmbeddingsWithIframe = (text: string) => {
   let docString = text;
+  const embedRegex = /<videoembed[^>]*videoid="(.*?)"[^>]*>/;
   let match;
-  YT_EMBEDDING_SELECTION_REGEX.forEach((ytRegex) => {
-    while ((match = ytRegex.exec(docString)) !== null) {
-      // gitbook adds \\ in front of a _ char in an id. TO remove that we have to do this.
-      let videoId = match[1].replaceAll("%5C", "");
-      videoId = videoId.replaceAll("\\", "");
-      docString = docString.replace(ytRegex, getYtIframe(videoId));
-    }
-  });
+  while ((match = embedRegex.exec(docString)) !== null) {
+    const videoId = match[1];
+    docString = docString
+      .replaceAll(aisOpenHTMLTag, "")
+      .replaceAll(aisCloseHTMLTag, "");
+    docString = docString.replace(embedRegex, getYtIframe(videoId));
+  }
   return docString;
 };
 
 /**
  * strip: description tag from the top
  */
-const stripMarkdown = (text: string) =>
+const stripDescriptionMarkdown = (text: string) =>
   text.replace(/---\n[description]([\S\s]*?)---/gm, "");
 
 const getDocumentationCTA = (path: any) => {
@@ -110,27 +108,65 @@ const removeBadHighlights = (node: HTMLElement | Document, query: string) => {
   });
 };
 
+/**
+ * Walks link tokens and adds documentation repo as the domain for every relative URLs found.
+ * @param {string} value
+ * @returns String of compiled HTML
+ */
+const parseMarkdown = (value: string) => {
+  value = replaceHintTagsWithCode(stripDescriptionMarkdown(value));
+
+  marked.use({
+    walkTokens(token) {
+      const currentToken = token;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (
+        "type" in currentToken &&
+        (currentToken.type === "link" || currentToken.type === "image")
+      ) {
+        if ("href" in currentToken) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          let href = currentToken.href;
+          try {
+            new URL(href);
+          } catch (e) {
+            href = `${HelpBaseURL}/${href}`;
+          }
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          currentToken.href = href
+            .replace(aisTag, "")
+            .replaceAll(aisOpenHTMLTag, "")
+            .replaceAll(aisCloseHTMLTag, "")
+            .replace(/<|>/g, "");
+        }
+      }
+    },
+  });
+
+  return marked(value);
+};
+
 const replaceHintTagsWithCode = (text: string) => {
-  let result = text.replace(/{% hint .*?%}/, "```");
-  result = result.replace(/{% endhint .*?%}/, "```");
-  result = marked(result);
+  let result = text.replaceAll(/:::.*?/g, "```");
+  result = result.replaceAll(/:::/g, "```");
   return result;
 };
+
+const aisTag = new RegExp(
+  `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
+  "g",
+);
 
 const parseDocumentationContent = (item: any): string | undefined => {
   try {
     const { query, rawDocument } = item;
-    let value = rawDocument;
+    const value = rawDocument;
     if (!value) return;
 
-    const aisTag = new RegExp(
-      `&lt;${algoliaHighlightTag}&gt;|&lt;/${algoliaHighlightTag}&gt;`,
-      "g",
-    );
-    value = stripMarkdown(value);
-    value = replaceHintTagsWithCode(value);
-
-    const parsedDocument = marked(value);
+    const parsedDocument = parseMarkdown(value);
 
     const domparser = new DOMParser();
     const documentObj = domparser.parseFromString(parsedDocument, "text/html");
@@ -141,22 +177,8 @@ const parseDocumentationContent = (item: any): string | undefined => {
       match.innerHTML = match.innerHTML.replace(aisTag, "");
     });
 
-    // update link hrefs and target
-    const aisTagEncoded = new RegExp(
-      `%3C${algoliaHighlightTag}%3E|%3C/${algoliaHighlightTag}%3E`,
-      "g",
-    );
-
     Array.from(documentObj.querySelectorAll("a")).forEach((match) => {
       match.target = "_blank";
-      try {
-        const hrefURL = new URL(match.href);
-        const isRelativeURL = hrefURL.hostname === window.location.hostname;
-        match.href = !isRelativeURL
-          ? match.href
-          : `${HelpBaseURL}/${match.getAttribute("href")}`;
-        match.href = match.href.replace(aisTagEncoded, "");
-      } catch (e) {}
     });
 
     // update description title
@@ -229,7 +251,7 @@ const parseDocumentationContent = (item: any): string | undefined => {
 
     // Remove highlight for nodes that don't match well
     removeBadHighlights(documentObj, query);
-    let content = updateYoutubeEmbeddingsWithIframe(documentObj.body.innerHTML);
+    let content = updateVideoEmbeddingsWithIframe(documentObj.body.innerHTML);
     content = strip(content).trim();
     return content;
   } catch (e) {

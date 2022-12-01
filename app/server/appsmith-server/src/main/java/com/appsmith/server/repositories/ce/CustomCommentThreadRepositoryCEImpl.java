@@ -6,6 +6,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.QCommentThread;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -28,8 +29,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryImpl<CommentThread>
         implements CustomCommentThreadRepositoryCE {
 
-    public CustomCommentThreadRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomCommentThreadRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override

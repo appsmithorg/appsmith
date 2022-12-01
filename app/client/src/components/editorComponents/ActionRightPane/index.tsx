@@ -1,23 +1,30 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Classes, Variant } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import {
+  Button,
+  Category,
+  Classes,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  Variant,
+} from "design-system";
 import { useState } from "react";
 import history from "utils/history";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
 import { useEffect } from "react";
-import Button, { Category, Size } from "components/ads/Button";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
   BACK_TO_CANVAS,
@@ -29,8 +36,13 @@ import {
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
 import { Colors } from "constants/Colors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -50,7 +62,7 @@ const SideBar = styled.div`
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
     .connection-type {
-      ${(props) => getTypographyByKey(props, "p1")}
+      ${getTypographyByKey("p1")}
     }
   }
 
@@ -59,7 +71,7 @@ const SideBar = styled.div`
   }
 
   .description {
-    ${(props) => getTypographyByKey(props, "p1")}
+    ${getTypographyByKey("p1")}
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
     padding-bottom: ${(props) => props.theme.spaces[7]}px;
   }
@@ -97,7 +109,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
 
   & > .icon-text:first-child {
     color: ${(props) => props.theme.colors.actionSidePane.collapsibleIcon};
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     cursor: pointer;
     .${Classes.ICON} {
       ${(props) => !props.isOpen && `transform: rotate(-90deg);`}
@@ -110,7 +122,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
 `;
 
 const SnipingWrapper = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
   img {
@@ -215,6 +227,7 @@ function ActionSidebar({
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
   const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -234,23 +247,26 @@ function ActionSidebar({
       }),
     );
   };
+  const navigateToCanvas = useCallback(() => {
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
   const hasWidgets = Object.keys(widgets).length > 1;
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canEditPage = hasManagePagePermission(pagePermissions);
+
   const showSuggestedWidgets =
-    hasResponse && suggestedWidgets && !!suggestedWidgets.length;
+    canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
 
   if (!hasConnections && !showSuggestedWidgets && !showSnipingMode) {
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
-  const navigeteToCanvas = () => {
-    history.push(builderURL());
-  };
-
   return (
     <SideBar>
-      <BackButton onClick={navigeteToCanvas}>
+      <BackButton onClick={navigateToCanvas}>
         <Icon
           fillColor={Colors.DOVE_GRAY}
           keepColors
@@ -266,7 +282,7 @@ function ActionSidebar({
           entityDependencies={entityDependencies}
         />
       )}
-      {hasResponse && Object.keys(widgets).length > 1 && (
+      {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Connect Widget">
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>

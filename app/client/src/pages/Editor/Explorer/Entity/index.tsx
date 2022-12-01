@@ -5,6 +5,7 @@ import React, {
   useRef,
   forwardRef,
   useCallback,
+  RefObject,
 } from "react";
 import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
@@ -14,12 +15,12 @@ import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
-import { Classes, Position } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
@@ -89,11 +90,17 @@ export const EntityItem = styled.div<{
   grid-template-columns: 20px auto 1fr auto auto auto;
   grid-auto-flow: column dense;
   border-radius: 0;
-  color: ${Colors.CODE_GRAY};
+  color: ${Colors.GRAY_800};
+  font-weight: 500;
   cursor: pointer;
   align-items: center;
   &:hover {
     background: ${Colors.GREY_2};
+  }
+
+  .${Classes.COLLAPSE_BODY} & {
+    color: ${Colors.GRAY_700};
+    font-weight: 400;
   }
 
   scroll-margin-top: 36px;
@@ -104,6 +111,10 @@ export const EntityItem = styled.div<{
     .${Classes.POPOVER_TARGET} {
       ${entityTooltipCSS}
     }
+  }
+
+  .file-ops {
+    height: 36px;
   }
 
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
@@ -176,7 +187,9 @@ const IconWrapper = styled.span`
 
 export type EntityProps = {
   entityId: string;
+  showAddButton?: boolean;
   className?: string;
+  canEditEntityName?: boolean;
   name: string;
   children?: ReactNode;
   highlight?: boolean;
@@ -201,10 +214,13 @@ export type EntityProps = {
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
   isSticky?: boolean;
+  collapseRef?: RefObject<HTMLDivElement> | null;
+  customAddButton?: ReactNode;
 };
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
+    const { canEditEntityName = false, showAddButton = false } = props;
     const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
@@ -213,11 +229,11 @@ export const Entity = forwardRef(
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
-      if (props.isDefaultExpanded) {
+      if (props.isDefaultExpanded || props.searchKeyword) {
         open(true);
         props.onToggle && props.onToggle(true);
       }
-    }, [props.isDefaultExpanded]);
+    }, [props.isDefaultExpanded, props.searchKeyword]);
     useEffect(() => {
       if (!props.searchKeyword && !props.isDefaultExpanded) {
         open(false);
@@ -258,6 +274,7 @@ export const Entity = forwardRef(
     }, [dispatch]);
 
     const enterEditMode = useCallback(() => {
+      if (!canEditEntityName) return;
       if (guidedTourEnabled) {
         dispatch(toggleShowDeviationDialog(true));
         return;
@@ -273,6 +290,22 @@ export const Entity = forwardRef(
 
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
+
+    const addButton = props.customAddButton || (
+      <TooltipComponent
+        boundary="viewport"
+        className={EntityClassNames.TOOLTIP}
+        content={props.addButtonHelptext || ""}
+        disabled={!props.addButtonHelptext}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position="right"
+      >
+        <AddButton
+          className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
+          onClick={props.onCreate}
+        />
+      </TooltipComponent>
+    );
 
     return (
       <Boxed
@@ -336,31 +369,18 @@ export const Entity = forwardRef(
                 {props.rightIcon}
               </IconWrapper>
             )}
-            {props.addButtonHelptext ? (
-              <TooltipComponent
-                boundary="viewport"
-                className={EntityClassNames.TOOLTIP}
-                content={props.addButtonHelptext}
-                hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position={Position.RIGHT}
-              >
-                <AddButton
-                  className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
-                  onClick={props.onCreate}
-                />
-              </TooltipComponent>
-            ) : (
-              <AddButton
-                className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
-                onClick={props.onCreate}
-              />
-            )}
+            {showAddButton && addButton}
             {props.contextMenu && (
               <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
             )}
             <Loader isVisible={isUpdating} />
           </EntityItem>
-          <Collapse active={props.active} isOpen={isOpen} step={props.step}>
+          <Collapse
+            active={props.active}
+            collapseRef={props.collapseRef}
+            isOpen={isOpen}
+            step={props.step}
+          >
             {props.children}
           </Collapse>
         </Wrapper>

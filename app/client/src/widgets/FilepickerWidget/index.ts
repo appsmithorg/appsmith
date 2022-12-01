@@ -8,6 +8,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   hideCard: true,
+  isDeprecated: true,
+  replacement: "FILE_PICKER_WIDGET_V2",
   defaults: {
     rows: 4,
     files: [],

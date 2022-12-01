@@ -35,7 +35,6 @@ import {
 } from "utils/replayHelpers";
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   getCurrentApplicationId,
   snipingModeSelector,
@@ -60,7 +59,7 @@ import {
   isQueryAction,
   isSaaSAction,
 } from "entities/Action";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
@@ -72,13 +71,14 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
 import {
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { AppThemingMode } from "selectors/appThemingSelectors";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 
 export type UndoRedoPayload = {
   operation: ReplayReduxActionTypes;
@@ -174,16 +174,16 @@ export function* postUndoRedoSaga(replay: any) {
  * @returns
  */
 export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode: boolean = yield select(commentModeSelector);
   const isSnipingMode: boolean = yield select(snipingModeSelector);
 
   // if the app is in snipping or comments mode, don't do anything
-  if (isCommentMode || isSnipingMode) return;
+  if (isSnipingMode) return;
   try {
     const history = createBrowserHistory();
     const pathname = history.location.pathname;
     const { id, type } = getEntityInCurrentPath(pathname);
     const entityId = type === "page" ? "canvas" : id;
+    // @ts-expect-error: workerResponse is of type unknown
     const workerResponse = yield call(
       workerComputeUndoRedo,
       action.payload.operation,
@@ -214,9 +214,21 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
-        if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        yield put(updateAndSaveLayout(replayEntity.widgets, false, false));
-        if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+
+        yield put(
+          updateAndSaveLayout(replayEntity.widgets, {
+            isRetry: false,
+            shouldReplay: false,
+          }),
+        );
+
+        if (isPropertyUpdate) {
+          yield call(openPropertyPaneSaga, replay);
+        }
+        if (!isPropertyUpdate) {
+          yield call(postUndoRedoSaga, replay);
+        }
+        yield put(generateAutoHeightLayoutTreeAction(true, false));
         break;
       }
       case ENTITY_TYPE.ACTION:

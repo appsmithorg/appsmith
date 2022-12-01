@@ -1,11 +1,15 @@
 import {
   HTTP_METHOD,
   CONTENT_TYPE_HEADER_KEY,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
 import cloneDeep from "lodash/cloneDeep";
+import {
+  getDynamicStringSegments,
+  isDynamicValue,
+} from "utils/DynamicBindingUtils";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);
@@ -32,12 +36,16 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     action.actionConfiguration.queryParameters.length
   ) {
     const path = action.actionConfiguration.path;
-    if (path && path.indexOf("?") > -1) {
+
+    // This can help extract paths from the following examples
+    const templatePaths = extractApiUrlPath(path);
+
+    if (path && templatePaths !== path) {
       action = {
         ...action,
         actionConfiguration: {
           ...action.actionConfiguration,
-          path: path.slice(0, path.indexOf("?")),
+          path: templatePaths,
         },
       };
     }
@@ -81,3 +89,38 @@ function removeEmptyPairs(keyValueArray: any) {
       (!isEmpty(data.key) || !isEmpty(data.value) || !isEmpty(data.type)),
   );
 }
+
+// This function extracts the appropriate paths regardless of whatever expressions exist within the dynamic bindings.
+
+// Example 1:  `/{{Text1.text ? 'users' : 'user'}}`
+// Example 2:  `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}?`
+// Example 3:  `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}?a=hello&b=world`
+
+// Output 1: /{{Text1.text ? 'users' : 'user'}}`
+// Output 2: /{{Text1.text ? 'users' : 'user'}}/{{"test"}}`
+// Output 3: /{{Text1.text ? 'users' : 'user'}}/{{"test"}}`
+
+export const extractApiUrlPath = (path: string | undefined) => {
+  const dynamicStringSegments = getDynamicStringSegments(path || "");
+  const dynamicValuesDetected: string[] = [];
+
+  const templateStringSegments = dynamicStringSegments.map((segment) => {
+    if (isDynamicValue(segment)) {
+      dynamicValuesDetected.push(segment);
+      return "~";
+    }
+    return segment;
+  });
+
+  const indexOfQueryParams = templateStringSegments.join("").indexOf("?");
+
+  let templatePaths = templateStringSegments
+    .join("")
+    .slice(0, indexOfQueryParams === -1 ? undefined : indexOfQueryParams);
+
+  dynamicValuesDetected.forEach((val) => {
+    templatePaths = templatePaths.replace(/~/, val);
+  });
+
+  return templatePaths;
+};

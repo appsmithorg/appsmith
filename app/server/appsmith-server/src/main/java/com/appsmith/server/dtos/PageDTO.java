@@ -29,6 +29,8 @@ public class PageDTO {
 
     String slug;
 
+    String customSlug;
+
     @Transient
     String applicationId;
 
@@ -53,4 +55,8 @@ public class PageDTO {
     // connected applications and will be used to connect actions across the branches
     @Transient
     DefaultResources defaultResources;
+
+    public void sanitiseToExportDBObject() {
+        this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
+    }
 }

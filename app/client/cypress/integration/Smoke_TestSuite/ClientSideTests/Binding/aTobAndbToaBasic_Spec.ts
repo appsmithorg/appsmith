@@ -3,9 +3,10 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry"
 let dataSet: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
     ee = ObjectsRegistry.EntityExplorer,
-    jsEditor = ObjectsRegistry.JSEditor,
-    locator = ObjectsRegistry.CommonLocators;
-    
+    propPane = ObjectsRegistry.PropertyPane,
+    locator = ObjectsRegistry.CommonLocators,
+    deployMode = ObjectsRegistry.DeployMode;
+
 describe("Validate basic binding of Input widget to Input widget", () => {
 
     before(() => {
@@ -19,24 +20,24 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("1. Input widget test with default value for atob method", () => {
-        ee.SelectEntityByName("Input1", 'WIDGETS')
-        jsEditor.EnterJSContext("Default Text", dataSet.atobInput + "}}");
+        ee.SelectEntityByName("Input1", 'Widgets')
+        propPane.UpdatePropertyFieldValue("Default Value", dataSet.atobInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
         cy.get(locator._inputWidget).first().invoke("attr", "value").should("equal", 'A');//Before mapping JSObject value of input
     });
 
     it("2. Input widget test with default value for btoa method", function () {
         ee.SelectEntityByName("Input2")
-        jsEditor.EnterJSContext("Default Text", dataSet.btoaInput + "}}");
+        propPane.UpdatePropertyFieldValue("Default Value", dataSet.btoaInput + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
         cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'QQ==');//Before mapping JSObject value of input
     });
 
     it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
-        agHelper.DeployApp(locator._inputWidgetInDeployed)
-        cy.get(locator._inputWidgetInDeployed).first().invoke("attr", "value")
+        deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"))
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).first().invoke("attr", "value")
             .should("contain", "A")
-        cy.get(locator._inputWidgetInDeployed).last().invoke("attr", "value")
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).last().invoke("attr", "value")
             .should("contain", "QQ==");
     });
 });

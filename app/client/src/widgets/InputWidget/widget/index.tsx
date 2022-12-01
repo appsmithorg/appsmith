@@ -22,13 +22,14 @@ import { InputType, InputTypes } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import {
   formatCurrencyNumber,
   getDecimalSeparator,
   getLocale,
 } from "../component/utilities";
 import { LabelPosition } from "components/constants";
+import { Stylesheet } from "entities/AppTheming";
 
 export function defaultValueValidation(
   value: any,
@@ -166,7 +167,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or country name",
+            searchPlaceholderText: "Search by code or country name",
             options: ISDCodeDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.PHONE_NUMBER;
@@ -182,7 +183,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
-            placeholderText: "Search by code or name",
+            searchPlaceholderText: "Search by code or name",
             options: CurrencyDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
@@ -405,6 +406,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               { label: "Top", value: LabelPosition.Top },
               { label: "Auto", value: LabelPosition.Auto },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -610,28 +612,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
         ],
       },
     ];
@@ -728,6 +708,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       isDirty: false,
       selectedCurrencyType: undefined,
       selectedCountryCode: undefined,
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
     };
   }
 
@@ -856,6 +844,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
           INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+          this.props.maxChars,
         );
       }
     }

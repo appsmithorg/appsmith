@@ -1,7 +1,6 @@
 import { debounce, get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { getWidgets } from "sagas/selectors";
+import { useCallback, useEffect, useMemo } from "react";
 
 import {
   DefaultLayoutType,
@@ -22,32 +21,29 @@ import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
 import { updateCanvasLayoutAction } from "actions/editorActions";
-import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
-  const [initialized, setInitialized] = useState(false);
   const explorerWidth = useSelector(getExplorerWidth);
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
-  const domEntityExplorer = document.querySelector(".js-entity-explorer");
-  const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
-  const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
+  const { width: screenWidth } = useWindowSizeHooks();
   const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
-  const canvasWidgets = useSelector(getWidgets);
+  const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
 
-  /**
-   * calculates min height
-   */
-  const calculatedMinHeight = useMemo(() => {
-    return calculateDynamicHeight(canvasWidgets, mainCanvasProps?.height);
-  }, [mainCanvasProps]);
+  // /**
+  //  * calculates min height
+  //  */
+  // const calculatedMinHeight = useMemo(() => {
+  //   return calculateDynamicHeight();
+  // }, [mainCanvasProps]);
 
   /**
    * app layout range i.e minWidth and maxWidth for the current layout
@@ -87,6 +83,8 @@ export const useDynamicAppLayout = () => {
    * @returns
    */
   const calculateCanvasWidth = () => {
+    const domEntityExplorer = document.querySelector(".js-entity-explorer");
+    const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
@@ -135,10 +133,8 @@ export const useDynamicAppLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
     const { width: rightColumn } = mainCanvasProps || {};
 
-    if (rightColumn !== calculatedWidth) {
-      dispatch(
-        updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
-      );
+    if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
+      dispatch(updateCanvasLayoutAction(calculatedWidth));
     }
   };
 
@@ -150,16 +146,14 @@ export const useDynamicAppLayout = () => {
   /**
    * when screen height is changed, update canvas layout
    */
-  useEffect(() => {
-    if (calculatedMinHeight !== mainCanvasProps?.height) {
-      dispatch(
-        updateCanvasLayoutAction(mainCanvasProps?.width, calculatedMinHeight),
-      );
-    }
-  }, [screenHeight, mainCanvasProps?.height]);
+  // useEffect(() => {
+  //   if (calculatedMinHeight !== mainCanvasProps?.height) {
+  //     // dispatch(updateCanvasLayoutAction(mainCanvasProps?.width));
+  //   }
+  // }, [screenHeight, mainCanvasProps?.height]);
 
   useEffect(() => {
-    debouncedResize();
+    if (isCanvasInitialized) debouncedResize();
   }, [screenWidth]);
 
   /**
@@ -181,13 +175,7 @@ export const useDynamicAppLayout = () => {
     isPreviewMode,
     explorerWidth,
     isExplorerPinned,
-    initialized,
   ]);
 
-  /**
-   * calling the setInitialized here so that property pane width is initialized
-   */
-  useEffect(() => {
-    setInitialized(true);
-  });
+  return isCanvasInitialized;
 };

@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
@@ -85,7 +84,10 @@ public class Condition {
      */
     public static Boolean isValid(Condition condition) {
 
-        if (StringUtils.isEmpty(condition.getPath()) || (condition.getOperator() == null)) {
+        // In case the condition does not exist in the first place, mark it as invalid as well
+        if (condition == null ||
+                (StringUtils.isEmpty(condition.getPath()) && !(condition.getValue() instanceof List)) ||
+                condition.getOperator() == null) {
             return false;
         }
 

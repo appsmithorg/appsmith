@@ -1,6 +1,6 @@
 package com.appsmith.server.helpers;
 
-import org.springframework.web.reactive.function.client.WebClient;
+import com.appsmith.util.WebClientUtils;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -24,7 +24,7 @@ public class NetworkUtils {
             return Mono.just(cachedAddress);
         }
 
-        return WebClient
+        return WebClientUtils
                 .create()
                 .get()
                 .uri(GET_IP_URI)

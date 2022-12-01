@@ -6,20 +6,21 @@ import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ControlIcons } from "icons/ControlIcons";
-import { IconWrapper } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
+import { Button, IconWrapper, Size } from "design-system";
 import PageListItem, { Action } from "./PageListItem";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPageList,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import DraggableList from "components/ads/DraggableList";
+import { DraggableList } from "design-system";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { builderURL } from "RouteBuilder";
+import { hasCreatePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -61,13 +62,22 @@ const NewPageButton = styled(Button)`
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
+type PageListPayloadWithId = Page[] & { id?: string };
+
 function PagesEditor() {
   const theme = useTheme();
   const dispatch = useDispatch();
   const history = useHistory();
-  const pages = useSelector(getPageList);
+  const pages: PageListPayloadWithId = useSelector(
+    getPageList,
+  )?.map((page) => ({ ...page, id: page.pageId }));
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
+  const pageId = useSelector(getCurrentPageId);
+
+  const userAppPermissions = currentApp?.userPermissions || [];
+
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -111,8 +121,8 @@ function PagesEditor() {
    * @return void
    */
   const onClose = useCallback(() => {
-    history.push(builderURL());
-  }, []);
+    history.push(builderURL({ pageId }));
+  }, [pageId]);
 
   /**
    * Draggable List Render item
@@ -143,6 +153,7 @@ function PagesEditor() {
           <h1>Page Properties</h1>
         </div>
         <NewPageButton
+          disabled={!canCreatePages}
           icon="plus"
           onClick={createPageCallback}
           size={Size.medium}
@@ -156,6 +167,7 @@ function PagesEditor() {
         ItemRenderer={draggableListRenderItem}
         itemHeight={70}
         items={pages}
+        keyAccessor={"pageId"}
         onUpdate={(newOrder: any, originalIndex: number, newIndex: number) => {
           setPageOrderCallback(pages[originalIndex].pageId, newIndex);
         }}

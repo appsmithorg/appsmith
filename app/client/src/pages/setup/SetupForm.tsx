@@ -15,7 +15,7 @@ import {
   WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import {
   FormErrors,
   formValueSelector,
@@ -24,7 +24,7 @@ import {
   reduxForm,
 } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
 

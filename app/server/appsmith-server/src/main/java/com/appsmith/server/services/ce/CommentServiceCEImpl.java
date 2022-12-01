@@ -32,7 +32,9 @@ import com.appsmith.server.services.NotificationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EmailEventHandler;
+import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,10 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THREADS;
@@ -89,6 +88,8 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     private final EmailEventHandler emailEventHandler;
     private final SequenceService sequenceService;
     private final ResponseUtils responseUtils;
+    private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
 
     public CommentServiceCEImpl(
             Scheduler scheduler,
@@ -108,7 +109,9 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
             EmailEventHandler emailEventHandler,
             UserDataRepository userDataRepository,
             SequenceService sequenceService,
-            ResponseUtils responseUtils) {
+            ResponseUtils responseUtils,
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.threadRepository = threadRepository;
@@ -123,6 +126,8 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         this.userDataRepository = userDataRepository;
         this.sequenceService = sequenceService;
         this.responseUtils = responseUtils;
+        this.applicationPermission = applicationPermission;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -163,11 +168,11 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
         final Mono<String> branchedAppIdMono = StringUtils.isEmpty(defaultApplicationId)
                 ? Mono.just("")
-                : applicationService.findBranchedApplicationId(branchName, defaultApplicationId, COMMENT_ON_APPLICATIONS);
+                : applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getCanCommentPermission());
 
         final Mono<String> branchedPageIdMono = StringUtils.isEmpty(defaultPageId)
                 ? Mono.just("")
-                : newPageService.findBranchedPageId(branchName, defaultPageId, MANAGE_PAGES);
+                : newPageService.findBranchedPageId(branchName, defaultPageId, pagePermission.getEditPermission());
 
         return Mono.zip(branchedAppIdMono, branchedPageIdMono, userMono)
                 .flatMap(tuple -> {
@@ -253,7 +258,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
             comment.setApplicationId(commentThread.getApplicationId());
             comment.setPageId(commentThread.getPageId());
         }
-        comment.setOrgId(commentThread.getOrgId());
+        comment.setWorkspaceId(commentThread.getWorkspaceId());
         comment.setApplicationName(commentThread.getApplicationName());
         comment.setAuthorUsername(user.getUsername());
         String authorName = user.getName() != null ? user.getName() : user.getUsername();
@@ -324,69 +329,85 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                 return Mono.just(user);
             }
         });
-        return userMono.flatMap(user ->
-                userDataRepository.findByUserId(user.getId())
-                        .defaultIfEmpty(new UserData(user.getId()))
-                        .zipWith(applicationService.findById(applicationId, COMMENT_ON_APPLICATIONS))
-                        .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)
-                        ))
-                        .flatMap(tuple -> {
-                            final UserData userData = tuple.getT1();
-                            final Application application = tuple.getT2();
 
-                            // set the profile asset id from user data to comment
-                            for(Comment comment : commentThread.getComments()) {
-                                comment.setAuthorPhotoId(userData.getProfilePhotoAssetId());
-                            }
-                            boolean shouldCreateBotThread = policyUtils.isPermissionPresentForUser(
-                                    application.getPolicies(), MANAGE_APPLICATIONS.getValue(), user.getUsername()
-                            ) && !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
 
-                            // check whether this thread should be converted to bot thread
-                            if (userData.getCommentOnboardingState() == null || userData.getCommentOnboardingState() == CommentOnboardingState.ONBOARDED) {
-                                commentThread.setIsPrivate(shouldCreateBotThread);
-                                userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
-                                return userDataRepository.save(userData).then(
-                                        saveCommentThread(commentThread, application, user)
-                                );
-                            }
-                            return saveCommentThread(commentThread, application, user);
-                        })
-                        .flatMap(thread -> {
-                            if(thread.getWidgetType() != null) {
-                                return analyticsService.sendCreateEvent(
-                                        thread, Map.of("widgetType", thread.getWidgetType())
-                                );
-                            } else {
-                                return analyticsService.sendCreateEvent(thread);
-                            }
-                        })
-                        .flatMapMany(thread -> {
-                            List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
-                            if (!CollectionUtils.isEmpty(thread.getComments())) {
-                                thread.getComments().get(0).setLeading(true);
-                                for (final Comment comment : thread.getComments()) {
-                                    comment.setId(null);
-                                    commentSaverMonos.add(create(thread, user, comment, originHeader));
-                                }
-                            }
+        return userMono.flatMap(user -> {
+            Mono<UserData> userDataMono = userDataRepository.findByUserId(user.getId())
+                    .defaultIfEmpty(new UserData(user.getId()));
 
-                            if (TRUE.equals(thread.getIsPrivate())) {
-                                // this is the first thread by this user, add a bot comment also
-                                commentSaverMonos.add(createBotComment(thread, user, CommentOnboardingState.COMMENTED));
+            Mono<Boolean> editAccessOnApplicationMono = applicationService.findById(applicationId, applicationPermission.getEditPermission())
+                    .map(application -> TRUE)
+                    .switchIfEmpty(Mono.just(FALSE));
+
+            return Mono.zip(
+                    userDataMono,
+                    applicationService
+                            .findById(applicationId, applicationPermission.getCanCommentPermission())
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)
+                            )),
+                    editAccessOnApplicationMono
+                    )
+                    .flatMap(tuple -> {
+                        final UserData userData = tuple.getT1();
+                        final Application application = tuple.getT2();
+                        Boolean hasEditAccessOnApplication = tuple.getT3();
+
+                        // set the profile asset id from user data to comment
+                        for(Comment comment : commentThread.getComments()) {
+                            comment.setAuthorPhotoId(userData.getProfilePhotoAssetId());
+                        }
+                        boolean shouldCreateBotThread = hasEditAccessOnApplication &&
+                                !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
+
+                        // check whether this thread should be converted to bot thread
+                        if (userData.getCommentOnboardingState() == null || userData.getCommentOnboardingState() == CommentOnboardingState.ONBOARDED) {
+                            commentThread.setIsPrivate(shouldCreateBotThread);
+                            userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
+                            return userDataRepository.save(userData).then(
+                                    saveCommentThread(commentThread, application, user)
+                            );
+                        }
+                        return saveCommentThread(commentThread, application, user);
+                    })
+                    .flatMap(thread -> {
+                        if(thread.getWidgetType() != null) {
+                            return analyticsService.sendCreateEvent(
+                                    thread, Map.of("widgetType", thread.getWidgetType())
+                            );
+                        } else {
+                            return analyticsService.sendCreateEvent(thread);
+                        }
+                    })
+                    .flatMapMany(thread -> {
+                        List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
+
+                        if (!CollectionUtils.isEmpty(thread.getComments())) {
+                            thread.getComments().get(0).setLeading(true);
+                            for (final Comment comment : thread.getComments()) {
+                                comment.setId(null);
+                                commentSaverMonos.add(create(thread, user, comment, originHeader));
                             }
-                            // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
-                            // value is meaningful.
-                            return Flux.concat(commentSaverMonos);
-                        })
-                        .collectList()
-                        .map(commentList -> {
-                            commentThread.setComments(commentList);
-                            commentThread.setIsViewed(true);
-                            return commentThread;
-                        }));
+                        }
+
+                        if (TRUE.equals(thread.getIsPrivate())) {
+                            // this is the first thread by this user, add a bot comment also
+                            commentSaverMonos.add(createBotComment(thread, user, CommentOnboardingState.COMMENTED));
+                        }
+                        // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
+                        // value is meaningful.
+                        return Flux.concat(commentSaverMonos);
+                    })
+                    .collectList()
+                    .map(commentList -> {
+                        commentThread.setComments(commentList);
+                        commentThread.setIsViewed(true);
+                        return commentThread;
+                    });
+                }
+
+        );
     }
 
     public Mono<CommentThread> createThread(CommentThread commentThread, String originHeader, String branchName) {
@@ -395,8 +416,8 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         final String defaultAppId = commentThread.getApplicationId();
         final String defaultPageId = commentThread.getPageId();
         return Mono.zip(
-                        applicationService.findBranchedApplicationId(branchName, defaultAppId, COMMENT_ON_APPLICATIONS),
-                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, READ_PAGES))
+                        applicationService.findBranchedApplicationId(branchName, defaultAppId, applicationPermission.getCanCommentPermission()),
+                        newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission()))
                 .flatMap(tuple -> {
                     String branchedApplicationId = tuple.getT1();
                     String branchedPageId = tuple.getT2().getId();
@@ -563,7 +584,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
     @Override
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO) {
-        return applicationService.findById(commentThreadFilterDTO.getApplicationId(), READ_APPLICATIONS)
+        return applicationService.findById(commentThreadFilterDTO.getApplicationId(), applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, commentThreadFilterDTO.getApplicationId()
                 )))
@@ -574,7 +595,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
 
                     // if user is app viewer, return the comments in published mode only
                     Boolean permissionPresentForUser = policyUtils.isPermissionPresentForUser(
-                            application.getPolicies(), MANAGE_APPLICATIONS.getValue(), currentUser.getUsername()
+                            application.getPolicies(), applicationPermission.getEditPermission().getValue(), currentUser.getUsername()
                     );
                     if(!permissionPresentForUser) {
                         // user is app viewer, show only PUBLISHED comment threads
@@ -607,7 +628,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     public Mono<List<CommentThread>> getThreadsByApplicationId(CommentThreadFilterDTO commentThreadFilterDTO,
                                                                String branchName) {
         final String defaultApplicationId = commentThreadFilterDTO.getApplicationId();
-        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+        return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMap(branchAppId -> {
                     commentThreadFilterDTO.setApplicationId(branchAppId);
                     return getThreadsByApplicationId(commentThreadFilterDTO);
@@ -688,7 +709,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         initState.setAuthorName("");
         initState.setAuthorUsername("");
 
-        commentThread.setOrgId(application.getOrganizationId());
+        commentThread.setWorkspaceId(application.getWorkspaceId());
         commentThread.setPinnedState(initState);
         commentThread.setResolvedState(initState);
         commentThread.setApplicationId(application.getId());
@@ -732,7 +753,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         comment.setAuthorName(APPSMITH_BOT_NAME);
         comment.setAuthorUsername(APPSMITH_BOT_USERNAME);
         comment.setApplicationId(commentThread.getApplicationId());
-        comment.setOrgId(commentThread.getOrgId());
+        comment.setWorkspaceId(commentThread.getWorkspaceId());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                 commentThread.getPolicies(),
@@ -791,7 +812,7 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
     public Mono<Long> getUnreadCount(String applicationId, String branchName) {
         return Mono.zip(
                         sessionUserService.getCurrentUser(),
-                        applicationService.findBranchedApplicationId(branchName, applicationId, READ_APPLICATIONS))
+                        applicationService.findBranchedApplicationId(branchName, applicationId, applicationPermission.getReadPermission()))
                 .flatMap(tuple ->
                         threadRepository.countUnreadThreads(tuple.getT2(), tuple.getT1().getUsername())
                 );

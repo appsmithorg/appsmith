@@ -8,6 +8,14 @@ describe("FirstTimeUserOnboarding", function() {
     });
   });
 
+  it("onboarding flow - should check page entitiy selection in explorer", function() {
+    cy.get(OnboardingLocator.introModalBuild).click();
+    cy.get(".t--entity-name:contains(Page1)")
+      .trigger("mouseover")
+      .click({ force: true });
+    cy.get(OnboardingLocator.dropTarget).should("be.visible");
+  });
+
   it("onboarding flow - should check check the redirection post signup", function() {
     cy.get(OnboardingLocator.introModal).should("be.visible");
   });

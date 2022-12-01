@@ -1,0 +1,241 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 656,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 2860,
+        "containerStyle": "none",
+        "snapRows": 128,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 46,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "widgetName": "Table1",
+                "inlineEditingSaveOption": "ROW_LEVEL",
+                "columnOrder": [
+                    "id",
+                    "email",
+                    "userName",
+                    "productName",
+                    "orderAmount"
+                ],
+                "aliasMap": {
+                  "id": "id",
+                  "email": "email",
+                  "userName": "userName",
+                  "productName": "productName",
+                  "orderAmount": "orderAmount"
+                },
+                "isVisibleDownload": true,
+                "topRow": 48,
+                "bottomRow": 71,
+                "parentRowSpace": 10,
+                "isSortable": true,
+                "type": "TABLE_WIDGET_V2",
+                "parentColumnSpace": 74,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "tableData"
+                    },
+                    {
+                        "key": "primaryColumns.id.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.email.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.userName.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.productName.computedValue"
+                    },
+                    {
+                        "key": "primaryColumns.orderAmount.computedValue"
+                    }
+                ],
+                "primaryColumns": {
+                    "id": {
+                        "index": 0,
+                        "width": 150,
+                        "id": "id",
+                        "alias": "id",
+                        "originalId": "id",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "fontStyle": "REGULAR",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "id",
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.id))}}"
+                    },
+                    "email": {
+                        "index": 1,
+                        "width": 150,
+                        "id": "email",
+                        "alias": "email",
+                        "originalId": "email",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "fontStyle": "REGULAR",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "email",
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.email))}}"
+                    },
+                    "userName": {
+                        "index": 2,
+                        "width": 150,
+                        "id": "userName",
+                        "alias": "userName",
+                        "originalId": "userName",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "fontStyle": "REGULAR",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "userName",
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.userName))}}"
+                    },
+                    "productName": {
+                        "index": 3,
+                        "width": 150,
+                        "id": "productName",
+                        "alias": "productName",
+                        "originalId": "productName",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "fontStyle": "REGULAR",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "productName",
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.productName))}}"
+                    },
+                    "orderAmount": {
+                        "index": 4,
+                        "width": 150,
+                        "id": "orderAmount",
+                        "alias": "orderAmount",
+                        "originalId": "orderAmount",
+                        "horizontalAlignment": "LEFT",
+                        "verticalAlignment": "CENTER",
+                        "columnType": "text",
+                        "textSize": "PARAGRAPH",
+                        "fontStyle": "REGULAR",
+                        "enableFilter": true,
+                        "enableSort": true,
+                        "isVisible": true,
+                        "isDisabled": false,
+                        "isCellVisible": true,
+                        "isDerived": false,
+                        "label": "orderAmount",
+                        "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.orderAmount))}}"
+                    }
+                },
+                "delimiter": ",",
+                "migrated": true,
+                "derivedColumns": {},
+                "rightColumn": 57,
+                "textSize": "PARAGRAPH",
+                "widgetId": "sb070qr2ir",
+                "isVisibleFilters": true,
+                "tableData": "{{\n[\n  {\n    \"id\": 2381224,\n    \"email\": \"michael.lawson@reqres.in\",\n    \"userName\": \"Michael Lawson\",\n    \"productName\": \"Chicken Sandwich\",\n    \"orderAmount\": 4.99\n  },\n  {\n    \"id\": 2736212,\n    \"email\": \"lindsay.ferguson@reqres.in\",\n    \"userName\": \"Lindsay Ferguson\",\n    \"productName\": \"Tuna Salad\",\n    \"orderAmount\": 9.99\n  },\n  {\n    \"id\": 6788734,\n    \"email\": \"tobias.funke@reqres.in\",\n    \"userName\": \"Tobias Funke\",\n    \"productName\": \"Beef steak\",\n    \"orderAmount\": 19.99\n  }\n]\n}}",
+                "isVisible": true,
+                "label": "Data",
+                "searchKey": "",
+                "fontStyle": "REGULAR",
+                "version": 3,
+                "parentId": "0",
+                "isLoading": false,
+                "horizontalAlignment": "LEFT",
+                "isVisibleSearch": true,
+                "isVisiblePagination": true,
+                "verticalAlignment": "CENTER",
+                "columnSizeMap": {
+                    "email": 261
+                },
+                "childStylesheet": {
+                  "button": {
+                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                  },
+                  "menuButton": {
+                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                  },
+                  "iconButton": {
+                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                  }
+              }
+            },
+            {
+                "widgetName": "Text1",
+                "rightColumn": 60,
+                "textAlign": "LEFT",
+                "displayName": "Text",
+                "widgetId": "16zkg2v0na",
+                "topRow": 228,
+                "bottomRow": 284,
+                "parentRowSpace": 10,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "fontStyle": "BOLD",
+                "textColor": "#231F20",
+                "version": 1,
+                "hideCard": false,
+                "parentId": "0",
+                "isLoading": false,
+                "parentColumnSpace": 17.28125,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 48,
+                "dynamicBindingPathList": [
+                    {
+                        "key": "text"
+                    }
+                ],
+                "fontSize": "PARAGRAPH",
+                "text": "{{Table1.triggeredRow.userName}}",
+                "key": "r76o6tqjaz"
+            }
+        ]
+    }
+}

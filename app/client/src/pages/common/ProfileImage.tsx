@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import styled, { ThemeContext } from "styled-components";
 import { Colors } from "constants/Colors";
 

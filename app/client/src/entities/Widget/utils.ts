@@ -1,11 +1,12 @@
-import { WidgetProps } from "widgets/BaseWidget";
 import {
   PropertyPaneConfig,
   ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { get, isObject, isUndefined, omitBy } from "lodash";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { get, isObject, isUndefined, omitBy } from "lodash";
+import memoize from "micro-memoize";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { WidgetProps } from "widgets/BaseWidget";
 
 /**
  * @typedef {Object} Paths
@@ -82,7 +83,15 @@ const childHasPanelConfig = (
         const { panelIdPropertyName } = config.panelConfig;
         const propertyPath = `${basePath}.${widgetPanelPropertyValue[panelIdPropertyName]}`;
 
-        config.panelConfig.children.forEach((panelColumnConfig: any) => {
+        let panelConfigChildren = [
+          ...(config.panelConfig.contentChildren || []),
+          ...(config.panelConfig.styleChildren || []),
+        ];
+
+        if (panelConfigChildren.length === 0)
+          panelConfigChildren = config.panelConfig.children;
+
+        panelConfigChildren.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
           if ("hidden" in panelColumnConfig) {
             isSectionHidden = panelColumnConfig.hidden(
@@ -92,64 +101,138 @@ const childHasPanelConfig = (
           }
           if (!isSectionHidden) {
             panelColumnConfig.children.forEach(
-              (panelColumnControlConfig: any) => {
-                const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
-                let isControlHidden = false;
-                if ("hidden" in panelColumnControlConfig) {
-                  isControlHidden = panelColumnControlConfig.hidden(
-                    originalWidget,
-                    panelPropertyConfigPath,
+              (panelColumnControlOrSectionConfig: any) => {
+                if (
+                  panelColumnControlOrSectionConfig.sectionName !== undefined
+                ) {
+                  panelColumnControlOrSectionConfig.children.forEach(
+                    (panelColumnControlConfig: any) => {
+                      const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
+                      let isControlHidden = false;
+                      if ("hidden" in panelColumnControlConfig) {
+                        isControlHidden = panelColumnControlConfig.hidden(
+                          originalWidget,
+                          panelPropertyConfigPath,
+                        );
+                      }
+                      if (!isControlHidden) {
+                        const {
+                          configBindingPaths,
+                          configReactivePaths,
+                          configTriggerPaths,
+                          configValidationPaths,
+                        } = checkPathsInConfig(
+                          panelColumnControlConfig,
+                          panelPropertyConfigPath,
+                        );
+                        bindingPaths = {
+                          ...configBindingPaths,
+                          ...bindingPaths,
+                        };
+                        reactivePaths = {
+                          ...configReactivePaths,
+                          ...reactivePaths,
+                        };
+                        triggerPaths = {
+                          ...configTriggerPaths,
+                          ...triggerPaths,
+                        };
+                        validationPaths = {
+                          ...configValidationPaths,
+                          ...validationPaths,
+                        };
+                        // Has child Panel Config
+                        if (panelColumnControlConfig.panelConfig) {
+                          const {
+                            bindingPaths: panelBindingPaths,
+                            reactivePaths: panelReactivePaths,
+                            triggerPaths: panelTriggerPaths,
+                            validationPaths: panelValidationPaths,
+                          } = childHasPanelConfig(
+                            panelColumnControlConfig,
+                            widgetPanelPropertyValue,
+                            panelPropertyConfigPath,
+                            originalWidget,
+                          );
+                          bindingPaths = {
+                            ...panelBindingPaths,
+                            ...bindingPaths,
+                          };
+                          reactivePaths = {
+                            ...panelReactivePaths,
+                            ...reactivePaths,
+                          };
+                          triggerPaths = {
+                            ...panelTriggerPaths,
+                            ...triggerPaths,
+                          };
+                          validationPaths = {
+                            ...panelValidationPaths,
+                            ...validationPaths,
+                          };
+                        }
+                      }
+                    },
                   );
-                }
-                if (!isControlHidden) {
-                  const {
-                    configBindingPaths,
-                    configReactivePaths,
-                    configTriggerPaths,
-                    configValidationPaths,
-                  } = checkPathsInConfig(
-                    panelColumnControlConfig,
-                    panelPropertyConfigPath,
-                  );
-                  bindingPaths = {
-                    ...configBindingPaths,
-                    ...bindingPaths,
-                  };
-                  reactivePaths = {
-                    ...configReactivePaths,
-                    ...reactivePaths,
-                  };
-                  triggerPaths = { ...configTriggerPaths, ...triggerPaths };
-                  validationPaths = {
-                    ...configValidationPaths,
-                    ...validationPaths,
-                  };
-                  // Has child Panel Config
-                  if (panelColumnControlConfig.panelConfig) {
-                    const {
-                      bindingPaths: panelBindingPaths,
-                      reactivePaths: panelReactivePaths,
-                      triggerPaths: panelTriggerPaths,
-                      validationPaths: panelValidationPaths,
-                    } = childHasPanelConfig(
-                      panelColumnControlConfig,
-                      widgetPanelPropertyValue,
-                      panelPropertyConfigPath,
+                } else {
+                  const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlOrSectionConfig.propertyName}`;
+                  let isControlHidden = false;
+                  if ("hidden" in panelColumnControlOrSectionConfig) {
+                    isControlHidden = panelColumnControlOrSectionConfig.hidden(
                       originalWidget,
+                      panelPropertyConfigPath,
+                    );
+                  }
+                  if (!isControlHidden) {
+                    const {
+                      configBindingPaths,
+                      configReactivePaths,
+                      configTriggerPaths,
+                      configValidationPaths,
+                    } = checkPathsInConfig(
+                      panelColumnControlOrSectionConfig,
+                      panelPropertyConfigPath,
                     );
                     bindingPaths = {
-                      ...panelBindingPaths,
+                      ...configBindingPaths,
                       ...bindingPaths,
                     };
                     reactivePaths = {
-                      ...panelReactivePaths,
+                      ...configReactivePaths,
                       ...reactivePaths,
                     };
-                    triggerPaths = { ...panelTriggerPaths, ...triggerPaths };
+                    triggerPaths = { ...configTriggerPaths, ...triggerPaths };
                     validationPaths = {
-                      ...panelValidationPaths,
+                      ...configValidationPaths,
                       ...validationPaths,
                     };
+                    // Has child Panel Config
+                    if (panelColumnControlOrSectionConfig.panelConfig) {
+                      const {
+                        bindingPaths: panelBindingPaths,
+                        reactivePaths: panelReactivePaths,
+                        triggerPaths: panelTriggerPaths,
+                        validationPaths: panelValidationPaths,
+                      } = childHasPanelConfig(
+                        panelColumnControlOrSectionConfig,
+                        widgetPanelPropertyValue,
+                        panelPropertyConfigPath,
+                        originalWidget,
+                      );
+                      bindingPaths = {
+                        ...panelBindingPaths,
+                        ...bindingPaths,
+                      };
+                      reactivePaths = {
+                        ...panelReactivePaths,
+                        ...reactivePaths,
+                      };
+                      triggerPaths = { ...panelTriggerPaths, ...triggerPaths };
+                      validationPaths = {
+                        ...panelValidationPaths,
+                        ...validationPaths,
+                      };
+                    }
                   }
                 }
               },
@@ -163,7 +246,7 @@ const childHasPanelConfig = (
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
 
-export const getAllPathsFromPropertyConfig = (
+const getAllPathsFromPropertyConfigWithoutMemo = (
   widget: WidgetProps,
   widgetConfig: readonly PropertyPaneConfig[],
   defaultProperties: Record<string, any>,
@@ -275,6 +358,11 @@ export const getAllPathsFromPropertyConfig = (
 
   return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
 };
+
+export const getAllPathsFromPropertyConfig = memoize(
+  getAllPathsFromPropertyConfigWithoutMemo,
+  { maxSize: 1000 },
+);
 
 /**
  * this function gets the next available row for pasting widgets

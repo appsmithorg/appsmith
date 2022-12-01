@@ -7,7 +7,7 @@ describe("RemoteBranchList", function() {
   it("renders nothing when param:remoteBranches is an empty array", async () => {
     render(RemoteBranchList([], () => undefined));
 
-    const renderedList = screen.queryByTestId(
+    const renderedList = await screen.queryByTestId(
       "t--git-remote-branch-list-container",
     );
     expect(renderedList?.innerHTML).toBeFalsy();

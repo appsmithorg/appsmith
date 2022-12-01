@@ -4,7 +4,7 @@ import com.appsmith.external.models.TemplateCollection;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.RestApiImporterType;
-import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApiImporter;
 import com.appsmith.server.services.CurlImporterService;
@@ -44,7 +44,7 @@ public class RestApiImportControllerCE {
                                                @RequestParam RestApiImporterType type,
                                                @RequestParam String pageId,
                                                @RequestParam String name,
-                                               @RequestParam String organizationId,
+                                               @RequestParam String workspaceId,
                                                @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
                                                @RequestHeader(name = "Origin", required = false) String originHeader
     ) {
@@ -59,7 +59,7 @@ public class RestApiImportControllerCE {
                 throw new IllegalStateException("Unexpected value: " + type);
         }
 
-        return service.importAction(input, pageId, name, organizationId, branchName)
+        return service.importAction(input, pageId, name, workspaceId, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

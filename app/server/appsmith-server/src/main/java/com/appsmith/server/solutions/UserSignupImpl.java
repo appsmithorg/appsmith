@@ -2,7 +2,7 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
@@ -22,11 +22,11 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
                           AuthenticationSuccessHandler authenticationSuccessHandler,
                           ConfigService configService,
                           AnalyticsService analyticsService,
-                          PolicyUtils policyUtils,
                           EnvManager envManager,
-                          CommonConfig commonConfig) {
+                          CommonConfig commonConfig,
+                          UserUtils userUtils) {
 
         super(userService, userDataService, captchaService, authenticationSuccessHandler, configService,
-                analyticsService, policyUtils, envManager, commonConfig);
+                analyticsService, envManager, commonConfig, userUtils);
     }
 }

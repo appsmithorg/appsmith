@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.DatasourceContext;
+import com.appsmith.server.domains.Plugin;
 import reactor.core.publisher.Mono;
 
 import java.util.function.Function;
@@ -16,9 +17,11 @@ public interface DatasourceContextServiceCE {
      * @param datasource
      * @return DatasourceContext
      */
-    Mono<DatasourceContext> getDatasourceContext(Datasource datasource);
+    Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource);
 
-    <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext, Mono<T>> task);
+    Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource);
 
-    Mono<DatasourceContext> deleteDatasourceContext(String datasourceId);
+    <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext<?>, Mono<T>> task);
+
+    Mono<DatasourceContext<?>> deleteDatasourceContext(String datasourceId);
 }

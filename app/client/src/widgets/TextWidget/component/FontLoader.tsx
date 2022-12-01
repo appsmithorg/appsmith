@@ -12,4 +12,6 @@ function FontLoader(props: Props) {
   return <div style={{ fontFamily, height: "100%" }}>{props.children}</div>;
 }
 
+FontLoader.displayName = "FontLoader";
+
 export default FontLoader;

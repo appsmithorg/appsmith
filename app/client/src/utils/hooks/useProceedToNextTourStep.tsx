@@ -1,6 +1,6 @@
 import { TourType } from "entities/Tour";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { proceedToNextTourStep } from "actions/tourActions";
 

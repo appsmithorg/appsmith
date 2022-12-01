@@ -1,13 +1,13 @@
 import React, { CSSProperties } from "react";
-import { WidgetProps } from "widgets/BaseWidget";
-import ContainerWidget, {
-  ContainerWidgetProps,
-} from "widgets/ContainerWidget/widget";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import ContainerWidget from "widgets/ContainerWidget/widget";
+import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DSLWidget } from "./constants";
+import { CanvasWidgetStructure } from "./constants";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -17,7 +17,7 @@ class CanvasWidget extends ContainerWidget {
     return "CANVAS_WIDGET";
   }
 
-  getCanvasProps(): ContainerWidgetProps<WidgetProps> {
+  getCanvasProps(): DSLWidget & { minHeight: number } {
     return {
       ...this.props,
       parentRowSpace: 1,
@@ -26,55 +26,38 @@ class CanvasWidget extends ContainerWidget {
       leftColumn: 0,
       containerStyle: "none",
       detachFromLayout: true,
+      minHeight: this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX,
     };
   }
 
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
     return (
-      <DropTargetComponent
-        {...canvasProps}
-        {...this.getSnapSpaces()}
-        minHeight={this.props.minHeight || 380}
-      >
+      <DropTargetComponent {...canvasProps} {...this.getSnapSpaces()}>
         {this.renderAsContainerComponent(canvasProps)}
       </DropTargetComponent>
     );
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
     if (!childWidgetData) return null;
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
 
-    // We don't render invisible widgets in view mode
-    if (
-      this.props.renderMode === RenderModes.PAGE &&
-      !childWidgetData.isVisible
-    ) {
-      return null;
-    }
+    const childWidget = { ...childWidgetData };
 
     const snapSpaces = this.getSnapSpaces();
 
-    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    if (this.props.noPad) childWidgetData.noContainerOffset = true;
-    childWidgetData.parentId = this.props.widgetId;
+    childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
+    childWidget.parentRowSpace = snapSpaces.snapRowSpace;
+    if (this.props.noPad) childWidget.noContainerOffset = true;
+    childWidget.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
   getPageView() {
     let height = 0;
-    const snapRows = getCanvasSnapRows(
-      this.props.bottomRow,
-      this.props.canExtend,
-    );
+    const snapRows = getCanvasSnapRows(this.props.bottomRow, false);
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
     const style: CSSProperties = {
       width: "100%",
       height: `${height}px`,

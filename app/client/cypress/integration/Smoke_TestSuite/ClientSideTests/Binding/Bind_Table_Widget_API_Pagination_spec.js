@@ -18,9 +18,16 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(`.t--widget-tablewidget .page-item`)
       .first()
       .should("contain", "1");
+    cy.intercept("/api/v1/actions/execute").as("getNextPage");
     cy.get(`.t--widget-tablewidget .t--table-widget-next-page`)
       .first()
       .click();
+    cy.wait("@getNextPage").then((interception) => {
+      const hasPaginationField = interception.request.body.includes(
+        '"paginationField":"NEXT"',
+      );
+      expect(hasPaginationField).to.equal(true);
+    });
     cy.wait(2000);
     cy.get(`.t--widget-tablewidget .page-item`)
       .first()

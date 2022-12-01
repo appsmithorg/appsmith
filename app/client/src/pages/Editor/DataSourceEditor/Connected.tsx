@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { isNil } from "lodash";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -9,6 +9,9 @@ import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
+
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};
@@ -37,6 +40,7 @@ const Wrapper = styled.div`
 
 function Connected() {
   const params = useParams<{ datasourceId: string }>();
+
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
@@ -48,6 +52,15 @@ function Connected() {
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, datasource?.pluginId ?? ""),
   );
+
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
 
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
@@ -67,8 +80,9 @@ function Connected() {
 
         <NewActionButton
           datasource={datasource}
+          disabled={!canCreateDatasourceActions}
           eventFrom="datasource-pane"
-          pluginType={plugin?.type}
+          plugin={plugin}
         />
       </Header>
       <div style={{ marginTop: "30px" }}>

@@ -9,6 +9,7 @@ import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import { AlignWidget } from "widgets/constants";
 import {
+  ActionUpdateDependency,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
@@ -16,6 +17,7 @@ import {
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import { LabelPosition } from "components/constants";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -94,6 +96,7 @@ function CheckboxField({
           event: {
             type: EventType.ON_CHECK_CHANGE,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },
@@ -113,9 +116,9 @@ function CheckboxField({
           isRequired={schemaItem.isRequired}
           isValid={isDirty ? isValueValid : true}
           label=""
+          labelPosition={LabelPosition.Left}
           noContainerPadding
           onCheckChange={onCheckChange}
-          rowSpace={20}
           widgetId=""
         />
       </StyledCheckboxWrapper>

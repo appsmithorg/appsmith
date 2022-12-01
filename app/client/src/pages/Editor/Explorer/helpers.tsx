@@ -7,6 +7,7 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   BUILDER_PATH_DEPRECATED,
   BUILDER_PATH,
+  BUILDER_CUSTOM_PATH,
 } from "constants/routes";
 
 import {
@@ -43,18 +44,19 @@ export type ExplorerFileEntity = {
   entity: ActionData | JSCollectionData;
 };
 
-export const getBasePath = () => {
-  const baseMatch = matchPath(window.location.pathname, {
-    path: [BUILDER_PATH_DEPRECATED, BUILDER_PATH],
+export const matchBasePath = (pathname: string) => {
+  const basePathMatch = matchPath(pathname, {
+    path: [BUILDER_PATH_DEPRECATED, BUILDER_PATH, BUILDER_CUSTOM_PATH],
     strict: false,
     exact: false,
   });
-  return baseMatch?.path;
+  return basePathMatch;
 };
 
 export const getActionIdFromURL = () => {
-  const basePath = getBasePath();
-  if (!basePath) return;
+  const baseMatch = matchBasePath(window.location.pathname);
+  if (!baseMatch) return;
+  const { path: basePath } = baseMatch;
   const apiMatch = matchPath<{ apiId: string }>(window.location.pathname, {
     path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
@@ -76,8 +78,9 @@ export const getActionIdFromURL = () => {
 };
 
 export const getJSCollectionIdFromURL = () => {
-  const basePath = getBasePath();
-  if (!basePath) return;
+  const baseMatch = matchBasePath(window.location.pathname);
+  if (!baseMatch) return;
+  const { path: basePath } = baseMatch;
   const functionMatch = matchPath<{ collectionId: string }>(
     window.location.pathname,
     {
@@ -90,8 +93,9 @@ export const getJSCollectionIdFromURL = () => {
 };
 
 export const getQueryIdFromURL = () => {
-  const basePath = getBasePath();
-  if (!basePath) return;
+  const baseMatch = matchBasePath(window.location.pathname);
+  if (!baseMatch) return;
+  const { path: basePath } = baseMatch;
   const match = matchPath<{ queryId: string }>(window.location.pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
@@ -102,8 +106,9 @@ export const getQueryIdFromURL = () => {
 
 export const useDatasourceIdFromURL = () => {
   const location = useLocation();
-  const basePath = getBasePath();
-  if (!basePath) return;
+  const baseMatch = matchBasePath(location.pathname);
+  if (!baseMatch) return;
+  const { path: basePath } = baseMatch;
   const match = matchPath<{ datasourceId: string }>(location.pathname, {
     path: `${basePath}${DATA_SOURCES_EDITOR_ID_PATH}`,
   });

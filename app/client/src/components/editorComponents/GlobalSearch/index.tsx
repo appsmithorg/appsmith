@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history from "utils/history";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import SearchModal from "./SearchModal";
 import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
 import SearchBox from "./SearchBox";
@@ -52,16 +52,12 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { getSelectedWidget } from "selectors/ui";
+import { getLastSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  selectPageSlugToIdMap,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, noop } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import SnippetsFilter from "./SnippetsFilter";
 import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
@@ -70,8 +66,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import copy from "copy-to-clipboard";
 import { getSnippet } from "./SnippetsDescription";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
+import { Toaster, Variant } from "design-system";
 import {
   useFilteredActions,
   useFilteredFileOperations,
@@ -84,6 +79,8 @@ import {
   builderURL,
   jsCollectionIdURL,
 } from "RouteBuilder";
+import { getPlugins } from "selectors/entitiesSelector";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   width: ${({ category, query }) =>
@@ -194,6 +191,7 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
+  const plugins = useSelector(getPlugins);
   const setCategory = useCallback(
     (category: SearchCategory) => {
       if (isSnippet(category)) {
@@ -246,7 +244,9 @@ function GlobalSearch() {
   }, [refinements]);
 
   const reducerDatasources = useSelector((state: AppState) => {
-    return state.entities.datasources.list;
+    return state.entities.datasources.list.filter(
+      (datasource) => datasource.id !== TEMP_DATASOURCE_ID,
+    );
   });
   const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({
@@ -276,7 +276,7 @@ function GlobalSearch() {
   );
 
   const resetSearchQuery = useSelector(searchQuerySelector);
-  const selectedWidgetId = useSelector(getSelectedWidget);
+  const lastSelectedWidgetId = useSelector(getLastSelectedWidget);
 
   // keeping query in component state until we can figure out fixed for the perf issues
   // this is used to update query from outside the component, for ex. using the help button within prop. pane
@@ -400,25 +400,17 @@ function GlobalSearch() {
       activeItem.widgetId,
       activeItem.type,
       activeItem.pageId,
-      selectedWidgetId === activeItem.widgetId,
+      lastSelectedWidgetId === activeItem.widgetId,
       activeItem.parentModalId,
     );
   };
 
-  const { applicationSlug } = useSelector(selectURLSlugs);
-  const pageIdToSlugMap = useSelector(selectPageSlugToIdMap);
-
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
-    const { id, pageId, pluginType } = config;
+    const { id, pageId, pluginId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
-    const url = actionConfig?.getURL(
-      applicationSlug,
-      pageIdToSlugMap[pageId] as string,
-      pageId,
-      id,
-      pluginType,
-    );
+    const plugin = plugins.find((plugin) => plugin?.id === pluginId);
+    const url = actionConfig?.getURL(pageId, id, pluginType, plugin);
     toggleShow();
     url && history.push(url);
   };
@@ -428,8 +420,6 @@ function GlobalSearch() {
     const { id, pageId } = config;
     history.push(
       jsCollectionIdURL({
-        applicationSlug,
-        pageSlug: pageIdToSlugMap[pageId],
         pageId,
         collectionId: id,
       }),
@@ -441,7 +431,6 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       datasourcesEditorIdURL({
-        pageSlug: pageIdToSlugMap[item.pageId],
         pageId: item.pageId,
         datasourceId: item.id,
         params: getQueryParams(),
@@ -453,7 +442,6 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       builderURL({
-        pageSlug: pageIdToSlugMap[item.pageId] as string,
         pageId: item.pageId,
       }),
     );
@@ -507,13 +495,7 @@ function GlobalSearch() {
       handleSnippetClick(e, item),
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
       if (item.action) dispatch(item.action(currentPageId, "OMNIBAR"));
-      else if (item.redirect)
-        item.redirect(
-          applicationSlug,
-          pageIdToSlugMap[currentPageId],
-          currentPageId,
-          "OMNIBAR",
-        );
+      else if (item.redirect) item.redirect(currentPageId, "OMNIBAR");
       dispatch(toggleShowGlobalSearchModal());
     },
   };

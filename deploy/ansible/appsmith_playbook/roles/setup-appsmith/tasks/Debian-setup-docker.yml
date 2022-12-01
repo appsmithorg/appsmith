@@ -18,7 +18,18 @@
       - virtualenv
       - python3-setuptools
       - gnupg2
+      - policykit-1
+      - libnss3
+      - libnss3-dev
+      - libnss3-tools
     state: latest
+  become: true
+  tags:
+    - always
+
+- name: Upgrade dist to apply security fixes
+  ansible.builtin.apt:
+    upgrade: dist
   become: true
   tags:
     - always

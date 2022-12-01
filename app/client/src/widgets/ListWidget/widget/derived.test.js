@@ -94,12 +94,6 @@ describe("Validates Derived Properties", () => {
       listData: [],
     };
 
-    // empty listData
-    const input6 = {
-      ...input1,
-      listData: [],
-    };
-
     // server side pagination enabled
     const input7 = {
       ...input1,

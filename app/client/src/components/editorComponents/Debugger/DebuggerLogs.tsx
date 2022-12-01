@@ -1,16 +1,25 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import styled from "styled-components";
-import { isUndefined } from "lodash";
-import { Severity } from "entities/AppsmithConsole";
+import styled, { DefaultTheme, useTheme } from "styled-components";
+import { get, isUndefined } from "lodash";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
-import { createMessage, NO_LOGS } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  LOGS_FILTER_OPTION_ALL,
+  LOGS_FILTER_OPTION_CONSOLE,
+  LOGS_FILTER_OPTION_ERROR,
+  LOGS_FILTER_OPTION_SYSTEM,
+  NO_LOGS,
+} from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { IconName } from "@blueprintjs/core";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LIST_HEADER_HEIGHT = "38px";
 
@@ -31,14 +40,27 @@ type Props = {
   hasShortCut?: boolean;
 };
 
-const LOGS_FILTER_OPTIONS = [
+const LOGS_FILTER_OPTIONS = (theme: DefaultTheme) => [
   {
-    label: "All",
+    label: LOGS_FILTER_OPTION_ALL(),
     value: "",
   },
-  { label: "Success", value: Severity.INFO },
-  { label: "Warnings", value: Severity.WARNING },
-  { label: "Errors", value: Severity.ERROR },
+  {
+    label: LOGS_FILTER_OPTION_ERROR(),
+    value: Severity.ERROR,
+    icon: "close-circle" as IconName,
+    iconColor: get(theme, "colors.debugger.error.hoverIconColor"),
+  },
+  {
+    label: LOGS_FILTER_OPTION_CONSOLE(),
+    value: LOG_CATEGORY.USER_GENERATED,
+    icon: "user-2" as IconName,
+  },
+  {
+    label: LOGS_FILTER_OPTION_SYSTEM(),
+    value: LOG_CATEGORY.PLATFORM_GENERATED,
+    icon: "desktop" as IconName,
+  },
 ];
 
 function DebbuggerLogs(props: Props) {
@@ -47,9 +69,10 @@ function DebbuggerLogs(props: Props) {
   const filteredLogs = useFilteredLogs(searchQuery, filter);
   const { next, paginatedData } = usePagination(filteredLogs);
   const listRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme();
   const selectedFilter = useMemo(
-    () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
-    [filter],
+    () => LOGS_FILTER_OPTIONS(theme).find((option) => option.value === filter),
+    [filter, theme],
   );
   const currentUser = useSelector(getCurrentUser);
 
@@ -79,15 +102,30 @@ function DebbuggerLogs(props: Props) {
     }
   }, [paginatedData.length]);
 
+  useEffect(() => {
+    setSearchQuery(props.searchQuery);
+  }, [props.searchQuery]);
+
+  const handleFilterChange = (filter: string | undefined) => {
+    if (!isUndefined(filter)) {
+      setFilter(filter);
+
+      AnalyticsUtil.logEvent("DEBUGGER_FILTER_CHANGED", {
+        filter: filter.length > 0 ? filter : "ALL",
+      });
+    }
+  };
+
   return (
     <ContainerWrapper>
       <FilterHeader
         defaultValue={props.searchQuery}
         onChange={setSearchQuery}
-        onSelect={(value) => !isUndefined(value) && setFilter(value)}
-        options={LOGS_FILTER_OPTIONS}
+        onSelect={handleFilterChange}
+        options={LOGS_FILTER_OPTIONS(theme)}
         searchQuery={searchQuery}
-        selected={selectedFilter || LOGS_FILTER_OPTIONS[0]}
+        selected={selectedFilter || LOGS_FILTER_OPTIONS(theme)[0]}
+        value={searchQuery}
       />
 
       <ListWrapper className="debugger-list" ref={listRef}>

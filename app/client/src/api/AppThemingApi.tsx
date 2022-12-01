@@ -1,7 +1,7 @@
 import API from "api/Api";
 import { AxiosPromise } from "axios";
 import { AppTheme } from "entities/AppTheming";
-import { GenericApiResponse } from "./ApiResponses";
+import { ApiResponse } from "./ApiResponses";
 
 class AppThemingApi extends API {
   static baseUrl = "/v1";
@@ -13,7 +13,7 @@ class AppThemingApi extends API {
    */
   static fetchThemes(
     applicationId: string,
-  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+  ): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.get(
       `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
     );
@@ -28,7 +28,7 @@ class AppThemingApi extends API {
   static fetchSelected(
     applicationId: string,
     mode = "EDIT",
-  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+  ): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.get(
       `${AppThemingApi.baseUrl}/themes/applications/${applicationId}/current?mode=${mode}`,
     );
@@ -44,7 +44,7 @@ class AppThemingApi extends API {
   static updateTheme(
     applicationId: string,
     theme: AppTheme,
-  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+  ): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.put(
       `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
       theme,
@@ -61,7 +61,7 @@ class AppThemingApi extends API {
   static changeTheme(
     applicationId: string,
     theme: AppTheme,
-  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+  ): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.patch(
       `${AppThemingApi.baseUrl}/applications/${applicationId}/themes/${theme.id}`,
       theme,
@@ -78,7 +78,7 @@ class AppThemingApi extends API {
   static saveTheme(
     applicationId: string,
     payload: { name: string },
-  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+  ): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.patch(
       `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
       payload,
@@ -92,9 +92,7 @@ class AppThemingApi extends API {
    * @param theme
    * @returns
    */
-  static deleteTheme(
-    themeId: string,
-  ): AxiosPromise<GenericApiResponse<AppTheme[]>> {
+  static deleteTheme(themeId: string): AxiosPromise<ApiResponse<AppTheme[]>> {
     return API.delete(`${AppThemingApi.baseUrl}/themes/${themeId}`);
   }
 }

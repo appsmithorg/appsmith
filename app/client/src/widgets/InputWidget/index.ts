@@ -9,6 +9,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   hideCard: true,
+  isDeprecated: true,
+  replacement: "INPUT_WIDGET_V2",
   defaults: {
     inputType: "TEXT",
     rows: 4,
@@ -34,6 +36,7 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

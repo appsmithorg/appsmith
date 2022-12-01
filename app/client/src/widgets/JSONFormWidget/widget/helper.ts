@@ -42,7 +42,7 @@ type ComputeSchemaProps = {
   prevSchema?: Schema;
   widgetName: string;
   currentDynamicPropertyPathList?: PathList;
-  fieldThemeStylesheets?: FieldThemeStylesheet;
+  fieldThemeStylesheets: FieldThemeStylesheet;
 };
 
 export enum ComputedSchemaStatus {

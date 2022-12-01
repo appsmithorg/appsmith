@@ -1,9 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
-import Text, { TextType } from "components/ads/Text";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { getTypographyByKey, Text, TextType } from "design-system";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
@@ -13,7 +12,7 @@ const StyledHelpBar = styled.div`
   padding: 0 ${(props) => props.theme.spaces[4]}px;
   margin: ${(props) => props.theme.spaces[2]}px;
   .placeholder-text {
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${getTypographyByKey("p2")}
   }
   display: flex;
   justify-content: space-between;
@@ -55,7 +54,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
     dispatch(
-      toggleShowGlobalSearchModal(filterCategories[SEARCH_CATEGORY_ID.INIT]),
+      setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
     );
   },
 });

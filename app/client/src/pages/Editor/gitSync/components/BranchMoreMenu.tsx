@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { IconSize, Toaster, Variant } from "components/ads";
-import Icon from "components/ads/Icon";
-import Menu from "components/ads/Menu";
+import { Icon, IconSize, Menu, Toaster, Variant } from "design-system";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -47,7 +45,8 @@ function DeleteButton(
 
   return (
     <DangerMenuItem
-      className="git-branch-more-menu-item danger"
+      className="git-branch-more-menu-item danger t--branch-more-menu-delete"
+      data-cy="t--branch-more-menu-delete"
       data-testid="t--branch-more-menu-delete"
       icon="delete"
       key={"delete-branch-button"}

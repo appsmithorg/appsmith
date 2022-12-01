@@ -5,5 +5,5 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Flux;
 
 public interface CustomGroupRepositoryCE extends AppsmithRepository<Group> {
-    Flux<Group> getAllByOrganizationId(String organizationId);
+    Flux<Group> getAllByWorkspaceId(String workspaceId);
 }

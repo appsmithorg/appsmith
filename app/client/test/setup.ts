@@ -14,6 +14,7 @@ const mockObserveFn = () => {
 };
 
 window.IntersectionObserver = jest.fn().mockImplementation(mockObserveFn);
+window.ResizeObserver = jest.fn().mockImplementation(mockObserveFn);
 
 // establish API mocking before all tests
 beforeAll(() => server.listen());
@@ -42,3 +43,19 @@ document.createRange = () => {
 
 // jest events doesnt seem to be handling scrollTo
 Element.prototype.scrollTo = () => {};
+
+class WorkerStub {
+  url: string;
+  onmessage: CallableFunction;
+  constructor(stringUrl: string) {
+    this.url = stringUrl;
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    this.onmessage = () => {};
+  }
+
+  postMessage(msg) {
+    this.onmessage(msg);
+  }
+}
+
+window.Worker = WorkerStub as any;

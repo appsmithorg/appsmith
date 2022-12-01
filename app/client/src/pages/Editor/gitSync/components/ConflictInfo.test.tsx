@@ -27,7 +27,7 @@ describe("ConflictInfo", () => {
     expect(html.includes("OPEN REPO")).toBeTruthy();
     expect(
       html.includes(
-        "Please resolve the conflicts manually on your repository.",
+        "Please resolve the merge conflicts manually on your repository.",
       ),
     ).toBeTruthy();
   });

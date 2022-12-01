@@ -1,11 +1,11 @@
 import { WidgetType } from "constants/WidgetConstants";
-import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget from "widgets/ContainerWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Stylesheet } from "entities/AppTheming";
 
 class StatboxWidget extends ContainerWidget {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
         sectionName: "General",
@@ -21,6 +21,14 @@ class StatboxWidget extends ContainerWidget {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "shouldScrollContents",
+            helpText: "Enables scrolling for content inside the widget",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "animateLoading",
             label: "Animate Loading",
             controlType: "SWITCH",
@@ -31,18 +39,15 @@ class StatboxWidget extends ContainerWidget {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          {
-            propertyName: "shouldScrollContents",
-            helpText: "Enables scrolling for content inside the widget",
-            label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
         ],
       },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "backgroundColor",
@@ -66,6 +71,11 @@ class StatboxWidget extends ContainerWidget {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
           {
             propertyName: "borderWidth",
             helpText: "Enter value for border width",
@@ -103,15 +113,11 @@ class StatboxWidget extends ContainerWidget {
     ];
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    if (childWidgetData.children) {
-      childWidgetData.children.forEach((grandChild: WidgetProps) => {
-        if (grandChild.type === "ICON_BUTTON_WIDGET" && !!grandChild.onClick) {
-          grandChild.boxShadow = "VARIANT1";
-        }
-      });
-    }
-    return super.renderChildWidget(childWidgetData);
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   static getWidgetType(): WidgetType {

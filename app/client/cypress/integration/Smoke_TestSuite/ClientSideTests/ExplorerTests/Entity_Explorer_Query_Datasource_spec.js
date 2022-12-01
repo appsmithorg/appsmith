@@ -31,7 +31,6 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
 
     // checking that conflicting names are not allowed
@@ -56,7 +55,7 @@ describe("Entity explorer tests related to query and datasource", function() {
     /* eslint-disable */
     cy.wait(2000);
     cy.NavigateToQueryEditor();
-    cy.CheckAndUnfoldEntityItem("DATASOURCES");
+    cy.CheckAndUnfoldEntityItem("Datasources");
     cy.contains(".t--entity-name", datasourceName).click();
 
     cy.get(".t--edit-datasource-name").click();
@@ -75,7 +74,7 @@ describe("Entity explorer tests related to query and datasource", function() {
       .blur();
 
     // going  to the query create page
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.contains(commonlocators.entityName, "Query1").click();
 
     cy.wait("@getPluginForm").should(

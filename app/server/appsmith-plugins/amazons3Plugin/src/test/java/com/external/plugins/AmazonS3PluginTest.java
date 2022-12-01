@@ -1,7 +1,9 @@
 package com.external.plugins;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -9,9 +11,11 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -22,16 +26,20 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
 import com.external.plugins.constants.AmazonS3Action;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,8 +49,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_FILE_NAME;
 import static com.external.plugins.AmazonS3Plugin.DEFAULT_URL_EXPIRY_IN_MINUTES;
 import static com.external.plugins.AmazonS3Plugin.NO;
@@ -72,17 +80,15 @@ import static com.external.utils.TemplateUtils.FILE_PICKER_MULTIPLE_FILES_DATA_E
 import static com.external.utils.TemplateUtils.LIST_FILES_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.LIST_OF_FILES_STRING;
 import static com.external.utils.TemplateUtils.READ_FILE_TEMPLATE_NAME;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 public class AmazonS3PluginTest {
@@ -91,12 +97,16 @@ public class AmazonS3PluginTest {
     private static String region;
     private static String serviceProvider;
 
-    @BeforeClass
+    @InjectMocks
+    private AmazonS3Plugin amazonS3Plugin;
+
+    @BeforeAll
     public static void setUp() {
         accessKey   = "access_key";
         secretKey   = "secret_key";
         region      = "ap-south-1";
         serviceProvider = "amazon-s3";
+
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -156,7 +166,7 @@ public class AmazonS3PluginTest {
         StepVerifier.create(pluginExecutorMono)
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
-                    Assert.assertNotEquals(0, res.size());
+                    assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
                     assertTrue(errorList.get(0).contains("Mandatory parameter 'Secret Key' is empty"));
@@ -234,6 +244,7 @@ public class AmazonS3PluginTest {
                 .verifyComplete();
     }
 
+
     @Test
     public void testStaleConnectionExceptionFromExecuteMethod() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
@@ -263,11 +274,11 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "LIST");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
+        setDataValueSafelyInFormData(configMap, BODY, "");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -329,12 +340,12 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "{\"data\": \"\"}");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setDataValueSafelyInFormData(configMap, BODY, "{\"data\": \"\"}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -371,11 +382,11 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "{\"data\": \"\"}");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, BODY, "{\"data\": \"\"}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -408,18 +419,20 @@ public class AmazonS3PluginTest {
     public void testSmartSubstitutionJSONBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setParams(List.of(new Param("dynamicallyFoundFilePickerObject", "<html>Random\"Unescaped'String</html>")));
+        Param param = new Param("dynamicallyFoundFilePickerObject", "<html>Random\"Unescaped'String</html>");
+        param.setClientDataType(ClientDataType.OBJECT);
+        executeActionDTO.setParams(List.of(param));
         AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "{\"data\": {{dynamicallyFoundFilePickerObject}}}");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, true);
-        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, BODY, "{\"data\": {{dynamicallyFoundFilePickerObject}}}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, true);
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -450,12 +463,12 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "erroneousBody");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setDataValueSafelyInFormData(configMap, BODY, "erroneousBody");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -499,12 +512,12 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "{\"data\": \"dummyBody;\"}");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setDataValueSafelyInFormData(configMap, BODY, "{\"data\": \"dummyBody;\"}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -554,12 +567,12 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
-        setValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
 
         actionConfiguration.setFormData(configMap);
 
@@ -590,11 +603,11 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, READ_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, READ_DATATYPE, "NO");
 
         actionConfiguration.setFormData(configMap);
 
@@ -631,11 +644,11 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, READ_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, READ_DATATYPE, "YES");
 
         actionConfiguration.setFormData(configMap);
 
@@ -686,10 +699,10 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE_FILE");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE_FILE");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
 
         actionConfiguration.setFormData(configMap);
 
@@ -732,11 +745,11 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "LIST");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "Hel");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, LIST_PREFIX, "Hel");
 
         actionConfiguration.setFormData(configMap);
 
@@ -791,13 +804,13 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "LIST");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
-        setValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, "NO");
+        setDataValueSafelyInFormData(configMap, LIST_UNSIGNED_URL, "YES");
+        setDataValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -867,13 +880,13 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "LIST");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, LIST_EXPIRY, "1000");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
+        setDataValueSafelyInFormData(configMap, LIST_EXPIRY, "1000");
+        setDataValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -946,12 +959,12 @@ public class AmazonS3PluginTest {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, "path");
-        setValueSafelyInFormData(configMap, COMMAND, "LIST");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
-        setValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
-        setValueSafelyInFormData(configMap, LIST_PREFIX, "");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "LIST");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, LIST_SIGNED_URL, "YES");
+        setDataValueSafelyInFormData(configMap, LIST_PREFIX, "");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1058,62 +1071,63 @@ public class AmazonS3PluginTest {
 
 
                     Map<String, Object> listFilesConfig = (Map<String, Object>) listFilesTemplate.getConfiguration();
-                    assertEquals(AmazonS3Action.LIST.name(), getValueSafelyFromFormData(listFilesConfig, COMMAND));
-                    assertEquals(expectedBucketName, getValueSafelyFromFormData(listFilesConfig, BUCKET));
-                    assertEquals(NO, getValueSafelyFromFormData(listFilesConfig, LIST_SIGNED_URL));
-                    assertEquals(YES, getValueSafelyFromFormData(listFilesConfig, LIST_UNSIGNED_URL));
+                    assertEquals(AmazonS3Action.LIST.name(), PluginUtils.getDataValueSafelyFromFormData(listFilesConfig, COMMAND, STRING_TYPE));
+                    assertEquals(expectedBucketName, PluginUtils.getDataValueSafelyFromFormData(listFilesConfig, BUCKET, STRING_TYPE));
+                    assertEquals(NO, PluginUtils.getDataValueSafelyFromFormData(listFilesConfig, LIST_SIGNED_URL, STRING_TYPE));
+                    assertEquals(YES, PluginUtils.getDataValueSafelyFromFormData(listFilesConfig, LIST_UNSIGNED_URL, STRING_TYPE));
                     assertEquals(new HashMap<String, Object>() {{
                                      put("condition", "AND");
                                  }},
-                            getValueSafelyFromFormData(listFilesConfig, LIST_WHERE));
+                            PluginUtils.getDataValueSafelyFromFormData(listFilesConfig, LIST_WHERE, new TypeReference<HashMap<String, Object>>() {
+                            }));
 
                     // Check read file template
                     Template readFileTemplate = templates.get(1);
                     assertEquals(READ_FILE_TEMPLATE_NAME, readFileTemplate.getTitle());
 
                     Map<String, Object> readFileConfig = (Map<String, Object>) readFileTemplate.getConfiguration();
-                    assertEquals(DEFAULT_FILE_NAME, getValueSafelyFromFormData(readFileConfig, PATH));
-                    assertEquals(AmazonS3Action.READ_FILE.name(), getValueSafelyFromFormData(readFileConfig, COMMAND));
-                    assertEquals(expectedBucketName, getValueSafelyFromFormData(readFileConfig, BUCKET));
-                    assertEquals(YES, getValueSafelyFromFormData(readFileConfig, READ_DATATYPE));
-                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(readFileConfig, READ_EXPIRY));
+                    assertEquals(DEFAULT_FILE_NAME, PluginUtils.getDataValueSafelyFromFormData(readFileConfig, PATH, STRING_TYPE));
+                    assertEquals(AmazonS3Action.READ_FILE.name(), PluginUtils.getDataValueSafelyFromFormData(readFileConfig, COMMAND, STRING_TYPE));
+                    assertEquals(expectedBucketName, PluginUtils.getDataValueSafelyFromFormData(readFileConfig, BUCKET, STRING_TYPE));
+                    assertEquals(YES, PluginUtils.getDataValueSafelyFromFormData(readFileConfig, READ_DATATYPE, STRING_TYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, PluginUtils.getDataValueSafelyFromFormData(readFileConfig, READ_EXPIRY, STRING_TYPE));
 
                     // Check create file template
                     Template createFileTemplate = templates.get(2);
                     assertEquals(CREATE_FILE_TEMPLATE_NAME, createFileTemplate.getTitle());
 
                     Map<String, Object> createFileConfig = (Map<String, Object>) createFileTemplate.getConfiguration();
-                    assertEquals(DEFAULT_FILE_NAME, getValueSafelyFromFormData(createFileConfig, PATH));
-                    assertEquals(FILE_PICKER_DATA_EXPRESSION, getValueSafelyFromFormData(createFileConfig, BODY));
+                    assertEquals(DEFAULT_FILE_NAME, PluginUtils.getDataValueSafelyFromFormData(createFileConfig, PATH, STRING_TYPE));
+                    assertEquals(FILE_PICKER_DATA_EXPRESSION, PluginUtils.getDataValueSafelyFromFormData(createFileConfig, BODY, STRING_TYPE));
                     assertEquals(AmazonS3Action.UPLOAD_FILE_FROM_BODY.name(),
-                            getValueSafelyFromFormData(createFileConfig, COMMAND));
-                    assertEquals(expectedBucketName, getValueSafelyFromFormData(createFileConfig, BUCKET));
-                    assertEquals(YES, getValueSafelyFromFormData(createFileConfig, CREATE_DATATYPE));
-                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createFileConfig, CREATE_EXPIRY));
+                            PluginUtils.getDataValueSafelyFromFormData(createFileConfig, COMMAND, STRING_TYPE));
+                    assertEquals(expectedBucketName, PluginUtils.getDataValueSafelyFromFormData(createFileConfig, BUCKET, STRING_TYPE));
+                    assertEquals(YES, PluginUtils.getDataValueSafelyFromFormData(createFileConfig, CREATE_DATATYPE, STRING_TYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, PluginUtils.getDataValueSafelyFromFormData(createFileConfig, CREATE_EXPIRY, STRING_TYPE));
 
                     // Check create multiple files template
                     Template createMultipleFilesTemplate = templates.get(3);
                     assertEquals(CREATE_MULTIPLE_FILES_TEMPLATE_NAME, createMultipleFilesTemplate.getTitle());
 
                     Map<String, Object> createMultipleFilesConfig = (Map<String, Object>) createMultipleFilesTemplate.getConfiguration();
-                    assertEquals(DEFAULT_DIR, getValueSafelyFromFormData(createMultipleFilesConfig, PATH));
+                    assertEquals(DEFAULT_DIR, PluginUtils.getDataValueSafelyFromFormData(createMultipleFilesConfig, PATH, STRING_TYPE));
                     assertEquals(FILE_PICKER_MULTIPLE_FILES_DATA_EXPRESSION,
-                            getValueSafelyFromFormData(createMultipleFilesConfig, BODY));
+                            PluginUtils.getDataValueSafelyFromFormData(createMultipleFilesConfig, BODY, STRING_TYPE));
                     assertEquals(AmazonS3Action.UPLOAD_MULTIPLE_FILES_FROM_BODY.name(),
-                            getValueSafelyFromFormData(createMultipleFilesConfig, COMMAND));
-                    assertEquals(expectedBucketName, getValueSafelyFromFormData(createMultipleFilesConfig, BUCKET));
-                    assertEquals(YES, getValueSafelyFromFormData(createMultipleFilesConfig, CREATE_DATATYPE));
-                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, getValueSafelyFromFormData(createMultipleFilesConfig, CREATE_EXPIRY));
+                            PluginUtils.getDataValueSafelyFromFormData(createMultipleFilesConfig, COMMAND, STRING_TYPE));
+                    assertEquals(expectedBucketName, PluginUtils.getDataValueSafelyFromFormData(createMultipleFilesConfig, BUCKET, STRING_TYPE));
+                    assertEquals(YES, PluginUtils.getDataValueSafelyFromFormData(createMultipleFilesConfig, CREATE_DATATYPE, STRING_TYPE));
+                    assertEquals(DEFAULT_URL_EXPIRY_IN_MINUTES, PluginUtils.getDataValueSafelyFromFormData(createMultipleFilesConfig, CREATE_EXPIRY, STRING_TYPE));
 
                     // Check delete file template
                     Template deleteFileTemplate = templates.get(4);
                     assertEquals(DELETE_FILE_TEMPLATE_NAME, deleteFileTemplate.getTitle());
 
                     Map<String, Object> deleteFileConfig = (Map<String, Object>) deleteFileTemplate.getConfiguration();
-                    assertEquals(DEFAULT_FILE_NAME, getValueSafelyFromFormData(deleteFileConfig, PATH));
-                    assertEquals(AmazonS3Action.DELETE_FILE.name(), getValueSafelyFromFormData(deleteFileConfig,
-                            COMMAND));
-                    assertEquals(expectedBucketName, getValueSafelyFromFormData(deleteFileConfig, BUCKET));
+                    assertEquals(DEFAULT_FILE_NAME, PluginUtils.getDataValueSafelyFromFormData(deleteFileConfig, PATH, STRING_TYPE));
+                    assertEquals(AmazonS3Action.DELETE_FILE.name(), PluginUtils.getDataValueSafelyFromFormData(deleteFileConfig,
+                            COMMAND, STRING_TYPE));
+                    assertEquals(expectedBucketName, PluginUtils.getDataValueSafelyFromFormData(deleteFileConfig, BUCKET, STRING_TYPE));
 
                     // Check delete multiple files template
                     Template deleteMultipleFilesTemplate = templates.get(5);
@@ -1121,10 +1135,10 @@ public class AmazonS3PluginTest {
 
                     Map<String, Object> deleteMultipleFilesConfig =
                             (Map<String, Object>) deleteMultipleFilesTemplate.getConfiguration();
-                    assertEquals(LIST_OF_FILES_STRING, getValueSafelyFromFormData(deleteMultipleFilesConfig, PATH));
+                    assertEquals(LIST_OF_FILES_STRING, PluginUtils.getDataValueSafelyFromFormData(deleteMultipleFilesConfig, PATH, STRING_TYPE));
                     assertEquals(AmazonS3Action.DELETE_MULTIPLE_FILES.name(),
-                            getValueSafelyFromFormData(deleteMultipleFilesConfig, COMMAND));
-                    assertEquals(expectedBucketName, getValueSafelyFromFormData(deleteMultipleFilesConfig, BUCKET));
+                            PluginUtils.getDataValueSafelyFromFormData(deleteMultipleFilesConfig, COMMAND, STRING_TYPE));
+                    assertEquals(expectedBucketName, PluginUtils.getDataValueSafelyFromFormData(deleteMultipleFilesConfig, BUCKET, STRING_TYPE));
                 })
                 .verifyComplete();
     }
@@ -1190,10 +1204,10 @@ public class AmazonS3PluginTest {
         String dummyPath = "[\"image1.png\", \"image2.png\"]";
 
         Map<String, Object> configMap = new HashMap<>();
-        setValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
-        setValueSafelyInFormData(configMap, PATH, dummyPath);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE_MULTIPLE_FILES");
-        setValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, BODY, "[{\"data\": \"plain text\"}, {\"data\": \"plain text2\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, dummyPath);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE_MULTIPLE_FILES");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
 
         actionConfiguration.setFormData(configMap);
 
@@ -1223,6 +1237,221 @@ public class AmazonS3PluginTest {
                             null, null, null)); // Bucket name
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, dummyPath, null, null, null)); // Path
                     assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteCommonForAmazonS3Exception() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        String errorMessage = "The requested range is not valid for the request. Try another range.";
+        String errorCode = "InvalidRange";
+        AmazonS3Exception amazonS3Exception = new AmazonS3Exception(errorMessage);
+        amazonS3Exception.setErrorCode(errorCode);
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
+        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
+                .getDeclaredMethod("executeCommon", AmazonS3.class,
+                        DatasourceConfiguration.class, ActionConfiguration.class);
+        executeCommon.setAccessible(true);
+
+        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
+        when(mockAction.getFormData()).thenThrow(amazonS3Exception);
+        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
+                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
+        ActionExecutionResult actionExecutionResult = invoke.block();
+        assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
+
+    }
+
+    @Test
+    public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMessage =  "The version ID specified in the request does not match an existing version.";
+        String errorCode = "NoSuchVersion";
+        AmazonServiceException amazonServiceException = new AmazonServiceException(errorMessage);
+        amazonServiceException.setErrorCode(errorCode);
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
+        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
+                .getDeclaredMethod("executeCommon", AmazonS3.class,
+                        DatasourceConfiguration.class, ActionConfiguration.class);
+        executeCommon.setAccessible(true);
+
+        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
+        when(mockAction.getFormData()).thenThrow(amazonServiceException);
+        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
+                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
+        ActionExecutionResult actionExecutionResult = invoke.block();
+        assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
+
+    }
+
+    @Test
+    public void uploadsSingleFileWithFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "{\n" +
+                "\t\"type\":\"text/plain\",\n" +
+                "\t\"data\": \"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\"\n" +
+                "}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(((HashMap) result.getBody()).get("signedUrl"), signedURLS.get(0));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsMultipleFilesWithFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "[{\"data\":\"data:application/json;base64,ewogICAgIm1vc3QiOiAic2ltcGxlIgp9Cg==\",\"size\":25,\"dataFormat\":\"Base64\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"},{\"data\":\"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\",\"size\":13,\"dataFormat\":\"Base64\",\"name\":\"testFile.txt\",\"id\":\"uppy-testfile/txt-1e-text/plain-13-1659676685242\",\"type\":\"text/plain\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "YES");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url1");
+        signedURLS.add("https://example.signed.url2");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayList<String> x = (ArrayList<String>) ((HashMap) result.getBody()).get("signedUrls");
+                    assertEquals(x.size() , signedURLS.size());
+                    assertEquals(x.get(0), signedURLS.get(0));
+                    assertEquals(x.get(1), signedURLS.get(1));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsSingleFileWithoutFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "{\n" +
+                "   \"type\": \"text/json\",\n" +
+                "   \"data\": {\"data\":\"{\\n    \\\"most\\\": \\\"simple\\\"\\n}\\n\",\"size\":25,\"dataFormat\":\"Text\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"}\n" +
+                "}");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertEquals(((HashMap) result.getBody()).get("signedUrl"), signedURLS.get(0));
+
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void uploadsMultipleFilesWithoutFilePicker() throws InterruptedException {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        AmazonS3Plugin.S3PluginExecutor spyS3PluginExecutor = spy(AmazonS3Plugin.S3PluginExecutor.class);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, BODY,  "[{\"data\":\"data:application/json;base64,ewogICAgIm1vc3QiOiAic2ltcGxlIgp9Cg==\",\"size\":25,\"dataFormat\":\"Base64\",\"name\":\"testfile.json\",\"id\":\"uppy-testfile/json-1e-application/json-25-1661283894345\",\"type\":\"application/json\"},{\"data\":\"data:text/plain;base64,SGVsbG8gV29ybGQhCg==\",\"size\":13,\"dataFormat\":\"Base64\",\"name\":\"testFile.txt\",\"id\":\"uppy-testfile/txt-1e-text/plain-13-1659676685242\",\"type\":\"text/plain\"}]");
+        setDataValueSafelyInFormData(configMap, PATH, "path");
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+        setDataValueSafelyInFormData(configMap, BUCKET, "bucket_name");
+        setDataValueSafelyInFormData(configMap, CREATE_DATATYPE, "NO");
+        setDataValueSafelyInFormData(configMap, CREATE_EXPIRY, "100000");
+
+        actionConfiguration.setFormData(configMap);
+
+        AmazonS3 connection = spyS3PluginExecutor.datasourceCreate(datasourceConfiguration).block();
+        ArrayList<String> signedURLS = new ArrayList<>();
+        signedURLS.add("https://example.signed.url1");
+        signedURLS.add("https://example.signed.url2");
+        doNothing().when(spyS3PluginExecutor).uploadFileInS3(any(),any(),any(),anyString(),anyString());
+        doReturn(signedURLS).when(spyS3PluginExecutor).getSignedUrls(any(), anyString(),any(), any());
+        Mono<ActionExecutionResult> resultMono = spyS3PluginExecutor.executeParameterized(
+                connection,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    ArrayList<String> x = (ArrayList<String>) ((HashMap) result.getBody()).get("signedUrls");
+                    assertEquals(x.size() , signedURLS.size());
+                    assertEquals(x.get(0), signedURLS.get(0));
+                    assertEquals(x.get(1), signedURLS.get(1));
+
                 })
                 .verifyComplete();
     }

@@ -11,13 +11,30 @@ import { QueryActionConfig } from "entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
-  ReduxActionTypes.FETCH_PAGE_SUCCESS,
-  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
 ];
+
+export const LINT_REDUX_ACTIONS = {
+  [ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION]: true,
+  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: true,
+  [ReduxActionTypes.DELETE_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.COPY_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.MOVE_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.CREATE_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.DELETE_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.COPY_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.MOVE_JS_ACTION_SUCCESS]: true,
+  [ReduxActionTypes.SET_USER_CURRENT_GEO_LOCATION]: true,
+  [ReduxActionTypes.UPDATE_LAYOUT]: true,
+  [ReduxActionTypes.UPDATE_WIDGET_PROPERTY]: true,
+  [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: true,
+  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: true,
+};
+
 export const EVALUATE_REDUX_ACTIONS = [
   ...FIRST_EVAL_REDUX_ACTIONS,
   // Actions
-  ReduxActionTypes.FETCH_PLUGIN_AND_JS_ACTIONS_SUCCESS,
   ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
   ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
   ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
@@ -36,7 +53,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.CLEAR_ACTION_RESPONSE,
   // JS Actions
   ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
-  ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
   ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
   ReduxActionTypes.COPY_JS_ACTION_SUCCESS,
   ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
@@ -57,7 +73,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
   ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
   // Widget Meta
-  ReduxActionTypes.SET_META_PROP,
+  ReduxActionTypes.SET_META_PROP_AND_EVAL,
+  ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL,
   ReduxActionTypes.RESET_WIDGET_META,
   // Batches
   ReduxActionTypes.BATCH_UPDATES_SUCCESS,
@@ -66,7 +83,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
   ReduxActionTypes.SET_PREVIEW_APP_THEME,
 ];
-// Topics used for datsource and query form evaluations
+// Topics used for datasource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [
   ReduxActionTypes.INIT_FORM_EVALUATION,
   ReduxActionTypes.RUN_FORM_EVALUATION,
@@ -86,13 +103,27 @@ export const shouldProcessBatchedAction = (action: ReduxAction<unknown>) => {
   return true;
 };
 
+export function shouldLint(action: ReduxAction<unknown>) {
+  if (
+    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
+    Array.isArray(action.payload)
+  ) {
+    const batchedActionTypes = action.payload.map(
+      (batchedAction) => batchedAction.type,
+    );
+    return batchedActionTypes.some(
+      (actionType) => LINT_REDUX_ACTIONS[actionType],
+    );
+  }
+  return LINT_REDUX_ACTIONS[action.type];
+}
+
 export const setEvaluatedTree = (
-  dataTree: DataTree,
   updates: Diff<DataTree, DataTree>[],
-): ReduxAction<{ dataTree: DataTree; updates: Diff<DataTree, DataTree>[] }> => {
+): ReduxAction<{ updates: Diff<DataTree, DataTree>[] }> => {
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: { dataTree, updates },
+    payload: { updates },
   };
 };
 
@@ -123,9 +154,18 @@ export const startFormEvaluations = (
   formData: QueryActionConfig,
   datasourceId: string,
   pluginId: string,
+  actionDiffPath?: string,
+  hasRouteChanged?: boolean,
 ) => {
   return {
     type: ReduxActionTypes.RUN_FORM_EVALUATION,
-    payload: { formId, actionConfiguration: formData, datasourceId, pluginId },
+    payload: {
+      formId,
+      actionConfiguration: formData,
+      datasourceId,
+      pluginId,
+      actionDiffPath,
+      hasRouteChanged,
+    },
   };
 };

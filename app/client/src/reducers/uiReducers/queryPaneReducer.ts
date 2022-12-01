@@ -1,12 +1,13 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import _ from "lodash";
+import { omit } from "lodash";
 import { Action } from "entities/Action";
 import { ActionResponse } from "api/ActionAPI";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: QueryPaneReduxState = {
   isFetching: false,
@@ -16,6 +17,9 @@ const initialState: QueryPaneReduxState = {
   isDeleting: {},
   runErrorMessage: {},
   lastUsed: "", // NR
+  responseTabHeight: ActionExecutionResizerHeight,
+  selectedConfigTabIndex: 0,
+  selectedResponseTab: "",
 };
 
 export interface QueryPaneReduxState {
@@ -26,6 +30,9 @@ export interface QueryPaneReduxState {
   runErrorMessage: Record<string, string>;
   lastUsed: string; // NR
   isCreating: boolean; // RR
+  selectedConfigTabIndex: number;
+  selectedResponseTab: string;
+  responseTabHeight: number;
 }
 
 const queryPaneReducer = createReducer(initialState, {
@@ -151,7 +158,7 @@ const queryPaneReducer = createReducer(initialState, {
         ...state.isRunning,
         [actionId]: false,
       },
-      runErrorMessage: _.omit(state.runErrorMessage, [actionId]),
+      runErrorMessage: omit(state.runErrorMessage, [actionId]),
     };
   },
   [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
@@ -170,6 +177,36 @@ const queryPaneReducer = createReducer(initialState, {
         ...state.runError,
         [id]: error.message,
       },
+    };
+  },
+  [ReduxActionTypes.SET_QUERY_PANE_CONFIG_SELECTED_TAB]: (
+    state: QueryPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedConfigTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_SELECTED_TAB]: (
+    state: QueryPaneReduxState,
+    action: ReduxAction<{ selectedTab: string }>,
+  ) => {
+    const { selectedTab } = action.payload;
+    return {
+      ...state,
+      selectedResponseTab: selectedTab,
+    };
+  },
+  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT]: (
+    state: QueryPaneReduxState,
+    action: ReduxAction<{ height: number }>,
+  ) => {
+    const { height } = action.payload;
+    return {
+      ...state,
+      responseTabHeight: height,
     };
   },
 });

@@ -61,7 +61,7 @@ const jsObject: JSCollectionData = {
   config: {
     id: "1234",
     applicationId: "app123",
-    organizationId: "org123",
+    workspaceId: "workspace123",
     name: "JSObject3",
     pageId: "page123",
     pluginId: "plugin123",
@@ -72,7 +72,7 @@ const jsObject: JSCollectionData = {
       {
         id: "fun1",
         applicationId: "app123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         pluginType: "JS",
         pluginId: "plugin123",
         name: "myFun1",
@@ -81,7 +81,7 @@ const jsObject: JSCollectionData = {
           userPermissions: [],
           name: "UNUSED_DATASOURCE",
           pluginId: "plugin123",
-          organizationId: "org123",
+          workspaceId: "workspace123",
           messages: [],
           isValid: true,
           new: true,
@@ -90,6 +90,7 @@ const jsObject: JSCollectionData = {
         collectionId: "1234",
         actionConfiguration: {
           timeoutInMillisecond: 10000,
+          // @ts-expect-error: paginationType does not exists on JSAction
           paginationType: "NONE",
           encodeParamsToggle: true,
           body: "() => {\n\t\t//write code here\n\t}",
@@ -114,7 +115,7 @@ const jsObject: JSCollectionData = {
       {
         id: "fun2",
         applicationId: "app123",
-        organizationId: "org123",
+        workspaceId: "workspace123",
         pluginType: PluginType.JS,
         pluginId: "plugin123",
         name: "myFun2",
@@ -123,7 +124,7 @@ const jsObject: JSCollectionData = {
           userPermissions: [],
           name: "UNUSED_DATASOURCE",
           pluginId: "plugin123",
-          organizationId: "org123",
+          workspaceId: "workspace123",
           messages: [],
           isValid: true,
           new: true,
@@ -132,6 +133,7 @@ const jsObject: JSCollectionData = {
         collectionId: "1234",
         actionConfiguration: {
           timeoutInMillisecond: 10000,
+          // @ts-expect-error: encodeParamsToggle does not exists on JSAction
           encodeParamsToggle: true,
           body: "async () => {\n\t\t//use async-await or promises\n\t}",
           jsArguments: [],

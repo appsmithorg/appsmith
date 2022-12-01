@@ -4,7 +4,7 @@ import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
-import { labelLayoutStyles } from "components/ads/LabelWithTooltip";
+import { labelLayoutStyles } from "design-system";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {

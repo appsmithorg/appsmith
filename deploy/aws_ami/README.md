@@ -122,7 +122,7 @@ To log in to the Appsmith dashboard, follow these steps:
   - Go to the Sign Up page, fill in your user's email & password, then click Sign Up
   ![Appsmith Signup Page](./images/appsmith_signup.png)
 
-Once you completed the registration, you will be moved to the Personal Organization page. Now you can begin to create your custom app. 
+Once you completed the registration, you will be moved to the Personal Workspace page. Now you can begin to create your custom app. 
 ![Appsmith Dashboard Page](./images/appsmith_dashboard.png)
 
 For more tutorials on how to create your custom app by Appsmith, please take a look at [https://docs.appsmith.com/](https://docs.appsmith.com/)

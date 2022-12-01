@@ -7,6 +7,7 @@ import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.util.WebClientUtils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -58,7 +58,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
         }
 
         return configService.getInstanceId()
-                .flatMap(instanceId -> WebClient
+                .flatMap(instanceId -> WebClientUtils
                         .create(
                                 baseUrl + "/api/v1/releases?instanceId=" + instanceId +
                                         // isCloudHosted should be true only for our cloud instance,
@@ -98,6 +98,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
         return newCount == releaseNodesCache.size() ? ((newCount - 1) + "+") : String.valueOf(newCount);
     }
 
+    @Override
     public String getReleasedVersion() {
         final String version = projectProperties.getVersion();
 
@@ -110,6 +111,11 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
         }
 
         return releaseNodesCache.get(0).getTagName();
+    }
+
+    @Override
+    public String getRunningVersion() {
+        return projectProperties.getVersion();
     }
 
     /**

@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: ApiPaneReduxState = {
   isCreating: false,
@@ -16,6 +17,9 @@ const initialState: ApiPaneReduxState = {
   isDirty: {},
   currentCategory: "",
   extraformData: {},
+  selectedConfigTabIndex: 0,
+  selectedResponseTab: "",
+  responseTabHeight: ActionExecutionResizerHeight,
 };
 
 export interface ApiPaneReduxState {
@@ -27,6 +31,10 @@ export interface ApiPaneReduxState {
   isDirty: Record<string, boolean>;
   currentCategory: string;
   extraformData: Record<string, any>;
+  selectedConfigTabIndex: number;
+  selectedResponseTab: string;
+  responseTabHeight: number;
+  selectedRightPaneTab?: number;
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -206,6 +214,46 @@ const apiPaneReducer = createReducer(initialState, {
         ...state.extraformData,
         [id]: values,
       },
+    };
+  },
+  [ReduxActionTypes.SET_API_PANE_CONFIG_SELECTED_TAB]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedConfigTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ selectedTab: string }>,
+  ) => {
+    const { selectedTab } = action.payload;
+    return {
+      ...state,
+      selectedResponseTab: selectedTab,
+    };
+  },
+  [ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ height: number }>,
+  ) => {
+    const { height } = action.payload;
+    return {
+      ...state,
+      responseTabHeight: height,
+    };
+  },
+  [ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ selectedTab: number }>,
+  ) => {
+    const { selectedTab } = action.payload;
+    return {
+      ...state,
+      selectedRightPaneTab: selectedTab,
     };
   },
 });

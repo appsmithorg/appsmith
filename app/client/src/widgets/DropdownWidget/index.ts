@@ -9,6 +9,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   hideCard: true,
+  isDeprecated: true,
+  replacement: "SELECT_WIDGET",
   defaults: {
     rows: 7,
     columns: 20,
@@ -37,6 +39,7 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

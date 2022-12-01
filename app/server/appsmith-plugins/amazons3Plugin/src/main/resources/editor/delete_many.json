@@ -20,7 +20,7 @@
         {
           "label": "List of Files",
           "configProperty": "actionConfiguration.formData.path.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_TEXT",
           "isRequired": true,
           "initialValue": "",
           "placeholderText": "[\"myDir/file1.txt\", \"myDir/file2.txt\"]"

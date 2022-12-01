@@ -9,6 +9,8 @@ export enum ActionTriggerType {
   SHOW_MODAL_BY_NAME = "SHOW_MODAL_BY_NAME",
   CLOSE_MODAL = "CLOSE_MODAL",
   STORE_VALUE = "STORE_VALUE",
+  REMOVE_VALUE = "REMOVE_VALUE",
+  CLEAR_STORE = "CLEAR_STORE",
   DOWNLOAD = "DOWNLOAD",
   COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
@@ -18,6 +20,7 @@ export enum ActionTriggerType {
   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
+  POST_MESSAGE = "POST_MESSAGE",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
@@ -33,10 +36,13 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.SHOW_ALERT]: "showAlert",
   [ActionTriggerType.SHOW_MODAL_BY_NAME]: "showModal",
   [ActionTriggerType.STORE_VALUE]: "storeValue",
+  [ActionTriggerType.REMOVE_VALUE]: "removeValue",
+  [ActionTriggerType.CLEAR_STORE]: "clearStore",
   [ActionTriggerType.GET_CURRENT_LOCATION]: "getCurrentLocation",
   [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
   [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
+  [ActionTriggerType.POST_MESSAGE]: "postWindowMessage",
 };
 
 export type RunPluginActionDescription = {
@@ -89,7 +95,20 @@ export type StoreValueActionDescription = {
     key: string;
     value: string;
     persist: boolean;
+    uniqueActionRequestId: string;
   };
+};
+
+export type RemoveValueActionDescription = {
+  type: ActionTriggerType.REMOVE_VALUE;
+  payload: {
+    key: string;
+  };
+};
+
+export type ClearStoreActionDescription = {
+  type: ActionTriggerType.CLEAR_STORE;
+  payload: null;
 };
 
 export type DownloadActionDescription = {
@@ -165,6 +184,15 @@ export type ConfirmationModal = {
   payload?: Record<string, any>;
 };
 
+export type PostMessageDescription = {
+  type: ActionTriggerType.POST_MESSAGE;
+  payload: {
+    message: unknown;
+    source: string;
+    targetOrigin: string;
+  };
+};
+
 export type ActionDescription =
   | RunPluginActionDescription
   | ClearPluginActionDescription
@@ -173,6 +201,8 @@ export type ActionDescription =
   | ShowModalActionDescription
   | CloseModalActionDescription
   | StoreValueActionDescription
+  | RemoveValueActionDescription
+  | ClearStoreActionDescription
   | DownloadActionDescription
   | CopyToClipboardDescription
   | ResetWidgetDescription
@@ -181,4 +211,5 @@ export type ActionDescription =
   | GetCurrentLocationDescription
   | WatchCurrentLocationDescription
   | StopWatchingCurrentLocationDescription
-  | ConfirmationModal;
+  | ConfirmationModal
+  | PostMessageDescription;

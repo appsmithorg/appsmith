@@ -1,12 +1,10 @@
-FROM node:14
+FROM node:16.14.0
 
 LABEL maintainer="tech@appsmith.com"
 
 WORKDIR /app
 
-COPY package.json yarn.lock dist/* ./
-
-RUN yarn install --frozen-lockfile
+COPY package.json dist ./
 
 EXPOSE 8091
 

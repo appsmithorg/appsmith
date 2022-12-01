@@ -1,15 +1,20 @@
 import React from "react";
 import styled from "styled-components";
-import Dropdown, {
-  DropdownOnSelect,
-  DropdownContainer,
-} from "components/ads/Dropdown";
-import Button from "components/ads/Button";
 import FlagBadge from "components/utils/FlagBadge";
 import { JSCollection } from "entities/JSCollection";
-import Tooltip from "components/ads/Tooltip";
-import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ce/constants/messages";
-import { StyledButton } from "components/ads/Button";
+import {
+  Button,
+  Dropdown,
+  DropdownOnSelect,
+  DropdownContainer,
+  Size,
+  StyledButton,
+  TooltipComponent as Tooltip,
+} from "design-system";
+import {
+  createMessage,
+  NO_JS_FUNCTION_TO_RUN,
+} from "@appsmith/constants/messages";
 import { JSActionDropdownOption } from "./utils";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 
@@ -36,9 +41,6 @@ const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
 
   ${StyledButton} {
-    margin-left: ${RUN_BUTTON_DEFAULTS.GAP_SIZE};
-    padding: 0px 20px;
-
     ${(props) =>
       props.isDisabled &&
       `
@@ -68,6 +70,7 @@ export function JSFunctionRun({
     <DropdownWithCTAWrapper isDisabled={disabled}>
       <Dropdown
         customBadge={<FlagBadge name="Async" />}
+        cypressSelector="function-select-dropdown"
         height={RUN_BUTTON_DEFAULTS.HEIGHT}
         onSelect={onSelect}
         options={options}
@@ -75,6 +78,7 @@ export function JSFunctionRun({
         selectedHighlightBg={RUN_BUTTON_DEFAULTS.DROPDOWN_HIGHLIGHT_BG}
         showLabelOnly
         truncateOption
+        width="232px"
       />
 
       <Tooltip
@@ -87,8 +91,10 @@ export function JSFunctionRun({
           height={RUN_BUTTON_DEFAULTS.HEIGHT}
           isLoading={isLoading}
           onClick={onButtonClick}
+          size={Size.medium}
           tag="button"
           text={RUN_BUTTON_DEFAULTS.CTA_TEXT}
+          type="button"
         />
       </Tooltip>
     </DropdownWithCTAWrapper>

@@ -1,3 +1,9 @@
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import {
+  CHANGES_SINCE_LAST_DEPLOYMENT,
+  createMessage,
+} from "@appsmith/constants/messages";
+
 export const getIsStartingWithRemoteBranches = (
   local: string,
   remote: string,
@@ -12,7 +18,7 @@ export const getIsStartingWithRemoteBranches = (
   );
 };
 
-const GIT_REMOTE_URL_PATTERN = /^((git|ssh)|(git@[\w\.]+))(:(\/\/)?)([\w\.@\:\/\-~]+)[^\/]$/im;
+const GIT_REMOTE_URL_PATTERN = /^((git|ssh)|(git@[\w\-\.]+))(:(\/\/)?)([\w\.@\:\/\-~\(\)]+)[^\/]$/im;
 
 const gitRemoteUrlRegExp = new RegExp(GIT_REMOTE_URL_PATTERN);
 
@@ -55,4 +61,26 @@ export const getIsActiveItem = (
 export const removeSpecialChars = (input: string): string => {
   const separatorRegex = /(?![/-])\W+/;
   return input.split(separatorRegex).join("_");
+};
+
+/**
+ * changeInfoSinceLastCommit: Returns reason for change string, and whether the changes are from migration or user or both.
+ * @param currentApplication {ApplicationPayload | undefined}
+ * @returns {{changeReasonText: string, isAutoUpdate:boolean, isManualUpdate: boolean}}
+ */
+export function changeInfoSinceLastCommit(
+  currentApplication: ApplicationPayload | undefined,
+) {
+  const isAutoUpdate = !!currentApplication?.isAutoUpdate;
+  const isManualUpdate = !!currentApplication?.isManualUpdate;
+  const changeReasonText = createMessage(CHANGES_SINCE_LAST_DEPLOYMENT);
+  return { isAutoUpdate, isManualUpdate, changeReasonText };
+}
+
+export const GIT_DOC_URLs = {
+  base: "https://docs.appsmith.com/advanced-concepts/version-control-with-git",
+  import:
+    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/import-from-repository",
+  connect:
+    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository",
 };

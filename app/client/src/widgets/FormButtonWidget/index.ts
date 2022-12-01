@@ -7,6 +7,8 @@ export const CONFIG = {
   name: "FormButton",
   iconSVG: IconSVG,
   hideCard: true,
+  isDeprecated: true,
+  replacement: "BUTTON_WIDGET",
   needsMeta: true,
   defaults: {
     rows: 4,
@@ -23,6 +25,7 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

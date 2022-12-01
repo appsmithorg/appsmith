@@ -6,7 +6,7 @@ import {
   useCallback,
 } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
@@ -26,6 +26,7 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -97,7 +98,7 @@ export const useCurrentApplicationDatasource = () => {
   );
 };
 
-export const useOtherDatasourcesInOrganization = () => {
+export const useOtherDatasourcesInWorkspace = () => {
   const actions = useSelector(getActions);
   const allDatasources = useSelector(getDatasources);
   const datasourceIdsUsedInCurrentApplication = actions.reduce(
@@ -113,19 +114,21 @@ export const useOtherDatasourcesInOrganization = () => {
     new Set(),
   );
   return allDatasources.filter(
-    (ds) => !datasourceIdsUsedInCurrentApplication.has(ds.id),
+    (ds) =>
+      !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
+      ds.id !== TEMP_DATASOURCE_ID,
   );
 };
 
 export const useAppWideAndOtherDatasource = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
-  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+  const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
 
   return {
     appWideDS: datasourcesUsedInApplication.sort((ds1, ds2) =>
       ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
     ),
-    otherDS: otherDatasourceInOrg.sort((ds1, ds2) =>
+    otherDS: otherDatasourceInWorkspace.sort((ds1, ds2) =>
       ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
     ),
   };
@@ -135,11 +138,11 @@ const MAX_DATASOURCE_SUGGESTIONS = 3;
 
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
-  const otherDatasourceInOrg = useOtherDatasourcesInOrganization();
+  const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
   if (datasourcesUsedInApplication.length >= MAX_DATASOURCE_SUGGESTIONS)
     return [];
-  otherDatasourceInOrg.reverse();
-  return otherDatasourceInOrg.slice(
+  otherDatasourceInWorkspace.reverse();
+  return otherDatasourceInWorkspace.slice(
     0,
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
   );
@@ -396,3 +399,21 @@ export function useActiveAction() {
     return saasMatch.params.apiId;
   }
 }
+
+export const useCloseMenuOnScroll = (
+  id: string,
+  open: boolean,
+  onClose: () => void,
+) => {
+  const scrollContainer = document.getElementById(id);
+
+  useEffect(() => {
+    if (open) {
+      scrollContainer?.addEventListener("scroll", onClose, true);
+    }
+
+    return () => {
+      scrollContainer?.removeEventListener("scroll", onClose);
+    };
+  }, [open]);
+};

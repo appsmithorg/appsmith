@@ -2,10 +2,8 @@ const dsl = require("../../../fixtures/CMSdsl.json");
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 import apiEditor from "../../../locators/ApiEditor";
 import appPage from "../../../locators/CMSApplocators";
-const commonlocators = require("../../../locators/commonlocators.json");
-describe("Content Management System App", function() {
-  let repoName;
 
+describe("Content Management System App", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -80,7 +78,7 @@ describe("Content Management System App", function() {
     // navigating to canvas
     cy.xpath(appPage.pagebutton).click();
     cy.get(appPage.submitButton).should("be.visible");
-    cy.xpath("//div[text()='3']").click({ force: true });
+    cy.xpath("//span[text()='3']").click({ force: true });
     cy.get(appPage.mailButton)
       .closest("div")
       .click();
@@ -146,7 +144,7 @@ describe("Content Management System App", function() {
       .click({ force: true });
     cy.get(appPage.closeButton)
       .closest("div")
-      .click({ force: true }); 
+      .click({ force: true });
       cy.get(commonlocators.backToEditor).click();
       cy.wait(1000);
   }) */

@@ -15,10 +15,15 @@ import com.external.plugins.commands.Find;
 import com.external.plugins.commands.Insert;
 import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.UpdateMany;
+
+import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.util.StringUtils;
 
 import java.net.URLEncoder;
@@ -29,9 +34,11 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
 import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.RAW;
@@ -41,13 +48,31 @@ public class MongoPluginUtils {
     public static Document parseSafely(String fieldName, String input) {
         try {
             return Document.parse(input);
-        } catch (JsonParseException e) {
+        } catch (JsonParseException | BsonInvalidOperationException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format.");
         }
     }
 
+    public static Object parseSafelyDocumentAndArrayOfDocuments(String fieldName, String input){
+        try {
+            return parseSafely(fieldName, input);
+        } catch (AppsmithPluginException e) {
+            try {
+                List<Document> parsedDocumentList = new ArrayList<>();
+                JSONArray rawInputJsonArray  = new JSONArray(input);
+                for (int i=0; i < rawInputJsonArray.length(); i++) {
+                    parsedDocumentList.add(parseSafely(fieldName, rawInputJsonArray.getJSONObject(i).toString()));
+                }
+                return parsedDocumentList;
+            } catch (JSONException ne) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format.");
+            }
+        }
+   
+    }
+
     public static Boolean isRawCommand(Map<String, Object> formData) {
-        String command = (String) PluginUtils.getValueSafelyFromFormDataOrDefault(formData, COMMAND, null);
+        String command = PluginUtils.getDataValueSafelyFromFormData(formData, COMMAND, null);
         return RAW.equals(command);
     }
 
@@ -68,13 +93,13 @@ public class MongoPluginUtils {
 
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
-        return (String) getValueSafelyFromFormData(formData, BODY);
+        return PluginUtils.getDataValueSafelyFromFormData(formData, BODY, PluginUtils.STRING_TYPE);
     }
 
     private static MongoCommand getMongoCommand(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         Map<String, Object> formData = actionConfiguration.getFormData();
         MongoCommand command;
-        switch (getValueSafelyFromFormData(formData, COMMAND, String.class, "")) {
+        switch (getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE, "")) {
             case "INSERT":
                 command = new Insert(actionConfiguration);
                 break;
@@ -106,13 +131,21 @@ public class MongoPluginUtils {
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
+        String databaseName = null;
+
         // Explicitly set default database.
-        String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+        if (datasourceConfiguration.getConnection() != null) {
+            databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+        }
 
         // If that's not available, pick the authentication database.
         final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-        if (StringUtils.isEmpty(databaseName) && authentication != null) {
+        if (!StringUtils.hasLength(databaseName) && authentication != null) {
             databaseName = authentication.getDatabaseName();
+        }
+
+        if (databaseName == null) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Missing default database name.");
         }
 
         return databaseName;

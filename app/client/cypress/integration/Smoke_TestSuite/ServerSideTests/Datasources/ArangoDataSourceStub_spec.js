@@ -1,8 +1,8 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let datasourceName;
+let agHelper = ObjectsRegistry.AggregateHelper,
+  dataSources = ObjectsRegistry.DataSources;
 
 describe("Arango datasource test cases", function() {
   beforeEach(() => {
@@ -10,33 +10,22 @@ describe("Arango datasource test cases", function() {
   });
 
   it("1. Create, test, save then delete a Arango datasource", function() {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.ArangoDB).click();
-    cy.getPluginFormsAndCreateDatasource();
-
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("ArangoDB");
+    agHelper.RenameWithInPane("ArangoWithnoTrailing", false);
     cy.fillArangoDBDatasourceForm();
-    cy.generateUUID().then((UUID) => {
-      datasourceName = `Arango MOCKDS ${UUID}`;
-      cy.renameDatasource(datasourceName);
-    });
-
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
     }).as("testDatasource");
     cy.testSaveDatasource(false);
+    dataSources.DeleteDatasouceFromActiveTab("ArangoWithnoTrailing");
   });
 
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a Arango datasource", function() {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.ArangoDB).click();
-    cy.getPluginFormsAndCreateDatasource();
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("ArangoDB");
+    agHelper.RenameWithInPane("ArangoWithTrailing", false);
     cy.fillArangoDBDatasourceForm(true);
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
     }).as("testDatasource");
@@ -44,8 +33,7 @@ describe("Arango datasource test cases", function() {
   });
 
   it("3. Create a new query from the datasource editor", function() {
-    // cy.get(datasource.createQuerty).click();
-    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
+    cy.get(datasource.createQuery)
       .last()
       .click();
     cy.wait("@createNewApi").should(
@@ -53,9 +41,16 @@ describe("Arango datasource test cases", function() {
       "response.body.responseMeta.status",
       201,
     );
-
     cy.deleteQueryUsingContext();
+    cy.deleteDatasource("ArangoWithTrailing");
+  });
 
-    cy.deleteDatasource(datasourceName);
+  it("4. Arango Default name change", () => {
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("ArangoDB");
+    agHelper
+      .GetText(dataSources._databaseName, "val")
+      .then(($dbName) => expect($dbName).to.eq("_system"));
+    dataSources.SaveDSFromDialog(false);
   });
 });

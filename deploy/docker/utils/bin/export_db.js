@@ -23,7 +23,7 @@ function start_application() {
 }
 
 // Main application workflow
-function main() {
+function run() {
   let errorCode = 0;
   try {
     check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1 ';
@@ -57,7 +57,7 @@ function main() {
 }
 
 module.exports = {
-  runExportDatabase: main,
+  run,
   exportDatabase: export_database,
   stopApplication: stop_application,
   startApplication: start_application,

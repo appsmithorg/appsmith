@@ -20,7 +20,7 @@ export const debuggerLogInit = (payload: Log) => ({
   payload,
 });
 
-export const debuggerLog = (payload: Log) => ({
+export const debuggerLog = (payload: Log[]) => ({
   type: ReduxActionTypes.DEBUGGER_LOG,
   payload,
 });
@@ -74,7 +74,9 @@ export const hideDebuggerErrors = (payload: boolean) => ({
   payload,
 });
 
-export const setCurrentTab = (payload: string) => ({
-  type: ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB,
-  payload,
-});
+export const setCanvasDebuggerSelectedTab = (selectedTab: string) => {
+  return {
+    type: ReduxActionTypes.SET_CANVAS_DEBUGGER_SELECTED_TAB,
+    payload: selectedTab,
+  };
+};

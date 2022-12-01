@@ -18,28 +18,22 @@ import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
-import {
-  CANVAS_CLASSNAME,
-  MODAL_PORTAL_CLASSNAME,
-  TextSize,
-} from "constants/WidgetConstants";
+import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
+import styled from "styled-components";
+import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import useDropdown from "widgets/useDropdown";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
-      | "disabled"
-      | "placeholder"
-      | "loading"
-      | "dropdownStyle"
-      | "allowClear"
-      | "options"
+      "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
     >
   > {
   value?: DefaultValueType;
@@ -56,6 +50,7 @@ export interface TreeSelectProps
   compactMode: boolean;
   dropDownWidth: number;
   width: number;
+  isDynamicHeightEnabled?: boolean;
   isValid: boolean;
   borderRadius: string;
   boxShadow?: string;
@@ -63,7 +58,13 @@ export interface TreeSelectProps
   widgetId: string;
   filterText?: string;
   isFilterable: boolean;
+  renderMode?: RenderMode;
+  options?: DefaultOptionType[];
 }
+
+export const NoDataFoundContainer = styled.div`
+  text-align: center;
+`;
 
 const getSvg = (expanded: boolean) => (
   <i
@@ -99,7 +100,6 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   }
   return getSvg(treeNode.expanded);
 };
-const FOCUS_TIMEOUT = 500;
 
 function MultiTreeSelectComponent({
   accentColor,
@@ -112,6 +112,7 @@ function MultiTreeSelectComponent({
   dropDownWidth,
   expandAll,
   filterText,
+  isDynamicHeightEnabled,
   isFilterable,
   isValid,
   labelAlignment,
@@ -126,6 +127,7 @@ function MultiTreeSelectComponent({
   onChange,
   options,
   placeholder,
+  renderMode,
   value,
   widgetId,
   width,
@@ -133,10 +135,23 @@ function MultiTreeSelectComponent({
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
 
-  const _menu = useRef<HTMLElement | null>(null);
+  const _menu = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
   const [memoDropDownWidth, setMemoDropDownWidth] = useState(0);
+
+  const {
+    BackDrop,
+    getPopupContainer,
+    isOpen,
+    onKeyDown,
+    onOpen,
+    selectRef,
+  } = useDropdown({
+    inputRef,
+    renderMode,
+  });
 
   // treeDefaultExpandAll is uncontrolled after first render,
   // using this to force render to respond to changes in expandAll
@@ -152,15 +167,6 @@ function MultiTreeSelectComponent({
     [filter],
   );
 
-  const getDropdownPosition = useCallback(() => {
-    const node = _menu.current;
-    if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
-      return document.querySelector(
-        `.${MODAL_PORTAL_CLASSNAME}`,
-      ) as HTMLElement;
-    }
-    return document.querySelector(`.${CANVAS_CLASSNAME}`) as HTMLElement;
-  }, []);
   const onQueryChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation();
     setFilter(event.target.value);
@@ -185,13 +191,13 @@ function MultiTreeSelectComponent({
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>
+        <BackDrop />
         {isFilterable ? (
           <InputGroup
-            autoFocus
             inputRef={inputRef}
             leftIcon="search"
             onChange={onQueryChange}
-            onKeyDown={(e) => e.stopPropagation()}
+            onKeyDown={onKeyDown}
             placeholder="Filter..."
             rightElement={clearButton as JSX.Element}
             small
@@ -205,13 +211,12 @@ function MultiTreeSelectComponent({
     [loading, isFilterable, filter, onQueryChange],
   );
 
-  const onOpen = useCallback((open: boolean) => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
-    }
-  }, []);
-
   const onClear = useCallback(() => onChange([], []), []);
+  const onDropdownVisibleChange = (open: boolean) => {
+    onOpen(open);
+    // clear the search input on closing the widget
+    setFilter("");
+  };
 
   return (
     <TreeSelectContainer
@@ -240,6 +245,7 @@ function MultiTreeSelectComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
           ref={labelRef}
@@ -265,7 +271,7 @@ function MultiTreeSelectComponent({
           dropdownRender={dropdownRender}
           dropdownStyle={dropdownStyle}
           filterTreeNode
-          getPopupContainer={getDropdownPosition}
+          getPopupContainer={getPopupContainer}
           inputIcon={
             <Icon
               className="dropdown-icon"
@@ -278,11 +284,15 @@ function MultiTreeSelectComponent({
           maxTagCount={"responsive"}
           maxTagPlaceholder={(e) => `+${e.length} more`}
           multiple
-          notFoundContent="No Results Found"
+          notFoundContent={
+            <NoDataFoundContainer>No Results Found</NoDataFoundContainer>
+          }
           onChange={onChange}
           onClear={onClear}
-          onDropdownVisibleChange={onOpen}
+          onDropdownVisibleChange={onDropdownVisibleChange}
+          open={isOpen}
           placeholder={placeholder}
+          ref={selectRef}
           removeIcon={
             <Icon
               className="remove-icon"

@@ -2,8 +2,14 @@ import React, { ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
 
-const Wrapper = styled.section`
-  margin-top: ${(props) => props.theme.homePage.header}px;
+const Wrapper = styled.section<{ isFixed?: boolean }>`
+  ${(props) =>
+    props.isFixed
+      ? `margin: 0;
+  position: fixed;
+  top: ${props.theme.homePage.header}px;
+  width: 100%;`
+      : `margin-top: ${props.theme.homePage.header}px;`}
   && .fade {
     position: relative;
   }
@@ -43,11 +49,13 @@ const PageBody = styled.div`
 type PageWrapperProps = {
   children?: ReactNode;
   displayName?: string;
+  isFixed?: boolean;
 };
 
 export function PageWrapper(props: PageWrapperProps) {
+  const { isFixed = false } = props;
   return (
-    <Wrapper>
+    <Wrapper isFixed={isFixed}>
       <Helmet>
         <title>{`${
           props.displayName ? `${props.displayName} | ` : ""

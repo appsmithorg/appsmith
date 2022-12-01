@@ -10,9 +10,9 @@ public class CompareDslActionDTO implements Comparator<DslActionDTO>, Serializab
     // Method to compare DslActionDTO based on id
     @Override
     public int compare(DslActionDTO action1, DslActionDTO action2) {
-        if (action1 != null && !StringUtils.isEmpty(action1.getId())
-                && action2 != null && !StringUtils.isEmpty(action2.getId())) {
-            return action1.getId().compareTo(action2.getId());
+        if (action1 != null && !StringUtils.isEmpty(action1.getName())
+                && action2 != null && !StringUtils.isEmpty(action2.getName())) {
+            return action1.getName().compareTo(action2.getName());
         }
         return 1;
     }

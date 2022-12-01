@@ -1,10 +1,9 @@
-import { getTypographyByKey } from "constants/DefaultTheme";
 import React, { memo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
-import Tooltip from "components/ads/Tooltip";
+import { getTypographyByKey, TooltipComponent as Tooltip } from "design-system";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -15,13 +14,12 @@ import {
 } from "@appsmith/constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
 
-import { useSelector } from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 
 const WidgetList = styled.div`
-  ${(props) => getTypographyByKey(props, "p1")}
+  ${getTypographyByKey("p1")}
   margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
   img {
@@ -75,13 +73,19 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     widgetName: "Table",
     image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
   },
+  TABLE_WIDGET_V2: {
+    label: "tabledata",
+    propertyName: "tableData",
+    widgetName: "Table",
+    image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
+  },
   CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
     widgetName: "Chart",
     image: "https://assets.appsmith.com/widgetSuggestion/chart.svg",
   },
-  DROP_DOWN_WIDGET: {
+  SELECT_WIDGET: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
@@ -118,6 +122,15 @@ function getWidgetProps(
         },
         parentRowSpace: 10,
       };
+    case "TABLE_WIDGET_V2":
+      return {
+        type: "TABLE_WIDGET_V2",
+        props: {
+          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          dynamicBindingPathList: [{ key: "tableData" }],
+        },
+        parentRowSpace: 10,
+      };
     case "CHART_WIDGET":
       const reactKey = generateReactKey();
 
@@ -133,7 +146,7 @@ function getWidgetProps(
           dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
-    case "DROP_DOWN_WIDGET":
+    case "SELECT_WIDGET":
       return {
         type: suggestedWidget.type,
         props: {

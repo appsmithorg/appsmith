@@ -7,37 +7,88 @@ import {
 } from "actions/pageActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getAppStoreData } from "selectors/entitiesSelector";
-import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
+import {
+  RemoveValueActionDescription,
+  StoreValueActionDescription,
+} from "entities/DataTree/actionTriggers";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export default function* storeValueLocally(
   action: StoreValueActionDescription["payload"],
 ) {
   if (action.persist) {
-    const applicationId = yield select(getCurrentApplicationId);
-    const branch = yield select(getCurrentGitBranch);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const branch: string | undefined = yield select(getCurrentGitBranch);
     const appStoreName = getAppStoreName(applicationId, branch);
     const existingStore = localStorage.getItem(appStoreName) || "{}";
     const parsedStore = JSON.parse(existingStore);
     parsedStore[action.key] = action.value;
     const storeString = JSON.stringify(parsedStore);
     localStorage.setItem(appStoreName, storeString);
-    yield put(updateAppPersistentStore(parsedStore));
+    yield put(updateAppPersistentStore(parsedStore, action));
     AppsmithConsole.info({
       text: `store('${action.key}', '${action.value}', true)`,
     });
   } else {
-    const existingStore = yield select(getAppStoreData);
+    const existingStore: AppStoreState = yield select(getAppStoreData);
     const newTransientStore = {
       ...existingStore.transient,
       [action.key]: action.value,
     };
-    yield put(updateAppTransientStore(newTransientStore));
+    yield put(updateAppTransientStore(newTransientStore, action));
     AppsmithConsole.info({
       text: `store('${action.key}', '${action.value}', false)`,
     });
   }
-  yield take(ReduxActionTypes.UPDATE_APP_STORE_EVALUATED);
+  /* It is possible that user calls multiple storeValue function together, in such case we need to track completion of each action separately
+  We use uniqueActionRequestId to differentiate each storeValueAction here.
+  */
+  while (true) {
+    const returnedAction: StoreValueActionDescription = yield take(
+      ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
+    );
+    if (!returnedAction?.payload?.uniqueActionRequestId) {
+      break;
+    }
+
+    const { uniqueActionRequestId } = returnedAction.payload;
+    if (uniqueActionRequestId === action.uniqueActionRequestId) {
+      break;
+    }
+  }
+}
+
+export function* removeLocalValue(
+  action: RemoveValueActionDescription["payload"],
+) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const appStoreName = getAppStoreName(applicationId, branch);
+  const existingStore = localStorage.getItem(appStoreName) || "{}";
+  const parsedStore = JSON.parse(existingStore);
+  delete parsedStore[action.key];
+  const storeString = JSON.stringify(parsedStore);
+  localStorage.setItem(appStoreName, storeString);
+  yield put(updateAppPersistentStore(parsedStore));
+  const existingTransientStore: AppStoreState = yield select(getAppStoreData);
+  delete existingTransientStore.transient?.[action.key];
+  yield put(updateAppTransientStore(existingTransientStore.transient));
+  AppsmithConsole.info({
+    text: `remove('${action.key}')`,
+  });
+}
+
+export function* clearLocalStore() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const branch: string | undefined = yield select(getCurrentGitBranch);
+  const appStoreName = getAppStoreName(applicationId, branch);
+  localStorage.setItem(appStoreName, "{}");
+  yield put(updateAppPersistentStore({}));
+  yield put(updateAppTransientStore({}));
+  AppsmithConsole.info({
+    text: `clear()`,
+  });
 }

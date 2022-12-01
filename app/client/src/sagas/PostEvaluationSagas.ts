@@ -1,4 +1,9 @@
-import { ENTITY_TYPE, Log, Severity } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  Log,
+  PLATFORM_ERROR,
+  Severity,
+} from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
@@ -8,21 +13,19 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "workers/evaluationUtils";
+} from "workers/Evaluation/evaluationUtils";
 import {
   EvalError,
   EvalErrorTypes,
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
 import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -31,26 +34,20 @@ import {
   ERROR_EVAL_ERROR_GENERIC,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
+  JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import TernServer from "utils/autocomplete/TernServer";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
+import { JSAction } from "entities/JSCollection";
+import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
-/**
- * Errors in this array will not be shown in the debugger.
- * We do this to avoid same error showing multiple times.
- *
- * Errors ignored:
- * W117: `x` is undefined
- */
-const errorCodesToIgnoreInDebugger = ["W117"];
-const errorCodesForJSEditorInDebugger = ["E041"]; //how much object parsed error example 90% parsed
 
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
@@ -70,7 +67,7 @@ function logLatestEvalPropertyErrors(
       if (entity.logBlackList && propertyPath in entity.logBlackList) {
         continue;
       }
-      let allEvalErrors: EvaluationError[] = get(
+      const allEvalErrors: EvaluationError[] = get(
         entity,
         getEvalErrorPath(evaluatedPath, {
           fullPath: false,
@@ -78,14 +75,6 @@ function logLatestEvalPropertyErrors(
         }),
         [],
       );
-
-      allEvalErrors = isJSAction(entity)
-        ? allEvalErrors.filter(
-            (err) => !errorCodesForJSEditorInDebugger.includes(err.code || ""),
-          )
-        : allEvalErrors.filter(
-            (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
-          );
 
       const evaluatedValue = get(
         entity,
@@ -99,14 +88,7 @@ function logLatestEvalPropertyErrors(
 
       for (const err of allEvalErrors) {
         if (err.severity === Severity.WARNING) {
-          if (
-            !isJSAction(entity) &&
-            !errorCodesToIgnoreInDebugger.includes(err.code || "")
-          ) {
-            evalWarnings.push(err);
-          } else {
-            evalWarnings.push(err);
-          }
+          evalWarnings.push(err);
         }
         if (err.severity === Severity.ERROR) {
           evalErrors.push(err);
@@ -302,10 +284,17 @@ export function* logSuccessfulBindings(
   unEvalTree: DataTree,
   dataTree: DataTree,
   evaluationOrder: string[],
+  isCreateFirstTree: boolean,
 ) {
-  const appMode: APP_MODE = yield select(getAppMode);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
+
+  if (isCreateFirstTree) {
+    // we only aim to log binding success which were added by user
+    // for first evaluation, bindings are not added by user hence skipping it.
+    return;
+  }
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
@@ -317,16 +306,15 @@ export function* logSuccessfulBindings(
       const isABinding = find(entity.dynamicBindingPathList, {
         key: propertyPath,
       });
+
       const logBlackList = entity.logBlackList;
       const errors: EvaluationError[] = get(
         dataTree,
         getEvalErrorPath(evaluatedPath),
         [],
       ) as EvaluationError[];
-      const criticalErrors = errors.filter(
-        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-      );
-      const hasErrors = criticalErrors.length > 0;
+
+      const hasErrors = errors.length > 0;
 
       if (isABinding && !hasErrors && !(propertyPath in logBlackList)) {
         AnalyticsUtil.logEvent("BINDING_SUCCESS", {
@@ -349,38 +337,62 @@ export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
 // is accurate
 export function* updateTernDefinitions(
   dataTree: DataTree,
-  updates?: DataTreeDiff[],
+  updates: DataTreeDiff[],
+  isCreateFirstTree: boolean,
 ) {
-  let shouldUpdate: boolean;
-  // No updates, means it was a first Eval
-  if (!updates) {
-    shouldUpdate = true;
-  } else if (updates.length === 0) {
-    // update length is 0 means no significant updates
-    shouldUpdate = false;
-  } else {
-    // Only when new field is added or deleted, we want to re-create the def
-    shouldUpdate = some(updates, (update) => {
-      return (
-        update.event === DataTreeDiffEvent.NEW ||
-        update.event === DataTreeDiffEvent.DELETE
+  const shouldUpdate: boolean =
+    isCreateFirstTree ||
+    some(updates, (update) => {
+      if (update.event === DataTreeDiffEvent.NEW) return true;
+      if (update.event === DataTreeDiffEvent.DELETE) return true;
+      if (update.event === DataTreeDiffEvent.EDIT) return false;
+      const { entityName } = getEntityNameAndPropertyPath(
+        update.payload.propertyPath,
       );
+      const entity = dataTree[entityName];
+      if (!entity || !isWidget(entity)) return false;
+      return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
     });
-  }
-  if (shouldUpdate) {
-    const start = performance.now();
-    // remove private widgets from dataTree used for autocompletion
-    const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
-      dataTree,
-    );
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    const { def, entityInfo } = dataTreeTypeDefCreator(
-      treeWithoutPrivateWidgets,
-      !!featureFlags.JS_EDITOR,
-    );
-    TernServer.updateDef("DATA_TREE", def, entityInfo);
-    const end = performance.now();
-    log.debug("Tern", { updates });
-    log.debug("Tern definitions updated took ", (end - start).toFixed(2));
-  }
+
+  if (!shouldUpdate) return;
+  const start = performance.now();
+  // remove private widgets from dataTree used for autocompletion
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  const { def, entityInfo } = dataTreeTypeDefCreator(
+    treeWithoutPrivateWidgets,
+    !!featureFlags.JS_EDITOR,
+  );
+  CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
+  const end = performance.now();
+  log.debug("Tern", { updates });
+  log.debug("Tern definitions updated took ", (end - start).toFixed(2));
+}
+
+export function* handleJSFunctionExecutionErrorLog(
+  collectionId: string,
+  collectionName: string,
+  action: JSAction,
+  errors: any[],
+) {
+  errors.length
+    ? AppsmithConsole.addError({
+        id: `${collectionId}-${action.id}`,
+        logType: LOG_TYPE.EVAL_ERROR,
+        text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
+          action.name
+        }`,
+        messages: errors.map((error) => ({
+          message: error.errorMessage || error.message,
+          type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
+          subType: error.errorType,
+        })),
+        source: {
+          id: action.id,
+          name: `${collectionName}.${action.name}`,
+          type: ENTITY_TYPE.JSACTION,
+          propertyPath: `${collectionName}.${action.name}`,
+        },
+      })
+    : AppsmithConsole.deleteError(`${collectionId}-${action.id}`);
 }

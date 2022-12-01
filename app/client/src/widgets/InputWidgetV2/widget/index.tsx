@@ -11,17 +11,22 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+  INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
+  INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+  INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, merge, toString } from "lodash";
+import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import { Stylesheet } from "entities/AppTheming";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -170,11 +175,11 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   }
 }
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
       [
         {
-          sectionName: "General",
+          sectionName: "Data",
           children: [
             {
               helpText: "Changes the type of data captured in the input",
@@ -203,27 +208,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isTriggerProperty: false,
             },
             {
-              helpText: "Sets maximum allowed text length",
-              propertyName: "maxChars",
-              label: "Max Chars",
-              controlType: "INPUT_TEXT",
-              placeholderText: "255",
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: {
-                type: ValidationTypes.NUMBER,
-                params: { min: 1, natural: true },
-              },
-              hidden: (props: InputWidgetProps) => {
-                return props.inputType !== InputTypes.TEXT;
-              },
-              dependencies: ["inputType"],
-            },
-            {
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Text",
+              label: "Default Value",
               controlType: "INPUT_TEXT",
               placeholderText: "John Doe",
               isBindProperty: true,
@@ -238,6 +226,42 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                     autocompleteDataType: AutocompleteDataType.STRING,
                   },
                 },
+              },
+              dependencies: ["inputType"],
+            },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+            {
+              helpText: "Sets maximum allowed text length",
+              propertyName: "maxChars",
+              label: "Max Characters",
+              controlType: "INPUT_TEXT",
+              placeholderText: "255",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.NUMBER,
+                params: { min: 1, natural: true, passThroughOnZero: false },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.TEXT;
               },
               dependencies: ["inputType"],
             },
@@ -291,23 +315,38 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             },
           ],
         },
+      ],
+      super.getPropertyPaneContentConfig(),
+    );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return mergeWidgetConfig(
+      [
         {
-          sectionName: "Icon Options",
+          sectionName: "Icon",
           children: [
             {
               propertyName: "iconName",
               label: "Icon",
               helpText: "Sets the icon to be used in input field",
               controlType: "ICON_SELECT",
-              isBindProperty: false,
+              isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              isJSConvertible: true,
+              validation: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  allowedValues: ICON_NAMES,
+                },
+              },
             },
             {
               propertyName: "iconAlign",
-              label: "Icon alignment",
+              label: "Position",
               helpText: "Sets the icon alignment of input field",
               controlType: "ICON_TABS",
+              fullWidth: true,
               options: [
                 {
                   icon: "VERTICAL_LEFT",
@@ -327,7 +366,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           ],
         },
       ],
-      super.getPropertyPaneConfig(),
+      super.getPropertyPaneStyleConfig(),
     );
   }
 
@@ -339,7 +378,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
-      inputText: undefined,
+      inputText: "",
+      text: "",
     });
   }
 
@@ -347,6 +387,14 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     return {
       inputText: "defaultText",
       text: "defaultText",
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
     };
   }
 
@@ -443,7 +491,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       conditionalProps.minNum = this.props.minNum;
     }
 
-    if (this.props.inputType === "TEXT" && this.props.maxChars) {
+    if (this.props.inputType === InputTypes.TEXT && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
@@ -453,6 +501,37 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
           INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+          this.props.maxChars,
+        );
+      } else if (value && value.length > this.props.maxChars) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_TEXT_MAX_CHAR_ERROR,
+          this.props.maxChars,
+        );
+      }
+    }
+
+    if (
+      this.props.inputType === InputTypes.NUMBER &&
+      isNumber(this.props.defaultText)
+    ) {
+      // check the default text is neither greater than max nor less than min value.
+      if (
+        !isNil(this.props.minNum) &&
+        this.props.minNum > Number(this.props.defaultText)
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
+        );
+      } else if (
+        !isNil(this.props.maxNum) &&
+        this.props.maxNum < Number(this.props.defaultText)
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
         );
       }
     }
@@ -483,6 +562,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={this.props.inputType}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
         label={this.props.label}
@@ -495,7 +575,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         multiline={
           (this.props.bottomRow - this.props.topRow) /
             minInputSingleLineHeight >
-            1 && this.props.inputType === "TEXT"
+            1 && this.props.inputType === InputTypes.TEXT
         }
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}

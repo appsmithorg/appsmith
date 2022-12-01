@@ -48,7 +48,7 @@ export const isValid = (
   schemaItem: PhoneInputFieldProps["schemaItem"],
   inputValue?: string | null,
 ) => {
-  const isEmptyValue = !isEmpty(inputValue);
+  const isEmptyValue = isEmpty(inputValue);
 
   if (schemaItem.isRequired && isEmptyValue) {
     return false;
@@ -64,7 +64,7 @@ export const isValid = (
 
   const parsedRegex = parseRegex(schemaItem.regex);
 
-  return parsedRegex ? parsedRegex.test(inputValue) : isEmptyValue;
+  return !parsedRegex || parsedRegex.test(inputValue);
 };
 
 const transformValue = (value: string) => {

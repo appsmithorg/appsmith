@@ -11,9 +11,6 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-/*
-    TODO: Create a PolicyTemplate that will store all complex policies like "publishApp" which requires multiple permissions
- */
 @Getter
 @Setter
 @ToString
@@ -23,9 +20,14 @@ public class Policy implements Serializable {
 
     String permission;
 
+    @Deprecated
     @Builder.Default
     Set<String> users = new HashSet<>();
 
+    @Deprecated
     @Builder.Default
     Set<String> groups = new HashSet<>();
+
+    @Builder.Default
+    Set<String> permissionGroups = new HashSet<>();
 }

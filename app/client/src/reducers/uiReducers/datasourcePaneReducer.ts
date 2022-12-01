@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxAction,
@@ -46,6 +46,7 @@ const datasourcePaneReducer = createReducer(initialState, {
   ) => ({
     ...state,
     drafts: _.omit(state.drafts, action.payload.id),
+    newDatasource: "",
   }),
   [ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE]: (
     state: DatasourcePaneReduxState,
@@ -74,6 +75,7 @@ const datasourcePaneReducer = createReducer(initialState, {
     return {
       ...state,
       newDatasource: action.payload.id,
+      expandDatasourceId: action.payload.id,
     };
   },
   [ReduxActionTypes.SAVE_DATASOURCE_NAME_SUCCESS]: (

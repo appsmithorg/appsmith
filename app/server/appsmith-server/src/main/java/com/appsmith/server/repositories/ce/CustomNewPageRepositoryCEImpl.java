@@ -7,6 +7,7 @@ import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -24,8 +25,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewPage>
         implements CustomNewPageRepositoryCE {
 
-    public CustomNewPageRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomNewPageRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override
@@ -154,14 +155,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         String unpublishedSlugFieldPath = String.format(
                 "%s.%s", fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug)
         );
+        String unpublishedCustomSlugFieldPath = String.format(
+                "%s.%s", fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.customSlug)
+        );
         String publishedSlugFieldPath = String.format(
                 "%s.%s", fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug)
+        );
+        String publishedCustomSlugFieldPath = String.format(
+                "%s.%s", fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.customSlug)
         );
         String applicationIdFieldPath = fieldName(QNewPage.newPage.applicationId);
 
         return queryAll(
                 List.of(applicationIdCriteria),
-                List.of(unpublishedSlugFieldPath, publishedSlugFieldPath, applicationIdFieldPath),
+                List.of(unpublishedSlugFieldPath, unpublishedCustomSlugFieldPath, publishedSlugFieldPath, publishedCustomSlugFieldPath, applicationIdFieldPath),
                 aclPermission,
                 null
         );

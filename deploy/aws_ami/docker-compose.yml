@@ -7,17 +7,23 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "9001:9001"
     volumes:
       - ./stacks:/appsmith-stacks
     labels:
       com.centurylinklabs.watchtower.enable: "true"
     restart: unless-stopped
+   # Uncomment the lines below to enable auto-update
+    #labels:
+    #  com.centurylinklabs.watchtower.enable: "true"
 
-  auto_update:
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    # Update check every hour.
-    command: --schedule "0 0 * ? * *" --label-enable --cleanup
-    restart: unless-stopped
+  #auto_update:
+  #  image: containrrr/watchtower:latest-dev
+  #  volumes:
+  #    - /var/run/docker.sock:/var/run/docker.sock
+  #  # Update check interval in seconds.
+  #  command: --schedule "0 0 * ? * *" --label-enable --cleanup
+  #  restart: unless-stopped
+  #  depends_on:
+  #    - appsmith
+  #  environment:
+  #    - WATCHTOWER_LIFECYCLE_HOOKS=true

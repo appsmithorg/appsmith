@@ -11,7 +11,6 @@ export const STORAGE_KEYS: {
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   POST_WELCOME_TOUR: "PostWelcomeTour",
   RECENT_ENTITIES: "RecentEntities",
-  COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
   ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
@@ -203,7 +202,7 @@ export const setEnableFirstTimeUserOnboarding = async (flag: boolean) => {
 
 export const getEnableFirstTimeUserOnboarding = async () => {
   try {
-    const enableFirstTimeUserOnboarding: any = await store.getItem(
+    const enableFirstTimeUserOnboarding: string | null = await store.getItem(
       STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
     );
     return enableFirstTimeUserOnboarding;
@@ -263,7 +262,7 @@ export const setFirstTimeUserOnboardingIntroModalVisibility = async (
 
 export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
   try {
-    const flag = await store.getItem(
+    const flag: string | null = await store.getItem(
       STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
     );
     return flag;

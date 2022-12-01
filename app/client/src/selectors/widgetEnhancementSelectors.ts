@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 import { get, set } from "lodash";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {

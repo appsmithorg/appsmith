@@ -1,19 +1,17 @@
 import classNames from "classnames";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { useMemo, useCallback } from "react";
 
 import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
-import { useSelector } from "store";
 import { Colors } from "constants/Colors";
 import {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
-import TooltipComponent from "components/ads/Tooltip";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { TooltipComponent, Icon, IconName, IconSize } from "design-system";
 import { updateApplicationLayout } from "actions/applicationActions";
 
 interface AppsmithLayoutConfigOption {
@@ -38,12 +36,12 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "desktop",
   },
   {
-    name: "Tablet(Large)",
+    name: "Tablet (Landscape)",
     type: "TABLET_LARGE",
-    icon: "tablet",
+    icon: "tabletLandscape",
   },
   {
-    name: "Tablet",
+    name: "Tablet (Portrait)",
     type: "TABLET",
     icon: "tablet",
   },

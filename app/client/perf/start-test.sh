@@ -1,1 +1,0 @@
-node ./src/index.js

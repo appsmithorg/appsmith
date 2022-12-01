@@ -1,12 +1,14 @@
 import styled from "styled-components";
-import Button from "components/ads/Button";
-import RadioComponent from "components/ads/Radio";
-import { getTypographyByKey } from "constants/DefaultTheme";
-import Dialog from "components/ads/DialogComponent";
+import {
+  Button,
+  DialogComponent as Dialog,
+  getTypographyByKey,
+  RadioComponent,
+} from "design-system";
 import { Classes } from "@blueprintjs/core";
 
 const TriggerButton = styled(Button)`
-  ${(props) => getTypographyByKey(props, "btnLarge")}
+  ${getTypographyByKey("btnLarge")}
   height: 100%;
 `;
 
@@ -29,7 +31,7 @@ const ForkButton = styled(Button)<{ disabled?: boolean }>`
   pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
 `;
 
-const OrganizationList = styled.div`
+const WorkspaceList = styled.div`
   overflow: auto;
   max-height: 250px;
   margin-bottom: 10px;
@@ -53,7 +55,7 @@ export {
   StyledDialog,
   StyledRadioComponent,
   ForkButton,
-  OrganizationList,
+  WorkspaceList,
   ButtonWrapper,
   SpinnerWrapper,
 };

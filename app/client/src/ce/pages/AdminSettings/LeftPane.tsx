@@ -1,28 +1,32 @@
 import React from "react";
-import { Colors } from "constants/Colors";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
-import AdminConfig from "./config";
+import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
+import { useParams } from "react-router";
+import { Icon, IconSize } from "design-system";
+import { createMessage } from "design-system/build/constants/messages";
+import { USAGE_AND_BILLING } from "@appsmith/constants/messages";
+import { useSelector } from "react-redux";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
     props.theme.homePage.leftPane.width +
     props.theme.homePage.leftPane.leftPadding}px;
-  padding: 0px 0px 0px ${(props) => props.theme.homePage.leftPane.leftPadding}px;
+  padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
 `;
 
 export const HeaderContainer = styled.div``;
 
 export const StyledHeader = styled.div`
-  font-size: 14px;
+  font-size: 16px;
   height: 20px;
-  line-height: 17px;
+  line-height: 1.5;
   letter-spacing: -0.24px;
-  text-transform: uppercase;
   margin: 40px 16px 8px;
-  color: ${Colors.MASALA};
+  color: var(--appsmith-color-black-900);
   font-weight: 500;
 `;
 
@@ -30,18 +34,23 @@ export const CategoryList = styled.ul`
   margin: 0;
   padding: 0 0 0 16px;
   list-style-type: none;
+  width: 264px;
 `;
 
-export const CategoryItem = styled.li``;
+export const CategoryItem = styled.li`
+  width: 80%;
+`;
 
 export const StyledLink = styled(Link)<{ $active: boolean }>`
   height: 38px;
   padding: 8px 16px;
-  display: block;
   background-color: ${(props) =>
     props.$active ? props.theme.colors.menuItem.hoverBg : ""};
   font-weight: ${(props) => (props.$active ? 500 : 400)};
   text-transform: capitalize;
+  display: flex;
+  gap: 12px;
+
   && {
     color: ${(props) =>
       props.$active
@@ -53,9 +62,13 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
     background-color: ${(props) => props.theme.colors.menuItem.hoverBg};
     color: ${(props) => props.theme.colors.menuItem.hoverText};
   }
+
+  & div {
+    align-self: center;
+  }
 `;
 
-export function useSettingsCategory() {
+export function getSettingsCategory() {
   return Array.from(AdminConfig.categories);
 }
 
@@ -88,11 +101,14 @@ export function Categories({
                 ? adminSettingsCategoryUrl({ category: config.slug })
                 : adminSettingsCategoryUrl({
                     category: parentCategory.slug,
-                    subCategory: config.slug,
+                    selected: config.slug,
                   })
             }
           >
-            {config.title}
+            <div>
+              {config?.icon && <Icon name={config?.icon} size={IconSize.XL} />}
+            </div>
+            <div>{config.title}</div>
           </StyledLink>
           {showSubCategory && (
             <Categories
@@ -109,18 +125,55 @@ export function Categories({
 }
 
 export default function LeftPane() {
-  const categories = useSettingsCategory();
-  const { category, subCategory } = useParams() as any;
+  const features = useSelector(selectFeatureFlags);
+  const categories = getSettingsCategory();
+  const { category, selected: subCategory } = useParams() as any;
+
   return (
     <Wrapper>
-      <HeaderContainer>
-        <StyledHeader>Appsmith Admin</StyledHeader>
-      </HeaderContainer>
-      <Categories
-        categories={categories}
-        currentCategory={category}
-        currentSubCategory={subCategory}
-      />
+      <>
+        <HeaderContainer>
+          <StyledHeader>Admin Settings</StyledHeader>
+        </HeaderContainer>
+        <Categories
+          categories={categories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
+      </>
+      <>
+        <HeaderContainer>
+          <StyledHeader>Enterprise</StyledHeader>
+        </HeaderContainer>
+        <CategoryList data-testid="t--enterprise-settings-category-list">
+          <CategoryItem>
+            <StyledLink
+              $active={category === "audit-logs"}
+              data-testid="t--enterprise-settings-category-item-audit-logs"
+              to="/settings/audit-logs"
+            >
+              <div>
+                <Icon name="lock-2-line" size={IconSize.XL} />
+              </div>
+              <div>Audit logs</div>
+            </StyledLink>
+          </CategoryItem>
+          {features.USAGE && (
+            <CategoryItem>
+              <StyledLink
+                $active={category === "usage"}
+                data-testid="t--enterprise-settings-category-item-usage"
+                to="/settings/usage"
+              >
+                <div>
+                  <Icon name="lock-2-line" size={IconSize.XL} />
+                </div>
+                <div>{createMessage(USAGE_AND_BILLING.usage)}</div>
+              </StyledLink>
+            </CategoryItem>
+          )}
+        </CategoryList>
+      </>
     </Wrapper>
   );
 }

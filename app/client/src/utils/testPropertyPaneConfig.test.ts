@@ -4,14 +4,19 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ALL_WIDGETS_AND_CONFIG } from "./WidgetRegistry";
+import WidgetFactory from "utils/WidgetFactory";
+import { ALL_WIDGETS_AND_CONFIG, registerWidgets } from "./WidgetRegistry";
 
-function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
+function validatePropertyPaneConfig(
+  config: PropertyPaneConfig[],
+  isWidgetHidden: boolean,
+) {
   for (const sectionOrControlConfig of config) {
     if (sectionOrControlConfig.children) {
       for (const propertyControlConfig of sectionOrControlConfig.children) {
         const propertyControlValidation = validatePropertyControl(
           propertyControlConfig,
+          isWidgetHidden,
         );
         if (propertyControlValidation !== true)
           return propertyControlValidation;
@@ -22,9 +27,21 @@ function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
   return true;
 }
 
-function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
+function validatePropertyControl(
+  config: PropertyPaneConfig,
+  isWidgetHidden: boolean,
+): boolean | string {
   const _config = config as PropertyPaneControlConfig;
   const controls = ["INPUT_TEXT"];
+
+  if (
+    !isWidgetHidden &&
+    _config.label &&
+    !_config.invisible &&
+    !_config.helpText
+  ) {
+    return `${_config.propertyName} (${_config.label}): Help text is mandatory for property controls`;
+  }
 
   if (
     (_config.isJSConvertible || controls.includes(_config.controlType)) &&
@@ -44,19 +61,46 @@ function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
       )}]`;
   }
 
+  if (controls.includes(_config.controlType) && _config.isJSConvertible) {
+    return `${
+      _config.propertyName
+    }: No need of setting isJSConvertible since users can write JS inside [${controls.join(
+      " | ",
+    )}]`;
+  }
+
   if (_config.validation !== undefined) {
     const res = validateValidationStructure(_config.validation);
     if (res !== true) return `${_config.propertyName}: ${res}`;
   }
   if (_config.children) {
     for (const child of _config.children) {
-      const res = validatePropertyControl(child);
+      const res = validatePropertyControl(child, isWidgetHidden);
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
   }
   if (_config.panelConfig) {
-    const res = validatePropertyPaneConfig(_config.panelConfig.children);
-    if (res !== true) return `${_config.propertyName}.${res}`;
+    if (_config.panelConfig.children) {
+      const res = validatePropertyPaneConfig(
+        _config.panelConfig.children,
+        isWidgetHidden,
+      );
+      if (res !== true) return `${_config.propertyName}.${res}`;
+    }
+    if (_config.panelConfig.contentChildren) {
+      const res = validatePropertyPaneConfig(
+        _config.panelConfig.contentChildren,
+        isWidgetHidden,
+      );
+      if (res !== true) return `${_config.propertyName}.${res}`;
+    }
+    if (_config.panelConfig.styleChildren) {
+      const res = validatePropertyPaneConfig(
+        _config.panelConfig.styleChildren,
+        isWidgetHidden,
+      );
+      if (res !== true) return `${_config.propertyName}.${res}`;
+    }
   }
   return true;
 }
@@ -74,22 +118,64 @@ function validateValidationStructure(
   }
   return true;
 }
+
 const isNotFloat = (n: any) => {
   return Number(n) === n && n % 1 === 0;
 };
+
 describe("Tests all widget's propertyPane config", () => {
+  beforeAll(() => {
+    registerWidgets();
+  });
   ALL_WIDGETS_AND_CONFIG.forEach((widgetAndConfig) => {
     const [widget, config]: any = widgetAndConfig;
     it(`Checks ${widget.getWidgetType()}'s propertyPaneConfig`, () => {
       const propertyPaneConfig = widget.getPropertyPaneConfig();
-      const validatedPropertyPaneConfig = validatePropertyPaneConfig(
-        propertyPaneConfig,
-      );
-      expect(validatedPropertyPaneConfig).toStrictEqual(true);
+      expect(
+        validatePropertyPaneConfig(propertyPaneConfig, config.hideCard),
+      ).toStrictEqual(true);
+      const propertyPaneContentConfig = widget.getPropertyPaneContentConfig();
+      expect(
+        validatePropertyPaneConfig(
+          propertyPaneContentConfig,
+          config.isDeprecated,
+        ),
+      ).toStrictEqual(true);
+      const propertyPaneStyleConfig = widget.getPropertyPaneStyleConfig();
+      expect(
+        validatePropertyPaneConfig(
+          propertyPaneStyleConfig,
+          config.isDeprecated,
+        ),
+      ).toStrictEqual(true);
     });
     it(`Check if ${widget.getWidgetType()}'s dimensions are always integers`, () => {
       expect(isNotFloat(config.defaults.rows)).toBe(true);
       expect(isNotFloat(config.defaults.columns)).toBe(true);
     });
+    if (config.isDeprecated && config.replacement !== undefined) {
+      it(`Check if ${widget.getWidgetType()}'s deprecation config has a proper replacement Widget`, () => {
+        const widgetType = widget.getWidgetType();
+        const replacementWidgetType = config.replacement;
+        const replacementWidgetConfig = WidgetFactory.widgetConfigMap.get(
+          replacementWidgetType,
+        );
+        if (replacementWidgetConfig === undefined) {
+          fail(
+            `${widgetType}'s replacement widget ${replacementWidgetType} does not resolve to an actual widget Config`,
+          );
+        }
+        if (replacementWidgetConfig?.isDeprecated) {
+          fail(
+            `${widgetType}'s replacement widget ${replacementWidgetType} itself is deprecated. Cannot have a deprecated widget as a replacement for another deprecated widget`,
+          );
+        }
+        if (replacementWidgetConfig?.hideCard) {
+          fail(
+            `${widgetType}'s replacement widget ${replacementWidgetType} should be available in the entity Explorer`,
+          );
+        }
+      });
+    }
   });
 });

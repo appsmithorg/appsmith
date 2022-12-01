@@ -34,14 +34,15 @@ import ISDCodeDropdown, {
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import Icon from "components/ads/Icon";
 import { limitDecimalValue, getSeparators } from "./utilities";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
+import {
+  Icon,
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 
 /**
  * All design system component specific logic goes here.

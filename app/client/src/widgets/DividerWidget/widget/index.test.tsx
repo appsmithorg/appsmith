@@ -23,14 +23,14 @@ describe("<DividerWidget />", () => {
       debugger: {
         errors: {},
       },
-      comments: {
-        dragPointerOffset: null,
-      },
       editor: {
         isPreviewMode: false,
       },
       widgetReflow: {
         enableReflow: true,
+      },
+      autoHeightUI: {
+        isAutoHeightWithLimitsChanging: false,
       },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },

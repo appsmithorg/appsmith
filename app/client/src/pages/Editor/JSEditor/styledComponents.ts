@@ -1,11 +1,11 @@
 import styled, { css } from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
-import FormLabel from "components/editorComponents/FormLabel";
 import {
   JS_OBJECT_HOTKEYS_CLASSNAME,
   RUN_GUTTER_CLASSNAME,
   RUN_GUTTER_ID,
 } from "./constants";
+import { thinScrollbar } from "constants/DefaultTheme";
 
 export const CodeEditorWithGutterStyles = css`
   .${RUN_GUTTER_ID} {
@@ -45,23 +45,21 @@ export const Form = styled.form`
   flex-direction: column;
   height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
   overflow: hidden;
-  ${FormLabel} {
-    padding: ${(props) => props.theme.spaces[3]}px;
-  }
-  ${FormRow} {
-    ${FormLabel} {
-      padding: 0;
-      width: 100%;
-    }
-  }
   .t--no-binding-prompt {
     display: none;
   }
+  flex: 1;
+  padding: 20px 0px 0px 0px;
+`;
+
+export const StyledFormRow = styled(FormRow)`
+  padding: 0px 20px;
+  flex: 0;
 `;
 
 export const NameWrapper = styled.div`
-  width: 49%;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   input {
     margin: 0;
@@ -70,12 +68,17 @@ export const NameWrapper = styled.div`
 `;
 
 export const ActionButtons = styled.div`
-  justify-self: flex-end;
   display: flex;
   align-items: center;
+  flex: 1 1 50%;
+  justify-content: flex-end;
+
+  & > div {
+    margin: 0 0 0 ${(props) => props.theme.spaces[7]}px;
+  }
 
   button:last-child {
-    margin: 0 ${(props) => props.theme.spaces[7]}px;
+    margin-left: ${(props) => props.theme.spaces[7]}px;
     height: 30px;
   }
 `;
@@ -86,17 +89,13 @@ export const SecondaryWrapper = styled.div`
   height: calc(100% - 50px);
   overflow: hidden;
 `;
-export const MainConfiguration = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[10]}px 0px
-    ${(props) => props.theme.spaces[10]}px;
-`;
 
 export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   flex: 1;
   overflow: auto;
   position: relative;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  ${thinScrollbar}
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -106,18 +105,15 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      padding: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
     .react-tabs__tab-panel {
       ${CodeEditorWithGutterStyles}
-      height: calc(100% - 36px);
-      margin-top: 2px;
+      height: calc(100% - 32px);
       background-color: ${(props) => props.theme.colors.apiPane.bg};
       .CodeEditorTarget {
-        border-bottom: 1px solid
-          ${(props) => props.theme.colors.apiPane.dividerBg};
         outline: none;
       }
       ${(props) =>

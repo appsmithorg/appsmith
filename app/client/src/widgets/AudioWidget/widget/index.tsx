@@ -6,7 +6,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -18,14 +18,15 @@ export enum PlayState {
 }
 
 class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
-  static getPropertyPaneConfig() {
+  static getPropertyPaneContentConfig() {
     return [
       {
-        sectionName: "General",
+        sectionName: "Data",
         children: [
           {
             propertyName: "url",
             label: "URL",
+            helpText: "Link to the audio file which should be played",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter url",
             inputType: "TEXT",
@@ -44,6 +45,11 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
           {
             propertyName: "autoPlay",
             label: "Auto Play",

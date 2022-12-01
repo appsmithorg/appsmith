@@ -11,6 +11,7 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
+@Deprecated
 public class UserRole {
     @JsonIgnore
     String userId;

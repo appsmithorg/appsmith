@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { APPLICATIONS_URL } from "constants/routes";
-import Button from "components/editorComponents/Button";
+import { Button, IconPositions, Size } from "design-system";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import PageUnavailableImage from "assets/images/404-image.png";
 import {
@@ -50,17 +50,19 @@ function PageNotFound(props: Props) {
         <p>
           Either this page doesn&apos;t exist, or you don&apos;t have access to{" "}
           <br />
-          this page.
+          this page
         </p>
         <Button
+          category="primary"
           className="button-position"
-          filled
-          icon="arrow-right"
-          iconAlignment="right"
-          intent="primary"
+          fill="true"
+          icon="right-arrow"
+          iconPosition={IconPositions.right}
           onClick={() => flushErrorsAndRedirect(APPLICATIONS_URL)}
-          size="small"
+          size={Size.large}
+          tag="button"
           text={createMessage(BACK_TO_HOMEPAGE)}
+          variant="info"
         />
       </div>
     </Wrapper>

@@ -2,14 +2,13 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -18,11 +17,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-class UserRepositoryTest {
+public class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -42,7 +40,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByCaseInsensitiveEmail_WhenCaseIsSame_ReturnsResult() {
+    public void findByCaseInsensitiveEmail_WhenCaseIsSame_ReturnsResult() {
         User user = new User();
         user.setEmail("rafiqnayan@gmail.com");
         User savedUser = userRepository.save(user).block();
@@ -56,7 +54,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByCaseInsensitiveEmail_WhenCaseIsDifferent_ReturnsResult() {
+    public void findByCaseInsensitiveEmail_WhenCaseIsDifferent_ReturnsResult() {
         User user = new User();
         user.setEmail("rafiqNAYAN@gmail.com");
         User savedUser = userRepository.save(user).block();
@@ -70,7 +68,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByCaseInsensitiveEmail_WhenMultipleMatches_ReturnsResult() {
+    public void findByCaseInsensitiveEmail_WhenMultipleMatches_ReturnsResult() {
         User user1 = new User();
         user1.setEmail("rafiqNAYAN@gmail.com");
         User savedUser1 = userRepository.save(user1).block();
@@ -89,7 +87,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByCaseInsensitiveEmail_WhenNoMatch_ReturnsNone() {
+    public void findByCaseInsensitiveEmail_WhenNoMatch_ReturnsNone() {
         User user = new User();
         user.setEmail("rafiqnayan@gmail.com");
         User savedUser = userRepository.save(user).block();

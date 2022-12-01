@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ActionData,
   ActionDataState,
@@ -24,8 +24,11 @@ import { APP_MODE } from "entities/App";
 import { ExplorerFileEntity } from "pages/Editor/Explorer/helpers";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { selectFeatureFlags } from "./usersSelectors";
-import { EvaluationError, EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import { Severity } from "entities/AppsmithConsole";
+import {
+  EvaluationError,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -48,20 +51,19 @@ export const getMockDatasources = (state: AppState): MockDatasource[] => {
   return state.entities.datasources.mockDatasourceList;
 };
 
-export const getIsDeletingDatasource = (state: AppState): boolean => {
-  return state.entities.datasources.isDeleting;
-};
-
 export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
   state.entities.plugins.defaultPluginList;
 
-export const getDefaultPluginByPackageName = (
+// Get plugin by id or package name
+export const getDefaultPlugin = (
   state: AppState,
-  packageName: string,
-): DefaultPlugin | undefined =>
-  state.entities.plugins.defaultPluginList.find(
-    (plugin) => plugin.packageName === packageName,
+  pluginIdentifier: string,
+): DefaultPlugin | undefined => {
+  return state.entities.plugins.defaultPluginList.find(
+    (plugin) =>
+      plugin.packageName === pluginIdentifier || plugin.id === pluginIdentifier,
   );
+};
 
 export const getPluginIdsOfNames = (
   state: AppState,
@@ -201,6 +203,10 @@ export const getDatasourceDraft = (state: AppState, id: string) => {
   const drafts = state.ui.datasourcePane.drafts;
   if (id in drafts) return drafts[id];
   return {};
+};
+
+export const getDatasourceActionRouteInfo = (state: AppState) => {
+  return state.ui.datasourcePane.actionRouteInfo;
 };
 
 export const getDatasourcesByPluginId = (
@@ -463,6 +469,9 @@ export const getAppStoreData = (state: AppState): AppStoreState =>
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
+export const getCanvasWidgetsStructure = (state: AppState) =>
+  state.entities.canvasWidgetsStructure;
+
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
@@ -533,10 +542,10 @@ export const getAllWidgetsMap = createSelector(
 export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
-    return Object.entries(widgetsMap).reduce(
-      (res: any[], [, widget]: any) => [...res, widget],
-      [],
-    );
+    return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
+      res.push(widget);
+      return res;
+    }, []);
   },
 );
 
@@ -624,18 +633,8 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
     : getCanvasWidgetsWithParentId(state);
 };
 
-export const getIsOnboardingTasksView = createSelector(
-  getCanvasWidgets,
-  (widgets) => {
-    return Object.keys(widgets).length == 1;
-  },
-);
-
 export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
   state.entities.datasources.isReconnectingModalOpen;
-
-export const getIsOnboardingWidgetSelection = (state: AppState) =>
-  state.ui.onBoarding.inOnboardingWidgetSelection;
 
 export const getPageActions = (pageId = "") => {
   return (state: AppState) => {
@@ -751,35 +750,35 @@ export const getAllActionValidationConfig = (state: AppState) => {
   const allValidationConfigs: {
     [actionId: string]: ActionValidationConfigMap;
   } = {};
-  for (let i = 0; i < allActions.length; i++) {
-    const pluginId = allActions[i].config.pluginId;
+  for (const action of allActions) {
+    const pluginId = action.config.pluginId;
     let validationConfigs: ActionValidationConfigMap = {};
     validationConfigs = getActionValidationConfigFromPlugin(
       state.entities.plugins.editorConfigs[pluginId],
       {},
     );
-    allValidationConfigs[allActions[i].config.id] = validationConfigs;
+    allValidationConfigs[action.config.id] = validationConfigs;
   }
   return allValidationConfigs;
 };
 
 function getActionValidationConfigFromPlugin(
-  editorConfig: any,
+  editorConfigs: any,
   validationConfig: ActionValidationConfigMap,
 ): ActionValidationConfigMap {
   let newValidationConfig: ActionValidationConfigMap = {
     ...validationConfig,
   };
-  if (!editorConfig || !editorConfig.length) return {};
-  for (let i = 0; i < editorConfig.length; i++) {
-    if (editorConfig[i].validationConfig) {
-      const configProperty = editorConfig[i].configProperty;
-      newValidationConfig[configProperty] = editorConfig[i].validationConfig;
+  if (!editorConfigs || !editorConfigs.length) return {};
+  for (const editorConfig of editorConfigs) {
+    if (editorConfig.validationConfig) {
+      const configProperty = editorConfig.configProperty;
+      newValidationConfig[configProperty] = editorConfig.validationConfig;
     }
 
-    if (editorConfig[i].children) {
+    if (editorConfig.children) {
       const childrenValidationConfig = getActionValidationConfigFromPlugin(
-        editorConfig[i].children,
+        editorConfig.children,
         validationConfig,
       );
       newValidationConfig = Object.assign(
@@ -798,7 +797,9 @@ export const getJSActions = (
     (jsCollectionData) => jsCollectionData.config.id === JSCollectionId,
   );
 
-  return jsCollection?.config.actions ?? [];
+  return jsCollection?.config.actions
+    ? sortBy(jsCollection?.config.actions, ["name"])
+    : [];
 };
 
 export const getActiveJSActionId = (
@@ -836,6 +837,17 @@ export const getJSCollectionParseErrors = (
     [],
   ) as EvaluationError[];
   return allErrors.filter((error) => {
-    return error.severity === Severity.ERROR;
+    return error.errorType === PropertyEvaluationErrorType.PARSE;
   });
 };
+
+export const getNumberOfEntitiesInCurrentPage = createSelector(
+  getCanvasWidgets,
+  getActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
+  (widgets, actions, jsCollections) => {
+    return (
+      Object.keys(widgets).length - 1 + actions.length + jsCollections.length
+    );
+  },
+);

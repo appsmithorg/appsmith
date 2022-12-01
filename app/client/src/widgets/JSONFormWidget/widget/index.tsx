@@ -1,18 +1,20 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { connect } from "react-redux";
-import { debounce, difference, isEmpty, noop } from "lodash";
+import { debounce, difference, isEmpty, noop, merge } from "lodash";
+import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
-import propertyConfig from "./propertyConfig";
-import { AppState } from "reducers";
+import { contentConfig, styleConfig } from "./propertyConfig";
+import { AppState } from "@appsmith/reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   EventType,
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  ActionUpdateDependency,
   FieldState,
   FieldThemeStylesheet,
   ROOT_SCHEMA_KEY,
@@ -27,6 +29,7 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -65,6 +68,10 @@ export type JSONFormWidgetState = {
   metaInternalFieldState: MetaInternalFieldState;
 };
 
+export type Action = ExecuteTriggerPayload & {
+  updateDependencyType?: ActionUpdateDependency;
+};
+
 const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
 
 class JSONFormWidget extends BaseWidget<
@@ -73,6 +80,7 @@ class JSONFormWidget extends BaseWidget<
 > {
   debouncedParseAndSaveFieldState: any;
   isWidgetMounting: boolean;
+  actionQueue: Action[];
 
   constructor(props: JSONFormWidgetProps) {
     super(props);
@@ -83,7 +91,9 @@ class JSONFormWidget extends BaseWidget<
     );
 
     this.isWidgetMounting = true;
+    this.actionQueue = [];
   }
+  formRef = React.createRef<HTMLDivElement>();
 
   state = {
     resetObserverCallback: noop,
@@ -91,8 +101,12 @@ class JSONFormWidget extends BaseWidget<
     metaInternalFieldState: {},
   };
 
-  static getPropertyPaneConfig() {
-    return propertyConfig;
+  static getPropertyPaneContentConfig() {
+    return contentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return styleConfig;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -110,6 +124,103 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Stylesheet<ChildStylesheet & ButtonStyles> {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+
+      submitButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      resetButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      childStylesheet: {
+        ARRAY: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        OBJECT: {
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        CHECKBOX: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+        CURRENCY_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        DATEPICKER: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        EMAIL_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTISELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTILINE_TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PASSWORD_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PHONE_NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        RADIO_GROUP: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        SELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        SWITCH: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+      },
+    };
+  }
+
   static defaultProps = {};
 
   componentDidMount() {
@@ -118,6 +229,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -214,6 +326,23 @@ class JSONFormWidget extends BaseWidget<
     }
 
     this.props.updateWidgetMetaProperty("formData", formData);
+
+    if (this.actionQueue.length) {
+      this.actionQueue.forEach(({ updateDependencyType, ...actionPayload }) => {
+        if (updateDependencyType === ActionUpdateDependency.FORM_DATA) {
+          const payload = this.applyGlobalContextToAction(actionPayload, {
+            formData,
+          });
+
+          super.executeAction(payload);
+        }
+      });
+
+      this.actionQueue = this.actionQueue.filter(
+        ({ updateDependencyType }) =>
+          updateDependencyType !== ActionUpdateDependency.FORM_DATA,
+      );
+    }
   };
 
   parseAndSaveFieldState = (
@@ -222,16 +351,17 @@ class JSONFormWidget extends BaseWidget<
     afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
     const fieldState = generateFieldState(schema, metaInternalFieldState);
+    const action = klona(afterUpdateAction);
+
+    const actionPayload =
+      action && this.applyGlobalContextToAction(action, { fieldState });
 
     if (!equal(fieldState, this.props.fieldState)) {
-      /**
-       * Using syncUpdateWidgetMetaProperty to avoid race-condition when
-       * multiple properties are updating in quick succession. As sync fn
-       * does not support action execution as a callback, it has to be
-       * explicitly called.
-       */
-      this.props.syncUpdateWidgetMetaProperty("fieldState", fieldState);
-      afterUpdateAction && this.executeAction(afterUpdateAction);
+      this.props.updateWidgetMetaProperty(
+        "fieldState",
+        fieldState,
+        actionPayload,
+      );
     }
   };
 
@@ -261,8 +391,41 @@ class JSONFormWidget extends BaseWidget<
     });
   };
 
-  onExecuteAction = (actionPayload: ExecuteTriggerPayload) => {
-    super.executeAction(actionPayload);
+  applyGlobalContextToAction = (
+    actionPayload: ExecuteTriggerPayload,
+    context: Record<string, unknown> = {},
+  ) => {
+    const payload = klona(actionPayload);
+    const { globalContext } = payload;
+
+    /**
+     * globalContext from the actionPayload takes precedence as it may have latest
+     * values compared the ones coming from props
+     * */
+    payload.globalContext = merge(
+      {},
+      {
+        formData: this.props.formData,
+        fieldState: this.props.fieldState,
+        sourceData: this.props.sourceData,
+      },
+      context,
+      globalContext,
+    );
+
+    return payload;
+  };
+
+  onExecuteAction = (action: Action) => {
+    const { updateDependencyType, ...actionPayload } = action;
+
+    if (!updateDependencyType) {
+      const payload = this.applyGlobalContextToAction(actionPayload);
+
+      super.executeAction(payload);
+    } else {
+      this.actionQueue.push(action);
+    }
   };
 
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
@@ -325,6 +488,7 @@ class JSONFormWidget extends BaseWidget<
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
+        ref={this.formRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}

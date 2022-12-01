@@ -15,11 +15,11 @@ export type WidgetSpace = {
   id: string;
   type: string;
   parentId?: string;
+  fixedHeight?: number;
 };
 
 export const zIndexLayers = {
-  PROPERTY_PANE: "z-3",
-  ENTITY_EXPLORER: "z-3",
-  RESIZER: "z-4",
-  APP_COMMENTS: "z-7",
+  PROPERTY_PANE: "z-[3]",
+  ENTITY_EXPLORER: "z-[3]",
+  RESIZER: "z-[4]",
 };

@@ -45,7 +45,7 @@
       ],
       "suggestedWidgets": [
         {
-          "type": "TABLE_WIDGET",
+          "type": "TABLE_WIDGET_V2",
           "bindingQuery": "data"
         }
       ]

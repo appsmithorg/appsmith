@@ -1,7 +1,4 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -13,7 +10,7 @@ describe("Binding the multiple widgets and validating default data", function() 
 
   it("Input widget test with default value from table widget", function() {
     cy.openPropertyPane("inputwidgetv2");
-    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
       "have.nested.property",

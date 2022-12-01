@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
@@ -16,9 +16,9 @@ import {
   deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { isMac } from "utils/helpers";
-import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import { isMacOrIOS } from "utils/helpers";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -26,7 +26,6 @@ import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import { showDebugger } from "actions/debuggerActions";
 
-import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/pluginActionActions";
 import {
   filterCategories,
@@ -34,8 +33,7 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
+import { Toaster, Variant } from "design-system";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -51,7 +49,6 @@ import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
-import { commentModeSelector } from "selectors/commentsSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -59,7 +56,7 @@ type Props = {
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
   groupSelectedWidget: () => void;
-  toggleShowGlobalSearchModal: (category: SearchCategory) => void;
+  setGlobalSearchCategory: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -74,7 +71,6 @@ type Props = {
   undo: () => void;
   redo: () => void;
   appMode?: APP_MODE;
-  isCommentMode: boolean;
   isPreviewMode: boolean;
   setPreviewModeAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
@@ -112,7 +108,7 @@ class GlobalHotKeys extends React.Component<Props> {
     if (this.props.isPreviewMode) return;
 
     const category = filterCategories[categoryId];
-    this.props.toggleShowGlobalSearchModal(category);
+    this.props.setGlobalSearchCategory(category);
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "HOTKEY_COMBO",
       category: category.title,
@@ -216,9 +212,11 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Paste Widget"
           onKeyDown={() => {
-            this.props.pasteCopiedWidget(
-              this.props.getMousePosition() || { x: 0, y: 0 },
-            );
+            if (matchBuilderPath(window.location.pathname)) {
+              this.props.pasteCopiedWidget(
+                this.props.getMousePosition() || { x: 0, y: 0 },
+              );
+            }
           }}
         />
         <Hotkey
@@ -227,7 +225,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Delete Widget"
           onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
+            if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
             }
           }}
@@ -273,14 +271,6 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
-            if (this.props.isCommentMode) {
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode: this.props.appMode,
-                source: "HOTKEY",
-                combo: "esc",
-              });
-              setCommentModeInUrl(false);
-            }
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
@@ -294,29 +284,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Edit Mode"
           onKeyDown={(e: any) => {
-            if (this.props.isCommentMode)
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode: this.props.appMode,
-                source: "HOTKEY",
-                combo: "v",
-              });
-            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             e.preventDefault();
-          }}
-        />
-        <Hotkey
-          combo="c"
-          global
-          label="Comment Mode"
-          onKeyDown={() => {
-            if (!this.props.isCommentMode)
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode: "COMMENT",
-                source: "HOTKEY",
-                combo: "c",
-              });
-            setCommentModeInUrl(true);
           }}
         />
         <Hotkey
@@ -381,7 +350,6 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Preview Mode"
           onKeyDown={() => {
-            setCommentModeInUrl(false);
             this.props.setPreviewModeAction(!this.props.isPreviewMode);
           }}
         />
@@ -411,11 +379,10 @@ class GlobalHotKeys extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  selectedWidget: getSelectedWidget(state),
+  selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
   appMode: getAppMode(state),
-  isCommentMode: commentModeSelector(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
 });
@@ -428,8 +395,8 @@ const mapDispatchToProps = (dispatch: any) => {
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     groupSelectedWidget: () => dispatch(groupWidgets()),
-    toggleShowGlobalSearchModal: (category: SearchCategory) =>
-      dispatch(toggleShowGlobalSearchModal(category)),
+    setGlobalSearchCategory: (category: SearchCategory) =>
+      dispatch(setGlobalSearchCategory(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),

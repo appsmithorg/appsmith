@@ -17,9 +17,14 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 
 import {
   resetChildrenMetaProperty,
-  updateWidgetMetaProperty,
+  syncUpdateWidgetMetaProperty,
+  triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 
+import {
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
@@ -27,12 +32,8 @@ export type EditorContextType = {
     widgetId: string,
     payload: any,
   ) => void;
+  triggerEvalOnMetaUpdate?: () => void;
   updateWidgetProperty?: (
-    widgetId: string,
-    propertyName: string,
-    propertyValue: any,
-  ) => void;
-  updateWidgetMetaProperty?: (
     widgetId: string,
     propertyName: string,
     propertyValue: any,
@@ -44,7 +45,15 @@ export type EditorContextType = {
   batchUpdateWidgetProperty?: (
     widgetId: string,
     updates: BatchPropertyUpdatePayload,
+    shouldReplay: boolean,
   ) => void;
+  syncUpdateWidgetMetaProperty?: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => void;
+  updateWidgetAutoHeight?: (widgetId: string, height: number) => void;
+  checkContainersForAutoHeight?: () => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -55,13 +64,16 @@ type EditorContextProviderProps = EditorContextType & {
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
     batchUpdateWidgetProperty,
+    checkContainersForAutoHeight,
     children,
     deleteWidgetProperty,
     disableDrag,
     executeAction,
     resetChildrenMetaProperty,
+    syncUpdateWidgetMetaProperty,
+    triggerEvalOnMetaUpdate,
     updateWidget,
-    updateWidgetMetaProperty,
+    updateWidgetAutoHeight,
     updateWidgetProperty,
   } = props;
 
@@ -72,21 +84,27 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       executeAction,
       updateWidget,
       updateWidgetProperty,
-      updateWidgetMetaProperty,
+      syncUpdateWidgetMetaProperty,
       disableDrag,
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
+      triggerEvalOnMetaUpdate,
+      updateWidgetAutoHeight,
+      checkContainersForAutoHeight,
     }),
     [
       executeAction,
       updateWidget,
       updateWidgetProperty,
-      updateWidgetMetaProperty,
+      syncUpdateWidgetMetaProperty,
       disableDrag,
       resetChildrenMetaProperty,
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
+      triggerEvalOnMetaUpdate,
+      updateWidgetAutoHeight,
+      checkContainersForAutoHeight,
     ],
   );
   return (
@@ -105,11 +123,18 @@ const mapDispatchToProps = {
 
   executeAction: executeTrigger,
   updateWidget,
-  updateWidgetMetaProperty,
+  syncUpdateWidgetMetaProperty: (
+    widgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
   resetChildrenMetaProperty,
   disableDrag: disableDragAction,
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
+  triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
+  updateWidgetAutoHeight: updateWidgetAutoHeightAction,
+  checkContainersForAutoHeight: checkContainersForAutoHeightAction,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

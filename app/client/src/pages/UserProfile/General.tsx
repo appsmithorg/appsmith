@@ -1,21 +1,25 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
 import { debounce } from "lodash";
-import TextInput, { notEmptyValidator } from "components/ads/TextInput";
+import {
+  notEmptyValidator,
+  Text,
+  TextInput,
+  TextType,
+  Toaster,
+  Variant,
+} from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes } from "@blueprintjs/core";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
-import { AppState } from "reducers";
-import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
+import { AppState } from "@appsmith/reducers";
+import UserProfileImagePicker from "./UserProfileImagePicker";
 import {
   Wrapper,
   FieldWrapper,
@@ -25,6 +29,7 @@ import {
 } from "./StyledComponents";
 import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
@@ -50,7 +55,7 @@ function General() {
       dispatch(logoutUser());
     } catch (error) {
       Toaster.show({
-        text: error._error,
+        text: (error as { _error: string })._error,
         variant: Variant.success,
       });
     }
@@ -72,6 +77,8 @@ function General() {
   useEffect(() => {
     dispatch(refreshCurrentUser());
   }, []);
+
+  if (user?.email === ANONYMOUS_USERNAME) return null;
 
   return (
     <Wrapper>
