@@ -183,13 +183,14 @@ export const assignJSFunctionsToContext = (
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
+    const jsObject = GLOBAL_DATA[jsObjectName];
+    if (!jsObject) continue;
     for (const fnName of Object.keys(resolvedObject)) {
       const fn = resolvedObject[fnName];
       if (typeof fn !== "function") continue;
       // Investigate promisify of JSObject function confirmation
       // Task: https://github.com/appsmithorg/appsmith/issues/13289
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
-      const jsObject = GLOBAL_DATA[jsObjectName];
       const data = jsObject[fnName]?.data;
       jsObject[fnName] = fn;
       if (!!data) {
