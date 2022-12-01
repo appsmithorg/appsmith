@@ -26,7 +26,7 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { autofill, change, initialize } from "redux-form";
+import { autofill, change, initialize, reset } from "redux-form";
 import {
   getAction,
   getDatasource,
@@ -85,6 +85,9 @@ import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEdito
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
+import { validateResponse } from "./ErrorSagas";
+import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
@@ -172,32 +175,41 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 function* formValueChangeSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string; form: string }>,
 ) {
-  const { field, form } = actionPayload.meta;
-  if (field === "dynamicBindingPathList" || field === "name") return;
-  if (form !== QUERY_EDITOR_FORM_NAME) return;
-  const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
-  const hasRouteChanged = field === "id";
+  try {
+    const { field, form } = actionPayload.meta;
+    if (field === "dynamicBindingPathList" || field === "name") return;
+    if (form !== QUERY_EDITOR_FORM_NAME) return;
+    const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
+    const hasRouteChanged = field === "id";
 
-  if (field === "datasource.id") {
-    const datasource: Datasource | undefined = yield select(
-      getDatasource,
-      actionPayload.payload,
-    );
+    if (!hasManageActionPermission(values.userPermissions)) {
+      yield validateResponse({
+        status: 403,
+        resourceType: values?.pluginType,
+        resourceId: values.id,
+      });
+    }
 
-    // Update the datasource not just the datasource id.
-    yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: "datasource",
-        value: datasource,
-      }),
-    );
+    if (field === "datasource.id") {
+      const datasource: Datasource | undefined = yield select(
+        getDatasource,
+        actionPayload.payload,
+      );
 
-    // Update the datasource of the form as well
-    yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
+      // Update the datasource not just the datasource id.
+      yield put(
+        setActionProperty({
+          actionId: values.id,
+          propertyName: "datasource",
+          value: datasource,
+        }),
+      );
 
-    AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
-
+      // Update the datasource of the form as well
+      yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
+      
+      AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
+      
     const allPlugins: Plugin[] = yield select(getPlugins);
     const uiComponent = getUIComponent(values?.pluginId, allPlugins);
     if (
@@ -239,53 +251,62 @@ function* formValueChangeSaga(
     return;
   }
 
-  const plugins: Plugin[] = yield select(getPlugins);
-  const uiComponent = getUIComponent(values.pluginId, plugins);
+    const plugins: Plugin[] = yield select(getPlugins);
+    const uiComponent = getUIComponent(values.pluginId, plugins);
 
-  // Editing form fields triggers evaluations.
-  // We pass the action to run form evaluations when the dataTree evaluation is complete
-  const postEvalActions =
-    uiComponent === UIComponentTypes.UQIDbEditorForm
-      ? [
-          startFormEvaluations(
-            values.id,
-            values.actionConfiguration,
-            values.datasource.id,
-            values.pluginId,
-            field,
-            hasRouteChanged,
-          ),
-        ]
-      : [];
+    // Editing form fields triggers evaluations.
+    // We pass the action to run form evaluations when the dataTree evaluation is complete
+    const postEvalActions =
+      uiComponent === UIComponentTypes.UQIDbEditorForm
+        ? [
+            startFormEvaluations(
+              values.id,
+              values.actionConfiguration,
+              values.datasource.id,
+              values.pluginId,
+              field,
+              hasRouteChanged,
+            ),
+          ]
+        : [];
 
-  if (
-    actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
-    actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
-  ) {
-    const value = get(values, field);
-    yield put(
-      setActionProperty(
-        {
-          actionId: values.id,
-          propertyName: field,
-          value,
-        },
-        postEvalActions,
-      ),
-    );
-  } else {
-    yield put(
-      setActionProperty(
-        {
-          actionId: values.id,
-          propertyName: field,
-          value: actionPayload.payload,
-        },
-        postEvalActions,
-      ),
-    );
+    if (
+      actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
+      actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
+    ) {
+      const value = get(values, field);
+      yield put(
+        setActionProperty(
+          {
+            actionId: values.id,
+            propertyName: field,
+            value,
+          },
+          postEvalActions,
+        ),
+      );
+    } else {
+      yield put(
+        setActionProperty(
+          {
+            actionId: values.id,
+            propertyName: field,
+            value: actionPayload.payload,
+          },
+          postEvalActions,
+        ),
+      );
+    }
+    yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+    yield put(reset(QUERY_EDITOR_FORM_NAME));
   }
-  yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {

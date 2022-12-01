@@ -16,6 +16,7 @@ describe("Dynamic Height Width validation", function() {
           .invoke("css", "height")
           .then((checkboxheight) => {
             cy.get(commonlocators.addOption).click();
+            cy.wait(200);
             cy.wait("@updateLayout").should(
               "have.nested.property",
               "response.body.responseMeta.status",
