@@ -18,6 +18,7 @@ const CarouselContainer = styled.div`
     justify-content: center;
     align-items: center;
     width: 50%;
+    max-width: 520px;
 
     & .carousel-trigger {
       padding: 16px;
@@ -67,6 +68,7 @@ const CarouselContainer = styled.div`
 
   & .carousel-targets {
     width: 680px;
+    min-height: 400px;
     display: flex;
     justify-content: center;
     align-items: center;
