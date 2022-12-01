@@ -46,6 +46,7 @@ import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
 import MenuItemsControl from "./MenuItemsControl";
+import OpenConfigPanelControl from "./OpenConfigPanelControl";
 import ButtonListControl from "./ButtonListControl";
 import IconSelectControl from "./IconSelectControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
@@ -72,6 +73,9 @@ import TableInlineEditValidationControl, {
   TableInlineEditValidationControlProps,
 } from "./TableInlineEditValidationControl";
 import TableInlineEditValidPropertyControl from "./TableInlineEditValidPropertyControl";
+import MenuButtonDynamicItemsControl, {
+  MenuButtonDynamicItemsControlProps,
+} from "components/propertyControls/MenuButtonDynamicItemsControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -96,6 +100,8 @@ export const PropertyControls = {
   ComputeTablePropertyControl,
   ComputeTablePropertyControlV2,
   MenuItemsControl,
+  MenuButtonDynamicItemsControl,
+  OpenConfigPanelControl,
   ButtonListControl,
   IconSelectControl,
   BoxShadowOptionsControl,
@@ -129,6 +135,7 @@ export type PropertyControlPropsType =
   | NumericInputControlProps
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
+  | MenuButtonDynamicItemsControlProps
   | PrimaryColumnDropdownControlProps
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps

@@ -11,10 +11,7 @@ import {
 } from "constants/WidgetValidation";
 import { get, set, isNil, has, uniq } from "lodash";
 import { Workspace } from "@appsmith/constants/workspaceConstants";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
@@ -581,10 +578,7 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
 // Can be used to check if the user has developer role access to workspace
 export const getCanCreateApplications = (currentWorkspace: Workspace) => {
   const userWorkspacePermissions = currentWorkspace.userPermissions || [];
-  const canManage = isPermitted(
-    userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_APPLICATION,
-  );
+  const canManage = hasCreateNewAppPermission(userWorkspacePermissions ?? []);
   return canManage;
 };
 

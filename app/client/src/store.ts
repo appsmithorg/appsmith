@@ -45,4 +45,6 @@ export const testStore = (initialState: Partial<AppState>) =>
     ),
   );
 
-sagaMiddleware.run(rootSaga);
+// We don't want to run the saga middleware in tests, so exporting it from here
+// And running it only when the app runs
+export const runSagaMiddleware = () => sagaMiddleware.run(rootSaga);

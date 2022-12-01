@@ -283,6 +283,7 @@ export const ReduxActionTypes = {
   CREATE_PAGE_SUCCESS: "CREATE_PAGE_SUCCESS",
   FETCH_PAGE_LIST_INIT: "FETCH_PAGE_LIST_INIT",
   FETCH_PAGE_LIST_SUCCESS: "FETCH_PAGE_LIST_SUCCESS",
+  UPDATE_PAGE_LIST: "UPDATE_PAGE_LIST",
   INITIALIZE_PAGE_VIEWER: "INITIALIZE_PAGE_VIEWER",
   INITIALIZE_PAGE_VIEWER_SUCCESS: "INITIALIZE_PAGE_VIEWER_SUCCESS",
   FETCH_APPLICATION_INIT: "FETCH_APPLICATION_INIT",
@@ -913,7 +914,6 @@ export const ReduxActionErrorTypes = {
 
 export const ReduxFormActionTypes = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
-  UPDATE_FIELD_ERROR: "@@redux-form/UPDATE_SYNC_ERRORS",
   ARRAY_REMOVE: "@@redux-form/ARRAY_REMOVE",
   ARRAY_PUSH: "@@redux-form/ARRAY_PUSH",
 };
@@ -1007,6 +1007,7 @@ export interface Page {
   isHidden?: boolean;
   slug: string;
   customSlug?: string;
+  userPermissions?: string[];
 }
 
 export interface ClonePageSuccessPayload {
