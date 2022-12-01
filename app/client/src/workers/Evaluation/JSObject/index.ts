@@ -197,10 +197,9 @@ export function saveResolvedFunctionsAndJSUpdates(
   return jsUpdates;
 }
 
-export function viewModeSaveResolvedFunctionsAndJSUpdates(
+export function viewModeSaveResolvedFunctions(
   dataTreeEvalRef: DataTreeEvaluator,
   entity: DataTreeJSAction,
-  jsUpdates: Record<string, JSUpdate>,
   unEvalDataTree: DataTree,
   entityName: string,
 ) {
@@ -242,7 +241,6 @@ export function viewModeSaveResolvedFunctionsAndJSUpdates(
   } catch (e) {
     //if we need to push error as popup in case
   }
-  return jsUpdates;
 }
 
 export function parseJSActions(
@@ -260,10 +258,9 @@ export function parseJSActions(
       if (!isJSAction(entity)) {
         return;
       }
-      jsUpdates = viewModeSaveResolvedFunctionsAndJSUpdates(
+      viewModeSaveResolvedFunctions(
         dataTreeEvalRef,
         entity,
-        jsUpdates,
         unEvalDataTree,
         entityName,
       );
