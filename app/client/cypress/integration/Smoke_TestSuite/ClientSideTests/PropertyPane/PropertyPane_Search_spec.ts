@@ -149,9 +149,7 @@ describe("Property Pane Search", function() {
   });
 
   // Ensuring a bug won't come back
-  it.only("10. Verify searching for properties inside the same section one after the other works", function() {
-    ee.SelectEntityByName("Table1", "Widgets");
-
+  it("10. Verify searching for properties inside the same section one after the other works", function() {
     // Search for a property
     propPane.search("onsort");
     assertIfPropertyOrSectionExists("sorting", "CONTENT", "onsort");
