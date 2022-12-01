@@ -12,7 +12,9 @@ export const SEARCH_USERS_PLACEHOLDER = () => `Search Users`;
 export const ACL_DELETED_SUCCESS = () => `Deleted successfully`;
 export const ACL_CLONED_SUCCESS = () => `Cloned successfully`;
 export const SUCCESSFULLY_SAVED = () => `Saved successfully`;
-export const ENTER_GROUP_NAME = () => `Enter group name`;
+export const ENTER_ENTITY_NAME = () => `Enter name`;
+export const ENTER_ENTITY_DESC = () =>
+  `Enter description (max characters: 140)`;
 export const ACTIVE_ENTITIES = (entity: string) => `Active ${entity}s`;
 export const ALL_ENTITIES = (entity: string) => `All ${entity}s`;
 export const ADD_ENTITY = (entity: string) => `Add ${entity}`;
@@ -22,6 +24,7 @@ export const ACL_DELETE = () => `Delete`;
 export const ACL_CLONE = () => `Clone`;
 export const ACL_RENAME = () => `Rename`;
 export const ACL_EDIT = () => `Edit`;
+export const ACL_EDIT_DESC = () => `Edit Description`;
 export const NO_USERS_MESSAGE = () => `There are no users added to this group`;
 export const NO_ACTIVE_ENTITIES_MESSAGE = (
   entity: string,

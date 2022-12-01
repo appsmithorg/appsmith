@@ -159,7 +159,7 @@ export function getExpectedValue(
         example: `https://www.example.com`,
         autocompleteDataType: AutocompleteDataType.STRING,
       };
-    case ValidationTypes.TABLE_PROPERTY:
+    case ValidationTypes.ARRAY_OF_TYPE_OR_TYPE:
       return getExpectedValue(config.params as ValidationConfig);
   }
 }

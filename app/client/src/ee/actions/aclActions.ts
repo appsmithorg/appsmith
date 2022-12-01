@@ -75,7 +75,11 @@ export const getRoleById = (payload: FetchSingleDataPayload) => ({
   payload,
 });
 
-export const updateRoleName = (payload: BaseAclProps) => ({
+export const updateRoleName = (payload: {
+  id: string;
+  name: string;
+  description?: string;
+}) => ({
   type: ReduxActionTypes.UPDATE_ACL_ROLE_NAME,
   payload,
 });

@@ -465,7 +465,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         buttonText={createMessage(ADD_USERS)}
         disableButton={!canAddUsersToGroup}
         isEditingTitle={isNew}
-        isTitleEditable={canManageGroup}
+        isHeaderEditable={canManageGroup}
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}
         onSearch={onSearch}

@@ -96,11 +96,14 @@ export type PageHeaderProps = {
   onSearch?: DebouncedFunc<(search: string) => void>;
   pageMenuItems: MenuItemProps[];
   title?: string;
-  isTitleEditable?: boolean;
+  isHeaderEditable?: boolean;
   isEditingTitle?: boolean;
   onEditTitle?: (name: string) => void;
+  isEditingDesc?: boolean;
+  onEditDesc?: (desc: string) => void;
   searchValue: string;
   disableButton?: boolean;
+  description?: string;
 };
 
 export type GroupsForUser = {

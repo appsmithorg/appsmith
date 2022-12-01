@@ -35,7 +35,7 @@ export const saveAllowed = (settings: any) => {
 /* get default admin settings path */
 export const getDefaultAdminSettingsPath = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  args: Record<string, any>,
+  { isSuperUser, tenantPermissions = [] }: Record<string, any>,
 ): string => {
   return ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH;
 };

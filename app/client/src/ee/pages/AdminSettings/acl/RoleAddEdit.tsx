@@ -10,6 +10,7 @@ import {
   ACL_DELETE,
   ACL_RENAME,
   SEARCH_PLACEHOLDER,
+  ACL_EDIT_DESC,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 import { LoaderContainer } from "pages/Settings/components";
@@ -106,12 +107,30 @@ export function RoleAddEdit(props: RoleEditProps) {
     }
   };
 
+  const onEditDesc = (desc: string) => {
+    if (selected.description !== desc) {
+      dispatch(
+        updateRoleName({
+          id: selected.id || params.selected,
+          name: selected.name,
+          description: desc,
+        }),
+      );
+    }
+  };
+
   const menuItems: MenuItemProps[] = [
     canManageRole && {
       className: "rename-menu-item",
       icon: "edit-underline",
       text: createMessage(ACL_RENAME),
       label: "rename",
+    },
+    canManageRole && {
+      className: "rename-desc-menu-item",
+      icon: "edit-underline",
+      text: createMessage(ACL_EDIT_DESC),
+      label: "rename-desc",
     },
     canDeleteRole && {
       className: "delete-menu-item",
@@ -145,8 +164,10 @@ export function RoleAddEdit(props: RoleEditProps) {
     >
       <BackButton />
       <PageHeader
+        description={selected.description}
         isEditingTitle={isNew}
-        isTitleEditable={canManageRole}
+        isHeaderEditable={canManageRole}
+        onEditDesc={onEditDesc}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}

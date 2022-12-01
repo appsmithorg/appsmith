@@ -313,6 +313,7 @@ function DatasourceAuth({
           category={Category.primary}
           className="t--save-datasource"
           disabled={isInvalid || !isFormDirty || !canManageDatasource}
+          filled
           isLoading={isSaving}
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}

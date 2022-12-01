@@ -11,10 +11,10 @@ export enum PERMISSION_TYPE {
   EXPORT_APPLICATION = "export:applications",
   DELETE_WORKSPACE_APPLICATIONS = "delete:workspaceApplications",
   READ_WORKSPACE_APPLICATIONS = "read:workspaceApplications",
-  // EXPORT_APPLICATION = "export:workspaceApplications",
+  EXPORT_WORKSPACE_APPLICATIONS = "export:workspaceApplications",
   READ_APPLICATION = "read:applications",
   MAKE_PUBLIC_APPLICATION = "makePublic:applications",
-  // MAKE_PUBLIC_APPLICATION = "makePublic:workspaceApplications",
+  MAKE_PUBLIC_WORKSPACE_APPLICATIONS = "makePublic:workspaceApplications",
   PUBLISH_APPLICATION = "publish:workspaceApplications",
   /* Datasource permissions */
   CREATE_DATASOURCES = "create:datasources",
