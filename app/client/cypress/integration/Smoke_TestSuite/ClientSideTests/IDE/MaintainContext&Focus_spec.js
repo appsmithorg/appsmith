@@ -157,7 +157,7 @@ describe("MaintainContext&Focus", function() {
     dataSources.AssertEditMode();
   });
 
-  it("8. Datasource collapse state has to be maintained", () => {
+  it("9. Datasource collapse state has to be maintained", () => {
     // Create datasource 1
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
