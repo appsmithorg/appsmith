@@ -4,7 +4,7 @@ import {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { set } from "lodash";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -15,7 +15,6 @@ import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
 import { GlobalData } from "./evaluate";
-import { cleanSet } from "workers/common/cleanSet";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -330,18 +329,19 @@ export const addDataTreeToContext = (args: {
   const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
   const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
   const dataTreeEntries = Object.entries(dataTree);
+  const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   self.TRIGGER_COLLECTOR = [];
 
   for (const [entityName, entity] of dataTreeEntries) {
-    EVAL_CONTEXT[entityName] = Object.assign({}, entity);
+    EVAL_CONTEXT[entityName] = entity;
     if (skipEntityFunctions) continue;
     for (const [functionName, funcCreator] of entityFunctionEntries) {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
       const funcName = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      cleanSet(
-        EVAL_CONTEXT,
+      set(
+        entityFunctionCollection,
         funcName,
         pusher.bind(
           {
@@ -354,6 +354,14 @@ export const addDataTreeToContext = (args: {
       );
     }
   }
+
+  Object.keys(entityFunctionCollection).forEach((entityName) => {
+    EVAL_CONTEXT[entityName] = Object.assign(
+      {},
+      dataTree[entityName],
+      entityFunctionCollection[entityName],
+    );
+  });
 
   if (!isTriggerBased) return;
 

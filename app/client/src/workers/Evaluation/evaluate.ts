@@ -283,7 +283,10 @@ export default function evaluateSync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    Object.assign(self, GLOBAL_DATA);
+    for (const entity in GLOBAL_DATA) {
+      // @ts-expect-error: Types are not available
+      self[entity] = GLOBAL_DATA[entity];
+    }
 
     try {
       result = indirectEval(script);
@@ -342,7 +345,10 @@ export async function evaluateAsync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    Object.assign(self, GLOBAL_DATA);
+    for (const entity in GLOBAL_DATA) {
+      // @ts-expect-error: Types are not available
+      self[entity] = GLOBAL_DATA[entity];
+    }
 
     try {
       result = await indirectEval(script);
@@ -405,7 +411,10 @@ export function isFunctionAsync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
-    Object.assign(self, GLOBAL_DATA);
+    for (const entity in GLOBAL_DATA) {
+      // @ts-expect-error: Types are not available
+      self[entity] = GLOBAL_DATA[entity];
+    }
     try {
       if (typeof userFunction === "function") {
         if (userFunction.constructor.name === "AsyncFunction") {
