@@ -972,7 +972,7 @@ class CodeEditor extends Component<Props, State> {
             codeEditorVisibleOverflow={codeEditorVisibleOverflow}
             disabled={disabled}
             editorTheme={this.props.theme}
-            fill={fill}
+            fillUp={fill}
             hasError={isInvalid}
             height={height}
             hoverInteraction={hoverInteraction}

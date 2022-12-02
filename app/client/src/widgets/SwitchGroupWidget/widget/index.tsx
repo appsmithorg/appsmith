@@ -9,6 +9,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
 import SwitchGroupComponent, { OptionProps } from "../component";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
@@ -367,6 +368,12 @@ class SwitchGroupWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {

@@ -16,6 +16,8 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
+import indirectEval from "./indirectEval";
 
 export type EvalResult = {
   result: any;
@@ -119,6 +121,7 @@ export function setupEvaluationEnvironment() {
   });
   userLogs.overrideConsoleAPI();
   overrideTimeout();
+  interceptAndOverrideHttpRequest();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
@@ -292,7 +295,7 @@ export default function evaluateSync(
     }
 
     try {
-      result = eval(script);
+      result = indirectEval(script);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
@@ -354,7 +357,7 @@ export async function evaluateAsync(
     });
 
     try {
-      result = await eval(script);
+      result = await indirectEval(script);
       logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
@@ -386,11 +389,6 @@ export async function evaluateAsync(
           logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
           triggers: Array.from(self.TRIGGER_COLLECTOR),
         });
-      } finally {
-        for (const entity in GLOBAL_DATA) {
-          // @ts-expect-error: Types are not available
-          delete self[entity];
-        }
       }
     }
   })();

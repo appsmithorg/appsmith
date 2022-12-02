@@ -13,7 +13,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "utils/WidgetFactory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import { createUnEvalTreeForEval } from "../evaluationUtils";
+import { createUnEvalTreeForEval } from "../dataTreeUtils";
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {

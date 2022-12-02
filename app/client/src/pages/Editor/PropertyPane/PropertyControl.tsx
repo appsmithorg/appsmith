@@ -44,19 +44,18 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
+import { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
-import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { AppState } from "@appsmith/reducers";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
 import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import WidgetFactory from "utils/WidgetFactory";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -87,16 +86,16 @@ const PropertyControl = memo((props: Props) => {
   // using hasDispatchedPropertyFocus to make sure
   // the component does not select the state after dispatching the action,
   // which might lead to another rerender and reset the component
-  let hasDispatchedPropertyFocus = false;
+  const hasDispatchedPropertyFocus = useRef<boolean>(false);
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
       getShouldFocusPropertyPath(
         state,
         dataTreePath,
-        hasDispatchedPropertyFocus,
+        hasDispatchedPropertyFocus.current,
       ),
     (before: boolean, after: boolean) => {
-      return hasDispatchedPropertyFocus || before === after;
+      return hasDispatchedPropertyFocus.current || before === after;
     },
   );
 
@@ -108,8 +107,6 @@ const PropertyControl = memo((props: Props) => {
     enhancementSelector,
     equal,
   );
-
-  const selectedTheme = useSelector(getSelectedAppTheme);
 
   useEffect(() => {
     if (shouldFocusPropertyPath) {
@@ -137,9 +134,8 @@ const PropertyControl = memo((props: Props) => {
    *   theme config and thus it is fetched from there.
    */
   const propertyStylesheetValue = (() => {
-    const widgetStylesheet: AppTheme["stylesheet"][string] = get(
-      selectedTheme,
-      `stylesheet.${widgetProperties.type}`,
+    const widgetStylesheet = WidgetFactory.getWidgetStylesheetConfigMap(
+      widgetProperties.type,
     );
 
     if (props.getStylesheetValue) {
@@ -296,6 +292,9 @@ const PropertyControl = memo((props: Props) => {
           id: widgetProperties.widgetId,
           // TODO: Check whether these properties have
           // dependent properties
+          // We should send the path that the user sends
+          // instead of sending the path that was updated
+          // as a side effect
           propertyPath: propertiesToUpdate[0].propertyPath,
         },
         state: allUpdates,
@@ -350,8 +349,8 @@ const PropertyControl = memo((props: Props) => {
     // would recommend NOT TO FOLLOW this path for upcoming widgets.
 
     // if there are enhancements related to the widget, calling them here
-    // enhancements are basically group of functions that are called before widget propety
-    // is changed on propertypane. For e.g - set/update parent property
+    // enhancements are basically group of functions that are called before widget property
+    // is changed on propertyPane. For e.g - set/update parent property
     if (childWidgetPropertyUpdateEnhancementFn) {
       const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
         widgetProperties.widgetName,
@@ -566,7 +565,7 @@ const PropertyControl = memo((props: Props) => {
 
     const handleOnFocus = () => {
       if (!shouldFocusPropertyPath) {
-        hasDispatchedPropertyFocus = true;
+        hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
           dispatch(generateKeyAndSetFocusablePropertyPaneField(dataTreePath));
         }, 0);

@@ -9,8 +9,6 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
-  makeDataTreeEntityConfigAsProperty,
-  createUnEvalTreeForEval,
   DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
@@ -37,6 +35,10 @@ import evaluate, {
 import { JSUpdate } from "utils/JSPaneUtils";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { initiateLinting } from "workers/Linting/utils";
+import {
+  createUnEvalTreeForEval,
+  makeEntityConfigsAsObjProperties,
+} from "./dataTreeUtils";
 
 const CANVAS = "canvas";
 
@@ -269,12 +271,14 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
+            makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+              sanitizeDataTree: false,
+            }),
             requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = makeDataTreeEntityConfigAsProperty(
+          dataTree = makeEntityConfigsAsObjProperties(
             dataTreeResponse.evalTree,
           );
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
@@ -306,12 +310,14 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
+            makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+              sanitizeDataTree: false,
+            }),
             requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = makeDataTreeEntityConfigAsProperty(
+          dataTree = makeEntityConfigsAsObjProperties(
             dataTreeResponse.evalTree,
           );
         } else {
@@ -334,7 +340,9 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            makeDataTreeEntityConfigAsProperty(dataTreeEvaluator.oldUnEvalTree),
+            makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+              sanitizeDataTree: false,
+            }),
             requiresLinting,
           );
           nonDynamicFieldValidationOrder =
@@ -343,7 +351,7 @@ function eventRequestHandler({
             evalOrder,
             nonDynamicFieldValidationOrder,
           );
-          dataTree = makeDataTreeEntityConfigAsProperty(
+          dataTree = makeEntityConfigsAsObjProperties(
             dataTreeEvaluator.evalTree,
           );
           evalMetaUpdates = JSON.parse(
@@ -378,7 +386,7 @@ function eventRequestHandler({
         }
 
         dataTree = getSafeToRenderDataTree(
-          makeDataTreeEntityConfigAsProperty(unevalTree),
+          makeEntityConfigsAsObjProperties(unevalTree),
           widgetTypeConfigMap,
         );
 

@@ -4,11 +4,9 @@ import KeyValueFieldArray from "../KeyValueFieldArray";
 import { reduxForm } from "redux-form";
 import { render } from "test/testUtils";
 
-const actionConfig: Array<{ key: string; value: string }> = [];
-
 const initialProps = {
   name: "Headers",
-  actionConfig,
+  actionConfig: [] as Array<{ key: string; value: string }>,
   dataTreePath: ".config.headers",
   hideHeader: false,
   label: "Headers",

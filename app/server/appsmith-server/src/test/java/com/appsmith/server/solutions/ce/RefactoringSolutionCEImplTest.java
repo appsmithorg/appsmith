@@ -8,6 +8,10 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.solutions.ActionPermission;
+import com.appsmith.server.solutions.ActionPermissionImpl;
+import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.solutions.PagePermissionImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +53,9 @@ class RefactoringSolutionCEImplTest {
     @MockBean
     private InstanceConfig instanceConfig;
 
+    PagePermission pagePermission;
+    ActionPermission actionPermission;
+
     ObjectMapper mapper = new ObjectMapper();
 
     private final String preWord = "\\b(";
@@ -56,6 +63,8 @@ class RefactoringSolutionCEImplTest {
 
     @BeforeEach
     public void setUp() {
+        pagePermission = new PagePermissionImpl();
+        actionPermission = new ActionPermissionImpl();
         refactoringSolutionCE = new RefactoringSolutionCEImpl(objectMapper,
                 newPageService,
                 newActionService,
@@ -64,7 +73,9 @@ class RefactoringSolutionCEImplTest {
                 layoutActionService,
                 applicationService,
                 astService,
-                instanceConfig);
+                instanceConfig,
+                pagePermission,
+                actionPermission);
     }
 
     @Test
