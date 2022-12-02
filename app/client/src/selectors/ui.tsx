@@ -32,3 +32,6 @@ export const getErrorForJSObjectName = (state: AppState, id: string) =>
 
 export const getFocusedWidget = (state: AppState) =>
   state.ui.widgetDragResize.focusedWidget;
+
+export const isDatasourceInViewMode = (state: AppState) =>
+  state.ui.datasourcePane.viewMode;

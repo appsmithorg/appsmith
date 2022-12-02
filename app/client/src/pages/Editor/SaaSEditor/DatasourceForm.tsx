@@ -35,12 +35,14 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import DatasourceAuth from "../../common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import { isDatasourceInViewMode } from "selectors/ui";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
   deleteTempDSFromDraft,
   removeTempDatasource,
-  setDatsourceEditorMode,
+  setDatasourceViewMode,
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
 } from "actions/datasourceActions";
@@ -48,6 +50,7 @@ import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatas
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
+  canManageDatasource?: boolean;
   isSaving: boolean;
   isDeleting: boolean;
   loadingFormConfigs: boolean;
@@ -71,8 +74,8 @@ interface DatasourceFormFunctions {
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   createTempDatasource: (data: any) => void;
+  setDatasourceViewMode: (viewMode: boolean) => void;
 }
 
 type DatasourceSaaSEditorProps = StateProps &
@@ -239,6 +242,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      canManageDatasource,
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
@@ -247,7 +251,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       pageId,
       pluginPackageName,
     } = this.props;
-
     const params: string = location.search;
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
@@ -262,7 +265,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             <Header>
               <FormTitleContainer>
                 <PluginImage alt="Datasource" src={this.props.pluginImage} />
-                <FormTitle focusOnMount={this.props.isNewDatasource} />
+                <FormTitle
+                  disabled={!canManageDatasource}
+                  focusOnMount={this.props.isNewDatasource}
+                />
               </FormTitleContainer>
 
               {viewMode && (
@@ -270,6 +276,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   category={Category.tertiary}
                   className="t--edit-datasource"
                   onClick={() => {
+                    this.props.setDatasourceViewMode(false);
                     this.props.history.replace(
                       saasEditorDatasourceIdURL({
                         pageId: pageId || "",
@@ -279,10 +286,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                           viewMode: false,
                         },
                       }),
-                    );
-                    this.props.setDatasourceEditorMode(
-                      this.props.datasourceId,
-                      false,
                     );
                   }}
                   text="EDIT"
@@ -329,6 +332,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const datasourceId = props.datasourceId || props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
+  const viewMode = isDatasourceInViewMode(state);
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
@@ -349,6 +353,12 @@ const mapStateToProps = (state: AppState, props: any) => {
       ? true
       : isDirty(DATASOURCE_SAAS_FORM)(state);
 
+  const datsourcePermissions = datasource?.userPermissions || [];
+
+  const canManageDatasource = hasManageDatasourcePermission(
+    datsourcePermissions,
+  );
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -357,6 +367,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDeleting: !!datasource?.isDeleting,
     formData: formData,
     formConfig,
+    viewMode: viewMode ?? !props.fromImporting,
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
     pageId: props.pageId || props.match?.params?.pageId,
     pluginImage: getPluginImages(state)[pluginId],
@@ -367,9 +378,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
     applicationId: getCurrentApplicationId(state),
+    canManageDatasource: canManageDatasource,
     datasourceName: datasource?.name ?? "",
-    viewMode:
-      datasourcePane.viewMode[datasource?.id ?? ""] ?? !props.fromImporting,
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
@@ -383,8 +393,8 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
   toggleSaveActionFromPopupFlag: (flag) =>
     dispatch(toggleSaveActionFromPopupFlag(flag)),
-  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
-    dispatch(setDatsourceEditorMode({ id, viewMode })),
+  setDatasourceViewMode: (viewMode: boolean) =>
+    dispatch(setDatasourceViewMode(viewMode)),
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
 });

@@ -29,6 +29,12 @@ export const resetSnipingMode = () => ({
   type: ReduxActionTypes.RESET_SNIPING_MODE,
 });
 
+export const updatePropertyPaneWidthAction = (width: number | undefined) => ({
+  type: ReduxActionTypes.UPDATE_PROPERTY_PANE_WIDTH,
+  payload: {
+    width,
+  },
+});
 export const setPropertySectionState = (key: string, isOpen: boolean) => {
   return {
     type: ReduxActionTypes.SET_PROPERTY_SECTION_STATE,

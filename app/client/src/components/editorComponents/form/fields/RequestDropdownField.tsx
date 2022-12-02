@@ -15,6 +15,7 @@ interface RequestDropdownProps {
   width?: string;
   height?: string;
   optionWidth?: string;
+  disabled?: boolean;
 }
 
 const renderComponent = (

@@ -80,12 +80,7 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .retrieve()
                 .bodyToMono(GetIdentifiersResponseBulk.class)
                 .retryWhen(Retry.max(3))
-                .elapsed()
-                .map(tuple -> {
-                    log.debug("Time elapsed since AST get identifiers call: {} ms, for size: {}", tuple.getT1(), bindingValues.size());
-                    return tuple.getT2().data;
-                })
-                .flatMapIterable(getIdentifiersResponseDetails -> getIdentifiersResponseDetails)
+                .flatMapIterable(getIdentifiersResponse -> getIdentifiersResponse.data)
                 .index()
                 .flatMap(tuple2 -> {
                     long currentIndex = tuple2.getT1();
