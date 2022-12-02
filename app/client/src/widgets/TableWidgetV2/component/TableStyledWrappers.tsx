@@ -25,7 +25,7 @@ import { TableVariant, TableVariantTypes } from "../constants";
 const OFFSET_WITHOUT_HEADER = 40;
 const OFFSET_WITH_HEADER = 80;
 const BORDER_RADIUS = "border-radius: 4px;";
-const HEADER_CONTROL_FONT_SIZE = "12px";
+const HEADER_CONTROL_FONT_SIZE = "0.75rem";
 
 export const TableWrapper = styled.div<{
   width: number;
@@ -57,6 +57,7 @@ export const TableWrapper = styled.div<{
   flex-direction: column;
   overflow: hidden;
   .tableWrap {
+    cursor: default;
     height: 100%;
     display: block;
     position: relative;
@@ -87,33 +88,52 @@ export const TableWrapper = styled.div<{
           ? props.height - OFFSET_WITH_HEADER
           : props.height - OFFSET_WITHOUT_HEADER}px;
       width: 100%;
-      overflow-y: auto;
+      // overflow-y: auto;
       ${hideScrollbar};
+
+      .skeleton-cell {
+        display: flex !important;
+        .skeleton {
+          margin: auto;
+          opacity: 1;
+          animation: animation-overlay 1.5s ease-in-out 0.5s infinite;
+          width: calc(100% - 32px);
+          height: 20px;
+          border-radius: 4px/6.7px;
+          display: flex;
+          background-color: rgba(33, 33, 33, 0.11);
+          transform: scale(1, 0.6);
+          transform-origin: 0 55%;
+          -webkit-transform: scale(1, 0.6);
+          -moz-transform: scale(1, 0.6);
+          -ms-transform: scale(1, 0.6);
+          transform: scale(1, 0.6);
+          border-radius: 4px/6.7px;
+          &::before {
+            content: "\\00a0";
+          }
+        }
+      }
+    }
+    @keyframes animation-overlay {
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.4;
+      }
+      100% {
+        opacity: 1;
+      }
     }
     .tbody.no-scroll {
       overflow: hidden;
     }
     .tr {
       overflow: hidden;
-      cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
-      &.selected-row {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
+      cursor: default;
 
-        &:hover {
-          background: ${({ accentColor }) =>
-            `${lightenColor(accentColor, "0.9")}`} !important;
-        }
-      }
-
-      ${(props) => {
-        if (!props.isAddRowInProgress) {
-          return `&:hover {
-            background: var(--wds-color-bg-hover) !important;
-          }`;
-        }
-      }}
       &.new-row {
         background: ${({ accentColor }) =>
           `${lightenColor(accentColor)}`} !important;
@@ -166,13 +186,11 @@ export const TableWrapper = styled.div<{
     }
 
     .th {
-      padding: 0 10px 0 0;
-      height: ${(props) =>
-        props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       line-height: ${(props) =>
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       background: var(--wds-color-bg);
-      font-weight: bold;
+      font-weight: 500;
+      padding: 16px;
     }
     .td {
       min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
@@ -204,17 +222,12 @@ export const TableWrapper = styled.div<{
     cursor: pointer;
     display: inline-block;
     width: 100%;
-    height: 38px;
     &.reorder-line {
       width: 1px;
       height: 100%;
     }
   }
-  .hidden-header {
-    opacity: 0.6;
 
-    ${invisible};
-  }
   .column-menu {
     cursor: pointer;
     height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
@@ -291,22 +304,14 @@ export const PaginationWrapper = styled.div`
   justify-content: flex-end;
   align-items: center;
   padding: 8px;
-  color: var(--wds-color-text-light);
 `;
 
-export const PaginationItemWrapper = styled.div<{
+export const PaginationItemWrapper = styled.button<{
   disabled?: boolean;
   selected?: boolean;
   borderRadius: string;
   accentColor: string;
 }>`
-  background: ${(props) =>
-    props.disabled ? `var(--wds-color-bg-disabled)` : `var(--wds-color-bg)`};
-  border: 1px solid
-    ${(props) =>
-      props.disabled
-        ? `var(--wds-color-border-disabled)`
-        : `var(--wds-color-border)`};
   box-sizing: border-box;
   width: 24px;
   height: 24px;
@@ -314,7 +319,6 @@ export const PaginationItemWrapper = styled.div<{
   justify-content: center;
   align-items: center;
   margin: 0 4px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   border-radius: ${({ borderRadius }) => borderRadius};
 
   & > * {
@@ -386,7 +390,7 @@ export const TableStyles = css<{
   isTextType?: boolean;
 }>``;
 
-export const CELL_WRAPPER_LINE_HEIGHT = 28;
+export const CELL_WRAPPER_LINE_HEIGHT = 1.43;
 
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
@@ -410,7 +414,6 @@ export const CellWrapper = styled.div<{
   justify-content: flex-start;
   width: 100%;
   height: 100%;
-  ${(props) => (props.isHidden ? invisible : "")};
   font-weight: ${(props) =>
     props.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   color: ${(props) => props.textColor};
@@ -446,15 +449,8 @@ export const CellWrapper = styled.div<{
   }
   font-size: ${(props) => props.textSize};
 
-  padding: ${(props) =>
-    props.disablePadding
-      ? 0
-      : `${
-          props.compactMode
-            ? `${TABLE_SIZES[props.compactMode].VERTICAL_PADDING}px 10px`
-            : `${0}px 10px`
-        }`};
-  line-height: ${CELL_WRAPPER_LINE_HEIGHT}px;
+  padding: 16px;
+  line-height: ${CELL_WRAPPER_LINE_HEIGHT};
   .${Classes.POPOVER_WRAPPER} {
     width: 100%;
     overflow: hidden;
@@ -576,10 +572,6 @@ export const TableHeaderWrapper = styled.div<{
   position: relative;
   display: flex;
   width: ${(props) => props.width}px;
-  .show-page-items {
-    display: ${(props) =>
-      props.width < MIN_WIDTH_TO_SHOW_PAGE_ITEMS ? "none" : "flex"};
-  }
   height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   overflow-x: auto;
@@ -632,7 +624,6 @@ export const TableHeaderContentWrapper = styled.div`
   justify-content: center;
   font-size: ${HEADER_CONTROL_FONT_SIZE};
   line-height: 20px;
-  color: ${Colors.GRAY};
   margin: 0 4px;
   white-space: nowrap;
 `;
@@ -650,7 +641,6 @@ export const TableIconWrapper = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-  ${(props) => (props.disabled ? invisible : "")};
   cursor: ${(props) => !props.disabled && "pointer"};
   position: relative;
   &:hover {

@@ -882,7 +882,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      loadingTable,
     } = this.props;
+
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const isVisibleHeaderOptions =
@@ -931,6 +933,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}
           isVisibleSearch={isVisibleSearch}
+          loadingTable={loadingTable}
           multiRowSelection={
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }

@@ -153,9 +153,9 @@ export default {
   getPageSize: (props, moment, _) => {
     const TABLE_SIZES = {
       DEFAULT: {
-        COLUMN_HEADER_HEIGHT: 32,
+        COLUMN_HEADER_HEIGHT: 22,
         TABLE_HEADER_HEIGHT: 38,
-        ROW_HEIGHT: 40,
+        ROW_HEIGHT: 53,
         ROW_FONT_SIZE: 14,
         VERTICAL_PADDING: 6,
         EDIT_ICON_TOP: 10,

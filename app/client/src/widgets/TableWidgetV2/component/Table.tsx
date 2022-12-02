@@ -75,6 +75,7 @@ interface TableProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
   isVisibleDownload?: boolean;
+  loadingTable?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
@@ -159,6 +160,7 @@ export function Table(props: TableProps) {
       ? Math.ceil(props.totalRecordsCount / props.data.length)
       : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
+
   const {
     getTableBodyProps,
     getTableProps,
@@ -246,11 +248,12 @@ export function Table(props: TableProps) {
     [props.width],
   );
 
-  const shouldUseVirtual =
-    props.serverSidePaginationEnabled &&
-    !props.columns.some(
-      (column) => !!column.columnProperties.allowCellWrapping,
-    );
+  // const shouldUseVirtual =
+  //   props.serverSidePaginationEnabled &&
+  //   !props.columns.some(
+  //     (column) => !!column.columnProperties.allowCellWrapping,
+  //   );
+  const shouldUseVirtual = false;
 
   useEffect(() => {
     if (props.isAddRowInProgress && tableBodyRef) {
@@ -276,73 +279,20 @@ export function Table(props: TableProps) {
       variant={props.variant}
       width={props.width}
     >
-      {isHeaderVisible && (
-        <TableHeaderWrapper
-          backgroundColor={Colors.WHITE}
-          ref={tableHeaderWrapperRef}
-          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-          tableSizes={tableSizes}
-          width={props.width}
-        >
-          <Scrollbars
-            renderThumbHorizontal={ScrollbarHorizontalThumb}
-            renderThumbVertical={ScrollbarVerticalThumb}
-            renderTrackHorizontal={ScrollbarHorizontalTrack}
-            style={style}
-          >
-            <TableHeaderInnerWrapper
-              backgroundColor={Colors.WHITE}
-              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              tableSizes={tableSizes}
-              variant={props.variant}
-              width={props.width}
-            >
-              <TableHeader
-                accentColor={props.accentColor}
-                allowAddNewRow={props.allowAddNewRow}
-                applyFilter={props.applyFilter}
-                borderRadius={props.borderRadius}
-                boxShadow={props.boxShadow}
-                columns={tableHeadercolumns}
-                currentPageIndex={currentPageIndex}
-                delimiter={props.delimiter}
-                disableAddNewRow={!!props.editableCell.column}
-                disabledAddNewRowSave={props.disabledAddNewRowSave}
-                filters={props.filters}
-                isAddRowInProgress={props.isAddRowInProgress}
-                isVisibleDownload={props.isVisibleDownload}
-                isVisibleFilters={props.isVisibleFilters}
-                isVisiblePagination={props.isVisiblePagination}
-                isVisibleSearch={props.isVisibleSearch}
-                nextPageClick={props.nextPageClick}
-                onAddNewRow={props.onAddNewRow}
-                onAddNewRowAction={props.onAddNewRowAction}
-                pageCount={pageCount}
-                pageNo={props.pageNo}
-                pageOptions={pageOptions}
-                prevPageClick={props.prevPageClick}
-                searchKey={props.searchKey}
-                searchTableData={props.searchTableData}
-                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-                tableColumns={columns}
-                tableData={data}
-                tableSizes={tableSizes}
-                totalRecordsCount={props.totalRecordsCount}
-                updatePageNo={props.updatePageNo}
-                widgetId={props.widgetId}
-                widgetName={props.widgetName}
-              />
-            </TableHeaderInnerWrapper>
-          </Scrollbars>
-        </TableHeaderWrapper>
-      )}
-      <div
-        className={props.isLoading ? Classes.SKELETON : "tableWrap"}
-        ref={tableWrapperRef}
-      >
+      <div className={"tableWrap"} ref={tableWrapperRef}>
         <Scrollbars
           renderThumbHorizontal={ScrollbarHorizontalThumb}
           renderTrackHorizontal={ScrollbarHorizontalTrack}
+          renderTrackVertical={(props) => (
+            <div
+              {...props}
+              className="track-vertical"
+              style={{ display: "none" }}
+            />
+          )}
+          renderView={(props) => (
+            <div {...props} style={{ ...props.style, overflowY: "hidden" }} />
+          )}
           style={{
             width: props.width,
             height: isHeaderVisible ? props.height - 48 : props.height,
@@ -422,16 +372,78 @@ export function Table(props: TableProps) {
               tableSizes={tableSizes}
               useVirtual={shouldUseVirtual}
               width={props.width}
+              loadingTable={props.loadingTable}
             />
           </div>
         </Scrollbars>
       </div>
-      <ScrollIndicator
+      {isHeaderVisible && (
+        <TableHeaderWrapper
+          backgroundColor={Colors.WHITE}
+          ref={tableHeaderWrapperRef}
+          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+          tableSizes={tableSizes}
+          width={props.width}
+        >
+          <Scrollbars
+            renderThumbHorizontal={ScrollbarHorizontalThumb}
+            // renderThumbVertical={ScrollbarVerticalThumb}
+            renderTrackHorizontal={ScrollbarHorizontalTrack}
+            style={style}
+          >
+            <TableHeaderInnerWrapper
+              backgroundColor={Colors.WHITE}
+              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+              tableSizes={tableSizes}
+              variant={props.variant}
+              width={props.width}
+            >
+              <TableHeader
+                accentColor={props.accentColor}
+                allowAddNewRow={props.allowAddNewRow}
+                applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
+                boxShadow={props.boxShadow}
+                columns={tableHeadercolumns}
+                currentPageIndex={currentPageIndex}
+                delimiter={props.delimiter}
+                disableAddNewRow={!!props.editableCell.column}
+                disabledAddNewRowSave={props.disabledAddNewRowSave}
+                filters={props.filters}
+                isAddRowInProgress={props.isAddRowInProgress}
+                isVisibleDownload={props.isVisibleDownload}
+                isVisibleFilters={props.isVisibleFilters}
+                isVisiblePagination={props.isVisiblePagination}
+                isVisibleSearch={props.isVisibleSearch}
+                nextPageClick={props.nextPageClick}
+                onAddNewRow={props.onAddNewRow}
+                onAddNewRowAction={props.onAddNewRowAction}
+                pageCount={pageCount}
+                pageNo={props.pageNo}
+                pageOptions={pageOptions}
+                pageSize={props.pageSize}
+                prevPageClick={props.prevPageClick}
+                searchKey={props.searchKey}
+                searchTableData={props.searchTableData}
+                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+                tableColumns={columns}
+                tableData={data}
+                tableSizes={tableSizes}
+                totalRecordsCount={props.totalRecordsCount}
+                updatePageNo={props.updatePageNo}
+                widgetId={props.widgetId}
+                widgetName={props.widgetName}
+              />
+            </TableHeaderInnerWrapper>
+          </Scrollbars>
+        </TableHeaderWrapper>
+      )}
+      {/* <ScrollIndicator
         containerRef={tableBodyRef}
         mode="LIGHT"
         showScrollbarOnlyOnHover
         top={props.editMode ? "70px" : "73px"}
-      />
+      /> */}
     </TableWrapper>
   );
 }

@@ -72,14 +72,6 @@ export const TableWrapper = styled.div<{
       overflow: hidden;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
-      &.selected-row {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
-      }
-      &:hover {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
-      }
     }
     .th,
     .td {

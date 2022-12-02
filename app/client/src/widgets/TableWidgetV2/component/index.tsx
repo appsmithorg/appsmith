@@ -77,6 +77,7 @@ interface ReactTableComponentProps {
   isVisibleSearch?: boolean;
   isVisibleFilters?: boolean;
   isVisibleDownload?: boolean;
+  loadingTable?: boolean;
   isVisiblePagination?: boolean;
   delimiter: string;
   isSortable?: boolean;
@@ -124,6 +125,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     isLoading,
     isSortable,
     isVisibleDownload,
+    loadingTable,
     isVisibleFilters,
     isVisiblePagination,
     isVisibleSearch,
@@ -320,6 +322,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
+      loadingTable={loadingTable}
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
       isVisibleSearch={isVisibleSearch}
@@ -366,6 +369,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.height === next.height &&
     prev.isLoading === next.isLoading &&
     prev.isVisibleDownload === next.isVisibleDownload &&
+    prev.loadingTable === next.loadingTable &&
     prev.isVisibleFilters === next.isVisibleFilters &&
     prev.isVisiblePagination === next.isVisiblePagination &&
     prev.isVisibleSearch === next.isVisibleSearch &&

@@ -124,9 +124,13 @@ export interface ActionsPropsType {
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   disableAddNewRow: boolean;
+  pageSize: number;
 }
 
 function Actions(props: ActionsPropsType) {
+  const startIndex = props.currentPageIndex * props.tableData.length + 1;
+  const endIndex = startIndex + props.tableData.length - 1;
+
   return (
     <>
       {props.isVisibleSearch && (
@@ -184,8 +188,8 @@ function Actions(props: ActionsPropsType) {
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           {props.totalRecordsCount ? (
-            <TableHeaderContentWrapper className="show-page-items">
-              {props.totalRecordsCount} Records
+            <TableHeaderContentWrapper>
+              {startIndex}-{endIndex} of {props.totalRecordsCount}
             </TableHeaderContentWrapper>
           ) : null}
           <PaginationItemWrapper
@@ -199,7 +203,7 @@ function Actions(props: ActionsPropsType) {
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          {props.totalRecordsCount ? (
+          {/* {props.totalRecordsCount ? (
             <TableHeaderContentWrapper>
               Page&nbsp;
               <PaginationItemWrapper
@@ -224,7 +228,7 @@ function Actions(props: ActionsPropsType) {
             >
               {props.pageNo + 1}
             </PaginationItemWrapper>
-          )}
+          )} */}
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}
@@ -259,7 +263,7 @@ function Actions(props: ActionsPropsType) {
           >
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <TableHeaderContentWrapper>
+          {/* <TableHeaderContentWrapper>
             Page{" "}
             <PageNumberInput
               accentColor={props.accentColor}
@@ -270,7 +274,7 @@ function Actions(props: ActionsPropsType) {
               updatePageNo={props.updatePageNo}
             />{" "}
             of {props.pageCount}
-          </TableHeaderContentWrapper>
+          </TableHeaderContentWrapper> */}
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}

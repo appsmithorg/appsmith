@@ -35,7 +35,15 @@ export const renderEmptyRows = (
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
           {row.cells.map((cell: Cell<Record<string, unknown>>) => {
             const cellProps = cell.getCellProps();
-            return <div {...cellProps} className="td" key={cellProps.key} />;
+            return (
+              <div
+                {...cellProps}
+                className="td skeleton-cell"
+                key={cellProps.key}
+              >
+                <span className="skeleton" />
+              </div>
+            );
           })}
         </div>
       );
@@ -52,7 +60,13 @@ export const renderEmptyRows = (
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
           {tableColumns.map((column: any, colIndex: number) => {
             return (
-              <EmptyCell className="td" key={colIndex} width={column.width} />
+              <EmptyCell
+                className="td skeleton-cell"
+                key={colIndex}
+                width={column.width}
+              >
+                <span className="skeleton" />
+              </EmptyCell>
             );
           })}
         </EmptyRow>

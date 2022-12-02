@@ -23,6 +23,7 @@ export function Row(props: RowType) {
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
+    loadingTable,
   } = useContext(BodyContext);
 
   prepareRow?.(props.row);
@@ -59,9 +60,20 @@ export function Row(props: RowType) {
       }}
     >
       {multiRowSelection &&
+        !loadingTable &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
       {props.row.cells.map((cell, cellIndex) => {
-        return (
+        return loadingTable ? (
+          <div
+            {...cell.getCellProps()}
+            className="td skeleton-cell"
+            data-colindex={cellIndex}
+            data-rowindex={props.index}
+            key={cellIndex}
+          >
+            <span className="skeleton" />
+          </div>
+        ) : (
           <div
             {...cell.getCellProps()}
             className="td"
@@ -90,7 +102,6 @@ export const EmptyRows = (props: {
     rows,
     width,
   } = useContext(BodyContext);
-
   return (
     <>
       {renderEmptyRows(
