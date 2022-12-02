@@ -1,8 +1,4 @@
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import { call, put, select, take } from "redux-saga/effects";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
@@ -19,15 +15,41 @@ import log from "loglevel";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Location } from "history";
-import { AppsmithLocationState } from "utils/history";
+import history, { AppsmithLocationState } from "utils/history";
+import { EventChannel, eventChannel } from "redux-saga";
 
 let previousPath: string;
 let previousHash: string | undefined;
 
-function* handleRouteChange(
-  action: ReduxAction<{ location: Location<AppsmithLocationState> }>,
-) {
-  const { hash, pathname, state } = action.payload.location;
+type LocationChangePayload = {
+  location: Location<AppsmithLocationState>;
+  action: string;
+};
+
+const listenToUrlChanges = () => {
+  return eventChannel((emitter) => {
+    return history.listen(
+      (location: Location<AppsmithLocationState>, action: string) => {
+        emitter({ location, action });
+      },
+    );
+  });
+};
+
+function* navigationListenerSaga() {
+  const eventChan: EventChannel<{
+    location: string;
+    action: string;
+  }> = yield call(listenToUrlChanges);
+
+  while (true) {
+    const payload: LocationChangePayload = yield take(eventChan);
+    yield call(handleRouteChange, payload);
+  }
+}
+
+function* handleRouteChange(payload: LocationChangePayload) {
+  const { hash, pathname, state } = payload.location;
   try {
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     if (featureFlags.CONTEXT_SWITCHING) {
@@ -181,5 +203,5 @@ function shouldStoreStateForCanvas(
 }
 
 export default function* rootSaga() {
-  yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
+  yield call(navigationListenerSaga);
 }
