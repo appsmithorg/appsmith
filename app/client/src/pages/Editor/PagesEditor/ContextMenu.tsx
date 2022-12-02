@@ -14,17 +14,20 @@ import EditName from "./EditName";
 import { useSelector } from "react-redux";
 
 import {
+  getCurrentApplication,
   getCurrentApplicationId,
-  getPagePermissions,
+  getPageById,
 } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system";
 import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import {
+  hasCreatePagePermission,
   hasDeletePagePermission,
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { AppState } from "@appsmith/reducers";
 
 // render over popover portals
 const Container = styled.div`
@@ -141,14 +144,23 @@ function ContextMenu(props: Props) {
    * opens the context menu on interaction ( on click )
    */
   const handleInteraction = useCallback((isOpen) => {
-    setIsOpen(isOpen);
+    (canManagePages || canDeletePages) && setIsOpen(isOpen);
   }, []);
 
-  const pagePermissions = useSelector(getPagePermissions);
+  const pagePermissions =
+    useSelector(getPageById(page.pageId))?.userPermissions || [];
+
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
   const canManagePages = hasManagePagePermission(pagePermissions);
 
   const canDeletePages = hasDeletePagePermission(pagePermissions);
+
+  const canClonePages = canCreatePages && canManagePages;
 
   return (
     <Popover2
@@ -164,9 +176,9 @@ function ContextMenu(props: Props) {
               <Action>
                 <CopyIcon
                   color={Colors.GREY_9}
-                  disabled={!canManagePages}
+                  disabled={!canClonePages}
                   height={16}
-                  onClick={!canManagePages ? noop : () => onCopy(page.pageId)}
+                  onClick={!canClonePages ? noop : () => onCopy(page.pageId)}
                   width={16}
                 />
               </Action>
@@ -239,6 +251,7 @@ function ContextMenu(props: Props) {
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
             color={Colors.GREY_9}
+            disabled={!canManagePages && !canDeletePages}
             height={16}
             onClick={noop}
             width={16}
