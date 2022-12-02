@@ -396,6 +396,7 @@ function eventRequestHandler({
 
         dataTree = getSafeToRenderDataTree(
           makeEntityConfigsAsObjProperties(unevalTree, {
+            sanitizeDataTree: false,
             evalValuesAndError: dataTreeEvaluator?.evalValuesAndError,
           }),
           widgetTypeConfigMap,
