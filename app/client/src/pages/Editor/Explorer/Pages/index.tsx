@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getCurrentApplication,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
@@ -47,6 +48,11 @@ import AddPageContextMenu from "./AddPageContextMenu";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import {
+  hasCreatePagePermission,
+  hasManagePagePermission,
+} from "@appsmith/utils/permissionHelpers";
+import { AppState } from "@appsmith/reducers";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -181,12 +187,20 @@ function Pages() {
     [applicationId],
   );
 
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+
   const pageElements = useMemo(
     () =>
       pages.map((page) => {
         const icon = page.isDefault ? defaultPageIcon : pageIcon;
         const rightIcon = !!page.isHidden ? hiddenPageIcon : null;
         const isCurrentPage = currentPageId === page.pageId;
+        const pagePermissions = page.userPermissions;
+        const canManagePages = hasManagePagePermission(pagePermissions);
         const contextMenu = (
           <PageContextMenu
             applicationId={applicationId as string}
@@ -202,6 +216,7 @@ function Pages() {
         return (
           <StyledEntity
             action={() => switchPage(page)}
+            canEditEntityName={canManagePages}
             className={`page ${isCurrentPage && "activePage"}`}
             contextMenu={contextMenu}
             entityId={page.pageId}
@@ -249,6 +264,7 @@ function Pages() {
         pagesSize={ENTITY_HEIGHT * pages.length}
         rightIcon={settingsIconWithTooltip}
         searchKeyword={""}
+        showAddButton={canCreatePages}
         step={0}
       >
         {pageElements}

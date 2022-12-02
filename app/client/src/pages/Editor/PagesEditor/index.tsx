@@ -20,6 +20,7 @@ import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { builderURL } from "RouteBuilder";
+import { hasCreatePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const Wrapper = styled.div`
   padding: 20px;
@@ -73,6 +74,10 @@ function PagesEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const pageId = useSelector(getCurrentPageId);
+
+  const userAppPermissions = currentApp?.userPermissions || [];
+
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGES_LIST_LOAD", {
@@ -148,6 +153,7 @@ function PagesEditor() {
           <h1>Page Properties</h1>
         </div>
         <NewPageButton
+          disabled={!canCreatePages}
           icon="plus"
           onClick={createPageCallback}
           size={Size.medium}

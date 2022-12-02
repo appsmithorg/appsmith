@@ -13,11 +13,21 @@ import { Action } from "./PageListItem";
 import EditName from "./EditName";
 import { useSelector } from "react-redux";
 
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplication,
+  getCurrentApplicationId,
+  getPageById,
+} from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
 import { TooltipComponent } from "design-system";
 import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import {
+  hasCreatePagePermission,
+  hasDeletePagePermission,
+  hasManagePagePermission,
+} from "@appsmith/utils/permissionHelpers";
+import { AppState } from "@appsmith/reducers";
 
 // render over popover portals
 const Container = styled.div`
@@ -65,6 +75,11 @@ const MenuItem = styled.div`
     flex-grow: 1;
     font-size: 14px;
   }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 `;
 
 const MenuItemToggle = styled(Toggle)`
@@ -74,6 +89,11 @@ const MenuItemToggle = styled(Toggle)`
 
   input:checked + .slider {
     background-color: ${Colors.GREY_10};
+  }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    pointer-events: none;
   }
 `;
 
@@ -124,8 +144,23 @@ function ContextMenu(props: Props) {
    * opens the context menu on interaction ( on click )
    */
   const handleInteraction = useCallback((isOpen) => {
-    setIsOpen(isOpen);
+    (canManagePages || canDeletePages) && setIsOpen(isOpen);
   }, []);
+
+  const pagePermissions =
+    useSelector(getPageById(page.pageId))?.userPermissions || [];
+
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+
+  const canManagePages = hasManagePagePermission(pagePermissions);
+
+  const canDeletePages = hasDeletePagePermission(pagePermissions);
+
+  const canClonePages = canCreatePages && canManagePages;
 
   return (
     <Popover2
@@ -134,15 +169,16 @@ function ContextMenu(props: Props) {
           <Header>
             <PageName>
               <div className="ContextMenuPopOver">
-                <EditName page={page} />
+                {canManagePages && <EditName page={page} />}
               </div>
             </PageName>
             <Actions>
               <Action>
                 <CopyIcon
                   color={Colors.GREY_9}
+                  disabled={!canClonePages}
                   height={16}
-                  onClick={() => onCopy(page.pageId)}
+                  onClick={!canClonePages ? noop : () => onCopy(page.pageId)}
                   width={16}
                 />
               </Action>
@@ -153,9 +189,13 @@ function ContextMenu(props: Props) {
                       ? get(theme, "colors.propertyPane.deleteIconColor")
                       : Colors.GREY_9
                   }
-                  disabled={page.isDefault}
+                  disabled={page.isDefault || !canDeletePages}
                   height={16}
-                  onClick={() => onDelete(page.pageId, page.pageName)}
+                  onClick={
+                    page.isDefault || !canDeletePages
+                      ? noop
+                      : () => onDelete(page.pageId, page.pageName)
+                  }
                   width={16}
                 />
               </Action>
@@ -176,18 +216,20 @@ function ContextMenu(props: Props) {
           <main>
             <h4>General</h4>
             {!page.isDefault && (
-              <MenuItem>
+              <MenuItem aria-disabled={!canManagePages}>
                 <div>Set Homepage</div>
                 <MenuItemToggle
+                  disabled={!canManagePages}
                   onToggle={() => onSetPageDefault(page.pageId, applicationId)}
                   value={page.isDefault}
                 />
               </MenuItem>
             )}
 
-            <MenuItem>
+            <MenuItem aria-disabled={!canManagePages}>
               <div>Visible</div>
               <MenuItemToggle
+                disabled={!canManagePages}
                 onToggle={onSetPageHidden}
                 value={!page.isHidden}
               />
@@ -209,6 +251,7 @@ function ContextMenu(props: Props) {
         <Action className={isOpen ? "active" : ""} type="button">
           <SettingsIcon
             color={Colors.GREY_9}
+            disabled={!canManagePages && !canDeletePages}
             height={16}
             onClick={noop}
             width={16}
