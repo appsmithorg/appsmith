@@ -14,11 +14,7 @@ import {
 } from "selectors/editorSelectors";
 import Entity, { EntityClassNames } from "../Entity";
 import history from "utils/history";
-import {
-  createPage,
-  storeURLOnPageChange,
-  updatePage,
-} from "actions/pageActions";
+import { createPage, updatePage } from "actions/pageActions";
 import {
   hiddenPageIcon,
   pageIcon,
@@ -58,6 +54,7 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
+import { pageChanged } from "actions/focusHistoryActions";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -133,9 +130,18 @@ function Pages() {
         type: "PAGES",
         toUrl: navigateToUrl,
       });
-      dispatch(storeURLOnPageChange(location.pathname, location.search));
       dispatch(toggleInOnboardingWidgetSelection(true));
       history.push(navigateToUrl);
+      const currentURL = navigateToUrl.split(/(?=\?)/g);
+      dispatch(
+        pageChanged(
+          page.pageId,
+          currentURL[0],
+          currentURL[1],
+          location.pathname,
+          location.search,
+        ),
+      );
     },
     [location.pathname],
   );

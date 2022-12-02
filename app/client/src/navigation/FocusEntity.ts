@@ -8,6 +8,7 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import { getQueryParamsFromString } from "utils/getQueryParamsObject";
 
 export enum FocusEntity {
   PAGE = "PAGE",
@@ -23,6 +24,52 @@ export type FocusEntityInfo = {
   entity: FocusEntity;
   id: string;
 };
+
+/**
+ * Method to indicate if the URL is of type API, Query etc,
+ * and not anything else
+ * @param path
+ * @returns
+ */
+export function shouldStoreURLforFocus(path: string) {
+  const entityTypesToStore = [
+    FocusEntity.QUERY,
+    FocusEntity.API,
+    FocusEntity.JS_OBJECT,
+  ];
+
+  const entity = identifyEntityFromPath(path)?.entity;
+
+  return entityTypesToStore.indexOf(entity) >= 0;
+}
+
+/**
+ * parse search string and get branch
+ * @param searchString
+ * @returns
+ */
+const fetchGitBranch = (searchString: string | undefined) => {
+  const existingParams =
+    getQueryParamsFromString(searchString?.substring(1)) || {};
+
+  return existingParams.branch;
+};
+
+/**
+ * Compare if both the params are on same branch
+ * @param previousParamString
+ * @param currentParamStaring
+ * @returns
+ */
+export function isSameBranch(
+  previousParamString: string,
+  currentParamStaring: string,
+) {
+  const previousBranch = fetchGitBranch(previousParamString);
+  const currentBranch = fetchGitBranch(currentParamStaring);
+
+  return previousBranch === currentBranch;
+}
 
 export function identifyEntityFromPath(
   path: string,

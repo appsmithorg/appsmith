@@ -11,11 +11,13 @@ export const routeChanged = (pathname: string, hash?: string) => {
 export const pageChanged = (
   pageId: string,
   currPath: string,
-  paramString: string,
+  currParamString: string,
+  fromPath: string,
+  fromParamString: string,
 ) => {
   return {
     type: ReduxActionTypes.PAGE_CHANGED,
-    payload: { pageId, currPath, paramString },
+    payload: { pageId, currPath, currParamString, fromPath, fromParamString },
   };
 };
 

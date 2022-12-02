@@ -1,11 +1,4 @@
-import {
-  all,
-  call,
-  put,
-  select,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -19,6 +12,8 @@ import {
   FocusEntity,
   FocusEntityInfo,
   identifyEntityFromPath,
+  isSameBranch,
+  shouldStoreURLforFocus,
 } from "navigation/FocusEntity";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
@@ -31,8 +26,6 @@ let previousPath: string;
 let previousHash: string | undefined;
 
 let previousPageId: string;
-let previousURL: string;
-let previousParamString: string | null;
 
 function* handleRouteChange(
   action: ReduxAction<{ pathname: string; hash?: string }>,
@@ -55,18 +48,26 @@ function* handlePageChange(
   action: ReduxAction<{
     pageId: string;
     currPath: string;
-    paramString: string;
+    currParamString: string;
+    fromPath: string;
+    fromParamString: string;
   }>,
 ) {
-  const { currPath, pageId, paramString } = action.payload;
+  const {
+    currParamString,
+    currPath,
+    fromParamString,
+    fromPath,
+    pageId,
+  } = action.payload;
   try {
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     if (featureFlags.CONTEXT_SWITCHING) {
       if (previousPageId) {
-        yield call(storeStateOfPage, previousPageId);
+        yield call(storeStateOfPage, previousPageId, fromPath, fromParamString);
       }
 
-      yield call(setStateOfPage, pageId, currPath, paramString);
+      yield call(setStateOfPage, pageId, currPath, currParamString);
     }
   } catch (e) {
     log.error("Error on page change", e);
@@ -147,7 +148,11 @@ function* setStateOfPath(path: string, hash?: string) {
   }
 }
 
-function* storeStateOfPage(pageId: string) {
+function* storeStateOfPage(
+  pageId: string,
+  fromPath: string,
+  fromParam: string | undefined,
+) {
   const entity = FocusEntity.PAGE;
 
   const selectors = FocusElementsConfig[entity];
@@ -157,14 +162,14 @@ function* storeStateOfPage(pageId: string) {
     // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
-  if (previousURL && previousURL.includes(pageId)) {
-    state._routingURL = previousURL;
-  } else {
-    state._routingURL = undefined;
-  }
+  if (shouldStoreURLforFocus(fromPath)) {
+    if (fromPath && fromPath.includes(pageId)) {
+      state._routingURL = fromPath;
+    }
 
-  if (previousParamString !== undefined) {
-    state._paramString = previousParamString;
+    if (fromParam !== undefined) {
+      state._paramString = fromParam;
+    }
   }
 
   const entityInfo = { entity, id: pageId };
@@ -189,9 +194,9 @@ function* setStateOfPage(
     if (
       focusHistory.state._routingURL &&
       focusHistory.state._routingURL !== currPath &&
-      focusHistory.state._paramString === paramString
+      isSameBranch(focusHistory.state._paramString, paramString)
     ) {
-      history.push(`${focusHistory.state._routingURL}${paramString}`);
+      history.push(`${focusHistory.state._routingURL}${paramString || ""}`);
     }
   } else {
     for (const selectorInfo of selectors) {
@@ -199,14 +204,6 @@ function* setStateOfPage(
         yield put(selectorInfo.setter(selectorInfo.defaultValue));
     }
   }
-}
-
-function* storeURLonPageChange(
-  action: ReduxAction<{ url: string; paramString: string }>,
-) {
-  const { paramString, url } = action.payload;
-  previousParamString = paramString;
-  previousURL = url;
 }
 
 function* getEntitySubType(entityInfo: FocusEntityInfo) {
@@ -272,7 +269,4 @@ function shouldStoreStateForCanvas(
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
   yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
-  yield all([
-    takeLatest(ReduxActionTypes.STORE_URL_ON_PAGE_CHANGE, storeURLonPageChange),
-  ]);
 }

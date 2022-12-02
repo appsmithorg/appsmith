@@ -105,11 +105,6 @@ export const updateCurrentPage = (
   payload: { id, slug, permissions },
 });
 
-export const storeURLOnPageChange = (url: string, paramString: string) => ({
-  type: ReduxActionTypes.STORE_URL_ON_PAGE_CHANGE,
-  payload: { url, paramString },
-});
-
 export const initCanvasLayout = (
   payload: UpdateCanvasPayload,
 ): ReduxAction<UpdateCanvasPayload> => {
