@@ -9,7 +9,7 @@ let ee = ObjectsRegistry.EntityExplorer,
   homePage = ObjectsRegistry.HomePage;
 
 describe("Entity explorer API pane related testcases", function() {
-  it("Empty Message validation for Widgets/API/Queries", function() {
+  it("1. Empty Message validation for Widgets/API/Queries", function() {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace("EmptyMsgCheck");
     homePage.CreateAppInWorkspace("EmptyMsgCheck");
@@ -32,7 +32,7 @@ describe("Entity explorer API pane related testcases", function() {
     agHelper.AssertElementVisible(locator._visibleTextDiv("NEW DATASOURCE"));
   });
 
-  it("Move to page / edit API name /properties validation", function() {
+  it("2. Move to page / edit API name /properties validation", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
@@ -45,7 +45,7 @@ describe("Entity explorer API pane related testcases", function() {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(5);
@@ -59,11 +59,8 @@ describe("Entity explorer API pane related testcases", function() {
       .contains(testdata.Get)
       .should("be.visible");
     cy.Createpage(pageid);
-    cy.get(".t--entity-name")
-      .contains("Page1")
-      .click()
-      .wait(1000);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    ee.SelectEntityByName("Page1");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
     cy.EditApiNameFromExplorer("SecondAPI");
     cy.xpath(apiwidget.popover)
@@ -73,9 +70,7 @@ describe("Entity explorer API pane related testcases", function() {
       .click({ force: true });
     ee.ActionContextMenuByEntityName("SecondAPI", "Move to page", pageid);
     cy.wait(500);
-    cy.get(".t--entity-name")
-      .contains("SecondAPI")
-      .should("exist");
+    ee.AssertEntityPresenceInExplorer("SecondAPI");
     /*To be enabled once the bug is fixed
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(3);
