@@ -28,6 +28,7 @@ export interface ApplicationPagePayload {
   slug: string;
   isHidden?: boolean;
   customSlug?: string;
+  userPermissions?: string;
 }
 
 export type GitApplicationMetadata =
@@ -166,6 +167,35 @@ export interface ImportApplicationRequest {
   onSuccessCallback?: () => void;
 }
 
+export interface UpdateApplicationResponse {
+  id: string;
+  modifiedBy: string;
+  userPermissions: string[];
+  name: string;
+  workspaceId: string;
+  isPublic: boolean;
+  pages: PageDefaultMeta[];
+  appIsExample: boolean;
+  unreadCommentThreads: number;
+  color: string;
+  icon: AppIconName;
+  slug: string;
+  lastDeployedAt: Date;
+  evaluationVersion: number;
+  applicationVersion: number;
+  isManualUpdate: boolean;
+  appLayout: AppLayoutConfig;
+  new: boolean;
+  modifiedAt: Date;
+}
+
+export interface PageDefaultMeta {
+  id: string;
+  isDefault: boolean;
+  defaultPageId: string;
+  default: boolean;
+}
+
 class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -243,7 +273,7 @@ class ApplicationApi extends Api {
 
   static updateApplication(
     request: UpdateApplicationRequest,
-  ): AxiosPromise<ApiResponse> {
+  ): AxiosPromise<ApiResponse<UpdateApplicationResponse>> {
     const { id, ...rest } = request;
     return Api.put(ApplicationApi.baseURL + "/" + id, rest);
   }

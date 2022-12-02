@@ -51,7 +51,6 @@ import {
   isWidget,
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import { JSUpdate } from "utils/JSPaneUtils";
 import { Severity } from "entities/AppsmithConsole";
 
 export function getlintErrorsFromTree(
@@ -461,7 +460,6 @@ function getInvalidPropertyErrorsFromScript(
 
 export function initiateLinting(
   lintOrder: string[],
-  jsUpdates: Record<string, JSUpdate>,
   unevalTree: DataTree,
   requiresLinting: boolean,
 ) {
@@ -470,7 +468,6 @@ export function initiateLinting(
     promisified: true,
     responseData: {
       lintOrder,
-      jsUpdates,
       unevalTree,
       type: EVAL_WORKER_ACTIONS.LINT_TREE,
     },
