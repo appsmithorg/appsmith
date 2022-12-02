@@ -337,22 +337,6 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                 .then(Mono.just(TRUE));
     }
 
-    @Override
-    public Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(Set<String> userIds, Set<String> permissionGroupIds) {
-        return repository.findAllById(permissionGroupIds)
-                .flatMap(pg -> {
-                    Set<String> assignedToUserIds = pg.getAssignedToUserIds();
-                    assignedToUserIds.removeAll(userIds);
-
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
-
-                    updateObj.set(path, assignedToUserIds);
-                    return repository.updateById(pg.getId(), updateObj);
-                })
-                .then(Mono.just(TRUE));
-    }
-
     private Flux<Config> getAllConfigsWithAutoCreatedPermissionGroups() {
         return this.configRepository.findAllByNameIn(Appsmith.AUTO_CREATED_PERMISSION_GROUP);
     }
