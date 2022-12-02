@@ -13,7 +13,7 @@ describe("Guided Tour", function() {
     cy.get(onboardingLocators.welcomeTourBtn).should("be.visible");
   });
 
-  it("Guided Tour", function() {
+  it("1. Guided Tour", function() {
     // Start guided tour
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
@@ -31,8 +31,8 @@ describe("Guided Tour", function() {
     cy.testJsontext("tabledata", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
-    // Renaming widgets
-    cy.wait("@updateWidgetName");
+    // Renaming widgets // Commending below wait due to flakiness
+    //cy.wait("@updateWidgetName");
     // Step 4: Add binding to the defaulText property of NameInput
     cy.get(guidedTourLocators.hintButton).click();
     cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
