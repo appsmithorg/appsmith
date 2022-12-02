@@ -4,6 +4,7 @@ import {
   UnEvalTree,
   UnEvalTreeEntityObject,
 } from "entities/DataTree/dataTreeFactory";
+import { set } from "lodash";
 
 /**
  * This method accept an entity object as input and if it has __config__ property than it moves the __config__ to object's prototype
@@ -39,16 +40,34 @@ export function createUnEvalTreeForEval(unevalTree: UnEvalTree) {
  */
 export function makeEntityConfigsAsObjProperties(
   dataTree: DataTree,
-  option = {} as { sanitizeDataTree: boolean },
-) {
-  const { sanitizeDataTree = true } = option;
+  option = {} as {
+    sanitizeDataTree?: boolean;
+    evalValuesAndError?: DataTree;
+  },
+): DataTree {
+  const { evalValuesAndError, sanitizeDataTree = true } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
     const entity = dataTree[entityName];
     newDataTree[entityName] = { ...entityConfig, ...entity };
   }
-  return sanitizeDataTree
+  const dataTreeToReturn = sanitizeDataTree
     ? JSON.parse(JSON.stringify(newDataTree))
     : newDataTree;
+
+  if (!evalValuesAndError) return dataTreeToReturn;
+
+  for (const [entityName, entityEvalValues] of Object.entries(
+    evalValuesAndError,
+  )) {
+    set(
+      dataTreeToReturn[entityName],
+      "__evaluation__",
+      // @ts-expect-error: ignore
+      entityEvalValues.__evaluation__,
+    );
+  }
+
+  return dataTreeToReturn;
 }

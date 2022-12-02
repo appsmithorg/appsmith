@@ -280,6 +280,9 @@ function eventRequestHandler({
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
           dataTree = makeEntityConfigsAsObjProperties(
             dataTreeResponse.evalTree,
+            {
+              evalValuesAndError: dataTreeEvaluator.evalValuesAndError,
+            },
           );
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
@@ -319,6 +322,9 @@ function eventRequestHandler({
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
           dataTree = makeEntityConfigsAsObjProperties(
             dataTreeResponse.evalTree,
+            {
+              evalValuesAndError: dataTreeEvaluator.evalValuesAndError,
+            },
           );
         } else {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
@@ -353,6 +359,9 @@ function eventRequestHandler({
           );
           dataTree = makeEntityConfigsAsObjProperties(
             dataTreeEvaluator.evalTree,
+            {
+              evalValuesAndError: dataTreeEvaluator.evalValuesAndError,
+            },
           );
           evalMetaUpdates = JSON.parse(
             JSON.stringify(updateResponse.evalMetaUpdates),
@@ -386,7 +395,9 @@ function eventRequestHandler({
         }
 
         dataTree = getSafeToRenderDataTree(
-          makeEntityConfigsAsObjProperties(unevalTree),
+          makeEntityConfigsAsObjProperties(unevalTree, {
+            evalValuesAndError: dataTreeEvaluator?.evalValuesAndError,
+          }),
           widgetTypeConfigMap,
         );
 

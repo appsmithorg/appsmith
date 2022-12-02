@@ -21,6 +21,7 @@ import { validate } from "workers/Evaluation/validations";
 export function validateAndParseWidgetProperty({
   currentTree,
   evalPropertyValue,
+  evalValuesAndError,
   fullPropertyPath,
   unEvalPropertyValue,
   widget,
@@ -30,6 +31,7 @@ export function validateAndParseWidgetProperty({
   currentTree: DataTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
+  evalValuesAndError: DataTree;
 }): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   if (isPathADynamicTrigger(widget, propertyPath)) {
@@ -68,7 +70,7 @@ export function validateAndParseWidgetProperty({
   // set evaluated value
   const safeEvaluatedValue = removeFunctions(evaluatedValue);
   set(
-    widget,
+    evalValuesAndError,
     getEvalValuePath(fullPropertyPath, {
       isPopulated: false,
       fullPath: false,
@@ -107,7 +109,11 @@ export function validateActionProperty(
   return validate(config, value, {}, "");
 }
 
-export function getValidatedTree(tree: DataTree) {
+export function getValidatedTree(
+  tree: DataTree,
+  option: { evalValuesAndError: DataTree },
+) {
+  const { evalValuesAndError } = option;
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const parsedEntity = tree[entityKey];
     if (!isWidget(parsedEntity)) {
@@ -132,7 +138,7 @@ export function getValidatedTree(tree: DataTree) {
           : transformed;
         const safeEvaluatedValue = removeFunctions(evaluatedValue);
         set(
-          parsedEntity,
+          evalValuesAndError,
           getEvalValuePath(`${entityKey}.${property}`, {
             isPopulated: false,
             fullPath: false,

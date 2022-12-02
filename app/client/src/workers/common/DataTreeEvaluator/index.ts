@@ -141,6 +141,8 @@ export default class DataTreeEvaluator {
   validationDependencyMap: DependencyMap = {};
   sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: DependencyMap = {};
+
+  evalValuesAndError: DataTree = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -291,7 +293,11 @@ export default class DataTreeEvaluator {
 
     const validationStartTime = performance.now();
     // Validate Widgets
-    this.setEvalTree(getValidatedTree(evaluatedTree));
+    this.setEvalTree(
+      getValidatedTree(evaluatedTree, {
+        evalValuesAndError: this.evalValuesAndError,
+      }),
+    );
     const validationEndTime = performance.now();
 
     const timeTakenForEvalAndValidateFirstTree = {
@@ -716,6 +722,7 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
+                evalValuesAndError: this.evalValuesAndError,
               });
 
               this.setParsedValue({
@@ -762,8 +769,9 @@ export default class DataTreeEvaluator {
               }
             }
             const safeEvaluatedValue = removeFunctions(evalPropertyValue);
+            if (!propertyPath) return currentTree;
             set(
-              currentTree,
+              this.evalValuesAndError,
               getEvalValuePath(fullPropertyPath),
               safeEvaluatedValue,
             );
@@ -773,7 +781,7 @@ export default class DataTreeEvaluator {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
               const currentEvaluatedValue = get(
-                currentTree,
+                this.evalValuesAndError,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
@@ -781,7 +789,7 @@ export default class DataTreeEvaluator {
               );
               if (!currentEvaluatedValue) {
                 set(
-                  currentTree,
+                  this.evalValuesAndError,
                   getEvalValuePath(fullPropertyPath, {
                     isPopulated: true,
                     fullPath: true,
@@ -1103,6 +1111,7 @@ export default class DataTreeEvaluator {
             this.oldUnEvalTree,
             fullPath,
           ) as unknown) as string,
+          evalValuesAndError: this.evalValuesAndError,
         });
       });
     }
