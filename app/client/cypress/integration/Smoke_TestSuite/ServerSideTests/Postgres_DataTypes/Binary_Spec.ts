@@ -22,7 +22,7 @@ describe("Binary Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    appSettings.openPaneAndChangeThemeColors(24, -37);
+    appSettings.OpenPaneAndChangeThemeColors(24, -37);
   });
 
   it("1. Creating table query - binarytype", () => {

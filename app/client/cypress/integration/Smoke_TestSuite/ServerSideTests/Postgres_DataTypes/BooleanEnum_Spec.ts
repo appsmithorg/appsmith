@@ -14,7 +14,7 @@ describe("Boolean & Enum Datatype tests", function() {
     cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    appSettings.openPaneAndChangeThemeColors(-18, -20);
+    appSettings.OpenPaneAndChangeThemeColors(-18, -20);
   });
 
   it("1. Create Postgress DS", function() {
