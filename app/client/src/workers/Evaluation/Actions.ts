@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _, { set } from "lodash";
+import _ from "lodash";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -307,12 +307,6 @@ const ENTITY_FUNCTIONS: Record<
         };
       },
   },
-};
-
-const methodPerfLogger = (callback: Function, methodName: string) => {
-  // const start = performance.now();
-  callback();
-  // const end = performance.now();
 };
 
 /**
