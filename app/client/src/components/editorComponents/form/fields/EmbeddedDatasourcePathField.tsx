@@ -53,7 +53,6 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "selectors/entitiesSelector";
-import { datasourcesEditorIdURL } from "RouteBuilder";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
 
@@ -431,12 +430,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   };
 
   componentDidMount() {
-    const { apiActions, datasource, orgId, pluginId } = this.props;
+    const { apiActions, datasource, pluginId, workspaceId } = this.props;
     const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
 
     if (apiActions.length <= 1 && datasourceUrl === "") {
       // if there is one or less api action, we set default value to mock api
-      let newDatasource = { ...DEFAULT_DATASOURCE(pluginId, orgId) };
+      let newDatasource = { ...DEFAULT_DATASOURCE(pluginId, workspaceId) };
       newDatasource = {
         ...newDatasource,
         datasourceConfiguration: {
