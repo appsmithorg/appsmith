@@ -109,6 +109,7 @@ import {
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
+  hasCreateDatasourcePermission,
   hasDeleteActionPermission,
   hasExecuteActionPermission,
   hasManageActionPermission,
@@ -125,6 +126,7 @@ import {
   setQueryPaneResponseSelectedTab,
 } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -522,6 +524,14 @@ export function EditorJSONtoForm(props: Props) {
     currentActionConfig?.userPermissions,
   );
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    userWorkspacePermissions,
+  );
+
   // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -555,10 +565,12 @@ export function EditorJSONtoForm(props: Props) {
     return (
       <>
         <components.MenuList {...props}>{props.children}</components.MenuList>
-        <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-          <Icon className="createIcon" icon="plus" iconSize={11} />
-          {createMessage(CREATE_NEW_DATASOURCE)}
-        </CreateDatasource>
+        {canCreateDatasource ? (
+          <CreateDatasource onClick={() => onCreateDatasourceClick()}>
+            <Icon className="createIcon" icon="plus" iconSize={11} />
+            {createMessage(CREATE_NEW_DATASOURCE)}
+          </CreateDatasource>
+        ) : null}
       </>
     );
   }

@@ -20,9 +20,9 @@ import {
 } from "selectors/editorContextSelectors";
 import { setFocusableCodeEditorField } from "actions/editorContextActions";
 import {
+  getAllDatasourceCollapsibleState,
   getSelectedWidgets,
   isDatasourceInViewMode,
-  getAllDatasourceCollapsibleState,
 } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -55,8 +55,8 @@ import {
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import {
-  setDatasourceViewMode,
   setAllDatasourceCollapsible,
+  setDatasourceViewMode,
 } from "actions/datasourceActions";
 import { PluginPackageName } from "entities/Action";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";

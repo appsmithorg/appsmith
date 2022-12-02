@@ -25,10 +25,13 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import {
+  hasCreatePagePermission,
   hasDeletePagePermission,
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getPageById } from "selectors/editorSelectors";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { AppState } from "@appsmith/reducers";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -101,6 +104,12 @@ export function PageContextMenu(props: {
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];
 
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+
   const canManagePages = hasManagePagePermission(pagePermissions);
 
   const canDeletePages = hasDeletePagePermission(pagePermissions);
@@ -111,11 +120,12 @@ export function PageContextMenu(props: {
       onSelect: editPageName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
-    canManagePages && {
-      value: "clone",
-      onSelect: clonePage,
-      label: createMessage(CONTEXT_CLONE),
-    },
+    canCreatePages &&
+      canManagePages && {
+        value: "clone",
+        onSelect: clonePage,
+        label: createMessage(CONTEXT_CLONE),
+      },
     canManagePages && {
       value: "visibility",
       onSelect: setHiddenField,
