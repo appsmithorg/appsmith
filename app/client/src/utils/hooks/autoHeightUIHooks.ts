@@ -20,3 +20,6 @@ export const useAutoHeightUIState = () => {
     ),
   };
 };
+
+export const getIsAutoHeightWithLimitsChanging = (state: AppState) =>
+  state.ui.autoHeightUI.isAutoHeightWithLimitsChanging;
