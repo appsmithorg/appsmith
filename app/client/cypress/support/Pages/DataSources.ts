@@ -236,6 +236,18 @@ export class DataSources {
       .should("be.visible");
   }
 
+  public ExpandSectionByName(locator: string) {
+    // Click on collapse section only if it collapsed, if it is expanded
+    // we ignore
+    cy.get(`${locator} span`)
+      .invoke("attr", "icon")
+      .then((iconName) => {
+        if (iconName === "chevron-down") {
+          cy.get(locator).click();
+        }
+      });
+  }
+
   public AssertSectionCollapseState(index: number, collapsed = false) {
     cy.get(this._collapseContainer)
       .eq(index)
@@ -281,7 +293,7 @@ export class DataSources {
     cy.get(this._databaseName)
       .clear()
       .type(databaseName);
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(
       username == "" ? datasourceFormData["postgres-username"] : username,
     );
@@ -296,7 +308,7 @@ export class DataSources {
       : datasourceFormData["mongo-host"];
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["mongo-port"].toString());
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._databaseName)
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -314,7 +326,7 @@ export class DataSources {
     cy.get(this._databaseName)
       .clear()
       .type(databaseName);
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
   }
@@ -723,7 +735,7 @@ export class DataSources {
 
   //Update with new password in the datasource conf page
   public updatePassword(newPassword: string) {
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._password).type(newPassword);
   }
 
