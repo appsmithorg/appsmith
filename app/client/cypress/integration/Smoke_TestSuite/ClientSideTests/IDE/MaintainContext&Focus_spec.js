@@ -4,6 +4,9 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const dataSources = ObjectsRegistry.DataSources;
+const ee = ObjectsRegistry.EntityExplorer;
+const apiPage = ObjectsRegistry.ApiPage;
 
 describe("MaintainContext&Focus", function() {
   it("1. Import the test application", () => {
@@ -134,5 +137,23 @@ describe("MaintainContext&Focus", function() {
 
     cy.SearchEntityandOpen("JSObject2");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
+  });
+
+  it("7. Check if selected tab on right tab persists", () => {
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.SelectRightPaneTab("connections");
+    ee.SelectEntityByName("SQL_Query");
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.AssertRightPaneSelectedTab("connections");
+  });
+
+  it("8. Datasource edit mode has to be maintained", () => {
+    ee.SelectEntityByName("Appsmith");
+    dataSources.EditDatasource();
+    dataSources.SaveDSFromDialog(false);
+    ee.SelectEntityByName("Github");
+    dataSources.AssertViewMode();
+    ee.SelectEntityByName("Appsmith");
+    dataSources.AssertEditMode();
   });
 });

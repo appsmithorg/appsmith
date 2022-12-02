@@ -16,7 +16,9 @@ import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -276,6 +278,7 @@ class MultiSelectWidget extends BaseWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -572,6 +575,14 @@ class MultiSelectWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getDerivedPropertiesMap() {
     return {
       value: `{{this.selectedOptionValues}}`,
@@ -650,6 +661,7 @@ class MultiSelectWidget extends BaseWidget<
           zIndex: Layers.dropdownModalWidget,
         }}
         filterText={this.props.filterText}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
         isValid={!isInvalid}
         labelAlignment={this.props.labelAlignment}
@@ -688,6 +700,9 @@ class MultiSelectWidget extends BaseWidget<
 
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
+    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
+      return [];
+    }
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
     return values.map((value, index) => ({
@@ -735,8 +750,8 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   isLoading: boolean;
   selectedOptions: LabelInValueType[];
   filterText: string;
-  selectedOptionValues: string[];
-  selectedOptionLabels: string[];
+  selectedOptionValues?: string[];
+  selectedOptionLabels?: string[];
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   allowSelectAll?: boolean;

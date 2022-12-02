@@ -29,6 +29,7 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -92,6 +93,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
+  formRef = React.createRef<HTMLDivElement>();
 
   state = {
     resetObserverCallback: noop,
@@ -122,6 +124,103 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Stylesheet<ChildStylesheet & ButtonStyles> {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+
+      submitButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      resetButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      childStylesheet: {
+        ARRAY: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        OBJECT: {
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        CHECKBOX: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+        CURRENCY_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        DATEPICKER: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        EMAIL_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTISELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTILINE_TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PASSWORD_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PHONE_NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        RADIO_GROUP: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        SELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        SWITCH: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+      },
+    };
+  }
+
   static defaultProps = {};
 
   componentDidMount() {
@@ -130,6 +229,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -388,6 +488,7 @@ class JSONFormWidget extends BaseWidget<
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
+        ref={this.formRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}

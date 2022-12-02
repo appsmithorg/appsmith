@@ -1,4 +1,5 @@
 const dsl = require("../../../../../fixtures/StatboxDsl.json");
+const dsl1 = require("../../../../../fixtures/dynamicHeightStatboxdsl.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const data = require("../../../../../fixtures/example.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -87,9 +88,10 @@ describe("Statbox Widget Functionality", function() {
   });
 
   it("5. Verify Statbox can be placed inside another widget", () => {
+    cy.addDsl(dsl1);
     cy.get(explorer.addWidget).click();
     // placing statbox widget inside container widget
-    cy.dragAndDropToCanvas("containerwidget", { x: 500, y: 300 });
+    //cy.dragAndDropToCanvas("containerwidget", { x: 500, y: 300 });
     cy.dragAndDropToWidget("statboxwidget", "containerwidget", {
       x: 100,
       y: 100,

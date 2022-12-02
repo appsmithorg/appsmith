@@ -77,6 +77,11 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     UserWorkspaceService userWorkspaceService;
 
+    WorkspacePermission workspacePermission;
+
+    ApplicationPermission applicationPermission;
+    PagePermission pagePermission;
+
     User testUser;
 
     final static String defaultPageId = "defaultPageId";
@@ -84,6 +89,9 @@ public class ApplicationFetcherUnitTest {
 
     @BeforeEach
     public void setup() {
+        workspacePermission = new WorkspacePermissionImpl();
+        applicationPermission = new ApplicationPermissionImpl();
+        pagePermission = new PagePermissionImpl();
         applicationFetcher = new ApplicationFetcherImpl(sessionUserService,
                 userService,
                 userDataService,
@@ -92,7 +100,10 @@ public class ApplicationFetcherUnitTest {
                 releaseNotesService,
                 responseUtils,
                 newPageService,
-                userWorkspaceService);
+                userWorkspaceService,
+                workspacePermission,
+                applicationPermission,
+                pagePermission);
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {

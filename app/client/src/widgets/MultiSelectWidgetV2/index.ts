@@ -2,8 +2,16 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 4,
+      defaultValue: DynamicHeight.FIXED,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "MultiSelect",
   iconSVG: IconSVG,
@@ -39,6 +47,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getPagePermissions,
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
@@ -20,6 +21,7 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
+import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -49,6 +51,10 @@ function Files() {
     },
     [applicationId],
   );
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 
@@ -112,18 +118,21 @@ function Files() {
       onCreate={onCreate}
       onToggle={onFilesToggle}
       searchKeyword={""}
+      showAddButton={canCreateActions}
       step={0}
     >
       {fileEntities.length ? (
         fileEntities
       ) : (
         <EmptyComponent
-          addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
-          addFunction={onCreate}
           mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
+          {...(canCreateActions && {
+            addBtnText: createMessage(EMPTY_QUERY_JS_BUTTON_TEXT),
+            addFunction: onCreate,
+          })}
         />
       )}
-      {fileEntities.length > 0 && (
+      {fileEntities.length > 0 && canCreateActions && (
         <AddEntity
           action={onCreate}
           entityId={pageId + "_queries_js_add_new_datasource"}

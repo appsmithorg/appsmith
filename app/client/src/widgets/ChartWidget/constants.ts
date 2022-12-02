@@ -68,7 +68,7 @@ export const CUSTOM_CHART_TYPES = [
   "bulb",
   "realtimecolumn",
   "cylinder",
-  "HLinearGauge",
+  "hlineargauge",
   "realtimeline",
   "realtimelinedy",
   "realtimestackedarea",
