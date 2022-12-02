@@ -17,7 +17,7 @@ describe("Dynamic Height Width validation", function () {
   it("Validate change with auto height width for widgets", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
-    cy.openPropertyPane("List");
+    cy.openPropertyPane("containerwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("checkboxgroupwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
@@ -33,6 +33,7 @@ describe("Dynamic Height Width validation", function () {
               "response.body.responseMeta.status",
               200,
             );
+            cy.wait(3000);
             cy.get(".t--widget-checkboxgroupwidget")
               .invoke("css", "height")
               .then((newcheckboxheight) => {
@@ -64,6 +65,7 @@ describe("Dynamic Height Width validation", function () {
       .then((height) => {
         cy.openPropertyPane("containerwidget");
         cy.changeLayoutHeight(commonlocators.autoHeight);
+        cy.wait(4000);
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")
           .then((newheight) => {
