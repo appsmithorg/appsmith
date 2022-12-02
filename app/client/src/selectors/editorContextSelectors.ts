@@ -9,7 +9,6 @@ import { generatePropertyKey } from "utils/editorContextUtils";
 import { getCurrentPageId } from "./editorSelectors";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
-import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
 
 export const getFocusableCodeEditorField = (state: AppState) =>
   state.ui.editorContext.focusableCodeEditor;
@@ -91,8 +90,7 @@ export const getShouldFocusControlField = createSelector(
     pageId: string,
     key: string | undefined,
   ): boolean => {
-    const actionId = getActionIdFromURL() || "";
-    const formControlKey = generatePropertyKey(actionId + key, pageId);
+    const formControlKey = generatePropertyKey(key, pageId);
     return !!(formControlKey && focusableField === formControlKey);
   },
 );

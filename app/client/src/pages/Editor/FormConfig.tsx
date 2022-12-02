@@ -23,6 +23,7 @@ import { getPropertyControlFocusElement } from "utils/editorContextUtils";
 import { AppState } from "@appsmith/reducers";
 import { generateKeyAndSetFocusableFormControlField } from "actions/queryPaneActions";
 import { getShouldFocusControlField } from "selectors/editorContextSelectors";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -66,17 +67,28 @@ export default function FormConfig(props: FormConfigProps) {
   let top, bottom;
   const controlRef = useRef<HTMLDivElement | null>(null);
   const dispatch = useDispatch();
+  const entityInfo = identifyEntityFromPath(
+    window.location.pathname,
+    window.location.hash,
+  );
 
   const handleOnFocus = () => {
     if (props.config.configProperty) {
+      // Need an additional identifier to trigger another render when configProperty
+      // are same for two different entitites
       dispatch(
-        generateKeyAndSetFocusableFormControlField(props.config.configProperty),
+        generateKeyAndSetFocusableFormControlField(
+          `${entityInfo.id}.${props.config.configProperty}`,
+        ),
       );
     }
   };
 
   const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
-    getShouldFocusControlField(state, props.config.configProperty),
+    getShouldFocusControlField(
+      state,
+      `${entityInfo.id}.${props.config.configProperty}`,
+    ),
   );
 
   useEffect(() => {

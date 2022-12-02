@@ -1,5 +1,6 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
@@ -180,21 +181,17 @@ describe("MaintainContext&Focus", function() {
   });
 
   it("10. Maintain focus of form control inputs", () => {
-    cy.SearchEntityandOpen("SQL_Query");
-    cy.get(".t--form-control-SWITCH label")
-      .scrollIntoView()
-      .click({ force: true });
+    dataSources.SaveDSFromDialog(false);
+    ee.SelectEntityByName("SQL_Query");
+    dataSources.ToggleUsePreparedStatement(false);
     cy.SearchEntityandOpen("S3_Query");
     cy.get(queryLocators.querySettingsTab).click();
-    cy.get(
-      "[data-cy='actionConfiguration.timeoutInMillisecond'] .CodeEditorTarget",
-    ).focus();
+    cy.setQueryTimeout(10000);
 
     cy.SearchEntityandOpen("SQL_Query");
     cy.get(".t--form-control-SWITCH input").should("be.focused");
     cy.SearchEntityandOpen("S3_Query");
-    cy.get(
-      "[data-cy='actionConfiguration.timeoutInMillisecond'] .CodeEditorTarget",
-    ).should("be.focused");
+    cy.get(queryLocators.querySettingsTab).click();
+    cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 });
