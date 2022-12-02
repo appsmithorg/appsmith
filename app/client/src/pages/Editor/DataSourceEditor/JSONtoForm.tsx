@@ -189,7 +189,7 @@ export class JSONtoForm<
         if (isArrayorObject(valueType)) {
           this.getTrimmedData(formData[key]);
         } else if (valueType === Types.STRING) {
-          formData[key] = formData[key].trim();
+          _.set(formData, key, formData[key].trim());
         }
       });
     }
