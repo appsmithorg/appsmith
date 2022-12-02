@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.roles.constants;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -173,6 +174,8 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
                     if (aClass.equals(NewPage.class)) {
                         entityClass = Page.class;
                     } else if (aClass.equals(NewAction.class)) {
+                        entityClass = Action.class;
+                    } else if (aClass.equals(ActionCollection.class)) {
                         entityClass = Action.class;
                     }
 
