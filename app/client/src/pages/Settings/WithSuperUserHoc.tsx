@@ -1,4 +1,5 @@
 import { APPLICATIONS_URL } from "constants/routes";
+import { showAdminSettings } from "ce/utils/adminSettingsHelpers";
 import React from "react";
 import { useSelector } from "react-redux";
 import { Redirect, RouteComponentProps } from "react-router";
@@ -10,7 +11,7 @@ export default function WithSuperUserHOC(
   return function Wrapped(props: RouteComponentProps) {
     const user = useSelector(getCurrentUser);
     if (!user) return null;
-    if (!user?.isSuperUser || !user?.isConfigurable) {
+    if (!showAdminSettings(user)) {
       return <Redirect to={APPLICATIONS_URL} />;
     }
     return <Component {...props} />;
