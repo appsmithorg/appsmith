@@ -347,7 +347,18 @@ export const addDataTreeToContext = (args: {
       const func = funcCreator.func(entity);
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
       const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
-      entityFunctionsToAdd.push({ entityName, propertyPath, func });
+      entityFunctionsToAdd.push({
+        entityName,
+        propertyPath,
+        func: pusher.bind(
+          {
+            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+            REQUEST_ID: requestId,
+            EVENT_TYPE: eventType,
+          },
+          func,
+        ),
+      });
     }
   }
 
