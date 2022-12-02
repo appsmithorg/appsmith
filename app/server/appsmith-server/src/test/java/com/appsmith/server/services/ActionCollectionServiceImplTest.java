@@ -45,7 +45,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;

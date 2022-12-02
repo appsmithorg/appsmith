@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 

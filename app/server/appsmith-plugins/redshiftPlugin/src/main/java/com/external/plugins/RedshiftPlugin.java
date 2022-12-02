@@ -62,7 +62,7 @@ public class RedshiftPlugin extends BasePlugin {
     @Extension
     public static class RedshiftPluginExecutor implements PluginExecutor<HikariDataSource> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
                 "select a.attname                                                      as name,\n" +

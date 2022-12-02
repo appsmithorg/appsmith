@@ -16,7 +16,7 @@
     <description>This is the API server for the Appsmith project</description>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <ff4j.version>1.8.11</ff4j.version>
         <org.modelmapper.version>2.4.4</org.modelmapper.version>
         <jmh.version>1.35</jmh.version>
@@ -102,7 +102,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>2.7.0</version>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core-micrometer</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -143,8 +147,8 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <version>3.0.0</version>
+            <artifactId>jakarta.el</artifactId>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -185,6 +189,17 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-tracing-bridge-brave -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>context-propagation</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -217,7 +232,7 @@
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
-            <version>0.7.0</version>
+            <version>0.8.0</version>
         </dependency>
 
         <dependency>

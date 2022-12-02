@@ -1,7 +1,6 @@
 package com.external.plugins;
 
 import com.appsmith.external.datatypes.AppsmithType;
-import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -144,7 +143,7 @@ public class MySqlPlugin extends BasePlugin {
     public static class MySqlPluginExecutor implements PluginExecutor<Connection>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -285,7 +284,7 @@ public class MySqlPlugin extends BasePlugin {
                                             rowsList.add(getRow(row, meta));
 
                                             if (columnsList.isEmpty()) {
-                                                columnsList.addAll(meta.getColumnNames());
+                                                meta.getColumnMetadatas().stream().forEach(columnMetadata -> columnsList.add(columnMetadata.getName()));
                                             }
 
                                             return result;

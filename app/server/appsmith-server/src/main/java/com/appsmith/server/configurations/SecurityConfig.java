@@ -13,6 +13,7 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -45,6 +46,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
+@Configuration
 public class SecurityConfig {
 
     @Autowired
@@ -134,7 +136,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current")
                 )
                 .permitAll()
-                .pathMatchers("/public/**", "/oauth2/**").permitAll()
+                .pathMatchers("/public/**", "/oauth2/**", "/actuator/**").permitAll()
                 .anyExchange()
                 .authenticated()
                 .and().httpBasic()

@@ -24,11 +24,11 @@ import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -123,7 +123,6 @@ public class SaasPlugin extends BasePlugin {
 
             // Triggering the actual REST API call
             return httpCall(client, HttpMethod.POST, uri, requestBodyObj, 0, APPLICATION_JSON_VALUE)
-                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         final HttpStatus statusCode = stringResponseEntity.getStatusCode();
                         byte[] body = stringResponseEntity.getBody();
@@ -157,8 +156,8 @@ public class SaasPlugin extends BasePlugin {
 
         }
 
-        private Mono<ClientResponse> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
-                                              int iteration, String contentType) {
+        private Mono<ResponseEntity<byte[]>> httpCall(WebClient webClient, HttpMethod httpMethod, URI uri, Object requestBody,
+                                                      int iteration, String contentType) {
             if (iteration == MAX_REDIRECTS) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
@@ -173,11 +172,12 @@ public class SaasPlugin extends BasePlugin {
                     .method(httpMethod)
                     .uri(uri)
                     .body((BodyInserter<?, ? super ClientHttpRequest>) finalRequestBody)
-                    .exchange()
+                    .retrieve()
+                    .toEntity(byte[].class)
                     .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
                     .flatMap(response -> {
-                        if (response.statusCode().is3xxRedirection()) {
-                            String redirectUrl = response.headers().header("Location").get(0);
+                        if (response.getStatusCode().is3xxRedirection()) {
+                            String redirectUrl = response.getHeaders().getLocation().toString();
                             /**
                              * TODO
                              * In case the redirected URL is not absolute (complete), create the new URL using the relative path

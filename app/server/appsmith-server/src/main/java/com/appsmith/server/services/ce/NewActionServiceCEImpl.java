@@ -10,12 +10,15 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
@@ -25,7 +28,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
-import com.appsmith.external.models.ActionProvider;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
@@ -33,14 +35,14 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.DateUtils;
+import com.appsmith.server.helpers.ElapsedTimeUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -64,10 +66,13 @@ import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
+import org.slf4j.MDC;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -78,13 +83,13 @@ import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import javax.lang.model.SourceVersion;
-import javax.validation.Validator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -106,11 +111,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -150,6 +151,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
 
+    private final ObservationRegistry observationRegistry;
+
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
                                   MongoConverter mongoConverter,
@@ -173,7 +176,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   DatasourcePermission datasourcePermission,
                                   ApplicationPermission applicationPermission,
                                   PagePermission pagePermission,
-                                  ActionPermission actionPermission) {
+                                  ActionPermission actionPermission,
+                                  ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -196,6 +200,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -726,6 +731,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     return datasourceContextService.getDatasourceContext(datasource1);
                                 }
                             })
+                            .timed()
+                            .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_PRE_REQUEST))
                             // Now that we have the context (connection details), execute the action.
                             .flatMap(resourceContext -> validatedDatasourceMono
                                     .flatMap(datasource1 -> {
@@ -838,10 +845,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
                     }
 
-                    return Mono.just(new HashMap());
+                    return Mono.just(new HashMap<>());
                 });
 
         return Mono.zip(actionExecutionResultMono, editorConfigLabelMapMono)
+                .timed()
+                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_RESULT))
                 .flatMap(tuple -> {
                     ActionExecutionResult result = tuple.getT1();
                     // In case the action was executed in view mode, do not return the request object
@@ -859,7 +868,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
+                .tag("test_this", "with_value")
+                .tap(Micrometer.observation(observationRegistry))
+                .timed()
+                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_POST_REQUEST))
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()))
+                .tag("test_this_after", "with_value_after")
+                .tap(Micrometer.observation(observationRegistry))
+                .timed()
+                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_WIDGET_SUGGESTION));
     }
 
     @Override
@@ -962,6 +979,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     dto.setParams(params);
                     return Mono.just(dto);
                 })
+                .timed()
+                .map(timedInput -> ElapsedTimeUtils.addElapsedTimeToContext(timedInput, ElapsedTimeUtils.EXECUTION_PARTS_PARSED))
                 .flatMap(executeActionDTO -> this
                         .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .map(branchedAction -> {
@@ -969,7 +988,23 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             return executeActionDTO;
                         })
                 )
-                .flatMap(this::executeAction);
+                .metrics()
+                .flatMap(this::executeAction)
+                .flatMap(result -> sendExecutionTimingAnalytics().thenReturn(result));
+    }
+
+    private Mono<Void> sendExecutionTimingAnalytics() {
+        HashMap<String, String> analyticsProperties = new HashMap<>();
+        analyticsProperties.put(MDCFilter.REQUEST_ID_LOG, MDC.get(MDCFilter.REQUEST_ID_LOG));
+        analyticsProperties.put(ElapsedTimeUtils.EXECUTION_PARTS_PARSED, MDC.get(ElapsedTimeUtils.EXECUTION_PARTS_PARSED));
+        analyticsProperties.put(ElapsedTimeUtils.EXECUTION_PRE_REQUEST, MDC.get(ElapsedTimeUtils.EXECUTION_PRE_REQUEST));
+        analyticsProperties.put(ElapsedTimeUtils.EXECUTION_WIDGET_SUGGESTION, MDC.get(ElapsedTimeUtils.EXECUTION_WIDGET_SUGGESTION));
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> {
+                    analyticsService.sendEvent("ACTION_EXECUTION_TIME_ELAPSED", user.getUsername(), analyticsProperties);
+                    return Mono.empty();
+                })
+                .then();
     }
 
     @Override
@@ -1054,6 +1089,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     /**
      * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
      * active before making the call to DB.
+     *
      * @return
      */
     public Boolean isSendExecuteAnalyticsEvent() {
@@ -1167,7 +1203,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (paramsList == null) {
                         paramsList = new ArrayList<>();
                     }
-                    List<String> executionParams =  paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
+                    List<String> executionParams = paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
                             "request", request,

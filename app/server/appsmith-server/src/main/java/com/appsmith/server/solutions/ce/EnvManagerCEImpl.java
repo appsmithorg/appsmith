@@ -30,7 +30,7 @@ import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -47,7 +47,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

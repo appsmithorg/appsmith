@@ -11,6 +11,7 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.typeadapters.InstantTypeAdapter;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -62,6 +63,7 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
@@ -2195,7 +2197,8 @@ public class DatabaseChangelog2 {
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
                 Charset.defaultCharset()
         );
-        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme[] themes = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantTypeAdapter()).create().fromJson(themesJson, Theme[].class);
 
         Theme legacyTheme = null;
         boolean themeExists = false;

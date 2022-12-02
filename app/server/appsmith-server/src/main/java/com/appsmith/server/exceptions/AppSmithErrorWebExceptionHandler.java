@@ -21,7 +21,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.result.view.ViewResolver;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Map;
 import java.util.stream.Collectors;
 
