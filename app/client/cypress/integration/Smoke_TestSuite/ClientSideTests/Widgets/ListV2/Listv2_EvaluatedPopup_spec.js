@@ -1,5 +1,5 @@
 describe("List widget v2 Evaluated Popup", () => {
-  it("1. List widget V2 with currentItem", () => {
+  it("1. List widget V2 with currentItem and escape characters", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,
       y: 300,
@@ -12,6 +12,15 @@ describe("List widget v2 Evaluated Popup", () => {
       ["{{currentItem.name}}_{{currentIndex}}", "Blue_0"],
       ["{{1000}}", "1000"],
       ['{{(() => "Text Widget")()}}', "Text Widget"],
+      ["NewLine\n{{currentItem.name}}", "NewLine\nBlue"],
+      [`\{{currentItem.name}}`, `\Blue`],
+      [
+        `{{
+          (function(){return true;})
+          ()}}
+        `,
+        "true",
+      ],
     ].forEach(([input, expected]) => {
       cy.updateCodeInput(".t--property-control-text", input);
       cy.wait(500);
