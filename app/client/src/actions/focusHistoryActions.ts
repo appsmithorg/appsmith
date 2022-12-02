@@ -17,7 +17,13 @@ export const pageChanged = (
 ) => {
   return {
     type: ReduxActionTypes.PAGE_CHANGED,
-    payload: { pageId, currPath, currParamString, fromPath, fromParamString },
+    payload: {
+      pageId,
+      currPath,
+      currParamString,
+      fromPath,
+      fromParamString,
+    },
   };
 };
 

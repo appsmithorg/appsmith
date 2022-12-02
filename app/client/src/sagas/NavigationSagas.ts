@@ -25,8 +25,6 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 let previousPath: string;
 let previousHash: string | undefined;
 
-let previousPageId: string;
-
 function* handleRouteChange(
   action: ReduxAction<{ pathname: string; hash?: string }>,
 ) {
@@ -62,17 +60,14 @@ function* handlePageChange(
   } = action.payload;
   try {
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    if (featureFlags.CONTEXT_SWITCHING) {
-      if (previousPageId) {
-        yield call(storeStateOfPage, previousPageId, fromPath, fromParamString);
-      }
+    const fromPageId = identifyEntityFromPath(fromPath)?.pageId;
+    if (featureFlags.CONTEXT_SWITCHING && fromPageId && fromPageId !== pageId) {
+      yield call(storeStateOfPage, fromPageId, fromPath, fromParamString);
 
       yield call(setStateOfPage, pageId, currPath, currParamString);
     }
   } catch (e) {
     log.error("Error on page change", e);
-  } finally {
-    previousPageId = pageId;
   }
 }
 
@@ -163,7 +158,7 @@ function* storeStateOfPage(
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
   if (shouldStoreURLforFocus(fromPath)) {
-    if (fromPath && fromPath.includes(pageId)) {
+    if (fromPath) {
       state._routingURL = fromPath;
     }
 

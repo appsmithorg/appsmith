@@ -73,7 +73,7 @@ type PropertyPaneTabProps = {
   styleComponent: JSX.Element | null;
   contentComponent: JSX.Element | null;
   isPanelProperty?: boolean;
-  panelPropertyPath: string;
+  panelPropertyPath?: string;
 };
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {

@@ -26,6 +26,7 @@ export enum FocusEntity {
 export type FocusEntityInfo = {
   entity: FocusEntity;
   id: string;
+  pageId?: string;
 };
 
 /**
@@ -39,6 +40,7 @@ export function shouldStoreURLforFocus(path: string) {
     FocusEntity.QUERY,
     FocusEntity.API,
     FocusEntity.JS_OBJECT,
+    FocusEntity.DATASOURCE,
   ];
 
   const entity = identifyEntityFromPath(path)?.entity;
@@ -119,21 +121,45 @@ export function identifyEntityFromPath(
   }
   if (match.params.apiId) {
     if (match.params.pluginPackageName) {
-      return { entity: FocusEntity.QUERY, id: match.params.apiId };
+      return {
+        entity: FocusEntity.QUERY,
+        id: match.params.apiId,
+        pageId: match.params.pageId,
+      };
     }
-    return { entity: FocusEntity.API, id: match.params.apiId };
+    return {
+      entity: FocusEntity.API,
+      id: match.params.apiId,
+      pageId: match.params.pageId,
+    };
   }
   if (match.params.datasourceId) {
-    return { entity: FocusEntity.DATASOURCE, id: match.params.datasourceId };
+    return {
+      entity: FocusEntity.DATASOURCE,
+      id: match.params.datasourceId,
+      pageId: match.params.pageId,
+    };
   }
   if (match.params.queryId) {
-    return { entity: FocusEntity.QUERY, id: match.params.queryId };
+    return {
+      entity: FocusEntity.QUERY,
+      id: match.params.queryId,
+      pageId: match.params.pageId,
+    };
   }
   if (match.params.collectionId) {
-    return { entity: FocusEntity.JS_OBJECT, id: match.params.collectionId };
+    return {
+      entity: FocusEntity.JS_OBJECT,
+      id: match.params.collectionId,
+      pageId: match.params.pageId,
+    };
   }
   if (match.params.pageId && hash) {
-    return { entity: FocusEntity.PROPERTY_PANE, id: hash };
+    return {
+      entity: FocusEntity.PROPERTY_PANE,
+      id: hash,
+      pageId: match.params.pageId,
+    };
   }
-  return { entity: FocusEntity.CANVAS, id: "" };
+  return { entity: FocusEntity.CANVAS, id: "", pageId: match.params.pageId };
 }
