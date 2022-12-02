@@ -62,10 +62,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 import static java.util.stream.Collectors.toSet;
@@ -342,7 +340,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         }
 
                         // Stricter extraction of dynamic bindings
-                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
 
                         String completePath = widgetName + "." + fieldPath;
                         if (widgetDynamicBindingsMap.containsKey(completePath)) {
