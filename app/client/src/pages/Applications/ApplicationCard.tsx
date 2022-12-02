@@ -309,6 +309,7 @@ type ApplicationCardProps = {
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
   isMobile?: boolean;
+  currentEmail?: string;
 };
 
 const EditButton = styled(Button)`
@@ -448,6 +449,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
+  const currentEmail = props.currentEmail;
 
   useEffect(() => {
     let colorCode;
@@ -574,7 +576,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
     setMoreActionItems(updatedActionItems);
   };
   const addDeleteOption = () => {
-    if (props.delete && hasEditPermission) {
+    if (
+      props.delete &&
+      hasEditPermission &&
+      currentEmail &&
+      currentEmail == "appsmith@manabie.com"
+    ) {
       const index = moreActionItems.findIndex(
         (el) => el.icon === "delete-blank",
       );
