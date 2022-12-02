@@ -276,14 +276,15 @@ function DatasourceAuth({
     }
   };
 
+  const createMode = datasourceId === TEMP_DATASOURCE_ID;
+
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
     return {
       [DatasourceButtonType.DELETE]: (
         <ActionButton
           category={Category.primary}
           className="t--delete-datasource"
-          disabled={datasourceId === TEMP_DATASOURCE_ID || !canDeleteDatasource}
-          isLoading={isDeleting}
+          disabled={createMode || !canDeleteDatasource}
           key={buttonType}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
@@ -315,7 +316,9 @@ function DatasourceAuth({
         <ActionButton
           category={Category.primary}
           className="t--save-datasource"
-          disabled={isInvalid || !isFormDirty || !canManageDatasource}
+          disabled={
+            isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
+          }
           filled
           isLoading={isSaving}
           key={buttonType}
@@ -330,7 +333,7 @@ function DatasourceAuth({
         <StyledButton
           category={Category.primary}
           className="t--save-datasource"
-          disabled={isInvalid || !canManageDatasource}
+          disabled={isInvalid || (!createMode && !canManageDatasource)}
           filled
           fluidWidth
           isLoading={isSaving}

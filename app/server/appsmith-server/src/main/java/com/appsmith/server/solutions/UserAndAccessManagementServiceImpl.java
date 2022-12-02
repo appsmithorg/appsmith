@@ -16,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -34,7 +35,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -63,6 +63,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final UserService userService;
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserGroupRepository userGroupRepository;
+    private final UserDataRepository userDataRepository;
 
     public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
                                               PermissionGroupService permissionGroupService,
@@ -75,7 +76,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                                               TenantService tenantService,
                                               PermissionGroupRepository permissionGroupRepository,
                                               UserGroupRepository userGroupRepository,
-                                              PermissionGroupPermission permissionGroupPermission) {
+                                              PermissionGroupPermission permissionGroupPermission,
+                                              UserDataRepository userDataRepository) {
 
         super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
                 permissionGroupPermission);
@@ -86,6 +88,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.tenantService = tenantService;
         this.permissionGroupRepository = permissionGroupRepository;
         this.userGroupRepository = userGroupRepository;
+        this.userDataRepository = userDataRepository;
     }
 
 
@@ -163,10 +166,14 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
 
                     Mono<Void> cleanPermissionGroupCacheMono = permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(user.getId()));
 
-                    Mono<Boolean> archiveUserMono = userRepository.archiveById(userId);
+                    Mono<Void> deleteUserMono = userRepository.deleteById(userId);
+                    Mono<Void> deleteUserDataMono = userDataRepository.findByUserId(userId)
+                            .flatMap(userData -> userDataRepository.deleteById(userData.getId()));
+
+                    Mono<Tuple2<Void, Void>> deleteUserAndDataMono = Mono.zip(deleteUserMono, deleteUserDataMono);
 
                     return Mono.zip(unassignedFromRolesMono, removedFromGroupsMono)
-                            .then(archiveUserMono)
+                            .then(deleteUserAndDataMono)
                             .then(cleanPermissionGroupCacheMono)
                             .thenReturn(TRUE);
                 });

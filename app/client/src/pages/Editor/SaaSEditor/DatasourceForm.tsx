@@ -318,6 +318,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           )}
         </form>
         <SaveOrDiscardDatasourceModal
+          datasourceId={datasourceId}
+          datasourcePermissions={datasource?.userPermissions || []}
           isOpen={this.state.showDialog}
           onClose={this.closeDialog}
           onDiscard={this.onDiscard}

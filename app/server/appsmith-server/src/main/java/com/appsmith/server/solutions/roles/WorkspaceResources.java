@@ -488,7 +488,7 @@ public class WorkspaceResources {
         Set<AclPermission> actionPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Action.class)).collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> actionHierarchicalLateralMap = getHierarchicalLateralPermMap(actionPermissions, policyGenerator, roleTab);
 
-        Set<AclPermission> actionCollectionPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(ActionCollection.class)).collect(Collectors.toSet());
+        Set<AclPermission> actionCollectionPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Action.class)).collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> actionCollectionHierarchicalLateralMap = getHierarchicalLateralPermMap(actionCollectionPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
@@ -546,8 +546,8 @@ public class WorkspaceResources {
 
                                                                                 String actionCollectionId = actionCollection.getId();
 
-                                                                                generateLateralPermissionDTOsAndUpdateMap(pageHierarchicalLateralMap, hoverMap, pageId, actionCollectionId, ActionCollection.class);
-                                                                                generateLateralPermissionDTOsAndUpdateMap(actionCollectionHierarchicalLateralMap, hoverMap, actionCollectionId, actionCollectionId, ActionCollection.class);
+                                                                                generateLateralPermissionDTOsAndUpdateMap(pageHierarchicalLateralMap, hoverMap, pageId, actionCollectionId, Action.class);
+                                                                                generateLateralPermissionDTOsAndUpdateMap(actionCollectionHierarchicalLateralMap, hoverMap, actionCollectionId, actionCollectionId, Action.class);
                                                                             });
                                                                 }
                                                             });
