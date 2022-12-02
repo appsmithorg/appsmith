@@ -201,11 +201,8 @@ export default class DataTreeEvaluator {
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
     const currentAppMode: APP_MODE = getAppMode(localUnEvalTree);
-    const parsedCollections = this.parseJsActionsConfig[currentAppMode](
-      this,
-      localUnEvalTree,
-    );
-    jsUpdates = parsedCollections ? parsedCollections.jsUpdates : {};
+    jsUpdates =
+      this.parseJsActionsConfig[currentAppMode](this, localUnEvalTree) || {};
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
@@ -377,15 +374,11 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
-    //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActionsForUpdateTree(
-      this,
-      localUnEvalTree,
-      jsTranslatedDiffs,
-    );
-
-    jsUpdates = parsedCollections ? parsedCollections.jsUpdates : {};
-    //update local data tree if js body has updated (remove/update/add js functions or variables)
+    // save parsed functions in resolveJSFunctions, update current state of js collection
+    jsUpdates =
+      parseJSActionsForUpdateTree(this, localUnEvalTree, jsTranslatedDiffs) ||
+      {};
+    // update local data tree if js body has updated (remove/update/add js functions or variables)
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
