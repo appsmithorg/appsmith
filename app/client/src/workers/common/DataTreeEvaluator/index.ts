@@ -776,7 +776,7 @@ export default class DataTreeEvaluator {
             if (!propertyPath) return currentTree;
             set(
               this.evalValuesAndError,
-              getEvalValuePath(fullPropertyPath, { fullPath: true }),
+              getEvalValuePath(fullPropertyPath),
               safeEvaluatedValue,
             );
             set(currentTree, fullPropertyPath, evalPropertyValue);
