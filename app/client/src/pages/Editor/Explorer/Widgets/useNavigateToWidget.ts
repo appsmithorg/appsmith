@@ -9,6 +9,7 @@ import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import store from "store";
+import { NavigationMethod } from "utils/history";
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
@@ -50,6 +51,7 @@ export const useNavigateToWidget = () => {
       widgetId: string,
       widgetType: WidgetType,
       pageId: string,
+      navigationMethod: NavigationMethod,
       isWidgetSelected?: boolean,
       isMultiSelect?: boolean,
       isShiftSelect?: boolean,

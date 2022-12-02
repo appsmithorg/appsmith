@@ -2,6 +2,12 @@
 const createHistory = require("history").createBrowserHistory;
 export default createHistory();
 
+export enum NavigationMethod {
+  CommandClick = "CommandClick",
+  EntityExplorer = "EntityExplorer",
+  OmnibarNavigation = "OmnibarNavigation",
+}
+
 export type AppsmithLocationState = {
-  directNavigation?: boolean;
+  navigationVia?: NavigationMethod;
 };

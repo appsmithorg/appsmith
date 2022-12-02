@@ -15,8 +15,12 @@ import log from "loglevel";
 import FeatureFlags from "entities/FeatureFlags";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Location } from "history";
-import history, { AppsmithLocationState } from "utils/history";
+import history, {
+  AppsmithLocationState,
+  NavigationMethod,
+} from "utils/history";
 import { EventChannel, eventChannel } from "redux-saga";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -51,6 +55,7 @@ function* navigationListenerSaga() {
 function* handleRouteChange(payload: LocationChangePayload) {
   const { hash, pathname, state } = payload.location;
   try {
+    yield call(logNavigationAnalytics, payload);
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     if (featureFlags.CONTEXT_SWITCHING) {
       yield call(contextSwitchingSaga, pathname, state, hash);
@@ -61,6 +66,17 @@ function* handleRouteChange(payload: LocationChangePayload) {
     previousPath = pathname;
     previousHash = hash;
   }
+}
+
+function* logNavigationAnalytics(payload: LocationChangePayload) {
+  const {
+    location: { hash, pathname, state },
+  } = payload;
+  AnalyticsUtil.logEvent("ROUTE_CHANGE", {
+    path: pathname + hash,
+    from: previousPath + previousHash,
+    navigationMethod: state.navigationVia,
+  });
 }
 
 function* contextSwitchingSaga(
@@ -163,7 +179,14 @@ function shouldSetState(
   currHash?: string,
   state?: AppsmithLocationState,
 ) {
-  if (state && state.directNavigation) return true;
+  if (
+    state &&
+    state.navigationVia &&
+    state.navigationVia === NavigationMethod.CommandClick
+  ) {
+    // If it is a command click navigation, we will set the state
+    return true;
+  }
   const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash).entity;
   const currFocusEntity = identifyEntityFromPath(currPath, currHash).entity;
 

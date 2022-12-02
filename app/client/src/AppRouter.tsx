@@ -44,7 +44,6 @@ import { setThemeMode } from "actions/themeActions";
 import { connect, useSelector } from "react-redux";
 
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { trimTrailingSlash } from "utils/helpers";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
@@ -94,15 +93,12 @@ function AppRouter(props: {
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
-    AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
-    const stopListener = history.listen((location: any) => {
-      AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: location.pathname });
-      changeAppBackground(props.currentTheme);
-    });
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
-    return stopListener;
+    return () => {
+      changeAppBackground(props.currentTheme);
+    };
   }, []);
 
   useEffect(() => {
