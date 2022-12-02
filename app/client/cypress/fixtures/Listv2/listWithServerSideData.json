@@ -51,7 +51,7 @@
             ],
             "dynamicBindingPathList": [
                 {
-                    "key": "currentViewRows"
+                    "key": "currentItemsView"
                 },
                 {
                     "key": "selectedRow"
@@ -567,7 +567,7 @@
                 "undefined": true
             },
             "key": "tbhg3iswjg",
-            "currentViewRows": "{{[]}}",
+            "currentItemsView": "{{[]}}",
             "backgroundColor": "transparent",
             "isDeprecated": false,
             "rightColumn": 45,

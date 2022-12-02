@@ -41,21 +41,21 @@ export const CONFIG = {
     gridType: "vertical",
     dynamicBindingPathList: [
       {
-        key: "currentViewRows",
+        key: "currentItemsView",
       },
       {
-        key: "selectedRow",
+        key: "selectedItemView",
       },
       {
-        key: "triggeredRow",
+        key: "triggeredItemView",
       },
       {
         key: "primaryKeys",
       },
     ],
-    currentViewRows: "{{[]}}",
-    selectedRow: "{{{}}}",
-    triggeredRow: "{{{}}}",
+    currentItemsView: "{{[]}}",
+    selectedItemView: "{{{}}}",
+    triggeredItemView: "{{{}}}",
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
@@ -63,7 +63,7 @@ export const CONFIG = {
         },
       },
     },
-    gridGap: 0,
+    itemGap: 0,
     templateBottomRow: 16,
     listData: DEFAULT_LIST_DATA,
     pageSize: DEFAULT_LIST_DATA.length,

@@ -17,7 +17,7 @@ describe("Listv2 - Event bindings", () => {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("1. simple list widget should have access to currentItem, currentIndex and currentRow", () => {
+  it("1. simple list widget should have access to currentItem, currentIndex and currentView", () => {
     cy.addDsl(simpleListWithInputAndButtonDSL);
 
     // Open the property pane of button in the inner list widget
@@ -28,7 +28,7 @@ describe("Listv2 - Event bindings", () => {
 
     cy.testJsontext(
       "onclick",
-      "{{showAlert(`${currentRow.Input1.text} _ ${currentItem.id} _ ${currentIndex}`)}}",
+      "{{showAlert(`${currentView.Input1.text} _ ${currentItem.id} _ ${currentIndex}`)}}",
     );
     // Enter text in the parent list widget's text input
     cy.get(widgetSelector("Input1"))
@@ -43,7 +43,7 @@ describe("Listv2 - Event bindings", () => {
     cy.get(commonlocators.toastmsg).contains("Input _ 001 _ 0");
   });
 
-  it("2. simple list widget should get updated values of currentRow", () => {
+  it("2. simple list widget should get updated values of currentView", () => {
     // Enter text in the parent list widget's text input
     cy.get(widgetSelector("Input1"))
       .find("input")
@@ -60,7 +60,7 @@ describe("Listv2 - Event bindings", () => {
     cy.get(commonlocators.toastmsg).contains("Updated Input _ 001 _ 0");
   });
 
-  it("3. nested list - inner widget should have access to currentItem, currentIndex, currentRow and level_1", () => {
+  it("3. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
     cy.addDsl(nestedListDSL);
 
     // Open the property pane of button in the inner list widget
@@ -71,7 +71,7 @@ describe("Listv2 - Event bindings", () => {
 
     cy.testJsontext(
       "onclick",
-      "{{showAlert(`${level_1.currentRow.Text1.text} _ ${level_1.currentItem.id} _ ${level_1.currentIndex} _ ${level_1.currentRow.Input1.text} _ ${currentRow.Input2.text}`)}}",
+      "{{showAlert(`${level_1.currentView.Text1.text} _ ${level_1.currentItem.id} _ ${level_1.currentIndex} _ ${level_1.currentView.Input1.text} _ ${currentView.Input2.text}`)}}",
     );
     // Enter text in the parent list widget's text input
     cy.get(widgetSelector("Input1"))
@@ -93,7 +93,7 @@ describe("Listv2 - Event bindings", () => {
     );
   });
 
-  it("4. nested list - inner widget should get updated values of currentRow and level_1", () => {
+  it("4. nested list - inner widget should get updated values of currentView and level_1", () => {
     // Enter text in the parent list widget's text input
     cy.get(widgetSelector("Input1"))
       .find("input")

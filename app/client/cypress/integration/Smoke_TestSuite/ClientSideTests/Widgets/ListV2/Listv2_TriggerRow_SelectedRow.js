@@ -49,19 +49,19 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
 
     // Update widgets with right data and confirm
     cy.openPropertyPaneByWidgetName("TriggeredRow", "textwidget");
-    cy.testJsontext("text", `{{List1.triggeredRow}}`);
+    cy.testJsontext("text", `{{List1.triggeredItemView}}`);
     cy.get(`${widgetSelector("TriggeredRow")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", JSON.stringify({}));
 
     cy.openPropertyPaneByWidgetName("SelectedRow", "textwidget");
-    cy.testJsontext("text", `{{List1.selectedRow}}`);
+    cy.testJsontext("text", `{{List1.selectedItemView}}`);
     cy.get(`${widgetSelector("SelectedRow")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", JSON.stringify({}));
 
     cy.openPropertyPaneByWidgetName("SelectedRowIndex", "textwidget");
-    cy.testJsontext("text", `{{List1.selectedRowIndex}}`);
+    cy.testJsontext("text", `{{List1.selectedItemIndex}}`);
     cy.get(
       `${widgetSelector("SelectedRowIndex")} ${commonlocators.bodyTextStyle}`,
     )
@@ -69,7 +69,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .should("have.text", "-1");
 
     cy.openPropertyPaneByWidgetName("TriggeredRowIndex", "textwidget");
-    cy.testJsontext("text", `{{List1.triggeredRowIndex}}`);
+    cy.testJsontext("text", `{{List1.triggeredItemIndex}}`);
     cy.get(
       `${widgetSelector("TriggeredRowIndex")} ${commonlocators.bodyTextStyle}`,
     )
@@ -119,7 +119,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .first()
       .then((val) => {
         const data = JSON.parse(val.text());
-        const triggeredRow = {
+        const triggeredItemView = {
           Image1: {
             image: "https://assets.appsmith.com/widgets/default.png",
             isVisible: true,
@@ -145,7 +145,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
             isDisabled: false,
           },
         };
-        cy.wrap(data).should("deep.equal", triggeredRow);
+        cy.wrap(data).should("deep.equal", triggeredItemView);
       });
 
     cy.get(`${widgetSelector("SelectedRow")} ${commonlocators.bodyTextStyle}`)
@@ -222,7 +222,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .first()
       .then((val) => {
         const data = JSON.parse(val.text());
-        const triggeredRow = {
+        const triggeredItemView = {
           Image1: {
             image: "https://assets.appsmith.com/widgets/default.png",
             isVisible: true,
@@ -248,14 +248,14 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
             isDisabled: false,
           },
         };
-        cy.wrap(data).should("deep.equal", triggeredRow);
+        cy.wrap(data).should("deep.equal", triggeredItemView);
       });
 
     cy.get(`${widgetSelector("SelectedRow")} ${commonlocators.bodyTextStyle}`)
       .first()
       .then((val) => {
         const data = JSON.parse(val.text());
-        const SelectedRow = {
+        const selectedItemView = {
           Image1: {
             image: "https://assets.appsmith.com/widgets/default.png",
             isVisible: true,
@@ -281,7 +281,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
             isDisabled: false,
           },
         };
-        cy.wrap(data).should("deep.equal", SelectedRow);
+        cy.wrap(data).should("deep.equal", selectedItemView);
       });
 
     cy.get(
@@ -314,7 +314,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .should("have.text", "1");
   });
 
-  it("4. Have a different triggeredRow and SelectedRow and validate data on PageChange", () => {
+  it("4. Have a different triggeredItemView and selectedItemView and validate data on PageChange", () => {
     // Go to page 3
     cy.get(commonlocators.listPaginateNextButton).click({
       force: true,
@@ -325,7 +325,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .first()
       .should("have.text", "3");
 
-    // Click on a button to change triggeredRow
+    // Click on a button to change triggeredItemView
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector} .bp3-button`)
       .first()
       .click({ force: true });
@@ -345,7 +345,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
       .first()
       .then((val) => {
         const data = JSON.parse(val.text());
-        const triggeredRow = {
+        const triggeredItemView = {
           Image1: {
             image: "https://assets.appsmith.com/widgets/default.png",
             isVisible: true,
@@ -371,7 +371,7 @@ describe("List widget v2; TriggeredRow, SelectedRow, TriggeredRowIndex, Selected
             isDisabled: false,
           },
         };
-        cy.wrap(data).should("deep.equal", triggeredRow);
+        cy.wrap(data).should("deep.equal", triggeredItemView);
       });
     cy.get(
       `${widgetSelector("TriggeredRowIndex")} ${commonlocators.bodyTextStyle}`,
