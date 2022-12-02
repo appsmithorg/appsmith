@@ -203,32 +203,6 @@ function Actions(props: ActionsPropsType) {
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          {/* {props.totalRecordsCount ? (
-            <TableHeaderContentWrapper>
-              Page&nbsp;
-              <PaginationItemWrapper
-                accentColor={props.accentColor}
-                borderRadius={props.borderRadius}
-                className="page-item"
-                selected
-              >
-                {props.pageNo + 1}
-              </PaginationItemWrapper>
-              &nbsp;
-              <span
-                data-pagecount={props.pageCount}
-              >{`of ${props.pageCount}`}</span>
-            </TableHeaderContentWrapper>
-          ) : (
-            <PaginationItemWrapper
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
-              className="page-item"
-              selected
-            >
-              {props.pageNo + 1}
-            </PaginationItemWrapper>
-          )} */}
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}
@@ -263,18 +237,6 @@ function Actions(props: ActionsPropsType) {
           >
             <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          {/* <TableHeaderContentWrapper>
-            Page{" "}
-            <PageNumberInput
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
-              disabled={props.pageCount === 1}
-              pageCount={props.pageCount}
-              pageNo={props.pageNo + 1}
-              updatePageNo={props.updatePageNo}
-            />{" "}
-            of {props.pageCount}
-          </TableHeaderContentWrapper> */}
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}

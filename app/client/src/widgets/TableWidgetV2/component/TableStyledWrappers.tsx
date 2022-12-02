@@ -88,7 +88,6 @@ export const TableWrapper = styled.div<{
           ? props.height - OFFSET_WITH_HEADER
           : props.height - OFFSET_WITHOUT_HEADER}px;
       width: 100%;
-      // overflow-y: auto;
       ${hideScrollbar};
 
       .skeleton-cell {

@@ -438,12 +438,6 @@ export function Table(props: TableProps) {
           </Scrollbars>
         </TableHeaderWrapper>
       )}
-      {/* <ScrollIndicator
-        containerRef={tableBodyRef}
-        mode="LIGHT"
-        showScrollbarOnlyOnHover
-        top={props.editMode ? "70px" : "73px"}
-      /> */}
     </TableWrapper>
   );
 }
