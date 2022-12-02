@@ -15,6 +15,7 @@ import {
   updateDatasource,
   redirectAuthorizationCode,
   getOAuthAccessToken,
+  setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
 } from "actions/datasourceActions";
@@ -232,6 +233,7 @@ function DatasourceAuth({
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData()));
     } else {
+      dispatch(setDatasourceViewMode(true));
       // we dont need to redirect it to active ds list instead ds would be shown in view only mode
       dispatch(updateDatasource(getSanitizedFormData()));
     }
@@ -250,6 +252,7 @@ function DatasourceAuth({
         ),
       );
     } else {
+      dispatch(setDatasourceViewMode(true));
       dispatch(
         updateDatasource(
           getSanitizedFormData(),
