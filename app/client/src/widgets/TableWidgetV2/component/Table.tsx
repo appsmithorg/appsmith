@@ -25,7 +25,6 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { ScrollIndicator } from "design-system";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
@@ -238,7 +237,7 @@ export function Table(props: TableProps) {
     props.isVisibleDownload ||
     props.isVisiblePagination;
 
-  const style = useMemo(
+  const headerStyle = useMemo(
     () => ({
       width: props.width,
       height: 38,
@@ -288,7 +287,7 @@ export function Table(props: TableProps) {
             renderThumbHorizontal={ScrollbarHorizontalThumb}
             renderThumbVertical={ScrollbarVerticalThumb}
             renderTrackHorizontal={ScrollbarHorizontalTrack}
-            style={style}
+            style={headerStyle}
           >
             <TableHeaderInnerWrapper
               backgroundColor={Colors.WHITE}
@@ -341,6 +340,7 @@ export function Table(props: TableProps) {
         ref={tableWrapperRef}
       >
         <Scrollbars
+          hideTracksWhenNotNeeded
           renderThumbHorizontal={ScrollbarHorizontalThumb}
           renderTrackHorizontal={ScrollbarHorizontalTrack}
           style={{
@@ -426,12 +426,6 @@ export function Table(props: TableProps) {
           </div>
         </Scrollbars>
       </div>
-      <ScrollIndicator
-        containerRef={tableBodyRef}
-        mode="LIGHT"
-        showScrollbarOnlyOnHover
-        top={props.editMode ? "70px" : "73px"}
-      />
     </TableWrapper>
   );
 }

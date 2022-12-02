@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { NumericInput, Keys } from "@blueprintjs/core";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -54,6 +54,7 @@ export function PageNumberInput(props: {
   accentColor?: string;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setPageNumber(props.pageNo || 0);
@@ -86,6 +87,12 @@ export function PageNumberInput(props: {
     [props.pageNo, props.pageCount, props.updatePageNo],
   );
 
+  const handleOnFocus = useCallback(() => {
+    if (inputRef.current) {
+      inputRef.current.select();
+    }
+  }, [inputRef]);
+
   return (
     <PageNumberInputWrapper
       accentColor={props.accentColor}
@@ -94,9 +101,11 @@ export function PageNumberInput(props: {
       clampValueOnBlur
       className="t--table-widget-page-input"
       disabled={props.disabled}
+      inputRef={(e) => (inputRef.current = e)}
       max={props.pageCount || 1}
       min={1}
       onBlur={handleUpdatePageNo}
+      onFocus={handleOnFocus}
       onKeyDown={(e: any) => {
         if (e.keyCode === Keys.ENTER) {
           handleUpdatePageNo(e);

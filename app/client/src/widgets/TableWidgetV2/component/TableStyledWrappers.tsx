@@ -185,10 +185,6 @@ export const TableWrapper = styled.div<{
     }
   }
 
-  .tbody .tr:last-child .td {
-    border-bottom: none;
-  }
-
   .draggable-header,
   .hidden-header {
     width: 100%;
