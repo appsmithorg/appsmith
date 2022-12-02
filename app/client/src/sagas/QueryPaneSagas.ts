@@ -89,7 +89,6 @@ import { validateResponse } from "./ErrorSagas";
 import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { CreateDatasourceSuccessAction } from "actions/datasourceActions";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -207,49 +206,49 @@ function* formValueChangeSaga(
 
       // Update the datasource of the form as well
       yield put(autofill(QUERY_EDITOR_FORM_NAME, "datasource", datasource));
-      
+
       AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
-      
-    const allPlugins: Plugin[] = yield select(getPlugins);
-    const uiComponent = getUIComponent(values?.pluginId, allPlugins);
-    if (
-      uiComponent === UIComponentTypes.UQIDbEditorForm &&
-      !!values?.id &&
-      !!datasource?.id &&
-      !!values?.pluginId
-    ) {
-      // get dynamic triggers that need to be refetched. i.e. allowedToFetch is true.
-      const allTriggers: FormEvalOutput | undefined = yield select(
-        getDynamicTriggers,
-        values.id,
-      );
 
-      try {
-        // if all triggers exist then set their loading states to true and refetch them.
-        if (!!allTriggers) {
-          yield put({
-            type: ReduxActionTypes.SET_TRIGGER_VALUES_LOADING,
-            payload: {
-              formId: values.id,
-              keys: Object.keys(allTriggers),
-              value: true,
-            },
-          });
+      const allPlugins: Plugin[] = yield select(getPlugins);
+      const uiComponent = getUIComponent(values?.pluginId, allPlugins);
+      if (
+        uiComponent === UIComponentTypes.UQIDbEditorForm &&
+        !!values?.id &&
+        !!datasource?.id &&
+        !!values?.pluginId
+      ) {
+        // get dynamic triggers that need to be refetched. i.e. allowedToFetch is true.
+        const allTriggers: FormEvalOutput | undefined = yield select(
+          getDynamicTriggers,
+          values.id,
+        );
 
-          // refetch trigger values.
-          yield fork(
-            fetchDynamicValuesSaga,
-            allTriggers,
-            values.id,
-            datasource.id,
-            values.pluginId,
-          );
-        }
-      } catch (err) {}
+        try {
+          // if all triggers exist then set their loading states to true and refetch them.
+          if (!!allTriggers) {
+            yield put({
+              type: ReduxActionTypes.SET_TRIGGER_VALUES_LOADING,
+              payload: {
+                formId: values.id,
+                keys: Object.keys(allTriggers),
+                value: true,
+              },
+            });
+
+            // refetch trigger values.
+            yield fork(
+              fetchDynamicValuesSaga,
+              allTriggers,
+              values.id,
+              datasource.id,
+              values.pluginId,
+            );
+          }
+        } catch (err) {}
+      }
+
+      return;
     }
-
-    return;
-  }
 
     const plugins: Plugin[] = yield select(getPlugins);
     const uiComponent = getUIComponent(values.pluginId, plugins);
