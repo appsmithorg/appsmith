@@ -78,6 +78,18 @@ export type UpdatePageRequest = {
   customSlug?: string;
 };
 
+export type UpdatePageResponse = {
+  id: string;
+  name: string;
+  slug: string;
+  customSlug?: string;
+  applicationId: string;
+  layouts: Array<PageLayout>;
+  isHidden: boolean;
+  lastUpdatedTime: number;
+  defaultResources: unknown[];
+};
+
 export type SetPageOrderRequest = {
   order: number;
   pageId: string;
@@ -214,7 +226,9 @@ class PageApi extends Api {
     return Api.post(PageApi.url, createPageRequest);
   }
 
-  static updatePage(request: UpdatePageRequest): AxiosPromise<ApiResponse> {
+  static updatePage(
+    request: UpdatePageRequest,
+  ): AxiosPromise<ApiResponse<UpdatePageResponse>> {
     return Api.put(PageApi.updatePageUrl(request.id), request);
   }
 
