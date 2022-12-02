@@ -1,10 +1,16 @@
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import React, { createRef, RefObject } from "react";
-import { get, range, isEmpty, floor } from "lodash";
+import { get, isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
+import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import derivedProperties from "./parseDerivedProperties";
+import ListComponent, { ListComponentEmpty } from "../component";
+import ListPagination, {
+  ServerSideListPagination,
+} from "../component/ListPagination";
+import Loader from "../component/Loader";
 import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import MetaWidgetGenerator, { GeneratorOptions } from "../MetaWidgetGenerator";
 import WidgetFactory from "utils/WidgetFactory";
@@ -17,20 +23,11 @@ import {
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
 import {
-  GridDefaults,
   RenderModes,
   WidgetType,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
-import ListComponent, {
-  ListComponentEmpty,
-  ListComponentLoading,
-} from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import ListPagination, {
-  ServerSideListPagination,
-} from "../component/ListPagination";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
 import { WidgetState } from "../../BaseWidget";
 
@@ -394,21 +391,15 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   getPageSize = () => {
     // TODO: FInd const for this
-    const {
-      infiniteScroll,
-      listData,
-      parentRowSpace,
-      serverSidePagination,
-    } = this.props;
+    const { infiniteScroll, listData, serverSidePagination } = this.props;
     const spaceTakenByOneContainer = this.getContainerRowHeight();
 
-    const widgetPadding = parentRowSpace * 0.4;
     const itemsCount = (listData || []).length;
 
     const { componentHeight } = this.getComponentDimensions();
 
     const spaceAvailableWithoutPaginationControls =
-      componentHeight - widgetPadding * 2;
+      componentHeight - WIDGET_PADDING * 2;
     const spaceAvailableWithPaginationControls =
       spaceAvailableWithoutPaginationControls - LIST_WIDGET_PAGINATION_HEIGHT;
 
@@ -768,39 +759,18 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);
   };
 
-  /**
-   * view that is rendered in editor
-   */
   getPageView() {
     const { componentHeight } = this.getComponentDimensions();
-    const { pageNo, serverSidePagination } = this.props;
-    const templateHeight =
-      this.getTemplateBottomRow() * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    const { pageNo, parentRowSpace, serverSidePagination } = this.props;
+    const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
 
     if (this.props.isLoading) {
       return (
-        <ListComponentLoading>
-          {range(10).map((i) => (
-            <div className="bp3-card bp3-skeleton" key={`skeleton-${i}`}>
-              <h5 className="bp3-heading">
-                <a className=".modifier" href="#">
-                  Card heading
-                </a>
-              </h5>
-              <p className=".modifier">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                eget tortor felis. Fusce dapibus metus in dapibus mollis.
-                Quisque eget ex diam.
-              </p>
-              <button
-                className="bp3-button bp3-icon-add .modifier"
-                type="button"
-              >
-                Submit
-              </button>
-            </div>
-          ))}
-        </ListComponentLoading>
+        <Loader
+          gridGap={this.props.gridGap}
+          pageSize={this.pageSize}
+          templateHeight={templateHeight}
+        />
       );
     }
 
