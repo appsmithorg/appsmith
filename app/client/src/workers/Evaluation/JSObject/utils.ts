@@ -7,6 +7,7 @@ import {
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
 import { isJSAction } from "workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "../../../entities/App";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
@@ -243,5 +244,5 @@ export function isJSObjectFunction(
 
 export function getAppMode(dataTree: DataTree) {
   const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
-  return appsmithObj.mode;
+  return appsmithObj.mode as APP_MODE;
 }
