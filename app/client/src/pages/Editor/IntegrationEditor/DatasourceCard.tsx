@@ -15,7 +15,6 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import {
   Button,
@@ -234,18 +233,19 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasourceId: datasource.id,
           params: {
             from: "datasources",
+            viewMode: "false",
             ...getQueryParams(),
           },
         }),
       );
     } else {
-      dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
         datasourcesEditorIdURL({
           pageId,
           datasourceId: datasource.id,
           params: {
             from: "datasources",
+            viewMode: "false",
             ...getQueryParams(),
           },
         }),

@@ -919,6 +919,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "getTemplateCollections",
   );
   cy.route("PUT", "/api/v1/pages/*").as("updatePage");
+  cy.route("PUT", "api/v1/applications/*/page/*/makeDefault").as(
+    "makePageDefault",
+  );
   cy.route("DELETE", "/api/v1/applications/*").as("deleteApp");
   cy.route("DELETE", "/api/v1/pages/*").as("deletePage");
   //cy.route("POST", "/api/v1/datasources").as("createDatasource");

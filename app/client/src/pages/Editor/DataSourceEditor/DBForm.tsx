@@ -32,7 +32,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps extends JSONtoFormProps {
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  setDatasourceViewMode: (viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
   datasourceId: string;
   applicationId: string;
@@ -80,8 +80,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
       super.componentDidUpdate(prevProps);
-      if (!this.props.hiddenHeader)
-        this.props.setDatasourceEditorMode(this.props.datasourceId, true);
     }
   }
   // returns normalized and trimmed datasource form data
@@ -145,10 +143,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 category={Category.tertiary}
                 className="t--edit-datasource"
                 onClick={() => {
-                  this.props.setDatasourceEditorMode(
-                    this.props.datasourceId,
-                    false,
-                  );
+                  this.props.setDatasourceViewMode(false);
                 }}
                 text="EDIT"
               />
