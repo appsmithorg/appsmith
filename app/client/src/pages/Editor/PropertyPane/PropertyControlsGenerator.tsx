@@ -82,6 +82,7 @@ const generatePropertyControl = (
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  if (!widgetProps) return null;
   const finalProps = evaluateHiddenProperty(props.config, widgetProps);
   const searchResults = searchPropertyPaneConfig(
     finalProps as PropertyPaneSectionConfig[],
