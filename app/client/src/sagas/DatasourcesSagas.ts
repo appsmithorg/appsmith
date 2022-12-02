@@ -34,7 +34,7 @@ import {
 import {
   changeDatasource,
   fetchDatasourceStructure,
-  setDatsourceEditorMode,
+  setDatasourceViewMode,
   updateDatasourceSuccess,
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
@@ -353,9 +353,6 @@ function* updateDatasourceSaga(
           queryParams,
         ),
       );
-      yield put(
-        setDatsourceEditorMode({ id: datasourcePayload.id, viewMode: true }),
-      );
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
         payload: {
@@ -365,10 +362,10 @@ function* updateDatasourceSaga(
       if (actionPayload.onSuccess) {
         yield put(actionPayload.onSuccess);
       }
-      //Refresh datasource structure on save
       if (expandDatasourceId === response.data.id) {
         yield put(fetchDatasourceStructure(response.data.id, true));
       }
+      yield put(setDatasourceViewMode(true));
 
       AppsmithConsole.info({
         text: "Datasource configuration saved",
@@ -668,12 +665,7 @@ function* createTempDatasourceFromFormSaga(
     payload,
   });
 
-  yield put(
-    setDatsourceEditorMode({
-      id: payload.id,
-      viewMode: false,
-    }),
-  );
+  yield put(setDatasourceViewMode(false));
 }
 
 function* createDatasourceFromFormSaga(
@@ -724,16 +716,6 @@ function* createDatasourceFromFormSaga(
       yield put(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
-      // Todo: Refactor later.
-      // If we move this `put` over to QueryPaneSaga->handleDatasourceCreatedSaga, onboarding tests start failing.
-      if (response.data.id !== TEMP_DATASOURCE_ID) {
-        yield put(
-          setDatsourceEditorMode({
-            id: response.data.id,
-            viewMode: true,
-          }),
-        );
-      }
 
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
@@ -904,9 +886,7 @@ function* storeAsDatasourceSaga() {
   const createdDatasource = createDatasourceSuccessAction.payload;
 
   // Set datasource page to edit mode
-  yield put(
-    setDatsourceEditorMode({ id: createdDatasource.id, viewMode: false }),
-  );
+  yield put(setDatasourceViewMode(false));
 
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE,

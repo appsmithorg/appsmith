@@ -5,14 +5,15 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -24,6 +25,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.WorkspaceService;
@@ -53,7 +55,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class WorkspaceResourcesTest {
 
     @Autowired
@@ -112,6 +113,9 @@ public class WorkspaceResourcesTest {
     @Autowired
     ApplicationService applicationService;
 
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+
     User api_user = null;
 
     String superAdminPermissionGroupId = null;
@@ -120,6 +124,7 @@ public class WorkspaceResourcesTest {
     Application createdApplication;
     Datasource createdDatasource;
     ActionDTO createdActionDto;
+    Plugin restApiPlugin;
 
     @BeforeEach
     public void setup() {
@@ -153,7 +158,7 @@ public class WorkspaceResourcesTest {
         Datasource toCreate = new Datasource();
         toCreate.setName("Default Database");
         toCreate.setWorkspaceId(createdWorkspace.getId());
-        Plugin restApiPlugin = pluginService.findByPackageName("restapi-plugin").block();
+        restApiPlugin = pluginService.findByPackageName("restapi-plugin").block();
         toCreate.setPluginId(restApiPlugin.getId());
         createdDatasource = datasourceService.create(toCreate).block();
 
@@ -572,6 +577,92 @@ public class WorkspaceResourcesTest {
                     assertThat(createdActionView.getEnabled()).isEqualTo(perms);
                     // No children present in action in this tab
                     assertThat(createdActionView.getChildren()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testSaveRoleConfigurationChangesForDatasourceResourcesTab() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Workspace workspace = new Workspace();
+        workspace.setName("testSaveRoleConfigurationChanges workspace");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("testSaveRoleConfigurationChanges application");
+        Application createdApplication = applicationPageService.createApplication(application, workspace.getId()).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace.getId());
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(createdApplication.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("validActionCollection");
+        actionCollectionDTO.setPageId(createdApplication.getPages().get(0).getId());
+        actionCollectionDTO.setActions(List.of(action));
+        actionCollectionDTO.setWorkspaceId(createdWorkspace.getId());
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setPluginId(restApiPlugin.getId());
+        actionCollectionDTO.setPluginType(restApiPlugin.getType());
+
+        ActionCollectionDTO createdActionCollection = layoutCollectionService.createCollection(actionCollectionDTO).block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("New role for editing");
+        PermissionGroup createdPermissionGroup = permissionGroupService.create(permissionGroup).block();
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        UpdateRoleEntityDTO actionCollectionEntity = new UpdateRoleEntityDTO(
+                ActionCollection.class.getSimpleName(),
+                createdActionCollection.getId(),
+                List.of(1, -1, -1, -1, -1),
+                "unnecessary name"
+        );
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(
+                actionCollectionEntity
+        ));
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_QUERIES.getName());
+
+        Mono<RoleViewDTO> roleConfigChangeMono = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO);
+
+        StepVerifier.create(roleConfigChangeMono)
+                .assertNext(roleViewDTO -> {
+                    assertThat(roleViewDTO).isNotNull();
+                    BaseView workspaceView = roleViewDTO.getTabs().get(RoleTab.DATASOURCES_QUERIES.getName())
+                            .getData()
+                            .getEntities()
+                            .stream()
+                            .filter(baseView -> baseView.getId().equals(createdWorkspace.getId()))
+                            .findFirst().get();
+
+                    BaseView applicationView = workspaceView.getChildren().stream().findFirst().get()
+                            .getEntities().stream().filter(entity -> entity.getName().equals("Applications")).findFirst().get()
+                            .getChildren().stream().filter(entity -> entity.getType().equals("Application")).findFirst().get()
+                            .getEntities().stream().filter(applicationEntity -> applicationEntity.getId().equals(createdApplication.getId())).findFirst().get();
+
+                    BaseView pageView = applicationView.getChildren().stream().filter(entity -> entity.getType().equals("NewPage")).findFirst().get()
+                            .getEntities().stream().filter(pageEntity -> pageEntity.getId().equals(createdApplication.getPages().get(0).getId())).findFirst().get();
+
+                    BaseView actionCollectionView = pageView.getChildren().stream().filter(entity -> entity.getType().equals("ActionCollection")).findFirst().get()
+                            .getEntities().stream().filter(entity -> entity.getId().equals(createdActionCollection.getId())).findFirst().get();
+                    assertThat(actionCollectionView.getEnabled()).isEqualTo(List.of(1, -1, -1, -1, -1));
+
+
                 })
                 .verifyComplete();
     }

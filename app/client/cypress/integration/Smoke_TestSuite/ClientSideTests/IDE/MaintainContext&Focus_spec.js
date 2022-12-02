@@ -4,6 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
 const apiPage = ObjectsRegistry.ApiPage;
 
@@ -144,5 +145,15 @@ describe("MaintainContext&Focus", function() {
     ee.SelectEntityByName("SQL_Query");
     ee.SelectEntityByName("Rest_Api_1");
     apiPage.AssertRightPaneSelectedTab("connections");
+  });
+
+  it("8. Datasource edit mode has to be maintained", () => {
+    ee.SelectEntityByName("Appsmith");
+    dataSources.EditDatasource();
+    dataSources.SaveDSFromDialog(false);
+    ee.SelectEntityByName("Github");
+    dataSources.AssertViewMode();
+    ee.SelectEntityByName("Appsmith");
+    dataSources.AssertEditMode();
   });
 });

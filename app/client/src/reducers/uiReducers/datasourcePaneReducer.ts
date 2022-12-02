@@ -11,7 +11,7 @@ const initialState: DatasourcePaneReduxState = {
   actionRouteInfo: {},
   expandDatasourceId: "",
   newDatasource: "",
-  viewMode: {},
+  viewMode: true,
 };
 
 export interface DatasourcePaneReduxState {
@@ -24,7 +24,7 @@ export interface DatasourcePaneReduxState {
     applicationId: string;
   }>;
   newDatasource: string;
-  viewMode: Record<string, boolean>;
+  viewMode: boolean;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -98,14 +98,11 @@ const datasourcePaneReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE]: (
     state: DatasourcePaneReduxState,
-    action: ReduxAction<{ id: string; viewMode: boolean }>,
+    action: ReduxAction<boolean>,
   ) => {
     return {
       ...state,
-      viewMode: {
-        ...state.viewMode,
-        [action.payload.id]: action.payload.viewMode,
-      },
+      viewMode: action.payload,
     };
   },
   [ReduxActionTypes.EXPAND_DATASOURCE_ENTITY]: (
