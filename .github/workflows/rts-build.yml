@@ -39,7 +39,7 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
@@ -47,7 +47,7 @@ jobs:
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -62,7 +62,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -79,7 +79,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -92,7 +92,7 @@ jobs:
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: client-cache-yarn-dependencies
         with:
@@ -144,7 +144,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/rts/dist/
@@ -158,7 +158,7 @@ jobs:
 
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rts-dist
           path: app/rts/rts-dist.tar

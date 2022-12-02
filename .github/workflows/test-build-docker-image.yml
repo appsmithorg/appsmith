@@ -31,21 +31,21 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -58,7 +58,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -80,7 +80,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -93,7 +93,7 @@ jobs:
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -150,7 +150,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/build/
@@ -160,7 +160,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: client-build
           path: app/client/build/
@@ -197,7 +197,7 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -207,7 +207,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -227,14 +227,14 @@ jobs:
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -281,7 +281,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/server/dist/
@@ -291,7 +291,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: server-build
           path: app/server/dist/
@@ -313,7 +313,7 @@ jobs:
 
     steps:
       # Checkout the code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -323,7 +323,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -342,7 +342,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -371,7 +371,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/rts/dist/
@@ -386,7 +386,7 @@ jobs:
           tar -cvf rts-dist.tar dist
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rts-dist
           path: app/rts/rts-dist.tar
@@ -422,13 +422,13 @@ jobs:
     steps:
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -436,7 +436,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/run_result
@@ -458,7 +458,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -471,7 +471,7 @@ jobs:
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -487,14 +487,14 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
@@ -602,7 +602,7 @@ jobs:
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/perf/traces
@@ -610,7 +610,7 @@ jobs:
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: performance-summaries
           path: app/client/perf/traces
@@ -657,13 +657,13 @@ jobs:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -717,24 +717,24 @@ jobs:
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: rts-dist
           path: app/rts/dist
@@ -793,7 +793,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -939,7 +939,7 @@ jobs:
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: failed-spec-fat
           path: ~/failed_spec_fat
@@ -967,14 +967,14 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/cypress/snapshots/
@@ -983,14 +983,14 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.job }}
@@ -1065,13 +1065,13 @@ jobs:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -1125,13 +1125,13 @@ jobs:
       # Setup Java
       - name: Set up JDK 1.11
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
@@ -1139,7 +1139,7 @@ jobs:
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -1201,7 +1201,7 @@ jobs:
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
 
@@ -1214,7 +1214,7 @@ jobs:
       - name: Cache npm dependencies
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -1231,7 +1231,7 @@ jobs:
 
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
@@ -1373,7 +1373,7 @@ jobs:
       # Upload failed test list using common path for all matrix job
       - name: Upload failed test list artifact
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: failed-spec
           path: ~/failed_spec
@@ -1401,14 +1401,14 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
           path: app/client/cypress/screenshots/
 
       - name: Restore the previous bundle
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             app/client/cypress/snapshots/
@@ -1417,14 +1417,14 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: server-logs-${{ matrix.job }}
@@ -1449,7 +1449,7 @@ jobs:
       - run: echo "All ui-test matrices completed"
 
       # Download failed_spec list for all jobs
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         if: needs.ui-test.result
         id: download
         with:
@@ -1457,7 +1457,7 @@ jobs:
           path: ~/failed_spec
       
       # Download failed_spec_fat list for all fat container jobs
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         if: needs.fat-container-test.result
         id: download_fat
         with:
@@ -1500,7 +1500,7 @@ jobs:
       # This is done for debugging.
       - name: upload combined failed spec
         if: needs.ui-test.result != 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
@@ -1509,7 +1509,7 @@ jobs:
       # This is done for debugging.
       - name: upload combined failed spec
         if: needs.fat-container-test.result != 'success'
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: combined_failed_spec_fat
           path: ~/combined_failed_spec_fat
@@ -1554,28 +1554,28 @@ jobs:
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: rts-dist
           path: app/rts/dist
