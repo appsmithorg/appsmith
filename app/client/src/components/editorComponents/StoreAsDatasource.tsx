@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import {
-  setDatsourceEditorMode,
+  setDatasourceViewMode,
   storeAsDatasource,
 } from "actions/datasourceActions";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -47,11 +47,11 @@ type storeDataSourceProps = {
   datasourceId?: string;
   enable: boolean;
   shouldSave: boolean;
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  setDatasourceViewMode: (viewMode: boolean) => void;
 };
 
 interface ReduxDispatchProps {
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  setDatasourceViewMode: (viewMode: boolean) => void;
 }
 
 function StoreAsDatasource(props: storeDataSourceProps) {
@@ -63,7 +63,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
       dispatch(storeAsDatasource());
     } else {
       if (props.datasourceId) {
-        props.setDatasourceEditorMode(props.datasourceId, false);
+        props.setDatasourceViewMode(false);
         history.push(
           datasourcesEditorIdURL({
             pageId,
@@ -96,8 +96,8 @@ function StoreAsDatasource(props: storeDataSourceProps) {
 }
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
-    dispatch(setDatsourceEditorMode({ id, viewMode })),
+  setDatasourceViewMode: (viewMode: boolean) =>
+    dispatch(setDatasourceViewMode(viewMode)),
 });
 
 export default connect(null, mapDispatchToProps)(StoreAsDatasource);
