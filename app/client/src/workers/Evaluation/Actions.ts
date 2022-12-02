@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import {
-  ActionDispatcher,
-  DataTree,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _, { set } from "lodash";
 import {
   ActionDescription,
@@ -373,7 +369,7 @@ export const addDataTreeToContext = (args: {
         EVENT_TYPE: eventType,
       },
       fn,
-    ) as ActionDispatcher;
+    );
   }
 };
 
