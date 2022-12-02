@@ -20,8 +20,11 @@ import { APP_MODE } from "entities/App";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
+import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -29,6 +32,7 @@ const GUTTER_WIDTH = 72;
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
   const explorerWidth = useSelector(getExplorerWidth);
+  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const { width: screenWidth } = useWindowSizeHooks();
@@ -37,6 +41,7 @@ export const useDynamicAppLayout = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
   // /**
   //  * calculates min height
@@ -83,22 +88,29 @@ export const useDynamicAppLayout = () => {
    * @returns
    */
   const calculateCanvasWidth = () => {
-    const domEntityExplorer = document.querySelector(".js-entity-explorer");
-    const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
     const { maxWidth, minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
-    // if preview mode is on, we don't need to subtract the Property Pane width
-    if (isPreviewMode === false) {
-      const propertyPaneWidth = domPropertyPane?.clientWidth || 0;
-
+    // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
+    if (
+      isPreviewMode === false &&
+      !isAppSettingsPaneOpen &&
+      appMode === APP_MODE.EDIT
+    ) {
       calculatedWidth -= propertyPaneWidth;
     }
 
-    // if explorer is closed or its preview mode, we don't need to subtract the EE width
-    if (isExplorerPinned === true && !isPreviewMode) {
-      const explorerWidth = domEntityExplorer?.clientWidth || 0;
+    // if app setting pane is open, we need to subtract the width of app setting page width
+    if (isAppSettingsPaneOpen === true && appMode === APP_MODE.EDIT) {
+      calculatedWidth -= APP_SETTINGS_PANE_WIDTH;
+    }
 
+    // if explorer is closed or its preview mode, we don't need to subtract the EE width
+    if (
+      isExplorerPinned === true &&
+      !isPreviewMode &&
+      appMode === APP_MODE.EDIT
+    ) {
       calculatedWidth -= explorerWidth;
     }
 
@@ -174,7 +186,9 @@ export const useDynamicAppLayout = () => {
     mainCanvasProps?.width,
     isPreviewMode,
     explorerWidth,
+    propertyPaneWidth,
     isExplorerPinned,
+    isAppSettingsPaneOpen,
   ]);
 
   return isCanvasInitialized;

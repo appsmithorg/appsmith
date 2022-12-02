@@ -59,6 +59,9 @@ function ThemeFontControl(props: ThemeFontControlProps) {
           value: option,
           label: option,
         }))}
+        portalContainer={
+          document.getElementById("app-settings-portal") || undefined
+        }
         renderOption={renderOption}
         selected={{
           label: selectedOption,

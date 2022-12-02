@@ -4,12 +4,14 @@ import {
   ReduxAction,
   ShowPropertyPanePayload,
 } from "@appsmith/constants/ReduxActionConstants";
+import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 
 const initialState: PropertyPaneReduxState = {
   isVisible: false,
   widgetId: undefined,
   lastWidgetId: undefined,
   isNew: false,
+  width: DEFAULT_PROPERTY_PANE_WIDTH,
 };
 
 const propertyPaneReducer = createReducer(initialState, {
@@ -67,6 +69,12 @@ const propertyPaneReducer = createReducer(initialState, {
       return { ...state, isNew: action.payload.enable };
     return state;
   },
+  [ReduxActionTypes.UPDATE_PROPERTY_PANE_WIDTH]: (
+    state: PropertyPaneReduxState,
+    action: ReduxAction<{ width: number }>,
+  ) => {
+    return { ...state, width: action.payload.width };
+  },
   [ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD]: (
     state: PropertyPaneReduxState,
     action: ReduxAction<{ path: string }>,
@@ -83,6 +91,7 @@ export interface PropertyPaneReduxState {
   isNew: boolean;
   propertyControlId?: string;
   widgetChildProperty?: string;
+  width: number;
   focusedProperty?: string;
 }
 
