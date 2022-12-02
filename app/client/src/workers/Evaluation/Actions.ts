@@ -9,8 +9,14 @@ import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/Evaluation/PromisifyAction";
 import uniqueId from "lodash/uniqueId";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isAppsmithEntity,
+  isTrueObject,
+} from "./evaluationUtils";
 import { GlobalData } from "./evaluate";
+import { cleanSet } from "./cleanSet";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -303,6 +309,12 @@ const ENTITY_FUNCTIONS: Record<
   },
 };
 
+const methodPerfLogger = (callback: Function, methodName: string) => {
+  // const start = performance.now();
+  callback();
+  // const end = performance.now();
+};
+
 /**
  * This method returns new dataTree with entity function and platform function
  */
@@ -325,7 +337,11 @@ export const addDataTreeToContext = (args: {
   const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
   const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
   const dataTreeEntries = Object.entries(dataTree);
-  const entityFunctionCollection: Record<string, Record<string, Function>> = {};
+  const entityFunctionsToAdd = [] as Array<{
+    entityName: string;
+    func: Function;
+    propertyPath: string;
+  }>;
 
   self.TRIGGER_COLLECTOR = [];
 
@@ -335,29 +351,19 @@ export const addDataTreeToContext = (args: {
     for (const [functionName, funcCreator] of entityFunctionEntries) {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
-      const funcName = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      set(
-        entityFunctionCollection,
-        funcName,
-        pusher.bind(
-          {
-            TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-            REQUEST_ID: requestId,
-            EVENT_TYPE: eventType,
-          },
-          func,
-        ),
-      );
+      const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
+      const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
+      entityFunctionsToAdd.push({ entityName, propertyPath, func });
     }
   }
 
-  Object.keys(entityFunctionCollection).forEach((entityName) => {
-    EVAL_CONTEXT[entityName] = Object.assign(
-      {},
-      dataTree[entityName],
-      entityFunctionCollection[entityName],
+  for (const { entityName, func, propertyPath } of entityFunctionsToAdd) {
+    EVAL_CONTEXT[entityName] = cleanSet(
+      EVAL_CONTEXT[entityName],
+      propertyPath,
+      func,
     );
-  });
+  }
 
   if (!isTriggerBased) return;
 
