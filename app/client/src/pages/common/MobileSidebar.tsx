@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import ProfileImage from "pages/common/ProfileImage";
 import { MenuItem } from "design-system";
-import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -19,6 +18,8 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
+import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 type MobileSideBarProps = {
   name: string;
@@ -97,6 +98,7 @@ const LeftPaneVersionData = styled.div`
 
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
+  const tenantPermissions = useSelector(getTenantPermissions);
   const { appVersion, cloudHosting } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
 
@@ -122,7 +124,10 @@ export default function MobileSideBar(props: MobileSideBarProps) {
             icon="setting"
             onSelect={() => {
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+                path: getDefaultAdminSettingsPath({
+                  isSuperUser: user?.isSuperUser,
+                  tenantPermissions,
+                }),
               });
             }}
             text={createMessage(ADMIN_SETTINGS)}
