@@ -731,6 +731,12 @@ export const selectFilesForExplorer = createSelector(
   },
 );
 
+export const getApiActions = (state: AppState) => [
+  ...state.entities.actions.filter((action) => {
+    return action.config.pluginType === PluginType.API;
+  }),
+];
+
 export const getActionValidationConfig = (state: AppState, action: any) => {
   const pluginId = action.pluginId;
   return getActionValidationConfigFromPlugin(
