@@ -73,7 +73,7 @@ export function validateAndParseWidgetProperty({
     evalValuesAndError,
     getEvalValuePath(fullPropertyPath, {
       isPopulated: false,
-      fullPath: false,
+      fullPath: true,
     }),
     safeEvaluatedValue,
   );
@@ -141,7 +141,7 @@ export function getValidatedTree(
           evalValuesAndError,
           getEvalValuePath(`${entityKey}.${property}`, {
             isPopulated: false,
-            fullPath: false,
+            fullPath: true,
           }),
           safeEvaluatedValue,
         );

@@ -5,6 +5,7 @@ import {
   UnEvalTreeEntityObject,
 } from "entities/DataTree/dataTreeFactory";
 import { set } from "lodash";
+import { EvalValuesAndErrors } from "workers/common/DataTreeEvaluator";
 
 /**
  * This method accept an entity object as input and if it has __config__ property than it moves the __config__ to object's prototype
@@ -42,7 +43,7 @@ export function makeEntityConfigsAsObjProperties(
   dataTree: DataTree,
   option = {} as {
     sanitizeDataTree?: boolean;
-    evalValuesAndError?: DataTree;
+    evalValuesAndError?: EvalValuesAndErrors;
   },
 ): DataTree {
   const { evalValuesAndError, sanitizeDataTree = true } = option;
@@ -61,10 +62,10 @@ export function makeEntityConfigsAsObjProperties(
   for (const [entityName, entityEvalValues] of Object.entries(
     evalValuesAndError,
   )) {
+    if (!entityEvalValues.__evaluation__) continue;
     set(
       dataTreeToReturn[entityName],
       "__evaluation__",
-      // @ts-expect-error: ignore
       entityEvalValues.__evaluation__,
     );
   }

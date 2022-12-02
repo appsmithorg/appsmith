@@ -1,4 +1,5 @@
 import {
+  DataTreeEvaluationProps,
   DependencyMap,
   EvalError,
   EvalErrorTypes,
@@ -100,6 +101,9 @@ import {
 } from "./validationUtils";
 
 type SortedDependencies = Array<string>;
+export type EvalValuesAndErrors = {
+  [entityName: string]: DataTreeEvaluationProps;
+};
 
 export default class DataTreeEvaluator {
   /**
@@ -142,7 +146,7 @@ export default class DataTreeEvaluator {
   sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: DependencyMap = {};
 
-  evalValuesAndError: DataTree = {};
+  evalValuesAndError: EvalValuesAndErrors = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -772,7 +776,7 @@ export default class DataTreeEvaluator {
             if (!propertyPath) return currentTree;
             set(
               this.evalValuesAndError,
-              getEvalValuePath(fullPropertyPath),
+              getEvalValuePath(fullPropertyPath, { fullPath: true }),
               safeEvaluatedValue,
             );
             set(currentTree, fullPropertyPath, evalPropertyValue);
