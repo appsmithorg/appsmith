@@ -333,7 +333,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                 savedDatasource.setPluginName(unsavedDatasource.getPluginName());
                                 return savedDatasource;
                             });
-                });
+                })
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     /**

@@ -700,6 +700,9 @@ class MultiSelectWidget extends BaseWidget<
 
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
+    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
+      return [];
+    }
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
     return values.map((value, index) => ({
@@ -747,8 +750,8 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   isLoading: boolean;
   selectedOptions: LabelInValueType[];
   filterText: string;
-  selectedOptionValues: string[];
-  selectedOptionLabels: string[];
+  selectedOptionValues?: string[];
+  selectedOptionLabels?: string[];
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   allowSelectAll?: boolean;
