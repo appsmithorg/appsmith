@@ -213,6 +213,7 @@ export function PanelPropertiesEditor(
                   </PanelWrapper>
                 ) : null
               }
+              isPanelProperty
               styleComponent={
                 panelConfigsWithStyleAndContent.style.length > 0 ? (
                   <PanelWrapper>
