@@ -16,8 +16,8 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
   DataTreeJSAction,
-  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
+
 import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
@@ -27,6 +27,7 @@ import { EvalMetaUpdates } from "../common/DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+import { PrivateWidgets } from "entities/DataTree/types";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -496,8 +497,8 @@ export const getAllPaths = (
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
       getAllPaths(records[i], tempKey, result);
     }
-  } else if (typeof records === "object") {
-    for (const key in records) {
+  } else if (typeof records === "object" && records) {
+    for (const key of Object.keys(records)) {
       const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
       getAllPaths(records[key], tempKey, result);
     }
