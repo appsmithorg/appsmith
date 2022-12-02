@@ -167,3 +167,17 @@ export const WidgetHeightLimits = {
   MIN_HEIGHT_IN_ROWS: 4,
   MIN_CANVAS_HEIGHT_IN_ROWS: 10,
 };
+
+export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
+  children: true,
+  parentId: true,
+  renderMode: true,
+  detachFromLayout: true,
+  noContainerOffset: false,
+  hideCard: true,
+  isDeprecated: true,
+  searchTags: true,
+  iconSVG: true,
+  version: true,
+  displayName: true,
+};
