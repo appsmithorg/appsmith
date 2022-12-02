@@ -111,7 +111,7 @@ export function MainContainerLayoutControl() {
   };
 
   return (
-    <div className="space-y-2 t--layout-control-wrapper">
+    <div className="pb-6 space-y-2 t--layout-control-wrapper">
       <div
         className="flex justify-around"
         onBlur={() => setFocusedIndex(selectedIndex)}

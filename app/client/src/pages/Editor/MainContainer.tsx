@@ -64,7 +64,7 @@ function MainContainer() {
 
   return (
     <>
-      <Container className="w-full overflow-x-hidden">
+      <Container className="relative w-full overflow-x-hidden">
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}
