@@ -10,7 +10,7 @@ import {
 } from "selectors/entitiesSelector";
 import {
   switchDatasource,
-  setDatsourceEditorMode,
+  setDatasourceViewMode,
   removeTempDatasource,
   deleteTempDSFromDraft,
   toggleSaveActionFlag,
@@ -43,6 +43,8 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system";
+import { isDatasourceInViewMode } from "selectors/ui";
+import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 
@@ -93,6 +95,8 @@ type Props = ReduxStateProps &
 type State = {
   showDialog: boolean;
   routesBlocked: boolean;
+  readUrlParams: boolean;
+
   unblock(): void;
   navigation(): void;
 };
@@ -109,6 +113,7 @@ class DataSourceEditor extends React.Component<Props> {
       this.props.switchDatasource(this.props.datasourceId);
     }
   }
+
   componentDidMount() {
     //Fix to prevent restapi datasource from being set in DatasourceDBForm in datasource view mode
     //TODO: Needs cleanup
@@ -161,7 +166,7 @@ class DataSourceEditor extends React.Component<Props> {
       pluginId,
       pluginImages,
       pluginType,
-      setDatasourceEditorMode,
+      setDatasourceViewMode,
       viewMode,
     } = this.props;
 
@@ -183,7 +188,7 @@ class DataSourceEditor extends React.Component<Props> {
         pageId={pageId}
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
-        setDatasourceEditorMode={setDatasourceEditorMode}
+        setDatasourceViewMode={setDatasourceViewMode}
         viewMode={viewMode && !fromImporting}
       />
     );
@@ -194,6 +199,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const datasourceId = props.datasourceId ?? props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
+  const viewMode = isDatasourceInViewMode(state);
   const datasource = getDatasource(state, datasourceId);
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
@@ -217,8 +223,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
     pageId: props.pageId ?? props.match?.params?.pageId,
-    viewMode:
-      datasourcePane.viewMode[datasource?.id ?? ""] ?? !props.fromImporting,
+    viewMode: viewMode ?? !props.fromImporting,
     pluginType: plugin?.type ?? "",
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
@@ -241,8 +246,8 @@ const mapDispatchToProps = (
     // on reconnect data modal, it shouldn't be redirected to datasource edit page
     dispatch(switchDatasource(id, ownProps.fromImporting));
   },
-  setDatasourceEditorMode: (id: string, viewMode: boolean) =>
-    dispatch(setDatsourceEditorMode({ id, viewMode })),
+  setDatasourceViewMode: (viewMode: boolean) =>
+    dispatch(setDatasourceViewMode(viewMode)),
   openOmnibarReadMore: (text: string) => {
     dispatch(setGlobalSearchQuery(text));
     dispatch(toggleShowGlobalSearchModal());
@@ -258,7 +263,7 @@ const mapDispatchToProps = (
 
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
-  setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
+  setDatasourceViewMode: (viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
   discardTempDatasource: () => void;
   deleteTempDSFromDraft: () => void;
@@ -273,6 +278,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.state = {
       showDialog: false,
       routesBlocked: false,
+      readUrlParams: false,
       unblock: () => {
         return undefined;
       },
@@ -296,6 +302,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     if (this.props.isDatasourceBeingSaved) {
       this.closeDialogAndUnblockRoutes();
     }
+    this.setViewModeFromQueryParams();
   }
 
   componentDidMount() {
@@ -313,6 +320,36 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
     if (!this.props.viewMode) {
       this.blockRoutes();
+    }
+
+    if (
+      this.props.pluginDatasourceForm ===
+      DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      this.setViewModeFromQueryParams();
+    }
+  }
+
+  // To move to edit state for new datasources and when we want to move to edit state
+  // from outside the datasource route
+  setViewModeFromQueryParams() {
+    const params = getQueryParams();
+    if (this.props.viewMode) {
+      if (
+        (params.viewMode === "false" && !this.state.readUrlParams) ||
+        this.props.isNewDatasource
+      ) {
+        // We just want to read the query params once. Cannot remove query params
+        // here as this triggers history.block
+        this.setState(
+          {
+            readUrlParams: true,
+          },
+          () => {
+            this.props.setDatasourceViewMode(false);
+          },
+        );
+      }
     }
   }
 
