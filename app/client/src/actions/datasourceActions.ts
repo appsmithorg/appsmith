@@ -177,10 +177,7 @@ export const deleteDatasource = (
   };
 };
 
-export const setDatsourceEditorMode = (payload: {
-  id: string;
-  viewMode: boolean;
-}) => {
+export const setDatasourceViewMode = (payload: boolean) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
     payload,
