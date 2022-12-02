@@ -481,7 +481,23 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
-  public GoBack(){
+  public GetSiblingNClick(
+    selector: string,
+    siblingSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return this.GetElement(selector)
+      .siblings(siblingSelector)
+      .first()
+      .eq(index)
+      .scrollIntoView()
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
+  public GoBack() {
     this.GetNClick(this.locator._visibleTextSpan("Back"));
   }
 
@@ -504,6 +520,14 @@ export class AggregateHelper {
       if (charCount == -1) this.GetElement(selector).clear();
       this.TypeText(selector, totype);
     }
+  }
+
+  public ClearTextField(selector: string) {
+    this.GetElement(selector).clear();
+  }
+
+  public InvokeVal(selector: string) {
+    return cy.get(selector).invoke("val");
   }
 
   public TypeText(selector: string, value: string, index = 0) {
