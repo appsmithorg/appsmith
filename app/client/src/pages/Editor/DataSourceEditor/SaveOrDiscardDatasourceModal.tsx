@@ -10,16 +10,33 @@ import {
   DialogComponent as Dialog,
   Size,
 } from "design-system";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 
 interface SaveOrDiscardModalProps {
   isOpen: boolean;
   onDiscard(): void;
   onSave?(): void;
   onClose(): void;
+  datasourceId: string;
+  datasourcePermissions: string[];
 }
 
 function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
-  const { isOpen, onClose, onDiscard, onSave } = props;
+  const {
+    datasourceId,
+    datasourcePermissions,
+    isOpen,
+    onClose,
+    onDiscard,
+    onSave,
+  } = props;
+
+  const createMode = datasourceId === TEMP_DATASOURCE_ID;
+  const canManageDatasources = hasManageDatasourcePermission(
+    datasourcePermissions,
+  );
+  const disableSaveButton = !createMode && !canManageDatasources;
 
   return (
     <Dialog
@@ -43,7 +60,8 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
           />
           <Button
             category={Category.primary}
-            onClick={onSave}
+            disabled={disableSaveButton}
+            onClick={!disableSaveButton && onSave}
             size={Size.medium}
             text="SAVE"
           />
