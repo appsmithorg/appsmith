@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { noop } from "lodash";
 
 import { Toaster, Variant } from "design-system";
@@ -8,7 +8,6 @@ import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
-import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
@@ -17,51 +16,21 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab } from "entities/GitSync";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
-import {
-  createMessage,
-  DEPLOY_MENU_OPTION,
-  CONNECT_TO_GIT_OPTION,
-  CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "@appsmith/constants/messages";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
-import { pageListEditorURL } from "RouteBuilder";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { ThemeProp } from "widgets/constants";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
-  deploy: typeof noop;
-  currentDeployLink: string;
 };
 
 export const GetNavigationMenuData = ({
-  currentDeployLink,
-  deploy,
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const params = useParams<ExplorerURLParams>();
-
-  const isGitConnected = useSelector(getIsGitConnected);
-
-  const openGitConnectionPopup = () => {
-    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
-      source: "Application name menu (top left)",
-    });
-
-    dispatch(
-      setIsGitSyncModalOpen({
-        isOpen: true,
-        tab: GitSyncModalTab.GIT_CONNECTION,
-      }),
-    );
-  };
 
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -77,6 +46,8 @@ export const GetNavigationMenuData = ({
       window.open(link, "_blank");
     }
   }, []);
+
+  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
 
   const deleteApplication = () => {
     if (applicationId && applicationId.length > 0) {
@@ -95,37 +66,18 @@ export const GetNavigationMenuData = ({
     }
   };
 
-  const deployOptions = [
-    {
-      text: createMessage(DEPLOY_MENU_OPTION),
-      onClick: deploy,
-      type: MenuTypes.MENU,
-      isVisible: true,
-      isOpensNewWindow: true,
-      className: "t--app-name-menu-deploy",
-    },
-    {
-      text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
-      onClick: () => openExternalLink(currentDeployLink),
-      type: MenuTypes.MENU,
-      isVisible: true,
-      isOpensNewWindow: true,
-      className: "t--app-name-menu-deploy-current-version",
-    },
-  ];
-
-  if (!isGitConnected) {
-    deployOptions.push({
-      text: createMessage(CONNECT_TO_GIT_OPTION),
-      onClick: () => openGitConnectionPopup(),
-      type: MenuTypes.MENU,
-      isVisible: true,
-      isOpensNewWindow: false,
-      className: "t--app-name-menu-deploy-connect-to-git",
-    });
-  }
-
   return [
+    {
+      text: "Go to dashboard",
+      onClick: () => history.replace(APPLICATIONS_URL),
+      type: MenuTypes.MENU,
+      isVisible: true,
+    },
+    {
+      text: "divider_1",
+      type: MenuTypes.MENU_DIVIDER,
+      isVisible: true,
+    },
     {
       text: "Edit Name",
       onClick: editMode,
@@ -154,19 +106,10 @@ export const GetNavigationMenuData = ({
       ],
     },
     {
-      text: "Pages",
-      onClick: () => {
-        history.push(pageListEditorURL({ pageId: params.pageId }));
-      },
+      text: "Settings",
+      onClick: openAppSettingsPane,
       type: MenuTypes.MENU,
       isVisible: true,
-    },
-    {
-      text: "Deploy",
-      type: MenuTypes.PARENT,
-      isVisible: true,
-      children: deployOptions,
-      className: "t--app-name-menu-deploy-parent",
     },
     {
       text: "Help",
