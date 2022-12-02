@@ -4,18 +4,17 @@ let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Boolean & Enum Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeThemeColor(-18, "Primary");
-    propPane.ChangeThemeColor(-20, "Background");
+    appSettings.openPaneAndChangeThemeColors(-18, -20);
   });
 
   it("1. Create Postgress DS", function() {

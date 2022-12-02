@@ -233,9 +233,15 @@ export const getIsPropertyPaneVisible = createSelector(
   },
 );
 
-export const getPropertyPaneWidth = (state: AppState) =>
-  state.ui.propertyPane.width;
-
+/**
+ * returns the width of propertypane
+ *
+ * @param state
+ * @returns
+ */
+export const getPropertyPaneWidth = (state: AppState) => {
+  return state.ui.propertyPane.width;
+};
 export const getFocusablePropertyPaneField = (state: AppState) =>
   state.ui.propertyPane.focusedProperty;
 

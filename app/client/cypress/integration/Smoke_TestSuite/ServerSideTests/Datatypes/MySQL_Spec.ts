@@ -5,17 +5,17 @@ let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
-  propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("MySQL Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeTheme("Moon");
+    appSettings.openPaneAndChangeTheme("Moon");
   });
 
   it("1. Create Mysql DS", function() {
@@ -90,7 +90,7 @@ describe("MySQL Datatype tests", function() {
       res_array.forEach((value, j) => {
         table.ReadTableRowColumnData(j, i, 0).then(($cellData) => {
           if (i === inputData.result.length - 1) {
-            let obj = JSON.parse($cellData);
+            const obj = JSON.parse($cellData);
             expect(JSON.stringify(obj)).to.eq(JSON.stringify(value));
           } else {
             expect($cellData).to.eq(value);

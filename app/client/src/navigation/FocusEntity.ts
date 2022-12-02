@@ -4,9 +4,11 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  DATA_SOURCES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
+import { SAAS_EDITOR_DATASOURCE_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { getQueryParamsFromString } from "utils/getQueryParamsObject";
 
@@ -14,6 +16,7 @@ export enum FocusEntity {
   PAGE = "PAGE",
   API = "API",
   CANVAS = "CANVAS",
+  DATASOURCE = "DATASOURCE",
   QUERY = "QUERY",
   JS_OBJECT = "JS_OBJECT",
   PROPERTY_PANE = "PROPERTY_PANE",
@@ -81,6 +84,7 @@ export function identifyEntityFromPath(
   }
   const match = matchPath<{
     apiId?: string;
+    datasourceId?: string;
     pluginPackageName?: string;
     queryId?: string;
     appId?: string;
@@ -94,6 +98,11 @@ export function identifyEntityFromPath(
       BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
       BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
       BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_PATH,
+      BUILDER_PATH_DEPRECATED + DATA_SOURCES_EDITOR_ID_PATH,
+      BUILDER_PATH + DATA_SOURCES_EDITOR_ID_PATH,
+      BUILDER_CUSTOM_PATH + DATA_SOURCES_EDITOR_ID_PATH,
+      BUILDER_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
+      BUILDER_CUSTOM_PATH + SAAS_EDITOR_DATASOURCE_ID_PATH,
       BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
       BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
       BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
@@ -113,6 +122,9 @@ export function identifyEntityFromPath(
       return { entity: FocusEntity.QUERY, id: match.params.apiId };
     }
     return { entity: FocusEntity.API, id: match.params.apiId };
+  }
+  if (match.params.datasourceId) {
+    return { entity: FocusEntity.DATASOURCE, id: match.params.datasourceId };
   }
   if (match.params.queryId) {
     return { entity: FocusEntity.QUERY, id: match.params.queryId };

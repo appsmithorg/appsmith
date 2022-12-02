@@ -9,14 +9,12 @@ import history from "utils/history";
 import {
   fetchDatasourceStructure,
   expandDatasourceEntity,
-  setDatsourceEditorMode,
   updateDatasourceName,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { getQueryParams } from "utils/URLUtils";
 import { getAction } from "selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
@@ -26,6 +24,8 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import omit from "lodash/omit";
+import { getQueryParams } from "utils/URLUtils";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -51,18 +51,12 @@ const ExplorerDatasourceEntity = React.memo(
           pageId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
-          params: {
-            viewMode: true,
-          },
         });
       } else {
-        dispatch(
-          setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
-        );
         url = datasourcesEditorIdURL({
           pageId,
           datasourceId: props.datasource.id,
-          params: getQueryParams(),
+          params: omit(getQueryParams(), "viewMode"),
         });
       }
 

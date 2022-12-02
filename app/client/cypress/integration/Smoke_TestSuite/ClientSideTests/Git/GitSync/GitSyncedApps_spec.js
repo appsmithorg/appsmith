@@ -187,12 +187,10 @@ describe("Git sync apps", function() {
       });
     cy.wait(2000);
     // clone the page from page settings
-    cy.xpath("//span[contains(@class,'entity-right-icon')]").click({
-      force: true,
+    cy.get(`.t--entity-item:contains(${newPage})`).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
     });
-    cy.xpath("(//button[@type='button'])")
-      .eq(9)
-      .click();
+    cy.selectAction("Clone");
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
