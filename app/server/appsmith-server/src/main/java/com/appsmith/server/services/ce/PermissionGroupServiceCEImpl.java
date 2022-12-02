@@ -236,7 +236,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
-                    return repository.updateById(pg.getId(), updateObj);
+
+                    return Mono.zip(
+                                    repository.updateById(pg.getId(), updateObj),
+                                    cleanPermissionGroupCacheForUsers(List.copyOf(userIds))
+                            )
+                            .map(tuple -> tuple.getT1());
                 })
                 .then(Mono.just(TRUE));
     }
