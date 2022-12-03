@@ -19,7 +19,10 @@ import { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { getPropertyControlFocusElement } from "utils/editorContextUtils";
+import {
+  getPropertyControlFocusElement,
+  shouldFocusOnPropertyControl,
+} from "utils/editorContextUtils";
 import { AppState } from "@appsmith/reducers";
 import { generateKeyAndSetFocusableFormControlField } from "actions/queryPaneActions";
 import { getShouldFocusControlField } from "selectors/editorContextSelectors";
@@ -93,14 +96,18 @@ export default function FormConfig(props: FormConfigProps) {
 
   useEffect(() => {
     if (shouldFocusPropertyPath) {
-      const focusableElement = getPropertyControlFocusElement(
-        controlRef.current,
-      );
-      focusableElement?.scrollIntoView({
-        block: "center",
-        behavior: "smooth",
-      });
-      focusableElement?.focus();
+      setTimeout(() => {
+        if (shouldFocusOnPropertyControl(controlRef.current)) {
+          const focusableElement = getPropertyControlFocusElement(
+            controlRef.current,
+          );
+          focusableElement?.scrollIntoView({
+            block: "center",
+            behavior: "smooth",
+          });
+          focusableElement?.focus();
+        }
+      }, 0);
     }
     // Using location pathname to rerender when same fields are focused in two different entitites
   }, [shouldFocusPropertyPath]);
