@@ -202,5 +202,6 @@
   "overlayMax": "[data-cy='t--auto-height-overlay-max']",
   "addOption": ".t--property-control-options-add",
   "showTabsControl": ".t--property-control-showtabs .bp3-control-indicator",
-  "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator"
+  "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator",
+  "generalSectionHeight": ".t--property-pane-section-general .t--property-control-label:contains('Height')"
 }
