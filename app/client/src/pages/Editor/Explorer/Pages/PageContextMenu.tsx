@@ -23,7 +23,10 @@ import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
+  CONTEXT_SETTINGS,
 } from "@appsmith/constants/messages";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import {
   hasCreatePagePermission,
   hasDeletePagePermission,
@@ -97,9 +100,24 @@ export function PageContextMenu(props: {
    * @return void
    */
   const setHiddenField = useCallback(
-    () => dispatch(updatePage(props.pageId, props.name, !props.isHidden)),
+    () =>
+      dispatch(
+        updatePage({
+          id: props.pageId,
+          name: props.name,
+          isHidden: !props.isHidden,
+        }),
+      ),
     [dispatch, props.pageId, props.name, props.isHidden],
   );
+
+  const openAppSettingsPane = () =>
+    dispatch(
+      openAppSettingsPaneAction({
+        type: AppSettingsTabs.Page,
+        pageId: props.pageId,
+      }),
+    );
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];
@@ -137,6 +155,24 @@ export function PageContextMenu(props: {
         </CustomLabel>
       ) as ReactNode) as string,
     },
+    {
+      value: "settings",
+      onSelect: openAppSettingsPane,
+      label: createMessage(CONTEXT_SETTINGS),
+    },
+    !props.isDefaultPage &&
+      canManagePages && {
+        value: "setdefault",
+        onSelect: setPageAsDefaultCallback,
+        label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
+      },
+    props.isDefaultPage &&
+      canManagePages && {
+        className: "!text-[color:var(--appsmith-color-black-500)]",
+        disabled: true,
+        value: "setdefault",
+        label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
+      },
     !props.isDefaultPage &&
       canDeletePages && {
         className: "t--apiFormDeleteBtn single-select",
@@ -149,12 +185,6 @@ export function PageContextMenu(props: {
           ? createMessage(CONFIRM_CONTEXT_DELETE)
           : createMessage(CONTEXT_DELETE),
         intent: "danger",
-      },
-    !props.isDefaultPage &&
-      canManagePages && {
-        value: "setdefault",
-        onSelect: setPageAsDefaultCallback,
-        label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
   ].filter(Boolean);
 
