@@ -20,8 +20,8 @@ import {
   DataTreeJSAction,
   DataTreeWidget,
   EvaluationSubstitutionType,
-  PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/types";
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
@@ -39,6 +39,7 @@ import {
   trimDependantChangePaths,
   overrideWidgetProperties,
   getAllPaths,
+  isValidEntity,
 } from "workers/Evaluation/evaluationUtils";
 import {
   difference,
@@ -415,7 +416,7 @@ export default class DataTreeEvaluator {
     });
     const updateDependencyEndTime = performance.now();
 
-    this.applyDifferencesToEvalTree(differences);
+    this.applyDifferencesToEvalTree({ differences, localUnEvalTree });
 
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(
@@ -1158,11 +1159,36 @@ export default class DataTreeEvaluator {
     }
   }
 
-  applyDifferencesToEvalTree(differences: Diff<any, any>[]) {
+  /**
+   * Update the entity config set as prototype according to latest unEvalTree changes else code would consume stale configs.
+   *
+   * Example scenario: On addition of a JS binding to widget, it's dynamicBindingPathList changes and needs to be updated.
+   */
+  updateConfigForModifiedEntity(unEvalTree: DataTree, entityName: string) {
+    const unEvalEntity = unEvalTree[entityName];
+    // skip entity if entity is not present in the evalTree or is not a valid entity
+    if (!this.evalTree[entityName] || !isValidEntity(this.evalTree[entityName]))
+      return;
+    const entityConfig = Object.getPrototypeOf(unEvalEntity);
+    const newEntityObject = Object.create(entityConfig);
+    this.evalTree[entityName] = Object.assign(newEntityObject, {
+      ...this.evalTree[entityName],
+    });
+  }
+
+  applyDifferencesToEvalTree({
+    differences,
+    localUnEvalTree,
+  }: {
+    differences: Diff<any, any>[];
+    localUnEvalTree: DataTree;
+  }) {
     for (const d of differences) {
       if (!Array.isArray(d.path) || d.path.length === 0) continue; // Null check for typescript
       // Apply the changes into the evalTree so that it gets the latest changes
       applyChange(this.evalTree, undefined, d);
+      const { entityName } = getEntityNameAndPropertyPath(d.path.join("."));
+      this.updateConfigForModifiedEntity(localUnEvalTree, entityName);
     }
   }
 

@@ -7,7 +7,11 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import { GenerateCRUDSuccess } from "actions/pageActions";
+import {
+  GenerateCRUDSuccess,
+  UpdatePageErrorPayload,
+} from "actions/pageActions";
+import { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
 import { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 const initialState: PageListReduxState = {
@@ -131,45 +135,21 @@ export const pageListReducer = createReducer(initialState, {
       pages: pageList,
     };
   },
-  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT]: (
+  [ReduxActionTypes.UPDATE_PAGE_INIT]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pageId: string }>,
-  ) => ({
-    ...state,
-    loading: {
-      ...state.loading,
-      [action.payload.pageId]: true,
-    },
-  }),
-  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS]: (
-    state: PageListReduxState,
-    action: ReduxAction<{ pageId: string }>,
-  ) => ({
-    ...state,
-    loading: {
-      ...state.loading,
-      [action.payload.pageId]: false,
-    },
-  }),
-  [ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR]: (
-    state: PageListReduxState,
-    action: ReduxAction<{ pageId: string }>,
-  ) => ({
-    ...state,
-    loading: {
-      ...state.loading,
-      [action.payload.pageId]: false,
-    },
-  }),
+    action: ReduxAction<UpdatePageRequest>,
+  ) => {
+    return {
+      ...state,
+      loading: {
+        ...state.loading,
+        [action.payload.id]: true,
+      },
+    };
+  },
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{
-      id: string;
-      name: string;
-      isHidden?: boolean;
-      slug: string;
-      customSlug: string;
-    }>,
+    action: ReduxAction<UpdatePageResponse>,
   ) => {
     const pages = [...state.pages];
     const updatedPageIndex = pages.findIndex(
@@ -187,7 +167,26 @@ export const pageListReducer = createReducer(initialState, {
       pages.splice(updatedPageIndex, 1, updatedPage);
     }
 
-    return { ...state, pages };
+    return {
+      ...state,
+      pages,
+      loading: {
+        ...state.loading,
+        [action.payload.id]: false,
+      },
+    };
+  },
+  [ReduxActionErrorTypes.UPDATE_PAGE_ERROR]: (
+    state: PageListReduxState,
+    action: ReduxAction<UpdatePageErrorPayload>,
+  ) => {
+    return {
+      ...state,
+      loading: {
+        ...state.loading,
+        [action.payload.request.id]: false,
+      },
+    };
   },
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
     state: PageListReduxState,

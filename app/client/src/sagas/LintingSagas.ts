@@ -8,7 +8,6 @@ import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import { TJSLibrary } from "workers/common/JSLibrary";
-import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
 import {
   LintTreeRequest,
   LintTreeResponse,
@@ -38,19 +37,14 @@ function* updateLintGlobals(action: ReduxAction<TJSLibrary>) {
 }
 
 export function* lintTreeSaga(action: ReduxAction<LintTreeSagaRequestData>) {
-  const { jsUpdates, pathsToLint, unevalTree } = action.payload;
+  const { pathsToLint, unevalTree } = action.payload;
   // only perform lint operations in edit mode
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
 
-  const updatedUnevalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-    jsUpdates,
-    unevalTree,
-  );
   const lintTreeRequestData: LintTreeRequest = {
-    jsUpdates,
     pathsToLint,
-    unevalTree: updatedUnevalTree,
+    unevalTree,
   };
 
   const { errors }: LintTreeResponse = yield call(

@@ -43,6 +43,7 @@ import focusHistoryReducer from "./focusHistoryReducer";
 import { editorContextReducer } from "./editorContextReducer";
 import guidedTourReducer from "./guidedTourReducer";
 import libraryReducer from "./libraryReducer";
+import appSettingsPaneReducer from "./appSettingsPaneReducer";
 import autoHeightUIReducer from "./autoHeightReducer";
 
 const uiReducer = combineReducers({
@@ -87,6 +88,7 @@ const uiReducer = combineReducers({
   widgetReflow: widgetReflowReducer,
   appTheming: appThemingReducer,
   mainCanvas: mainCanvasReducer,
+  appSettingsPane: appSettingsPaneReducer,
   focusHistory: focusHistoryReducer,
   editorContext: editorContextReducer,
   libraries: libraryReducer,

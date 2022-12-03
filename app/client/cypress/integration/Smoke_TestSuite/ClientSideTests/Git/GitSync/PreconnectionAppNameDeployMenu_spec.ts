@@ -1,6 +1,9 @@
 import homePage from "../../../../../locators/HomePage";
-const commonLocators = require("../../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+
+const agHelper = ObjectsRegistry.AggregateHelper,
+  commonLocators = ObjectsRegistry.CommonLocators;
 
 describe("Pre git connection spec:", function() {
   it("deploy menu at the application dropdown menu", () => {
@@ -20,18 +23,17 @@ describe("Pre git connection spec:", function() {
       });
     });
 
-    cy.get(homePage.applicationName).click();
-    cy.get(commonLocators.appNameDeployMenu).click();
-    cy.get(commonLocators.appNameDeployMenuPublish).click();
+    // deploy
+    agHelper.GetNClick(commonLocators._publishButton);
     cy.wait("@publishApp");
 
-    cy.get(homePage.applicationName).click();
-    cy.get(commonLocators.appNameDeployMenu).click();
-    cy.get(commonLocators.appNameDeployMenuCurrentVersion).click();
+    // current deployed version
+    agHelper.GetNClick(homePage.deployPopupOptionTrigger);
+    agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
 
-    cy.get(homePage.applicationName).click();
-    cy.get(commonLocators.appNameDeployMenu).click();
-    cy.get(commonLocators.appNameDeployMenuConnectToGit).click();
+    // connect to git
+    agHelper.GetNClick(homePage.connectToGitBtn);
+
     cy.get(gitSyncLocators.gitSyncModal);
     cy.contains("Git Connection")
       .parent()
