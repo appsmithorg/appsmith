@@ -30,7 +30,7 @@ export class AppSettings {
     this.agHelper.GetNClick(this.locators._themeSettingsHeader);
   }
 
-  public goToGeneralSettings() {
+  public GoToGeneralSettings() {
     this.agHelper.GetNClick(this.locators._generalSettingsHeader);
   }
 
