@@ -39,7 +39,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
 import { Stylesheet } from "entities/AppTheming";
