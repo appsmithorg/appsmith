@@ -28,7 +28,7 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
 export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
-  `Default text length must be less than ${max} characters`;
+  `Default text length must be less than or equal to ${max} characters`;
 export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
   `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
@@ -125,6 +125,8 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
+export const ERROR_403 = (entity: string, userEmail: string) =>
+  `Sorry, but your account (${userEmail}) does not seem to have the required access to update this ${entity}. Please get in touch with your Appsmith admin to resolve this.`;
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
@@ -1185,6 +1187,7 @@ export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
 export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
+export const CONTEXT_SETTINGS = () => "Settings";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
@@ -1278,6 +1281,48 @@ export const GENERATE_PAGE_DESCRIPTION = () =>
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
+export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
+  `Unsaved changes will be lost if you exit this page, save the changes before exiting.`;
+
+export const APP_SETTINGS_PANE_HEADER = () => "Settings";
+export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
+
+export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
+export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, icon and share";
+export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
+export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
+  "App name cannot be empty";
+export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
+  "Only alphanumeric or '-()' are allowed";
+export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
+
+export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
+export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme Settings";
+export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
+  "Set theme, color and font";
+
+export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
+export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
+export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
+  "Page name cannot be empty";
+export const PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
+  "Only alphanumeric or '-' are allowed";
+export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
+export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
+  "your app URL to new readable format to change this";
+export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
+export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
+  "Hide or show the appsmith navbar containing the app name and page switcher";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
+  "This is the current home page, you can change this by setting another page as the home page";
+export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
+  "Set this page as your home page. This will override your previously set home page.";
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

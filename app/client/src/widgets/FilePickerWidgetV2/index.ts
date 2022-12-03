@@ -33,6 +33,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

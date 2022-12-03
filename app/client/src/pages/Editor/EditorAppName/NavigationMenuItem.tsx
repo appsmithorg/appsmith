@@ -7,6 +7,7 @@ import _, { noop } from "lodash";
 import { getTypographyByKey, CommonComponentProps } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HeaderIcons } from "icons/HeaderIcons";
+import { MenuDivider } from "design-system";
 
 const ShareIcon = HeaderIcons.SHARE;
 
@@ -14,6 +15,7 @@ export enum MenuTypes {
   MENU = "menu",
   PARENT = "parent",
   RECONFIRM = "re-confirm",
+  MENU_DIVIDER = "menu divider",
 }
 
 export interface MenuItemData {
@@ -175,7 +177,9 @@ export function NavigationMenuItem({
           text={confirm.text}
         />
       );
+    case MenuTypes.MENU_DIVIDER:
+      return <MenuDivider className="!m-0" />;
+    default:
+      return null;
   }
-
-  return null;
 }

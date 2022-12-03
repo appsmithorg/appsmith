@@ -22,7 +22,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   getCurrentApplicationId,
@@ -34,7 +34,6 @@ import {
   getPageActions,
 } from "selectors/entitiesSelector";
 import { getFirstTimeUserOnboardingModal } from "selectors/onboardingSelectors";
-import { useSelector } from "store";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";

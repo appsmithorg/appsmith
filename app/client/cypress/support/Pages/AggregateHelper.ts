@@ -426,9 +426,14 @@ export class AggregateHelper {
       .invoke("text");
   }
 
-  public EnterActionValue(actionName: string, value: string, paste = true) {
+  public EnterActionValue(
+    actionName: string,
+    value: string,
+    paste = true,
+    index = 0,
+  ) {
     cy.xpath(this.locator._actionTextArea(actionName))
-      .first()
+      .eq(index)
       .scrollIntoView()
       .focus()
       .type("{uparrow}", { force: true })
@@ -437,7 +442,7 @@ export class AggregateHelper {
       if ($cm.contents != "") {
         cy.log("The field is not empty");
         cy.xpath(this.locator._actionTextArea(actionName))
-          .first()
+          .eq(index)
           .scrollIntoView()
           .click({ force: true })
           .focused()
@@ -447,7 +452,7 @@ export class AggregateHelper {
       }
       this.Sleep();
       cy.xpath(this.locator._actionTextArea(actionName))
-        .first()
+        .eq(index)
         .scrollIntoView()
         .then((el: any) => {
           if (paste) {
@@ -476,6 +481,26 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
+  public GetSiblingNClick(
+    selector: string,
+    siblingSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return this.GetElement(selector)
+      .siblings(siblingSelector)
+      .first()
+      .eq(index)
+      .scrollIntoView()
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
+  public GoBack() {
+    this.GetNClick(this.locator._visibleTextSpan("Back"));
+  }
+
   public SelectNRemoveLineText(selector: string) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
@@ -495,6 +520,14 @@ export class AggregateHelper {
       if (charCount == -1) this.GetElement(selector).clear();
       this.TypeText(selector, totype);
     }
+  }
+
+  public ClearTextField(selector: string) {
+    this.GetElement(selector).clear();
+  }
+
+  public InvokeVal(selector: string) {
+    return cy.get(selector).invoke("val");
   }
 
   public TypeText(selector: string, value: string, index = 0) {
