@@ -1,23 +1,25 @@
 import { dataTreeEvaluator } from "./evalTree";
 import { EvalWorkerRequest } from "../types";
+import { createUnEvalTreeForEval } from "../dataTreeUtils";
 
 export default function(request: EvalWorkerRequest) {
   const { requestData, requestId } = request;
   const {
     callbackData,
-    dataTree,
     dynamicTrigger,
     eventType,
     globalContext,
     triggerMeta,
+    unEvalTree: __unEvalTree__,
   } = requestData;
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
   }
+  const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
   const {
     evalOrder,
     nonDynamicFieldValidationOrder,
-  } = dataTreeEvaluator.setupUpdateTree(dataTree);
+  } = dataTreeEvaluator.setupUpdateTree(unEvalTree);
   dataTreeEvaluator.evalAndValidateSubTree(
     evalOrder,
     nonDynamicFieldValidationOrder,

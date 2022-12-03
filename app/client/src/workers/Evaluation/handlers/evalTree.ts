@@ -13,6 +13,10 @@ import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { EvalMetaUpdates } from "workers/common/DataTreeEvaluator/types";
 import { initiateLinting } from "workers/Linting/utils";
 import {
+  createUnEvalTreeForEval,
+  makeEntityConfigsAsObjProperties,
+} from "../dataTreeUtils";
+import {
   CrashingError,
   DataTreeDiff,
   getSafeToRenderDataTree,
@@ -47,10 +51,13 @@ export default function(request: EvalWorkerRequest) {
     requiresLinting,
     shouldReplay,
     theme,
-    unevalTree,
+    unevalTree: __unevalTree__,
     widgets,
     widgetTypeConfigMap,
   } = requestData as EvalTreeRequestData;
+
+  const unevalTree = createUnEvalTreeForEval(__unevalTree__);
+
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -69,14 +76,14 @@ export default function(request: EvalWorkerRequest) {
 
       initiateLinting(
         lintOrder,
-        jsUpdates,
-        dataTreeEvaluator.oldUnEvalTree,
+        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+          sanitizeDataTree: false,
+        }),
         requiresLinting,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-      dataTree = dataTreeResponse.evalTree;
-      dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree);
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -106,14 +113,14 @@ export default function(request: EvalWorkerRequest) {
 
       initiateLinting(
         lintOrder,
-        jsUpdates,
-        dataTreeEvaluator.oldUnEvalTree,
+        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+          sanitizeDataTree: false,
+        }),
         requiresLinting,
       );
 
       const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-      dataTree = dataTreeResponse.evalTree;
-      dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+      dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree);
     } else {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
@@ -134,17 +141,19 @@ export default function(request: EvalWorkerRequest) {
 
       initiateLinting(
         lintOrder,
-        jsUpdates,
-        dataTreeEvaluator.oldUnEvalTree,
+        makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+          sanitizeDataTree: false,
+        }),
         requiresLinting,
       );
+
       nonDynamicFieldValidationOrder =
         setupUpdateTreeResponse.nonDynamicFieldValidationOrder;
       const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
       );
-      dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
+      dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree);
       evalMetaUpdates = JSON.parse(
         JSON.stringify(updateResponse.evalMetaUpdates),
       );
@@ -175,7 +184,10 @@ export default function(request: EvalWorkerRequest) {
       // eslint-disable-next-line
       console.error(error);
     }
-    dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
+    dataTree = getSafeToRenderDataTree(
+      makeEntityConfigsAsObjProperties(unevalTree),
+      widgetTypeConfigMap,
+    );
     unEvalUpdates = [];
   }
 
