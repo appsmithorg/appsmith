@@ -177,12 +177,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setQueryPaneResponsePaneHeight,
       defaultValue: ActionExecutionResizerHeight,
     },
-    {
-      name: FocusElement.QueryPaneResponseHeight,
-      selector: getQueryPaneResponsePaneHeight,
-      setter: setQueryPaneResponsePaneHeight,
-      defaultValue: ActionExecutionResizerHeight,
-    },
   ],
   [FocusEntity.PROPERTY_PANE]: [
     {

@@ -88,8 +88,6 @@ function* generateKeyAndSetFocusableFormControlField(
     window.location.pathname,
     window.location.hash,
   );
-  // To focus input fields of same identifiers of different api/queries
-  // we need a different reference since the value is the same.
 
   const propertyFieldKey = generatePropertyKey(
     action.payload.path,

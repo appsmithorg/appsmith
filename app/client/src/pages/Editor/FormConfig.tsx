@@ -109,7 +109,6 @@ export default function FormConfig(props: FormConfigProps) {
         }
       }, 0);
     }
-    // Using location pathname to rerender when same fields are focused in two different entitites
   }, [shouldFocusPropertyPath]);
   if (props.multipleConfig?.length) {
     top = (
