@@ -63,7 +63,7 @@ export class HomePage {
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   private _leaveWorkspace = "//span[text()='Leave Workspace']";
-  private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']"
+  private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
@@ -83,7 +83,7 @@ export class HomePage {
     "//span[text()='" + action + "']/ancestor::a";
 
   public CreateNewWorkspace(workspaceNewName: string) {
-    let oldName: string = "";
+    let oldName = "";
     cy.xpath(this._visibleTextSpan("New Workspace"))
       .should("be.visible")
       .first()
@@ -179,7 +179,7 @@ export class HomePage {
   }
 
   //Maps to CreateAppForWorkspace in command.js
-  public CreateAppInWorkspace(workspaceName: string, appname: string = "") {
+  public CreateAppInWorkspace(workspaceName: string, appname = "") {
     cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
       .scrollIntoView()
       .should("be.visible")
@@ -202,6 +202,10 @@ export class HomePage {
       }
     });
     cy.get(this._applicationName).type(appName + "{enter}");
+  }
+
+  public GetAppName() {
+    return this.agHelper.GetText(this._applicationName, "text");
   }
 
   //Maps to LogOut in command.js
@@ -403,8 +407,8 @@ export class HomePage {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");
-      cy.get
-      (this._optionsIcon).first()
+    cy.get(this._optionsIcon)
+      .first()
       .click({ force: true });
     cy.xpath(this._leaveWorkspace).click({ force: true });
     cy.xpath(this._leaveWorkspaceConfirm).click({ force: true });
@@ -413,7 +417,8 @@ export class HomePage {
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.ValidateToastMessage("You have successfully left the workspace");
+    this.agHelper.ValidateToastMessage(
+      "You have successfully left the workspace",
+    );
   }
-  
 }

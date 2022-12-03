@@ -10,8 +10,12 @@ import { getDatasource, getDatasources } from "selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
-import { saveDatasourceName } from "actions/datasourceActions";
+import {
+  saveDatasourceName,
+  updateDatasourceName,
+} from "actions/datasourceActions";
 import { Spinner } from "@blueprintjs/core";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const Wrapper = styled.div`
   margin-left: 10px;
@@ -23,6 +27,7 @@ const Wrapper = styled.div`
 
 interface ComponentProps {
   focusOnMount: boolean;
+  disabled?: boolean;
 }
 
 type FormTitleProps = ComponentProps;
@@ -53,7 +58,22 @@ function FormTitle(props: FormTitleProps) {
     (name: string) => {
       const datasourcesNames: Record<string, any> = {};
       datasources
-        .filter((datasource) => datasource.id !== currentDatasource?.id)
+        // in case of REST API and Authenticated GraphQL API, when user clicks on save as datasource
+        // we first need to update the action and then redirect to action page,
+        // for that reason we need temporary datasource data to exist in store till action is updated,
+        // if temp datasource data is there, then duplicate name issue occurs
+        // hence added extra condition for REST and GraphQL.
+        .filter(
+          (datasource) =>
+            datasource.id !== currentDatasource?.id &&
+            !(
+              datasource.name === currentDatasource?.name &&
+              ["REST API", "Authenticated GraphQL API"].includes(
+                (datasource as any).pluginName,
+              ) &&
+              datasource.pluginId === currentDatasource?.pluginId
+            ),
+        )
         .map((datasource) => {
           datasourcesNames[datasource.name] = datasource;
         });
@@ -77,12 +97,31 @@ function FormTitle(props: FormTitleProps) {
 
   const handleDatasourceNameChange = useCallback(
     (name: string) => {
+      // Check if the datasource name equals "Untitled Datasource ABC" if no , use the name passed.
+      const datsourceName = name || "Untitled Datasource ABC";
       if (
         !isInvalidDatasourceName(name) &&
         currentDatasource &&
         currentDatasource.name !== name
       ) {
-        dispatch(saveDatasourceName({ id: currentDatasource?.id ?? "", name }));
+        // if the currentDatasource id equals the temp datasource id,
+        // it means that you are about to create a new datasource hence
+        // saveDatasourceName would be dispatch
+        if (currentDatasource.id === TEMP_DATASOURCE_ID) {
+          dispatch(
+            saveDatasourceName({
+              id: currentDatasource?.id ?? "",
+              name: datsourceName,
+            }),
+          );
+        } else {
+          dispatch(
+            updateDatasourceName({
+              id: currentDatasource?.id ?? "",
+              name: datsourceName,
+            }),
+          );
+        }
       }
     },
     [dispatch, isInvalidDatasourceName, currentDatasource],
@@ -101,6 +140,7 @@ function FormTitle(props: FormTitleProps) {
       <EditableText
         className="t--edit-datasource-name"
         defaultValue={currentDatasource ? currentDatasource.name : ""}
+        disabled={props.disabled}
         editInteractionKind={EditInteractionKind.SINGLE}
         forceDefault={forceUpdate}
         isEditingDefault={props.focusOnMount}
