@@ -922,6 +922,9 @@ function ApplicationsSection(props: any) {
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
+                      hasCreateNewApplicationPermission={
+                        hasCreateNewApplicationPermission
+                      }
                       isMobile={isMobile}
                       key={application.id}
                       update={updateApplicationDispatch}

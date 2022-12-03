@@ -7,7 +7,8 @@ let themeBackgroudColor;
 let themeFont;
 let themeColour;
 let propPane = ObjectsRegistry.PropertyPane,
-  ee = ObjectsRegistry.EntityExplorer;
+  ee = ObjectsRegistry.EntityExplorer,
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Theme validation usecase for multi-select widget", function() {
   it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function() {
@@ -16,6 +17,8 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
+    appSettings.openPaneFromCta();
+    appSettings.goToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
@@ -60,7 +63,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       });
 
       cy.get(themelocator.fontsSelected)
-        .eq(0)
+        .eq(10)
         .should("have.text", "Nunito Sans");
 
       cy.get(".ads-dropdown-options-wrapper div")
@@ -94,6 +97,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(1000);
     cy.contains("Color").click({ force: true });
+    appSettings.closePane();
   });
 
   it.skip("2. Publish the App and validate Font across the app + Bug 15007", function() {
@@ -120,6 +124,8 @@ describe("Theme validation usecase for multi-select widget", function() {
 
   it("3. Validate current theme feature", function() {
     cy.get("#canvas-selection-0").click({ force: true });
+    appSettings.openPaneFromCta();
+    appSettings.goToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(themelocator.currentTheme).click({ force: true });
@@ -134,6 +140,7 @@ describe("Theme validation usecase for multi-select widget", function() {
             expect("rgba(0, 0, 0, 0)").to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
             themeColour = selectedBackgroudColor;
+            appSettings.closePane();
           });
       });
   });

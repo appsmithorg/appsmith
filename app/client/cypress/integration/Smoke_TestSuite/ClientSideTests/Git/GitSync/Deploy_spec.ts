@@ -1,6 +1,9 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
-const commonLocators = require("../../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+const agHelper = ObjectsRegistry.AggregateHelper,
+  commonLocators = ObjectsRegistry.CommonLocators;
 
 let repoName;
 describe("Git sync modal: deploy tab", function() {
@@ -49,9 +52,9 @@ describe("Git sync modal: deploy tab", function() {
   });
 
   it("post connection app name deploy menu", function() {
-    cy.get(homePage.applicationName).click();
-    cy.get(commonLocators.appNameDeployMenu).click();
-    cy.get(commonLocators.appNameDeployMenuPublish).click();
+    // deploy
+    agHelper.GetNClick(commonLocators._publishButton);
+
     cy.get(gitSyncLocators.gitSyncModal);
     cy.get(gitSyncLocators.gitSyncModalDeployTab).should(
       "have.class",
@@ -67,13 +70,12 @@ describe("Git sync modal: deploy tab", function() {
 
     cy.get(gitSyncLocators.closeGitSyncModal).click();
 
-    cy.get(homePage.applicationName).click();
-    cy.get(commonLocators.appNameDeployMenu).click();
-    cy.get(commonLocators.appNameDeployMenuCurrentVersion).click();
+    // current deployed version
+    agHelper.GetNClick(homePage.deployPopupOptionTrigger);
+    agHelper.AssertElementExist(homePage.currentDeployedPreviewBtn);
 
-    cy.get(homePage.applicationName).click();
-    cy.get(commonLocators.appNameDeployMenu).click();
-    cy.get(commonLocators.appNameDeployMenuConnectToGit).should("not.exist");
+    // connect to git
+    agHelper.AssertElementAbsence(homePage.connectToGitBtn);
   });
 
   after(() => {
