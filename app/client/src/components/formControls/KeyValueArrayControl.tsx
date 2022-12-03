@@ -187,6 +187,7 @@ function KeyValueRow(
                     }}
                   />
                   <CenteredIcon
+                    className="t--delete-field"
                     name="delete"
                     onClick={() => props.fields.remove(index)}
                     size={IconSize.LARGE}
@@ -209,7 +210,7 @@ function KeyValueRow(
           </FormRowWithLabel>
         );
       })}
-      <AddMoreAction onClick={addRow}>
+      <AddMoreAction className="t--add-field" onClick={addRow}>
         <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
         <Text case={Case.UPPERCASE} type={TextType.H5}>
           Add more
