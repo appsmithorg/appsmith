@@ -101,12 +101,10 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    if (currentWorkspace && currentTab === TABS.MEMBERS) {
+    if (currentWorkspace) {
       setPageTitle(`Members in ${currentWorkspace?.name}`);
-    } else {
-      setPageTitle(currentWorkspace?.name);
     }
-  }, [currentWorkspace, currentTab]);
+  }, [currentWorkspace]);
 
   useEffect(() => {
     if (!currentWorkspace) {
