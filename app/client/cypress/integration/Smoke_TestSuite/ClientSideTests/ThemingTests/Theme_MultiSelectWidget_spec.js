@@ -140,7 +140,7 @@ describe("Theme validation usecase for multi-select widget", function() {
             expect("rgba(0, 0, 0, 0)").to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
             themeColour = selectedBackgroudColor;
-            appSettings.closePane();
+            appSettings.ClosePane();
           });
       });
   });
