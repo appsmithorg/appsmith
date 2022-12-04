@@ -69,6 +69,7 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
 import { setAllMetaProps } from "actions/metaActions";
 import { getWidgetsMeta } from "sagas/selectors";
+import { initialState as metaState } from "reducers/entityReducers/metaReducer";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
@@ -131,11 +132,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
     },
     {
-      name: FocusElement.WidgetMeta,
-      selector: getWidgetsMeta,
-      setter: setAllMetaProps,
-    },
-    {
       name: FocusElement.EntityCollapsibleState,
       selector: getAllEntityCollapsibleStates,
       setter: setAllEntityCollapsibleStates,
@@ -177,6 +173,12 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getSelectedWidgets,
       setter: selectMultipleWidgetsInitAction,
       defaultValue: [],
+    },
+    {
+      name: FocusElement.WidgetMeta,
+      selector: getWidgetsMeta,
+      setter: setAllMetaProps,
+      defaultValue: metaState,
     },
     {
       name: FocusElement.CanvasDebuggerTabs,
