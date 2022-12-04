@@ -15,7 +15,7 @@ import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
 import { Classes, Icon, IconSize } from "design-system";
-import { Position } from "@blueprintjs/core";
+import { Intent, Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import {
@@ -25,12 +25,15 @@ import {
   CONTEXT_MOVE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { IconName } from "@blueprintjs/icons";
 
 type EntityContextMenuProps = {
   id: string;
   name: string;
   className?: string;
   pageId: string;
+  isChangePermitted?: boolean;
+  isDeletePermitted?: boolean;
 };
 
 export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
@@ -75,6 +78,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
   const guidedTourEnabled = useSelector(inGuidedTour);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { isChangePermitted = false, isDeletePermitted = false } = props;
 
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
@@ -120,60 +124,80 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     }));
   });
 
-  return (
+  const options = [
+    ...(isChangePermitted
+      ? [
+          {
+            icon: "duplicate" as IconName,
+            value: "copy",
+            onSelect: noop,
+            label: createMessage(CONTEXT_COPY),
+            children: menuPages.map((page) => {
+              return {
+                ...page,
+                onSelect: () => copyActionToPage(props.id, props.name, page.id),
+              };
+            }),
+          },
+        ]
+      : []),
+    ...(isChangePermitted
+      ? [
+          {
+            icon: "swap-horizontal" as IconName,
+            value: "move",
+            onSelect: noop,
+            label: createMessage(CONTEXT_MOVE),
+            children:
+              menuPages.length > 1
+                ? menuPages
+                    .filter((page) => page.id !== props.pageId) // Remove current page from the list
+                    .map((page) => {
+                      return {
+                        ...page,
+                        onSelect: () =>
+                          moveActionToPage(props.id, props.name, page.id),
+                      };
+                    })
+                : [
+                    {
+                      value: "No Pages",
+                      onSelect: noop,
+                      label: "No Pages",
+                    },
+                  ],
+          },
+        ]
+      : []),
+    ...(isDeletePermitted
+      ? [
+          {
+            confirmDelete: confirmDelete,
+            icon: "trash" as IconName,
+            value: "delete",
+            onSelect: () => {
+              confirmDelete
+                ? deleteActionFromPage(props.id, props.name)
+                : setConfirmDelete(true);
+            },
+            label: confirmDelete
+              ? createMessage(CONFIRM_CONTEXT_DELETE)
+              : createMessage(CONTEXT_DELETE),
+            intent: Intent.DANGER,
+            className: "t--apiFormDeleteBtn",
+          },
+        ]
+      : []),
+  ];
+
+  return options.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
       onSelect={noop}
-      optionTree={[
-        {
-          icon: "duplicate",
-          value: "copy",
-          onSelect: noop,
-          label: createMessage(CONTEXT_COPY),
-          children: menuPages.map((page) => {
-            return {
-              ...page,
-              onSelect: () => copyActionToPage(props.id, props.name, page.id),
-            };
-          }),
-        },
-        {
-          icon: "swap-horizontal",
-          value: "move",
-          onSelect: noop,
-          label: createMessage(CONTEXT_MOVE),
-          children:
-            menuPages.length > 1
-              ? menuPages
-                  .filter((page) => page.id !== props.pageId) // Remove current page from the list
-                  .map((page) => {
-                    return {
-                      ...page,
-                      onSelect: () =>
-                        moveActionToPage(props.id, props.name, page.id),
-                    };
-                  })
-              : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
-        },
-        {
-          confirmDelete: confirmDelete,
-          icon: "trash",
-          value: "delete",
-          onSelect: () => {
-            confirmDelete
-              ? deleteActionFromPage(props.id, props.name)
-              : setConfirmDelete(true);
-          },
-          label: confirmDelete
-            ? createMessage(CONFIRM_CONTEXT_DELETE)
-            : createMessage(CONTEXT_DELETE),
-          intent: "danger",
-          className: "t--apiFormDeleteBtn",
-        },
-      ]}
+      optionTree={options}
       position={Position.LEFT_TOP}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
@@ -186,7 +210,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
         </MoreActionablesContainer>
       }
     />
-  );
+  ) : null;
 }
 
 export default MoreActionsMenu;

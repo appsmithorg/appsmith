@@ -18,19 +18,12 @@ const setting: Setting = {
   isDisabled: buttonIsDisabled,
 };
 const dispatch = jest.fn();
+const settings = {};
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
   return {
     ...originalModule,
     useDispatch: () => dispatch,
-  };
-});
-
-const settings = {};
-jest.mock("store", () => {
-  const store = jest.requireActual("store").default;
-  return {
-    ...store,
     useSelector: () => settings,
   };
 });

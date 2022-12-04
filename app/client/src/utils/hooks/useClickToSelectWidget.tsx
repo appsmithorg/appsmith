@@ -1,5 +1,5 @@
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { useWidgetSelection } from "./useWidgetSelection";
 import React, { ReactNode, useCallback } from "react";

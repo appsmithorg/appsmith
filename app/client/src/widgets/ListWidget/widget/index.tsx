@@ -39,7 +39,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
 import { Stylesheet } from "entities/AppTheming";
@@ -439,6 +439,37 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         ) {
           const evaluatedValue = evaluatedProperty[itemIndex];
           const validationPath = get(widget, `validationPaths`)[path];
+
+          /**
+           * Following conditions are special cases written to support
+           * Dynamic Menu Items (Menu Button Widget) inside the List Widget.
+           *
+           * This is an interim fix since List Widget V2 is just around the corner.
+           *
+           * Here we are simply setting the evaluated value as it is without tampering it.
+           * This is crucial for dynamic menu items to operate in the menu button widget
+           *
+           * The menu button widget decides if the value entered in the property pane is
+           * to be converted and interpreted to as an Array or a Type (boolean and text
+           * being the most used ones). This is done because if someone has used the
+           * {{currentItem}} binding to configure the menu item inside the widget, then the
+           * widget will need an array of evaluated values for the respective menu items.
+           * However, if the {{currentItem}} binding is not used, then we only need one
+           * single value for all menu items.
+           *
+           * Dynamic Menu Items (Menu Button Widget) -
+           * https://github.com/appsmithorg/appsmith/pull/17652
+           */
+          if (
+            (path.includes("configureMenuItems.config") &&
+              validationPath?.type === ValidationTypes.ARRAY_OF_TYPE_OR_TYPE) ||
+            (path === "sourceData" &&
+              validationPath?.type === ValidationTypes.FUNCTION)
+          ) {
+            set(widget, path, evaluatedValue);
+
+            return;
+          }
 
           if (
             (validationPath?.type === ValidationTypes.BOOLEAN &&
