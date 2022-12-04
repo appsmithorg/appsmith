@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { SearchVariant } from "design-system";
 import { InputWrapper, SearchInput } from "design-system";
 import { Colors } from "constants/Colors";
+import { useSelector } from "react-redux";
+import { getShouldFocusPropertySearch } from "selectors/propertyPaneSelectors";
 
 const SearchInputWrapper = styled.div`
   position: sticky;
@@ -27,6 +29,11 @@ export function PropertyPaneSearchInput(props: {
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLDivElement>(null);
+  const shouldFocusSearch = useSelector(getShouldFocusPropertySearch);
+
+  useEffect(() => {
+    if (shouldFocusSearch) wrapperRef.current?.focus();
+  }, [shouldFocusSearch]);
 
   const handleInputKeydown = useCallback((e: KeyboardEvent) => {
     switch (e.key) {

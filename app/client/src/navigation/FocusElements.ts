@@ -173,6 +173,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.PropertyField,
       selector: getFocusablePropertyPaneField,
       setter: setFocusablePropertyPaneField,
+      defaultValue: "",
     },
   ],
   [FocusEntity.API]: [

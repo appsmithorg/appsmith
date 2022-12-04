@@ -32,6 +32,17 @@ export const getCurrentWidgetId = createSelector(
   (widgetIds: string[]) => widgetIds[0],
 );
 
+const getRecentlyAddedWidgets = (state: AppState) =>
+  state.ui.canvasSelection.recentlyAddedWidget;
+
+export const getIsCurrentWidgetRecentlyAdded = createSelector(
+  getCurrentWidgetId,
+  getRecentlyAddedWidgets,
+  (currentWidgetId, recentlyAddedWidgets) => {
+    return currentWidgetId in recentlyAddedWidgets;
+  },
+);
+
 export const getCurrentWidgetProperties = createSelector(
   getCanvasWidgets,
   getSelectedWidgets,
@@ -260,5 +271,16 @@ export const getShouldFocusPropertyPath = createSelector(
   ): boolean => {
     const propertyFieldKey = generatePropertyKey(key, pageId);
     return !!(propertyFieldKey && focusableField === propertyFieldKey);
+  },
+);
+
+export const getShouldFocusPropertySearch = createSelector(
+  getIsCurrentWidgetRecentlyAdded,
+  getFocusablePropertyPaneField,
+  (
+    isCurrentWidgetRecentlyAdded: boolean,
+    focusableField: string | undefined,
+  ) => {
+    return !isCurrentWidgetRecentlyAdded && !focusableField;
   },
 );
