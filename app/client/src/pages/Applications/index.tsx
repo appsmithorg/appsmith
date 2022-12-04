@@ -108,6 +108,7 @@ import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErro
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
+  hasDeleteWorkspacePermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -686,9 +687,8 @@ function ApplicationsSection(props: any) {
           workspace.userPermissions,
           PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
         );
-        const canDeleteWorkspace = isPermitted(
-          workspace.userPermissions,
-          PERMISSION_TYPE.DELETE_WORKSPACE,
+        const canDeleteWorkspace = hasDeleteWorkspacePermission(
+          workspace?.userPermissions || [],
         );
         const hasCreateNewApplicationPermission =
           hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
