@@ -420,6 +420,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   renderSaveDisacardModal() {
     return (
       <SaveOrDiscardDatasourceModal
+        datasourceId={this.props.datasourceId}
+        datasourcePermissions={this.props.datasource?.userPermissions || []}
         isOpen={this.state.showDialog}
         onClose={this.closeDialog}
         onDiscard={this.onDiscard}
