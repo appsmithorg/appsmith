@@ -11,7 +11,7 @@ import {
   DataTreeFactory,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
-import { getWidgets, getWidgetsMeta } from "sagas/selectors";
+import { getWidgetsForEval, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "@appsmith/reducers";
@@ -23,7 +23,7 @@ import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
-  getWidgets,
+  getWidgetsForEval,
   getWidgetsMeta,
   getPageList,
   getAppData,
