@@ -9,6 +9,7 @@ describe("Dynamic Height Width validation for text widget", function() {
     const textMsg = "Dynamic panel validation for text widget wrt height";
     //changing the Text Name and verifying
     cy.openPropertyPane("textwidget");
+    cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
     cy.get(".t--widget-textwidget")
       .invoke("css", "height")
