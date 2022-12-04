@@ -5,6 +5,7 @@ import { InputWrapper, SearchInput } from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getShouldFocusPropertySearch } from "selectors/propertyPaneSelectors";
+import { isCurrentFocusOnInput } from "utils/editorContextUtils";
 
 const SearchInputWrapper = styled.div`
   position: sticky;
@@ -32,7 +33,10 @@ export function PropertyPaneSearchInput(props: {
   const shouldFocusSearch = useSelector(getShouldFocusPropertySearch);
 
   useEffect(() => {
-    if (shouldFocusSearch) wrapperRef.current?.focus();
+    // Checks if the property pane opened not because of focusing an input inside a widget
+    const isActiveFocusNotFromWidgetInput = !isCurrentFocusOnInput();
+    if (shouldFocusSearch && isActiveFocusNotFromWidgetInput)
+      wrapperRef.current?.focus();
   }, [shouldFocusSearch]);
 
   const handleInputKeydown = useCallback((e: KeyboardEvent) => {
