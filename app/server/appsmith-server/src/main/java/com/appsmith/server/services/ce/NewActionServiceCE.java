@@ -7,6 +7,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.data.domain.Sort;
@@ -104,4 +105,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
     Map<String, Object> getAnalyticsProperties(NewAction savedAction);
+
+    Mono<NewAction> sendNewActionAnalyticsEvent(AnalyticEventDTO analyticEventDTO);
 }

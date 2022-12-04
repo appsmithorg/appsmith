@@ -152,5 +152,6 @@ public class FieldName {
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
     public static final String UPDATED_INSTANCE_SETTINGS = "updatedInstanceSettings";
     public static final String ACTION_EXECUTION_QUERY = "actionExecutionQuery";
+    public static final String VIEW_MODE = "viewMode";
 
 }

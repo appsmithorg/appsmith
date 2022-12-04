@@ -32,4 +32,5 @@ public interface Url {
     String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
     String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
     String TENANT_URL = BASE_URL + VERSION + "/tenants";
+    String ANALYTICS_URL = BASE_URL + VERSION + "/analytics";
 }

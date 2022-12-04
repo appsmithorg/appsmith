@@ -37,6 +37,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -1986,6 +1987,32 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
                 )
                 .map(NewAction::getId);
+    }
+
+    /**
+     * To send action related general analytics events
+     * Mainly used to send events from frontend via API call
+     * @param analyticEventDTO
+     * @return
+     */
+    public Mono<NewAction> sendNewActionAnalyticsEvent(AnalyticEventDTO analyticEventDTO) {
+        switch (analyticEventDTO.getEvent()) {
+            // JSObject function execute events are executed from frontend on browser
+            // This will be reported backend via API for sending BE analytics events
+            case EXECUTE:
+                return this.findById(analyticEventDTO.getResourceId(), READ_ACTIONS)
+                        .filter(newAction -> newAction.getPluginType().equals(PluginType.JS))
+                        .flatMap(newAction -> {
+                            Map<String, Object> analyticsProperties = getAnalyticsProperties(newAction);
+                            if (analyticEventDTO.getMetadata().containsKey(FieldName.VIEW_MODE) && null != analyticEventDTO.getMetadata().get(FieldName.VIEW_MODE)) {
+                                Boolean isViewMode = (Boolean) analyticEventDTO.getMetadata().get(FieldName.VIEW_MODE);
+                                String applicationMode = isViewMode ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString();
+                                analyticsProperties.put(FieldName.VIEW_MODE, applicationMode);
+                            }
+                            return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, newAction, analyticsProperties);
+                        });
+        }
+        return Mono.empty();
     }
 
     private Map<String, Object> getAnalyticsProperties(NewAction savedAction, Datasource datasource) {

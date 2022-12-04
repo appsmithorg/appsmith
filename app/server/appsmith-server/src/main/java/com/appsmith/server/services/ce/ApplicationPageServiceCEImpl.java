@@ -25,6 +25,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
+import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -1190,6 +1191,22 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         );
 
         return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);
+    }
+
+    /**
+     * To send page related general analytics events
+     * Mainly used to send events from frontend via API call
+     * @param analyticEventDTO
+     * @return
+     */
+    public Mono<NewPage> sendPageAnalyticsEvent(AnalyticEventDTO analyticEventDTO) {
+        switch (analyticEventDTO.getEvent()) {
+            case VIEW:
+                return newPageService.findById(analyticEventDTO.getResourceId(), READ_PAGES)
+                        .flatMap(newPage -> sendPageViewAnalyticsEvent(newPage, (Boolean) analyticEventDTO.getMetadata().get(FieldName.VIEW_MODE)));
+        }
+
+        return Mono.empty();
     }
 
     private Mono<Application> sendPageOrderAnalyticsEvent(Application application, String pageId, int order, String branchName) {
