@@ -69,7 +69,6 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
 import { setAllMetaProps } from "actions/metaActions";
 import { getWidgetsMeta } from "sagas/selectors";
-import { initialState as metaState } from "reducers/entityReducers/metaReducer";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
@@ -135,7 +134,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.WidgetMeta,
       selector: getWidgetsMeta,
       setter: setAllMetaProps,
-      defaultValue: metaState,
     },
     {
       name: FocusElement.EntityCollapsibleState,
