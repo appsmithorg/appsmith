@@ -42,6 +42,7 @@ import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
 import { connect, useSelector } from "react-redux";
+import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -63,6 +64,12 @@ import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+
+/*
+    We use this polyfill to show emoji flags
+    on windows devices, this polyfill loads a font family
+  */
+polyfillCountryFlagEmojis();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
