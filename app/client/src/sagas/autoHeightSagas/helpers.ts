@@ -86,7 +86,7 @@ export function* getMinHeightBasedOnChildren(
 
   const { children = [], parentId } = stateWidgets[widgetId];
   // If we need to consider the parent height
-  if (parentId && !ignoreParent) {
+  if (parentId && !ignoreParent && parentId in tree) {
     const parent = stateWidgets[parentId];
     const parentHeightInRows = getParentCurrentHeightInRows(
       tree,
