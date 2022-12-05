@@ -1051,6 +1051,27 @@ export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
 // Audit logs Upgrade page end
 // Audit logs end
 
+// Access control upgrade page begin
+export const GRANULAR_ACCESS_CONTROL_FOR_TEAMS = () =>
+  "Granular Access Controls for teams";
+export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
+  "Control view, create, edit, delete, share, and export permissions for all resources in your apps in a workspace. Manage permissions by attributes as granularly or broadly as you want. Use permissions and user groups to easily define access levels of new and existing users.";
+export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
+  "Secure apps by the least privilege needed";
+export const SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1 = () =>
+  "Create roles by the least privilege needed as defaults, e.g.: View only, assign them to users in groups, e.g.: Marketing, and modify for special access, e.g.: Content creators_Execute queries";
+export const PREVENT_ACCIDENTAL_DAMAGE = () =>
+  "Prevent accidental damage to data";
+export const PREVENT_ACCIDENTAL_DAMAGE_DETAIL1 = () =>
+  `Assign edit and delete permissions to an entire group, then modify granularly so non-native users of your data don’t drop a table or bulk-delete streaming data records before you can say, “Retrieve”.`;
+export const RESTRICT_PUBLIC_EXPOSURE = () =>
+  "Restrict public exposure of sensitive data";
+export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
+  "Proactively disallow groups of non-admin or non-super-admin users from publicly sharing your app or exporting app data out of your environment, domain, and security perimeters.";
+export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
+  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
+// Access control upgrade page end
+
 //
 export const WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN = () =>
   "Tell us more about what you do at work?";

@@ -1,0 +1,165 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 4896,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 460,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 69,
+        "minHeight": 1292,
+        "dynamicTriggerPathList": [],
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "backgroundColor": "#FFFFFF",
+                "widgetName": "Container1",
+                "containerStyle": "card",
+                "borderColor": "#E0DEDE",
+                "borderWidth": "1",
+                "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                "animateLoading": true,
+                "children": [
+                    {
+                        "isVisible": true,
+                        "widgetName": "Canvas1",
+                        "version": 1,
+                        "detachFromLayout": true,
+                        "type": "CANVAS_WIDGET",
+                        "hideCard": true,
+                        "isDeprecated": false,
+                        "displayName": "Canvas",
+                        "key": "pbbivorh4u",
+                        "containerStyle": "none",
+                        "canExtend": false,
+                        "children": [
+                            {
+                                "isVisible": true,
+                                "text": "Cypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenariosCypress Test scenarios",
+                                "fontSize": "1rem",
+                                "fontStyle": "BOLD",
+                                "textAlign": "LEFT",
+                                "textColor": "#231F20",
+                                "widgetName": "Text1",
+                                "shouldTruncate": false,
+                                "overflow": "NONE",
+                                "version": 1,
+                                "animateLoading": true,
+                                "minDynamicHeight": 4,
+                                "maxDynamicHeight": 9000,
+                                "dynamicHeight": "AUTO_HEIGHT",
+                                "searchTags": [
+                                    "typography",
+                                    "paragraph",
+                                    "label"
+                                ],
+                                "type": "TEXT_WIDGET",
+                                "hideCard": false,
+                                "isDeprecated": false,
+                                "displayName": "Text",
+                                "key": "qz9rm4m6mt",
+                                "iconSVG": "/static/media/icon.97c59b523e6f70ba6f40a10fc2c7c5b5.svg",
+                                "widgetId": "cvjp04zqa6",
+                                "renderMode": "CANVAS",
+                                "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                                "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                                "isLoading": false,
+                                "parentColumnSpace": 3.42578125,
+                                "parentRowSpace": 10,
+                                "leftColumn": 18,
+                                "rightColumn": 34,
+                                "topRow": 2,
+                                "bottomRow": 143,
+                                "parentId": "y2r0w8mmas",
+                                "dynamicBindingPathList": [
+                                    {
+                                        "key": "truncateButtonColor"
+                                    },
+                                    {
+                                        "key": "fontFamily"
+                                    },
+                                    {
+                                        "key": "borderRadius"
+                                    }
+                                ],
+                                "dynamicTriggerPathList": [],
+                                "originalTopRow": 2,
+                                "originalBottomRow": 6
+                            }
+                        ],
+                        "minHeight": 1450,
+                        "widgetId": "y2r0w8mmas",
+                        "renderMode": "CANVAS",
+                        "boxShadow": "none",
+                        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "parentRowSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 239.25,
+                        "topRow": 0,
+                        "bottomRow": 1450,
+                        "parentId": "uls70b9gd6",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "borderRadius"
+                            },
+                            {
+                                "key": "accentColor"
+                            }
+                        ]
+                    }
+                ],
+                "version": 1,
+                "minDynamicHeight": 10,
+                "maxDynamicHeight": 9000,
+                "dynamicHeight": "FIXED",
+                "shouldScrollContents": true,
+                "searchTags": [
+                    "div",
+                    "parent",
+                    "group"
+                ],
+                "type": "CONTAINER_WIDGET",
+                "hideCard": false,
+                "isDeprecated": false,
+                "displayName": "Container",
+                "key": "vkaake96j7",
+                "iconSVG": "/static/media/icon.1977dca3370505e2db3a8e44cfd54907.svg",
+                "isCanvas": true,
+                "widgetId": "uls70b9gd6",
+                "renderMode": "CANVAS",
+                "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                "isLoading": false,
+                "parentColumnSpace": 9.96875,
+                "parentRowSpace": 10,
+                "leftColumn": 17,
+                "rightColumn": 41,
+                "topRow": 8,
+                "bottomRow": 18,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "borderRadius"
+                    },
+                    {
+                        "key": "boxShadow"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            }
+        ]
+    }
+}
