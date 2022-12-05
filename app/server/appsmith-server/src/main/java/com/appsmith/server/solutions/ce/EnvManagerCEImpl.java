@@ -189,7 +189,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         variablesNotInWhitelist.removeAll(tenantConfigWhitelist);
 
         if (!variablesNotInWhitelist.isEmpty()) {
-            throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
+            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST);
         }
 
         if (changes.containsKey(APPSMITH_MAIL_HOST.name())) {
@@ -303,7 +303,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Arrays.stream(fields)
                 .map(field -> {
                     JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
-                    return jsonProperty.value();
+                    return jsonProperty == null ? field.getName() : jsonProperty.value();
                 }).collect(Collectors.toSet());
     }
 
@@ -335,7 +335,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
         // Write the changes to the tenant collection in configuration field
-        return Flux.fromStream(changes.entrySet().stream())
+        return Flux.fromIterable(changes.entrySet())
                 .map(map -> {
                     String key = map.getKey();
                     String value = map.getValue();
@@ -363,7 +363,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return Mono.error(e);
                     }
                     Map<String, String> originalVariables = parseToMap(originalContent);
-                    final List<String> changedContent = transformEnvContent(originalContent, changes);
+
+                    final Map<String, String> envFileChanges = new HashMap<>(changes);
+                    final Set<String> tenantConfigurationKeys = allowedTenantConfiguration();
+                    for (final String key : changes.keySet()) {
+                        if (tenantConfigurationKeys.contains(key)) {
+                            envFileChanges.remove(key);
+                        }
+                    }
+                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
 
                     try {
                         Files.write(envFilePath, changedContent);
@@ -457,6 +465,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(entry -> {
                     final String key = entry.getKey();
                     final List<Part> parts = entry.getValue();
+                    final boolean isFile = parts.size() > 0 && parts.get(0) instanceof FilePart;
+
+                    if (isFile) {
+                        return handleFileUpload(key, parts);
+                    }
+
                     return DataBufferUtils
                             .join(Flux.fromIterable(parts).flatMapSequential(Part::content))
                             .flatMap(dataBuffer -> {
@@ -467,11 +481,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                     log.error("Unable to read multipart form data, in env change API", e);
                                     return Mono.error(new AppsmithException(AppsmithError.IO_ERROR, "unable to read data"));
                                 }
-                                if (parts.get(0) instanceof FilePart) {
-                                    return handleFileUpload(key, parts);
-                                } else {
-                                    return Mono.just(Map.entry(key, new String(content, StandardCharsets.UTF_8)));
-                                }
+                                return Mono.just(Map.entry(key, new String(content, StandardCharsets.UTF_8)));
                             });
                 })
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
@@ -626,22 +636,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
                     }
 
-                    // Add the variables from the tenant configuration to be returned to the client
-                    Mono<Tenant> tenantMono = tenantService.findById(user.getTenantId(), MANAGE_TENANT);
-
-                    return Mono.zip(Mono.justOrEmpty(envKeyValueMap), tenantMono)
-                            .map(tuple -> {
-                                Map<String, String> envFileMap = tuple.getT1();
-                                Tenant tenant = tuple.getT2();
-                                Map<String, String> configMap = objectMapper.convertValue(tenant.getTenantConfiguration(), new TypeReference<>() {
-                                });
-                                Map<String, String> envMap = new HashMap<>();
-                                envMap.putAll(envFileMap);
-                                if (!CollectionUtils.isNullOrEmpty(configMap)) {
-                                    envMap.putAll(configMap);
-                                }
-                                return envMap;
-                            });
+                    return Mono.justOrEmpty(envKeyValueMap);
                 });
     }
 

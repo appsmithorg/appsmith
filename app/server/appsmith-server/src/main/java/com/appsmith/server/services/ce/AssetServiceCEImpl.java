@@ -43,7 +43,8 @@ public class AssetServiceCEImpl implements AssetServiceCE {
             MediaType.IMAGE_JPEG,
             MediaType.IMAGE_PNG,
             MediaType.valueOf("image/svg+xml"),
-            MediaType.valueOf("image/x-icon")
+            MediaType.valueOf("image/x-icon"),
+            MediaType.valueOf("image/vnd.microsoft.icon")
     );
 
     @Override
@@ -67,7 +68,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new AppsmithException(
                     AppsmithError.VALIDATION_FAILURE,
-                    "Please upload a valid image. Only JPEG and PNG are allowed."
+                    "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed."
             ));
         }
 
@@ -111,17 +112,27 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     }
 
     private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail) throws IOException {
-        byte[] imageData;
-        MediaType contentType;
+        byte[] imageData = null;
+        MediaType contentType = srcContentType;
 
-        if(createThumbnail) {
-            imageData = resizeImage(dataBuffer);
+        if (createThumbnail) {
+            try {
+                imageData = resizeImage(dataBuffer);
+            } finally {
+                // The `resizeImage` function, calls `ImageIO.read` which changes the read position of this `dataBuffer`.
+                // This becomes a problem for us, since we attempt to read it ourselves, if the image is not resized.
+                dataBuffer.readPosition(0);
+            }
+        }
+
+        if (imageData != null) {
+            // A JPEG thumbnail creation was successful.
             contentType = MediaType.IMAGE_JPEG;
         } else {
             imageData = new byte[dataBuffer.readableByteCount()];
             dataBuffer.read(imageData);
-            contentType = srcContentType;
         }
+
         DataBufferUtils.release(dataBuffer);
         return new Asset(contentType, imageData);
     }
@@ -129,6 +140,10 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     private byte[] resizeImage(DataBuffer dataBuffer) throws IOException {
         int dimension = THUMBNAIL_PHOTO_DIMENSION;
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
+        if (bufferedImage == null) {
+            // This is true for SVG and ICO images.
+            return null;
+        }
         Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
         BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
         imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
