@@ -2,7 +2,7 @@ import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
 import UserApi from "@appsmith/api/UserApi";
 import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
 import { ScrollIndicator } from "design-system";

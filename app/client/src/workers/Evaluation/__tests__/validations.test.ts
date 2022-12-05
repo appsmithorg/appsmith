@@ -6,7 +6,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,
@@ -1348,7 +1348,7 @@ describe("Validate Validators", () => {
       ["a", "b", "x", "y"],
     ];
     const config = {
-      type: ValidationTypes.TABLE_PROPERTY,
+      type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
       params: {
         type: ValidationTypes.TEXT,
         params: {

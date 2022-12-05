@@ -14,6 +14,7 @@ import {
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { getStylesheetValue } from "./helpers";
+import { Stylesheet } from "entities/AppTheming";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -536,6 +537,18 @@ class ButtonGroupWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+      childStylesheet: {
+        button: {
+          buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        },
+      },
+    };
   }
 
   handleClick = (onClick: string | undefined, callback: () => void): void => {

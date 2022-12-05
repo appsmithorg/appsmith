@@ -16,7 +16,8 @@ import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Stylesheet } from "entities/AppTheming";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultOptionValueValidation(
@@ -382,6 +383,16 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
@@ -574,6 +585,14 @@ class MultiSelectWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
+    };
+  }
+
   static getDerivedPropertiesMap() {
     return {
       value: `{{this.selectedOptionValues}}`,
@@ -661,6 +680,7 @@ class MultiSelectWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
@@ -691,6 +711,9 @@ class MultiSelectWidget extends BaseWidget<
 
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
+    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
+      return [];
+    }
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
     return values.map((value, index) => ({
@@ -738,8 +761,8 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   isLoading: boolean;
   selectedOptions: LabelInValueType[];
   filterText: string;
-  selectedOptionValues: string[];
-  selectedOptionLabels: string[];
+  selectedOptionValues?: string[];
+  selectedOptionLabels?: string[];
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   allowSelectAll?: boolean;

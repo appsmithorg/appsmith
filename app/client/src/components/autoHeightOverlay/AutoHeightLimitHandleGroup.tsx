@@ -151,9 +151,9 @@ const AutoHeightLimitHandleGroup: React.FC<AutoHeightLimitHandleGroupProps> = ({
         cypressDataID="t--auto-height-overlay-handles-max"
         height={maxY}
         isActive={isMaxDotActive}
-        isColliding={isColliding}
+        isColliding={false}
         isDragging={isMaxDotDragging}
-        label="Max-Height"
+        label={isColliding ? "Height" : "Max-Height"}
         onDragCallbacks={onMaxLimitDragCallbacks}
         onMouseHoverFunctions={onMaxLimitMouseHoverCallbacks}
       />
