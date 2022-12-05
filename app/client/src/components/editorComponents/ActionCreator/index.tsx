@@ -41,6 +41,7 @@ import {
   AppsmithFunction,
   FieldType,
   AppsmithFunctionsWithFields,
+  FUNCTIONS_WITH_CALLBACKS,
 } from "./constants";
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
@@ -249,13 +250,23 @@ function getFieldsForSelectedAction(
     value,
   });
 
-  const functionMatch = AppsmithFunctionsWithFields.filter((func) =>
+  /**
+   * check if value has a function with callbacks
+   * if yes, directly set that as the function match
+   * if no, go over the list of platform functions and find which function matches
+   * We do this to prevent fields of the platform functions inside callbacks being pushed as the fields of this function
+   * See - https://github.com/appsmithorg/appsmith/issues/15895
+   **/
+  const isFunctionWithCallbackFields = FUNCTIONS_WITH_CALLBACKS.filter((func) =>
     value.includes(func),
-  );
-  const requiredFunction = functionMatch[0];
+  )[0];
+  const functionMatch =
+    isFunctionWithCallbackFields ||
+    AppsmithFunctionsWithFields.filter((func) => value.includes(func))[0];
+  console.log("* func match", isFunctionWithCallbackFields, functionMatch);
 
   if (functionMatch.length > 0) {
-    for (const field of FIELD_GROUP_CONFIG[requiredFunction].fields) {
+    for (const field of FIELD_GROUP_CONFIG[functionMatch].fields) {
       fields.push({
         field: field,
       });
@@ -267,7 +278,7 @@ function getFieldsForSelectedAction(
      * if URL then this field will be URL_FIELD
      **/
     if (
-      requiredFunction === "navigateTo" &&
+      functionMatch === "navigateTo" &&
       activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.URL
     ) {
       fields[2] = {

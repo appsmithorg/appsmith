@@ -124,7 +124,6 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     const changeValueAstWithComments = klona(getAstWithCommentsAttached(changeValueAst, changedValueCommentArray));
     const currentValueAstWithComments = klona(getAstWithCommentsAttached(ast, currentValueCommentArray));
 
-
     simple(changeValueAstWithComments, {
         ArrowFunctionExpression(node) {
             if (isArrowFunctionExpression(node)) {
@@ -139,11 +138,12 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
                 requiredNode.start = node.arguments[0].start;
                 requiredNode.end = node.arguments[0].start + changedValue.length;
                 node.arguments[argNum] = requiredNode;
-                changedValue = `${generate(currentValueAstWithComments, {comments: true}).trim()}`;
+                changedValue = `{{${generate(currentValueAstWithComments, {comments: true}).trim()}}}`;
             }
         },
     });
 
+    console.log("* from ast changedVal", changedValue);
     return changedValue;
 }
 
