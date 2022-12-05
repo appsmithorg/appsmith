@@ -41,6 +41,7 @@ export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
 };
 
 export const NAVIGATE_TO_ATTRIBUTE = "data-navigate-to";
+export const NAVIGATION_CLASSNAME = "navigable-entity-highlight";
 
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
@@ -51,16 +52,23 @@ export const entityMarker: MarkHelper = (
     const tokens = editor.getLineTokens(lineNo);
     tokens.forEach((token) => {
       const tokenString = token.string.replaceAll("'", "").replaceAll('"', "");
+      const existingMarking = editor
+        .findMarks(
+          { ch: token.start, line: lineNo },
+          { ch: token.end, line: lineNo },
+        )
+        .filter((marker) => marker.className === NAVIGATION_CLASSNAME);
       if (
         (token.type === "variable" || token.type === "string") &&
         tokenString in entityNavigationData
       ) {
+        if (existingMarking.length) return;
         const data = entityNavigationData[tokenString];
         editor.markText(
           { ch: token.start, line: lineNo },
           { ch: token.end, line: lineNo },
           {
-            className: "navigable-entity-highlight",
+            className: NAVIGATION_CLASSNAME,
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             attributes: {
@@ -69,6 +77,9 @@ export const entityMarker: MarkHelper = (
             atomic: false,
           },
         );
+      } else if (existingMarking.length) {
+        debugger;
+        existingMarking.forEach((mark) => mark.clear());
       }
     });
   });
