@@ -30,6 +30,7 @@ export class DataSources {
   private _saveDs = ".t--save-datasource";
   private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
+  private _editButton = ".t--edit-datasource";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
@@ -110,6 +111,14 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+
+  public AssertViewMode() {
+    this.agHelper.AssertElementExist(this._editButton);
+  }
+
+  public AssertEditMode() {
+    this.agHelper.AssertElementAbsence(this._editButton);
+  }
 
   public StartDataSourceRoutes() {
     cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
@@ -210,6 +219,10 @@ export class DataSources {
     // if (waitForToastDisappear)
     //   this.agHelper.WaitUntilToastDisappear("datasource created");
     // else this.agHelper.AssertContains("datasource created");
+  }
+
+  public EditDatasource() {
+    this.agHelper.GetNClick(this._editButton);
   }
 
   public NavigateToDSCreateNew() {

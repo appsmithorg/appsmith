@@ -1,4 +1,4 @@
-import { updateExplorerWidthAction } from "actions/explorerActions";
+import { updatePropertyPaneWidthAction } from "actions/propertyPaneActions";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
 import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import React, { useCallback } from "react";
@@ -16,7 +16,7 @@ function PropertyPaneContainer() {
    * @return void
    */
   const onRightSidebarDragEnd = useCallback(() => {
-    dispatch(updateExplorerWidthAction(propertyPaneWidth));
+    dispatch(updatePropertyPaneWidthAction(propertyPaneWidth));
   }, [propertyPaneWidth]);
 
   /**

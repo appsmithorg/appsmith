@@ -128,21 +128,38 @@ export default function LeftPane() {
   const features = useSelector(selectFeatureFlags);
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
+
   return (
     <Wrapper>
-      <HeaderContainer>
-        <StyledHeader>Admin Settings</StyledHeader>
-      </HeaderContainer>
-      <Categories
-        categories={categories}
-        currentCategory={category}
-        currentSubCategory={subCategory}
-      />
+      <>
+        <HeaderContainer>
+          <StyledHeader>Admin Settings</StyledHeader>
+        </HeaderContainer>
+        <Categories
+          categories={categories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
+      </>
       <>
         <HeaderContainer>
           <StyledHeader>Enterprise</StyledHeader>
         </HeaderContainer>
         <CategoryList data-testid="t--enterprise-settings-category-list">
+          {features.RBAC && (
+            <CategoryItem>
+              <StyledLink
+                $active={category === "access-control"}
+                data-testid="t--enterprise-settings-category-item-access-control"
+                to="/settings/access-control"
+              >
+                <div>
+                  <Icon name="lock-2-line" size={IconSize.XL} />
+                </div>
+                <div>Access Control</div>
+              </StyledLink>
+            </CategoryItem>
+          )}
           <CategoryItem>
             <StyledLink
               $active={category === "audit-logs"}
