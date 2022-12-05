@@ -1203,7 +1203,7 @@ public class LayoutServiceTest {
                 .expectErrorMatches(throwable -> {
                     assertThat(throwable).isInstanceOf(AppsmithException.class);
                     assertThat(throwable.getMessage()).isEqualTo(
-                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), null)
+                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), "dynamicGet_IncorrectKey", "New element is null")
                     );
                     return true;
                 })
