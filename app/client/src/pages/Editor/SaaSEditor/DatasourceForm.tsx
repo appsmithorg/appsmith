@@ -193,6 +193,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       unblock: this.props?.history?.block((tx: any) => {
         this.setState(
           {
+            // need to pass in query params as well as state, when user navigates away from ds form page
             navigation: () =>
               this.props.history.push(tx.pathname + tx.search, tx.state),
             showDialog: true,
