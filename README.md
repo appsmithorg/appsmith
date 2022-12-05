@@ -183,8 +183,8 @@ Lets build great software together.
 [![ohansFavour](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/46670083?v=4&w=50&h=50&mask=circle)](https://github.com/ohansFavour)
 [![Aishwarya-U-R](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/91450662?v=4&w=50&h=50&mask=circle)](https://github.com/Aishwarya-U-R)
 [![Irongade](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/37867493?v=4&w=50&h=50&mask=circle)](https://github.com/Irongade)
-[![prsidhu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5424788?v=4&w=50&h=50&mask=circle)](https://github.com/prsidhu)
 [![ankitakinger](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/28362912?v=4&w=50&h=50&mask=circle)](https://github.com/ankitakinger)
+[![prsidhu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5424788?v=4&w=50&h=50&mask=circle)](https://github.com/prsidhu)
 [![pranavkanade](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13262095?v=4&w=50&h=50&mask=circle)](https://github.com/pranavkanade)
 [![somangshu](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/11089579?v=4&w=50&h=50&mask=circle)](https://github.com/somangshu)
 [![ApekshaBhosale](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/7846888?v=4&w=50&h=50&mask=circle)](https://github.com/ApekshaBhosale)
@@ -409,7 +409,7 @@ Lets build great software together.
 [![zimkjh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/31986639?v=4&w=50&h=50&mask=circle)](https://github.com/zimkjh)
 [![kyteinsky](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/20724224?v=4&w=50&h=50&mask=circle)](https://github.com/kyteinsky)
 [![lifeneedspassion](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/7675485?v=4&w=50&h=50&mask=circle)](https://github.com/lifeneedspassion)
-[![geek-nupur](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/35266222?v=4&w=50&h=50&mask=circle)](https://github.com/geek-nupur)
+[![nupur-singhal1992](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/35266222?v=4&w=50&h=50&mask=circle)](https://github.com/nupur-singhal1992)
 [![nzidol](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13618973?v=4&w=50&h=50&mask=circle)](https://github.com/nzidol)
 [![onifs10](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48095055?v=4&w=50&h=50&mask=circle)](https://github.com/onifs10)
 
