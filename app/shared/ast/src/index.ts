@@ -301,47 +301,56 @@ export const entityRefactorFromCode = (
     const identifierArray = Array.from(
       identifierList
     ) as Array<RefactorIdentifierNode>;
-    Array.from(references).forEach((reference, index) => {
+    //To handle if oldName has property ("JSObject.myfunc")
+    const oldNameArr = oldName.split(".");
+    const referencesArr = Array.from(references).filter((reference) => {
+      // To remove references derived from declared variables and function params,
+      // We extract the topLevelIdentifier Eg. Api1.name => Api1
       const topLevelIdentifier = toPath(reference)[0];
-      let shouldUpdateNode = !(
+      return !(
         functionalParams.has(topLevelIdentifier) ||
         variableDeclarations.has(topLevelIdentifier) ||
         has(invalidIdentifiers, topLevelIdentifier)
       );
-      //To handle if oldName has property ("JSObject.myfunc")
-      const oldNameArr = oldName.split(".");
-      //check if node should be updated
-      if (shouldUpdateNode && identifierArray[index].name === oldNameArr[0]) {
-        //Replace the oldName by newName
-        //Get start index from node and get subarray from index 0 till start
-        //Append above with new name
-        //Append substring from end index from the node till end of string
-        //Offset variable is used to alter the position based on `refactorOffset`
-        //In case of nested JS action get end postion fro the property.
-        ///Default end index
-        let endIndex = identifierArray[index].end;
-        const propertyNode = identifierArray[index].property;
-        //Flag variable : true if property should be updated
-        //false if property should not be updated
-        let propertyCondFlag =
-          oldNameArr.length > 1 &&
-          propertyNode &&
-          oldNameArr[1] === propertyNode.name;
-        //Condition to validate if Identifier || Property should be updated??
-        if (oldNameArr.length === 1 || propertyCondFlag) {
-          //Condition to extend end index in case of property match
-          if (propertyCondFlag && propertyNode) {
-            endIndex = propertyNode.end;
+    });
+    //Traverse through all identifiers in the script
+    identifierArray.forEach((identifier) => {
+      if (identifier.name === oldNameArr[0]) {
+        let index = 0;
+        while (index < referencesArr.length) {
+          if (identifier.name === referencesArr[index].split(".")[0]) {
+            //Replace the oldName by newName
+            //Get start index from node and get subarray from index 0 till start
+            //Append above with new name
+            //Append substring from end index from the node till end of string
+            //Offset variable is used to alter the position based on `refactorOffset`
+            //In case of nested JS action get end postion fro the property.
+            ///Default end index
+            let endIndex = identifier.end;
+            const propertyNode = identifier.property;
+            //Flag variable : true if property should be updated
+            //false if property should not be updated
+            let propertyCondFlag =
+              oldNameArr.length > 1 &&
+              propertyNode &&
+              oldNameArr[1] === propertyNode.name;
+            //Condition to validate if Identifier || Property should be updated??
+            if (oldNameArr.length === 1 || propertyCondFlag) {
+              //Condition to extend end index in case of property match
+              if (propertyCondFlag && propertyNode) {
+                endIndex = propertyNode.end;
+              }
+              refactorScript =
+                refactorScript.substring(0, identifier.start + refactorOffset) +
+                newName +
+                refactorScript.substring(endIndex + refactorOffset);
+              refactorOffset += nameLengthDiff;
+              ++refactorCount;
+              //We are only looking for one match in refrence for the identifier name.
+              break;
+            }
           }
-          refactorScript =
-            refactorScript.substring(
-              0,
-              identifierArray[index].start + refactorOffset
-            ) +
-            newName +
-            refactorScript.substring(endIndex + refactorOffset);
-          refactorOffset += nameLengthDiff;
-          ++refactorCount;
+          index++;
         }
       }
     });

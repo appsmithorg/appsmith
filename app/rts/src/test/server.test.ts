@@ -67,10 +67,25 @@ const entityRefactor = [
     evalVersion: 2,
   },
   {
-    script:"\tApiNever.data",
-    "oldName": "ApiNever", 
-    "newName": "ApiForever", 
+    script: "\tApiNever.data",
+    oldName: "ApiNever",
+    newName: "ApiForever",
     isJSObject: false,
+    evalVersion: 2,
+  },
+  {
+    script: "ApiNever.data + ApiNever.data",
+    oldName: "ApiNever",
+    newName: "ApiForever",
+    isJSObject: false,
+    evalVersion: 2,
+  },
+  {
+    script:
+      'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t// ApiNever.text\n\t\treturn "ApiNever.text" + ApiNever.text\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t\t// ApiNever.text\n\t\treturn "ApiNever.text" + ApiNever.text\n\t}\n}',
+    oldName: "ApiNever",
+    newName: "ApiForever",
+    isJSObject: true,
     evalVersion: 2,
   },
 ];
@@ -154,12 +169,21 @@ describe("AST tests", () => {
         },
         {
           script:
-          "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
+            "//   ApiNever  \n function ApiNever(abc) {let foo = \"I'm getting data from ApiNever but don't rename this string\" +     ApiNever.data; \n if(true) { return ApiNever }}",
           refactorCount: 0,
         },
         {
-          script:"\tApiForever.data",
+          script: "\tApiForever.data",
           refactorCount: 1,
+        },
+        {
+          script: "ApiForever.data + ApiForever.data",
+          refactorCount: 2,
+        },
+        {
+          script:
+            'export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t// ApiNever.text\n\t\treturn "ApiNever.text" + ApiForever.text\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t\t// ApiNever.text\n\t\treturn "ApiNever.text" + ApiForever.text\n\t}\n}',
+          refactorCount: 2,
         },
       ];
 
