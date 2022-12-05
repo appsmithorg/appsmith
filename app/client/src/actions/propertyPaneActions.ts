@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
 
 export const updateWidgetName = (widgetId: string, newName: string) => {
   return {
@@ -63,5 +64,32 @@ export const setFocusablePropertyPaneField = (path?: string) => {
   return {
     type: ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
     payload: { path },
+  };
+};
+
+export const setSelectedPropertyPanel = (
+  path: string | undefined,
+  index: number,
+) => {
+  return {
+    type: ReduxActionTypes.SET_SELECTED_PANEL_PROPERTY,
+    payload: {
+      path,
+      index,
+    },
+  };
+};
+
+export const unsetSelectedPropertyPanel = (path: string | undefined) => {
+  return {
+    type: ReduxActionTypes.UNSET_SELECTED_PANEL_PROPERTY,
+    payload: path,
+  };
+};
+
+export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
+  return {
+    type: ReduxActionTypes.SET_SELECTED_PANELS,
+    payload,
   };
 };

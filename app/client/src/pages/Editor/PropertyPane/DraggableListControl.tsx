@@ -1,5 +1,5 @@
 import { AppState } from "@appsmith/reducers";
-import { setSelectedPropertyPanel } from "actions/editorContextActions";
+import { setSelectedPropertyPanel } from "actions/propertyPaneActions";
 import {
   BaseItemProps,
   DroppableComponent,
@@ -9,7 +9,7 @@ import debounce from "lodash/debounce";
 import React, { useCallback } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getSelectedPropertyPanelIndex } from "selectors/editorContextSelectors";
+import { getSelectedPropertyPanelIndex } from "selectors/propertyPaneSelectors";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export type DraggableListControlProps<

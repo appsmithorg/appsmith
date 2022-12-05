@@ -163,16 +163,16 @@ describe("MaintainContext&Focus", function() {
     );
   });
   it("9. Datasource edit mode has to be maintained", () => {
-    ee.SelectEntityByName("Appsmith");
+    ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.EditDatasource();
     dataSources.SaveDSFromDialog(false);
-    ee.SelectEntityByName("Github");
+    ee.SelectEntityByName("Github", "Datasources");
     dataSources.AssertViewMode();
-    ee.SelectEntityByName("Appsmith");
+    ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.AssertEditMode();
   });
 
-  it("9. Datasource collapse state has to be maintained", () => {
+  it("10. Datasource collapse state has to be maintained", () => {
     // Create datasource 1
     dataSources.SaveDSFromDialog(false);
     dataSources.NavigateToDSCreateNew();

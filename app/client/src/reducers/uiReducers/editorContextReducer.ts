@@ -1,7 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export type SelectedPropertyPanel = { [path: string]: number };
 export type CursorPosition = {
   line: number;
   ch: number;
@@ -33,7 +32,6 @@ export type EditorContextState = {
   entityCollapsibleFields: Record<string, boolean>;
   subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
-  selectedPropertyPanel: SelectedPropertyPanel;
   focusableCodeEditor?: string;
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
@@ -51,7 +49,6 @@ const initialState: EditorContextState = {
   entityCollapsibleFields: {},
   subEntityCollapsibleFields: {},
   explorerSwitchIndex: 0,
-  selectedPropertyPanel: {},
 };
 
 const entitySections = ["Pages", "Widgets", "Queries/JS", "Datasources"];
@@ -72,34 +69,6 @@ export const editorContextReducer = createImmerReducer(initialState, {
   ) => {
     const { path } = action.payload;
     state.focusableCodeEditor = path;
-  },
-  [ReduxActionTypes.SET_SELECTED_PANEL_PROPERTY]: (
-    state: EditorContextState,
-    action: {
-      payload: { path: string; index: number };
-    },
-  ) => {
-    const { index, path } = action.payload;
-    if (path) {
-      state.selectedPropertyPanel[path] = index;
-    }
-  },
-  [ReduxActionTypes.DELETE_SELECTED_PANEL_PROPERTY]: (
-    state: EditorContextState,
-    action: {
-      payload: string | undefined;
-    },
-  ) => {
-    if (action.payload && action.payload in state.selectedPropertyPanel)
-      delete state.selectedPropertyPanel[action.payload];
-  },
-  [ReduxActionTypes.SET_SELECTED_PANELS]: (
-    state: EditorContextState,
-    action: {
-      payload: SelectedPropertyPanel;
-    },
-  ) => {
-    state.selectedPropertyPanel = action.payload;
   },
   [ReduxActionTypes.SET_CODE_EDITOR_CURSOR]: (
     state: EditorContextState,

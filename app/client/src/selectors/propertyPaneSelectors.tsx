@@ -10,7 +10,10 @@ import {
   DataTreeEntity,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
-import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import {
+  PropertyPaneReduxState,
+  SelectedPropertyPanel,
+} from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
@@ -24,6 +27,9 @@ export type WidgetProperties = WidgetProps & {
 
 export const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
+
+export const getSelectedPropertyPanel = (state: AppState) =>
+  state.ui.propertyPane.selectedPropertyPanel;
 
 export const getCurrentWidgetId = createSelector(
   getPropertyPaneState,
@@ -252,5 +258,20 @@ export const getShouldFocusPropertyPath = createSelector(
   ],
   (focusableField: string | undefined, key: string | undefined): boolean => {
     return !!(key && focusableField === key);
+  },
+);
+
+export const getSelectedPropertyPanelIndex = createSelector(
+  [
+    getSelectedPropertyPanel,
+    (_state: AppState, path: string | undefined) => path,
+  ],
+  (
+    selectedPropertyPanel: SelectedPropertyPanel,
+    path: string | undefined,
+  ): number | undefined => {
+    if (!path || selectedPropertyPanel[path] === undefined) return;
+
+    return selectedPropertyPanel[path];
   },
 );

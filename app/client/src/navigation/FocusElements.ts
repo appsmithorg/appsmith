@@ -21,7 +21,6 @@ import {
   getPropertyPanelState,
   getFocusableCodeEditorField,
   getSelectedCanvasDebuggerTab,
-  getSelectedPropertyPanel,
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
 import {
@@ -30,7 +29,6 @@ import {
   setCodeEditorHistory,
   setExplorerSwitchIndex,
   setPanelPropertiesState,
-  setSelectedPropertyPanels,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
 import { setFocusableCodeEditorField } from "actions/editorContextActions";
@@ -69,8 +67,14 @@ import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
   DEFAULT_PROPERTY_PANE_WIDTH,
 } from "constants/AppConstants";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
+import {
+  getPropertyPaneWidth,
+  getSelectedPropertyPanel,
+} from "selectors/propertyPaneSelectors";
+import {
+  setPropertyPaneWidthAction,
+  setSelectedPropertyPanels,
+} from "actions/propertyPaneActions";
 import { setAllMetaProps } from "actions/metaActions";
 import { getWidgetsMeta } from "sagas/selectors";
 import { initialState as metaState } from "reducers/entityReducers/metaReducer";

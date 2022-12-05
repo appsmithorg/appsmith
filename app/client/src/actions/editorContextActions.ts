@@ -3,40 +3,12 @@ import {
   CodeEditorContext,
   EvaluatedPopupState,
   PropertyPanelContext,
-  SelectedPropertyPanel,
 } from "reducers/uiReducers/editorContextReducer";
 
 export const setFocusableCodeEditorField = (path: string | undefined) => {
   return {
     type: ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD,
     payload: { path },
-  };
-};
-
-export const setSelectedPropertyPanel = (
-  path: string | undefined,
-  index: number,
-) => {
-  return {
-    type: ReduxActionTypes.SET_SELECTED_PANEL_PROPERTY,
-    payload: {
-      path,
-      index,
-    },
-  };
-};
-
-export const deleteSelectedPropertyPanel = (path: string | undefined) => {
-  return {
-    type: ReduxActionTypes.DELETE_SELECTED_PANEL_PROPERTY,
-    payload: path,
-  };
-};
-
-export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
-  return {
-    type: ReduxActionTypes.SET_SELECTED_PANELS,
-    payload,
   };
 };
 

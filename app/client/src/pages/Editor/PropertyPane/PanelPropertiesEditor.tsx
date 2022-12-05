@@ -14,7 +14,7 @@ import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
-import { deleteSelectedPropertyPanel } from "actions/editorContextActions";
+import { unsetSelectedPropertyPanel } from "actions/propertyPaneActions";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
@@ -24,7 +24,7 @@ const PanelWrapper = styled.div`
 function PanelHeader(props: PanelHeaderProps) {
   const dispatch = useDispatch();
   const onBackClick = () => {
-    dispatch(deleteSelectedPropertyPanel(props.parentPropertyPath));
+    dispatch(unsetSelectedPropertyPanel(props.parentPropertyPath));
     props.closePanel();
   };
   return (

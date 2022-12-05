@@ -6,7 +6,6 @@ import {
   isSubEntities,
   PropertyPanelContext,
   PropertyPanelState,
-  SelectedPropertyPanel,
 } from "reducers/uiReducers/editorContextReducer";
 import { createSelector } from "reselect";
 import { selectFeatureFlags } from "selectors/usersSelectors";
@@ -17,9 +16,6 @@ export const getFocusableCodeEditorField = (state: AppState) =>
 
 export const getCodeEditorHistory = (state: AppState) =>
   state.ui.editorContext.codeEditorHistory;
-
-export const getSelectedPropertyPanel = (state: AppState) =>
-  state.ui.editorContext.selectedPropertyPanel;
 
 export const getPropertyPanelState = (state: AppState) =>
   state.ui.editorContext.propertyPanelState;
@@ -135,21 +131,6 @@ export const getPropertySectionState = createSelector(
     if (propertyPanelContext?.propertySectionState)
       return propertyPanelContext.propertySectionState[key];
     return propertySectionState[key];
-  },
-);
-
-export const getSelectedPropertyPanelIndex = createSelector(
-  [
-    getSelectedPropertyPanel,
-    (_state: AppState, path: string | undefined) => path,
-  ],
-  (
-    selectedPropertyPanel: SelectedPropertyPanel,
-    path: string | undefined,
-  ): number | undefined => {
-    if (!path || selectedPropertyPanel[path] === undefined) return;
-
-    return selectedPropertyPanel[path];
   },
 );
 
