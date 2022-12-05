@@ -1,4 +1,5 @@
 import { AppState } from "@appsmith/reducers";
+import { createSelector } from "reselect";
 
 export const getLastSelectedWidget = (state: AppState) =>
   state.ui.widgetDragResize.lastSelectedWidget;
@@ -35,3 +36,16 @@ export const getFocusedWidget = (state: AppState) =>
 
 export const isDatasourceInViewMode = (state: AppState) =>
   state.ui.datasourcePane.viewMode;
+
+export const getAllDatasourceCollapsibleState = (state: AppState) =>
+  state.ui.datasourcePane.collapsibleState;
+
+export const getDatasourceCollapsibleState = createSelector(
+  [getAllDatasourceCollapsibleState, (_state: AppState, key: string) => key],
+  (
+    datasourceCollapsibleState: { [key: string]: boolean },
+    key: string,
+  ): boolean | undefined => {
+    return datasourceCollapsibleState[key];
+  },
+);

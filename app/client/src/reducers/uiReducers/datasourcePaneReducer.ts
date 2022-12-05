@@ -12,6 +12,7 @@ const initialState: DatasourcePaneReduxState = {
   expandDatasourceId: "",
   newDatasource: "",
   viewMode: true,
+  collapsibleState: {},
 };
 
 export interface DatasourcePaneReduxState {
@@ -25,6 +26,7 @@ export interface DatasourcePaneReduxState {
   }>;
   newDatasource: string;
   viewMode: boolean;
+  collapsibleState: Record<string, boolean>;
 }
 
 const datasourcePaneReducer = createReducer(initialState, {
@@ -103,6 +105,27 @@ const datasourcePaneReducer = createReducer(initialState, {
     return {
       ...state,
       viewMode: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_DATASOURCE_COLLAPSIBLE_STATE]: (
+    state: DatasourcePaneReduxState,
+    action: { payload: { key: string; isOpen: boolean } },
+  ) => {
+    return {
+      ...state,
+      collapsibleState: {
+        ...state.collapsibleState,
+        [action.payload.key]: action.payload.isOpen,
+      },
+    };
+  },
+  [ReduxActionTypes.SET_ALL_DATASOURCE_COLLAPSIBLE_STATE]: (
+    state: DatasourcePaneReduxState,
+    action: { payload: { [key: string]: boolean } },
+  ) => {
+    return {
+      ...state,
+      collapsibleState: action.payload,
     };
   },
   [ReduxActionTypes.EXPAND_DATASOURCE_ENTITY]: (
