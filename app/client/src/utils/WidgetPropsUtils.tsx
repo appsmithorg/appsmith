@@ -278,11 +278,11 @@ export const getCanvasSnapRows = (
 
   // Canvas Widgets do not need to accommodate for widget and container padding.
   // Only when they're extensible
-  if (canExtend) {
-    return totalRows;
-  }
-  // When Canvas widgets are not extensible
+  // if (canExtend) {
   return totalRows - 1;
+  // }
+  // When Canvas widgets are not extensible
+  // return totalRows - 1;
 };
 
 export const getSnapColumns = (): number => {

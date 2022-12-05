@@ -183,13 +183,9 @@ class ContainerWidget extends BaseWidget<
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentWidth } = this.getComponentDimensions();
 
     childWidget.rightColumn = componentWidth;
-    childWidget.bottomRow = this.props.shouldScrollContents
-      ? childWidget.bottomRow
-      : componentHeight;
-    childWidget.minHeight = componentHeight;
     childWidget.shouldScrollContents = false;
     childWidget.canExtend = this.props.shouldScrollContents;
 

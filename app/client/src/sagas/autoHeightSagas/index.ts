@@ -3,7 +3,7 @@ import { all, debounce, takeEvery, takeLatest } from "redux-saga/effects";
 import { batchCallsToUpdateWidgetAutoHeightSaga } from "./batcher";
 import { dynamicallyUpdateContainersSaga } from "./containers";
 import { generateTreeForAutoHeightComputations } from "./layoutTree";
-import { updateWidgetAutoHeightSaga } from "./widgets";
+import { computeWidgetsToUpdate, updateWidgetAutoHeightSaga } from "./widgets";
 
 export default function* autoHeightSagas() {
   yield all([
@@ -28,6 +28,10 @@ export default function* autoHeightSagas() {
         ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       ],
       generateTreeForAutoHeightComputations,
+    ),
+    takeLatest(
+      ReduxActionTypes.IMMEDIATELY_UPDATE_WIDGET_AUTO_HEIGHT,
+      computeWidgetsToUpdate,
     ),
   ]);
 }

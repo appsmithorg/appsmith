@@ -45,6 +45,19 @@ export function updateWidgetAutoHeightAction(
   };
 }
 
+export function immediatelyUpdateWidgetAutoHeightAction(
+  widgetId: string,
+  height: number,
+): ReduxAction<UpdateWidgetAutoHeightPayload> {
+  return {
+    type: ReduxActionTypes.IMMEDIATELY_UPDATE_WIDGET_AUTO_HEIGHT,
+    payload: {
+      widgetId,
+      height,
+    },
+  };
+}
+
 export function checkContainersForAutoHeightAction() {
   return {
     type: ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,

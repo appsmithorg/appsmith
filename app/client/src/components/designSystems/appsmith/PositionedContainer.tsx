@@ -115,18 +115,16 @@ export function PositionedContainer(props: PositionedContainerProps) {
     const reflowY = reflowedPosition?.Y || 0;
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
-    const hasReflowedPosition =
-      isReflowEffected && (reflowX !== 0 || reflowY !== 0);
+    const hasReflowedPosition = reflowX !== 0 || reflowY !== 0;
     const hasReflowedDimensions =
-      isReflowEffected &&
-      ((reflowHeight && reflowHeight !== style.componentHeight) ||
-        (reflowWidth && reflowWidth !== style.componentWidth));
+      (reflowHeight && reflowHeight !== style.componentHeight) ||
+      (reflowWidth && reflowWidth !== style.componentWidth);
     const effectedByReflow = hasReflowedPosition || hasReflowedDimensions;
     const dropTargetStyles: CSSProperties =
       isDropTarget && effectedByReflow ? { pointerEvents: "none" } : {};
     const reflowedPositionStyles: CSSProperties = hasReflowedPosition
       ? {
-          transform: `translate(${reflowX}px,${reflowY}px)`,
+          transform: `translate3d(${reflowX}px,${reflowY}px,0)`,
           transition: `transform 100ms linear`,
           boxShadow: `0 0 0 1px rgba(104,113,239,0.5)`,
         }

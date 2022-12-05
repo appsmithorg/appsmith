@@ -244,6 +244,32 @@ export const getCanvasHeightOffset = (
   return offset;
 };
 
+export const getCanvasBottomRow = (canvasWidgetId: string) =>
+  createSelector(getCanvasWidgets, (widgets: CanvasWidgetsReduxState) => {
+    const canvasWidget = widgets[canvasWidgetId];
+    if (canvasWidget.type !== "CANVAS_WIDGET") return;
+    const children = canvasWidget.children;
+    if (canvasWidget.parentId) {
+      const parentWidget = widgets[canvasWidget.parentId];
+      const parentHeightOffset = getCanvasHeightOffset(
+        parentWidget.type,
+        parentWidget,
+      );
+      const parentHeightInRows =
+        parentWidget.bottomRow - parentWidget.topRow - parentHeightOffset;
+      if (Array.isArray(children) && children.length > 0) {
+        const bottomRow = children.reduce((prev, next) => {
+          return widgets[next].bottomRow > prev
+            ? widgets[next].bottomRow
+            : prev;
+        }, parentHeightInRows);
+        return bottomRow;
+      }
+      return parentHeightInRows;
+    }
+    return canvasWidget.bottomRow;
+  });
+
 export const getWidgetCards = createSelector(
   getWidgetConfigs,
   (widgetConfigs: WidgetConfigReducerState) => {
