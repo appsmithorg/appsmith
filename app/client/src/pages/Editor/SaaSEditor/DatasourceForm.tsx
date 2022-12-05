@@ -193,7 +193,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       unblock: this.props?.history?.block((tx: any) => {
         this.setState(
           {
-            navigation: () => this.props.history.push(tx.pathname),
+            navigation: () =>
+              this.props.history.push(tx.pathname + tx.search, tx.state),
             showDialog: true,
             routesBlocked: true,
           },
