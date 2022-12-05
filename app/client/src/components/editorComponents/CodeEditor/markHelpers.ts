@@ -78,7 +78,6 @@ export const entityMarker: MarkHelper = (
           },
         );
       } else if (existingMarking.length) {
-        debugger;
         existingMarking.forEach((mark) => mark.clear());
       }
     });
