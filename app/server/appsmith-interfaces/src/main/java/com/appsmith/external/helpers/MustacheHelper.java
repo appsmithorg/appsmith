@@ -520,7 +520,11 @@ public class MustacheHelper {
 
         Set<MustacheBindingToken> mustacheSet = new HashSet<>(mustacheBindings);
 
-        Map<String, String> replaceParamsMap = mustacheSet.stream().collect(Collectors.toMap(k -> k.getValue(), v -> placeholder));
+        Map<String, String> replaceParamsMap = mustacheSet
+                .stream()
+                .map(mustacheToken -> mustacheToken.getValue())
+                .distinct()
+                .collect(Collectors.toMap(k -> k, v -> placeholder));
 
         // Replace the mustaches with the values mapped to each mustache in replaceParamsMap
         ActionConfiguration updatedActionConfiguration = renderFieldValues(actionConfiguration, replaceParamsMap);
