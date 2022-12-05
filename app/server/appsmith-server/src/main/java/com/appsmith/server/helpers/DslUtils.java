@@ -46,7 +46,10 @@ public class DslUtils {
 
             for (MustacheBindingToken mustacheBindingToken : replacementMap.keySet()) {
                 String tokenValue = mustacheBindingToken.getValue();
-                oldValue.replace(mustacheBindingToken.getStartIndex(), mustacheBindingToken.getStartIndex() + tokenValue.length(), replacementMap.get(mustacheBindingToken));
+                int endIndex = mustacheBindingToken.getStartIndex() + tokenValue.length();
+                if (oldValue.length() > endIndex && oldValue.subSequence(mustacheBindingToken.getStartIndex(), endIndex).equals(tokenValue)) {
+                    oldValue.replace(mustacheBindingToken.getStartIndex(), endIndex, replacementMap.get(mustacheBindingToken));
+                }
             }
 
             ((ObjectNode) dslWalkResponse.parentNode).set(dslWalkResponse.currentKey, new TextNode(oldValue.toString()));
@@ -55,6 +58,9 @@ public class DslUtils {
     }
 
     private static DslNodeWalkResponse getDslWalkResponse(JsonNode dsl, String fieldPath) {
+        if (dsl == null) {
+            return null;
+        }
         String[] fields = fieldPath.split("[].\\[]");
         // For nested fields, the parent dsl to search in would shift by one level every iteration
         Object currentNode = dsl;
