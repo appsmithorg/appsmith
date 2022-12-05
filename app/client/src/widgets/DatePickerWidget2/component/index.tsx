@@ -34,6 +34,20 @@ const StyledControlGroup = styled(ControlGroup)<{
 }>`
   ${labelLayoutStyles}
 
+  /**
+    When the label is on the left it is not center aligned
+    here set height to auto and not 100% because the input 
+    has fixed height and stretch the container.
+  */
+    ${({ labelPosition }) => {
+      if (labelPosition === LabelPosition.Left) {
+        return `
+      height: auto !important;
+      align-items: stretch;
+      `;
+      }
+    }}
+
   &&& {
     .${Classes.INPUT} {
       color: var(--wds-color-text);
@@ -44,7 +58,7 @@ const StyledControlGroup = styled(ControlGroup)<{
       border-color: ${({ isValid }) =>
         !isValid
           ? `var(--wds-color-border-danger);`
-          : `var(--wds-color-border);`}
+          : `var(--wds-color-border);`};
       width: 100%;
       height: 100%;
       min-height: 32px;
@@ -75,17 +89,17 @@ const StyledControlGroup = styled(ControlGroup)<{
             isValid
               ? lightenColor(accentColor)
               : "var(--wds-color-border-danger-focus-light)"
-          } !important;`}
+          } !important;`};
       }
     }
 
     .${Classes.INPUT}:disabled {
       background: var(--wds-color-bg-disabled);
-      color: var(--wds-color-text-disabled)
+      color: var(--wds-color-text-disabled);
     }
 
     .${Classes.INPUT}:not(:disabled)::placeholder {
-      color:var(--wds-color-text-light);
+      color: var(--wds-color-text-light);
     }
 
     .${Classes.INPUT}::placeholder {
