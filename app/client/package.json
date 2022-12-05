@@ -126,7 +126,7 @@
     "react-scripts": "^5.0.1",
     "react-select": "^3.0.8",
     "react-spring": "^9.4.0",
-    "react-syntax-highlighter": "^15.4.4",
+    "react-syntax-highlighter": "^15.5.0",
     "react-table": "^7.0.0",
     "react-tabs": "^3.0.0",
     "react-timer-hook": "^3.0.4",
@@ -145,12 +145,11 @@
     "shallowequal": "^1.1.0",
     "showdown": "^1.9.1",
     "smartlook-client": "^4.5.1",
-    "socket.io-client": "^4.5.1",
+    "socket.io-client": "^4.5.4",
     "styled-components": "^5.2.0",
     "tern": "^0.21.0",
     "tinycolor2": "^1.4.2",
     "toposort": "^2.0.2",
-    "ts-loader": "^6.0.4",
     "tslib": "^2.3.1",
     "typescript": "4.5.5",
     "unescape-js": "^1.1.4",
@@ -199,7 +198,6 @@
     "@types/dom-mediacapture-record": "^1.0.11",
     "@types/downloadjs": "^1.4.2",
     "@types/draft-js": "^0.11.1",
-    "@types/emoji-mart": "^3.0.4",
     "@types/jest": "^27.4.1",
     "@types/js-beautify": "^1.13.2",
     "@types/jshint": "^2.12.0",
@@ -283,6 +281,7 @@
     "semver": "^7.3.5",
     "ts-jest": "27.0.0",
     "ts-jest-mock-import-meta": "^0.12.0",
+    "ts-loader": "^9.4.1",
     "webpack-merge": "^5.8.0",
     "workbox-webpack-plugin": "^6.5.3"
   },
@@ -300,6 +299,8 @@
     "focus-trap-react/**/tabbable": "5.2.1",
     "json-schema": "0.4.0",
     "node-fetch": "2.6.7",
-    "babel-plugin-styled-components": "2.0.7"
+    "babel-plugin-styled-components": "2.0.7",
+    "minimatch": "^5.0.0",
+    "loader-utils": "^2.0.4"
   }
 }
