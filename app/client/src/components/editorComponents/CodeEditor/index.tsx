@@ -536,8 +536,6 @@ class CodeEditor extends Component<Props, State> {
         }
         break;
       case "Control":
-        this.setState({ isCtrlOrCmdPressed: true });
-        break;
       case "Meta":
         this.setState({ isCtrlOrCmdPressed: true });
         break;
@@ -799,9 +797,9 @@ class CodeEditor extends Component<Props, State> {
     const key = event.key;
 
     if (isCtrlOrCmdKey(key)) {
-      // Add some delay to make sure the autocomplete doesn't open
-      // When users press cmd + / to comment the order in which they release the
-      // keys is cmd, /, cmd. This causes the autocomplete to open
+      /* Add some delay to make sure the autocomplete doesn't open
+        When users press cmd + / to comment the order in which they release the
+        keys is cmd, /, cmd. This causes the autocomplete to open */
       setTimeout(() => {
         this.setState({ isCtrlOrCmdPressed: false });
       }, 2000);
