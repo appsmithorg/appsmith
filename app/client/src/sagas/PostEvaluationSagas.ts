@@ -147,7 +147,7 @@ function logLatestEvalPropertyErrors(
             !isJSAction(entity) ||
             (isJSAction(entity) && propertyPath === "body")
           ) {
-            errorsToAdd.unshift({
+            errorsToAdd.push({
               payload: {
                 id: debuggerKey,
                 logType: isWarning
@@ -174,7 +174,7 @@ function logLatestEvalPropertyErrors(
             });
           }
         } else if (debuggerKey in updatedDebuggerErrors) {
-          errorsToDelete.unshift({ id: debuggerKey });
+          errorsToDelete.push({ id: debuggerKey });
         }
       }
     }
