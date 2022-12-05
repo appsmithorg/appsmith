@@ -94,13 +94,15 @@ public class Application extends BaseDomain {
      */
     Integer applicationVersion;
 
-    /*
-    Changing name, change in pages, widgets and datasources will set lastEditedAt.
-    Other activities e.g. changing policy will not change this property.
-    We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
+    /**
+     * Changing name, change in pages, widgets and datasources will set lastEditedAt.
+     * Other activities e.g. changing policy will not change this property.
+     * We're adding JsonIgnore here because it'll be exposed as modifiedAt to keep it backward compatible
      */
     @JsonIgnore
     Instant lastEditedAt;
+
+    EmbedSetting embedSetting;
 
     /**
      * Earlier this was returning value of the updatedAt property in the base domain.
@@ -237,5 +239,17 @@ public class Application extends BaseDomain {
             MOBILE,
             FLUID,
         }
+    }
+
+    /**
+     * EmbedSetting is used for embedding Appsmith apps on other platforms
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class EmbedSetting {
+        private String height;
+        private String width;
+        private Boolean showNavigationBar;
     }
 }
