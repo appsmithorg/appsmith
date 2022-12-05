@@ -55,7 +55,6 @@ export const useAutoLayoutHighlights = ({
   let highlights: HighlightInfo[] = [];
   let newLayers: { [key: string]: number } = {};
   let lastActiveHighlight: HighlightInfo | undefined;
-  let expandedNewLayer: number | undefined;
   let isFillWidget = false;
 
   const isVerticalStack = direction === LayoutDirection.Vertical;
@@ -93,7 +92,6 @@ export const useAutoLayoutHighlights = ({
   const cleanUpTempStyles = () => {
     // reset state
     lastActiveHighlight = undefined;
-    expandedNewLayer = undefined;
     highlights = [];
     newLayers = {};
   };
@@ -142,25 +140,27 @@ export const useAutoLayoutHighlights = ({
     return highlights;
   };
 
-  const checkForFillWidget = () => {
-    if (!blocksToDraw?.length) return;
+  const checkForFillWidget = (): boolean => {
+    let flag = false;
+    if (!blocksToDraw?.length) return flag;
     for (const block of blocksToDraw) {
       const widget = allWidgets[block.widgetId];
       if (widget) {
         if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-          isFillWidget = true;
+          flag = true;
           break;
         }
         continue;
       }
-      const config = WidgetFactory.widgetConfigMap.get(block.widgetId);
+      const config = WidgetFactory.widgetConfigMap.get(block.type);
       if (config) {
         if (config.responsiveBehavior === ResponsiveBehavior.Fill) {
-          isFillWidget = true;
+          flag = true;
           break;
         }
       }
     }
+    return flag;
   };
 
   const calculateHighlights = (): HighlightInfo[] => {
@@ -173,7 +173,7 @@ export const useAutoLayoutHighlights = ({
        * That implies the container is null.
        */
       if (!updateContainerDimensions()) return [];
-      checkForFillWidget();
+      isFillWidget = checkForFillWidget();
       highlights = getDropPositions();
     }
     // console.log("#### highlights", highlights);
