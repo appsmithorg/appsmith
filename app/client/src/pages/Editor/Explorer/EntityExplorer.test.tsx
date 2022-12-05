@@ -79,6 +79,10 @@ describe("Entity Explorer tests", () => {
     jest
       .spyOn(permissionUtils, "hasCreateDatasourcePermission")
       .mockReturnValue(false);
+    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
+    mockExplorerState.mockImplementationOnce(
+      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
+    );
     store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
@@ -103,6 +107,10 @@ describe("Entity Explorer tests", () => {
     jest
       .spyOn(permissionUtils, "hasDeleteDatasourcePermission")
       .mockReturnValue(false);
+    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
+    mockExplorerState.mockImplementationOnce(
+      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
+    );
     store.dispatch(updateCurrentPage("pageId"));
     const { container } = render(<Datasources />);
     const target = container.getElementsByClassName("t--context-menu");

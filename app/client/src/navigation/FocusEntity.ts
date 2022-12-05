@@ -115,6 +115,7 @@ export function identifyEntityFromPath(
       BUILDER_PATH,
       BUILDER_CUSTOM_PATH,
     ],
+    exact: true,
   });
   if (!match) {
     return { entity: FocusEntity.NONE, id: "" };

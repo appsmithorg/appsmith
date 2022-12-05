@@ -33,7 +33,8 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
     //cy.wait("@updateWidgetName");
-    // Step 4: Add binding to the defaulText property of NameInput
+    // Step 4: Add binding to the defaultText property of NameInput
+    cy.wait(500);
     cy.get(guidedTourLocators.hintButton).click();
     cy.testJsontext("defaultvalue", "{{CustomersTable.selectedRow.name}}");
     cy.get(guidedTourLocators.successButton).click();

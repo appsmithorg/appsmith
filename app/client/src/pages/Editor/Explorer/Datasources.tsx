@@ -130,7 +130,7 @@ const Datasources = React.memo(() => {
       icon={null}
       isDefaultExpanded={
         isDatasourcesOpen === null || isDatasourcesOpen === undefined
-          ? true
+          ? false
           : isDatasourcesOpen
       }
       isSticky
