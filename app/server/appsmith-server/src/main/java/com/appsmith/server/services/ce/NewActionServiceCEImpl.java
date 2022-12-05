@@ -2015,7 +2015,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             // JSObject function execute events are executed from frontend on browser
             // This will be reported backend via API for sending BE analytics events
             case EXECUTE:
-                return this.findById(analyticEventDTO.getResourceId(), READ_ACTIONS)
+                return this.findById(analyticEventDTO.getResourceId(), EXECUTE_ACTIONS)
                         .filter(newAction -> newAction.getPluginType().equals(PluginType.JS))
                         .flatMap(newAction -> {
                             Map<String, Object> analyticsProperties = getAnalyticsProperties(newAction);

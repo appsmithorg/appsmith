@@ -1204,7 +1204,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<NewPage> sendPageAnalyticsEvent(AnalyticEventDTO analyticEventDTO) {
         switch (analyticEventDTO.getEvent()) {
             case VIEW:
-                return newPageService.findById(analyticEventDTO.getResourceId(), READ_PAGES)
+                return newPageService.findById(analyticEventDTO.getResourceId(), AclPermission.READ_PAGES)
                         .flatMap(newPage -> sendPageViewAnalyticsEvent(newPage, (Boolean) analyticEventDTO.getMetadata().get(FieldName.VIEW_MODE)));
         }
 
