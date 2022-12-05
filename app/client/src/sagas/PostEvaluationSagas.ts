@@ -8,7 +8,7 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
-  getDataTreeWithoutPrivateWidgets,
+  getFilteredDataTree,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -372,13 +372,12 @@ export function* updateTernDefinitions(
   }
   if (shouldUpdate) {
     const start = performance.now();
-    // remove private widgets from dataTree used for autocompletion
-    const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
-      dataTree,
-    );
+    // remove private and Non-Template meta widgets from dataTree used for autocompletion
+    const filteredDataTree = getFilteredDataTree(dataTree);
+
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const { def, entityInfo } = dataTreeTypeDefCreator(
-      treeWithoutPrivateWidgets,
+      filteredDataTree,
       !!featureFlags.JS_EDITOR,
     );
     TernServer.updateDef("DATA_TREE", def, entityInfo);

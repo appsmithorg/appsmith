@@ -369,6 +369,12 @@ export function isWidget(
   );
 }
 
+export const isMetaWidget = (widget: DataTreeWidget) =>
+  Boolean(widget.isMetaWidget);
+
+export const isTemplateMetaWidget = (widget: DataTreeWidget) =>
+  isMetaWidget(widget) && widget.widgetId === widget.referencedWidgetId;
+
 export function isAction(
   entity: Partial<DataTreeEntity>,
 ): entity is DataTreeAction {
@@ -706,6 +712,29 @@ export const getDataTreeWithoutPrivateWidgets = (
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
+
+const getDataTreeWithoutNonTemplateMetaWidgets = (
+  dataTree: DataTree,
+): DataTree => {
+  const metaWidgetIds = Object.keys(dataTree).filter((entityName) => {
+    const entity = dataTree[entityName];
+    return (
+      isWidget(entity) && isMetaWidget(entity) && !isTemplateMetaWidget(entity)
+    );
+  });
+
+  return _.omit(dataTree, metaWidgetIds);
+};
+
+export const getFilteredDataTree = (dataTree: DataTree): DataTree => {
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  const treeWithoutMetaWidgets = getDataTreeWithoutNonTemplateMetaWidgets(
+    treeWithoutPrivateWidgets,
+  );
+
+  return treeWithoutMetaWidgets;
+};
+
 /**
  *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
  *

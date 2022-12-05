@@ -481,6 +481,7 @@ export interface WidgetBaseProps {
   requiresFlatWidgetChildren?: boolean;
   hasMetaWidgets?: boolean;
   creatorId?: string;
+  isMetaWidget?: boolean;
 }
 
 export type WidgetRowCols = {
