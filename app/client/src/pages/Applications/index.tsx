@@ -856,27 +856,47 @@ function ApplicationsSection(props: any) {
                             />
                           </>
                         )}
-                        {hasCreateNewApplicationPermission && (
+                        {enableImportExport &&
+                          hasCreateNewApplicationPermission && (
+                            <MenuItem
+                              cypressSelector="t--workspace-import-app"
+                              icon="download"
+                              onSelect={() =>
+                                setSelectedWorkspaceIdForImportApplication(
+                                  workspace.id,
+                                )
+                              }
+                              text="Import"
+                            />
+                          )}
+                        {canInviteToWorkspace && (
                           <MenuItem
-                            cypressSelector="t--workspace-import-app"
-                            icon="download"
-                            onSelect={() =>
-                              setSelectedWorkspaceIdForImportApplication(
-                                workspace.id,
-                              )
+                            icon="logout"
+                            onSelect={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              !warnLeavingWorkspace
+                                ? setWarnLeavingWorkspace(true)
+                                : leaveWS(workspace.id);
+                            }}
+                            text={
+                              !warnLeavingWorkspace
+                                ? "Leave Workspace"
+                                : "Are you sure?"
                             }
-                            text="Import"
+                            type={!warnLeavingWorkspace ? undefined : "warning"}
                           />
                         )}
                         {canInviteToWorkspace && (
-                          <>
-                            <MenuItem
-                              icon="share-line"
-                              onSelect={() =>
-                                setSelectedWorkspaceId(workspace.id)
-                              }
-                              text="Share"
-                            />
+                          <MenuItem
+                            icon="share-line"
+                            onSelect={() =>
+                              setSelectedWorkspaceId(workspace.id)
+                            }
+                            text="Share"
+                          />
+                        )}
+                        {hasCreateNewApplicationPermission &&
+                          canInviteToWorkspace && (
                             <MenuItem
                               icon="member"
                               onSelect={() =>
@@ -889,25 +909,7 @@ function ApplicationsSection(props: any) {
                               }
                               text="Members"
                             />
-                            <MenuItem
-                              icon="logout"
-                              onSelect={(e: React.MouseEvent) => {
-                                e.stopPropagation();
-                                !warnLeavingWorkspace
-                                  ? setWarnLeavingWorkspace(true)
-                                  : leaveWS(workspace.id);
-                              }}
-                              text={
-                                !warnLeavingWorkspace
-                                  ? "Leave Workspace"
-                                  : "Are you sure?"
-                              }
-                              type={
-                                !warnLeavingWorkspace ? undefined : "warning"
-                              }
-                            />
-                          </>
-                        )}
+                          )}
                         {applications.length === 0 && canDeleteWorkspace && (
                           <MenuItem
                             icon="trash"
