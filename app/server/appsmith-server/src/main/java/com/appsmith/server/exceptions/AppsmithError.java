@@ -46,11 +46,13 @@ public enum AppsmithError {
     INVALID_DYNAMIC_BINDING_REFERENCE(400, 4022,
             "  \"widgetType\" : \"{0}\"," +
                     "  \"bindingPath\" : \"{3}\"," +
+                    "  \"currentKey\" : \"{7}\"," +
                     "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\"," +
                     "  \"widgetName\" : \"{1}\"," +
                     "  \"widgetId\" : \"{2}\"," +
                     "  \"pageId\" : \"{4}\"," +
                     "  \"layoutId\" : \"{5}\"," +
+                    "  \"errorDetail\" : \"{8}\"," +
                     "  \"dynamicBinding\" : {6}",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.BAD_REQUEST, null),
     USER_ALREADY_EXISTS_IN_WORKSPACE(400, 4021, "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage Users` page.",
