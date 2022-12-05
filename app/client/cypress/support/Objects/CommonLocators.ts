@@ -1,4 +1,5 @@
 export class CommonLocators {
+  _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
   _runBtnSpinner = ".cs-spinner";

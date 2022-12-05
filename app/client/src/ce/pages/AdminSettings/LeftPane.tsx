@@ -146,6 +146,20 @@ export default function LeftPane() {
           <StyledHeader>Enterprise</StyledHeader>
         </HeaderContainer>
         <CategoryList data-testid="t--enterprise-settings-category-list">
+          {features.RBAC && (
+            <CategoryItem>
+              <StyledLink
+                $active={category === "access-control"}
+                data-testid="t--enterprise-settings-category-item-access-control"
+                to="/settings/access-control"
+              >
+                <div>
+                  <Icon name="lock-2-line" size={IconSize.XL} />
+                </div>
+                <div>Access Control</div>
+              </StyledLink>
+            </CategoryItem>
+          )}
           <CategoryItem>
             <StyledLink
               $active={category === "audit-logs"}
