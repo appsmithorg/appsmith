@@ -18,7 +18,6 @@ import TableDataDownload from "./Download";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { lightenColor } from "widgets/WidgetUtils";
-import { PageNumberInput } from "./PageNumberInput";
 import ActionItem from "./ActionItem";
 
 const SearchComponentWrapper = styled.div<{

@@ -14,7 +14,6 @@ import {
   TableHeaderInnerWrapper,
 } from "./TableStyledWrappers";
 import TableHeader from "./header";
-import { Classes } from "@blueprintjs/core";
 import {
   ReactTableColumnProps,
   ReactTableFilter,
@@ -25,7 +24,6 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { ScrollIndicator } from "design-system";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
@@ -103,10 +101,6 @@ const defaultColumn = {
   minWidth: 30,
   width: 150,
 };
-
-function ScrollbarVerticalThumb(props: any) {
-  return <div {...props} className="thumb-vertical" />;
-}
 
 function ScrollbarHorizontalThumb(props: any) {
   return <div {...props} className="thumb-horizontal" />;

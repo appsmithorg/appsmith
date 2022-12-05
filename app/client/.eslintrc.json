@@ -35,7 +35,8 @@
     "react/jsx-fragments": "error",
     "react/jsx-no-useless-fragment": "error",
     "no-console": "warn",
-    "no-debugger": "warn"
+    "no-debugger": "warn",
+    "@typescript-eslint/no-unused-vars": "error"
   },
   "settings": {
     "import/resolver": {

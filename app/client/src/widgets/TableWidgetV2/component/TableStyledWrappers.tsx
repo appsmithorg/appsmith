@@ -7,7 +7,6 @@ import {
   IMAGE_HORIZONTAL_ALIGN,
   IMAGE_VERTICAL_ALIGN,
   TEXT_ALIGN,
-  TABLE_SIZES,
   CellAlignment,
   VerticalAlignment,
   scrollbarOnHoverCSS,
@@ -16,7 +15,7 @@ import {
   MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
-import { hideScrollbar, invisible } from "constants/DefaultTheme";
+import { hideScrollbar } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
@@ -559,8 +558,6 @@ export const CellCheckbox = styled.div`
     top: 2px;
   }
 `;
-
-const MIN_WIDTH_TO_SHOW_PAGE_ITEMS = 700;
 
 export const TableHeaderWrapper = styled.div<{
   serverSidePaginationEnabled: boolean;

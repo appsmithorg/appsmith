@@ -2,11 +2,7 @@ import styled, { css } from "styled-components";
 import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
-import {
-  fontSizeUtility,
-  lightenColor,
-  darkenColor,
-} from "widgets/WidgetUtils";
+import { fontSizeUtility, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
