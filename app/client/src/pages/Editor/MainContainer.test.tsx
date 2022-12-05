@@ -15,6 +15,7 @@ import {
   MockApplication,
   mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetPagePermissions,
   mockGetWidgetEvalValues,
   syntheticTestMouseEvent,
 } from "test/testCommon";
@@ -573,7 +574,9 @@ describe("Drag and Drop widgets into Main container", () => {
     });
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
-
+    jest
+      .spyOn(utilities, "getPagePermissions")
+      .mockImplementation(mockGetPagePermissions);
     const component = render(
       <MemoryRouter
         initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}

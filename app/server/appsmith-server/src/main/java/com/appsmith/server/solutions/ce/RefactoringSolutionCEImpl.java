@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.constants.FieldName;
@@ -53,8 +54,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.util.stream.Collectors.toSet;
 
@@ -337,7 +336,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                                 final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
                                 return this.replaceValueInMustacheKeys(
-                                                new HashSet<>(Collections.singletonList(unpublishedCollection.getBody())),
+                                                new HashSet<>(Collections.singletonList(new MustacheBindingToken(unpublishedCollection.getBody(), 0, true))),
                                                 oldName,
                                                 newName,
                                                 evalVersion,
@@ -515,7 +514,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                         ((ObjectNode) bindingPath).set(FieldName.KEY, new TextNode(key));
                     }
                     // Find values inside mustache bindings in this path
-                    Set<String> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
+                    Set<MustacheBindingToken> mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(widgetDsl, key);
                     final String finalKey = key;
                     // Perform refactor for each mustache value
                     return this.replaceValueInMustacheKeys(mustacheValues, oldName, newName, evalVersion, oldNamePattern)
@@ -572,9 +571,9 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             refactorDynamicBindingsMono = Flux.fromIterable(actionDTO.getDynamicBindingPathList())
                     .flatMap(dynamicBindingPath -> {
                         String key = dynamicBindingPath.getKey();
-                        Set<String> mustacheValues = new HashSet<>();
+                        Set<MustacheBindingToken> mustacheValues = new HashSet<>();
                         if (PluginType.JS.equals(actionDTO.getPluginType()) && "body".equals(key)) {
-                            mustacheValues.add(actionConfiguration.getBody());
+                            mustacheValues.add(new MustacheBindingToken(actionConfiguration.getBody(), 0, false));
 
                         } else {
                             mustacheValues = DslUtils.getMustacheValueSetFromSpecificDynamicBindingPath(actionConfigurationNode, key);
@@ -599,12 +598,12 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         return refactorDynamicBindingsMono;
     }
 
-    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, String oldName, String
+    Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(Set<MustacheBindingToken> mustacheKeySet, String oldName, String
             newName, int evalVersion, Pattern oldNamePattern) {
         return this.replaceValueInMustacheKeys(mustacheKeySet, oldName, newName, evalVersion, oldNamePattern, false);
     }
 
-    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, String oldName, String
+    Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(Set<MustacheBindingToken> mustacheKeySet, String oldName, String
             newName, int evalVersion, Pattern oldNamePattern, boolean isJSObject) {
         if (Boolean.TRUE.equals(this.instanceConfig.getIsRtsAccessible())) {
             return astService.refactorNameInDynamicBindings(mustacheKeySet, oldName, newName, evalVersion, isJSObject);
@@ -612,11 +611,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         return this.replaceValueInMustacheKeys(mustacheKeySet, oldNamePattern, newName);
     }
 
-    Mono<Map<String, String>> replaceValueInMustacheKeys(Set<String> mustacheKeySet, Pattern
+    Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(Set<MustacheBindingToken> mustacheKeySet, Pattern
             oldNamePattern, String newName) {
         return Flux.fromIterable(mustacheKeySet)
                 .flatMap(mustacheKey -> {
-                    Matcher matcher = oldNamePattern.matcher(mustacheKey);
+                    Matcher matcher = oldNamePattern.matcher(mustacheKey.getValue());
                     if (matcher.find()) {
                         return Mono.zip(Mono.just(mustacheKey), Mono.just(matcher.replaceAll(newName)));
                     }

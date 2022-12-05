@@ -7,6 +7,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -333,7 +334,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                 savedDatasource.setPluginName(unsavedDatasource.getPluginName());
                                 return savedDatasource;
                             });
-                });
+                })
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     /**
@@ -399,7 +401,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Set<String> extractKeysFromDatasource(Datasource datasource) {
+    public Set<MustacheBindingToken> extractKeysFromDatasource(Datasource datasource) {
         if (datasource == null || datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }

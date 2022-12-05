@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Property;
 import org.assertj.core.api.AbstractCollectionAssert;
 import org.assertj.core.api.ObjectAssert;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.MustacheHelper.extractMustacheKeys;
 import static com.appsmith.external.helpers.MustacheHelper.extractMustacheKeysFromFields;
@@ -46,7 +48,7 @@ public class MustacheHelperTest {
         }
     }
 
-    private AbstractCollectionAssert<?, Collection<? extends String>, String, ObjectAssert<String>>
+    private AbstractCollectionAssert<?, Collection<? extends MustacheBindingToken>, MustacheBindingToken, ObjectAssert<MustacheBindingToken>>
     assertKeys(Object object) {
         return assertThat(extractMustacheKeysFromFields(object));
     }
@@ -354,7 +356,7 @@ public class MustacheHelperTest {
                 "propertyValue2", "rendered propertyValue2"
         );
 
-        assertKeys(configuration).hasSameElementsAs(context.keySet());
+        assertKeys(configuration).hasSameElementsAs(context.keySet().stream().map(keys -> new MustacheBindingToken(keys, 0, false)).collect(Collectors.toSet()));
 
         renderFieldValues(configuration, context);
 
@@ -424,7 +426,7 @@ public class MustacheHelperTest {
                 "pluginSpecifiedProp2", "rendered pluginSpecifiedProp2"
         ));
 
-        assertKeys(configuration).hasSameElementsAs(context.keySet());
+        assertKeys(configuration).hasSameElementsAs(context.keySet().stream().map(keys -> new MustacheBindingToken(keys, 0, false)).collect(Collectors.toSet()));
 
         renderFieldValues(configuration, context);
 

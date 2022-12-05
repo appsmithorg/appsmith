@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -80,12 +81,7 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .retrieve()
                 .bodyToMono(GetIdentifiersResponseBulk.class)
                 .retryWhen(Retry.max(3))
-                .elapsed()
-                .map(tuple -> {
-                    log.debug("Time elapsed since AST get identifiers call: {} ms, for size: {}", tuple.getT1(), bindingValues.size());
-                    return tuple.getT2().data;
-                })
-                .flatMapIterable(getIdentifiersResponseDetails -> getIdentifiersResponseDetails)
+                .flatMapIterable(getIdentifiersResponse -> getIdentifiersResponse.data)
                 .index()
                 .flatMap(tuple2 -> {
                     long currentIndex = tuple2.getT1();
@@ -96,14 +92,14 @@ public class AstServiceCEImpl implements AstServiceCE {
     }
 
     @Override
-    public Mono<Map<String, String>> refactorNameInDynamicBindings(Set<String> bindingValues, String oldName, String newName, int evalVersion, boolean isJSObject) {
+    public Mono<Map<MustacheBindingToken, String>> refactorNameInDynamicBindings(Set<MustacheBindingToken> bindingValues, String oldName, String newName, int evalVersion, boolean isJSObject) {
         if (bindingValues == null || bindingValues.isEmpty()) {
             return Mono.empty();
         }
 
         return Flux.fromIterable(bindingValues)
                 .flatMap(bindingValue -> {
-                    EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(bindingValue, oldName, newName, evalVersion, isJSObject);
+                    EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
                     return webClient
                             .post()
                             .uri(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/entity-refactor")

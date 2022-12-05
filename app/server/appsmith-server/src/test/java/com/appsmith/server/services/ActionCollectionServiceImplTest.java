@@ -799,8 +799,8 @@ public class ActionCollectionServiceImplTest {
         jsonObject.put("key", "value");
         layout.setDsl(jsonObject);
         Mockito
-                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.zip(Mono.just(layout), Mono.just(Set.of())));
+                .when(refactoringSolution.refactorActionCollectionName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
+                .thenReturn(Mono.just(layout));
 
         Mockito
                 .when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
@@ -877,8 +877,8 @@ public class ActionCollectionServiceImplTest {
         layout.setActionUpdates(new ArrayList<>());
         layout.setLayoutOnLoadActions(new ArrayList<>());
         Mockito
-                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.zip(Mono.just(layout), Mono.just(Set.of())));
+                .when(refactoringSolution.refactorActionCollectionName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
+                .thenReturn(Mono.just(layout));
 
         Mockito
                 .when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
