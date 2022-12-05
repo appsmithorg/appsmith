@@ -1929,3 +1929,8 @@ Cypress.Commands.add("AddPageFromTemplate", () => {
     .click({ force: true });
   cy.get("[data-cy='add-page-from-template']").click();
 });
+
+Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {
+  cy.wait(alias);
+  cy.get(`${alias}.all`).should("have.length", expectedNumberOfCalls);
+});
