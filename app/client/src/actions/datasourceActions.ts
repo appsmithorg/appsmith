@@ -177,13 +177,26 @@ export const deleteDatasource = (
   };
 };
 
-export const setDatsourceEditorMode = (payload: {
-  id: string;
-  viewMode: boolean;
-}) => {
+export const setDatasourceViewMode = (payload: boolean) => {
   return {
     type: ReduxActionTypes.SET_DATASOURCE_EDITOR_MODE,
     payload,
+  };
+};
+
+export const setAllDatasourceCollapsible = (payload: {
+  [key: string]: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_ALL_DATASOURCE_COLLAPSIBLE_STATE,
+    payload,
+  };
+};
+
+export const setDatasourceCollapsible = (key: string, isOpen: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_COLLAPSIBLE_STATE,
+    payload: { key, isOpen },
   };
 };
 
