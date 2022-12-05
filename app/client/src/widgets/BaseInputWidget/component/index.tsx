@@ -116,7 +116,7 @@ const InputComponentWrapper = styled((props) => (
           return "flex: 1; margin-right: 5px; label { margin-right: 5px; margin-bottom: 0;}";
         }
       }}
-      align-items: centert;
+      align-items: center;
       ${({ compactMode, labelPosition }) => {
         if (!labelPosition && !compactMode) {
           return "max-height: 20px; .bp3-popover-wrapper {max-height: 20px}";

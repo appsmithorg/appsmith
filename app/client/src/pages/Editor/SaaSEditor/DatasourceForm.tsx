@@ -254,6 +254,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     const params: string = location.search;
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
+
+    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
+
     return (
       <>
         <form
@@ -266,7 +269,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               <FormTitleContainer>
                 <PluginImage alt="Datasource" src={this.props.pluginImage} />
                 <FormTitle
-                  disabled={!canManageDatasource}
+                  disabled={!createFlow && !canManageDatasource}
                   focusOnMount={this.props.isNewDatasource}
                 />
               </FormTitleContainer>
@@ -318,6 +321,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           )}
         </form>
         <SaveOrDiscardDatasourceModal
+          datasourceId={datasourceId}
+          datasourcePermissions={datasource?.userPermissions || []}
           isOpen={this.state.showDialog}
           onClose={this.closeDialog}
           onDiscard={this.onDiscard}

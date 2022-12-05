@@ -123,6 +123,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       viewMode,
     } = this.props;
 
+    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
+
     return (
       <form
         onSubmit={(e) => {
@@ -134,7 +136,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             <FormTitleContainer>
               <PluginImage alt="Datasource" src={this.props.pluginImage} />
               <FormTitle
-                disabled={!canManageDatasource}
+                disabled={!createFlow && !canManageDatasource}
                 focusOnMount={this.props.isNewDatasource}
               />
             </FormTitleContainer>

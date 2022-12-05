@@ -18,26 +18,19 @@ import {
   hiddenPageIcon,
   pageIcon,
   defaultPageIcon,
-  settingsIcon,
   currentPageIcon,
 } from "../ExplorerIcons";
-import {
-  createMessage,
-  ADD_PAGE_TOOLTIP,
-  PAGE_PROPERTIES_TOOLTIP,
-} from "@appsmith/constants/messages";
+import { createMessage, ADD_PAGE_TOOLTIP } from "@appsmith/constants/messages";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import { TooltipComponent } from "design-system";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import styled from "styled-components";
 import PageContextMenu from "./PageContextMenu";
 import { resolveAsSpaceChar } from "utils/helpers";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { selectAllPages } from "selectors/entitiesSelector";
-import { builderURL, pageListEditorURL } from "RouteBuilder";
+import { builderURL } from "RouteBuilder";
 import { saveExplorerStatus, getExplorerStatus } from "../helpers";
 import { tailwindLayers } from "constants/Layers";
 import useResize, {
@@ -150,35 +143,12 @@ function Pages() {
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
 
-  const settingsIconWithTooltip = React.useMemo(
-    () => (
-      <TooltipComponent
-        boundary="viewport"
-        content={createMessage(PAGE_PROPERTIES_TOOLTIP)}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="bottom"
-      >
-        {settingsIcon}
-      </TooltipComponent>
-    ),
-    [],
-  );
-
   /**
    * toggles the pinned state of sidebar
    */
   const onPin = useCallback(() => {
     dispatch(setExplorerPinnedAction(!pinned));
   }, [pinned, dispatch, setExplorerPinnedAction]);
-
-  const onClickRightIcon = useCallback(() => {
-    history.push(pageListEditorURL({ pageId: currentPageId }));
-  }, [currentPageId]);
-
-  const onPageListSelection = React.useCallback(
-    () => history.push(pageListEditorURL({ pageId: currentPageId })),
-    [currentPageId],
-  );
 
   const onPageToggle = useCallback(
     (isOpen: boolean) => {
@@ -230,7 +200,7 @@ function Pages() {
             searchKeyword={""}
             step={1}
             updateEntityName={(id, name) =>
-              updatePage(id, name, !!page.isHidden)
+              updatePage({ id, name, isHidden: !!page.isHidden })
             }
           />
         );
@@ -241,7 +211,6 @@ function Pages() {
   return (
     <RelativeContainer>
       <StyledEntity
-        action={onPageListSelection}
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
         className="group pages"
@@ -259,10 +228,8 @@ function Pages() {
         isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
         name="Pages"
         onClickPreRightIcon={onPin}
-        onClickRightIcon={onClickRightIcon}
         onToggle={onPageToggle}
         pagesSize={ENTITY_HEIGHT * pages.length}
-        rightIcon={settingsIconWithTooltip}
         searchKeyword={""}
         showAddButton={canCreatePages}
         step={0}
