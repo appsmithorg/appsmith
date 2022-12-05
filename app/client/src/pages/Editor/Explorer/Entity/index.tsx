@@ -240,7 +240,6 @@ export const Entity = forwardRef(
     const open = (shouldOpen: boolean | undefined) => {
       if (!!props.children && props.name && isOpen !== shouldOpen) {
         dispatch(setEntityCollapsibleState(props.name, !!shouldOpen));
-        props.onToggle && props.onToggle(!!shouldOpen);
       }
     };
 
@@ -250,6 +249,7 @@ export const Entity = forwardRef(
 
     /* eslint-enable react-hooks/exhaustive-deps */
     const toggleChildren = (e: any) => {
+      props.onToggle && props.onToggle(!isOpen);
       // Make sure this entity is enabled before toggling the collpse of children.
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {

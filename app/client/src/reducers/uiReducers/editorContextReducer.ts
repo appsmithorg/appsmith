@@ -184,7 +184,7 @@ export const editorContextReducer = createImmerReducer(initialState, {
     state: EditorContextState,
     action: { payload: { [key: string]: boolean } },
   ) => {
-    state.entityCollapsibleFields = action.payload;
+    state.subEntityCollapsibleFields = action.payload;
   },
   [ReduxActionTypes.SET_EXPLORER_SWITCH_INDEX]: (
     state: EditorContextState,
