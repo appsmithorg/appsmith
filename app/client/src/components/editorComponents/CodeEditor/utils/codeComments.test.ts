@@ -157,7 +157,7 @@ describe("handleCodeComment", () => {
   it("should handle code uncomment in JS fields with multiple lines", () => {
     const editor = CodeMirror(document.body, { mode: "javascript" });
 
-    const code = `  {{//  (() => {
+    const code = `  {{// (() => {
       // const a = "hello";
       // return "Text";
     // })()}}`;
