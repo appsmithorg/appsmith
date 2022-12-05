@@ -1,6 +1,12 @@
-import { FlexLayerAlignment, LayoutDirection } from "components/constants";
-import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "components/constants";
 import { ReflowDirection } from "reflow/reflowTypes";
+import { getWidgets } from "sagas/selectors";
+import { useSelector } from "store";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 interface XYCord {
@@ -45,10 +51,12 @@ export const useAutoLayoutHighlights = ({
   isDragging,
   useAutoLayout,
 }: AutoLayoutHighlightProps) => {
+  const allWidgets = useSelector(getWidgets);
   let highlights: HighlightInfo[] = [];
   let newLayers: { [key: string]: number } = {};
   let lastActiveHighlight: HighlightInfo | undefined;
   let expandedNewLayer: number | undefined;
+  let isFillWidget = false;
 
   const isVerticalStack = direction === LayoutDirection.Vertical;
   let containerDimensions: {
@@ -93,6 +101,7 @@ export const useAutoLayoutHighlights = ({
   const getDropPositions = () => {
     const els = document.querySelectorAll(`.t--drop-position-${canvasId}`);
     const highlights: HighlightInfo[] = [];
+
     for (const el of els) {
       const rect: DOMRect = el.getBoundingClientRect();
       const classList = Array.from(el.classList);
@@ -107,7 +116,6 @@ export const useAutoLayoutHighlights = ({
             acc.index = parseInt(curr.split("child-index-")[1]);
           else if (curr.indexOf("row-index") > -1)
             acc.rowIndex = parseInt(curr.split("row-index-")[1]);
-          else if (curr.indexOf("new-layer") > -1) acc.isNewLayer = true;
           else if (curr.indexOf("isNewLayer") > -1) acc.isNewLayer = true;
           else if (curr.indexOf("isVertical") > -1) acc.isVertical = true;
 
@@ -134,17 +142,25 @@ export const useAutoLayoutHighlights = ({
     return highlights;
   };
 
-  const updateHighlight = (index: number): HighlightInfo => {
-    const highlight = highlights[index];
-    if (!highlight || !highlight.el) return highlight;
-    const rect: DOMRect = highlight.el.getBoundingClientRect();
-
-    highlight.posX = rect.x - containerDimensions.left;
-    highlight.posY = rect.y - containerDimensions.top;
-    highlight.width = rect.width;
-    highlight.height = rect.height;
-    highlights[index] = highlight;
-    return highlight;
+  const checkForFillWidget = () => {
+    if (!blocksToDraw?.length) return;
+    for (const block of blocksToDraw) {
+      const widget = allWidgets[block.widgetId];
+      if (widget) {
+        if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+          isFillWidget = true;
+          break;
+        }
+        continue;
+      }
+      const config = WidgetFactory.widgetConfigMap.get(block.widgetId);
+      if (config) {
+        if (config.responsiveBehavior === ResponsiveBehavior.Fill) {
+          isFillWidget = true;
+          break;
+        }
+      }
+    }
   };
 
   const calculateHighlights = (): HighlightInfo[] => {
@@ -157,7 +173,7 @@ export const useAutoLayoutHighlights = ({
        * That implies the container is null.
        */
       if (!updateContainerDimensions()) return [];
-
+      checkForFillWidget();
       highlights = getDropPositions();
     }
     // console.log("#### highlights", highlights);
@@ -168,54 +184,57 @@ export const useAutoLayoutHighlights = ({
    * END AUTO LAYOUT OFFSET CALCULATION
    */
 
-  const toggleNewLayerAlignments = (
-    el: Element | undefined,
-    reveal: boolean,
-  ): void => {
-    if (!el) return;
-    const horizontalElement = el as HTMLElement;
-    const verticalElement = el?.nextSibling as HTMLElement;
-    if (verticalElement) {
-      if (reveal) {
-        horizontalElement.style.display = "none";
-        verticalElement.style.display = "flex";
-        verticalElement.style.height = "40px";
-        verticalElement.style.border = "1px dotted rgba(223, 158, 206, 0.6)";
-      } else {
-        (horizontalElement as HTMLElement).style.display = "block";
-        verticalElement.style.display = "none";
-      }
-    }
+  const updateHighlight = (index: number): HighlightInfo => {
+    const highlight = highlights[index];
+    if (!highlight || !highlight.el) return highlight;
+    const rect: DOMRect = highlight.el.getBoundingClientRect();
+
+    highlight.posX = rect.x - containerDimensions.left;
+    highlight.posY = rect.y - containerDimensions.top;
+    highlight.width = isFillWidget
+      ? highlight.alignment === FlexLayerAlignment.Start
+        ? containerDimensions.width
+        : 0
+      : blocksToDraw[0].width;
+    highlight.height = rect.height;
+    (highlight.el as HTMLElement).style.width = `${highlight.width}px`;
+    highlights[index] = highlight;
+
+    return highlight;
+  };
+
+  const updateHighlights = (moveDirection?: ReflowDirection) => {
+    if (!highlights?.length || !moveDirection) return;
+    const isVerticalDrag = [
+      ReflowDirection.TOP,
+      ReflowDirection.BOTTOM,
+    ].includes(moveDirection);
+    highlights.map((highlight: HighlightInfo, index: number) => {
+      let updatedHighlight: HighlightInfo = highlight;
+      if ((highlight.isNewLayer && isVerticalDrag) || !highlight.height)
+        updatedHighlight = updateHighlight(index);
+      return updatedHighlight;
+    });
   };
 
   const toggleHighlightVisibility = (
     arr: HighlightInfo[],
-    selected: HighlightInfo[],
+    selected: HighlightInfo,
   ): void => {
     arr.forEach((each: HighlightInfo) => {
       const el = each.el as HTMLElement;
-      if (!isVerticalStack) el.style.opacity = "1";
-      else el.style.opacity = selected.includes(each) ? "1" : "0";
+      // if (!isVerticalStack) el.style.opacity = "1";
+      el.style.opacity = selected === each ? "1" : "0";
     });
   };
 
   const updateSelection = (highlight: HighlightInfo): void => {
     if (lastActiveHighlight) {
       const lastEl = lastActiveHighlight?.el as HTMLElement;
-      if (lastEl) {
-        lastActiveHighlight.isVertical
-          ? (lastEl.style.width = `${DEFAULT_HIGHLIGHT_SIZE}px`)
-          : (lastEl.style.height = `${DEFAULT_HIGHLIGHT_SIZE}px`);
-        lastEl.style.backgroundColor = "rgba(223, 158, 206, 0.6)";
-      }
+      if (lastEl) lastEl.style.backgroundColor = "rgba(223, 158, 206, 0.6)";
     }
     const el = highlight.el as HTMLElement;
-    if (el) {
-      highlight.isVertical
-        ? (el.style.width = `${DEFAULT_HIGHLIGHT_SIZE * 1.5}px`)
-        : (el.style.height = `${DEFAULT_HIGHLIGHT_SIZE * 1.5}px`);
-      el.style.backgroundColor = "rgba(196, 139, 181, 1)";
-    }
+    if (el) el.style.backgroundColor = "rgba(196, 139, 181, 1)";
     lastActiveHighlight = highlight;
   };
 
@@ -249,58 +268,29 @@ export const useAutoLayoutHighlights = ({
     };
 
     let filteredHighlights: HighlightInfo[] = [];
-    const newLayerIndex = isInNewLayerRange(pos.y);
+    updateHighlights(moveDirection);
+    filteredHighlights = getViableDropPositions(base, pos, moveDirection);
 
-    if (newLayerIndex > -1) {
-      filteredHighlights = [
-        ...base.slice(
-          newLayerIndex + 1,
-          Math.min(newLayerIndex + 4, base.length),
-        ),
-      ];
-      if (filteredHighlights[0].height === 0) {
-        filteredHighlights[0] = updateHighlight(newLayerIndex + 1);
-        filteredHighlights[1] = updateHighlight(newLayerIndex + 2);
-        filteredHighlights[2] = updateHighlight(newLayerIndex + 3);
-      }
-      expandedNewLayer !== undefined &&
-        toggleNewLayerAlignments(highlights[expandedNewLayer]?.el, false);
-      toggleNewLayerAlignments(highlights[newLayerIndex].el, true);
-      expandedNewLayer = newLayerIndex;
-    } else {
-      filteredHighlights = getViableDropPositions(base, pos, moveDirection);
-      expandedNewLayer !== undefined &&
-        toggleNewLayerAlignments(highlights[expandedNewLayer]?.el, false);
-      expandedNewLayer = undefined;
-    }
-    toggleHighlightVisibility(base, filteredHighlights);
     const arr = filteredHighlights.sort((a, b) => {
       return (
-        calculateDistance(a, pos, moveDirection) -
-        calculateDistance(b, pos, moveDirection)
+        calculateDistance(
+          a,
+          pos,
+          moveDirection,
+          a.isNewLayer && isVerticalStack,
+        ) -
+        calculateDistance(
+          b,
+          pos,
+          moveDirection,
+          a.isNewLayer && isVerticalStack,
+        )
       );
     });
+    toggleHighlightVisibility(base, arr[0]);
     // console.log("#### arr", arr, base);
     return arr[0];
   };
-
-  function isInNewLayerRange(y: number): number {
-    const positions: number[] = Object.values(newLayers);
-    const keys: string[] = Object.keys(newLayers);
-    if (!positions || !positions.length) return -1;
-    const index: number = positions.findIndex((each: number, index: number) => {
-      const lower: number =
-        expandedNewLayer !== undefined ? each : Math.max(each - 2, 0);
-      const upper: number =
-        expandedNewLayer !== undefined &&
-        expandedNewLayer === parseInt(keys[index])
-          ? each + 35
-          : each + 14;
-      return y >= lower && (y <= upper || index === positions.length - 1);
-    });
-    if (index === -1) return -1;
-    return parseInt(keys[index]);
-  }
 
   function getViableDropPositions(
     arr: HighlightInfo[],
@@ -326,7 +316,12 @@ export const useAutoLayoutHighlights = ({
     let filteredHighlights: HighlightInfo[] = arr.filter(
       (highlight: HighlightInfo) => {
         // Return only horizontal highlights for vertical drag.
-        if (isVerticalDrag) return !highlight.isVertical;
+        if (isVerticalDrag)
+          return (
+            !highlight.isVertical &&
+            pos.x >= highlight.posX &&
+            pos.x <= highlight.posX + highlight.width
+          );
         // Return only vertical highlights for horizontal drag, if they lie in the same x plane.
         return (
           highlight.isVertical &&
@@ -337,15 +332,12 @@ export const useAutoLayoutHighlights = ({
     );
     // console.log("#### pos", arr, filteredHighlights, isVerticalDrag);
     // For horizontal drag, if no vertical highlight exists in the same x plane,
-    // return the last horizontal highlight.
-    if (!isVerticalDrag && !filteredHighlights.length) {
-      const horizontalHighlights = arr.filter(
-        (highlight: HighlightInfo) => !highlight.isVertical,
-      );
-      filteredHighlights = [
-        horizontalHighlights[horizontalHighlights.length - 1],
-      ];
-    }
+    // return the horizontal highlights for the last layer.
+    if (!isVerticalDrag && !filteredHighlights.length)
+      filteredHighlights = arr
+        .slice(arr.length - 3)
+        .filter((highlight: HighlightInfo) => !highlight.isVertical);
+
     return filteredHighlights;
   }
 
@@ -367,6 +359,7 @@ export const useAutoLayoutHighlights = ({
     a: HighlightInfo,
     b: XYCord,
     moveDirection?: ReflowDirection,
+    usePerpendicularDistance?: boolean,
   ): number => {
     /**
      * Calculate perpendicular distance of a point from a line.
@@ -376,7 +369,12 @@ export const useAutoLayoutHighlights = ({
       moveDirection &&
       [ReflowDirection.TOP, ReflowDirection.BOTTOM].includes(moveDirection);
 
-    let distX: number = a.isVertical && isVerticalDrag ? 0 : a.posX - b.x;
+    let distX: number =
+      a.isVertical && isVerticalDrag
+        ? usePerpendicularDistance
+          ? (a.posX + a.width) / 2 - b.x
+          : 0
+        : a.posX - b.x;
     let distY: number = !a.isVertical && !isVerticalDrag ? 0 : a.posY - b.y;
 
     if (moveDirection === ReflowDirection.LEFT && distX > 20) distX += 2000;
