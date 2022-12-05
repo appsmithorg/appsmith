@@ -40,10 +40,10 @@ export function* logLatestLintPropertyErrors({
     const debuggerKey = entity.actionId + propertyPath + "-lint";
 
     if (isEmpty(lintErrorsInPath)) {
-      errorsToRemove.push({ id: debuggerKey });
+      errorsToRemove.unshift({ id: debuggerKey });
       continue;
     }
-    errorsToAdd.push({
+    errorsToAdd.unshift({
       payload: {
         id: debuggerKey,
         logType: LOG_TYPE.LINT_ERROR,
