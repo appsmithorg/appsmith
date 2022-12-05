@@ -53,7 +53,8 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             cy.ReconnectDatasource("Untitled Datasource");
             cy.wait(1000);
             cy.fillPostgresDatasourceForm();
-            cy.testSaveDatasource();
+            cy.testDatasource(true);
+            cy.get(".t--save-datasource").click({ force: true });
             cy.wait(2000);
 
             // cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
@@ -79,7 +80,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           const name = uuid();
           appName = `app${name}`;
           cy.get(homePage.applicationName).click({ force: true });
-          cy.get(`${homePage.applicationEditMenu} li:first-child a`).click({
+          cy.get(`${homePage.applicationEditMenu} li:nth-child(3) a`).click({
             force: true,
           });
           cy.wait(2000);

@@ -13,10 +13,11 @@ import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
 } from "@appsmith/constants/messages";
-import { UpdateApplicationRequest } from "api/ApplicationApi";
+import { PageDefaultMeta, UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
+import { AppIconName } from "design-system";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -139,6 +140,16 @@ export const handlers = {
       ...state.currentApplication,
       name: action.payload.name,
       slug: action.payload.slug,
+    },
+  }),
+  [ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<AppIconName>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      icon: action.payload,
     },
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
@@ -533,7 +544,7 @@ export interface Application {
   appIsExample: boolean;
   new: boolean;
   defaultPageId: string;
-  pages: Array<{ id: string; isDefault: boolean; default: boolean }>;
+  pages: PageDefaultMeta[];
   userPermissions: string[];
 }
 

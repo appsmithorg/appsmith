@@ -7,7 +7,10 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import { previewModeSelector } from "selectors/editorSelectors";
+import {
+  getCanvasHeightOffset,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 
 export function* shouldWidgetsCollapse() {
@@ -50,6 +53,23 @@ export function* getChildOfContainerLikeWidget(
   }
 }
 
+export function getParentCurrentHeightInRows(
+  parentBottomRow: number,
+  parentTopRow: number,
+  parentId: string,
+  changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
+) {
+  // Get the parentHeight in rows
+  let parentHeightInRows = parentBottomRow - parentTopRow;
+
+  // If the parent has changed so far.
+  if (changesSoFar.hasOwnProperty(parentId)) {
+    parentHeightInRows =
+      changesSoFar[parentId].bottomRow - changesSoFar[parentId].topRow;
+  }
+  return parentHeightInRows;
+}
+
 export function* getMinHeightBasedOnChildren(
   widgetId: string,
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
@@ -67,17 +87,43 @@ export function* getMinHeightBasedOnChildren(
   const { children = [], parentId } = stateWidgets[widgetId];
   // If we need to consider the parent height
   if (parentId && !ignoreParent) {
-    // Get the parentHeight in rows
-    let parentHeightInRows = tree[parentId].bottomRow - tree[parentId].topRow;
-
-    // If the parent has changed so far.
-    if (changesSoFar.hasOwnProperty(parentId)) {
-      parentHeightInRows =
-        changesSoFar[parentId].bottomRow - changesSoFar[parentId].topRow;
+    const parent = stateWidgets[parentId];
+    // Get the node from the tree
+    const parentTreeNode = tree[parentId];
+    // Initialize from the parent state
+    let parentBottomRow = parent.bottomRow;
+    let parentTopRow = parent.topRow;
+    // If the tree node exists use thata
+    if (parentTreeNode !== undefined) {
+      parentBottomRow = parentTreeNode.bottomRow;
+      parentTopRow = parentTreeNode.topRow;
+      // If this parent is detached from layout, use the height, or diff
+      // in pixels to get bottom row in rows.
+    } else if (parent.detachFromLayout) {
+      parentBottomRow =
+        parent.topRow +
+        Math.ceil(
+          (parent.height || parent.bottomRow - parent.topRow) /
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
     }
 
+    const parentHeightInRows = getParentCurrentHeightInRows(
+      parentBottomRow,
+      parentTopRow,
+      parentId,
+      changesSoFar,
+    );
     // The canvas will be an extension smaller than the parent?
     minHeightInRows = parentHeightInRows - GridDefaults.CANVAS_EXTENSION_OFFSET;
+
+    // We will also remove any extra offsets the parent has
+    // As we're dealing with the child canvas widget here.
+    const canvasHeightOffset: number = getCanvasHeightOffset(
+      parent.type,
+      parent,
+    );
+    minHeightInRows = minHeightInRows - canvasHeightOffset;
     // If the canvas is empty return the parent's height in rows, without
     // the canvas extension offset
     if (!children.length) {
