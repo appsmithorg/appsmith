@@ -153,4 +153,28 @@ describe("handleCodeComment", () => {
       // return "Text";
     // })()}}`);
   });
+
+  it("should handle code uncomment in JS fields with multiple lines", () => {
+    const editor = CodeMirror(document.body, { mode: "javascript" });
+
+    const code = `  {{//  (() => {
+      // const a = "hello";
+      // return "Text";
+    // })()}}`;
+
+    editor.setValue(code);
+
+    // Select the code before commenting
+    editor.setSelection(
+      { line: 0, ch: 0 },
+      { line: editor.lastLine() + 1, ch: 0 },
+    );
+
+    handleCodeComment(editor);
+
+    expect(editor.getValue()).toEqual(`  {{(() => {
+      const a = "hello";
+      return "Text";
+    })()}}`);
+  });
 });
