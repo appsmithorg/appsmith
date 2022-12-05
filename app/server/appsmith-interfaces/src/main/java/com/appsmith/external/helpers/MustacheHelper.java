@@ -119,7 +119,7 @@ public class MustacheHelper {
                     isInsideMustache = true;
                     // Remove the `{` added to the builder.
                     currentToken.deleteCharAt(currentToken.length() - 1);
-                    clearAndPushToken(currentToken, currentTokenStartIndex, tokens);
+                    clearAndPushToken(currentToken, currentTokenStartIndex, tokens, false);
                     currentToken.append(prevChar);
                     currentTokenStartIndex = i - 1;
                     braceDepth = 2;
@@ -159,13 +159,12 @@ public class MustacheHelper {
                     --braceDepth;
                     currentToken.append(currentChar);
                     if (prevChar == '}' && braceDepth <= 0) {
-                        clearAndPushToken(currentToken, currentTokenStartIndex, tokens);
+                        clearAndPushToken(currentToken, currentTokenStartIndex, tokens, true);
                         isInsideMustache = false;
                     }
 
                 } else {
                     currentToken.append(currentChar);
-
                 }
 
             }
@@ -173,7 +172,7 @@ public class MustacheHelper {
         }
 
         if (currentToken.length() > 0) {
-            tokens.add(new MustacheBindingToken(currentToken.toString(), currentTokenStartIndex, true));
+            tokens.add(new MustacheBindingToken(currentToken.toString(), currentTokenStartIndex, false));
         }
 
         return tokens;
@@ -254,9 +253,9 @@ public class MustacheHelper {
         return keys;
     }
 
-    private static void clearAndPushToken(StringBuilder tokenBuilder, int tokenStartIndex, List<MustacheBindingToken> tokenList) {
+    private static void clearAndPushToken(StringBuilder tokenBuilder, int tokenStartIndex, List<MustacheBindingToken> tokenList, boolean includesHandleBars) {
         if (tokenBuilder.length() > 0) {
-            tokenList.add(new MustacheBindingToken(tokenBuilder.toString(), tokenStartIndex, true));
+            tokenList.add(new MustacheBindingToken(tokenBuilder.toString(), tokenStartIndex, includesHandleBars));
             tokenBuilder.setLength(0);
         }
     }

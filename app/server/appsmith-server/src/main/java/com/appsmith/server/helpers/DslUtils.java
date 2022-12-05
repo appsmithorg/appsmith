@@ -47,7 +47,7 @@ public class DslUtils {
             for (MustacheBindingToken mustacheBindingToken : replacementMap.keySet()) {
                 String tokenValue = mustacheBindingToken.getValue();
                 int endIndex = mustacheBindingToken.getStartIndex() + tokenValue.length();
-                if (oldValue.length() > endIndex && oldValue.subSequence(mustacheBindingToken.getStartIndex(), endIndex).equals(tokenValue)) {
+                if (oldValue.length() >= endIndex && oldValue.subSequence(mustacheBindingToken.getStartIndex(), endIndex).equals(tokenValue)) {
                     oldValue.replace(mustacheBindingToken.getStartIndex(), endIndex, replacementMap.get(mustacheBindingToken));
                 }
             }

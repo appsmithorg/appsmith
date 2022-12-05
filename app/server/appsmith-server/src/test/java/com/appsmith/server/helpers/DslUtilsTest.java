@@ -35,7 +35,7 @@ class DslUtilsTest {
                 "            \"anotherList\": [ " +
                 "              { " +
                 "                \"multidimensionalList\" : [ " +
-                "                  [\"{{ retrievedBinding1.text }} {{ retrievedBinding2.text }}\"]n" +
+                "                  [\"{{ retrievedBinding1.text }} {{ retrievedBinding2.text }}\"]" +
                 "                ] " +
                 "              } " +
                 "            ] " +
