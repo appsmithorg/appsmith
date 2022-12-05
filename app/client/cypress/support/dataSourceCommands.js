@@ -3,12 +3,14 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
+import { ObjectsRegistry } from "../support/Objects/Registry";
 const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
 const apiEditorLocators = require("../locators/ApiEditor");
+const dataSources = ObjectsRegistry.DataSources;
 
 const backgroundColorBlack = "rgb(0, 0, 0)";
 const backgroundColorGray1 = "rgb(250, 250, 250)";
@@ -116,7 +118,7 @@ Cypress.Commands.add(
     //cy.get(datasourceEditor["selConnectionType"]).click();
     //cy.contains(datasourceFormData["connection-type"]).click();
     //cy.get(datasourceEditor["defaultDatabaseName"]).type(databaseName);//is optional hence removing
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor["databaseName"])
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -148,7 +150,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
     );
@@ -194,8 +196,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mysql-username"],
     );
@@ -220,8 +221,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mssql-username"],
     );
@@ -247,7 +247,7 @@ Cypress.Commands.add(
       .clear()
       .type(databaseName);
 
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["arango-username"],
     );
@@ -272,8 +272,7 @@ Cypress.Commands.add(
     cy.get(datasourceEditor.databaseName)
       .clear()
       .type(databaseName);
-
-    cy.get(datasourceEditor.sectionAuthentication).click();
+    dataSources.ExpandSectionByName(datasourceEditor.sectionAuthentication);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["redshift-username"],
     );
