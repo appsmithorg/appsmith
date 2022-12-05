@@ -4,6 +4,7 @@ import {
   ResponsiveBehavior,
 } from "components/constants";
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -94,6 +95,7 @@ export const CONFIG = {
       ],
     },
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

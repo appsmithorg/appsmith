@@ -4,6 +4,7 @@ import {
   RecaptchaTypes,
   ResponsiveBehavior,
 } from "components/constants";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -29,6 +30,7 @@ export const CONFIG = {
     recaptchaType: RecaptchaTypes.V3,
     version: 1,
     responsiveBehavior: ResponsiveBehavior.Hug,
+    minWidth: BUTTON_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

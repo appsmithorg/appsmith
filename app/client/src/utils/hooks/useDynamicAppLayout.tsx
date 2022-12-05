@@ -7,6 +7,7 @@ import { updateCanvasLayoutAction } from "actions/editorActions";
 import {
   DefaultLayoutType,
   layoutConfigurations,
+  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import {
@@ -80,8 +81,6 @@ export const useDynamicAppLayout = () => {
    *  - if calculated width is larger than max width, use max width
    *  - by default use min width
    *
-   * @param screenWidth
-   * @param layoutMaxWidth
    * @returns
    */
   const calculateCanvasWidth = () => {
@@ -103,7 +102,7 @@ export const useDynamicAppLayout = () => {
 
       calculatedWidth -= explorerWidth;
     }
-    const ele: any = document.getElementById("main-canvas-container");
+    const ele: any = document.getElementById("canvas-viewport");
     if (
       appMode === "EDIT" &&
       appLayout?.type === "FLUID" &&
@@ -163,7 +162,7 @@ export const useDynamicAppLayout = () => {
 
   const resizeObserver = new ResizeObserver(immediateDebouncedResize);
   useEffect(() => {
-    const ele: any = document.getElementById("main-canvas-container");
+    const ele: any = document.getElementById("canvas-viewport");
     if (ele) {
       if (appLayout?.type === "FLUID") {
         resizeObserver.observe(ele);
@@ -213,7 +212,13 @@ export const useDynamicAppLayout = () => {
 
   useEffect(() => {
     function relayoutAtBreakpoint() {
-      dispatch(updateLayoutForMobileBreakpoint("0", mainCanvasProps?.isMobile));
+      dispatch(
+        updateLayoutForMobileBreakpoint(
+          MAIN_CONTAINER_WIDGET_ID,
+          mainCanvasProps?.isMobile,
+          calculateCanvasWidth(),
+        ),
+      );
     }
     relayoutAtBreakpoint();
   }, [mainCanvasProps?.isMobile]);

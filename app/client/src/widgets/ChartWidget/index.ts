@@ -1,5 +1,6 @@
 import { ResponsiveBehavior } from "components/constants";
 import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
@@ -21,6 +22,7 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",

@@ -23,6 +23,7 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { getIsMobile } from "selectors/mainCanvasSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -45,6 +46,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
+    const isMobile = useSelector(getIsMobile);
 
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
@@ -52,7 +54,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
-
     if (!skipWidgetPropsHydration) {
       const canvasWidgetProps = (() => {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
@@ -65,6 +66,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       })();
 
       widgetProps = { ...canvasWidgetProps };
+
+      widgetProps.isMobile = !!isMobile;
+
       /**
        * MODAL_WIDGET by default is to be hidden unless the isVisible property is found.
        * If the isVisible property is undefined and the widget is MODAL_WIDGET then isVisible
@@ -101,7 +105,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
     }
-
     //merging with original props
     widgetProps = { ...props, ...widgetProps, renderMode };
 

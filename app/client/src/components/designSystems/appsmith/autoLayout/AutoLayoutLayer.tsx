@@ -22,22 +22,25 @@ export interface AutoLayoutLayerProps {
   isCurrentCanvasDragging: boolean;
   currentChildCount: number;
   hideOnLoad?: boolean;
+  wrapStart: boolean;
+  wrapCenter: boolean;
+  wrapEnd: boolean;
+  wrapLayer: boolean;
 }
 
 const LayoutLayerContainer = styled.div<{
   flexDirection: FlexDirection;
   hideOnLoad?: boolean;
   isCurrentCanvasDragging: boolean;
+  wrap?: boolean;
 }>`
   display: ${({ hideOnLoad }) => (hideOnLoad ? "none" : "flex")};
   flex-direction: ${({ flexDirection }) => flexDirection || FlexDirection.Row};
   justify-content: flex-start;
   align-items: flex-start;
+  flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
 
   width: 100%;
-  height: auto;
-  min-height: ${({ isCurrentCanvasDragging }) =>
-    isCurrentCanvasDragging ? "40px" : "auto"};
   margin-top: ${DRAG_MARGIN}px;
 `;
 
@@ -46,13 +49,12 @@ const SubWrapper = styled.div<{
   flexDirection: FlexDirection;
   wrap?: boolean;
 }>`
-  flex: 1 1 33.3%;
+  flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3"}%`};
   display: flex;
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
-  align-items: "flex-start";
+  align-items: flex-start;
+  align-self: stretch;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
-  height: ${({ isCurrentCanvasDragging }) =>
-    isCurrentCanvasDragging ? "100%" : "auto"};
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -88,25 +90,26 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
       flexDirection={flexDirection}
       hideOnLoad={props.hideOnLoad}
       isCurrentCanvasDragging={props.isCurrentCanvasDragging}
+      wrap={props.isMobile && props.wrapLayer}
     >
       <StartWrapper
         flexDirection={flexDirection}
         isCurrentCanvasDragging={props.isCurrentCanvasDragging}
-        wrap={props.hasFillChild && props.isMobile}
+        wrap={props.wrapStart && props.isMobile}
       >
         {props.start}
       </StartWrapper>
       <CenterWrapper
         flexDirection={flexDirection}
         isCurrentCanvasDragging={props.isCurrentCanvasDragging}
-        wrap={props.hasFillChild && props.isMobile}
+        wrap={props.wrapCenter && props.isMobile}
       >
         {props.center}
       </CenterWrapper>
       <EndWrapper
         flexDirection={flexDirection}
         isCurrentCanvasDragging={props.isCurrentCanvasDragging}
-        wrap={props.hasFillChild && props.isMobile}
+        wrap={props.wrapEnd && props.isMobile}
       >
         {props.end}
       </EndWrapper>

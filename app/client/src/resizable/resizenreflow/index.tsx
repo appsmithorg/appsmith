@@ -143,7 +143,7 @@ type ResizableProps = {
     resizedPositions?: OccupiedSpace;
   };
   originalPositions: OccupiedSpace;
-  onStart: () => void;
+  onStart: (affectsWidth?: boolean) => void;
   onStop: (
     size: { width: number; height: number },
     position: { x: number; y: number },
@@ -336,6 +336,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.left,
+      affectsWidth: true,
     });
   }
 
@@ -352,6 +353,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.top,
+      affectsWidth: false,
     });
   }
 
@@ -368,6 +370,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.right,
+      affectsWidth: true,
     });
   }
 
@@ -384,6 +387,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.bottom,
+      affectsWidth: false,
     });
   }
 
@@ -401,6 +405,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.topLeft,
+      affectsWidth: true,
     });
   }
 
@@ -418,6 +423,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.topRight,
+      affectsWidth: true,
     });
   }
 
@@ -435,6 +441,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.bottomRight,
+      affectsWidth: true,
     });
   }
 
@@ -452,6 +459,7 @@ export function ReflowResizable(props: ResizableProps) {
         });
       },
       component: props.handles.bottomLeft,
+      affectsWidth: true,
     });
   }
   const onResizeStop = () => {
@@ -469,22 +477,24 @@ export function ReflowResizable(props: ResizableProps) {
     setResizing(false);
   };
 
-  const renderHandles = handles.map((handle, index) => (
-    <ResizableHandle
-      {...handle}
-      allowResize={props.allowResize}
-      checkForCollision={checkForCollision}
-      key={index}
-      onStart={() => {
-        togglePointerEvents(false);
-        props.onStart();
-        setResizing(true);
-      }}
-      onStop={onResizeStop}
-      scrollParent={resizableRef.current}
-      snapGrid={props.snapGrid}
-    />
-  ));
+  const renderHandles = handles.map((handle, index) => {
+    return (
+      <ResizableHandle
+        {...handle}
+        allowResize={props.allowResize}
+        checkForCollision={checkForCollision}
+        key={index}
+        onStart={() => {
+          togglePointerEvents(false);
+          props.onStart(handle?.affectsWidth);
+          setResizing(true);
+        }}
+        onStop={onResizeStop}
+        scrollParent={resizableRef.current}
+        snapGrid={props.snapGrid}
+      />
+    );
+  });
 
   const widgetWidth =
     reflowedPosition?.width === undefined

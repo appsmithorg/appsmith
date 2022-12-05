@@ -3,6 +3,7 @@ import IconSVG from "./icon.svg";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { ResponsiveBehavior } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -33,6 +34,7 @@ export const CONFIG = {
     animateLoading: true,
     labelTextSize: "0.875rem",
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

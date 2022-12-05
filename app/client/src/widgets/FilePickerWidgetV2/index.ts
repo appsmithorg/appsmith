@@ -1,4 +1,5 @@
 import { ResponsiveBehavior } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -27,6 +28,7 @@ export const CONFIG = {
     isDisabled: false,
     animateLoading: true,
     responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
