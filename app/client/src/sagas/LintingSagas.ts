@@ -3,7 +3,6 @@ import { APP_MODE } from "entities/App";
 import { call, put, select } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
 import { GracefulWorkerService } from "utils/WorkerUtil";
-import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from "workers/Evaluation/JSObject";
 import {
   LintTreeRequest,
   LintTreeResponse,
@@ -20,7 +19,6 @@ export const lintWorker = new GracefulWorkerService(
 );
 
 export function* lintTreeSaga({
-  jsUpdates,
   pathsToLint,
   unevalTree,
 }: LintTreeSagaRequestData) {
@@ -28,14 +26,9 @@ export function* lintTreeSaga({
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode !== APP_MODE.EDIT) return;
 
-  const updatedUnevalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-    jsUpdates,
-    unevalTree,
-  );
   const lintTreeRequestData: LintTreeRequest = {
-    jsUpdates,
     pathsToLint,
-    unevalTree: updatedUnevalTree,
+    unevalTree,
   };
 
   const { errors }: LintTreeResponse = yield call(

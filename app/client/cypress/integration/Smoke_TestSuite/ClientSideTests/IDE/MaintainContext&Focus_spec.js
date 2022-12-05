@@ -156,4 +156,28 @@ describe("MaintainContext&Focus", function() {
     ee.SelectEntityByName("Appsmith");
     dataSources.AssertEditMode();
   });
+
+  it("9. Datasource collapse state has to be maintained", () => {
+    // Create datasource 1
+    dataSources.SaveDSFromDialog(false);
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    agHelper.RenameWithInPane("Postgres1", false);
+    // Expand section with index 1
+    dataSources.ExpandSection(1);
+    // Create and switch to datasource 2
+    dataSources.SaveDSFromDialog(true);
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("MongoDB");
+    agHelper.RenameWithInPane("Mongo1", false);
+    // Validate if section with index 1 is collapsed
+    dataSources.AssertSectionCollapseState(1, false);
+    // Switch back to datasource 1
+    dataSources.SaveDSFromDialog(false);
+    dataSources.CreateNewQueryInDS("Postgres1");
+    ee.SelectEntityByName("Postgres1");
+    dataSources.EditDatasource();
+    // Validate if section with index 1 is expanded
+    dataSources.AssertSectionCollapseState(1, false);
+  });
 });
