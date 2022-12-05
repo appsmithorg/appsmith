@@ -292,12 +292,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
                 boolean isLeafNode = false;
+                Object oldParent;
                 // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
                 while (fieldsIterator.hasNext()) {
+                    oldParent = parent;
                     String nextKey = fieldsIterator.next();
-                    Object oldParent = parent;
                     if (parent instanceof JSONObject) {
                         parent = ((JSONObject) parent).get(nextKey);
                     } else if (parent instanceof Map) {
