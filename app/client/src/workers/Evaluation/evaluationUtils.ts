@@ -369,11 +369,11 @@ export function isWidget(
   );
 }
 
-export const isMetaWidget = (widget: DataTreeWidget) =>
-  Boolean(widget.isMetaWidget);
+export const shouldSuppressAutoComplete = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressAutoComplete);
 
-export const isTemplateMetaWidget = (widget: DataTreeWidget) =>
-  isMetaWidget(widget) && widget.widgetId === widget.referencedWidgetId;
+export const shouldSuppressDebuggerError = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressDebuggerError);
 
 export function isAction(
   entity: Partial<DataTreeEntity>,
@@ -713,14 +713,12 @@ export const getDataTreeWithoutPrivateWidgets = (
   return treeWithoutPrivateWidgets;
 };
 
-const getDataTreeWithoutNonTemplateMetaWidgets = (
+const getDataTreeWithoutSuppressedAutoComplete = (
   dataTree: DataTree,
 ): DataTree => {
   const metaWidgetIds = Object.keys(dataTree).filter((entityName) => {
     const entity = dataTree[entityName];
-    return (
-      isWidget(entity) && isMetaWidget(entity) && !isTemplateMetaWidget(entity)
-    );
+    return isWidget(entity) && shouldSuppressAutoComplete(entity);
   });
 
   return _.omit(dataTree, metaWidgetIds);
@@ -728,11 +726,11 @@ const getDataTreeWithoutNonTemplateMetaWidgets = (
 
 export const getFilteredDataTree = (dataTree: DataTree): DataTree => {
   const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
-  const treeWithoutMetaWidgets = getDataTreeWithoutNonTemplateMetaWidgets(
+  const treeWithoutSuppressedAutoComplete = getDataTreeWithoutSuppressedAutoComplete(
     treeWithoutPrivateWidgets,
   );
 
-  return treeWithoutMetaWidgets;
+  return treeWithoutSuppressedAutoComplete;
 };
 
 /**

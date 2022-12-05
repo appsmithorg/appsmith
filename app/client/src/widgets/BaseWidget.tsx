@@ -482,6 +482,8 @@ export interface WidgetBaseProps {
   hasMetaWidgets?: boolean;
   creatorId?: string;
   isMetaWidget?: boolean;
+  suppressAutoComplete?: boolean;
+  suppressDebuggerError?: boolean;
 }
 
 export type WidgetRowCols = {

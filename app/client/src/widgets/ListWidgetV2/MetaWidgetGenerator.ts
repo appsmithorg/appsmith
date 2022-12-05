@@ -465,6 +465,10 @@ class MetaWidgetGenerator {
     metaWidget.children = children;
     metaWidget.parentId = parentId;
     metaWidget.referencedWidgetId = templateWidgetId;
+    if (metaWidget.widgetId !== templateWidgetId) {
+      metaWidget.suppressAutoComplete = true;
+      metaWidget.suppressDebuggerError = true;
+    }
 
     return {
       childMetaWidgets,

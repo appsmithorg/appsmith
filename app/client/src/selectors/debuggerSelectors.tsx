@@ -7,8 +7,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import {
-  isMetaWidget,
-  isTemplateMetaWidget,
+  shouldSuppressDebuggerError,
   isWidget,
 } from "workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
@@ -48,7 +47,7 @@ export const getFilteredErrors = createSelector(
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
           // Remove Non-Template meta widgets from debugger
-          if (isMetaWidget(entity) && !isTemplateMetaWidget(entity)) {
+          if (shouldSuppressDebuggerError(entity)) {
             return false;
           }
           if (!hasParentWidget(entity)) {
