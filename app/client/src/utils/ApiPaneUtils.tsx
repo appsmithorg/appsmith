@@ -9,7 +9,7 @@ import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiC
  * @returns
  */
 export const getIndextoUpdate = (headers: any, headerIndexToUpdate: number) => {
-  const firstEmptyHeaderRowIndex: number = headers.findIndex(
+  const firstEmptyHeaderRowIndex: number = headers?.findIndex(
     (element: { key: string; value: string }) =>
       element && element.key === "" && element.value === "",
   );
