@@ -164,6 +164,29 @@ export class URLBuilder {
     return basePath;
   }
 
+  getCustomSlugPathPreview(pageId: string, customSlug: string) {
+    const urlPattern =
+      baseURLRegistry[URL_TYPE.CUSTOM_SLUG][APP_MODE.PUBLISHED];
+    return generatePath(urlPattern, {
+      pageId,
+      customSlug: `${customSlug.replaceAll(" ", "-")}-`,
+    }).toLowerCase();
+  }
+
+  getPagePathPreview(pageId: string, pageName: string) {
+    const { applicationVersion } = this.appParams;
+
+    const urlType = this.getURLType(applicationVersion);
+
+    const urlPattern = baseURLRegistry[urlType][APP_MODE.PUBLISHED];
+
+    const formattedParams = this.getFormattedParams(pageId);
+
+    formattedParams.pageSlug = `${pageName.replaceAll(" ", "-")}-`;
+
+    return generatePath(urlPattern, formattedParams).toLowerCase();
+  }
+
   /**
    * @throws {URIError}
    * @param builderParams

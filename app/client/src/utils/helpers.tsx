@@ -11,10 +11,7 @@ import {
 } from "constants/WidgetValidation";
 import { get, set, isNil, has, uniq } from "lodash";
 import { Workspace } from "@appsmith/constants/workspaceConstants";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";
 import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
@@ -582,10 +579,7 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
 // Can be used to check if the user has developer role access to workspace
 export const getCanCreateApplications = (currentWorkspace: Workspace) => {
   const userWorkspacePermissions = currentWorkspace.userPermissions || [];
-  const canManage = isPermitted(
-    userWorkspacePermissions,
-    PERMISSION_TYPE.CREATE_APPLICATION,
-  );
+  const canManage = hasCreateNewAppPermission(userWorkspacePermissions ?? []);
   return canManage;
 };
 
@@ -872,7 +866,7 @@ export const getUpdatedRoute = (
         `${customSlug}`,
         `${params.customSlug}-`,
       );
-    } else {
+    } else if (params.applicationSlug && params.pageSlug) {
       updatedPath = updatedPath.replace(
         `${customSlug}`,
         `${params.applicationSlug}/${params.pageSlug}-`,
@@ -880,6 +874,46 @@ export const getUpdatedRoute = (
     }
   }
   return updatedPath;
+};
+
+// to split relative url into array, so specific parts can be bolded on UI preview
+export const splitPathPreview = (
+  url: string,
+  customSlug?: string,
+): string | string[] => {
+  const slugMatch = matchPath<{ pageId: string; pageSlug: string }>(
+    url,
+    VIEWER_PATH,
+  );
+
+  const customSlugMatch = matchPath<{ pageId: string; customSlug: string }>(
+    url,
+    VIEWER_CUSTOM_PATH,
+  );
+
+  if (!customSlug && slugMatch?.isExact) {
+    const { pageSlug } = slugMatch.params;
+    const splitUrl = url.split(pageSlug);
+    splitUrl.splice(
+      1,
+      0,
+      pageSlug.slice(0, pageSlug.length - 1), // to split -
+      pageSlug.slice(pageSlug.length - 1),
+    );
+    return splitUrl;
+  } else if (customSlug && customSlugMatch?.isExact) {
+    const { customSlug } = customSlugMatch.params;
+    const splitUrl = url.split(customSlug);
+    splitUrl.splice(
+      1,
+      0,
+      customSlug.slice(0, customSlug.length - 1), // to split -
+      customSlug.slice(customSlug.length - 1),
+    );
+    return splitUrl;
+  }
+
+  return url;
 };
 
 export const updateSlugNamesInURL = (params: Record<string, string>) => {

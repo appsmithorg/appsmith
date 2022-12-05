@@ -16,6 +16,8 @@ import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
+import indirectEval from "./indirectEval";
 
 export type EvalResult = {
   result: any;
@@ -119,6 +121,7 @@ export function setupEvaluationEnvironment() {
   });
   userLogs.overrideConsoleAPI();
   overrideTimeout();
+  interceptAndOverrideHttpRequest();
 }
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
@@ -167,13 +170,10 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
       context?.eventType,
     );
     ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
+    Object.assign(GLOBAL_DATA, dataTreeWithFunctions);
   } else {
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
-    });
+    // Object.assign removes prototypes of the entity object making sure configs are not shown to user.
+    Object.assign(GLOBAL_DATA, dataTree);
   }
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
@@ -184,8 +184,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
           const data = dataTreeKey[key]?.data;
           //do not remove we will be investigating this
           //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
-          //const confirmBeforeExecute =
-          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+          //const confirmBeforeExecute = dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
           dataTreeKey[key] = resolvedObject[key];
           // if (isAsync && confirmBeforeExecute) {
           //   dataTreeKey[key] = confirmationPromise.bind(
@@ -296,7 +295,7 @@ export default function evaluateSync(
     }
 
     try {
-      result = eval(script);
+      result = indirectEval(script);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
         (error as Error).message
@@ -358,7 +357,7 @@ export async function evaluateAsync(
     });
 
     try {
-      result = await eval(script);
+      result = await indirectEval(script);
       logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
@@ -390,11 +389,6 @@ export async function evaluateAsync(
           logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
           triggers: Array.from(self.TRIGGER_COLLECTOR),
         });
-      } finally {
-        for (const entity in GLOBAL_DATA) {
-          // @ts-expect-error: Types are not available
-          delete self[entity];
-        }
       }
     }
   })();
