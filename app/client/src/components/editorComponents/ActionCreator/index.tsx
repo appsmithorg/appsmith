@@ -132,7 +132,6 @@ function replaceAction(value: string, changeValue: string, argNum: number) {
   // else replace with arrow expression and action selected
   const reqChangeValue =
     changeValue === "" ? `() => {}` : `() => ${changeValue}`;
-
   return `{{${replaceActionInQuery(
     requiredValue,
     reqChangeValue,
@@ -263,7 +262,6 @@ function getFieldsForSelectedAction(
   const functionMatch =
     isFunctionWithCallbackFields ||
     AppsmithFunctionsWithFields.filter((func) => value.includes(func))[0];
-  console.log("* func match", isFunctionWithCallbackFields, functionMatch);
 
   if (functionMatch.length > 0) {
     for (const field of FIELD_GROUP_CONFIG[functionMatch].fields) {

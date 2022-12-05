@@ -143,7 +143,6 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
         },
     });
 
-    console.log("* from ast changedVal", changedValue);
     return changedValue;
 }
 
@@ -331,16 +330,15 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        const __ast = getAST(wrappedCode, {
+        ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
             onComment: commentArray,
         });
-        ast = klona(__ast);
     } catch (error) {
         return requiredFunction;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = klona(getAstWithCommentsAttached(ast, commentArray));
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -369,25 +367,23 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
     let changeActionCommentArray: Array<Comment> = [];
     try {
         const sanitizedScript = sanitizeScript(query, evaluationVersion);
-        const __ast = getAST(sanitizedScript, {
+        ast = getAST(sanitizedScript, {
             locations: true,
             ranges: true,
             onComment: commentArray,
         });
-        ast = klona(__ast);
 
         const sanitizedChangeAction = sanitizeScript(changeAction, evaluationVersion);
-        const __changeActionAst = getAST(sanitizedChangeAction, {
+        changeActionAst = getAST(sanitizedChangeAction, {
             locations: true,
             ranges: true,
             onComment: changeActionCommentArray,
         });
-        changeActionAst = klona(__changeActionAst);
     } catch (error) {
         return requiredQuery;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
-    const changeActionAstWithComments = getAstWithCommentsAttached(changeActionAst, changeActionCommentArray);
+    const astWithComments = klona(getAstWithCommentsAttached(ast, commentArray));
+    const changeActionAstWithComments = klona(getAstWithCommentsAttached(changeActionAst, changeActionCommentArray));
 
 
     simple(changeActionAstWithComments, {
@@ -401,7 +397,7 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
 
     simple(astWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && isCallExpressionNode(node.callee) && node.arguments[argNum]) {
+            if (isCallExpressionNode(node) && isCallExpressionNode(node.callee) && node.callee.arguments[argNum]) {
                 // add 1 to get the starting position of the next
                 // node to ending position of previous
                 const startPosition = node.callee.end + NEXT_POSITION;
