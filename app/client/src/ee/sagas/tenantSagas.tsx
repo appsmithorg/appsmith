@@ -1,4 +1,5 @@
 export * from "ce/sagas/tenantSagas";
+import { fetchCurrentTenantConfigSaga as CE_fetchCurrentTenantConfigSaga } from "ce/sagas/tenantSagas";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -35,7 +36,8 @@ export default function* tenantSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
-      fetchCurrentTenantConfigSaga,
+      CE_fetchCurrentTenantConfigSaga,
+      // fetchCurrentTenantConfigSaga,
     ),
   ]);
 }
