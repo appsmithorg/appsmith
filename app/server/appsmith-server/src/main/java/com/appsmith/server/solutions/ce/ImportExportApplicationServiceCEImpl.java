@@ -1172,14 +1172,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 return application;
                             });
                 })
-                .onErrorResume(throwable -> {
-                    log.error("Error while importing the application ", throwable.getMessage());
-                    if (importedApplication.getId() != null) {
-                        return applicationPageService.deleteApplication(importedApplication.getId())
-                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
-                    }
-                    return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
-                })
                 .as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions

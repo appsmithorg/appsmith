@@ -144,7 +144,7 @@ public class ImportApplicationTransactionServiceTest {
                 .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().equals(AppsmithError.GENERIC_BAD_REQUEST.getMessage()))
                 .verify();
 
-        // After the import application failed in the middle of execution after the applicann and pages are saved to DB
+        // After the import application failed in the middle of execution after the application and pages are saved to DB
         // check if the saved pages reverted after the exception
         assertThat(mongoTemplate.count(new Query(), Application.class)).isEqualTo(applicationCount);
         assertThat(mongoTemplate.count(new Query(), NewPage.class)).isEqualTo(pageCount);
