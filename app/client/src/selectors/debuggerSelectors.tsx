@@ -46,7 +46,6 @@ export const getFilteredErrors = createSelector(
         // filter error - when widget or parent widget is hidden
         // parent widgets e.g. modal, tab, container
         if (entity && isWidget(entity)) {
-          // Remove Non-Template meta widgets from debugger
           if (shouldSuppressDebuggerError(entity)) {
             return false;
           }

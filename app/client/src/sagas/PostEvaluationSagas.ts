@@ -372,7 +372,7 @@ export function* updateTernDefinitions(
   }
   if (shouldUpdate) {
     const start = performance.now();
-    // remove private and Non-Template meta widgets from dataTree used for autocompletion
+    // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
     const filteredDataTree = getFilteredDataTree(dataTree);
 
     const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
