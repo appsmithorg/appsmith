@@ -855,13 +855,6 @@ function ApplicationsSection(props: any) {
                             />
                           )}
                           <MenuItem
-                            icon="share-line"
-                            onSelect={() =>
-                              setSelectedWorkspaceId(workspace.id)
-                            }
-                            text="Share"
-                          />
-                          <MenuItem
                             icon="member"
                             onSelect={() =>
                               getOnSelectAction(
