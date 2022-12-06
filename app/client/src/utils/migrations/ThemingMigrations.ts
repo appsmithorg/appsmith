@@ -12,6 +12,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BUTTON_GROUP_CHILD_STYLESHEET,
+  DSLWidget,
   JSON_FORM_WIDGET_CHILD_STYLESHEET,
   rgbaMigrationConstantV56,
   TABLE_WIDGET_CHILD_STYLESHEET,
@@ -611,4 +612,32 @@ export const addPropertyToDynamicPropertyPathList = (
       { key: propertyName },
     ];
   }
+};
+
+export const migrateChildStylesheetFromDynamicBindingPathList = (
+  currentDSL: DSLWidget,
+) => {
+  const widgetsWithChildStylesheet = [
+    "TABLE_WIDGET_V2",
+    "BUTTON_GROUP_WIDGET",
+    "JSON_FORM_WIDGET",
+  ];
+
+  currentDSL.children = currentDSL.children?.map((child) => {
+    if (
+      widgetsWithChildStylesheet.includes(child.type) &&
+      child.childStylesheet
+    ) {
+      const newPaths = child.dynamicBindingPathList?.filter(
+        ({ key }) => !key.startsWith("childStylesheet."),
+      );
+      child.dynamicBindingPathList = newPaths;
+    } else if (child.children && child.children.length > 0) {
+      child = migrateChildStylesheetFromDynamicBindingPathList(child);
+    }
+
+    return child;
+  });
+
+  return currentDSL;
 };
