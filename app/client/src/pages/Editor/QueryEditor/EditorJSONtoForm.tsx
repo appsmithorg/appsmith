@@ -1119,7 +1119,7 @@ export function EditorJSONtoForm(props: Props) {
                         {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
                       </Text>
                       <CancelRequestButton
-                        category={Category.tertiary}
+                        category={Category.secondary}
                         className={`t--cancel-action-button`}
                         onClick={() => {
                           handleCancelActionExecution();

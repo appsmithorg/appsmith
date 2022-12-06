@@ -41,11 +41,10 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
         <div className="pb-8 space-y-3 ">
           <p>{createMessage(DELETE_APP_THEME_WARNING)}</p>
         </div>
-
         <div className="">
           <div className="flex items-center justify-end space-x-3">
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               onClick={onClose}
               size={Size.medium}
               text="Cancel"
