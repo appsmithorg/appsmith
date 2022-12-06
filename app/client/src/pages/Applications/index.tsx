@@ -726,7 +726,7 @@ function ApplicationsSection(props: any) {
                   workspaceName: workspace.name,
                   workspaceSlug: workspace.id,
                 })}
-              {hasManageWorkspacePermissions && (
+              {canInviteToWorkspace && (
                 <Dialog
                   canEscapeKeyClose={false}
                   canOutsideClickClose
@@ -895,21 +895,20 @@ function ApplicationsSection(props: any) {
                             text="Share"
                           />
                         )}
-                        {hasCreateNewApplicationPermission &&
-                          canInviteToWorkspace && (
-                            <MenuItem
-                              icon="member"
-                              onSelect={() =>
-                                getOnSelectAction(
-                                  DropdownOnSelectActions.REDIRECT,
-                                  {
-                                    path: `/workspace/${workspace.id}/settings/members`,
-                                  },
-                                )
-                              }
-                              text="Members"
-                            />
-                          )}
+                        {hasManageWorkspacePermissions && canInviteToWorkspace && (
+                          <MenuItem
+                            icon="member"
+                            onSelect={() =>
+                              getOnSelectAction(
+                                DropdownOnSelectActions.REDIRECT,
+                                {
+                                  path: `/workspace/${workspace.id}/settings/members`,
+                                },
+                              )
+                            }
+                            text="Members"
+                          />
+                        )}
                         {applications.length === 0 && canDeleteWorkspace && (
                           <MenuItem
                             icon="trash"
