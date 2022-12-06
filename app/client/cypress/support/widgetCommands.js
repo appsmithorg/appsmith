@@ -582,7 +582,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
-  "assertSoftFocusOnPropertyPane",
+  "assertSoftFocusOnCodeInput",
   ($selector, cursor = { ch: 0, line: 0 }) => {
     cy.EnableAllCodeEditors();
     cy.get($selector)

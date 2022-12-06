@@ -89,7 +89,7 @@ describe("MaintainContext&Focus", function() {
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
-    cy.assertSoftFocusOnPropertyPane(".t--property-control-text", {
+    cy.assertSoftFocusOnCodeInput(".t--property-control-text", {
       ch: 2,
       line: 0,
     });
@@ -116,18 +116,20 @@ describe("MaintainContext&Focus", function() {
 
   it("5. Maintains focus on Query panes", () => {
     cy.SearchEntityandOpen("SQL_Query");
-    cy.get(".t--actionConfiguration\\.body .CodeEditorTarget").should(
-      "be.focused",
-    );
+    cy.assertSoftFocusOnCodeInput(".t--actionConfiguration\\.body", {
+      ch: 5,
+      line: 0,
+    });
 
     cy.SearchEntityandOpen("S3_Query");
-    cy.get(
-      ".t--actionConfiguration\\.formData\\.bucket\\.data .CodeEditorTarget",
-    ).should("be.focused");
+    cy.assertSoftFocusOnCodeInput(
+      ".t--actionConfiguration\\.formData\\.bucket\\.data",
+      { ch: 2, line: 0 },
+    );
     cy.SearchEntityandOpen("Mongo_Query");
-    cy.get(
-      ".t--actionConfiguration\\.formData\\.collection\\.data .CodeEditorTarget",
-    ).should("be.focused");
+    cy.assertSoftFocusOnCodeInput(
+      ".t--actionConfiguration\\.formData\\.collection\\.data",
+    );
   });
 
   it("6. Maintains focus on JS Objects", () => {
