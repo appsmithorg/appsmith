@@ -10,11 +10,11 @@ import {
 } from "components/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
+import { getWidgets } from "sagas/selectors";
+import { isCurrentCanvasDragging } from "selectors/autoLayoutSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
-import { isCurrentCanvasDragging } from "selectors/autoLayoutSelectors";
-import { getWidgets } from "sagas/selectors";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -89,12 +89,13 @@ export const DEFAULT_HIGHLIGHT_SIZE = 4;
 
 export const DropPosition = styled.div<{
   isDragging: boolean;
+  isNewLayer: boolean;
   isVertical: boolean;
 }>`
   width: ${({ isVertical }) =>
-    isVertical ? `${DEFAULT_HIGHLIGHT_SIZE}px` : "calc(100% - 4px)"};
-  height: ${({ isVertical }) =>
-    isVertical ? "auto" : `${DEFAULT_HIGHLIGHT_SIZE}px`};
+    isVertical ? `${DEFAULT_HIGHLIGHT_SIZE}px` : "calc(33% - 4px)"};
+  height: ${({ isNewLayer, isVertical }) =>
+    isVertical && !isNewLayer ? "auto" : `${DEFAULT_HIGHLIGHT_SIZE}px`};
   background-color: rgba(223, 158, 206, 0.6);
   margin: 2px;
   display: ${({ isDragging }) => (isDragging ? "block" : "none")};
@@ -106,6 +107,7 @@ export const NewLayerStyled = styled.div<{
   isDragging: boolean;
 }>`
   width: 100%;
+  height: ${({ isDragging }) => (isDragging ? "6px" : "0px")};
 `;
 
 function FlexBoxComponent(props: FlexBoxProps) {
@@ -174,29 +176,20 @@ function FlexBoxComponent(props: FlexBoxProps) {
           props.isVertical ? "isVertical" : "isHorizontal"
         } ${props.isNewLayer ? "isNewLayer" : ""} row-index-${props.rowIndex}`}
         isDragging={isDragging}
+        isNewLayer={props.isNewLayer}
         isVertical={props.isVertical}
       />
     );
   }
 
   function NewLayerComponent(props: NewLayerProps): JSX.Element {
-    const {
-      alignment,
-      childCount,
-      isDragging,
-      isNewLayer,
-      isVertical,
-      layerIndex,
-      map,
-      widgetId,
-    } = props;
+    const { childCount, isDragging, layerIndex, map, widgetId } = props;
 
     const { element: verticalHighlights } = processIndividualLayer(
       { children: [], hasFillChild: false },
       childCount,
       layerIndex,
       map,
-      true,
       true,
     );
 
@@ -205,16 +198,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
         id={`new-layer-${widgetId}-${layerIndex}`}
         isDragging={isDragging}
       >
-        <DropPositionComponent
-          alignment={alignment}
-          childIndex={childCount}
-          isNewLayer={isNewLayer}
-          isVertical={isVertical}
-          key={getDropPositionKey(0, alignment, layerIndex, false)}
-          layerIndex={layerIndex}
-          rowIndex={0}
-          widgetId={widgetId}
-        />
         {verticalHighlights}
       </NewLayerStyled>
     );
@@ -364,7 +347,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
     childCount: number,
     index: number,
     map: { [key: string]: any },
-    allowEmptyLayer = false,
     isNewLayer = false,
   ) {
     const { children } = layer;
@@ -403,7 +385,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       childCount,
       layerIndex: index,
       alignment: FlexLayerAlignment.Start,
-      isVertical: true,
+      isVertical: !isNewLayer,
       isNewLayer,
       addInitialHighlight: !(
         start.length === 0 && centerColumns + endColumns > 60
@@ -414,7 +396,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       childCount: childCount + startLength,
       layerIndex: index,
       alignment: FlexLayerAlignment.Center,
-      isVertical: true,
+      isVertical: !isNewLayer,
       isNewLayer,
       addInitialHighlight: !(startColumns > 25 || endColumns > 25),
     });
@@ -423,7 +405,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       childCount: childCount + startLength + centerLength,
       layerIndex: index,
       alignment: FlexLayerAlignment.End,
-      isVertical: true,
+      isVertical: !isNewLayer,
       isNewLayer,
       addInitialHighlight: !(centerColumns + startColumns > 60),
     });
@@ -436,7 +418,6 @@ function FlexBoxComponent(props: FlexBoxProps) {
           direction={direction}
           end={end}
           hasFillChild={layer.hasFillChild}
-          hideOnLoad={allowEmptyLayer}
           index={index}
           isCurrentCanvasDragging={isDragging}
           isMobile={isMobile}

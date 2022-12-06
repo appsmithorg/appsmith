@@ -62,7 +62,7 @@ const FlexWidget = styled.div<{
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
   margin: ${({ dragMargin, isAffectedByDrag }) =>
-    isAffectedByDrag ? `${DRAG_MARGIN}px ${dragMargin / 2}px` : "0px"};
+    isAffectedByDrag ? `2px ${dragMargin / 2}px` : "0px"};
 `;
 
 const DEFAULT_MARGIN = 20;
@@ -108,10 +108,6 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.widgetId
   } ${widgetTypeClassname(props.widgetType)}`;
 
-  // const minWidth =
-  //   props.responsiveBehavior === ResponsiveBehavior.Fill && isMobile
-  //     ? "100%"
-  //     : props.minWidth + "px";
   const dragMargin =
     props.parentId === MAIN_CONTAINER_WIDGET_ID
       ? DEFAULT_MARGIN
@@ -120,13 +116,20 @@ export function FlexComponent(props: AutoLayoutProps) {
     isCurrentCanvasDragging ||
     (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
   // TODO: Simplify this logic.
+  /**
+   * resize logic:
+   * if isAffectedByDrag
+   * newWidth = width - drag margin -
+   * (decrease in parent width) / # of siblings -
+   * width of the DropPosition introduced due to the widget.
+   */
   const resizedWidth: number = isAffectedByDrag
     ? props.componentWidth -
       dragMargin -
       (props.parentId !== MAIN_CONTAINER_WIDGET_ID && siblingCount > 0
         ? DEFAULT_MARGIN / siblingCount
         : 0) -
-      ((siblingCount || 0) + 1) * 6
+      (props.parentId !== MAIN_CONTAINER_WIDGET_ID ? 8 : 0)
     : props.componentWidth;
 
   return (

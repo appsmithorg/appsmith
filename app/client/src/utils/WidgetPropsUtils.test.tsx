@@ -32,6 +32,7 @@ describe("WidgetProps tests", () => {
         isNotColliding: true,
         columnWidth: 10,
         rowHeight: 10,
+        type: "",
       },
       {
         left: 310,
@@ -42,6 +43,7 @@ describe("WidgetProps tests", () => {
         isNotColliding: true,
         columnWidth: 10,
         rowHeight: 10,
+        type: "",
       },
     ];
     const draggingSpaces = [

@@ -21,7 +21,6 @@ export interface AutoLayoutLayerProps {
   isMobile?: boolean;
   isCurrentCanvasDragging: boolean;
   currentChildCount: number;
-  hideOnLoad?: boolean;
   wrapStart: boolean;
   wrapCenter: boolean;
   wrapEnd: boolean;
@@ -30,11 +29,10 @@ export interface AutoLayoutLayerProps {
 
 const LayoutLayerContainer = styled.div<{
   flexDirection: FlexDirection;
-  hideOnLoad?: boolean;
   isCurrentCanvasDragging: boolean;
   wrap?: boolean;
 }>`
-  display: ${({ hideOnLoad }) => (hideOnLoad ? "none" : "flex")};
+  display: flex;
   flex-direction: ${({ flexDirection }) => flexDirection || FlexDirection.Row};
   justify-content: flex-start;
   align-items: flex-start;
@@ -88,7 +86,6 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
       flexDirection={flexDirection}
-      hideOnLoad={props.hideOnLoad}
       isCurrentCanvasDragging={props.isCurrentCanvasDragging}
       wrap={props.isMobile && props.wrapLayer}
     >

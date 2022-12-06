@@ -48,6 +48,7 @@ export type WidgetDraggingBlock = {
   widgetId: string;
   isNotColliding: boolean;
   detachFromLayout?: boolean;
+  type: string;
 };
 
 const containerJumpMetrics = new ContainerJumpMetrics<{
@@ -232,6 +233,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
             widgetId: newWidget.widgetId,
             detachFromLayout: newWidget.detachFromLayout,
             isNotColliding: true,
+            type: newWidget.type,
           },
         ],
         draggingSpaces: [
@@ -259,6 +261,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           rowHeight: each.bottom - each.top,
           widgetId: each.id,
           isNotColliding: true,
+          type: allWidgets[each.id].type,
         })),
       };
     }
@@ -354,6 +357,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           widgetId: widget.widgetId,
           isNotColliding: true,
           detachFromLayout: widget.detachFromLayout,
+          type: widget.type,
         };
       },
     );
