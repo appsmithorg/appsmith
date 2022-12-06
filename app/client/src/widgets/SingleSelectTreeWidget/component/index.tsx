@@ -46,6 +46,7 @@ export interface TreeSelectProps
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelTooltip?: string;
   compactMode: boolean;
   dropDownWidth: number;
   width: number;
@@ -120,6 +121,7 @@ function SingleSelectTreeComponent({
   labelText,
   labelTextColor,
   labelTextSize,
+  labelTooltip,
   labelWidth,
   loading,
   onChange,
@@ -257,6 +259,7 @@ function SingleSelectTreeComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}

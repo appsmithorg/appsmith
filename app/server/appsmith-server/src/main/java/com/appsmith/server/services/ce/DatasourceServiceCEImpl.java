@@ -145,7 +145,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceEditPermission())
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), workspacePermission.getDatasourceCreatePermission())
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
                     return workspaceMono.map(workspace -> {
@@ -333,7 +333,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                 savedDatasource.setPluginName(unsavedDatasource.getPluginName());
                                 return savedDatasource;
                             });
-                });
+                })
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     /**
