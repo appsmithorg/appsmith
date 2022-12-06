@@ -1,6 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType } from "../../propertyUtils";
+import {
+  hideByColumnType,
+  selectColumnOptionsValidation,
+} from "../../propertyUtils";
 
 export default {
   sectionName: "Select Properties",
@@ -16,36 +19,9 @@ export default {
       isJSConvertible: false,
       isBindProperty: true,
       validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        type: ValidationTypes.FUNCTION,
         params: {
-          type: ValidationTypes.ARRAY,
-          params: {
-            unique: ["value"],
-            children: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      requiredKey: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      requiredKey: true,
-                    },
-                  },
-                ],
-              },
-            },
-          },
+          fnString: selectColumnOptionsValidation.toString(),
         },
       },
       isTriggerProperty: false,

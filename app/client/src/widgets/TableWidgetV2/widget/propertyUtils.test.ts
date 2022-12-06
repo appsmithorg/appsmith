@@ -7,6 +7,7 @@ import {
   hideByColumnType,
   uniqueColumnAliasValidation,
   updateCustomColumnAliasOnLabelChange,
+  selectColumnOptionsValidation,
 } from "./propertyUtils";
 import _ from "lodash";
 import { ColumnTypes, TableWidgetProps } from "../constants";
@@ -452,6 +453,332 @@ describe("uniqueColumnAliasValidation", () => {
       isValid: true,
       parsed: "column1",
       messages: [""],
+    });
+  });
+});
+
+describe("selectColumnOptionsValidation", () => {
+  describe("- Array of label, values", () => {
+    it("should check that for empty values are allowed", () => {
+      ["", undefined, null].forEach((value) => {
+        expect(
+          selectColumnOptionsValidation(value, {} as TableWidgetProps, _),
+        ).toEqual({
+          isValid: true,
+          parsed: [],
+          messages: [""],
+        });
+      });
+    });
+
+    it("should check that value should be an array", () => {
+      expect(
+        selectColumnOptionsValidation("test", {} as TableWidgetProps, _),
+      ).toEqual({
+        isValid: false,
+        parsed: [],
+        messages: [
+          `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`,
+        ],
+      });
+
+      expect(
+        selectColumnOptionsValidation(1, {} as TableWidgetProps, _),
+      ).toEqual({
+        isValid: false,
+        parsed: [],
+        messages: [
+          `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`,
+        ],
+      });
+
+      expect(
+        selectColumnOptionsValidation([], {} as TableWidgetProps, _),
+      ).toEqual({
+        isValid: true,
+        parsed: [],
+        messages: [""],
+      });
+    });
+
+    it("should check that value should be an array of objects", () => {
+      expect(
+        selectColumnOptionsValidation([1, 2], {} as TableWidgetProps, _),
+      ).toEqual({
+        isValid: false,
+        parsed: [1, 2],
+        messages: [
+          `Invalid entry at index: 0. This value does not evaluate to type: { "label": "string", "value": "string" }`,
+        ],
+      });
+    });
+
+    it("should check that each value should have label key", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [{ value: "1" }, { value: "2" }],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [{ value: "1" }, { value: "2" }],
+        messages: [`Invalid entry at index: 0. Missing required key: label`],
+      });
+    });
+
+    it("should check that each value should have value key", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [{ label: "1" }, { label: "2" }],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [{ label: "1" }, { label: "2" }],
+        messages: [`Invalid entry at index: 0. Missing required key: value`],
+      });
+    });
+
+    it("should check that each value should have unique value", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "1" },
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [
+          { label: "1", value: "1" },
+          { label: "2", value: "1" },
+        ],
+        messages: [
+          "Duplicate values found for the following properties, in the array entries, that must be unique -- value.",
+        ],
+      });
+    });
+
+    it("should check that array of label, value is valid", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: true,
+        parsed: [
+          { label: "1", value: "1" },
+          { label: "2", value: "2" },
+        ],
+        messages: [""],
+      });
+    });
+  });
+
+  describe("- Array of Array of label, values", () => {
+    it("should check that value should be an array of arrays", () => {
+      expect(
+        selectColumnOptionsValidation([[1, 2], 1], {} as TableWidgetProps, _),
+      ).toEqual({
+        isValid: false,
+        parsed: [],
+        messages: [
+          `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`,
+        ],
+      });
+    });
+
+    it("should check that value should be an array of arrays of object", () => {
+      expect(
+        selectColumnOptionsValidation([[1, 2]], {} as TableWidgetProps, _),
+      ).toEqual({
+        isValid: false,
+        parsed: [[1, 2]],
+        messages: [
+          `Invalid entry at Row: 0 index: 0. This value does not evaluate to type: { "label": "string", "value": "string" }`,
+        ],
+      });
+    });
+
+    it("should check that each value should have label key", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [[{ value: "1" }, { value: "2" }]],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [[{ value: "1" }, { value: "2" }]],
+        messages: [
+          `Invalid entry at Row: 0 index: 0. Missing required key: label`,
+        ],
+      });
+
+      expect(
+        selectColumnOptionsValidation(
+          [
+            [
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ],
+            [{ value: "1" }, { value: "2" }],
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+          [{ value: "1" }, { value: "2" }],
+        ],
+        messages: [
+          `Invalid entry at Row: 1 index: 0. Missing required key: label`,
+        ],
+      });
+    });
+
+    it("should check that each value should have value key", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [[{ label: "1" }, { label: "2" }]],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [[{ label: "1" }, { label: "2" }]],
+        messages: [
+          `Invalid entry at Row: 0 index: 0. Missing required key: value`,
+        ],
+      });
+
+      expect(
+        selectColumnOptionsValidation(
+          [
+            [
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ],
+            [{ label: "1" }, { label: "2" }],
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+          [{ label: "1" }, { label: "2" }],
+        ],
+        messages: [
+          `Invalid entry at Row: 1 index: 0. Missing required key: value`,
+        ],
+      });
+    });
+
+    it("should check that each value should have unique value", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [
+            [
+              { label: "1", value: "1" },
+              { label: "2", value: "1" },
+            ],
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "1" },
+          ],
+        ],
+        messages: [
+          "Duplicate values found for the following properties, in the array entries, that must be unique -- value.",
+        ],
+      });
+
+      expect(
+        selectColumnOptionsValidation(
+          [
+            [
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ],
+            [
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ],
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: true,
+        parsed: [
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+        ],
+        messages: [""],
+      });
+    });
+
+    it("should check that array of arrays of label, value is valid", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [
+            [
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ],
+            [
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ],
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: true,
+        parsed: [
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+        ],
+        messages: [""],
+      });
     });
   });
 });

@@ -641,3 +641,125 @@ export const updateCustomColumnAliasOnLabelChange = (
     ];
   }
 };
+
+export function selectColumnOptionsValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  let _isValid = true,
+    _parsed,
+    _message = "";
+  let uniqueValues: Set<unknown>;
+  const invalidMessage = `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`;
+
+  const validateOption = (
+    option: any,
+    rowIndex: number | null,
+    optionIndex: number,
+  ) => {
+    if (!_.isObject(option)) {
+      _message = `Invalid entry at${
+        rowIndex !== null ? ` Row: ${rowIndex}` : ""
+      } index: ${optionIndex}. This value does not evaluate to type: { "label": "string", "value": "string" }`;
+      return false;
+    }
+
+    if (!option.hasOwnProperty("label")) {
+      _message = `Invalid entry at${
+        rowIndex !== null ? ` Row: ${rowIndex}` : ""
+      } index: ${optionIndex}. Missing required key: label`;
+      return false;
+    }
+
+    if (!option.hasOwnProperty("value")) {
+      _message = `Invalid entry at${
+        rowIndex !== null ? ` Row: ${rowIndex}` : ""
+      } index: ${optionIndex}. Missing required key: value`;
+      return false;
+    }
+
+    if (uniqueValues.has(option.value)) {
+      _message = `Duplicate values found for the following properties, in the array entries, that must be unique -- value.`;
+      return false;
+    } else {
+      uniqueValues.add(option.value);
+    }
+
+    return true;
+  };
+
+  if (value === "" || _.isNil(value)) {
+    return {
+      isValid: true,
+      parsed: [],
+      messages: [""],
+    };
+  } else if (typeof value === "string") {
+    try {
+      const _value = JSON.parse(value);
+      if (Array.isArray(_value)) {
+        value = _value;
+      } else {
+        _isValid = false;
+        _message = invalidMessage;
+      }
+    } catch (e) {
+      _isValid = false;
+      _message = invalidMessage;
+    }
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length) {
+      if (Array.isArray(value[0])) {
+        if (!value.every((d) => Array.isArray(d))) {
+          _parsed = [];
+          _isValid = false;
+          _message = invalidMessage;
+        } else {
+          _parsed = value;
+          _isValid = true;
+
+          for (let i = 0; i < value.length; i++) {
+            uniqueValues = new Set();
+
+            for (let j = 0; j < value[i].length; j++) {
+              if (!validateOption(value[i][j], i, j)) {
+                _isValid = false;
+                break;
+              }
+            }
+
+            if (!_isValid) {
+              break;
+            }
+          }
+        }
+      } else {
+        uniqueValues = new Set();
+        _parsed = value;
+        _isValid = true;
+        for (let i = 0; i < value.length; i++) {
+          if (!validateOption(value[i], null, i)) {
+            _isValid = false;
+            break;
+          }
+        }
+      }
+    } else {
+      _isValid = true;
+      _parsed = [];
+    }
+  } else {
+    _parsed = [];
+    _isValid = false;
+    _message = invalidMessage;
+  }
+
+  return {
+    isValid: _isValid,
+    parsed: _parsed,
+    messages: [_message],
+  };
+}
