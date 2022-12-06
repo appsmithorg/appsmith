@@ -205,13 +205,9 @@ export const useAutoLayoutHighlights = ({
 
   const updateHighlights = (moveDirection?: ReflowDirection) => {
     if (!highlights?.length || !moveDirection) return;
-    const isVerticalDrag = [
-      ReflowDirection.TOP,
-      ReflowDirection.BOTTOM,
-    ].includes(moveDirection);
     highlights.map((highlight: HighlightInfo, index: number) => {
       let updatedHighlight: HighlightInfo = highlight;
-      if ((highlight.isNewLayer && isVerticalDrag) || !highlight.height)
+      if (highlight.isNewLayer || !highlight.height)
         updatedHighlight = updateHighlight(index);
       return updatedHighlight;
     });
@@ -244,6 +240,8 @@ export const useAutoLayoutHighlights = ({
     // acceleration: number,
   ): HighlightInfo | undefined => {
     if (!highlights) return;
+    updateHighlights(moveDirection);
+
     const highlight: HighlightInfo = getHighlightPayload(e, moveDirection);
 
     if (!highlight) return;
@@ -268,7 +266,6 @@ export const useAutoLayoutHighlights = ({
     };
 
     let filteredHighlights: HighlightInfo[] = [];
-    updateHighlights(moveDirection);
     filteredHighlights = getViableDropPositions(base, pos, moveDirection);
 
     const arr = filteredHighlights.sort((a, b) => {
@@ -288,7 +285,7 @@ export const useAutoLayoutHighlights = ({
       );
     });
     toggleHighlightVisibility(base, arr[0]);
-    // console.log("#### arr", arr, base);
+    // console.log("#### arr", arr, base, moveDirection);
     return arr[0];
   };
 
@@ -319,6 +316,9 @@ export const useAutoLayoutHighlights = ({
         if (isVerticalDrag)
           return (
             !highlight.isVertical &&
+            highlight.width > 0 &&
+            pos.x > 0 &&
+            pos.y > 0 &&
             pos.x >= highlight.posX &&
             pos.x <= highlight.posX + highlight.width
           );
@@ -336,7 +336,11 @@ export const useAutoLayoutHighlights = ({
     if (!isVerticalDrag && !filteredHighlights.length)
       filteredHighlights = arr
         .slice(arr.length - 3)
-        .filter((highlight: HighlightInfo) => !highlight.isVertical);
+        .filter((highlight: HighlightInfo) =>
+          !highlight.isVertical && isFillWidget
+            ? highlight.alignment === FlexLayerAlignment.Start
+            : true,
+        );
 
     return filteredHighlights;
   }

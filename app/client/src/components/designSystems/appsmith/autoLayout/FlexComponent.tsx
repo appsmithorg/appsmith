@@ -129,7 +129,9 @@ export function FlexComponent(props: AutoLayoutProps) {
       (props.parentId !== MAIN_CONTAINER_WIDGET_ID && siblingCount > 0
         ? DEFAULT_MARGIN / siblingCount
         : 0) -
-      (props.parentId !== MAIN_CONTAINER_WIDGET_ID ? 8 : 0)
+      (props.parentId !== MAIN_CONTAINER_WIDGET_ID || isCurrentCanvasDragging
+        ? 8
+        : 4)
     : props.componentWidth;
 
   return (
