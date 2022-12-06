@@ -425,7 +425,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       <PageHeader
         buttonText={createMessage(ADD_USERS)}
         isEditingTitle={isNew}
-        isTitleEditable
+        isHeaderEditable
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}
         onSearch={onSearch}

@@ -8,19 +8,30 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ADD_USERS_TO_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
@@ -156,6 +167,30 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.removeEdge(MANAGE_WORKSPACES, MAKE_PUBLIC_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_MAKE_PUBLIC_APPLICATIONS, MAKE_PUBLIC_APPLICATIONS);
 
+        lateralGraph.addEdge(APPLICATION_CREATE_PAGES, MANAGE_APPLICATIONS);
+        lateralGraph.addEdge(APPLICATION_CREATE_PAGES, READ_APPLICATIONS);
+        lateralGraph.addEdge(APPLICATION_CREATE_PAGES, DELETE_APPLICATIONS);
+        lateralGraph.addEdge(DELETE_APPLICATIONS, READ_APPLICATIONS);
+        lateralGraph.addEdge(MAKE_PUBLIC_APPLICATIONS, READ_APPLICATIONS);
+        lateralGraph.addEdge(EXPORT_APPLICATIONS, READ_APPLICATIONS);
+
+    }
+
+    @Override
+    protected void createPagePolicyGraph() {
+        super.createPagePolicyGraph();
+
+        lateralGraph.addEdge(PAGE_CREATE_PAGE_ACTIONS, MANAGE_PAGES);
+        lateralGraph.addEdge(PAGE_CREATE_PAGE_ACTIONS, READ_PAGES);
+        lateralGraph.addEdge(PAGE_CREATE_PAGE_ACTIONS, DELETE_PAGES);
+        lateralGraph.addEdge(DELETE_PAGES, READ_PAGES);
+    }
+
+    @Override
+    protected void createActionPolicyGraph() {
+        super.createActionPolicyGraph();
+
+        lateralGraph.addEdge(DELETE_ACTIONS, READ_ACTIONS);
     }
 
     @Override

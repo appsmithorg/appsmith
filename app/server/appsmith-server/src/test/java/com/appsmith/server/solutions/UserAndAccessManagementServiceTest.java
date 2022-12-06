@@ -4,14 +4,17 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserGroupService;
@@ -34,6 +37,7 @@ import java.util.UUID;
 
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -59,6 +63,9 @@ public class UserAndAccessManagementServiceTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    UserDataRepository userDataRepository;
 
 
     User api_user = null;
@@ -193,6 +200,63 @@ public class UserAndAccessManagementServiceTest {
 
         User userFetchedAfterDelete = userService.findByEmail(email).block();
         assertThat(userFetchedAfterDelete).isNull();
+        UserData userDataAfterDelete = userDataRepository.findByUserId(createdUser.getId()).block();
+        assertThat(userDataAfterDelete).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteUser_ReAdded_Test_valid() {
+        User newUser = new User();
+        String email = "deleteuser_readded_test_valid@email.com";
+        newUser.setEmail(email);
+        newUser.setPassword("deleteUser_ReAdded_Test_valid password");
+
+        User createdUser = userService.create(newUser).block();
+
+        // Delete the user
+        userAndAccessManagementService.deleteUser(createdUser.getId()).block();
+
+        User userFetchedAfterDelete = userService.findByEmail(email).block();
+        assertThat(userFetchedAfterDelete).isNull();
+        UserData userDataAfterDelete = userDataRepository.findByUserId(createdUser.getId()).block();
+        assertThat(userDataAfterDelete).isNull();
+
+        // Now invite the user. The invite should happen without any issues.
+
+        UserGroup userGroup = new UserGroup();
+        String name = "Test Group : deleteUser_ReAdded_Test_valid";
+        String description = "Test Group Description : deleteUser_ReAdded_Test_valid";
+        userGroup.setName(name);
+        userGroup.setDescription(description);
+
+        UserGroupDTO createdGroup = userGroupService.createGroup(userGroup).block();
+
+        UsersForGroupDTO inviteUsersToGroupDTO = new UsersForGroupDTO();
+        inviteUsersToGroupDTO.setUsernames(Set.of(email));
+        inviteUsersToGroupDTO.setGroupIds(Set.of(createdGroup.getId()));
+
+        StepVerifier.create(userGroupService.inviteUsers(inviteUsersToGroupDTO, "origin"))
+                .assertNext(groups -> {
+                    // assert that the user got added to the user group.
+                    assertThat(groups).hasSize(1);
+                    UserGroupDTO group = groups.get(0);
+                    // assert that updated group did not edit the existing settings
+                    assertEquals(createdGroup.getId(), group.getId());
+                    assertEquals(createdGroup.getTenantId(), group.getTenantId());
+                    assertEquals(createdGroup.getName(), group.getName());
+                    assertEquals(createdGroup.getDescription(), group.getDescription());
+
+                    // assert that the user was added to the group
+                    assertEquals(1, group.getUsers().size());
+                    assertEquals(email, group.getUsers().get(0).getUsername());
+
+                    // assert that this is a different user
+                    assertThat(createdUser.getId()).isNotEqualTo(group.getUsers().get(0).getId());
+                })
+                .verifyComplete();
+
+
     }
 
     @Test

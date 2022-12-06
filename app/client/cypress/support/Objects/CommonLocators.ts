@@ -1,4 +1,5 @@
 export class CommonLocators {
+  _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
   _runBtnSpinner = ".cs-spinner";
@@ -45,7 +46,7 @@ export class CommonLocators {
   _contextMenuSubItemDiv = (item: string) =>
     "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
-  _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
+  _visibleTextSpan = (spanText: string) => `//span[text()="` + spanText + `"]`;
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _crossBtn = "span.cancel-icon";
@@ -159,5 +160,6 @@ export class CommonLocators {
     "']";
   _dropDownMultiTreeSelect = ".rc-tree-select-multiple";
   _omnibarDescription = "[data-cy='description']";
-  _debuggerList = ".debugger-list";
+  _previewModeToggle = ".t--switch-preview-mode-toggle";
+  _editModeToggle = ".t--switch-comment-mode-off";
 }

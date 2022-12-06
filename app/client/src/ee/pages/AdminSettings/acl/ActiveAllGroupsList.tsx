@@ -8,7 +8,8 @@ import {
   createMessage,
   ACTIVE_ENTITIES,
   ALL_ENTITIES,
-  NO_ROLES_MESSAGE,
+  NO_ACTIVE_ENTITIES_MESSAGE,
+  EMPTY_ENTITIES_MESSAGE,
   ADD_ENTITY,
   REMOVE_ENTITY,
 } from "@appsmith/constants/messages";
@@ -151,7 +152,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
           })
         ) : (
           <EmptyActiveGroups>
-            {createMessage(NO_ROLES_MESSAGE)}
+            {createMessage(NO_ACTIVE_ENTITIES_MESSAGE, entityName)}
           </EmptyActiveGroups>
         )}
       </ActiveGroups>
@@ -165,33 +166,39 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             />
             <Title>{createMessage(ALL_ENTITIES, entityName)}</Title>
           </TitleWrapper>
-          {allGroups?.map((group: BaseAclProps) => {
-            const addedGroup = addedAllGroups
-              ? getFilteredData(addedAllGroups, group, true).length > 0
-              : false;
-            return (
-              <EachGroup
-                className={addedGroup ? "added" : ""}
-                data-testid="t--all-group-row"
-                key={`group-${group.id}`}
-                onClick={() => {
-                  onAddGroup?.(group);
-                }}
-              >
-                <Icon fillColor={Colors.GREEN} name="plus" />
-                <TooltipComponent
-                  content={createMessage(ADD_ENTITY, entityName)}
-                  disabled={addedGroup}
-                  hoverOpenDelay={0}
-                  minWidth={"180px"}
-                  openOnTargetFocus={false}
-                  position="right"
+          {allGroups?.length > 0 ? (
+            allGroups?.map((group: BaseAclProps) => {
+              const addedGroup = addedAllGroups
+                ? getFilteredData(addedAllGroups, group, true).length > 0
+                : false;
+              return (
+                <EachGroup
+                  className={addedGroup ? "added" : ""}
+                  data-testid="t--all-group-row"
+                  key={`group-${group.id}`}
+                  onClick={() => {
+                    onAddGroup?.(group);
+                  }}
                 >
-                  <HighlightText highlight={searchValue} text={group.name} />
-                </TooltipComponent>
-              </EachGroup>
-            );
-          })}
+                  <Icon fillColor={Colors.GREEN} name="plus" />
+                  <TooltipComponent
+                    content={createMessage(ADD_ENTITY, entityName)}
+                    disabled={addedGroup}
+                    hoverOpenDelay={0}
+                    minWidth={"180px"}
+                    openOnTargetFocus={false}
+                    position="right"
+                  >
+                    <HighlightText highlight={searchValue} text={group.name} />
+                  </TooltipComponent>
+                </EachGroup>
+              );
+            })
+          ) : (
+            <EmptyActiveGroups>
+              {createMessage(EMPTY_ENTITIES_MESSAGE, entityName)}
+            </EmptyActiveGroups>
+          )}
         </AllGroups>
       )}
     </ContentWrapper>

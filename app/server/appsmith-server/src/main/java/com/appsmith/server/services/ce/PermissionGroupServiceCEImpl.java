@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -127,6 +130,27 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     @Override
+    public Mono<Void> deleteWithoutPermission(String id) {
+
+        return repository.findById(id)
+                .flatMap(permissionGroup -> {
+
+                    Mono<Void> returnMono = null;
+
+                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
+
+                    if (assignedToUserIds == null || assignedToUserIds.isEmpty()) {
+                        returnMono = repository.deleteById(id);
+                    } else {
+                        returnMono = bulkUnassignUsersFromPermissionGroupsWithoutPermission(assignedToUserIds, Set.of(id))
+                                .then(repository.deleteById(id));
+                    }
+
+                    return returnMono;
+                });
+    }
+
+    @Override
     public Mono<PermissionGroup> findById(String permissionGroupId) {
         return repository.findById(permissionGroupId);
     }
@@ -206,6 +230,27 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
                 .map(tuple -> tuple.getT1());
+    }
+
+    @Override
+    public Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(Set<String> userIds, Set<String> permissionGroupIds) {
+        return repository.findAllById(permissionGroupIds)
+                .flatMap(pg -> {
+                    Set<String> assignedToUserIds = pg.getAssignedToUserIds();
+                    assignedToUserIds.removeAll(userIds);
+
+                    Update updateObj = new Update();
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+
+                    updateObj.set(path, assignedToUserIds);
+
+                    return Mono.zip(
+                                    repository.updateById(pg.getId(), updateObj),
+                                    cleanPermissionGroupCacheForUsers(List.copyOf(userIds))
+                            )
+                            .map(tuple -> tuple.getT1());
+                })
+                .then(Mono.just(TRUE));
     }
 
     @Override

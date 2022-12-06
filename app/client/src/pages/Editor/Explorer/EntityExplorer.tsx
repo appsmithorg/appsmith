@@ -30,6 +30,8 @@ import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -95,6 +97,12 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
   }, [isFirstTimeUserOnboardingEnabled, pageId]);
+
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+
+  useEffect(() => {
+    dispatch(fetchWorkspace(currentWorkspaceId));
+  }, [currentWorkspaceId]);
 
   /**
    * filter entitites
