@@ -383,6 +383,7 @@ interface ListPaginationProps {
   total: number;
   pageSize: number;
   disabled?: boolean;
+  isLoading: boolean;
   onChange: (page: number) => void;
   borderRadius: string;
   boxShadow?: string;
@@ -396,7 +397,7 @@ function ListPagination(props: ListPaginationProps) {
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
       current={props.pageNo}
-      disabled={props.disabled}
+      disabled={props.disabled || props.isLoading}
       locale={locale}
       nextIcon={() => (
         <button aria-label="next page" className="rc-pagination-item-link">
@@ -428,10 +429,10 @@ interface ServerSideListPaginationProps {
   boxShadow?: string;
   disableNextPage: boolean;
   disabled: boolean;
+  isLoading: boolean;
   nextPageClick: () => void;
   pageNo: number;
   prevPageClick: () => void;
-  isLoading: boolean;
 }
 
 export function ServerSideListPagination(props: ServerSideListPaginationProps) {
@@ -440,7 +441,7 @@ export function ServerSideListPagination(props: ServerSideListPaginationProps) {
       accentColor={props.accentColor}
       borderRadius={props.borderRadius}
       boxShadow={props.boxShadow}
-      disabled={props.disabled}
+      disabled={props.disabled || props.isLoading}
     >
       <li
         className={`t--list-widget-prev-page rc-pagination-prev ${props.pageNo ===

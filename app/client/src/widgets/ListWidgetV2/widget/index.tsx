@@ -821,6 +821,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
               borderRadius={this.props.borderRadius}
               boxShadow={this.props.boxShadow}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
+              isLoading={isLoading}
               onChange={this.onPageChange}
               pageNo={this.props.pageNo}
               pageSize={this.pageSize}
