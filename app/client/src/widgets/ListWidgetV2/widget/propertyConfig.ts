@@ -159,18 +159,6 @@ export const PropertyPaneContentConfig = [
           !props.serverSidePagination,
         dependencies: ["serverSidePagination"],
       },
-      {
-        helpText: "Triggers an action when a list page size is changed",
-        propertyName: "onPageSizeChange",
-        label: "onPageSizeChange",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        hidden: (props: ListWidgetProps<WidgetProps>) =>
-          !props.serverSidePagination,
-        dependencies: ["serverSidePagination"],
-      },
     ],
   },
   {

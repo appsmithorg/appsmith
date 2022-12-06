@@ -182,10 +182,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
-      if (this.shouldFireOnPageSizeChange()) {
-        // run onPageSizeChange if user resize widgets
-        this.triggerOnPageSizeChange();
-      }
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
@@ -426,10 +422,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return this.props.pageSize !== this.pageSize;
   };
 
-  shouldFireOnPageSizeChange = () => {
-    return this.props.serverSidePagination && this.props.onPageSizeChange;
-  };
-
   isCurrPageNoGreaterThanMaxPageNo = () => {
     if (
       this.props.listData &&
@@ -442,16 +434,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     }
 
     return false;
-  };
-
-  triggerOnPageSizeChange = () => {
-    super.executeAction({
-      triggerPropertyName: "onPageSizeChange",
-      dynamicString: this.props.onPageSizeChange as string,
-      event: {
-        type: EventType.ON_PAGE_SIZE_CHANGE,
-      },
-    });
   };
 
   mainMetaCanvasWidget = () => {
@@ -759,10 +741,17 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.context?.deleteWidgetProperty?.(widgetId, propertyPaths);
   };
 
+  shouldDisableNextPage = () => {
+    const { listData, serverSidePagination } = this.props;
+
+    return Boolean(serverSidePagination && !listData?.length);
+  };
+
   getPageView() {
     const { componentHeight } = this.getComponentDimensions();
     const { pageNo, parentRowSpace, serverSidePagination } = this.props;
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
+    const disableNextPage = this.shouldDisableNextPage();
 
     if (this.props.isLoading) {
       return (
@@ -810,6 +799,11 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         {this.shouldPaginate() &&
           (serverSidePagination ? (
             <ServerSideListPagination
+              accentColor={this.props.accentColor}
+              borderRadius={this.props.borderRadius}
+              boxShadow={this.props.boxShadow}
+              disableNextPage={disableNextPage}
+              disabled={false && this.props.renderMode === RenderModes.CANVAS}
               nextPageClick={() => this.onPageChange(pageNo + 1)}
               pageNo={this.props.pageNo}
               prevPageClick={() => this.onPageChange(pageNo - 1)}
@@ -854,7 +848,6 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   mainCanvasId?: string;
   mainContainerId?: string;
   onRowClick?: string;
-  onPageSizeChange?: string;
   pageNo: number;
   pageSize: number;
   currentItemsView: string;
