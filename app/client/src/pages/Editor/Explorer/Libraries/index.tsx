@@ -28,6 +28,8 @@ import {
 import EntityAddButton from "../Entity/AddButton";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { TJSLibrary } from "workers/common/JSLibrary";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { hasCreateActionPermission } from "ce/utils/permissionHelpers";
 
 const Library = styled.li`
   list-style: none;
@@ -227,6 +229,10 @@ function JSDependencies() {
   const isOpen = useSelector(selectIsInstallerOpen);
   const dispatch = useDispatch();
 
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateActions = hasCreateActionPermission(pagePermissions);
+
   const openInstaller = useCallback(() => {
     dispatch(toggleInstaller(true));
   }, []);
@@ -256,6 +262,7 @@ function JSDependencies() {
       isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
+      showAddButton={canCreateActions}
       step={0}
     >
       {dependencyList}
