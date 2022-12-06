@@ -20,6 +20,7 @@ interface SaveOrDiscardModalProps {
   onClose(): void;
   datasourceId: string;
   datasourcePermissions: string[];
+  saveButtonText: string;
 }
 
 function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
@@ -30,6 +31,7 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
     onClose,
     onDiscard,
     onSave,
+    saveButtonText,
   } = props;
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
@@ -54,16 +56,18 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
         <div className="flex items-center justify-end space-x-3">
           <Button
             category={Category.tertiary}
+            className="t--discard-popup-discard"
             onClick={onDiscard}
             size={Size.medium}
             text="DON'T SAVE"
           />
           <Button
             category={Category.primary}
+            className="t--discard-popup-save"
             disabled={disableSaveButton}
             onClick={!disableSaveButton && onSave}
             size={Size.medium}
-            text="SAVE"
+            text={saveButtonText}
           />
         </div>
       </div>

@@ -1,6 +1,6 @@
-import commonLocators from "../../../../../locators/commonlocators.json";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import commonLocators from "../../../../locators/commonlocators.json";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 
 let dataSources = ObjectsRegistry.DataSources;
 let testBranchName = "Test";

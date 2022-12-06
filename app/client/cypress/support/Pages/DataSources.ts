@@ -112,6 +112,8 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+  _discardPopupSaveButton = ".t--discard-popup-save";
+  _discardPopupDiscardButton = ".t--discard-popup-discard";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
