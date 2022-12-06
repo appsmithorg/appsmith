@@ -161,7 +161,7 @@ export const generateSpacingConfig = (value: Spacing = Spacing.None): any => {
 };
 
 export const generatePositioningConfig = (
-  value: Positioning = Positioning.Fixed,
+  value: Positioning = Positioning.Vertical,
 ): any => {
   return {
     helpText: "Position styles to be applied to the children",
@@ -171,7 +171,7 @@ export const generatePositioningConfig = (
     defaultValue: value,
     options: [
       // { label: "Fixed", value: Positioning.Fixed },
-      { label: "Horizontal stack", value: Positioning.Horizontal },
+      // { label: "Horizontal stack", value: Positioning.Horizontal },
       { label: "Vertical stack", value: Positioning.Vertical },
     ],
     isJSConvertible: false,
