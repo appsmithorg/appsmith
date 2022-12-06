@@ -302,36 +302,57 @@ function updateExistingLayer(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   layers: FlexLayer[],
-  index: number,
+  index = 0,
   layerIndex = 0,
   rowIndex: number,
 ): CanvasWidgetsReduxState {
-  const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
-  const canvas = widgets[parentId];
-  if (!canvas || !newLayer) return widgets;
+  try {
+    const widgets: CanvasWidgetsReduxState = Object.assign({}, allWidgets);
+    const canvas = widgets[parentId];
+    if (!canvas || !newLayer) return widgets;
 
-  // merge the selected layer with the new layer.
-  const selectedLayer = {
-    ...layers[layerIndex],
-    children: [
-      ...layers[layerIndex]?.children?.slice(0, rowIndex),
+    const map: { [key: string]: LayerChild[] } = {
+      [FlexLayerAlignment.Start]: [],
+      [FlexLayerAlignment.Center]: [],
+      [FlexLayerAlignment.End]: [],
+    };
+
+    for (const child of layers[layerIndex]?.children) {
+      map[child.align] = [...map[child.align], child];
+    }
+    const alignment = newLayer.children[0].align;
+    map[alignment] = [
+      ...map[alignment].slice(0, rowIndex),
       ...newLayer?.children,
-      ...layers[layerIndex]?.children?.slice(rowIndex),
-    ],
-    hasFillChild: newLayer.hasFillChild || layers[layerIndex]?.hasFillChild,
-  };
+      ...map[alignment].slice(rowIndex),
+    ];
 
-  const updatedCanvas = {
-    ...canvas,
-    flexLayers: [
-      ...layers.slice(0, layerIndex),
-      selectedLayer,
-      ...layers.slice(layerIndex + 1),
-    ],
-  };
+    // merge the selected layer with the new layer.
+    const selectedLayer = {
+      ...layers[layerIndex],
+      children: [
+        ...map[FlexLayerAlignment.Start],
+        ...map[FlexLayerAlignment.Center],
+        ...map[FlexLayerAlignment.End],
+      ],
+      hasFillChild: newLayer.hasFillChild || layers[layerIndex]?.hasFillChild,
+    };
 
-  const updatedWidgets = { ...widgets, [parentId]: updatedCanvas };
-  return updatedWidgets;
+    const updatedCanvas = {
+      ...canvas,
+      flexLayers: [
+        ...layers.slice(0, layerIndex),
+        selectedLayer,
+        ...layers.slice(layerIndex + 1),
+      ],
+    };
+
+    const updatedWidgets = { ...widgets, [parentId]: updatedCanvas };
+    return updatedWidgets;
+  } catch (e) {
+    console.error("#### update existing layer error", e);
+    return allWidgets;
+  }
 }
 
 /**
