@@ -431,6 +431,7 @@ interface ServerSideListPaginationProps {
   nextPageClick: () => void;
   pageNo: number;
   prevPageClick: () => void;
+  isLoading: boolean;
 }
 
 export function ServerSideListPagination(props: ServerSideListPaginationProps) {

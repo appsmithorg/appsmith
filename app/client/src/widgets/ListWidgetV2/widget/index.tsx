@@ -185,8 +185,9 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
-      const maxPageNo = Math.ceil(
-        (this.props?.listData?.length || 0) / this.pageSize,
+      const maxPageNo = Math.max(
+        Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
+        1,
       );
 
       this.onPageChange(maxPageNo);
@@ -749,11 +750,16 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   getPageView() {
     const { componentHeight } = this.getComponentDimensions();
-    const { pageNo, parentRowSpace, serverSidePagination } = this.props;
+    const {
+      isLoading,
+      pageNo,
+      parentRowSpace,
+      serverSidePagination,
+    } = this.props;
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
     const disableNextPage = this.shouldDisableNextPage();
 
-    if (this.props.isLoading) {
+    if (isLoading) {
       return (
         <Loader
           gridGap={this.props.gridGap}
@@ -804,6 +810,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
               boxShadow={this.props.boxShadow}
               disableNextPage={disableNextPage}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
+              isLoading={isLoading}
               nextPageClick={() => this.onPageChange(pageNo + 1)}
               pageNo={this.props.pageNo}
               prevPageClick={() => this.onPageChange(pageNo - 1)}
