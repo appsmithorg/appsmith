@@ -35,6 +35,10 @@ import evaluate, {
 import { JSUpdate } from "utils/JSPaneUtils";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { initiateLinting } from "workers/Linting/utils";
+import {
+  createUnEvalTreeForEval,
+  makeEntityConfigsAsObjProperties,
+} from "./dataTreeUtils";
 
 const CANVAS = "canvas";
 
@@ -111,19 +115,22 @@ function eventRequestHandler({
     case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
       const {
         callbackData,
-        dataTree,
         dynamicTrigger,
         eventType,
         globalContext,
         triggerMeta,
+        unEvalTree: __unEvalTree__,
       } = requestData;
       if (!dataTreeEvaluator) {
         return { triggers: [], errors: [] };
       }
+
+      const unEvalTree = createUnEvalTreeForEval(__unEvalTree__);
+
       const {
         evalOrder,
         nonDynamicFieldValidationOrder,
-      } = dataTreeEvaluator.setupUpdateTree(dataTree);
+      } = dataTreeEvaluator.setupUpdateTree(unEvalTree);
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         nonDynamicFieldValidationOrder,
@@ -238,10 +245,13 @@ function eventRequestHandler({
         requiresLinting,
         shouldReplay,
         theme,
-        unevalTree,
+        unevalTree: __unevalTree__,
         widgets,
         widgetTypeConfigMap,
       } = requestData as EvalTreeRequestData;
+
+      const unevalTree = createUnEvalTreeForEval(__unevalTree__);
+
       try {
         if (!dataTreeEvaluator) {
           isCreateFirstTree = true;
@@ -251,6 +261,7 @@ function eventRequestHandler({
             widgetTypeConfigMap,
             allActionValidationConfig,
           );
+
           const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
             unevalTree,
           );
@@ -260,14 +271,16 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            jsUpdates,
-            dataTreeEvaluator.oldUnEvalTree,
+            makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+              sanitizeDataTree: false,
+            }),
             requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = dataTreeResponse.evalTree;
-          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+          dataTree = makeEntityConfigsAsObjProperties(
+            dataTreeResponse.evalTree,
+          );
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -297,14 +310,16 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            jsUpdates,
-            dataTreeEvaluator.oldUnEvalTree,
+            makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+              sanitizeDataTree: false,
+            }),
             requiresLinting,
           );
 
           const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
-          dataTree = dataTreeResponse.evalTree;
-          dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+          dataTree = makeEntityConfigsAsObjProperties(
+            dataTreeResponse.evalTree,
+          );
         } else {
           if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
             dataTreeEvaluator.setAllActionValidationConfig(
@@ -325,8 +340,9 @@ function eventRequestHandler({
 
           initiateLinting(
             lintOrder,
-            jsUpdates,
-            dataTreeEvaluator.oldUnEvalTree,
+            makeEntityConfigsAsObjProperties(dataTreeEvaluator.oldUnEvalTree, {
+              sanitizeDataTree: false,
+            }),
             requiresLinting,
           );
           nonDynamicFieldValidationOrder =
@@ -335,7 +351,9 @@ function eventRequestHandler({
             evalOrder,
             nonDynamicFieldValidationOrder,
           );
-          dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
+          dataTree = makeEntityConfigsAsObjProperties(
+            dataTreeEvaluator.evalTree,
+          );
           evalMetaUpdates = JSON.parse(
             JSON.stringify(updateResponse.evalMetaUpdates),
           );
@@ -366,7 +384,12 @@ function eventRequestHandler({
           });
           console.error(error);
         }
-        dataTree = getSafeToRenderDataTree(unevalTree, widgetTypeConfigMap);
+
+        dataTree = getSafeToRenderDataTree(
+          makeEntityConfigsAsObjProperties(unevalTree),
+          widgetTypeConfigMap,
+        );
+
         unEvalUpdates = [];
       }
 

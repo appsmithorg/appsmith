@@ -30,6 +30,8 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +56,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.EMAIL;
@@ -82,6 +83,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final PermissionGroupService permissionGroupService;
     private final PolicyUtils policyUtils;
     private final ModelMapper modelMapper;
+    private final WorkspacePermission workspacePermission;
+    private final PermissionGroupPermission permissionGroupPermission;
 
 
     @Autowired
@@ -101,7 +104,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   ApplicationRepository applicationRepository,
                                   PermissionGroupService permissionGroupService,
                                   PolicyUtils policyUtils,
-                                  ModelMapper modelMapper) {
+                                  ModelMapper modelMapper,
+                                  WorkspacePermission workspacePermission,
+                                  PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -115,6 +120,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.permissionGroupService = permissionGroupService;
         this.policyUtils = policyUtils;
         this.modelMapper = modelMapper;
+        this.workspacePermission = workspacePermission;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     @Override
@@ -222,7 +229,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(analyticsService::sendCreateEvent);
     }
 
-    private Mono<Boolean> isCreateWorkspaceAllowed() {
+    protected Mono<Boolean> isCreateWorkspaceAllowed() {
         return Mono.just(TRUE);
     }
 
@@ -406,7 +413,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Ensure the resource has the same ID as from the parameter.
         resource.setId(id);
 
-        Mono<Workspace> findWorkspaceMono = repository.findById(id, MANAGE_WORKSPACES)
+        Mono<Workspace> findWorkspaceMono = repository.findById(id, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id)))
                 .cache();
 
@@ -451,7 +458,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> getById(String id) {
-        return findById(id, AclPermission.READ_WORKSPACES);
+        return findById(id, workspacePermission.getReadPermission());
     }
 
     @Override
@@ -486,11 +493,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
+        Mono<Workspace> workspaceMono = repository.findById(workspaceId, workspacePermission.getReadPermission());
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, permissionGroupPermission.getAssignPermission()));
 
         // Map to PermissionGroupInfoDTO
         Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
@@ -522,7 +529,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> uploadLogo(String workspaceId, Part filePart) {
-        final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, MANAGE_WORKSPACES)
+        final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // We don't execute the upload Mono if we don't find the workspace.
@@ -550,7 +557,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> deleteLogo(String workspaceId) {
         return repository
-                .findById(workspaceId, MANAGE_WORKSPACES)
+                .findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                 .flatMap(workspace -> {
                     final String prevAssetId = workspace.getLogoAssetId();
@@ -576,17 +583,20 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
             if (appCount == 0) { // no application found under this workspace
                 // fetching the workspace first to make sure user has permission to archive
-                return repository.findById(workspaceId, MANAGE_WORKSPACES)
+                return repository.findById(workspaceId, workspacePermission.getDeletePermission())
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))
                         .flatMap(workspace -> {
 
                             // Delete permission groups associated with this workspace before deleting the workspace
+                            // Since we have already asserted that the user has the delete permission on the workspace,
+                            // lets go ahead with the cleanup without permissions for the default permission groups (roles)
+                            // since we can't leave the permission groups in a state where they are not associated with any workspace
 
                             Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
                             return Flux.fromIterable(defaultPermissionGroups)
-                                    .flatMap(permissionGroupService::delete)
+                                    .flatMap(permissionGroupService::deleteWithoutPermission)
                                     .then(Mono.just(workspace));
                         })
                         .flatMap(repository::archive)

@@ -3,6 +3,7 @@ import { Colors } from "constants/Colors";
 import Widget, { JSONFormWidgetProps } from "./widget";
 import { ButtonVariantTypes } from "components/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { DynamicHeight } from "utils/WidgetFeatures";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -13,6 +14,13 @@ const RESET_BUTTON_DEFAULT_STYLES = {
 };
 
 export const CONFIG = {
+  features: {
+    dynamicHeight: {
+      sectionIndex: 1,
+      defaultValue: DynamicHeight.FIXED,
+      active: true,
+    },
+  },
   type: Widget.getWidgetType(),
   name: "JSON Form",
   iconSVG: IconSVG,
@@ -80,6 +88,7 @@ export const CONFIG = {
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
+    stylesheetConfig: Widget.getStylesheetConfig(),
   },
 };
 

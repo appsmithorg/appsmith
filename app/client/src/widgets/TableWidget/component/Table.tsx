@@ -115,6 +115,7 @@ export function Table(props: TableProps) {
     }
     props.handleResizeColumn(columnSizeMap);
   };
+  // I don't see the need to useMemo here.
   const data = React.useMemo(() => props.data, [props.data]);
   const columnString = JSON.stringify({
     columns: props.columns,

@@ -11,19 +11,27 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
+import com.google.gson.Gson;
 import com.segment.analytics.Analytics;
+import com.segment.analytics.Log;
 import com.segment.analytics.messages.IdentifyMessage;
+import com.segment.analytics.messages.Message;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.segment.analytics.internal.AnalyticsClient.getGsonInstance;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -259,5 +267,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
         return sendDeleteEvent(object, null);
+    }
+
+    public String convertWithStream(Map<String, ?> map) {
+        String mapAsString = map.keySet().stream()
+                .map(key -> key + "=" + map.get(key))
+                .collect(Collectors.joining(", ", "{", "}"));
+        return mapAsString;
     }
 }

@@ -49,8 +49,14 @@ describe("Binding Expressions should not be truncated in Url and path extraction
       // })
       //.trigger("mouseover")
       .dblclick()
+      .dblclick()
       .type("{{JSObject1.");
-    agHelper.GetNAssertElementText(locator._hints, "offsetValue", "have.text", 1);
+    agHelper.GetNAssertElementText(
+      locator._hints,
+      "offsetValue",
+      "have.text",
+      1,
+    );
     agHelper.Sleep();
     agHelper.TypeText(locator._codeMirrorTextArea, "offsetValue", 1);
     agHelper.Sleep(2000);

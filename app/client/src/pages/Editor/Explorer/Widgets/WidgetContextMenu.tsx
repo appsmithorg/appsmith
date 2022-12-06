@@ -22,6 +22,7 @@ export function WidgetContextMenu(props: {
   widgetId: string;
   pageId: string;
   className?: string;
+  canManagePages?: boolean;
 }) {
   const { widgetId } = props;
   const parentId = useSelector((state: AppState) => {
@@ -85,18 +86,22 @@ export function WidgetContextMenu(props: {
 
   const optionTree: TreeDropdownOption[] = [
     {
-      value: "rename",
-      onSelect: editWidgetName,
-      label: "Edit Name",
-    },
-    {
       value: "showBinding",
       onSelect: () => showBinding(props.widgetId, widget.widgetName),
       label: "Show Bindings",
     },
   ];
 
-  if (widget.isDeletable !== false) {
+  if (props.canManagePages) {
+    const option: TreeDropdownOption = {
+      value: "rename",
+      onSelect: editWidgetName,
+      label: "Edit Name",
+    };
+    optionTree.push(option);
+  }
+
+  if (widget.isDeletable !== false && props.canManagePages) {
     const option: TreeDropdownOption = {
       value: "delete",
       onSelect: dispatchDelete,
@@ -106,17 +111,17 @@ export function WidgetContextMenu(props: {
 
     optionTree.push(option);
   }
-  return (
+  return optionTree.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={optionTree}
+      optionTree={optionTree as TreeDropdownOption[]}
       selectedValue=""
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 WidgetContextMenu.displayName = "WidgetContextMenu";

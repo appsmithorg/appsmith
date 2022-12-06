@@ -5,6 +5,7 @@ export type TreeNode = {
   bottomRow: number;
   originalTopRow: number;
   originalBottomRow: number;
+  distanceToNearestAbove: number;
 };
 
 export type NodeSpace = {
