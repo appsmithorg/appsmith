@@ -37,7 +37,7 @@ describe("Leave workspace test spec", function() {
     });
   });
 
-  it("Non admin users can only access leave workspace popup menu validation", function() {
+  it("Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function() {
     cy.visit("/applications");
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
