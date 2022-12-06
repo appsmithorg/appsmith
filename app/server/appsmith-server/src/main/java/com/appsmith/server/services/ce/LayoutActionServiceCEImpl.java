@@ -63,9 +63,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 import static java.util.stream.Collectors.toSet;
@@ -295,10 +292,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields).filter(fieldToken -> !fieldToken.isBlank()).iterator();
                 boolean isLeafNode = false;
+                Object oldParent;
                 // This loop will end at either a leaf node, or the last identified JSON field (by throwing an exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
                 while (fieldsIterator.hasNext()) {
+                    oldParent = parent;
                     String nextKey = fieldsIterator.next();
                     if (parent instanceof JSONObject) {
                         parent = ((JSONObject) parent).get(nextKey);
@@ -311,17 +310,17 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             } catch (IndexOutOfBoundsException e) {
                                 // The index being referred does not exist. Hence the path would not exist.
                                 throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                        widgetName, widgetId, fieldPath, pageId, layoutId, null);
+                                        widgetName, widgetId, fieldPath, pageId, layoutId, oldParent, nextKey, "Index out of bounds for list");
                             }
                         } else {
                             throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                    widgetName, widgetId, fieldPath, pageId, layoutId, null);
+                                    widgetName, widgetId, fieldPath, pageId, layoutId, oldParent, nextKey, "Child of list is not in an indexed path");
                         }
                     }
                     // After updating the parent, check for the types
                     if (parent == null) {
                         throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                widgetName, widgetId, fieldPath, pageId, layoutId, null);
+                                widgetName, widgetId, fieldPath, pageId, layoutId, oldParent, nextKey, "New element is null");
                     } else if (parent instanceof String) {
                         // If we get String value, then this is a leaf node
                         isLeafNode = true;
@@ -335,7 +334,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                             try {
                                 String bindingAsString = objectMapper.writeValueAsString(parent);
                                 throw new AppsmithException(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE, widgetType,
-                                        widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString);
+                                        widgetName, widgetId, fieldPath, pageId, layoutId, bindingAsString, nextKey, "Binding path has no mustache bindings");
                             } catch (JsonProcessingException e) {
                                 throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, parent);
                             }

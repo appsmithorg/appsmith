@@ -17,6 +17,7 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
+  private _collapseContainer = ".t--collapse-section-container";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
   private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
@@ -258,7 +259,7 @@ export class DataSources {
     cy.get(this._databaseName)
       .clear()
       .type(databaseName);
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(
       username == "" ? datasourceFormData["postgres-username"] : username,
     );
@@ -273,7 +274,7 @@ export class DataSources {
       : datasourceFormData["mongo-host"];
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["mongo-port"].toString());
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._databaseName)
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -291,7 +292,7 @@ export class DataSources {
     cy.get(this._databaseName)
       .clear()
       .type(databaseName);
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
   }
@@ -700,7 +701,7 @@ export class DataSources {
 
   //Update with new password in the datasource conf page
   public updatePassword(newPassword: string) {
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._password).type(newPassword);
   }
 

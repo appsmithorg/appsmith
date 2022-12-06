@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { Collapse, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Icon as AdsIcon, IconName, IconSize } from "design-system";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "@appsmith/reducers";
+import { getDatasourceCollapsibleState } from "selectors/ui";
+import { setDatasourceCollapsible } from "actions/datasourceActions";
+import isUndefined from "lodash/isUndefined";
 
 const SectionLabel = styled.div`
   font-weight: 500;
@@ -32,10 +37,6 @@ const TopBorder = styled.div`
   margin-bottom: 24px;
 `;
 
-interface ComponentState {
-  isOpen: boolean;
-}
-
 interface ComponentProps {
   children: any;
   title: string;
@@ -49,51 +50,55 @@ interface ComponentProps {
 
 type Props = ComponentProps;
 
-class Collapsible extends React.Component<Props, ComponentState> {
-  constructor(props: Props) {
-    super(props);
+function Collapsible(props: Props) {
+  const { children, defaultIsOpen, headerIcon, title } = props;
+  const dispatch = useDispatch();
+  const isOpen = useSelector((state: AppState) =>
+    getDatasourceCollapsibleState(state, title),
+  );
 
-    this.state = {
-      isOpen: props.defaultIsOpen || false,
-    };
-  }
+  const setIsOpen = useCallback((open) => {
+    dispatch(setDatasourceCollapsible(title, open));
+  }, []);
 
-  render() {
-    const { children, headerIcon, title } = this.props;
-    const { isOpen } = this.state;
+  useEffect(() => {
+    // We set the default value only when there is no state stored yet for the same
+    if (defaultIsOpen && isUndefined(isOpen)) {
+      setIsOpen(defaultIsOpen);
+    }
+  }, [defaultIsOpen, isOpen]);
 
-    return (
-      <>
-        <TopBorder className="t--collapse-top-border" />
-        <SectionContainer
-          className="t--collapse-section-container"
-          data-cy={`section-${title}`}
-          data-replay-id={`section-${title}`}
-          onClick={() => this.setState({ isOpen: !this.state.isOpen })}
-        >
-          <SectionLabel>
-            {title}
-            {headerIcon && (
-              <AdsIcon
-                fillColor={headerIcon.color}
-                name={headerIcon.name}
-                size={IconSize.MEDIUM}
-              />
-            )}
-          </SectionLabel>
-          <Icon
-            icon={isOpen ? "chevron-up" : "chevron-down"}
-            iconSize={16}
-            style={{ color: "#2E3D49" }}
-          />
-        </SectionContainer>
+  return (
+    <>
+      <TopBorder className="t--collapse-top-border" />
+      <SectionContainer
+        className="t--collapse-section-container"
+        data-cy={`section-${title}`}
+        data-replay-id={`section-${title}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <SectionLabel>
+          {title}
+          {headerIcon && (
+            <AdsIcon
+              fillColor={headerIcon.color}
+              name={headerIcon.name}
+              size={IconSize.MEDIUM}
+            />
+          )}
+        </SectionLabel>
+        <Icon
+          icon={isOpen ? "chevron-up" : "chevron-down"}
+          iconSize={16}
+          style={{ color: "#2E3D49" }}
+        />
+      </SectionContainer>
 
-        <Collapse isOpen={this.state.isOpen} keepChildrenMounted>
-          {children}
-        </Collapse>
-      </>
-    );
-  }
+      <Collapse isOpen={isOpen} keepChildrenMounted>
+        {children}
+      </Collapse>
+    </>
+  );
 }
 
 export default Collapsible;
