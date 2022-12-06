@@ -600,7 +600,7 @@ export const useCanvasDragging = (
               canScroll.current = false;
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
-              currentDirection.current = getMouseMoveDirection(e, 1);
+              currentDirection.current = getMouseMoveDirection(e);
               triggerReflow(e, firstMove);
               if (
                 useAutoLayout &&

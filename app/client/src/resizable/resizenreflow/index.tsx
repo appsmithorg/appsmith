@@ -481,7 +481,7 @@ export function ReflowResizable(props: ResizableProps) {
     return (
       <ResizableHandle
         {...handle}
-        allowResize={props.allowResize}
+        allowResize={props.allowResize && !handle?.affectsWidth}
         checkForCollision={checkForCollision}
         key={index}
         onStart={() => {
