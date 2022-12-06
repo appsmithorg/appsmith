@@ -71,19 +71,8 @@ function deleteResolvedFunctionsAndCurrentJSCollectionState(
   dataTreeEvalRef: DataTreeEvaluator,
   entityName: string,
 ) {
-  if (
-    dataTreeEvalRef.resolvedFunctions &&
-    dataTreeEvalRef.resolvedFunctions[entityName]
-  ) {
-    delete dataTreeEvalRef.resolvedFunctions[entityName];
-  }
-
-  if (
-    dataTreeEvalRef.currentJSCollectionState &&
-    dataTreeEvalRef.currentJSCollectionState[entityName]
-  ) {
-    delete dataTreeEvalRef.currentJSCollectionState[entityName];
-  }
+  delete dataTreeEvalRef.resolvedFunctions[entityName];
+  delete dataTreeEvalRef.currentJSCollectionState[entityName];
 }
 
 function parseFunction(
@@ -93,47 +82,43 @@ function parseFunction(
   entityName: string,
   actions: Actions[],
 ) {
-  try {
-    const { result } = evaluateSync(
-      parsedElement.value,
-      unEvalDataTree,
-      {},
-      true,
-      undefined,
-      undefined,
-      true,
-    );
-    if (!!result) {
-      let params: Array<{ key: string; value: unknown }> = [];
+  const { result } = evaluateSync(
+    parsedElement.value,
+    unEvalDataTree,
+    {},
+    true,
+    undefined,
+    undefined,
+    true,
+  );
+  if (!!result) {
+    let params: Array<{ key: string; value: unknown }> = [];
 
-      if (parsedElement.arguments) {
-        params = parsedElement.arguments.map(({ defaultValue, paramName }) => ({
-          key: paramName,
-          value: defaultValue,
-        }));
-      }
-
-      const functionString: string = parsedElement.value;
-      set(
-        dataTreeEvalRef.resolvedFunctions,
-        `${entityName}.${parsedElement.key}`,
-        result,
-      );
-      set(
-        dataTreeEvalRef.currentJSCollectionState,
-        `${entityName}.${parsedElement.key}`,
-        functionString,
-      );
-      actions.push({
-        name: parsedElement.key,
-        body: functionString,
-        arguments: params,
-        parsedFunction: result,
-        isAsync: false,
-      });
+    if (parsedElement.arguments) {
+      params = parsedElement.arguments.map(({ defaultValue, paramName }) => ({
+        key: paramName,
+        value: defaultValue,
+      }));
     }
-  } catch {
-    // in case we need to handle error state
+
+    const functionString: string = parsedElement.value;
+    set(
+      dataTreeEvalRef.resolvedFunctions,
+      `${entityName}.${parsedElement.key}`,
+      result,
+    );
+    set(
+      dataTreeEvalRef.currentJSCollectionState,
+      `${entityName}.${parsedElement.key}`,
+      functionString,
+    );
+    actions.push({
+      name: parsedElement.key,
+      body: functionString,
+      arguments: params,
+      parsedFunction: result,
+      isAsync: false,
+    });
   }
 }
 
