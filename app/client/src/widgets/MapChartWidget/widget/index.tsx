@@ -22,8 +22,14 @@ import {
 } from "../constants";
 import { MapType } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
@@ -205,6 +211,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

@@ -1,11 +1,17 @@
 import React from "react";
 
-import { ResponsiveBehavior } from "components/constants";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { createBlobUrl } from "utils/AppsmithUtils";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { FileDataTypes } from "widgets/constants";
@@ -69,6 +75,7 @@ class AudioRecorderWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          { ...generateVerticalAlignmentConfig(FlexVerticalAlignment.Top) },
         ],
       },
       {

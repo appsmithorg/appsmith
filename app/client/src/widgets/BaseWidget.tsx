@@ -4,7 +4,11 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import {
+  LayoutDirection,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import FlexComponent from "components/designSystems/appsmith/autoLayout/FlexComponent";
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
@@ -343,6 +347,9 @@ abstract class BaseWidget<
         componentHeight={componentHeight}
         componentWidth={componentWidth}
         direction={this.props.direction}
+        flexVerticalAlignment={
+          this.props.flexVerticalAlignment || FlexVerticalAlignment.Top
+        }
         focused={this.props.focused}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
@@ -501,6 +508,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   responsiveBehavior?: ResponsiveBehavior;
   minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
   isMobile?: boolean;
+  flexVerticalAlignment?: FlexVerticalAlignment;
 }
 
 export const WIDGET_STATIC_PROPS = {

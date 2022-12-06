@@ -19,8 +19,14 @@ import {
 import panelConfig from "./PanelConfig";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 export default [
   {
@@ -480,6 +486,7 @@ export default [
         dependencies: ["isVisibleDownload"],
       },
       { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
 ] as PropertyPaneConfig[];

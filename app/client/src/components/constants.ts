@@ -176,3 +176,9 @@ export enum FlexLayerAlignment {
   Center = "center",
   End = "end",
 }
+
+export enum FlexVerticalAlignment {
+  Top = "start",
+  Center = "center",
+  Bottom = "end",
+}

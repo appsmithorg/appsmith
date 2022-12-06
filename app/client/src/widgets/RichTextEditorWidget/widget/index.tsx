@@ -6,11 +6,18 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import {
+  LabelPosition,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import showdown from "showdown";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -197,6 +204,7 @@ class RichTextEditorWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

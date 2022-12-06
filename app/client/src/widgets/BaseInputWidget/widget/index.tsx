@@ -11,8 +11,15 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseInputComponent from "../component";
 import { InputTypes } from "../constants";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  LabelPosition,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -231,6 +238,7 @@ class BaseInputWidget<
             },
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

@@ -12,8 +12,14 @@ import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { MarkerProps } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 const { google } = getAppsmithConfigs();
 
@@ -203,6 +209,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isTriggerProperty: false,
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

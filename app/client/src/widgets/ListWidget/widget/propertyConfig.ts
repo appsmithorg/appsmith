@@ -6,8 +6,14 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 export const PropertyPaneContentConfig = [
   {
@@ -92,6 +98,7 @@ export const PropertyPaneContentConfig = [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {

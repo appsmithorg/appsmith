@@ -1,7 +1,11 @@
 import React, { ReactNode, useCallback } from "react";
 import styled from "styled-components";
 
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
+import {
+  LayoutDirection,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetType,
@@ -31,6 +35,7 @@ export type AutoLayoutProps = {
   widgetId: string;
   widgetType: WidgetType;
   parentColumnSpace: number;
+  flexVerticalAlignment: FlexVerticalAlignment;
 };
 
 const FlexWidget = styled.div<{
@@ -44,6 +49,7 @@ const FlexWidget = styled.div<{
   dragMargin: number;
   isAffectedByDrag: boolean;
   parentId?: string;
+  flexVerticalAlignment: FlexVerticalAlignment;
 }>`
   position: relative;
   z-index: ${({ zIndex }) => zIndex};
@@ -57,6 +63,7 @@ const FlexWidget = styled.div<{
     isAffectedByDrag ? 0 : padding + "px"};
 
   flex-grow: ${({ isFillWidget }) => (isFillWidget ? "1" : "0")};
+  align-self: ${({ flexVerticalAlignment }) => flexVerticalAlignment};
 
   &:hover {
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
@@ -140,6 +147,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       componentHeight={props.componentHeight}
       componentWidth={resizedWidth}
       dragMargin={dragMargin}
+      flexVerticalAlignment={props.flexVerticalAlignment}
       id={props.widgetId}
       isAffectedByDrag={isAffectedByDrag}
       isFillWidget={isFillWidget}

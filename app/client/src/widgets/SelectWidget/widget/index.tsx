@@ -10,7 +10,11 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import {
+  LabelPosition,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
@@ -23,7 +27,10 @@ import {
 } from "lodash";
 import equal from "fast-deep-equal/es6";
 import derivedProperties from "./parseDerivedProperties";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -358,6 +365,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

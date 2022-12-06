@@ -11,11 +11,15 @@ import {
   ButtonPlacement,
   ButtonVariantTypes,
   ResponsiveBehavior,
+  FlexVerticalAlignment,
 } from "components/constants";
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { getStylesheetValue } from "./helpers";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -449,6 +453,7 @@ class ButtonGroupWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
     ];

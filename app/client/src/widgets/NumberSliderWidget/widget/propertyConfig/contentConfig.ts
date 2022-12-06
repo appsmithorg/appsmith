@@ -1,8 +1,15 @@
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import {
+  LabelPosition,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 import { NumberSliderWidgetProps } from "..";
 import {
   defaultValueValidation,
@@ -263,6 +270,7 @@ export default [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {

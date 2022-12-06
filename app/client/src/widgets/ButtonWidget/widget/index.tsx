@@ -18,8 +18,12 @@ import {
   ButtonPlacementTypes,
   ButtonPlacement,
   ResponsiveBehavior,
+  FlexVerticalAlignment,
 } from "components/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -104,6 +108,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug) },
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

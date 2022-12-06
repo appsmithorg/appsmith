@@ -9,10 +9,17 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 import SwitchGroupComponent, { OptionProps } from "../component";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import {
+  LabelPosition,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -219,6 +226,7 @@ class SwitchGroupWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

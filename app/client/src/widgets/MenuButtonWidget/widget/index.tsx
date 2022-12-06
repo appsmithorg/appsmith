@@ -12,10 +12,14 @@ import {
   ButtonPlacementTypes,
   ButtonPlacement,
   ResponsiveBehavior,
+  FlexVerticalAlignment,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
 import { MinimumPopupRows } from "widgets/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -253,6 +257,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
     ];

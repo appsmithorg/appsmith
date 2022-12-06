@@ -3,8 +3,14 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 import { isLabelOrientationApplicableFor } from "../component";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 export const contentConfig = [
   {
@@ -244,6 +250,7 @@ export const contentConfig = [
         dependencies: ["chartType"],
       },
       generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {

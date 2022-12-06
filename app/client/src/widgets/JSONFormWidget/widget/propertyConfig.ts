@@ -10,12 +10,16 @@ import {
   ButtonVariantTypes,
   ButtonPlacementTypes,
   ResponsiveBehavior,
+  FlexVerticalAlignment,
 } from "components/constants";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -268,6 +272,7 @@ export const contentConfig = [
         validation: { type: ValidationTypes.TEXT },
       },
       generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {

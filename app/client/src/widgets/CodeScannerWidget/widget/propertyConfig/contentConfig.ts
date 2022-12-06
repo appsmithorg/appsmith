@@ -4,8 +4,14 @@ import {
   CodeScannerWidgetProps,
   ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 export default [
   {
@@ -96,6 +102,7 @@ export default [
         dependencies: ["scannerLayout"],
       },
       generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {

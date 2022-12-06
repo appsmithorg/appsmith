@@ -2,8 +2,14 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneContentConfig() {
@@ -41,6 +47,7 @@ class StatboxWidget extends ContainerWidget {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
     ];

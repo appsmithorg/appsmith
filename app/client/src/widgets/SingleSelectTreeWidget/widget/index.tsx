@@ -13,9 +13,16 @@ import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
-import { LabelPosition, ResponsiveBehavior } from "components/constants";
+import {
+  LabelPosition,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 import derivedProperties from "./parseDerivedProperties";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
@@ -282,6 +289,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

@@ -7,8 +7,15 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { ButtonBorderRadius, ResponsiveBehavior } from "components/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  ButtonBorderRadius,
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -84,6 +91,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {

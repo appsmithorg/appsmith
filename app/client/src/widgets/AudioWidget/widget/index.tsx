@@ -7,8 +7,14 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { ResponsiveBehavior } from "components/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -84,6 +90,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          { ...generateVerticalAlignmentConfig(FlexVerticalAlignment.Top) },
         ],
       },
       {

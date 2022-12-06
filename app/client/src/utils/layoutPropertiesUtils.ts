@@ -8,6 +8,7 @@ import {
   Positioning,
   ResponsiveBehavior,
   Spacing,
+  FlexVerticalAlignment,
 } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -196,6 +197,27 @@ export const generatePositioningConfig = (
       };
     },
     dependencies: ["widgetId"],
+  };
+};
+
+export const generateVerticalAlignmentConfig = (
+  value: FlexVerticalAlignment = FlexVerticalAlignment.Top,
+): any => {
+  return {
+    helpText: "Vertical alignment with respect to the siblings in the same row",
+    propertyName: "flexVerticalAlignment",
+    label: "Vertical Alignment",
+    controlType: "DROP_DOWN",
+    defaultValue: value,
+    options: [
+      { label: "Top", value: FlexVerticalAlignment.Top },
+      { label: "Center", value: FlexVerticalAlignment.Center },
+      { label: "Bottom", value: FlexVerticalAlignment.Bottom },
+    ],
+    isJSConvertible: false,
+    isBindProperty: true,
+    isTriggerProperty: true,
+    validation: { type: ValidationTypes.TEXT },
   };
 };
 

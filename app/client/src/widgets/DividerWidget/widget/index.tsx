@@ -4,8 +4,14 @@ import { WidgetType } from "constants/WidgetConstants";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import {
+  ResponsiveBehavior,
+  FlexVerticalAlignment,
+} from "components/constants";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -35,6 +41,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
     ];

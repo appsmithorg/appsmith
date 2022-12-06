@@ -17,10 +17,12 @@ import {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
+  FlexVerticalAlignment,
 } from "components/constants";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
 
 export function selectedTabValidation(
@@ -183,6 +185,7 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
+          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
