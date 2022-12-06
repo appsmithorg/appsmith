@@ -159,6 +159,16 @@ class RichTextEditorWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -407,6 +417,7 @@ class RichTextEditorWidget extends BaseWidget<
           labelText={this.props.labelText}
           labelTextColor={this.props.labelTextColor}
           labelTextSize={this.props.labelTextSize}
+          labelTooltip={this.props.labelTooltip}
           labelWidth={this.getLabelWidth()}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}

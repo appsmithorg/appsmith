@@ -51,7 +51,6 @@ import {
   Classes,
   EditableText,
   EditInteractionKind,
-  DialogComponent as Dialog,
   Icon,
   IconName,
   IconSize,
@@ -567,14 +566,10 @@ function ApplicationsSection(props: any) {
     dispatch(duplicateApplication(applicationId));
   };
 
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<
-    string | undefined
-  >();
   const [
     selectedWorkspaceIdForImportApplication,
     setSelectedWorkspaceIdForImportApplication,
   ] = useState<string | undefined>();
-  const Form: any = WorkspaceInviteUsersForm;
 
   const leaveWS = (workspaceId: string) => {
     setWarnLeavingWorkspace(false);
@@ -726,20 +721,6 @@ function ApplicationsSection(props: any) {
                   workspaceName: workspace.name,
                   workspaceSlug: workspace.id,
                 })}
-              {canInviteToWorkspace && (
-                <Dialog
-                  canEscapeKeyClose={false}
-                  canOutsideClickClose
-                  isOpen={selectedWorkspaceId === workspace.id}
-                  onClose={() => setSelectedWorkspaceId("")}
-                  title={`Invite Users to ${workspace.name}`}
-                >
-                  <Form
-                    message={createMessage(INVITE_USERS_MESSAGE)}
-                    workspaceId={workspace.id}
-                  />
-                </Dialog>
-              )}
               {selectedWorkspaceIdForImportApplication && (
                 <ImportApplicationModal
                   isModalOpen={
@@ -884,15 +865,6 @@ function ApplicationsSection(props: any) {
                                 : "Are you sure?"
                             }
                             type={!warnLeavingWorkspace ? undefined : "warning"}
-                          />
-                        )}
-                        {canInviteToWorkspace && (
-                          <MenuItem
-                            icon="share-line"
-                            onSelect={() =>
-                              setSelectedWorkspaceId(workspace.id)
-                            }
-                            text="Share"
                           />
                         )}
                         {hasManageWorkspacePermissions && canInviteToWorkspace && (
