@@ -38,6 +38,8 @@ export class PropertyPane {
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
   private _tableEditColumnButton = ".t--edit-column-btn";
+  _propertyPaneSearchInput = ".t--property-pane-search-input-wrapper input";
+  _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
@@ -268,14 +270,14 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
   }
 
-  public openTableColumnSettings(column: string) {
+  public OpenTableColumnSettings(column: string) {
     cy.get(
       `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`,
     ).click();
   }
 
-  public search(query: string) {
-    cy.get(this.locator._propertyPaneSearchInput)
+  public Search(query: string) {
+    cy.get(this._propertyPaneSearchInput)
       .first()
       .then((el: any) => {
         cy.get(el).clear();
@@ -283,17 +285,24 @@ export class PropertyPane {
       });
   }
 
-  public toggleSection(section: string) {
-    cy.get(`.t--property-pane-section-collapse-${section}`).click({
-      force: true,
-    });
+  public ToggleSection(section: string) {
+    this.agHelper.GetNClick(`.t--property-pane-section-collapse-${section}`);
   }
 
-  public assertSearchInputValue(value: string) {
-    this.agHelper.AssertText(
-      this.locator._propertyPaneSearchInput,
-      "val",
-      value,
+  public AssertSearchInputValue(value: string) {
+    this.agHelper.AssertText(this._propertyPaneSearchInput, "val", value);
+  }
+
+  // Checks if the property exists in search results
+  public assertIfPropertyOrSectionExists(
+    section: string,
+    tab: "CONTENT" | "STYLE",
+    property?: string,
+  ) {
+    this.agHelper.AssertElementExist(
+      `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`,
     );
+    if (property)
+      this.agHelper.AssertElementExist(`.t--property-control-${property}`);
   }
 }

@@ -1,6 +1,4 @@
 export class CommonLocators {
-  _propertyPaneSearchInput = ".t--property-pane-search-input-wrapper input";
-  _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
   _runBtnSpinner = ".cs-spinner";
