@@ -8,10 +8,7 @@ import {
   TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
-import {
-  logActionExecutionError,
-  TriggerFailureError,
-} from "sagas/ActionExecution/errorUtils";
+import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import { Channel, channel } from "redux-saga";
 
@@ -119,14 +116,12 @@ function* errorCallbackHandler() {
           triggerPropertyName: triggerMeta.triggerPropertyName,
           source: triggerMeta.source,
         });
-
+      } else {
         logActionExecutionError(
           (error as Error).message,
           triggerMeta.source,
           triggerMeta.triggerPropertyName,
         );
-      } else {
-        throw new TriggerFailureError(error.message, triggerMeta);
       }
     }
   }
