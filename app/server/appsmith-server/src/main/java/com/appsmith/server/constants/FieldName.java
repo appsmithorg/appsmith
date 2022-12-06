@@ -202,5 +202,4 @@ public class FieldName {
     public static final String UNASSIGNED_FROM_PERMISSION_GROUPS = "unAssignedUsersAndGroups";
 
     public static final String AUDIT_LOGS = "Audit Logs";
-
 }
