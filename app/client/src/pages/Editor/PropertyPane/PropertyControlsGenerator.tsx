@@ -29,6 +29,7 @@ export type PropertyControlsGeneratorProps = {
 const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
+  isSearchResult: boolean,
 ) => {
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
@@ -53,7 +54,8 @@ const generatePropertyControl = (
             propertyPath={sectionConfig.propertySectionPath}
             tag={sectionConfig.tag}
           >
-            {config.children && generatePropertyControl(config.children, props)}
+            {config.children &&
+              generatePropertyControl(config.children, props, isSearchResult)}
           </PropertySection>
         </Boxed>
       );
@@ -70,6 +72,7 @@ const generatePropertyControl = (
           <PropertyControl
             key={config.id + props.id}
             {...(config as PropertyPaneControlConfig)}
+            isSearchResult={isSearchResult}
             panel={props.panel}
             theme={props.theme}
           />
@@ -90,6 +93,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   );
 
   const isSearchResultEmpty = searchResults.length === 0;
+  const isSearchResult = finalProps !== searchResults;
 
   return isSearchResultEmpty ? (
     <EmptySearchResult />
@@ -98,6 +102,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
       {generatePropertyControl(
         searchResults as readonly PropertyPaneConfig[],
         props,
+        isSearchResult,
       )}
     </>
   );

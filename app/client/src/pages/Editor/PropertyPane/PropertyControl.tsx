@@ -61,6 +61,7 @@ import WidgetFactory from "utils/WidgetFactory";
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
+  isSearchResult: boolean;
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
@@ -415,6 +416,7 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
         isUpdatedViaKeyboard,
+        isUpdatedFromSearchResult: props.isSearchResult,
       });
 
       const selfUpdates:
