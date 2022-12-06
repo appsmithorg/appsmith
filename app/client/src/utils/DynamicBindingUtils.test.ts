@@ -1,6 +1,10 @@
 import { Action, PluginType } from "entities/Action";
 import equal from "fast-deep-equal/es6";
-import { getPropertyPath } from "./DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+  getPropertyPath,
+} from "./DynamicBindingUtils";
 import {
   EVAL_VALUE_PATH,
   getDynamicBindingsChangesSaga,
@@ -37,6 +41,71 @@ describe.each([
     expect(getDynamicStringSegments(dynamicString as string)).toStrictEqual(
       expected,
     );
+  });
+});
+
+describe("getDynamicBindings and combineDynamicBindings  function", () => {
+  const testCases = [
+    {
+      js: "(function(){return true;})()",
+      jsSnippets: ["(function(){return true;})()"],
+      propertyValue: "{{(function(){return true;})()}}",
+      stringSegments: ["{{(function(){return true;})()}}"],
+    },
+    {
+      js:
+        '"Hello " + Customer.Name + ", the status for your order id " + orderId + " is " + status',
+      jsSnippets: ["", "Customer.Name", "", "orderId", "", "status"],
+      propertyValue:
+        "Hello {{Customer.Name}}, the status for your order id {{orderId}} is {{status}}",
+      stringSegments: [
+        "Hello ",
+        "{{Customer.Name}}",
+        ", the status for your order id ",
+        "{{orderId}}",
+        " is ",
+        "{{status}}",
+      ],
+    },
+    {
+      js: "data.map(datum => {return {id: datum}})",
+      jsSnippets: ["data.map(datum => {return {id: datum}})"],
+      propertyValue: "{{data.map(datum => {return {id: datum}})}}",
+      stringSegments: ["{{data.map(datum => {return {id: datum}})}}"],
+    },
+    {
+      js: '"{{}}"',
+      jsSnippets: [""],
+      propertyValue: "{{}}",
+      stringSegments: ["{{}}"],
+    },
+    {
+      js: "Query1.data.splice(1).map((data, ind) => ({...data, ind }))",
+      jsSnippets: [
+        "Query1.data.splice(1).map((data, ind) => ({...data, ind }))",
+      ],
+      propertyValue:
+        "{{Query1.data.splice(1).map((data, ind) => ({...data, ind }))}}",
+      stringSegments: [
+        "{{Query1.data.splice(1).map((data, ind) => ({...data, ind }))}}",
+      ],
+    },
+    {
+      js: "JSObject1.myFun1()",
+      jsSnippets: ["JSObject1.myFun1()"],
+      propertyValue: "{{JSObject1.myFun1()}}",
+      stringSegments: ["{{JSObject1.myFun1()}}"],
+    },
+  ];
+
+  it("Returns expected js string", () => {
+    testCases.forEach(({ js, jsSnippets, propertyValue, stringSegments }) => {
+      expect(getDynamicBindings(propertyValue)).toStrictEqual({
+        jsSnippets,
+        stringSegments,
+      });
+      expect(combineDynamicBindings(jsSnippets, stringSegments)).toEqual(js);
+    });
   });
 });
 
