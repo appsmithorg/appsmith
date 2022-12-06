@@ -446,24 +446,21 @@ class CodeEditor extends Component<Props, State> {
         this.lintCode(this.editor);
       }
 
-      CodeEditor.updateMarkings(
-        this.editor,
-        this.props.marking,
-        this.props.entitiesForNavigation,
-      );
-
-      // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
       const inputValue = getInputValue(this.props.input.value);
       const previousInputValue = getInputValue(prevProps.input.value);
 
-      if (!!inputValue || inputValue === "") {
-        if (
-          inputValue !== editorValue &&
-          _.isString(inputValue) &&
-          !this.state.isFocused
-        ) {
+      if (_.isString(inputValue)) {
+        /* We want to check if the input value and the editor value is out of sync.
+         * We always want to make sure editor is the correct value since the source if the input value
+         * But the editor updates the input value on change.
+         * To solve this:
+         * We check if the values are different,
+         * and we check if they are different because the input value has changed
+         * and not because the editor value has changed
+         * */
+        if (inputValue !== editorValue && inputValue !== previousInputValue) {
           this.editor.setValue(inputValue);
           this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
         } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
@@ -475,6 +472,12 @@ class CodeEditor extends Component<Props, State> {
         // handles case when inputValue changes from a truthy to a falsy value
         this.editor.setValue("");
       }
+
+      CodeEditor.updateMarkings(
+        this.editor,
+        this.props.marking,
+        this.props.entitiesForNavigation,
+      );
     });
   }
 
