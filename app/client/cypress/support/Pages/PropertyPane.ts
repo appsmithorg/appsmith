@@ -38,6 +38,14 @@ export class PropertyPane {
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
   private _tableEditColumnButton = ".t--edit-column-btn";
+  private _tableColumnSettings = (column: string) =>
+    `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`;
+  private _sectionCollapse = (section: string) =>
+    `.t--property-pane-section-collapse-${section}`;
+  private _sectionCollapseWithTag = (section: string, tab: string) =>
+    `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
+  private _propertyControl = (property: string) =>
+    `.t--property-control-${property}`;
   _propertyPaneSearchInput = ".t--property-pane-search-input-wrapper input";
   _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
   _propertyToggle = (controlToToggle: string) =>
@@ -271,9 +279,7 @@ export class PropertyPane {
   }
 
   public OpenTableColumnSettings(column: string) {
-    cy.get(
-      `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`,
-    ).click();
+    this.agHelper.GetNClick(this._tableColumnSettings(column));
   }
 
   public Search(query: string) {
@@ -286,7 +292,7 @@ export class PropertyPane {
   }
 
   public ToggleSection(section: string) {
-    this.agHelper.GetNClick(`.t--property-pane-section-collapse-${section}`);
+    this.agHelper.GetNClick(this._sectionCollapse(section));
   }
 
   public AssertSearchInputValue(value: string) {
@@ -294,15 +300,15 @@ export class PropertyPane {
   }
 
   // Checks if the property exists in search results
-  public assertIfPropertyOrSectionExists(
+  public AssertIfPropertyOrSectionExists(
     section: string,
     tab: "CONTENT" | "STYLE",
     property?: string,
   ) {
     this.agHelper.AssertElementExist(
-      `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`,
+      this._sectionCollapseWithTag(section, tab),
     );
     if (property)
-      this.agHelper.AssertElementExist(`.t--property-control-${property}`);
+      this.agHelper.AssertElementExist(this._propertyControl(property));
   }
 }
