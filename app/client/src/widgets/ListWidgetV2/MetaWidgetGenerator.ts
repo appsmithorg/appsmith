@@ -457,6 +457,8 @@ class MetaWidgetGenerator {
 
     if (this.isRowNonConfigurable(rowIndex)) {
       this.disableWidgetOperations(metaWidget);
+      metaWidget.suppressAutoComplete = true;
+      metaWidget.suppressDebuggerError = true;
     }
 
     metaWidget.currentIndex = rowIndex;
@@ -465,10 +467,6 @@ class MetaWidgetGenerator {
     metaWidget.children = children;
     metaWidget.parentId = parentId;
     metaWidget.referencedWidgetId = templateWidgetId;
-    if (metaWidget.widgetId !== templateWidgetId) {
-      metaWidget.suppressAutoComplete = true;
-      metaWidget.suppressDebuggerError = true;
-    }
 
     return {
       childMetaWidgets,

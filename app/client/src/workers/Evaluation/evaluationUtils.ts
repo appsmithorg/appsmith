@@ -716,12 +716,12 @@ export const getDataTreeWithoutPrivateWidgets = (
 const getDataTreeWithoutSuppressedAutoComplete = (
   dataTree: DataTree,
 ): DataTree => {
-  const metaWidgetIds = Object.keys(dataTree).filter((entityName) => {
+  const entityIds = Object.keys(dataTree).filter((entityName) => {
     const entity = dataTree[entityName];
     return isWidget(entity) && shouldSuppressAutoComplete(entity);
   });
 
-  return _.omit(dataTree, metaWidgetIds);
+  return _.omit(dataTree, entityIds);
 };
 
 export const getFilteredDataTree = (dataTree: DataTree): DataTree => {
