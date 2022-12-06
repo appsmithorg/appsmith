@@ -85,7 +85,7 @@ describe("1. CommandClickNavigation", function() {
 
   it("6. Will close modals", () => {
     cy.updateCodeInput(
-      `${commonLocators._propertyControl}label`,
+      `${commonLocators._propertyControl}text`,
       "{{ Image1.image }}",
     );
 

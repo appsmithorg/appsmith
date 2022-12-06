@@ -452,14 +452,6 @@ class CodeEditor extends Component<Props, State> {
         this.props.entitiesForNavigation,
       );
 
-      if (
-        // if it is focused, don't update the input unless
-        // the identifier has changed
-        getEditorIdentifier(this.props) === getEditorIdentifier(prevProps)
-      ) {
-        return;
-      }
-
       // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
