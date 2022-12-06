@@ -74,6 +74,7 @@ const DropdownTriggerIconWrapper = styled.button<
 `;
 
 const FlagWrapper = styled.span`
+  font-family: "Twemoji Country Flags";
   font-size: 20px;
   line-height: 19px;
 `;
@@ -82,6 +83,16 @@ const Code = styled.span``;
 
 const StyledIcon = styled(Icon)`
   margin-left: 2px;
+`;
+
+const StyledDropdown = styled(Dropdown)`
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
 `;
 
 export const PopoverStyles = createGlobalStyle<{
@@ -257,7 +268,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
   }
   return (
     <>
-      <Dropdown
+      <StyledDropdown
         closeOnSpace={false}
         containerClassName="country-type-filter"
         dropdownHeight="139px"
