@@ -26,6 +26,7 @@ import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
+import { getTenantConfig } from "ce/selectors/tenantSelectors";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -107,6 +108,7 @@ interface ColorPickerPopupProps {
 
 function ColorPickerPopup(props: ColorPickerPopupProps) {
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
+  const brandColors = useSelector(getTenantConfig).brandColors;
   const widgets = useSelector(getWidgets);
   const DSLStringified = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
@@ -177,6 +179,30 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
             </div>
           </section>
         </div>
+      )}
+      {brandColors && Object.keys(brandColors).length > 0 && (
+        <section className="space-y-2">
+          <h3 className="text-xs">Brand Colors</h3>
+          <div className="grid grid-cols-10 gap-2">
+            {Object.keys(brandColors).map(
+              (colorKey: string, colorIndex: number) => (
+                <div
+                  className={`${COLOR_BOX_CLASSES} ring-gray-500 ${
+                    color === brandColors[colorKey] ? "ring-1" : ""
+                  }`}
+                  key={`${colorKey}-${colorIndex}`}
+                  onClick={(e) => {
+                    setColor(brandColors[colorKey]);
+                    setIsOpen(false);
+                    changeColor(brandColors[colorKey], !e.isTrusted);
+                  }}
+                  style={{ backgroundColor: brandColors[colorKey] }}
+                  tabIndex={colorIndex === 0 ? 0 : -1}
+                />
+              ),
+            )}
+          </div>
+        </section>
       )}
       {showApplicationColors && applicationColors.length > 0 && (
         <section className="space-y-2">

@@ -21,23 +21,23 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const { intercomAppID } = getAppsmithConfigs();
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   padding-top: 40px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
 `;
 
-const SettingsFormWrapper = styled.div``;
+export const SettingsFormWrapper = styled.div``;
 
-const SettingsHeader = styled.h2`
+export const SettingsHeader = styled.h2`
   font-size: 24px;
   font-weight: 500;
   text-transform: capitalize;
   margin-bottom: 0;
 `;
 
-const SettingsSubHeader = styled.div`
+export const SettingsSubHeader = styled.div`
   font-size: 14px;
   margin-bottom: 0;
 `;

@@ -13,16 +13,18 @@ import { Colors } from "constants/Colors";
 import ProfileDropdown from "./ProfileDropdown";
 import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
+import { Indices } from "constants/Layers";
 
 const StyledPageHeader = styled(StyledHeader)`
-  background: ${Colors.ALABASTER_ALT};
+  box-shadow: none;
+  justify-content: normal;
+  background: white;
   height: 48px;
   color: white;
-  flex-direction: row;
   position: fixed;
   top: 0;
-  z-index: 10;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+  z-index: ${Indices.Layer9};
+  box-shadow: 0px 1px 0px ${Colors.GALLERY_2};
 `;
 
 const HeaderSection = styled.div`
