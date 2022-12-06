@@ -111,7 +111,7 @@ public class AstServiceCEImpl implements AstServiceCE {
                                 if (HttpStatus.OK.equals(entityRefactorResponseResponseEntity.getStatusCode())) {
                                     return Mono.just(Objects.requireNonNull(entityRefactorResponseResponseEntity.getBody()));
                                 }
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                return Mono.error(new AppsmithException(AppsmithError.RTS_SERVER_ERROR, entityRefactorResponseResponseEntity.getStatusCodeValue()));
                             })
                             .elapsed()
                             .map(tuple -> {
@@ -201,7 +201,7 @@ public class AstServiceCEImpl implements AstServiceCE {
         String oldName;
         String newName;
         int evalVersion;
-        Boolean isJSObject;
+        boolean isJSObject;
     }
 
     @NoArgsConstructor

@@ -347,7 +347,7 @@ public class MustacheHelperTest {
         ));
 
         configuration.setProperties(Arrays.asList(
-                new Property("name1", "{{ propertyValue1 }}!"),
+                new Property("name1", "{{   propertyValue1   }}!"),
                 new Property("name2", "{{ propertyValue2 }}!")
         ));
 
@@ -358,7 +358,7 @@ public class MustacheHelperTest {
                 " headerValue2 ", "rendered headerValue2",
                 " host1 ", "rendered host1",
                 " host2 ", "rendered host2",
-                " propertyValue1 ", "rendered propertyValue1",
+                "   propertyValue1   ", "rendered propertyValue1",
                 " propertyValue2 ", "rendered propertyValue2"
         );
 
