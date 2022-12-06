@@ -12,6 +12,7 @@ import {
 import { klona } from "klona/lite";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
+import AnalyticsUtil from "./AnalyticsUtil";
 import WidgetFactory from "./WidgetFactory";
 
 export enum RegisteredWidgetFeatures {
@@ -184,6 +185,11 @@ function updateMinMaxDynamicHeight(
       propertyValue: propertyValue,
     },
   ];
+
+  AnalyticsUtil.logEvent("AUTO_HEIGHT_PROPERTY_UPDATE", {
+    propertyName,
+    propertyValue,
+  });
 
   if (propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
     const minDynamicHeight = parseInt(props.minDynamicHeight, 10);
