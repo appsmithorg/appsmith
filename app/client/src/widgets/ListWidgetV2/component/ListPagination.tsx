@@ -398,8 +398,18 @@ function ListPagination(props: ListPaginationProps) {
       current={props.pageNo}
       disabled={props.disabled}
       locale={locale}
+      nextIcon={() => (
+        <button aria-label="next page" className="rc-pagination-item-link">
+          <Icon name="right-arrow-2" size={IconSize.XXL} />
+        </button>
+      )}
       onChange={props.onChange}
       pageSize={props.pageSize}
+      prevIcon={() => (
+        <button aria-label="prev page" className="rc-pagination-item-link">
+          <Icon name="left-arrow-2" size={IconSize.XXL} />
+        </button>
+      )}
       showTitle={false}
       total={props.total}
     />
