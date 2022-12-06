@@ -155,6 +155,12 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: {},
     },
     {
+      name: FocusElement.WidgetMeta,
+      selector: getWidgetsMeta,
+      setter: setAllMetaProps,
+      defaultValue: metaState,
+    },
+    {
       name: FocusElement.ExplorerSwitchIndex,
       selector: getExplorerSwitchIndex,
       setter: setExplorerSwitchIndex,
@@ -185,12 +191,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getSelectedWidgets,
       setter: selectMultipleWidgetsInitAction,
       defaultValue: [],
-    },
-    {
-      name: FocusElement.WidgetMeta,
-      selector: getWidgetsMeta,
-      setter: setAllMetaProps,
-      defaultValue: metaState,
     },
     {
       name: FocusElement.CanvasDebuggerTabs,
