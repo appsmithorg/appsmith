@@ -712,20 +712,6 @@ function ApplicationsSection(props: any) {
                   workspaceName: workspace.name,
                   workspaceSlug: workspace.id,
                 })}
-              {hasManageWorkspacePermissions && (
-                <Dialog
-                  canEscapeKeyClose={false}
-                  canOutsideClickClose
-                  isOpen={selectedWorkspaceId === workspace.id}
-                  onClose={() => setSelectedWorkspaceId("")}
-                  title={`Invite Users to ${workspace.name}`}
-                >
-                  <Form
-                    message={createMessage(INVITE_USERS_MESSAGE)}
-                    workspaceId={workspace.id}
-                  />
-                </Dialog>
-              )}
               {selectedWorkspaceIdForImportApplication && (
                 <ImportApplicationModal
                   isModalOpen={
