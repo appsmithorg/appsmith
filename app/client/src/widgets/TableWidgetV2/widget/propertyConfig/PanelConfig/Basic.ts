@@ -34,7 +34,7 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
           type: ValidationTypes.TEXT,
           params: {
@@ -131,7 +131,7 @@ export default {
                 isBindProperty: true,
                 isTriggerProperty: false,
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.BOOLEAN,
                   },
@@ -148,7 +148,7 @@ export default {
                 isBindProperty: true,
                 isTriggerProperty: false,
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.BOOLEAN,
                   },
@@ -208,7 +208,7 @@ export default {
                 isTriggerProperty: false,
                 dependencies: ["primaryColumns", "columnOrder"],
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.TEXT,
                     params: {
@@ -228,7 +228,7 @@ export default {
                 isTriggerProperty: false,
                 dependencies: ["primaryColumns", "columnOrder"],
                 validation: {
-                  type: ValidationTypes.TABLE_PROPERTY,
+                  type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
                   params: {
                     type: ValidationTypes.TEXT,
                     params: {

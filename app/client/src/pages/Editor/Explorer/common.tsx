@@ -39,16 +39,19 @@ const ECAddButton = styled.div`
 
 export function EmptyComponent(props: {
   mainText: string;
-  addBtnText: string;
-  addFunction: () => void;
+  addBtnText?: string;
+  addFunction?: () => void;
 }) {
+  const showAddCta = props.addFunction && props.addBtnText;
   return (
     <ECContainer>
       <ECMainText>{props.mainText}</ECMainText>
-      <ECAddButton onClick={props.addFunction}>
-        <Icon fillColor={Colors.CHARCOAL} name="plus" />
-        {props.addBtnText}
-      </ECAddButton>
+      {showAddCta && (
+        <ECAddButton onClick={props.addFunction}>
+          <Icon fillColor={Colors.CHARCOAL} name="plus" />
+          {props.addBtnText && props.addBtnText}
+        </ECAddButton>
+      )}
     </ECContainer>
   );
 }

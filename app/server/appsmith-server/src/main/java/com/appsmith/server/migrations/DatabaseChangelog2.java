@@ -2768,7 +2768,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "037", id = "indices-recommended-by-mongodb-cloud", author = "")
-    public void addTenantAdminPermissionsToInstanceAdmin(MongockTemplate mongockTemplate) {
+    public void addIndicesRecommendedByMongoCloud(MongockTemplate mongockTemplate) {
         dropIndexIfExists(mongockTemplate, NewPage.class, "deleted");
         ensureIndexes(mongockTemplate, NewPage.class, makeIndex("deleted"));
 

@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,9 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                                           AnalyticsService analyticsService,
                                           UserDataService userDataService,
                                           ApplicationService applicationService,
-                                          ResponseUtils responseUtils) {
-        super(cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService, userDataService, applicationService, responseUtils);
+                                          ResponseUtils responseUtils,
+                                          ApplicationPermission applicationPermission) {
+        super(cloudServicesConfig, releaseNotesService, importExportApplicationService, analyticsService,
+                userDataService, applicationService, responseUtils, applicationPermission);
     }
 }
