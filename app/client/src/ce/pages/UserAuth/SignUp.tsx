@@ -10,7 +10,6 @@ import {
 } from "react-router-dom";
 import {
   AuthCardHeader,
-  AuthCardNavLink,
   SpacedSubmitForm,
   FormActions,
   SignUpLinkSection,
@@ -32,7 +31,14 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
-import { Button, FormGroup, FormMessage, Size } from "design-system";
+import {
+  Button,
+  FormGroup,
+  FormMessage,
+  Link,
+  Size,
+  TextType,
+} from "design-system";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
@@ -159,12 +165,14 @@ export function SignUp(props: SignUpFormProps) {
       </AuthCardHeader>
       <SignUpLinkSection>
         {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
-        <AuthCardNavLink
+        <Link
+          isPrimary
           style={{ marginLeft: props.theme.spaces[3] }}
+          textType={TextType.CARD_SUBHEADER}
           to={AUTH_LOGIN_URL}
         >
           {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
-        </AuthCardNavLink>
+        </Link>
       </SignUpLinkSection>
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />

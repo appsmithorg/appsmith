@@ -8,7 +8,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const EndTutorial = styled.span`
   color: ${(props) => props.theme.colors.guidedTour.endTourButton.color};
-  ${getTypographyByKey("btnMedium")}
+  ${getTypographyByKey("buttonMedium")}
   cursor: pointer;
 
   &:hover {

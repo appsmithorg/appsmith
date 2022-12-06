@@ -16,8 +16,8 @@ const StyledUpdatesButton = styled.div`
   justify-content: space-between;
   cursor: pointer;
   background-color: ${(props) =>
-    props.theme.colors.floatingBtn.backgroundColor};
-  border: 1px solid ${(props) => props.theme.colors.floatingBtn.borderColor};
+    props.theme.colors.floatingButton.backgroundColor};
+  border: 1px solid ${(props) => props.theme.colors.floatingButton.borderColor};
 `;
 
 const StyledTag = styled.div`
@@ -26,7 +26,7 @@ const StyledTag = styled.div`
   line-height: ${(props) => props.theme.typography.p2.lineHeight}px;
   letter-spacing: ${(props) => props.theme.typography.p2.letterSpacing};
   padding: ${(props) => props.theme.spaces[1]}px;
-  background: ${(props) => props.theme.colors.floatingBtn.tagBackground};
+  background: ${(props) => props.theme.colors.floatingButton.tagBackground};
   border-radius: 100px;
   text-align: center;
   color: ${Colors.WHITE};
@@ -37,11 +37,11 @@ const StyledTag = styled.div`
 `;
 
 const UpdatesButtonTextContainer = styled.div`
-  font-weight: ${(props) => props.theme.typography.floatingBtn.fontWeight};
-  font-size: ${(props) => props.theme.typography.floatingBtn.fontSize}px;
-  line-height: ${(props) => props.theme.typography.floatingBtn.lineHeight}px;
+  font-weight: ${(props) => props.theme.typography.floatingButton.fontWeight};
+  font-size: ${(props) => props.theme.typography.floatingButton.fontSize}px;
+  line-height: ${(props) => props.theme.typography.floatingButton.lineHeight}px;
   letter-spacing: ${(props) =>
-    props.theme.typography.floatingBtn.letterSpacing}px;
+    props.theme.typography.floatingButton.letterSpacing}px;
   display: flex;
   align-items: center;
   margin-left: ${(props) => props.theme.spaces[5]}px;
@@ -50,7 +50,7 @@ const UpdatesButtonTextContainer = styled.div`
 
 const UpdatesIcon = withTheme(({ theme }) => (
   <HelpIcons.UPDATES
-    color={theme.colors.floatingBtn.iconColor}
+    color={theme.colors.floatingButton.iconColor}
     height={12}
     width={13}
   />

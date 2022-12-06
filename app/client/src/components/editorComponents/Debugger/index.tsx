@@ -38,7 +38,7 @@ const TriggerContainer = styled.div<{
 
   .debugger-count {
     color: ${Colors.WHITE};
-    ${getTypographyByKey("btnSmall")}
+    ${getTypographyByKey("buttonSmall")}
     height: 16px;
     width: 16px;
     background-color: ${(props) =>

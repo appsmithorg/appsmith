@@ -34,7 +34,7 @@ const StyledSocialLoginButton = styled.a`
   }
 
   & .login-method {
-    ${getTypographyByKey("btnLarge")}
+    ${getTypographyByKey("buttonLarge")}
     color: ${(props) => props.theme.colors.auth.socialBtnText};
     text-transform: uppercase;
   }

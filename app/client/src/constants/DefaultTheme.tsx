@@ -7,7 +7,7 @@ import { Alignment, Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
 import { IconProps } from "constants/IconConstants";
 import { JSXElementConstructor } from "react";
-import { typography, Typography, TypographyKeys } from "./typography";
+import { typography, Typography, TypographyKeys } from "design-system";
 
 import { LabelPosition } from "components/constants";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
@@ -587,25 +587,27 @@ export const thinScrollbar = css`
 // 3, 7, 11, 26
 
 export const smallButton = css`
-  font-size: ${(props) => props.theme.typography.btnSmall.fontSize}px;
-  font-weight: ${(props) => props.theme.typography.btnSmall.fontWeight};
-  line-height: ${(props) => props.theme.typography.btnSmall.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.btnSmall.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.buttonSmall.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.buttonSmall.fontWeight};
+  line-height: ${(props) => props.theme.typography.buttonSmall.lineHeight}px;
+  letter-spacing: ${(props) =>
+    props.theme.typography.buttonSmall.letterSpacing}px;
 `;
 
 export const mediumButton = css`
-  font-size: ${(props) => props.theme.typography.btnMedium.fontSize}px;
-  font-weight: ${(props) => props.theme.typography.btnMedium.fontWeight};
-  line-height: ${(props) => props.theme.typography.btnMedium.lineHeight}px;
+  font-size: ${(props) => props.theme.typography.buttonMedium.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.buttonMedium.fontWeight};
+  line-height: ${(props) => props.theme.typography.buttonMedium.lineHeight}px;
   letter-spacing: ${(props) =>
-    props.theme.typography.btnMedium.letterSpacing}px;
+    props.theme.typography.buttonMedium.letterSpacing}px;
 `;
 
 export const largeButton = css`
-  font-size: ${(props) => props.theme.typography.btnLarge.fontSize}px;
-  font-weight: ${(props) => props.theme.typography.btnLarge.fontWeight};
-  line-height: ${(props) => props.theme.typography.btnLarge.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.btnLarge.letterSpacing}px;
+  font-size: ${(props) => props.theme.typography.buttonLarge.fontSize}px;
+  font-weight: ${(props) => props.theme.typography.buttonLarge.fontWeight};
+  line-height: ${(props) => props.theme.typography.buttonLarge.lineHeight}px;
+  letter-spacing: ${(props) =>
+    props.theme.typography.buttonLarge.letterSpacing}px;
 `;
 
 export const appColors = [
@@ -1104,7 +1106,7 @@ type ColorType = {
       fullForm: string;
     };
   };
-  floatingBtn: any;
+  floatingButton: any;
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
   header: {
@@ -2005,7 +2007,7 @@ export const dark: ColorType = {
       fullForm: "#6D6D6D",
     },
   },
-  floatingBtn: {
+  floatingButton: {
     tagBackground: "#e22c2c",
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
@@ -2637,7 +2639,7 @@ export const light: ColorType = {
       fullForm: "#6D6D6D",
     },
   },
-  floatingBtn: {
+  floatingButton: {
     tagBackground: "#e22c2c",
     backgroundColor: lightShades[0],
     iconColor: lightShades[7],

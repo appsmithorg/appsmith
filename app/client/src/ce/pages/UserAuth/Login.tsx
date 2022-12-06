@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, Redirect, useLocation } from "react-router-dom";
+import { Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
 import {
   InjectedFormProps,
@@ -30,7 +30,14 @@ import {
   NEW_TO_APPSMITH,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Button, FormGroup, FormMessage, Size } from "design-system";
+import {
+  Button,
+  FormGroup,
+  FormMessage,
+  Link,
+  Size,
+  TextType,
+} from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
@@ -38,12 +45,10 @@ import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "pages/UserAuth/helpers";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
-
 import {
   SpacedSubmitForm,
   FormActions,
   AuthCardHeader,
-  AuthCardNavLink,
   SignUpLinkSection,
   ForgotPasswordLink,
 } from "pages/UserAuth/StyledComponents";
@@ -132,13 +137,15 @@ export function Login(props: LoginFormProps) {
       {!disableLoginForm && (
         <SignUpLinkSection>
           {createMessage(NEW_TO_APPSMITH)}
-          <AuthCardNavLink
+          <Link
             className="t--sign-up"
+            isPrimary
             style={{ marginLeft: props.theme.spaces[3] }}
+            textType={TextType.CARD_SUBHEADER}
             to={signupURL}
           >
             {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
-          </AuthCardNavLink>
+          </Link>
         </SignUpLinkSection>
       )}
       {showError && (
@@ -216,10 +223,11 @@ export function Login(props: LoginFormProps) {
               />
             </FormActions>
           </SpacedSubmitForm>
-          <ForgotPasswordLink>
-            <Link to={forgotPasswordURL}>
-              {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
-            </Link>
+          <ForgotPasswordLink
+            textType={TextType.CARD_SUBHEADER}
+            to={forgotPasswordURL}
+          >
+            {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
           </ForgotPasswordLink>
         </>
       )}

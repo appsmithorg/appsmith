@@ -57,9 +57,7 @@ public class SegmentConfig {
         final Analytics analytics = Analytics.builder(analyticsWriteKey).log(logProcessorWithErrorHandler).build();
         logProcessorWithErrorHandler.onError(logData -> {
             final Throwable error = logData.getError();
-            // TODO remove this log statement once the issue with analytics is resolved
-            log.error(" UserId is null or empty inside error. Message from log data {}, stack trace {}, message from error {}, args {}", logData.getMessage(), error == null ? "null" : ExceptionUtils.getStackTrace(error), error == null ? "" : error.getMessage(), ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()));
-            analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error").userId("segmentError")
+             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error").userId("segmentError")
                     .properties(Map.of(
                             "message", logData.getMessage(),
                             "error", error == null ? "" : error.getMessage(),

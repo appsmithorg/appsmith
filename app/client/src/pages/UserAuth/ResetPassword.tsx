@@ -1,6 +1,10 @@
 import React, { useLayoutEffect } from "react";
 import { AppState } from "@appsmith/reducers";
-import { Link, withRouter, RouteComponentProps } from "react-router-dom";
+import {
+  Link as RouterLink,
+  withRouter,
+  RouteComponentProps,
+} from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
@@ -13,6 +17,7 @@ import {
   FormGroup,
   FormMessage,
   FormMessageProps,
+  Link,
   MessageAction,
   Size,
 } from "design-system";
@@ -21,11 +26,7 @@ import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
-import {
-  AuthCardHeader,
-  BlackAuthCardNavLink,
-  FormActions,
-} from "./StyledComponents";
+import { AuthCardHeader, FormActions } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -101,7 +102,9 @@ export function ResetPassword(props: ResetPasswordProps) {
     );
     messageActions = [
       {
-        linkElement: <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>,
+        linkElement: (
+          <RouterLink to={FORGOT_PASSWORD_URL}>{messageActionText}</RouterLink>
+        ),
         text: messageActionText,
         intent: "primary",
       },
@@ -121,7 +124,9 @@ export function ResetPassword(props: ResetPasswordProps) {
     message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
-        linkElement: <Link to={AUTH_LOGIN_URL}>{messageActionText}</Link>,
+        linkElement: (
+          <RouterLink to={AUTH_LOGIN_URL}>{messageActionText}</RouterLink>
+        ),
         text: messageActionText,
         intent: "success",
       },
@@ -142,7 +147,9 @@ export function ResetPassword(props: ResetPasswordProps) {
       messageActions = [
         {
           linkElement: (
-            <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>
+            <RouterLink to={FORGOT_PASSWORD_URL}>
+              {messageActionText}
+            </RouterLink>
           ),
           text: messageActionText,
           intent: "primary",
@@ -173,13 +180,13 @@ export function ResetPassword(props: ResetPasswordProps) {
         <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
       </AuthCardHeader>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
+        <Link to={AUTH_LOGIN_URL}>
           <Icon
             icon="arrow-left"
             style={{ marginRight: props.theme.spaces[3] }}
           />
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
-        </BlackAuthCardNavLink>
+        </Link>
       </div>
       {(showSuccessMessage || showFailureMessage) && (
         <FormMessage {...messageTagProps} />

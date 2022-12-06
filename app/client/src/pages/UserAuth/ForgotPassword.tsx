@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
-import { withRouter, RouteComponentProps, Link } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 import {
   change,
   reduxForm,
@@ -11,7 +11,6 @@ import StyledForm from "components/editorComponents/Form";
 import {
   AuthCardHeader,
   FormActions,
-  BlackAuthCardNavLink,
   FormMessagesContainer,
 } from "./StyledComponents";
 import { withTheme } from "styled-components";
@@ -30,7 +29,7 @@ import {
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, FormGroup, FormMessage, Size } from "design-system";
+import { Button, FormGroup, FormMessage, Link, Size } from "design-system";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import {
@@ -81,13 +80,13 @@ export const ForgotPassword = withTheme(
           <h1>{createMessage(FORGOT_PASSWORD_PAGE_TITLE)}</h1>
         </AuthCardHeader>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
+          <Link to={AUTH_LOGIN_URL}>
             <Icon
               icon="arrow-left"
               style={{ marginRight: props.theme.spaces[3] }}
             />
             {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
-          </BlackAuthCardNavLink>
+          </Link>
         </div>
         <FormMessagesContainer>
           {submitSucceeded && (
@@ -117,7 +116,6 @@ export const ForgotPassword = withTheme(
                 },
               ]}
               intent="warning"
-              linkAs={Link}
               message={
                 "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
               }

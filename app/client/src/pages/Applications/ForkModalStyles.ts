@@ -8,7 +8,7 @@ import {
 import { Classes } from "@blueprintjs/core";
 
 const TriggerButton = styled(Button)`
-  ${getTypographyByKey("btnLarge")}
+  ${getTypographyByKey("buttonLarge")}
   height: 100%;
 `;
 

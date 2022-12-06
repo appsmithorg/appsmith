@@ -1,8 +1,7 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
-import { getTypographyByKey } from "design-system";
+import { getTypographyByKey, Link } from "design-system";
 
 export const AuthContainer = styled.section`
   position: absolute;
@@ -70,16 +69,6 @@ export const AuthCardHeader = styled.header`
   }
 `;
 
-export const AuthCardNavLink = styled(Link)`
-  border-bottom: 1px solid transparent;
-  color: ${(props) => props.theme.colors.auth.link};
-  &:hover {
-    border-bottom: 1px solid ${(props) => props.theme.colors.auth.link};
-    text-decoration: none;
-    color: ${(props) => props.theme.colors.auth.link};
-  }
-`;
-
 export const AuthCardFooter = styled.footer`
   display: flex;
   width: 100%;
@@ -125,26 +114,12 @@ export const SignUpLinkSection = styled.div`
   text-align: center;
 `;
 
-export const ForgotPasswordLink = styled.div`
-  ${getTypographyByKey("cardSubheader")}
-  color: ${(props) => props.theme.colors.auth.text};
-  text-align: center;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
-  & a {
-    color: ${(props) => props.theme.colors.auth.text};
-  }
+export const ForgotPasswordLink = styled(Link)`
+  align-self: center;
+  margin-top: var(--ads-spaces-11);
 `;
 
 export const FormMessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-export const BlackAuthCardNavLink = styled(AuthCardNavLink)`
-  color: #000;
-  border-bottom: 1px solid transparent;
-  &:hover {
-    color: #000;
-    border-bottom: 1px solid #000;
-  }
 `;
