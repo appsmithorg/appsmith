@@ -192,16 +192,6 @@ jobs:
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
-             echo "Server Not Started";
-             exit 1;
-           else
-             echo "Server Found";
-           fi
-
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
@@ -265,6 +255,16 @@ jobs:
         working-directory: app/client/perf
         shell: bash
         run: yarn install --frozen-lockfile
+
+      - name: Exit if Server hasnt started
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+             echo "Server Not Started";
+             exit 1;
+           else
+             echo "Server Found";
+           fi
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
