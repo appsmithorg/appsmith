@@ -42,7 +42,7 @@ export function ThemeBetaCard() {
       <div>{createMessage(APP_THEME_BETA_CARD_CONTENT)}</div>
       <div className="flex items-center space-x-2">
         <Button
-          category={Category.tertiary}
+          category={Category.secondary}
           size={Size.small}
           text="Learn more"
         />

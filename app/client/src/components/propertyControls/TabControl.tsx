@@ -50,7 +50,7 @@ function AddTabButtonComponent({ widgetId }: any) {
   return (
     <StyledPropertyPaneButtonWrapper>
       <StyledPropertyPaneButton
-        category={Category.tertiary}
+        category={Category.secondary}
         className="t--add-tab-btn"
         icon="plus"
         onClick={addOption}
