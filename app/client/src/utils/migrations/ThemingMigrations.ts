@@ -9,6 +9,7 @@ import {
 import { TextSizes } from "constants/WidgetConstants";
 import { clone, get, has, set } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BUTTON_GROUP_CHILD_STYLESHEET,
@@ -622,22 +623,15 @@ export const migrateChildStylesheetFromDynamicBindingPathList = (
     "BUTTON_GROUP_WIDGET",
     "JSON_FORM_WIDGET",
   ];
-
-  currentDSL.children = currentDSL.children?.map((child) => {
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
     if (
-      widgetsWithChildStylesheet.includes(child.type) &&
-      child.childStylesheet
+      widgetsWithChildStylesheet.includes(widget.type) &&
+      widget.childStylesheet
     ) {
-      const newPaths = child.dynamicBindingPathList?.filter(
+      const newPaths = widget.dynamicBindingPathList?.filter(
         ({ key }) => !key.startsWith("childStylesheet."),
       );
-      child.dynamicBindingPathList = newPaths;
-    } else if (child.children && child.children.length > 0) {
-      child = migrateChildStylesheetFromDynamicBindingPathList(child);
+      widget.dynamicBindingPathList = newPaths;
     }
-
-    return child;
   });
-
-  return currentDSL;
 };
