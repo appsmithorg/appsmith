@@ -51,7 +51,6 @@ import {
   Classes,
   EditableText,
   EditInteractionKind,
-  DialogComponent as Dialog,
   Icon,
   IconName,
   IconSize,
@@ -566,14 +565,10 @@ function ApplicationsSection(props: any) {
     dispatch(duplicateApplication(applicationId));
   };
 
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<
-    string | undefined
-  >();
   const [
     selectedWorkspaceIdForImportApplication,
     setSelectedWorkspaceIdForImportApplication,
   ] = useState<string | undefined>();
-  const Form: any = WorkspaceInviteUsersForm;
 
   const leaveWS = (workspaceId: string) => {
     setWarnLeavingWorkspace(false);
@@ -712,20 +707,6 @@ function ApplicationsSection(props: any) {
                   workspaceName: workspace.name,
                   workspaceSlug: workspace.id,
                 })}
-              {hasManageWorkspacePermissions && (
-                <Dialog
-                  canEscapeKeyClose={false}
-                  canOutsideClickClose
-                  isOpen={selectedWorkspaceId === workspace.id}
-                  onClose={() => setSelectedWorkspaceId("")}
-                  title={`Invite Users to ${workspace.name}`}
-                >
-                  <Form
-                    message={createMessage(INVITE_USERS_MESSAGE)}
-                    workspaceId={workspace.id}
-                  />
-                </Dialog>
-              )}
               {selectedWorkspaceIdForImportApplication && (
                 <ImportApplicationModal
                   isModalOpen={
@@ -855,13 +836,6 @@ function ApplicationsSection(props: any) {
                             />
                           )}
                           <MenuItem
-                            icon="share-line"
-                            onSelect={() =>
-                              setSelectedWorkspaceId(workspace.id)
-                            }
-                            text="Share"
-                          />
-                          <MenuItem
                             icon="member"
                             onSelect={() =>
                               getOnSelectAction(
@@ -922,6 +896,9 @@ function ApplicationsSection(props: any) {
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
+                      hasCreateNewApplicationPermission={
+                        hasCreateNewApplicationPermission
+                      }
                       isMobile={isMobile}
                       key={application.id}
                       update={updateApplicationDispatch}

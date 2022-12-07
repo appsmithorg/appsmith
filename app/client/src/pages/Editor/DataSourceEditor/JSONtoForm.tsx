@@ -221,7 +221,7 @@ export class JSONtoForm<
         if (isArrayorObject(valueType)) {
           this.getTrimmedData(formData[key]);
         } else if (valueType === Types.STRING) {
-          formData[key] = formData[key].trim();
+          _.set(formData, key, formData[key].trim());
         }
       });
     }
@@ -245,7 +245,7 @@ export class JSONtoForm<
     return (
       <Collapsible
         defaultIsOpen={index === 0}
-        key={index}
+        key={section.sectionName}
         title={section.sectionName}
       >
         {this.renderEachConfig(section)}

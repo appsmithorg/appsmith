@@ -126,6 +126,14 @@ export const StyledDropDownContainer = styled.div`
 export const StyledDropDown = styled(Dropdown)`
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
+
+  /*
+    We use this font family to show emoji flags
+    on windows devices
+  */
+  .left-icon-wrapper {
+    font-family: "Twemoji Country Flags";
+  }
 `;
 
 export const StyledMenu = styled(Menu)`

@@ -402,23 +402,22 @@ function* openOrCloseModalSaga(
   if (!action.payload.widgetId) return;
   if (action.payload.isMultiSelect) return;
 
-  const widgetMap: Record<string, FlattenedWidgetProps> = yield select(
-    getAllWidgetsMap,
-  );
-
   const modalWidgetIds: string[] = yield select(
     getWidgetIdsByType,
     "MODAL_WIDGET",
   );
 
-  const widget = widgetMap[action.payload.widgetId];
-
-  const widgetIsModal = modalWidgetIds.includes(widget.widgetId);
+  const widgetIsModal = modalWidgetIds.includes(action.payload.widgetId);
 
   if (widgetIsModal) {
-    yield put(showModal(widget.widgetId));
+    yield put(showModal(action.payload.widgetId));
     return;
   }
+  const widgetMap: Record<string, FlattenedWidgetProps> = yield select(
+    getAllWidgetsMap,
+  );
+
+  const widget = widgetMap[action.payload.widgetId];
 
   if (widget.parentId) {
     const widgetInModal = modalWidgetIds.includes(widget.parentModalId);

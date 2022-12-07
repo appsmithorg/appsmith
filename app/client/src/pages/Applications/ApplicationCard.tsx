@@ -310,6 +310,7 @@ type ApplicationCardProps = {
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
   isMobile?: boolean;
+  hasCreateNewApplicationPermission?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -469,7 +470,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--share",
       });
     }
-    if (props.duplicate && hasEditPermission) {
+    if (
+      props.duplicate &&
+      props.hasCreateNewApplicationPermission &&
+      hasEditPermission
+    ) {
       moreActionItems.push({
         onSelect: duplicateApp,
         text: "Duplicate",
@@ -516,6 +521,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const hasDeletePermission = hasDeleteApplicationPermission(
     props.application?.userPermissions,
   );
+
   const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&

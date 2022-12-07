@@ -8,7 +8,7 @@ describe("Divider Widget Functionality", function() {
 
   it("Add new Divider", () => {
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("dividerwidget", { x: 300, y: 300 });
+    cy.dragAndDropToCanvas("dividerwidget", { x: 320, y: 300 });
     cy.get(".t--divider-widget").should("exist");
   });
 

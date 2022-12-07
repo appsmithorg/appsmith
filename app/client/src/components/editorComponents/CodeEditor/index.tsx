@@ -394,7 +394,9 @@ class CodeEditor extends Component<Props, State> {
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData) {
-      // check if isFocused or isJSObject or areErrors changed then re-render
+      // check if isFocused as the other components that are not focused don't need a rerender (perf)
+      // check if errors have changed as they will come from outside and we want to update if they have changed
+      // check if isJSObject.. TODO answer why?
       let areErrorsEqual = true;
       if (this.props.dataTreePath) {
         const errors = this.getErrors(
@@ -421,6 +423,8 @@ class CodeEditor extends Component<Props, State> {
   }, 100);
 
   componentDidUpdate(prevProps: Props): void {
+    const identifierHasChanged =
+      getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
     if (
       prevProps.containerHeight &&
       this.props.containerHeight &&
@@ -429,10 +433,7 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
-    if (
-      getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps) &&
-      shouldFocusOnPropertyControl()
-    ) {
+    if (identifierHasChanged && shouldFocusOnPropertyControl()) {
       setTimeout(() => {
         if (this.props.editorIsFocused) {
           this.editor.focus();
@@ -440,20 +441,34 @@ class CodeEditor extends Component<Props, State> {
       }, 200);
     }
     this.editor.operation(() => {
-      if (prevProps.lintErrors !== this.props.lintErrors)
+      if (prevProps.lintErrors !== this.props.lintErrors) {
         this.lintCode(this.editor);
+      }
 
-      if (this.state.isFocused) return;
-      // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
       const inputValue = getInputValue(this.props.input.value);
       const previousInputValue = getInputValue(prevProps.input.value);
 
-      if (!!inputValue || inputValue === "") {
-        if (inputValue !== editorValue && _.isString(inputValue)) {
-          this.editor.setValue(inputValue);
-          this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
+      if (_.isString(inputValue)) {
+        /* We want to check if the input value and the editor value is out of sync.
+         * We always want to make sure editor is the correct value since the source if the input value
+         * But the editor updates the input value on change.
+         * To solve this:
+         * We check if the values are different,
+         * and we check if they are different because the input value has changed
+         * and not because the editor value has changed
+         * */
+        if (inputValue !== editorValue && inputValue !== previousInputValue) {
+          // If it is focused update it only if the identifier has changed
+          // if not focused, can be updated
+          if (this.state.isFocused) {
+            if (identifierHasChanged) {
+              this.setEditorInput(inputValue);
+            }
+          } else {
+            this.setEditorInput(inputValue);
+          }
         } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
           // Even if Editor is updated with new value, it cannot update without layour calcs.
           //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
@@ -461,14 +476,21 @@ class CodeEditor extends Component<Props, State> {
         }
       } else if (previousInputValue !== inputValue) {
         // handles case when inputValue changes from a truthy to a falsy value
-        this.editor.setValue("");
+        this.setEditorInput("");
       }
+
       CodeEditor.updateMarkings(
         this.editor,
         this.props.marking,
         this.props.entitiesForNavigation,
       );
     });
+  }
+
+  setEditorInput(value: string) {
+    this.editor.setValue(value);
+    // when input gets updated on focus out clear undo/redo from codeMirror History
+    this.editor.clearHistory();
   }
 
   handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -601,20 +623,29 @@ class CodeEditor extends Component<Props, State> {
           NAVIGATE_TO_ATTRIBUTE,
         ).value;
 
-        const navigationData = this.props.entitiesForNavigation[
-          entityToNavigate
-        ];
-        history.push(navigationData.url, { directNavigation: true });
+        // focus out of the input
+        document.body.focus();
+        this.setState(
+          {
+            isFocused: false,
+          },
+          () => {
+            const navigationData = this.props.entitiesForNavigation[
+              entityToNavigate
+            ];
+            history.push(navigationData.url, { directNavigation: true });
 
-        // TODO fix the widget navigation issue to remove this
-        if (navigationData.type === ENTITY_TYPE.WIDGET) {
-          this.props.selectWidget(navigationData.id);
-        }
+            // TODO fix the widget navigation issue to remove this
+            if (navigationData.type === ENTITY_TYPE.WIDGET) {
+              this.props.selectWidget(navigationData.id);
+            }
 
-        AnalyticsUtil.logEvent("Cmd+Click Navigation", {
-          toType: navigationData.type,
-          fromType: entityInfo.entityType,
-        });
+            AnalyticsUtil.logEvent("Cmd+Click Navigation", {
+              toType: navigationData.type,
+              fromType: entityInfo.entityType,
+            });
+          },
+        );
       }
     }
   };
