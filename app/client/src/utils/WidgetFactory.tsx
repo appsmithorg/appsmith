@@ -3,7 +3,10 @@ import React from "react";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { RenderMode } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderMode,
+} from "constants/WidgetConstants";
 import * as log from "loglevel";
 import { WidgetFeatures } from "./WidgetFeatures";
 import {
@@ -12,6 +15,7 @@ import {
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
 import { CanvasWidgetStructure } from "widgets/constants";
+import { Positioning } from "components/constants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -155,6 +159,10 @@ class WidgetFactory {
       ...widgetData,
       renderMode,
     };
+    if (widgetData.widgetId === MAIN_CONTAINER_WIDGET_ID) {
+      widgetProps.useAutoLayout = true;
+      widgetProps.positioning = Positioning.Vertical;
+    }
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       const widget = widgetBuilder.buildWidget(widgetProps);
