@@ -9,7 +9,7 @@ const CarouselContainer = styled.div`
   gap: 64px;
   justify-content: center;
   align-items: center;
-  padding: 16px;
+  padding: 16px 52px;
 
   & .carousel-triggers {
     display: flex;
@@ -18,10 +18,11 @@ const CarouselContainer = styled.div`
     justify-content: center;
     align-items: center;
     width: 50%;
+    max-width: 520px;
 
     & .carousel-trigger {
       padding: 16px;
-      width: 384px;
+      width: 100%;
       height: 56px;
       cursor: pointer;
 
@@ -55,10 +56,6 @@ const CarouselContainer = styled.div`
              */
             margin-top: -2px;
           }
-
-          & .trigger-details-container {
-            width: 290px;
-          }
         }
       }
     }
@@ -71,7 +68,7 @@ const CarouselContainer = styled.div`
 
   & .carousel-targets {
     width: 680px;
-    height: 472px;
+    min-height: 400px;
     display: flex;
     justify-content: center;
     align-items: center;
