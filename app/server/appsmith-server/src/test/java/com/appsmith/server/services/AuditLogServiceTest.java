@@ -17,6 +17,7 @@ import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
@@ -24,13 +25,20 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.AuditLog;
+import com.appsmith.server.domains.AuditLogMetadata;
+import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
+import com.appsmith.server.domains.AuditLogResource;
+import com.appsmith.server.domains.AuditLogUserGroupMetadata;
+import com.appsmith.server.domains.AuditLogUserMetadata;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -41,6 +49,13 @@ import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.PermissionGroupCompactDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
+import com.appsmith.server.dtos.UserCompactDTO;
+import com.appsmith.server.dtos.UserGroupCompactDTO;
+import com.appsmith.server.dtos.UserGroupDTO;
+import com.appsmith.server.dtos.UsersForGroupDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -54,6 +69,7 @@ import com.appsmith.server.solutions.EnvManager;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
+import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -205,6 +221,10 @@ public class AuditLogServiceTest {
     @SpyBean
     DatasourceContextServiceImpl datasourceContextService;
 
+    @Autowired
+    UserGroupService userGroupService;
+    @Autowired
+    PermissionGroupService permissionGroupService;
     private static String workspaceId;
     private static Application app;
     private static Application gitConnectedApp;
@@ -3395,5 +3415,503 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getInvitedUsers()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUserGroup_auditLogsTest_allOperations() {
+        MultiValueMap<String, String> params;
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("testUserGroup_auditLogsTest");
+        String resourceType = auditLogService.getResourceType(userGroup);
+        User apiUser = userService.findByEmail("api_user").block();
+
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(userGroup).block();
+        params = getAuditLogRequest(null, "group.created", resourceType, createdUserGroup.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("group.created");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();
+                    assertThat(auditLogResource.getType()).isEqualTo("Group");
+                    assertThat(auditLogResource.getId()).isEqualTo(createdUserGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(createdUserGroup.getName());
+                }).verifyComplete();
+
+        userGroup.setName("testUserGroup_auditLogsTest name updated");
+        UserGroupDTO updatedUserGroup = userGroupService.updateGroup(createdUserGroup.getId(), userGroup).block();
+        params = getAuditLogRequest(null, "group.updated", resourceType, createdUserGroup.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("group.updated");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();
+                    assertThat(auditLogResource.getType()).isEqualTo("Group");
+                    assertThat(auditLogResource.getId()).isEqualTo(updatedUserGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(updatedUserGroup.getName());
+                }).verifyComplete();
+
+        Set<String> usernames = new HashSet<>();
+        usernames.add("test@appsmith.com");
+        UsersForGroupDTO invitedUsers = new UsersForGroupDTO(usernames, Set.of(createdUserGroup.getId()));
+        List<UserGroupDTO> invitedUserGroupDTOS = userGroupService.inviteUsers(invitedUsers, "origin").block();
+        params = getAuditLogRequest(null, "group.inviteUsers", resourceType, createdUserGroup.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    UserGroupDTO userGroupDTO = invitedUserGroupDTOS.stream().filter(dto -> dto.getId().equals(createdUserGroup.getId())).findFirst().get();
+                    Set<String> usernamesInGroup = userGroupDTO.getUsers().stream().map(UserCompactDTO::getUsername).collect(Collectors.toSet());
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("group.inviteUsers");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNotNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();
+                    assertThat(auditLogResource.getType()).isEqualTo("Group");
+                    assertThat(auditLogResource.getId()).isEqualTo(userGroupDTO.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(userGroupDTO.getName());
+
+                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getUserGroup();
+                    assertThat(userGroupMetadata.getInvitedUsers()).hasSize(1);
+                    userGroupMetadata.getInvitedUsers().forEach(invitedUser -> assertThat(usernamesInGroup).contains(invitedUser));
+                    assertThat(userGroupMetadata.getRemovedUsers()).isNull();
+                }).verifyComplete();
+
+        UsersForGroupDTO removedUsers = new UsersForGroupDTO(usernames, Set.of(createdUserGroup.getId()));
+        List<UserGroupDTO> removedUserGroupDTOS = userGroupService.removeUsers(removedUsers).block();
+        params = getAuditLogRequest(null, "group.removeUsers", resourceType, createdUserGroup.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    UserGroupDTO userGroupDTO = removedUserGroupDTOS.stream().filter(dto -> dto.getId().equals(createdUserGroup.getId())).findFirst().get();
+                    Set<String> usernamesInGroup = userGroupDTO.getUsers().stream().map(UserCompactDTO::getUsername).collect(Collectors.toSet());
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("group.removeUsers");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNotNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();
+                    assertThat(auditLogResource.getType()).isEqualTo("Group");
+                    assertThat(auditLogResource.getId()).isEqualTo(userGroupDTO.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(userGroupDTO.getName());
+
+                    AuditLogUserGroupMetadata userGroupMetadata = auditLog.getUserGroup();
+                    assertThat(userGroupMetadata.getRemovedUsers()).hasSize(1);
+                    userGroupMetadata.getRemovedUsers().forEach(removedUser -> assertThat(usernamesInGroup).doesNotContain(removedUser));
+                    assertThat(userGroupMetadata.getInvitedUsers()).isNull();
+                }).verifyComplete();
+
+        UserGroup deletedUserGroup = userGroupService.archiveById(createdUserGroup.getId()).block();
+        params = getAuditLogRequest(null, "group.deleted", resourceType, createdUserGroup.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("group.deleted");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();
+                    assertThat(auditLogResource.getType()).isEqualTo("Group");
+                    assertThat(auditLogResource.getId()).isEqualTo(deletedUserGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(deletedUserGroup.getName());
+                }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPermissionGroup_auditLogsTest_allOperations() {
+        MultiValueMap<String, String> params;
+        UserGroup userGroup = new UserGroup();
+        userGroup.setName("testPermissionGroup_auditLogsTest_allOperations");
+        UserGroupDTO createdUserGroup = userGroupService.createGroup(userGroup).block();
+        User apiUser = userService.findByEmail("api_user").block();
+
+        User user = new User();
+        user.setEmail("lalala@appsmith@com");
+        user.setPassword("lalala");
+        User createdUser = userService.create(user).block();
+
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("testPermissionGroup_auditLogsTest_allOperations");
+        String resourceType = auditLogService.getResourceType(permissionGroup);
+
+        RoleViewDTO roleViewDTO = permissionGroupService.createCustomPermissionGroup(permissionGroup).block();
+        params = getAuditLogRequest(null, "role.created", resourceType, roleViewDTO.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("role.created");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();
+                    assertThat(auditLogResource.getType()).isEqualTo("Role");
+                    assertThat(auditLogResource.getId()).isEqualTo(roleViewDTO.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(roleViewDTO.getName());
+                }).verifyComplete();
+
+        permissionGroup.setName("testPermissionGroup_auditLogsTest_allOperations name updated");
+        PermissionGroupInfoDTO updatedPermissionGroup = permissionGroupService.updatePermissionGroup(roleViewDTO.getId(), permissionGroup).block();
+        params = getAuditLogRequest(null, "role.updated", resourceType, roleViewDTO.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("role.updated");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();
+                    assertThat(auditLogResource.getType()).isEqualTo("Role");
+                    assertThat(auditLogResource.getId()).isEqualTo(updatedPermissionGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(updatedPermissionGroup.getName());
+                }).verifyComplete();
+
+        UserCompactDTO userCompactDTO = new UserCompactDTO(createdUser.getId(), createdUser.getUsername(), createdUser.getName());
+        UserGroupCompactDTO userGroupCompactDTO = new UserGroupCompactDTO(createdUserGroup.getId(), createdUserGroup.getName());
+        PermissionGroupCompactDTO permissionGroupCompactDTO = new PermissionGroupCompactDTO(roleViewDTO.getId(), roleViewDTO.getName());
+
+        UpdateRoleAssociationDTO assignUserGroups = new UpdateRoleAssociationDTO();
+        assignUserGroups.setGroups(Set.of(userGroupCompactDTO));
+        assignUserGroups.setRolesAdded(Set.of(permissionGroupCompactDTO));
+
+        Boolean changeRoleAssociationAssignUserGroups = userAndAccessManagementService.changeRoleAssociations(assignUserGroups).block();
+        assertThat(changeRoleAssociationAssignUserGroups).isTrue();
+        params = getAuditLogRequest(null, "role.assignedGroups", resourceType, roleViewDTO.getId(), null, null, null, null, null);
+        PermissionGroup dbPermissionGroup = permissionGroupService.findById(roleViewDTO.getId(), AclPermission.MANAGE_PERMISSION_GROUPS).block();
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("role.assignedGroups");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getPermissionGroup()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    assertThat(auditLogResource.getType()).isEqualTo("Role");
+                    assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
+
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    assertThat(permissionGroupMetadata.getAssignedUserGroups()).hasSize(1);
+                    assertThat(permissionGroupMetadata.getAssignedUserGroups().get(0)).isEqualTo(createdUserGroup.getName());
+                    assertThat(permissionGroupMetadata.getUnAssignedUserGroups()).isNull();
+                    assertThat(permissionGroupMetadata.getAssignedUsers()).isEmpty();
+                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).isNull();
+                }).verifyComplete();
+
+        UpdateRoleAssociationDTO unassignUserGroups = new UpdateRoleAssociationDTO();
+        unassignUserGroups.setGroups(Set.of(userGroupCompactDTO));
+        unassignUserGroups.setRolesRemoved(Set.of(permissionGroupCompactDTO));
+
+        Boolean changeRoleAssociationUnassignUserGroups = userAndAccessManagementService.changeRoleAssociations(unassignUserGroups).block();
+        assertThat(changeRoleAssociationUnassignUserGroups).isTrue();
+        params = getAuditLogRequest(null, "role.unAssignedGroups", resourceType, roleViewDTO.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("role.unAssignedGroups");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getPermissionGroup()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    assertThat(auditLogResource.getType()).isEqualTo("Role");
+                    assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
+
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    assertThat(permissionGroupMetadata.getUnAssignedUserGroups()).hasSize(1);
+                    assertThat(permissionGroupMetadata.getUnAssignedUserGroups().get(0)).isEqualTo(createdUserGroup.getName());
+                    assertThat(permissionGroupMetadata.getAssignedUserGroups()).isNull();
+                    assertThat(permissionGroupMetadata.getAssignedUsers()).isNull();
+                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).isEmpty();
+                }).verifyComplete();
+
+        UpdateRoleAssociationDTO assignUser = new UpdateRoleAssociationDTO();
+        assignUser.setUsers(Set.of(userCompactDTO));
+        assignUser.setRolesAdded(Set.of(permissionGroupCompactDTO));
+
+        Boolean changeRoleAssociationAssignUser = userAndAccessManagementService.changeRoleAssociations(assignUser).block();
+        assertThat(changeRoleAssociationAssignUser).isTrue();
+        params = getAuditLogRequest(null, "role.assignedUsers", resourceType, roleViewDTO.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("role.assignedUsers");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getPermissionGroup()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    assertThat(auditLogResource.getType()).isEqualTo("Role");
+                    assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
+
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    assertThat(permissionGroupMetadata.getAssignedUsers()).hasSize(1);
+                    assertThat(permissionGroupMetadata.getAssignedUsers().get(0)).isEqualTo(createdUser.getEmail());
+                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).isNull();
+                    assertThat(permissionGroupMetadata.getAssignedUserGroups()).isEmpty();
+                    assertThat(permissionGroupMetadata.getUnAssignedUserGroups()).isNull();
+                }).verifyComplete();
+
+        UpdateRoleAssociationDTO unassignUser = new UpdateRoleAssociationDTO();
+        unassignUser.setUsers(Set.of(userCompactDTO));
+        unassignUser.setRolesRemoved(Set.of(permissionGroupCompactDTO));
+
+        Boolean changeRoleAssociationUnassignUsers = userAndAccessManagementService.changeRoleAssociations(unassignUser).block();
+        assertThat(changeRoleAssociationUnassignUsers).isTrue();
+        params = getAuditLogRequest(null, "role.unAssignedUsers", resourceType, roleViewDTO.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("role.unAssignedUsers");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getPermissionGroup()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    assertThat(auditLogResource.getType()).isEqualTo("Role");
+                    assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
+
+                    AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
+                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).hasSize(1);
+                    assertThat(permissionGroupMetadata.getUnAssignedUsers().get(0)).isEqualTo(createdUser.getEmail());
+                    assertThat(permissionGroupMetadata.getAssignedUsers()).isNull();
+                    assertThat(permissionGroupMetadata.getAssignedUserGroups()).isNull();
+                    assertThat(permissionGroupMetadata.getUnAssignedUserGroups()).isEmpty();
+                }).verifyComplete();
+
+        PermissionGroup deletedPermissionGroup = permissionGroupService.archiveById(dbPermissionGroup.getId()).block();
+        params = getAuditLogRequest(null, "role.deleted", resourceType, roleViewDTO.getId(), null, null, null, null, null);
+        StepVerifier.create(auditLogService.get(params))
+                .assertNext(auditLogs -> {
+                    assertThat(auditLogs).isNotEmpty();
+                    AuditLog auditLog = auditLogs.get(0);
+
+                    assertThat(auditLog.getEvent()).isEqualTo("role.deleted");
+                    assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+
+                    assertThat(auditLog.getResource()).isNotNull();
+                    assertThat(auditLog.getMetadata()).isNotNull();
+                    assertThat(auditLog.getUser()).isNotNull();
+                    assertThat(auditLog.getUserGroup()).isNull();
+                    assertThat(auditLog.getWorkspace()).isNull();
+                    assertThat(auditLog.getApplication()).isNull();
+                    assertThat(auditLog.getPermissionGroup()).isNull();
+                    assertThat(auditLog.getPage()).isNull();
+
+                    AuditLogUserMetadata userMetadata = auditLog.getUser();
+                    assertThat(userMetadata.getId()).isEqualTo(apiUser.getId());
+                    assertThat(userMetadata.getName()).isEqualTo(apiUser.getName());
+
+                    AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
+                    assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
+
+                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    assertThat(auditLogResource.getType()).isEqualTo("Role");
+                    assertThat(auditLogResource.getId()).isEqualTo(deletedPermissionGroup.getId());
+                    assertThat(auditLogResource.getName()).isEqualTo(deletedPermissionGroup.getName());
+                }).verifyComplete();
     }
 }

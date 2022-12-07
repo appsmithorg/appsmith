@@ -16,7 +16,9 @@ import com.appsmith.server.domains.AuditLogApplicationMetadata;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.AuditLogGitMetadata;
 import com.appsmith.server.domains.AuditLogPageMetadata;
+import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
 import com.appsmith.server.domains.AuditLogResource;
+import com.appsmith.server.domains.AuditLogUserGroupMetadata;
 import com.appsmith.server.domains.AuditLogUserMetadata;
 import com.appsmith.server.domains.AuditLogWorkpsaceMetadata;
 import com.appsmith.server.domains.AuditLogDestinationWorkspaceMetadata;
@@ -24,7 +26,9 @@ import com.appsmith.server.domains.AuditLogAuthenticationMetadata;
 import com.appsmith.server.domains.AuditLogMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Plugin;
@@ -52,6 +56,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -424,6 +429,41 @@ public class AuditLogServiceImpl implements AuditLogService {
                     .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
                     .thenReturn(auditLog);
         }
+        else if (resource instanceof UserGroup) {
+            UserGroup userGroup = (UserGroup) resource;
+            auditLogResource.setId(userGroup.getId());
+            auditLogResource.setName(userGroup.getName());
+            auditLog.setResource(auditLogResource);
+
+            if (null != properties) {
+                AuditLogUserGroupMetadata userGroupMetadata = new AuditLogUserGroupMetadata();
+                if (properties.containsKey(FieldName.INVITED_USERS_TO_USER_GROUPS)) {
+                    userGroupMetadata.setInvitedUsers((Set) properties.get(FieldName.INVITED_USERS_TO_USER_GROUPS));
+                } else if (properties.containsKey(FieldName.REMOVED_USERS_FROM_USER_GROUPS)) {
+                    userGroupMetadata.setRemovedUsers((Set) properties.get(FieldName.REMOVED_USERS_FROM_USER_GROUPS));
+                }
+                auditLog.setUserGroup(userGroupMetadata);
+            }
+            auditLogMono = Mono.just(auditLog);
+        }
+        else if (resource instanceof PermissionGroup) {
+            PermissionGroup permissionGroup = (PermissionGroup) resource;
+            auditLogResource.setId(permissionGroup.getId());
+            auditLogResource.setName(permissionGroup.getName());
+            auditLog.setResource(auditLogResource);
+            if (null != properties) {
+                AuditLogPermissionGroupMetadata permissionGroupMetadata = new AuditLogPermissionGroupMetadata();
+                if (properties.containsKey(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS))
+                    permissionGroupMetadata.setAssignedUsers((List) properties.get(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS));
+                if (properties.containsKey(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS))
+                    permissionGroupMetadata.setUnAssignedUsers((List) properties.get(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS));
+                if (properties.containsKey(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS))
+                    permissionGroupMetadata.setAssignedUserGroups((List) properties.get(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS));
+                if (properties.containsKey(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS))
+                    permissionGroupMetadata.setUnAssignedUserGroups((List) properties.get(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
+                auditLog.setPermissionGroup(permissionGroupMetadata);
+            }
+        }
 
         // Instance setting events
         boolean isInstanceSettingUpdated = AnalyticsEvents.INSTANCE_SETTING_UPDATED.equals(event)
@@ -489,7 +529,9 @@ public class AuditLogServiceImpl implements AuditLogService {
         // To handle special exceptions in resources class names like NewPage => Page, NewAction => Query
         List<String> exceptionResources = List.of(
                 NewPage.class.getSimpleName(),
-                NewAction.class.getSimpleName()
+                NewAction.class.getSimpleName(),
+                PermissionGroup.class.getSimpleName(),
+                UserGroup.class.getSimpleName()
         );
         String resourceClassName = resource.getClass().getSimpleName();
         if (exceptionResources.contains(resourceClassName)) {

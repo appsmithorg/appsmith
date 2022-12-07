@@ -244,7 +244,7 @@ describe("Audit logs", () => {
       cy.openWorkspaceOptionsPopup(defaultWorkspaceName);
       cy.get(homePage.workspaceNamePopoverContent)
         .find("a")
-        .eq(5)
+        .last()
         .contains("Delete Workspace")
         .click();
       cy.contains("Are you sure").click();
