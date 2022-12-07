@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
@@ -124,13 +124,18 @@ const Label = styled.span<{ enterprise?: boolean }>`
   font-size: 12px;
 `;
 
-export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
-  const history = useHistory();
-  const [message, setMessage] = useState("");
+export function Upgrade(message: string, method: string) {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
+    logEventData: { method },
     intercomMessage: message,
   });
+
+  return onUpgrade();
+}
+
+export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
+  const history = useHistory();
 
   const onClickHandler = (method: AuthMethodType) => {
     if (!method.needsUpgrade || method.isConnected) {
@@ -149,8 +154,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         }),
       );
     } else {
-      setMessage(createMessage(UPGRADE_TO_EE, method.label));
-      onUpgrade();
+      Upgrade(createMessage(UPGRADE_TO_EE, method.label), method.label);
     }
   };
 
