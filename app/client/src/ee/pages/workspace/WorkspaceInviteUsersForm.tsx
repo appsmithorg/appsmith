@@ -338,7 +338,7 @@ function WorkspaceInviteUsersForm(props: any) {
             "You can now invite users or entire groups and give them permissions"
           }
           showCrossIcon
-          title="ABAC based control is here!"
+          title="Granular access control is here!"
           type="Notify"
         />
       )}

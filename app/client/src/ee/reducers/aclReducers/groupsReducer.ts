@@ -145,4 +145,9 @@ export const groupsReducers = {
     },
     isLoading: false,
   }),
+  [ReduxActionTypes.RESET_GROUPS_DATA]: (state: any) => ({
+    ...state,
+    selectedGroup: null,
+    groups: [],
+  }),
 };

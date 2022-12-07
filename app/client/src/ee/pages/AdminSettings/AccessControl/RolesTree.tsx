@@ -333,13 +333,11 @@ function Table({
   );
 }
 
-export const makeData = (data: any) => {
-  return data.map((dt: any) => {
+export const makeData = (data: any, isMultiple = false) => {
+  const computedData = data.map((dt: any) => {
     return dt?.entities?.map((d: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { children, editable, enabled, ...restData } = d;
-      if (false) {
-        editable;
-      }
       return {
         ...restData,
         type: dt.type,
@@ -348,10 +346,18 @@ export const makeData = (data: any) => {
               id: "Header",
             }
           : { permissions: enabled }),
-        ...(d.children ? { subRows: makeData(children) } : {}),
+        ...(d.children
+          ? {
+              subRows:
+                Array.isArray(children) && children.length > 1
+                  ? makeData(children, true)
+                  : makeData(children),
+            }
+          : {}),
       };
     });
-  })[0];
+  });
+  return isMultiple ? computedData.flat(1) : computedData[0];
 };
 
 export function getSearchData(data: any, searchValue: string) {

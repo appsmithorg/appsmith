@@ -125,12 +125,18 @@ export function UserListing() {
   }, [aclUsers]);
 
   useEffect(() => {
-    if (selectedUserId) {
+    if (selectedUserId && selectedUser?.id !== selectedUserId) {
       dispatch(getUserById({ id: selectedUserId }));
-    } else {
+    } else if (!selectedUserId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
     }
   }, [selectedUserId]);
+
+  useEffect(() => {
+    return () => {
+      dispatch({ type: ReduxActionTypes.RESET_USERS_DATA });
+    };
+  }, []);
 
   const onFormSubmitHandler = ({ ...values }) => {
     if (values.selectedTab === INVITE_USERS_TAB_ID.VIA_GROUPS) {

@@ -79,6 +79,12 @@ export function GroupListing() {
     }
   }, [selectedUserGroupId]);
 
+  useEffect(() => {
+    return () => {
+      dispatch({ type: ReduxActionTypes.RESET_GROUPS_DATA });
+    };
+  }, []);
+
   const columns = [
     {
       Header: `Groups (${data.length})`,
