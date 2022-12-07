@@ -73,12 +73,11 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
         final Flux<DataBuffer> contentCache = Flux.fromIterable(fileParts).flatMap(Part::content).cache();
 
-        return contentCache.count()
-                .defaultIfEmpty(0L)
-                .flatMap(count -> {
-                    // Default implementation for the BufferFactory used breaks down the FilePart into chunks of 4KB.
-                    // So we multiply the count of chunks with 4 to get an estimate on the file size in KB.
-                    if (4 * count > maxFileSizeKB) {
+        return contentCache
+                .map(DataBuffer::readableByteCount)
+                .reduce(Integer::sum)
+                .flatMap(size -> {
+                    if (size > maxFileSizeKB * 1024) {
                         return Mono.error(new AppsmithException(AppsmithError.PAYLOAD_TOO_LARGE, maxFileSizeKB));
                     }
                     return DataBufferUtils.join(contentCache);
