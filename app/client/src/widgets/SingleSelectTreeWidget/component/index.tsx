@@ -129,7 +129,6 @@ function SingleSelectTreeComponent({
   options,
   placeholder,
   renderMode,
-  tooltip,
   value,
   widgetId,
   width,

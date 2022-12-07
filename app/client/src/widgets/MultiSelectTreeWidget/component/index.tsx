@@ -131,7 +131,6 @@ function MultiTreeSelectComponent({
   options,
   placeholder,
   renderMode,
-  tooltip,
   value,
   widgetId,
   width,

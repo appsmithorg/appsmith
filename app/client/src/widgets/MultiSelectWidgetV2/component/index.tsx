@@ -99,7 +99,6 @@ function MultiSelectComponent({
   placeholder,
   renderMode,
   serverSideFiltering,
-  tooltip,
   value,
   widgetId,
   width,

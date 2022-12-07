@@ -269,7 +269,6 @@ class SelectComponent extends React.Component<
       labelTextSize,
       labelTooltip,
       labelWidth,
-      tooltip,
       widgetId,
     } = this.props;
     // active focused item
