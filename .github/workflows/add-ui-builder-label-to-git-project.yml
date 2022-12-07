@@ -16,7 +16,7 @@ jobs:
     name: UI Builders Pod
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@RELEASE_VERSION
+      - uses: actions/add-to-project@v0.4.0
         with:
           # You can target a repository in a different organization
           # to the issue
