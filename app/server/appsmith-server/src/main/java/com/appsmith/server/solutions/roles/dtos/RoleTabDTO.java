@@ -12,4 +12,5 @@ public class RoleTabDTO {
     List<PermissionViewableName> permissions;
     EntityView data;
     Map<String, Set<IdPermissionDTO>> hoverMap;
+    Map<String, Set<IdPermissionDTO>> disableHelperMap;
 }
