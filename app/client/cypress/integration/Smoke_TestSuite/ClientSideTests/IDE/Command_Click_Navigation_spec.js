@@ -94,7 +94,7 @@ describe("1. CommandClickNavigation", function() {
       .click({ cmdKey: true });
   });
 
-  it("7. Will work with string arguments in framework functions", () => {
+  it.skip("7. Will work with string arguments in framework functions", () => {
     cy.get(PROPERTY_SELECTOR.onClick)
       .find(".t--js-toggle")
       .click();

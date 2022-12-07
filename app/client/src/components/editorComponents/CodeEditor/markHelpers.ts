@@ -51,17 +51,14 @@ export const entityMarker: MarkHelper = (
     const lineNo = editor.getLineNumber(line) || 0;
     const tokens = editor.getLineTokens(lineNo);
     tokens.forEach((token) => {
-      const tokenString = token.string.replaceAll("'", "").replaceAll('"', "");
+      const tokenString = token.string;
       const existingMarking = editor
         .findMarks(
           { ch: token.start, line: lineNo },
           { ch: token.end, line: lineNo },
         )
         .filter((marker) => marker.className === NAVIGATION_CLASSNAME);
-      if (
-        (token.type === "variable" || token.type === "string") &&
-        tokenString in entityNavigationData
-      ) {
+      if (token.type === "variable" && tokenString in entityNavigationData) {
         if (existingMarking.length) return;
         const data = entityNavigationData[tokenString];
         editor.markText(
