@@ -96,7 +96,6 @@ const LeftIcon = (
 };
 
 export const ColorInput = (props: ColorInputProps) => {
-  const colorTouched = useRef<boolean>(false);
   const [selectedIndex, setSelectedIndex] = useState<brandColorsKeys>(
     "primary",
   );
@@ -123,9 +122,6 @@ export const ColorInput = (props: ColorInputProps) => {
       if (selectedIndex === "primary") {
         shades = createBrandColorsFromPrimaryColor(e.target.value);
       }
-
-      // set touched flag to true
-      colorTouched.current = true;
 
       onChange && onChange(shades);
     },
