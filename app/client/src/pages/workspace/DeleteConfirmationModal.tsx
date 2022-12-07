@@ -74,7 +74,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
         </Text>
         <ButtonWrapper>
           <ImportButton
-            category={Category.tertiary}
+            category={Category.secondary}
             className=".button-item"
             onClick={onClose}
             size={Size.large}
