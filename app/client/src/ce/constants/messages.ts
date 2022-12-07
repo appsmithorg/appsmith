@@ -1338,7 +1338,7 @@ export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
   "your app URL to new readable format to change this";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
-  "Hide or show the appsmith navbar containing the app name and page switcher";
+  "Show or hide the page in the appsmith navbar in view mode";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
   "This is the current home page, you can change this by setting another page as the home page";
