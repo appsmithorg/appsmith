@@ -1035,7 +1035,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     application.setPublishedCustomJSLibs(application.getUnpublishedCustomJSLibs());
                     return application;
                 })
-                .flatMap(applicationService::save)
+                .flatMap(application -> applicationService.update(applicationId, application))
                 .map(application -> application.getPublishedCustomJSLibs());
 
         return publishApplicationAndPages

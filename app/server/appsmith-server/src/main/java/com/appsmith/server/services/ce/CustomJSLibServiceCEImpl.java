@@ -9,6 +9,7 @@ import com.appsmith.server.services.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -22,7 +23,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
-import static reactor.core.publisher.Mono.zip;
 
 @Slf4j
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String> implements CustomJSLibServiceCE {
@@ -66,7 +66,8 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
-    private Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(CustomJSLib jsLib,
+    @Override
+    public Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(CustomJSLib jsLib,
                                                                                               Boolean isForceInstall) {
         return repository.findByUidString(jsLib.getUidString())
                 .flatMap(foundJSLib -> {
@@ -79,10 +80,8 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
                     return Mono.just(getDTOFromCustomJSLib(foundJSLib));
                 })
-                .switchIfEmpty(
-                        repository.save(jsLib)
-                                .map(savedJSLib -> getDTOFromCustomJSLib(savedJSLib))
-                );
+                //Read more why Mono.defer is used here. https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
+                .switchIfEmpty( Mono.defer(() -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));
     }
 
     @Override
@@ -110,13 +109,14 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                                                              Boolean isViewMode) {
         return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)
                 .map(jsLibDTOSet -> jsLibDTOSet.stream()
-                        .map(dto -> dto.getId())
+                        .map(dto -> dto.getUidString())
                         .collect(Collectors.toList())
                 )
-                .flatMapMany(jsLibIdList -> repository.findAllById(jsLibIdList))
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(uidString -> repository.findByUidString(uidString))
                 .collectList()
                 .map(jsLibList -> {
-                    Collections.sort(jsLibList, Comparator.comparing(CustomJSLib::getName));
+                    Collections.sort(jsLibList, Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
                 });
     }

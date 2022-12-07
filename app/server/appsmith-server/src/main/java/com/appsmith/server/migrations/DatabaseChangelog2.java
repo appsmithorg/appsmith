@@ -19,6 +19,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
@@ -2777,6 +2778,13 @@ public class DatabaseChangelog2 {
 
         dropIndexIfExists(mongockTemplate, Workspace.class, "tenantId_deleted");
         ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
+    }
+
+    @ChangeSet(order = "038", id = "add-unique-index-for-uidstring", author = "")
+    public void addUniqueIndexOnUidString(MongockTemplate mongoTemplate) {
+        Index uidStringUniqueness = makeIndex("uidString").unique()
+                .named("customjslibs_uidstring_index");
+        ensureIndexes(mongoTemplate, CustomJSLib.class, uidStringUniqueness);
     }
 
 }

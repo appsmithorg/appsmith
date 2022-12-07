@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -88,5 +87,9 @@ public class CustomJSLib extends BaseDomain {
          * any logic defined to generate accessor values.
          */
         return ((CustomJSLib) o).getUidString().equals(this.uidString);
+    }
+
+    public void sanitiseToExportDBObject() {
+        this.sanitiseToExportBaseObject();
     }
 }

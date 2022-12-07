@@ -10,14 +10,17 @@ import java.util.List;
 import java.util.Set;
 
 public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
-    public Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
+    Mono<Boolean> addJSLibToApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
                                                String branchName, Boolean isForceInstall);
-    public Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
+    Mono<Boolean> removeJSLibFromApplication(@NotNull String applicationId, @NotNull CustomJSLib jsLib,
                                                     String branchName, Boolean isForceRemove);
-    public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId, String branchName,
+    Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId, String branchName,
                                                              Boolean isViewMode);
 
     Mono<Set<CustomJSLibApplicationDTO>> getAllJSLibApplicationDTOFromApplication(@NotNull String applicationId,
                                                                                   String branchName,
                                                                                   Boolean isViewMode);
+
+    Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(CustomJSLib jsLib,
+                                                                                      Boolean isForceInstall);
 }

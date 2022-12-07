@@ -7,9 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CustomJSLibApplicationDTO {
-    /* This holds the ObjectId of corresponding object in CustomJSLib collection */
-    String id;
-
     /**
      * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
      * JS library
@@ -35,7 +32,6 @@ public class CustomJSLibApplicationDTO {
 
     public static CustomJSLibApplicationDTO getDTOFromCustomJSLib(CustomJSLib jsLib) {
         CustomJSLibApplicationDTO customJSLibApplicationDTO = new CustomJSLibApplicationDTO();
-        customJSLibApplicationDTO.setId(jsLib.getId());
         customJSLibApplicationDTO.setUidString(jsLib.getUidString());
 
         return customJSLibApplicationDTO;
