@@ -239,7 +239,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         children: [
           {
             helpText: "Show help text or details about current selection",
-            propertyName: "tooltip",
+            propertyName: "labelTooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Add tooltip text here",
@@ -268,16 +268,6 @@ class MultiSelectTreeWidget extends BaseWidget<
             ],
             isBindProperty: false,
             isTriggerProperty: false,
-          },
-          {
-            helpText: "Show help text or details about current input",
-            propertyName: "labelTooltip",
-            label: "Tooltip",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Value must be atleast 6 chars",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Sets a Placeholder Text",
