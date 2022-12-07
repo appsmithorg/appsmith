@@ -44,7 +44,6 @@ import {
   Hinter,
   HintHelper,
   isCloseKey,
-  isCtrlOrCmdKey,
   isModifierKey,
   MarkHelper,
   TabBehaviour,
@@ -211,9 +210,6 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
-  // Flag for determining whether the Ctrl or Cmd key is pressed or not so that
-  // the autocomplete is not shown when the user trying to comment code
-  isCtrlOrCmdPressed: boolean;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -241,7 +237,6 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
-      isCtrlOrCmdPressed: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -337,7 +332,7 @@ class CodeEditor extends Component<Props, State> {
         //
         editor.on("beforeChange", this.handleBeforeChange);
         editor.on("change", this.startChange);
-        editor.on("keyup", this.handleAutocompleteKeyup);
+        editor.on("keydown", this.handleAutocompleteKeydown);
         editor.on("focus", this.handleEditorFocus);
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
@@ -495,7 +490,7 @@ class CodeEditor extends Component<Props, State> {
 
     this.editor.off("beforeChange", this.handleBeforeChange);
     this.editor.off("change", this.startChange);
-    this.editor.off("keyup", this.handleAutocompleteKeyup);
+    this.editor.off("keydown", this.handleAutocompleteKeydown);
     this.editor.off("focus", this.handleEditorFocus);
     this.editor.off("cursorActivity", this.handleCursorMovement);
     this.editor.off("blur", this.handleEditorBlur);
@@ -534,10 +529,6 @@ class CodeEditor extends Component<Props, State> {
             }),
           );
         }
-        break;
-      case "Control":
-      case "Meta":
-        this.setState({ isCtrlOrCmdPressed: true });
         break;
     }
   };
@@ -793,17 +784,11 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ hinterOpen });
   };
 
-  handleAutocompleteKeyup = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
+  handleAutocompleteKeydown = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
 
-    if (isCtrlOrCmdKey(key)) {
-      /* Add some delay to make sure the autocomplete doesn't open
-        When users press cmd + / to comment the order in which they release the
-        keys is cmd, /, cmd. This causes the autocomplete to open */
-      setTimeout(() => {
-        this.setState({ isCtrlOrCmdPressed: false });
-      }, 2000);
-    }
+    // Check if the user is trying to comment out the line, in that case we should not show autocomplete
+    const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
 
     if (isModifierKey(key)) return;
     const code = `${event.ctrlKey ? "Ctrl+" : ""}${event.code}`;
@@ -816,7 +801,7 @@ class CodeEditor extends Component<Props, State> {
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
-    if (key === "/" && this.state.isCtrlOrCmdPressed) {
+    if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
       const prevChar = line[cursor.ch - 1];
