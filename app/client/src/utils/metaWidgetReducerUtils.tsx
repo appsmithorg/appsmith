@@ -81,6 +81,7 @@ export const getMetaWidgetCreatorIds = (
   metaWidgetIds: string[],
 ) => {
   return metaWidgetIds.filter(
-    (metaWidgetId) => metaWidgets[metaWidgetId].hasMetaWidgets,
+    (metaWidgetId) =>
+      metaWidgets[metaWidgetId] && metaWidgets[metaWidgetId].hasMetaWidgets,
   );
 };

@@ -124,6 +124,16 @@ export const metaReducer = createReducer(initialState, {
       }
       return { ...state, [widgetId]: resetMetaObj };
     }
+    // For widgets that generate metaWidgets, clear meta state for all metaWidgets
+    // IDs of metaWidgets start with the ID of their parent.
+    if (evaluatedWidget.hasMetaWidgets) {
+      const metaWidgetsKeysInState = Object.keys(state).filter((widgetID) =>
+        widgetID.startsWith(evaluatedWidget.widgetId + "_"),
+      );
+      for (const metaWidgetsKey of metaWidgetsKeysInState) {
+        delete state[metaWidgetsKey];
+      }
+    }
     return state;
   },
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: () => {
