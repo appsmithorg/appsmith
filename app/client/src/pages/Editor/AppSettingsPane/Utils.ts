@@ -2,8 +2,8 @@ import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { splitPathPreview } from "utils/helpers";
 
-export const specialCharacterCheckRegex = /^[A-Za-z0-9\s\-]+$/;
-export const appNameRegex = /^[A-Za-z0-9\s\-()]+$/;
+export const specialCharacterCheckRegex = /^[A-Za-z0-9\s\-]+$/g;
+export const appNameRegex = /^[A-Za-z0-9\s\-()]+$/g;
 
 export const getUrlPreview = (
   pageId: string,

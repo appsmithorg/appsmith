@@ -270,7 +270,11 @@ function PageSettings(props: { page: Page }) {
           fill
           id="t--page-settings-custom-slug"
           onBlur={saveCustomSlug}
-          onChange={setCustomSlug}
+          onChange={(value: string) =>
+            value.length > 0
+              ? specialCharacterCheckRegex.test(value) && setCustomSlug(value)
+              : setCustomSlug(value)
+          }
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveCustomSlug();
@@ -279,12 +283,12 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page URL"
           readOnly={appNeedsUpdate}
           type="input"
-          validator={checkRegex(
-            specialCharacterCheckRegex,
-            PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR(),
-            false,
-            setIsCustomSlugValid,
-          )}
+          // validator={checkRegex(
+          //   specialCharacterCheckRegex,
+          //   PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR(),
+          //   false,
+          //   setIsCustomSlugValid,
+          // )}
           value={customSlug}
         />
       </div>
