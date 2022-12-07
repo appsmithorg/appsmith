@@ -197,7 +197,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     const addNewFieldButton = (
       <AddFieldButton
-        category={Category.tertiary}
+        category={Category.secondary}
         className="t--add-column-btn"
         icon="plus"
         onClick={this.addNewField}
