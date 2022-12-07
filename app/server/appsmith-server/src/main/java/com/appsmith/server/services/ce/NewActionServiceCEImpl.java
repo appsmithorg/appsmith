@@ -631,7 +631,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
 
     protected void replaceNullWithQuotesForParamValues(List<Param> params) {
-
         if (!CollectionUtils.isEmpty(params)) {
             for (Param param : params) {
                 // In case the parameter values turn out to be null, set it to empty string instead to allow
@@ -641,7 +640,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 }
             }
         }
-
     }
 
 
@@ -766,15 +764,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // Set the action name
                     actionName.set(action.getName());
 
-                    ActionConfiguration actionConfiguration = action.getActionConfiguration();
-
-                    Integer timeoutDuration = actionConfiguration.getTimeoutInMillisecond();
-
                     log.debug("[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
                             Thread.currentThread().getName(),
                             action.getPageId(), actionId, action.getName());
 
-                    Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
+                    Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource)
+                            .cache();
 
                     Mono<ActionExecutionResult> executionMono  = getExecutionMonoFromValidatedDatasourceMono(executeActionDTO, validatedDatasourceMono, plugin, pluginExecutor, action, datasource);
 
@@ -795,8 +790,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 result.setRequest(actionExecutionRequest);
                                 // Set the status code for Appsmith plugin errors
                                 if (e instanceof AppsmithPluginException) {
-                                    result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode()
-                                            .toString());
+                                    result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
                                     result.setTitle(((AppsmithPluginException) e).getTitle());
                                     result.setErrorType(((AppsmithPluginException) e).getErrorType());
                                 } else {
@@ -817,19 +811,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                         ActionExecutionResult result = tuple1.getT2();
 
                                         log.debug("{}: Action {} with id {} execution time : {} ms",
-                                                Thread.currentThread()
-                                                        .getName(),
+                                                Thread.currentThread().getName(),
                                                 actionName.get(),
                                                 actionId,
                                                 timeElapsed
                                         );
 
                                         return executeActionPublishersCache
-                                                .flatMap(tuple4 -> {
+                                                .flatMap(tuple5 -> {
                                                     ActionExecutionResult actionExecutionResult = result;
-                                                    NewAction actionFromDb = tuple4.getT5();
-                                                    ActionDTO actionDTO = tuple4.getT1();
-                                                    Datasource datasourceFromDb = tuple4.getT2();
+                                                    NewAction actionFromDb = tuple5.getT5();
+                                                    ActionDTO actionDTO = tuple5.getT1();
+                                                    Datasource datasourceFromDb = tuple5.getT2();
 
                                                     return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO, actionExecutionResult, timeElapsed))
                                                             .thenReturn(result);
@@ -840,8 +833,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setIsExecutionSuccess(false);
-                    result.setStatusCode(error.getAppErrorCode()
-                            .toString());
+                    result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     result.setTitle(error.getTitle());
                     result.setErrorType(error.getErrorType());
