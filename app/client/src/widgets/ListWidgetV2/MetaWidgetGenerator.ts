@@ -59,13 +59,13 @@ type ConstructorProps = {
   isListCloned: boolean;
   level: number;
   onVirtualListScroll: () => void;
+  prefixMetaWidgetId: string;
   primaryWidgetType: string;
   renderMode: string;
   scrollElement: HTMLDivElement | null;
   serverSidePagination: boolean;
   setWidgetCache: (data: MetaWidgetCache) => void;
   templateBottomRow: number;
-  widgetId: string;
 };
 
 type TemplateWidgetStatus = {
@@ -169,6 +169,7 @@ class MetaWidgetGenerator {
   private onVirtualListScroll: ConstructorProps["onVirtualListScroll"];
   private pageNo?: number;
   private pageSize?: number;
+  private prefixMetaWidgetId: string;
   private prevOptions?: GeneratorOptions;
   private prevTemplateWidgets: TemplateWidgets;
   private prevViewMetaWidgetIds: string[];
@@ -203,6 +204,7 @@ class MetaWidgetGenerator {
     this.onVirtualListScroll = props.onVirtualListScroll;
     this.pageNo = 1;
     this.pageSize = 0;
+    this.prefixMetaWidgetId = props.prefixMetaWidgetId;
     this.prevTemplateWidgets = {};
     this.primaryWidgetType = props.primaryWidgetType;
     this.prevViewMetaWidgetIds = [];
@@ -339,6 +341,9 @@ class MetaWidgetGenerator {
     };
   };
 
+  private generateMetaWidgetId = () =>
+    `${this.prefixMetaWidgetId}_${generateReactKey()}`;
+
   private getMetaWidgetIdsInCachedRows = () => {
     const cachedMetaWidgetIds: string[] = [];
     const removedCachedMetaWidgetIds: string[] = [];
@@ -452,7 +457,8 @@ class MetaWidgetGenerator {
     }
 
     if (templateWidget.type === this.primaryWidgetType) {
-      this.addLevelData(metaWidget, viewIndex);
+      this.addLevelData(metaWidget, { viewIndex, rowIndex });
+      metaWidget.prefixMetaWidgetId = this.prefixMetaWidgetId;
     }
 
     if (this.isRowNonConfigurable(rowIndex)) {
@@ -532,7 +538,7 @@ class MetaWidgetGenerator {
 
       const currentCache = rowCache[templateWidgetId] || {};
       const metaWidgetId = isClonedRow
-        ? currentCache.metaWidgetId || generateReactKey()
+        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
         : templateWidgetId;
 
       const metaWidgetName = isClonedRow
@@ -579,7 +585,7 @@ class MetaWidgetGenerator {
       } = templateWidget;
 
       const metaWidgetId = this.isListCloned
-        ? currentCache.metaWidgetId || generateReactKey()
+        ? currentCache.metaWidgetId || this.generateMetaWidgetId()
         : containerParentId;
 
       const metaWidgetName = this.isListCloned
@@ -633,11 +639,15 @@ class MetaWidgetGenerator {
    *  In the derived property of the List widget, the childAutoComplete property uses the currentItem and currentView
    *  to define the autocomplete suggestions.
    */
-  private addLevelData = (metaWidget: MetaWidget, viewIndex: number) => {
-    const key = this.getPrimaryKey(viewIndex);
+  private addLevelData = (
+    metaWidget: MetaWidget,
+    options: { viewIndex: number; rowIndex: number },
+  ) => {
+    const { rowIndex, viewIndex } = options;
+    const key = this.getPrimaryKey(rowIndex);
     const data = this.getData();
-    const currentIndex = viewIndex;
-    const currentItem = `{{${this.widgetName}.listData[${viewIndex}]}}`;
+    const currentIndex = this.serverSidePagination ? viewIndex : rowIndex;
+    const currentItem = `{{${this.widgetName}.listData[${currentIndex}]}}`;
     const currentRowCache = this.getRowCacheGroupByTemplateWidgetName(key);
     const metaContainers = this.getMetaContainers();
     const metaContainerName = metaContainers.names[0];

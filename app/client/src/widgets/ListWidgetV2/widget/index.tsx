@@ -147,7 +147,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       isListCloned,
       level: props.level || 1,
       onVirtualListScroll: this.generateMetaWidgets,
-      widgetId: props.widgetId,
+      prefixMetaWidgetId: props.prefixMetaWidgetId || props.widgetId,
       primaryWidgetType: ListWidget.getWidgetType(),
     });
     this.prevMetaContainerNames = [];
@@ -846,23 +846,24 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   boxShadow?: string;
   children?: T[];
   currentItemStructure?: Record<string, string>;
-  itemGap?: number;
+  currentItemsView: string;
   infiniteScroll?: boolean;
+  itemGap?: number;
   level?: number;
   levelData?: LevelData;
   listData?: Array<Record<string, unknown>>;
   mainCanvasId?: string;
   mainContainerId?: string;
-  onRowClick?: string;
   onPageSizeChange?: string;
+  onRowClick?: string;
   pageNo: number;
   pageSize: number;
-  currentItemsView: string;
+  prefixMetaWidgetId?: string;
+  primaryKeys?: (string | number)[];
   selectedItemIndex?: number;
   selectedItemView: Record<string, unknown>;
-  triggeredItemIndex?: number;
-  primaryKeys?: (string | number)[];
   serverSidePagination?: boolean;
+  triggeredItemIndex?: number;
 }
 
 export default ListWidget;
