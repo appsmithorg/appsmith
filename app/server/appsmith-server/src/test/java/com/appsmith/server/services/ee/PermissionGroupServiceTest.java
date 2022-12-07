@@ -755,4 +755,29 @@ public class PermissionGroupServiceTest {
                 .verify();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testFindAllByAssignedToUsers_noUserManagementPermission() {
+        User user = new User();
+        user.setEmail("testFindAllByAssignedToUsers_noUserManagementPermission@appsmith.com");
+        user.setPassword("password");
+        User createdUser = userService.create(user).block();
+
+        List<PermissionGroup> permissionGroupList = permissionGroupService
+                .findAllByAssignedToUsersIn(Set.of(createdUser.getId())).collectList().block();
+
+        List<PermissionGroup> allPermissionGroupList =
+                permissionGroupRepository.findAllByAssignedToUserIdsIn(Set.of(createdUser.getId()))
+                        .collectList().block();
+
+        boolean userMgmtRoleNotPresent = permissionGroupList.stream()
+                .anyMatch(permissionGroup -> permissionGroup.getName().startsWith(createdUser.getEmail()));
+
+        boolean userMgmtRolePresent = allPermissionGroupList.stream()
+                .anyMatch(permissionGroup -> permissionGroup.getName().startsWith(createdUser.getEmail()));
+
+        assertThat(userMgmtRoleNotPresent).isFalse();
+        assertThat(userMgmtRolePresent).isTrue();
+    }
+
 }

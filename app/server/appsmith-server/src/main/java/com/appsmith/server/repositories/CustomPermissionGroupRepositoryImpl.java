@@ -61,4 +61,15 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 NO_RECORD_LIMIT
         );
     }
+
+    @Override
+    public Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission permission) {
+        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).in(userIds);
+        return queryAll(
+                List.of(criteria),
+                null,
+                permission,
+                null,
+                NO_RECORD_LIMIT);
+    }
 }

@@ -144,7 +144,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUsersIn(Set<String> userIds) {
-        return repository.findAllByAssignedToUserIdsIn(userIds);
+        return repository.findAllByAssignedToUserIds(userIds, READ_PERMISSION_GROUPS);
     }
 
     @Override

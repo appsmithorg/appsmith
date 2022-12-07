@@ -18,4 +18,6 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
     Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission);
 
     Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(String userGroupId, String workspaceId, AclPermission permission);
+
+    Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission aclPermission);
 }
