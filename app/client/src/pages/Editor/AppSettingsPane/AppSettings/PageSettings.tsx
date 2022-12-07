@@ -14,7 +14,6 @@ import {
   PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
   ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR,
-  PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
@@ -38,7 +37,6 @@ import { getUrlPreview, specialCharacterCheckRegex } from "../Utils";
 import { AppState } from "ce/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
-import { checkRegex } from "utils/validation/CheckRegex";
 
 const SwitchWrapper = styled.div`
   &&&&&&&
@@ -104,7 +102,7 @@ function PageSettings(props: { page: Page }) {
   const [isPageNameValid, setIsPageNameValid] = useState(true);
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
-  const [isCustomSlugValid, setIsCustomSlugValid] = useState(true);
+  const [isCustomSlugValid] = useState(true);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
 
   const [isShown, setIsShown] = useState(!!!page.isHidden);
