@@ -2,11 +2,13 @@ import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneResponsePaneHeight,
   getApiPaneResponseSelectedTab,
+  getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
   setApiPaneResponseSelectedTab,
   setApiPaneConfigSelectedTabIndex,
   setApiPaneResponsePaneHeight,
+  setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -55,6 +57,7 @@ export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
   ApiPaneResponseTabs = "ApiPaneResponseTabs",
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
+  ApiRightPaneTabs = "ApiRightPaneTabs",
   QueryPaneConfigTabs = "QueryPaneConfigTabs",
   QueryPaneResponseTabs = "QueryPaneResponseTabs",
   QueryPaneResponseHeight = "QueryPaneResponseHeight",
@@ -190,6 +193,11 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getApiPaneResponsePaneHeight,
       setter: setApiPaneResponsePaneHeight,
       defaultValue: ActionExecutionResizerHeight,
+    },
+    {
+      name: FocusElement.ApiRightPaneTabs,
+      selector: getApiRightPaneSelectedTab,
+      setter: setApiRightPaneSelectedTab,
     },
   ],
 };

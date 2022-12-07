@@ -78,7 +78,10 @@ export default function AutoHeightContainer({
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
-    const backgroundColor = widgetProps?.backgroundColor;
+    const backgroundColor =
+      widgetProps?.type === "TEXT_WIDGET"
+        ? widgetProps?.backgroundColor
+        : undefined;
 
     return (
       <StyledAutoHeightContainer
