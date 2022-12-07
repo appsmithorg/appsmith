@@ -107,6 +107,7 @@ export const SettingCategories = {
   GOOGLE_AUTH: "google-auth",
   GITHUB_AUTH: "github-auth",
   AUDIT_LOGS: "audit-logs",
+  ACCESS_CONTROL: "access-control",
 };
 
 export const SettingSubCategories = {

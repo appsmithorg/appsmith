@@ -267,6 +267,7 @@ class SelectComponent extends React.Component<
       labelText,
       labelTextColor,
       labelTextSize,
+      labelTooltip,
       labelWidth,
       tooltip,
       widgetId,
@@ -327,7 +328,7 @@ class SelectComponent extends React.Component<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
-            helpText={tooltip}
+            helpText={labelTooltip}
             isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
@@ -422,6 +423,7 @@ export interface SelectComponentProps extends ComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
+  labelTooltip?: string;
   compactMode: boolean;
   selectedIndex?: number;
   options: DropdownOption[];

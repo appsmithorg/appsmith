@@ -224,7 +224,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         children: [
           {
             helpText: "Show help text or details about current selection",
-            propertyName: "tooltip",
+            propertyName: "labelTooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Add tooltip text here",
@@ -509,6 +509,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}

@@ -384,7 +384,7 @@ class MultiSelectWidget extends BaseWidget<
         children: [
           {
             helpText: "Show help text or details about current selection",
-            propertyName: "tooltip",
+            propertyName: "labelTooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Add tooltip text here",
@@ -680,6 +680,7 @@ class MultiSelectWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
@@ -711,6 +712,9 @@ class MultiSelectWidget extends BaseWidget<
 
   // { label , value } is needed in the widget
   mergeLabelAndValue = (): LabelInValueType[] => {
+    if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
+      return [];
+    }
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
     return values.map((value, index) => ({
@@ -758,8 +762,8 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   isLoading: boolean;
   selectedOptions: LabelInValueType[];
   filterText: string;
-  selectedOptionValues: string[];
-  selectedOptionLabels: string[];
+  selectedOptionValues?: string[];
+  selectedOptionLabels?: string[];
   serverSideFiltering: boolean;
   onFilterUpdate: string;
   allowSelectAll?: boolean;

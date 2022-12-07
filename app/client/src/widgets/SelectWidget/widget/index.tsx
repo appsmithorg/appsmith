@@ -320,7 +320,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         children: [
           {
             helpText: "Show help text or details about current selection",
-            propertyName: "tooltip",
+            propertyName: "labelTooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Add tooltip text here",
@@ -603,6 +603,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}

@@ -47,6 +47,7 @@ export interface TreeSelectProps
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
+  labelTooltip?: string;
   compactMode: boolean;
   dropDownWidth: number;
   width: number;
@@ -122,6 +123,7 @@ function MultiTreeSelectComponent({
   labelText,
   labelTextColor,
   labelTextSize,
+  labelTooltip,
   labelWidth,
   loading,
   mode,
@@ -248,7 +250,7 @@ function MultiTreeSelectComponent({
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
-          helpText={tooltip}
+          helpText={labelTooltip}
           isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           position={labelPosition}
