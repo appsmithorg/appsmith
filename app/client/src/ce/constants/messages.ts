@@ -1150,8 +1150,6 @@ export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 export const ADMIN_BRANDING_SETTINGS_TITLE = () => "Branding";
 export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
   "Set your organization's logo and brand colors.";
-export const ADMIN_BRANDING_SETTINGS_UPGRADE_TEXT = () =>
-  "Your changes cannot be saved unless you upgrade your account";
 export const ADMIN_BRANDING_UPGRADE_BANNER_TITLE = () =>
   "Brand your organisation";
 export const ADMIN_BRANDING_UPGRADE_BANNER_SUBTITLE = () =>

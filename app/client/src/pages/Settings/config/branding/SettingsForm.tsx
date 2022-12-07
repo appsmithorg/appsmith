@@ -8,11 +8,10 @@ import {
   UseFormSetValue,
   UseFormResetField,
 } from "react-hook-form";
-import { Button, Icon, IconSize, Size, TooltipComponent } from "design-system";
+import { Button, Size } from "design-system";
 
 import { Inputs } from "./BrandingPage";
 import {
-  ADMIN_BRANDING_SETTINGS_UPGRADE_TEXT,
   ADMIN_BRANDING_LOGO_REQUIREMENT,
   ADMIN_BRANDING_FAVICON_REQUIREMENT,
   ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND,
@@ -24,11 +23,7 @@ import {
 } from "@appsmith/constants/messages";
 import { ColorInput } from "pages/Settings/FormGroup/ColorInput";
 import { ImageInput } from "pages/Settings/FormGroup/ImageInput";
-import {
-  logoImageValidator,
-  faivconImageValidator,
-  createBrandColorsFromPrimaryColor,
-} from "utils/BrandingUtils";
+import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
 import { useBrandingForm } from "@appsmith/pages/AdminSettings/config/branding/useBrandingForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -45,15 +40,7 @@ type SettingsFormProps = {
 };
 
 function SettingsForm(props: SettingsFormProps) {
-  const {
-    control,
-    defaultValues,
-    disabled,
-    formState,
-    handleSubmit,
-    setValue,
-    values,
-  } = props;
+  const { control, defaultValues, disabled, formState, handleSubmit } = props;
   const hasDirtyFields = Object.keys(formState.dirtyFields).length > 0;
   const { onSubmit } = useBrandingForm({
     dirtyFields: formState.dirtyFields,
@@ -129,32 +116,6 @@ function SettingsForm(props: SettingsFormProps) {
             >
               Color
             </label>
-            {
-              <TooltipComponent content="Generate font and background color">
-                <button
-                  className="text-gray-500 hover:text-gray-700"
-                  onClick={() =>
-                    setValue(
-                      "brandColors",
-                      createBrandColorsFromPrimaryColor(
-                        values.brandColors.primary,
-                      ),
-                      {
-                        shouldDirty: true,
-                      },
-                    )
-                  }
-                  type="button"
-                >
-                  <Icon
-                    className="w-4 h-4"
-                    fillColor="currentColor"
-                    name="wand"
-                    size={IconSize.LARGE}
-                  />
-                </button>
-              </TooltipComponent>
-            }
           </div>
           <Controller
             control={control}
@@ -187,18 +148,13 @@ function SettingsForm(props: SettingsFormProps) {
           />
         </div>
 
-        <TooltipComponent
-          content={createMessage(ADMIN_BRANDING_SETTINGS_UPGRADE_TEXT)}
-          disabled={!disabled}
-        >
-          <Button
-            disabled={disabled || !hasDirtyFields}
-            size={Size.medium}
-            tag="button"
-            text="submit"
-            type="submit"
-          />
-        </TooltipComponent>
+        <Button
+          disabled={disabled || !hasDirtyFields}
+          size={Size.medium}
+          tag="button"
+          text="submit"
+          type="submit"
+        />
       </div>
     </form>
   );

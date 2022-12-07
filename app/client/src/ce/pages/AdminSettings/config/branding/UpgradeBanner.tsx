@@ -21,7 +21,7 @@ const UpgradeBanner = () => {
 
   return (
     <div className="pb-4 pr-7">
-      <div className="flex items-center p-4 border">
+      <div className="flex items-center justify-between p-6 border">
         <main>
           <div className="inline-block px-1 text-xs text-blue-900 uppercase bg-blue-100">
             Enterprise
@@ -35,6 +35,7 @@ const UpgradeBanner = () => {
         </main>
         <aside>
           <Button
+            className="w-max min-w-48"
             icon="star-line"
             iconPosition="left"
             onClick={onUpgrade}

@@ -13,10 +13,7 @@ import QuestionIcon from "remixicon-react/QuestionFillIcon";
 
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import {
-  createBrandColorsFromPrimaryColor,
-  APPSMITH_BRAND_PRIMARY_COLOR,
-} from "utils/BrandingUtils";
+import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
 import { brandColorsKeys } from "../config/branding/BrandingPage";
 
 export const StyledInputGroup = styled(InputGroup)`
@@ -109,7 +106,6 @@ export const ColorInput = (props: ColorInputProps) => {
     tooltips,
     value,
     filter = () => true,
-    defaultValue,
     logEvent,
   } = props;
   const colorInputRef = useRef<HTMLInputElement>(null);
@@ -122,21 +118,10 @@ export const ColorInput = (props: ColorInputProps) => {
 
       logEvent && logEvent(selectedIndex);
 
-      // if user is touching the primary color first and the default value is the brand color
+      // if user is touching the primary color
       // then we need to update the shades
       if (selectedIndex === "primary") {
-        if (
-          !colorTouched.current &&
-          defaultValue?.primary === APPSMITH_BRAND_PRIMARY_COLOR
-        ) {
-          shades = createBrandColorsFromPrimaryColor(e.target.value);
-        } else {
-          shades = {
-            ...createBrandColorsFromPrimaryColor(e.target.value),
-            background: value.background,
-            font: value.font,
-          };
-        }
+        shades = createBrandColorsFromPrimaryColor(e.target.value);
       }
 
       // set touched flag to true
