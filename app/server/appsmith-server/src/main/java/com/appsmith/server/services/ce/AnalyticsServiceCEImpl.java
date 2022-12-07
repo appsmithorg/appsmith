@@ -164,15 +164,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             analyticsProperties.put("originService", "appsmith-server");
             analyticsProperties.put("instanceId", instanceId);
             messageBuilder = messageBuilder.properties(analyticsProperties);
-
-            // TODO Remove thise code block after finding the event that is causing the size limit issue for segment
-            Message message = messageBuilder.build();
-            Gson gson = getGsonInstance();
-            String stringifiedMessage = gson.toJson(message);
-            int sizeInBytes = stringifiedMessage.getBytes(Charset.forName("UTF-8")).length;
-            if (sizeInBytes  > 32768) {
-                log.error("Message was above individual limit. Message content {}, event {}", stringifiedMessage, event);
-            }
             analytics.enqueue(messageBuilder);
             return instanceId;
         }).subscribeOn(Schedulers.boundedElastic()).subscribe();

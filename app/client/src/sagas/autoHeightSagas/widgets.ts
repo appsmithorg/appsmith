@@ -441,8 +441,44 @@ export function* updateWidgetAutoHeightSaga() {
                 }
               }
             } else {
+              // Get the parent's topRow and bottomRow from the state
+              let parentBottomRow = parentContainerLikeWidget.bottomRow;
+              let parentTopRow = parentContainerLikeWidget.topRow;
+              // If we have the parent's dimensions in the tree
+              // and it is not a modal widget, then get the topRow
+              // and bottomRow from the tree.
+              if (
+                dynamicHeightLayoutTree[parentContainerLikeWidget.widgetId] &&
+                !parentContainerLikeWidget.detachFromLayout
+              ) {
+                parentBottomRow =
+                  dynamicHeightLayoutTree[parentContainerLikeWidget.widgetId]
+                    .bottomRow;
+                parentTopRow =
+                  dynamicHeightLayoutTree[parentContainerLikeWidget.widgetId]
+                    .topRow;
+              }
+
+              // If this is a modal widget, then get the bottomRow in rows
+              // as the height and bottomRow could be in pixels.
+              if (
+                parentContainerLikeWidget.detachFromLayout &&
+                parentContainerLikeWidget.height
+              ) {
+                parentBottomRow =
+                  parentTopRow +
+                  Math.ceil(
+                    parentContainerLikeWidget.height /
+                      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                  );
+              }
+
+              // Get the parent container's height in rows
+              // It is possible that some other update has changed this parent's
+              // dimensions.
               let parentContainerHeightInRows = getParentCurrentHeightInRows(
-                dynamicHeightLayoutTree,
+                parentBottomRow,
+                parentTopRow,
                 parentContainerLikeWidget.widgetId,
                 changesSoFar,
               );

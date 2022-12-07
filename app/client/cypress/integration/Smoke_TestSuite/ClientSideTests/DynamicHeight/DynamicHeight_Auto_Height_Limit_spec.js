@@ -6,6 +6,7 @@ describe("Dynamic Height Width validation with limits", function() {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
+    cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
     cy.wait(3000); //for dsl to settle
     //cy.checkMinDefaultValue(commonlocators.minHeight,"4")

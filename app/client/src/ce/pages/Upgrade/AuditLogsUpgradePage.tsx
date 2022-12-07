@@ -4,8 +4,8 @@ import UpgradePage from "./UpgradePage";
 import DebuggingImage from "assets/svg/upgrade/audit-logs/debugging.svg";
 import IncidentManagementImage from "assets/svg/upgrade/audit-logs/incident-management.svg";
 import SecurityAndComplianceImage from "assets/svg/upgrade/audit-logs/security-and-compliance.svg";
-import AnalyticsUtil from "../../../utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "../../configs";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { createMessage } from "design-system/build/constants/messages";
 import {
   AUDIT_LOGS,
@@ -20,7 +20,7 @@ import {
   SECURITY_AND_COMPLIANCE_DETAIL1,
   SECURITY_AND_COMPLIANCE_DETAIL2,
   UPGRADE,
-} from "../../constants/messages";
+} from "@appsmith/constants/messages";
 
 const { intercomAppID } = getAppsmithConfigs();
 
