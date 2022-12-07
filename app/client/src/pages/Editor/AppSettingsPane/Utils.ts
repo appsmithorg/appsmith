@@ -14,6 +14,13 @@ export const getUrlPreview = (
 ) => {
   let relativePath: string;
 
+  newPageName = filterAccentedAndSpecialCharacters(newPageName);
+  currentPageName = filterAccentedAndSpecialCharacters(currentPageName);
+  newCustomSlug &&
+    (newCustomSlug = filterAccentedAndSpecialCharacters(newCustomSlug));
+  currentCustomSlug &&
+    (currentCustomSlug = filterAccentedAndSpecialCharacters(currentCustomSlug));
+
   // when page name is changed
   // and when custom slug doesn't exist
   if (!newCustomSlug && newPageName !== currentPageName) {
@@ -40,4 +47,10 @@ export const getUrlPreview = (
     relativePath,
     splitRelativePath: splitPathPreview(relativePath, newCustomSlug),
   };
+};
+
+const filterAccentedAndSpecialCharacters = (value: string) => {
+  return decodeURI(value)
+    .replaceAll(" ", "-")
+    .replaceAll(/[^a-z0-9-]/gi, "");
 };
