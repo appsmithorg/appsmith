@@ -5,6 +5,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   updateColumnLevelEditability,
+  updateColumnOrderWhenFrozen,
   updateInlineEditingOptionDropdownVisibilityHook,
 } from "../../propertyUtils";
 import { isColumnTypeEditable } from "../../utilities";
@@ -136,6 +137,33 @@ export default {
         const isDerived = get(props, `${baseProperty}.isDerived`, false);
         return !isColumnTypeEditable(columnType) || isDerived;
       },
+    },
+    {
+      propertyName: "sticky",
+      helpText:
+        "Choose is the column needs to be frozen left or right of the table",
+      controlType: "ICON_TABS",
+      defaultValue: undefined,
+      label: "Column Freeze",
+      fullWidth: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      dependencies: ["primaryColumns", "columnOrder"],
+      options: [
+        {
+          icon: "VERTICAL_LEFT",
+          value: "left",
+        },
+        {
+          icon: "CENTER_ALIGN",
+          value: undefined,
+        },
+        {
+          icon: "VERTICAL_RIGHT",
+          value: "right",
+        },
+      ],
+      updateHook: updateColumnOrderWhenFrozen,
     },
   ],
 };

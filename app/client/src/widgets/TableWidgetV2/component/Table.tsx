@@ -8,6 +8,7 @@ import {
   useRowSelect,
   Row as ReactTableRowType,
 } from "react-table";
+import { useSticky } from "react-table-sticky";
 import {
   TableWrapper,
   TableHeaderWrapper,
@@ -96,6 +97,8 @@ interface TableProps {
     onActionComplete: () => void,
   ) => void;
   disabledAddNewRowSave: boolean;
+  handleColumnFreeze?: (columnName: string, sticky?: string) => void;
+  canUserFreezeColumn?: boolean;
 }
 
 const defaultColumn = {
@@ -183,6 +186,7 @@ export function Table(props: TableProps) {
     useResizeColumns,
     usePagination,
     useRowSelect,
+    useSticky,
   );
   //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
@@ -348,7 +352,7 @@ export function Table(props: TableProps) {
             height: isHeaderVisible ? props.height - 48 : props.height,
           }}
         >
-          <div {...getTableProps()} className="table">
+          <div {...getTableProps()} className="table sticky">
             <div
               className="thead"
               onMouseLeave={props.enableDrag}
@@ -360,7 +364,7 @@ export function Table(props: TableProps) {
                   style: { display: "flex" },
                 };
                 return (
-                  <div {...headerRowProps} className="tr" key={index}>
+                  <div {...headerRowProps} className="tr header" key={index}>
                     {props.multiRowSelection &&
                       renderHeaderCheckBoxCell(
                         handleAllRowSelectClick,
@@ -372,10 +376,12 @@ export function Table(props: TableProps) {
                       (column: any, columnIndex: number) => {
                         return (
                           <HeaderCell
+                            canUserFreezeColumn={props.canUserFreezeColumn}
                             column={column}
                             columnIndex={columnIndex}
                             columnName={column.Header}
                             editMode={props.editMode}
+                            handleColumnFreeze={props.handleColumnFreeze}
                             isAscOrder={column.isAscOrder}
                             isHidden={column.isHidden}
                             isResizingColumn={isResizingColumn.current}

@@ -1,6 +1,8 @@
 import React, { createRef, useEffect, useState } from "react";
 import { AnyStyledComponent } from "styled-components";
-import { Tooltip } from "@blueprintjs/core";
+import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
+import Check from "remixicon-react/CheckFillIcon";
+import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 
 import { Colors } from "constants/Colors";
 import styled from "constants/DefaultTheme";
@@ -9,6 +11,8 @@ import { CellAlignment, JUSTIFY_CONTENT } from "../Constants";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
+import { Popover2 } from "@blueprintjs/popover2";
+import { MenuDivider } from "design-system";
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
@@ -102,10 +106,12 @@ function Title(props: TitleProps) {
 const ICON_SIZE = 16;
 
 export function HeaderCell(props: {
+  canUserFreezeColumn?: boolean;
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
   isAscOrder?: boolean;
+  handleColumnFreeze?: (columnName: string, sticky?: string) => void;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
@@ -113,30 +119,38 @@ export function HeaderCell(props: {
   isSortable?: boolean;
   width?: number;
 }) {
-  const { column, editMode, isSortable } = props;
-  const handleSortColumn = () => {
+  const { column, isSortable } = props;
+  const [isMenuClicked, setIsMenuClicked] = useState(false);
+
+  const handleSortColumn = (sortOrder: boolean) => {
     if (props.isResizingColumn) return;
-    let columnIndex = props.columnIndex;
-    if (props.isAscOrder === true) {
-      columnIndex = -1;
-    }
-    const sortOrder =
-      props.isAscOrder === undefined ? false : !props.isAscOrder;
+    const columnIndex = props.columnIndex;
     props.sortTableColumn(columnIndex, sortOrder);
   };
-  const disableSort = editMode === false && isSortable === false;
 
   const isColumnEditable =
     column.columnProperties.isCellEditable &&
     column.columnProperties.isEditable &&
     isColumnTypeEditable(column.columnProperties.columnType);
 
+  const toggleColumnFreeze = (
+    evt:
+      | React.MouseEvent<HTMLAnchorElement, MouseEvent>
+      | React.MouseEvent<HTMLElement, MouseEvent>,
+    value: string,
+  ) => {
+    const currentChildrenLen = evt.currentTarget.children.length;
+    props.handleColumnFreeze &&
+      props.handleColumnFreeze(
+        props.column.id,
+        currentChildrenLen === 2 ? undefined : value,
+      );
+  };
   return (
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
       data-header={props.columnName}
-      onClick={!disableSort && props ? handleSortColumn : undefined}
     >
       <div className={!props.isHidden ? `draggable-header` : "hidden-header"}>
         <ColumnNameContainer
@@ -147,6 +161,57 @@ export function HeaderCell(props: {
             {props.columnName.replace(/\s/g, "\u00a0")}
           </Title>
         </ColumnNameContainer>
+      </div>
+      <div className="header-menu">
+        <Popover2
+          content={
+            <Menu>
+              <MenuItem
+                disabled={!isSortable}
+                labelElement={props.isAscOrder === true ? <Check /> : undefined}
+                onClick={() => {
+                  handleSortColumn(true);
+                }}
+                text="Sort column ascending"
+              />
+              <MenuItem
+                disabled={!isSortable}
+                labelElement={
+                  props.isAscOrder === false ? <Check /> : undefined
+                }
+                onClick={() => {
+                  handleSortColumn(false);
+                }}
+                text="Sort column descending"
+              />
+              <MenuDivider />
+              <MenuItem
+                disabled={!props.canUserFreezeColumn}
+                labelElement={column.sticky === "left" ? <Check /> : undefined}
+                onClick={(e) => {
+                  toggleColumnFreeze(e, "left");
+                }}
+                text="Freeze column left"
+              />
+              <MenuItem
+                disabled={!props.canUserFreezeColumn}
+                labelElement={column.sticky === "right" ? <Check /> : undefined}
+                onClick={(e) => {
+                  toggleColumnFreeze(e, "right");
+                }}
+                text="Freeze column right"
+              />
+            </Menu>
+          }
+          interactionKind="click"
+          isOpen={isMenuClicked}
+          onInteraction={(state) => {
+            setIsMenuClicked(state);
+          }}
+          placement="bottom-end"
+        >
+          <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
+        </Popover2>
       </div>
       {props.isAscOrder !== undefined ? (
         <div>

@@ -79,22 +79,20 @@ export const TableWrapper = styled.div<{
     ${hideScrollbar};
     .thead,
     .tbody {
-      overflow: hidden;
+      overflow: visible;
     }
     .tbody {
       height: ${(props) =>
         props.isHeaderVisible
           ? props.height - OFFSET_WITH_HEADER
-          : props.height - OFFSET_WITHOUT_HEADER}px;
+          : props.height - OFFSET_WITHOUT_HEADER}px !important;
       width: 100%;
-      overflow-y: auto;
-      ${hideScrollbar};
     }
     .tbody.no-scroll {
-      overflow: hidden;
+      overflow: clip;
     }
     .tr {
-      overflow: hidden;
+      overflow: clip;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
@@ -182,6 +180,27 @@ export const TableWrapper = styled.div<{
       position: sticky;
       top: 0;
       z-index: 1;
+    }
+  }
+
+  .sticky {
+    .body {
+      position: relative;
+      z-index: 0;
+    }
+
+    [data-sticky-td] {
+      position: sticky;
+      position: -webkit-sticky;
+      background-color: inherit;
+    }
+
+    [data-sticky-last-left-td] {
+      box-shadow: 2px 0px 3px #ccc;
+    }
+
+    [data-sticky-first-right-td] {
+      box-shadow: -2px 0px 3px #ccc;
     }
   }
 

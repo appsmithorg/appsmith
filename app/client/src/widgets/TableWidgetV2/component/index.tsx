@@ -98,6 +98,8 @@ interface ReactTableComponentProps {
   allowRowSelection: boolean;
   allowSorting: boolean;
   disabledAddNewRowSave: boolean;
+  handleColumnFreeze?: (columnName: string, sticky?: string) => void;
+  canUserFreezeColumn?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -108,6 +110,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     applyFilter,
     borderColor,
     borderWidth,
+    canUserFreezeColumn,
     columns,
     columnWidthMap,
     compactMode,
@@ -117,6 +120,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     editableCell,
     editMode,
     filters,
+    handleColumnFreeze,
     handleReorderColumn,
     handleResizeColumn,
     height,
@@ -156,27 +160,41 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
-  const { columnOrder, hiddenColumns } = useMemo(() => {
-    const order: string[] = [];
+  const { hiddenColumns, leftOrder, middleOrder, rightOrder } = useMemo(() => {
+    const leftOrder: string[] = [];
+    const rightOrder: string[] = [];
+    const middleOrder: string[] = [];
     const hidden: string[] = [];
     columns.forEach((item) => {
       if (item.isHidden) {
         hidden.push(item.alias);
       } else {
-        order.push(item.alias);
+        if (item.sticky === "left") {
+          leftOrder.push(item.alias);
+        } else if (item.sticky === "right") {
+          rightOrder.push(item.alias);
+        } else {
+          middleOrder.push(item.alias);
+        }
       }
     });
     return {
-      columnOrder: order,
+      leftOrder: leftOrder,
+      rightOrder: rightOrder,
+      middleOrder,
       hiddenColumns: hidden,
     };
   }, [columns]);
 
   useEffect(() => {
     let dragged = -1;
-    const headers = Array.prototype.slice.call(
-      document.querySelectorAll(`#table${widgetId} .draggable-header`),
-    );
+    const headers = Array.prototype.slice
+      .call(document.querySelectorAll(`#table${widgetId} .draggable-header`))
+      .filter((header) => {
+        // Filter out columns that are not sticky.
+        const parentDataAtrributes = header.parentElement.dataset;
+        return !("stickyTd" in parentDataAtrributes);
+      });
     headers.forEach((header, i) => {
       header.setAttribute("draggable", true);
 
@@ -232,7 +250,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         header.parentElement.className = "th header-reorder";
         if (i !== dragged && dragged !== -1) {
           e.preventDefault();
-          const newColumnOrder = [...columnOrder];
+          const newColumnOrder = [...middleOrder];
           // The dragged column
           const movedColumnName = newColumnOrder.splice(dragged, 1);
 
@@ -240,7 +258,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
           if (movedColumnName && movedColumnName.length === 1) {
             newColumnOrder.splice(i, 0, movedColumnName[0]);
           }
-          handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
+          handleReorderColumn([
+            ...leftOrder,
+            ...newColumnOrder,
+            ...rightOrder,
+            ...hiddenColumns,
+          ]);
         } else {
           dragged = -1;
         }
@@ -303,6 +326,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
+      canUserFreezeColumn={canUserFreezeColumn}
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode}
@@ -314,6 +338,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
       filters={filters}
+      handleColumnFreeze={handleColumnFreeze}
       handleResizeColumn={handleResizeColumn}
       height={height}
       isAddRowInProgress={isAddRowInProgress}
@@ -404,6 +429,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowAddNewRow === next.allowAddNewRow &&
     prev.allowRowSelection === next.allowRowSelection &&
     prev.allowSorting === next.allowSorting &&
-    prev.disabledAddNewRowSave === next.disabledAddNewRowSave
+    prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
+    prev.canUserFreezeColumn === next.canUserFreezeColumn
   );
 });

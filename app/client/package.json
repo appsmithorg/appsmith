@@ -138,6 +138,7 @@
     "react-spring": "^9.4.0",
     "react-syntax-highlighter": "^15.4.4",
     "react-table": "^7.0.0",
+    "react-table-sticky": "^1.1.3",
     "react-tabs": "^3.0.0",
     "react-timer-hook": "^3.0.4",
     "react-toastify": "^5.5.0",

@@ -13,6 +13,7 @@ import _, {
   isEmpty,
   union,
   isObject,
+  get,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -84,6 +85,8 @@ import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
+import localStorage from "utils/localStorage";
+import { handleColumnSticky } from "./propertyUtils";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -171,10 +174,42 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const { componentWidth } = this.getPaddingAdjustedDimensions();
     let totalColumnWidth = 0;
+    let localLeftOrder = localStorage.getItem("leftOrder");
+    let localRightOrder = localStorage.getItem("rightOrder");
+
+    if (localLeftOrder) {
+      localLeftOrder = JSON.parse(localLeftOrder);
+    }
+
+    if (localRightOrder) {
+      localRightOrder = JSON.parse(localRightOrder);
+    }
 
     if (isArray(orderedTableColumns)) {
       orderedTableColumns.forEach((column: any) => {
         const isHidden = !column.isVisible;
+        let stickyValue;
+        if (
+          this.props.renderMode === RenderModes.PAGE &&
+          this.props.canUserFreezeColumn
+        ) {
+          // Update sticky value if its present in the local storage
+          if (
+            _.find(localLeftOrder, (col) => col === column.alias) &&
+            column.sticky === undefined
+          ) {
+            stickyValue = "left";
+          } else if (
+            _.find(localRightOrder, (col) => col === column.alias) &&
+            column.sticky === undefined
+          ) {
+            stickyValue = "right";
+          } else {
+            stickyValue = column.sticky;
+          }
+        } else {
+          stickyValue = column.sticky;
+        }
         const columnData = {
           id: column.id,
           Header: column.label,
@@ -186,6 +221,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isHidden: false,
           isAscOrder: column.isAscOrder,
           isDerived: column.isDerived,
+          sticky: stickyValue,
           metaProperties: {
             isHidden: isHidden,
             type: column.columnType,
@@ -530,7 +566,28 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    const { tableData } = this.props;
+    const { canUserFreezeColumn, renderMode, tableData } = this.props;
+
+    let localColumnOrder;
+    if (canUserFreezeColumn && renderMode === RenderModes.PAGE) {
+      /**
+       * When in PAGE view mode:
+       * 1. If columnOrder not in local storage add it.
+       * 2. if column order preesent in the localstorage update it.
+       */
+      localColumnOrder = localStorage.getItem("columnOrder");
+      if (!localColumnOrder || localColumnOrder === "undefined") {
+        localStorage.setItem(
+          "columnOrder",
+          JSON.stringify(this.props.columnOrder),
+        );
+      } else {
+        this.props.updateWidgetMetaProperty(
+          "columnOrder",
+          JSON.parse(localColumnOrder),
+        );
+      }
+    }
 
     if (_.isArray(tableData) && !!tableData.length) {
       const newPrimaryColumns = this.createTablePrimaryColumns();
@@ -849,6 +906,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
+          canUserFreezeColumn={this.props.canUserFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
@@ -858,6 +916,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
           filters={this.props.filters}
+          handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -909,12 +968,41 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
 
+  handleColumnFreeze = (columnName: string, sticky?: string) => {
+    if (this.props.renderMode === RenderModes.PAGE && this.props.columnOrder) {
+      /**
+       * Get the columns that are frozen by developers
+       * Columns that are frozen by developers will have sticky value in its primary column
+       * We need to reset it to undefined.
+       */
+      if (get(this.props.primaryColumns, `${columnName}.sticky`)) {
+        super.updateWidgetProperty(
+          `primaryColumns.${columnName}.sticky`,
+          undefined,
+        );
+      }
+      const newColumnOrder = handleColumnSticky(
+        this.props.primaryColumns,
+        this.props.columnOrder,
+        columnName,
+        sticky,
+        RenderModes.PAGE,
+        this.props.canUserFreezeColumn,
+      );
+      localStorage.setItem("columnOrder", JSON.stringify(newColumnOrder));
+      this.props.updateWidgetMetaProperty("columnOrder", newColumnOrder);
+    }
+  };
+
   handleReorderColumn = (columnOrder: string[]) => {
     columnOrder = columnOrder.map((alias) => this.getColumnIdByAlias(alias));
 
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("columnOrder", columnOrder);
     } else {
+      if (this.props.canUserFreezeColumn) {
+        localStorage.setItem("columnOrder", JSON.stringify(columnOrder));
+      }
       this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
     }
   };

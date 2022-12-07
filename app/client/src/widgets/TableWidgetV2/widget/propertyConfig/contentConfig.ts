@@ -463,6 +463,16 @@ export default [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {
+        propertyName: "canUserFreezeColumn",
+        helpText: "Controls whether the user can freeze columns",
+        label: "Allow Column Freeze",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         propertyName: "delimiter",
         label: "CSV Separator",
         controlType: "INPUT_TEXT",

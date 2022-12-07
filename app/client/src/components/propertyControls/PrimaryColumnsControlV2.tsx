@@ -189,6 +189,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             isColumnTypeEditable(column.columnType) && column.isEditable,
           isCheckboxDisabled:
             !isColumnTypeEditable(column.columnType) || column.isDerived,
+          sticky: column.sticky,
         };
       },
     );

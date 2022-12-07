@@ -205,6 +205,7 @@ export function getDefaultColumnProperties(
       : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
           id,
         )}"]))}}`,
+    sticky: undefined,
     validation: {},
   };
 
@@ -677,5 +678,96 @@ export const getColumnType = (
         : ColumnTypes.TEXT;
     default:
       return ColumnTypes.TEXT;
+  }
+};
+
+export const updateLocalColumnOrder = (
+  columnOrder: string[],
+  columnName: string,
+  sticky?: string,
+) => {
+  /**
+   * Update localStorage logic when Render Mode is PAGE
+   */
+  localStorage.setItem("columnOrder", JSON.stringify(columnOrder));
+
+  const leftOrder = localStorage.getItem("leftOrder");
+  const rightOrder = localStorage.getItem("rightOrder");
+  const parsedLeftOrder = leftOrder ? JSON.parse(leftOrder) : [];
+  const parsedRightOrder = rightOrder ? JSON.parse(rightOrder) : [];
+
+  // Update local storages based on sticky value
+  if (sticky === "left") {
+    // Build left column order for columns that are frozen to left.
+    const newLeftOrder =
+      parsedLeftOrder.length === 0
+        ? JSON.stringify([columnName])
+        : JSON.stringify(uniq([...parsedLeftOrder, columnName]));
+
+    /**
+     * Remove the column from the rightOrder if user freezes the column to the left that was frozen right earlier
+     * i.e. Column is frozen from Right(previous) -> Left(new)
+     */
+    if (rightOrder) {
+      const remainingRightOrder = without(parsedRightOrder, columnName);
+      if (remainingRightOrder.length === 0) {
+        localStorage.removeItem("rightOrder");
+      } else {
+        localStorage.setItem("rightOrder", JSON.stringify(remainingRightOrder));
+      }
+    }
+
+    localStorage.setItem("leftOrder", newLeftOrder);
+  } else if (sticky === "right") {
+    // Build right column order for columns that are frozen to right.
+    const newRightOrder =
+      parsedRightOrder.length === 0
+        ? JSON.stringify([columnName])
+        : JSON.stringify(uniq([...parsedRightOrder, columnName]));
+
+    /**
+     * Remove the column from the leftOrder if user freezes the column to the right that was frozen left earlier
+     * i.e. Column is frozen from left(previous) -> right(new)
+     */
+    if (leftOrder) {
+      const remainingLeftOrder = without(parsedLeftOrder, columnName);
+      if (remainingLeftOrder.length === 0) {
+        localStorage.removeItem("leftOrder");
+      } else {
+        localStorage.setItem("leftOrder", JSON.stringify(remainingLeftOrder));
+      }
+    }
+    localStorage.setItem("rightOrder", newRightOrder);
+  } else {
+    // Perform clean up of column orders when value is undefined
+    if (leftOrder) {
+      /**
+       * If only one column is present in the leftOrder, then remove the leftOrder
+       * Else remove the column from the leftOrder, if it contains multiple columns.
+       */
+      if (parsedLeftOrder.length === 1 && parsedLeftOrder[0] === columnName) {
+        localStorage.removeItem("leftOrder");
+      } else {
+        localStorage.setItem(
+          "leftOrder",
+          JSON.stringify(without(parsedLeftOrder, columnName)),
+        );
+      }
+    }
+
+    /**
+     * If only one column is present in the rightOrder, then remove the rightOrder
+     * Else remove the column from the rightOrder, if it contains multiple columns.
+     */
+    if (rightOrder) {
+      if (parsedRightOrder.length === 1 && parsedRightOrder[0] === columnName) {
+        localStorage.removeItem("rightOrder");
+      } else {
+        localStorage.setItem(
+          "rightOrder",
+          JSON.stringify(without(parsedRightOrder, columnName)),
+        );
+      }
+    }
   }
 };

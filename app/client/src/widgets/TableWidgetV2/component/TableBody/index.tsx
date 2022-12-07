@@ -73,7 +73,7 @@ type BodyPropsType = {
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<HTMLDivElement>) => {
     return (
-      <div {...props.getTableBodyProps()} className="tbody no-scroll">
+      <div {...props.getTableBodyProps()} className="tbody no-scroll body">
         <FixedSizeList
           height={
             props.height -
@@ -99,7 +99,7 @@ const TableVirtualBodyComponent = React.forwardRef(
 const TableBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<HTMLDivElement>) => {
     return (
-      <div {...props.getTableBodyProps()} className="tbody" ref={ref}>
+      <div {...props.getTableBodyProps()} className="tbody body" ref={ref}>
         {props.rows.map((row, index) => {
           return <Row index={index} key={index} row={row} />;
         })}

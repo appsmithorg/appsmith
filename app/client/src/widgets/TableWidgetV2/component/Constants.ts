@@ -231,6 +231,7 @@ export interface TableColumnProps {
   metaProperties?: TableColumnMetaProps;
   isDerived?: boolean;
   columnProperties: ColumnProperties;
+  sticky?: string;
 }
 export interface ReactTableColumnProps extends TableColumnProps {
   Cell: (props: any) => JSX.Element;
@@ -333,6 +334,7 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
+  sticky?: string;
 }
 
 export const ConditionFunctions: {
