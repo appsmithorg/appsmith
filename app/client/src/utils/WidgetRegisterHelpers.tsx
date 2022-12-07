@@ -17,14 +17,18 @@ import {
 } from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
 import withWidgetProps from "widgets/withWidgetProps";
+import { withLazyRender } from "widgets/withLazyRender";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
+  eagerLoad: boolean,
 ) {
   let widget = needsMeta ? withMeta(Widget) : Widget;
   //@ts-expect-error: type mismatch
   widget = withWidgetProps(widget);
+  //@ts-expect-error: type mismatch
+  widget = eagerLoad ? widget : withLazyRender(widget);
   return Sentry.withProfiler(
     // @ts-expect-error: Types are not available
     widget,
@@ -32,7 +36,11 @@ const generateWidget = memoize(function getWidgetComponent(
 });
 
 export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
-  const ProfiledWidget = generateWidget(Widget, !!config.needsMeta);
+  const ProfiledWidget = generateWidget(
+    Widget,
+    !!config.needsMeta,
+    !!config.eagerLoad,
+  );
 
   WidgetFactory.registerWidgetBuilder(
     config.type,
