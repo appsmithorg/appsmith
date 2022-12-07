@@ -23,7 +23,7 @@ import {
   RenderForm,
   InputProps,
 } from "./components";
-import { getSettingDetail, getSettingLabel } from "../saml";
+import { getSettingDetail, getSettingLabel } from ".";
 import { SSO_IDENTITY_PROVIDER_FORM } from "@appsmith/constants/forms";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
 import {

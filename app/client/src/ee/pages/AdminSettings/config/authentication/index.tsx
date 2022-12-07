@@ -12,8 +12,8 @@ import {
   SettingTypes,
   SettingSubtype,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { Saml } from "@appsmith/pages/AdminSettings/saml";
-import Oidc from "@appsmith/pages/AdminSettings/oidc";
+import { Saml } from "@appsmith/pages/AdminSettings/SAML";
+import Oidc from "@appsmith/pages/AdminSettings/OIDC";
 import { AuthMethodType, AuthPage } from "./AuthPage";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
