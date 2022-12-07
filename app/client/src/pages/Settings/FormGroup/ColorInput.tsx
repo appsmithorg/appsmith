@@ -9,11 +9,14 @@ import tinycolor from "tinycolor2";
 import styled from "styled-components";
 import { TooltipComponent } from "design-system";
 import { InputGroup, Classes } from "@blueprintjs/core";
-import QuestionFillIcon from "remixicon-react/QuestionLineIcon";
+import QuestionIcon from "remixicon-react/QuestionFillIcon";
 
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
+import {
+  createBrandColorsFromPrimaryColor,
+  APPSMITH_BRAND_PRIMARY_COLOR,
+} from "utils/BrandingUtils";
 import { brandColorsKeys } from "../config/branding/BrandingPage";
 
 export const StyledInputGroup = styled(InputGroup)`
@@ -82,6 +85,8 @@ type ColorInputProps = {
   className?: string;
   tooltips?: Record<brandColorsKeys, string>;
   filter?: (key: brandColorsKeys) => boolean;
+  defaultValue?: Record<brandColorsKeys, string>;
+  logEvent?: (property: string) => void;
 };
 
 const LeftIcon = (
@@ -94,10 +99,19 @@ const LeftIcon = (
 };
 
 export const ColorInput = (props: ColorInputProps) => {
+  const colorTouched = useRef<boolean>(false);
   const [selectedIndex, setSelectedIndex] = useState<brandColorsKeys>(
     "primary",
   );
-  const { className, onChange, tooltips, value, filter = () => true } = props;
+  const {
+    className,
+    onChange,
+    tooltips,
+    value,
+    filter = () => true,
+    defaultValue,
+    logEvent,
+  } = props;
   const colorInputRef = useRef<HTMLInputElement>(null);
 
   const onColorInputChange = useCallback(
@@ -106,16 +120,37 @@ export const ColorInput = (props: ColorInputProps) => {
 
       shades[selectedIndex] = e.target.value;
 
+      logEvent && logEvent(selectedIndex);
+
+      // if user is touching the primary color first and the default value is the brand color
+      // then we need to update the shades
       if (selectedIndex === "primary") {
-        shades = createBrandColorsFromPrimaryColor(e.target.value);
+        if (
+          !colorTouched.current &&
+          defaultValue?.primary === APPSMITH_BRAND_PRIMARY_COLOR
+        ) {
+          shades = createBrandColorsFromPrimaryColor(e.target.value);
+        } else {
+          shades = {
+            ...createBrandColorsFromPrimaryColor(e.target.value),
+            background: value.background,
+            font: value.font,
+          };
+        }
       }
+
+      // set touched flag to true
+      colorTouched.current = true;
 
       onChange && onChange(shades);
     },
     [onChange, selectedIndex, value],
   );
 
-  const hex = tinycolor(value[selectedIndex]).toHexString();
+  // if the selected color is empty, use the white color for left icon
+  const hex = value[selectedIndex]
+    ? tinycolor(value[selectedIndex]).toHexString()
+    : "#ffffff";
   const colorKeys = Object.keys(value) as brandColorsKeys[];
 
   return (
@@ -132,7 +167,7 @@ export const ColorInput = (props: ColorInputProps) => {
               className={`flex-grow w-5 h-5 cursor-pointer p-px relative border ${
                 selectedIndex === colorKey
                   ? "border-gray-700 bg-clip-content"
-                  : "border-gray-200"
+                  : "border-gray-200 hover:border-gray-400"
               }`}
               data-id={colorKey}
               key={`shades-${colorKey}-${index}`}
@@ -142,12 +177,14 @@ export const ColorInput = (props: ColorInputProps) => {
           </TooltipComponent>
         ))}
       </div>
+
       <input
         className="hidden w-0 h-0"
         ref={colorInputRef}
         type="color"
         value={value[selectedIndex]} // convert to hex for safari compatibility
       />
+
       {/* label with tooltip */}
       <div className="flex items-center gap-1">
         <label className="text-sm text-gray-700">
@@ -157,9 +194,10 @@ export const ColorInput = (props: ColorInputProps) => {
           content={tooltips && tooltips[selectedIndex]}
           key={`tooltip-${selectedIndex}`}
         >
-          <QuestionFillIcon className="w-4 h-4 text-gray-600" />
+          <QuestionIcon className="w-4 h-4 text-[color:var(--ads-color-black-470)] cursor-help" />
         </TooltipComponent>
       </div>
+
       <StyledInputGroup
         className={`mb-2 ${className ? className : ""}`}
         leftIcon={<LeftIcon onChange={onColorInputChange} value={hex} />}

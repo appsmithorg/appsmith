@@ -1160,17 +1160,17 @@ export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () => `Logo should be below 2MB`;
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
-  `Allowed formats for logo are svg, png and jpeg`;
+  `Allowed formats for logo are svg, png and jpg`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
-  `Upload a 100KB - 2MB .SVG .PNG or .JPEG.`;
+  `Upload a .SVG .PNG or .JPG. of max 2MB`;
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
   `Favicon should be max 32px in width and 32px in height`;
 export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
   `Favicon should be below 2MB`;
 export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
-  `Allowed formats for favicon are png and ico`;
+  `Allowed formats for favicon are jpg, png and ico`;
 export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
-  `Upload a 32 x 32 .ICO, .JPG or .PNG file.`;
+  `Upload a .ICO, .JPG or .PNG file of max 32 x 32`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
   `Used on buttons, links, and other interactive elements.`;
 export const ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND = () =>

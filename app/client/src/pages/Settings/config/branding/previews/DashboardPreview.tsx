@@ -18,12 +18,7 @@ const DashboardPreview = (props: PreviewsProps) => {
             />
           </header>
           <main className="flex items-center justify-end gap-2 px-3">
-            <div
-              className="h-3 mt-2 rounded-sm w-7 t--branding-bg"
-              style={{
-                backgroundColor: shades.primary,
-              }}
-            />
+            <div className="h-3 mt-2 border border-gray-300 rounded-sm w-7" />
             <div
               className="h-3 mt-2 rounded-sm w-7 t--branding-bg"
               style={{

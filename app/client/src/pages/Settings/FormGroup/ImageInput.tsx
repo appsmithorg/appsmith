@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
 } from "redux-form";
 import { Button, Size } from "design-system";
-import React, { memo, useRef, useState } from "react";
+import React, { memo, useRef, useState, useEffect } from "react";
 
 import { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 
@@ -18,9 +18,10 @@ type ImageInputProps = {
     callback?: (e: React.ChangeEvent<HTMLInputElement>) => void,
   ): void;
   className?: string;
+  defaultValue?: string;
 };
 export const ImageInput = (props: ImageInputProps) => {
-  const { className, onChange, validate, value } = props;
+  const { className, defaultValue, onChange, validate, value } = props;
   const [preview, setPreview] = useState<string | ArrayBuffer | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +50,10 @@ export const ImageInput = (props: ImageInputProps) => {
         onChange && onChange(file);
       });
   };
+
+  useEffect(() => {
+    setPreview(null);
+  }, [defaultValue]);
 
   return (
     <div

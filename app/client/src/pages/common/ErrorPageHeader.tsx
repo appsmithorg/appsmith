@@ -1,10 +1,9 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import { AppState } from "@appsmith/reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
@@ -14,6 +13,7 @@ import ProfileDropdown from "./ProfileDropdown";
 import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { Indices } from "constants/Layers";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;
@@ -35,11 +35,6 @@ const HeaderSection = styled.div`
 
 const StyledDropDownContainer = styled.div``;
 
-const AppsmithLogoImg = styled(AppsmithLogo)`
-  max-width: 110px;
-  width: 110px;
-`;
-
 type ErrorPageHeaderProps = {
   user?: User;
   flushErrors?: any;
@@ -50,6 +45,7 @@ type ErrorPageHeaderProps = {
 export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   const { flushErrors, flushErrorsAndRedirect, safeCrash, user } = props;
   const location = useLocation();
+  const tenantConfig = useSelector(getTenantConfig);
   const queryParams = new URLSearchParams(location.search);
   let loginUrl = AUTH_LOGIN_URL;
   const redirectUrl = queryParams.get("redirectUrl");
@@ -60,15 +56,17 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   return (
     <StyledPageHeader>
       <HeaderSection>
-        <Link
-          className="t--appsmith-logo"
-          onClick={() => {
-            if (safeCrash) flushErrors();
-          }}
-          to={APPLICATIONS_URL}
-        >
-          <AppsmithLogoImg />
-        </Link>
+        {tenantConfig.brandLogoUrl && (
+          <Link
+            className="t--appsmith-logo"
+            onClick={() => {
+              if (safeCrash) flushErrors();
+            }}
+            to={APPLICATIONS_URL}
+          >
+            <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+          </Link>
+        )}
       </HeaderSection>
       {user && (
         <StyledDropDownContainer>

@@ -13,7 +13,11 @@ import {
 } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 
 const UpgradeBanner = () => {
-  const { onUpgrade } = useOnUpgrade({});
+  const { onUpgrade } = useOnUpgrade({
+    logEventName: "BRANDING_UPGRADE_CLICK",
+    intercomMessage:
+      "Hello, I would like to upgrade my appsmith instance to use the custom branding feature",
+  });
 
   return (
     <div className="pb-4 pr-7">

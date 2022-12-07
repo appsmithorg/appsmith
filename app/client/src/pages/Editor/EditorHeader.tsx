@@ -498,7 +498,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 link={deployLink}
                 trigger={
                   <StyledDeployIcon
-                    fillColor="#fff"
+                    fillColor="var(--ads-color-brand-text)"
                     name={"down-arrow"}
                     size={IconSize.XXL}
                   />

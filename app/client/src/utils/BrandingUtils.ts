@@ -7,15 +7,13 @@ import {
   ADMIN_BRANDING_LOGO_FORMAT_ERROR,
   ADMIN_BRANDING_FAVICON_SIZE_ERROR,
   ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
-  ADMIN_BRANDING_LOGO_DIMENSION_ERROR,
+  ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
 } from "@appsmith/constants/messages";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
-const LOGO_MIN_HEIGHT = 30;
-const LOGO_MAX_HEIGHT = 512;
 const DEFAULT_BRANDING_PRIMARY_COLOR = "#D7D7D7";
-const APPSMITH_BRAND_PRIMARY_COLOR = "#F86A2B";
+export const APPSMITH_BRAND_PRIMARY_COLOR = "#F86A2B";
 
 /**
  * create brand colors from primary color
@@ -67,7 +65,6 @@ export function createBrandColorsFromPrimaryColor(
  *  checks:
  *  1. file size max 2MB
  *  2. file type - jpg, svg or png
- *  3. file dimensions - height = [200, 400]
  *
  * @param e
  * @param callback
@@ -108,25 +105,7 @@ export const logoImageValidator = (
   const image = new Image();
   image.src = window.URL.createObjectURL(file);
 
-  image.onload = function() {
-    const height = image.naturalHeight;
-
-    window.URL.revokeObjectURL(image.src);
-
-    if (
-      ["image/jpeg", "image/png"].includes(file.type) &&
-      (height > LOGO_MAX_HEIGHT || height < LOGO_MIN_HEIGHT)
-    ) {
-      Toaster.show({
-        text: createMessage(ADMIN_BRANDING_LOGO_DIMENSION_ERROR),
-        variant: Variant.danger,
-      });
-
-      return false;
-    }
-
-    callback && callback(e);
-  };
+  callback && callback(e);
 };
 
 /**
@@ -190,7 +169,7 @@ export const faivconImageValidator = (
 
     if (height > FAVICON_MAX_HEIGHT || width > FAVICON_MAX_WIDTH) {
       Toaster.show({
-        text: createMessage(ADMIN_BRANDING_FAVICON_FORMAT_ERROR),
+        text: createMessage(ADMIN_BRANDING_FAVICON_DIMENSION_ERROR),
         variant: Variant.danger,
       });
 

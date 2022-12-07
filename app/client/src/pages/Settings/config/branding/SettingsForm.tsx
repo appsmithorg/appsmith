@@ -8,7 +8,7 @@ import {
   UseFormSetValue,
   UseFormResetField,
 } from "react-hook-form";
-import { Button, Size, TooltipComponent } from "design-system";
+import { Button, Icon, IconSize, Size, TooltipComponent } from "design-system";
 
 import { Inputs } from "./BrandingPage";
 import {
@@ -24,9 +24,13 @@ import {
 } from "@appsmith/constants/messages";
 import { ColorInput } from "pages/Settings/FormGroup/ColorInput";
 import { ImageInput } from "pages/Settings/FormGroup/ImageInput";
-import ArrowGoBackIcon from "remixicon-react/ArrowGoBackFillIcon";
-import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
+import {
+  logoImageValidator,
+  faivconImageValidator,
+  createBrandColorsFromPrimaryColor,
+} from "utils/BrandingUtils";
 import { useBrandingForm } from "@appsmith/pages/AdminSettings/config/branding/useBrandingForm";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type SettingsFormProps = {
   disabled?: boolean;
@@ -37,10 +41,19 @@ type SettingsFormProps = {
   defaultValues: Inputs;
   setValue: UseFormSetValue<Inputs>;
   resetField: UseFormResetField<Inputs>;
+  values: Inputs;
 };
 
 function SettingsForm(props: SettingsFormProps) {
-  const { control, disabled, formState, handleSubmit, resetField } = props;
+  const {
+    control,
+    defaultValues,
+    disabled,
+    formState,
+    handleSubmit,
+    setValue,
+    values,
+  } = props;
   const hasDirtyFields = Object.keys(formState.dirtyFields).length > 0;
   const { onSubmit } = useBrandingForm({
     dirtyFields: formState.dirtyFields,
@@ -60,7 +73,14 @@ function SettingsForm(props: SettingsFormProps) {
             render={({ field: { onChange, value } }) => (
               <ImageInput
                 className="t--settings-brand-logo-input"
-                onChange={onChange}
+                defaultValue={defaultValues.APPSMITH_BRAND_LOGO}
+                onChange={(e) => {
+                  onChange && onChange(e);
+
+                  AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                    propertyName: "logo",
+                  });
+                }}
                 validate={logoImageValidator}
                 value={value}
               />
@@ -82,7 +102,14 @@ function SettingsForm(props: SettingsFormProps) {
             render={({ field: { onChange, value } }) => (
               <ImageInput
                 className="t--settings-brand-favicon-input"
-                onChange={onChange}
+                defaultValue={defaultValues.APPSMITH_BRAND_FAVICON}
+                onChange={(e) => {
+                  onChange && onChange(e);
+
+                  AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                    propertyName: "favicon",
+                  });
+                }}
                 validate={faivconImageValidator}
                 value={value}
               />
@@ -102,17 +129,32 @@ function SettingsForm(props: SettingsFormProps) {
             >
               Color
             </label>
-            {hasDirtyFields && (
-              <TooltipComponent content="Reset colors">
+            {
+              <TooltipComponent content="Generate font and background color">
                 <button
                   className="text-gray-500 hover:text-gray-700"
-                  onClick={() => resetField("brandColors")}
+                  onClick={() =>
+                    setValue(
+                      "brandColors",
+                      createBrandColorsFromPrimaryColor(
+                        values.brandColors.primary,
+                      ),
+                      {
+                        shouldDirty: true,
+                      },
+                    )
+                  }
                   type="button"
                 >
-                  <ArrowGoBackIcon className="w-4 h-4" />
+                  <Icon
+                    className="w-4 h-4"
+                    fillColor="currentColor"
+                    name="wand"
+                    size={IconSize.LARGE}
+                  />
                 </button>
               </TooltipComponent>
-            )}
+            }
           </div>
           <Controller
             control={control}
@@ -120,7 +162,13 @@ function SettingsForm(props: SettingsFormProps) {
             render={({ field: { onChange, value } }) => (
               <ColorInput
                 className="t--settings-brand-color-input"
+                defaultValue={defaultValues.brandColors}
                 filter={(key) => !["disabled", "hover"].includes(key)}
+                logEvent={(property: string) => {
+                  AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                    propertyName: property,
+                  });
+                }}
                 onChange={onChange}
                 tooltips={{
                   primary: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY),

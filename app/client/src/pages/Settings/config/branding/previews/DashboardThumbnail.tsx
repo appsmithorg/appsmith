@@ -1,7 +1,6 @@
 import React from "react";
 import UserIcon from "remixicon-react/User3FillIcon";
 
-import { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
 
 const DashboardThumbnail = () => {

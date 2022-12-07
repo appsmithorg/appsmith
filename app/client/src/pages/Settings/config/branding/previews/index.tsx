@@ -59,7 +59,7 @@ const Previews = (props: PreviewsProps) => {
   }, [favicon]);
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,_minmax(330px,_1fr))] gap-4 auto-rows-[200px] pb-8">
+    <div className="grid grid-cols-[repeat(auto-fit,_minmax(330px,_1fr))] gap-4 auto-rows-[200px] pb-8 pointer-events-none select-none">
       {/* login */}
       <LoginPreview {...props} logo={logoPreview} />
       <EmailPreview {...props} logo={logoPreview} />

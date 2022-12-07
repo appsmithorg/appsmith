@@ -152,9 +152,11 @@ export function PageHeader(props: PageHeaderProps) {
       showingTabs={showTabs}
     >
       <HeaderSection>
-        <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-          <img alt="" className="h-6" src={tenantConfig.brandLogoUrl} />
-        </Link>
+        {tenantConfig.brandLogoUrl && (
+          <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+            <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+          </Link>
+        )}
       </HeaderSection>
 
       <Tabs>

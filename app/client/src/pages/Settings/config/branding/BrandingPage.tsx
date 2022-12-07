@@ -76,6 +76,7 @@ function BrandingPage(props: BrandingPageProps) {
           reset={reset}
           resetField={resetField}
           setValue={setValue}
+          values={values}
         />
         <div className="flex-grow">
           <Previews
