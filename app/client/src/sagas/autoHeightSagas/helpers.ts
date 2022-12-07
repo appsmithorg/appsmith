@@ -12,7 +12,6 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
-import { TreeNode } from "utils/autoHeight/constants";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(previewModeSelector);
@@ -55,12 +54,13 @@ export function* getChildOfContainerLikeWidget(
 }
 
 export function getParentCurrentHeightInRows(
-  tree: Record<string, TreeNode>,
+  parentBottomRow: number,
+  parentTopRow: number,
   parentId: string,
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
 ) {
   // Get the parentHeight in rows
-  let parentHeightInRows = tree[parentId].bottomRow - tree[parentId].topRow;
+  let parentHeightInRows = parentBottomRow - parentTopRow;
 
   // If the parent has changed so far.
   if (changesSoFar.hasOwnProperty(parentId)) {
@@ -88,8 +88,29 @@ export function* getMinHeightBasedOnChildren(
   // If we need to consider the parent height
   if (parentId && !ignoreParent) {
     const parent = stateWidgets[parentId];
+    // Get the node from the tree
+    const parentTreeNode = tree[parentId];
+    // Initialize from the parent state
+    let parentBottomRow = parent.bottomRow;
+    let parentTopRow = parent.topRow;
+    // If the tree node exists use thata
+    if (parentTreeNode !== undefined) {
+      parentBottomRow = parentTreeNode.bottomRow;
+      parentTopRow = parentTreeNode.topRow;
+      // If this parent is detached from layout, use the height, or diff
+      // in pixels to get bottom row in rows.
+    } else if (parent.detachFromLayout) {
+      parentBottomRow =
+        parent.topRow +
+        Math.ceil(
+          (parent.height || parent.bottomRow - parent.topRow) /
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        );
+    }
+
     const parentHeightInRows = getParentCurrentHeightInRows(
-      tree,
+      parentBottomRow,
+      parentTopRow,
       parentId,
       changesSoFar,
     );
