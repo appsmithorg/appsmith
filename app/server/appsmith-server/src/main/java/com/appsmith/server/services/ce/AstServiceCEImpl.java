@@ -201,7 +201,7 @@ public class AstServiceCEImpl implements AstServiceCE {
         String oldName;
         String newName;
         int evalVersion;
-        boolean isJSObject;
+        Boolean isJSObject;
     }
 
     @NoArgsConstructor
