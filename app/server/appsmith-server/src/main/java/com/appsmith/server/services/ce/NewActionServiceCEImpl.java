@@ -1000,7 +1000,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     // Error out in case of JS Plugin (this is currently client side execution only)
                     if (dbAction.getPluginType() == PluginType.JS) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                        // BE Analytics events are triggered in case of client side execution of JSObjects
+                        return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, dbAction)
+                                .then(Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION)));
                     }
                     return Mono.just(action);
                 });
