@@ -142,7 +142,9 @@ function Actions(props: ActionsPropsType) {
           />
         </SearchComponentWrapper>
       )}
-      {(props.isVisibleFilters || props.isVisibleDownload) && (
+      {(props.isVisibleFilters ||
+        props.isVisibleDownload ||
+        props.allowAddNewRow) && (
         <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
           {props.isVisibleFilters && (
             <TableFilters
