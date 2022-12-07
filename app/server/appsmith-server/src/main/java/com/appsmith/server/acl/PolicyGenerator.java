@@ -15,6 +15,7 @@ import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
@@ -201,6 +202,10 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, CREATE_DATASOURCE_ACTIONS);
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_DATASOURCES, MANAGE_DATASOURCES);
         hierarchyGraph.addEdge(WORKSPACE_READ_DATASOURCES, READ_DATASOURCES);
+        lateralGraph.addEdge(DELETE_DATASOURCES, READ_DATASOURCES);
+        lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, MANAGE_DATASOURCES);
+        lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, DELETE_DATASOURCES);
+        lateralGraph.addEdge(CREATE_DATASOURCE_ACTIONS, READ_DATASOURCES);
 
         lateralGraph.addEdge(WORKSPACE_READ_DATASOURCES, WORKSPACE_EXECUTE_DATASOURCES);
 
