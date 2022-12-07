@@ -4,11 +4,13 @@ import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.text.MessageFormat;
 
 @Getter
 public enum AppsmithError {
+    // Ref syntax for message templates: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/MessageFormat.html
     INVALID_PARAMETER(400, 4000, "Please enter a valid parameter {0}.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     PLUGIN_NOT_INSTALLED(400, 4001, "Plugin {0} not installed", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     PLUGIN_ID_NOT_GIVEN(400, 4002, "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
@@ -46,11 +48,13 @@ public enum AppsmithError {
     INVALID_DYNAMIC_BINDING_REFERENCE(400, 4022,
             "  \"widgetType\" : \"{0}\"," +
                     "  \"bindingPath\" : \"{3}\"," +
+                    "  \"currentKey\" : \"{7}\"," +
                     "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\"," +
                     "  \"widgetName\" : \"{1}\"," +
                     "  \"widgetId\" : \"{2}\"," +
                     "  \"pageId\" : \"{4}\"," +
                     "  \"layoutId\" : \"{5}\"," +
+                    "  \"errorDetail\" : \"{8}\"," +
                     "  \"dynamicBinding\" : {6}",
             AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.BAD_REQUEST, null),
     USER_ALREADY_EXISTS_IN_WORKSPACE(400, 4021, "The user {0} has already been added to the workspace with role {1}. To change the role, please navigate to `Manage Users` page.",
@@ -59,8 +63,8 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR, null),
     USER_NOT_SIGNED_IN(401, 4020, "You are not logged in. Please sign in with the registered email ID or sign up",
             AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR, null),
-    INVALID_PASSWORD_RESET(400, 4020, "Cannot find an outstanding reset password request for this email. Please initiate a request via 'forgot password' " +
-            "button to reset your password", AppsmithErrorAction.DEFAULT, null, null, null),
+    INVALID_PASSWORD_RESET(400, 4020, "Cannot find an outstanding reset password request for this email. Please initiate a request via \"forgot password\" " +
+            "button to reset your password", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_PASSWORD_LENGTH(400, 4037, "Password length should be between {0} and {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     JSON_PROCESSING_ERROR(400, 4022, "Json processing error with error {0}", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_CREDENTIALS(200, 4023, "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR, null),
@@ -72,11 +76,11 @@ public enum AppsmithError {
     ACTION_IS_NOT_AUTHORIZED(403, 4026, "Uh oh! You do not have permissions to do : {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.AUTHENTICATION_ERROR, null),
     NO_RESOURCE_FOUND(404, 4027, "Unable to find {0} {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     USER_NOT_FOUND(404, 4027, "Unable to find user with email {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
-    ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} {1}. Either the asset doesn't exist or you don't have required permissions",
+    ACL_NO_RESOURCE_FOUND(404, 4028, "Unable to find {0} {1}. Either the asset doesn''t exist or you don''t have required permissions",
             AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     VALIDATION_FAILURE(400, 4028, "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
-    INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
+    INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn''t import.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     INVALID_LOGIN_METHOD(401, 4030, "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_CONFIGURATION(400, 4031, "Git configuration is invalid. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH key is not configured correctly. Did you forget to add the SSH key to your remote repository? Please try again by reconfiguring the SSH key with write access.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, ErrorReferenceDocUrl.GIT_DEPLOY_KEY.getDocUrl()),
@@ -152,16 +156,23 @@ public enum AppsmithError {
     private final String message;
     private final String title;
     private final AppsmithErrorAction errorAction;
+    @NonNull
     private final ErrorType errorType;
     private final String referenceDoc;
 
-    AppsmithError(Integer httpErrorCode, Integer appErrorCode, String message, AppsmithErrorAction errorAction,
-                  String title, ErrorType errorType, String referenceDoc, Object... args) {
+    AppsmithError(
+            Integer httpErrorCode,
+            Integer appErrorCode,
+            String message,
+            AppsmithErrorAction errorAction,
+            String title,
+            @NonNull ErrorType errorType,
+            String referenceDoc
+    ) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
         this.errorType = errorType;
-        MessageFormat fmt = new MessageFormat(message);
-        this.message = fmt.format(args);
+        this.message = message;
         this.errorAction = errorAction;
         this.title = title;
         this.referenceDoc = referenceDoc;
