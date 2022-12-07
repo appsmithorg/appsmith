@@ -103,9 +103,6 @@ const jsLibraryReducer = createImmerReducer(initialState, {
       (lib) => uLib.url !== lib.url,
     );
   },
-  [ReduxActionTypes.FETCH_APPLICATION_SUCCESS]: (state: LibraryState) => {
-    state.installedLibraries = [...defaultLibraries];
-  },
   [ReduxActionTypes.TOGGLE_INSTALLER]: (
     state: LibraryState,
     action: ReduxAction<boolean>,
