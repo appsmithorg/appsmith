@@ -254,7 +254,18 @@ function ProgressTracker({
               </div>
               <div className="footer text-xs font-medium gap-2 flex flex-row">
                 <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
-                <a>{createMessage(customJSLibraryMessages.LEARN_MORE)}</a>
+                <a
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(
+                      "https://appsmith-docs-git-feat-custom-js-libs-get-appsmith.vercel.app/core-concepts/writing-code/ext-libraries",
+                      "_blank",
+                    );
+                  }}
+                >
+                  {createMessage(customJSLibraryMessages.LEARN_MORE)}
+                </a>
               </div>
             </div>
           </div>
@@ -425,7 +436,14 @@ export function Installer(props: { left: number }) {
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, Repo.Unpkg)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.open(
+                  "https://appsmith-docs-git-feat-custom-js-libs-get-appsmith.vercel.app/core-concepts/writing-code/ext-libraries",
+                  "_blank",
+                );
+              }}
             >
               here
             </a>
