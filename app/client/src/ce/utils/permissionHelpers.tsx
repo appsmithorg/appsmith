@@ -16,6 +16,7 @@ export enum PERMISSION_TYPE {
   MAKE_PUBLIC_APPLICATION = "makePublic:applications",
   MAKE_PUBLIC_WORKSPACE_APPLICATIONS = "makePublic:workspaceApplications",
   PUBLISH_APPLICATION = "publish:workspaceApplications",
+  CREATE_APPLICATION = "create:applications",
   /* Datasource permissions */
   CREATE_DATASOURCES = "create:datasources",
   EXECUTE_DATASOURCES = "execute:datasources",
