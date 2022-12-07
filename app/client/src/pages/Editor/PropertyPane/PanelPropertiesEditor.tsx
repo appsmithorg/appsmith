@@ -17,7 +17,8 @@ import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
-  padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
+  display: flex;
+  flex-flow: column;
 `;
 
 function PanelHeader(props: PanelHeaderProps) {

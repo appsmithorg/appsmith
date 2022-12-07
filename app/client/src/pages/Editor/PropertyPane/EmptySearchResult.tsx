@@ -8,6 +8,10 @@ import { Colors } from "constants/Colors";
 const EmptySearchResultWrapper = styled.div`
   color: ${Colors.GRAY_700};
 
+  span {
+    cursor: default;
+  }
+
   svg {
     fill: ${Colors.GRAY_400};
   }

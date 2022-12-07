@@ -111,13 +111,15 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     () => true,
   );
   const isSearchResult = props.tag !== undefined;
-  const [isOpen, setIsOpen] = useState(
-    isSearchResult
-      ? true
-      : isDefaultContextOpen !== undefined
-      ? isDefaultContextOpen
-      : !!isDefaultOpen,
-  );
+  let initialIsOpenState = true;
+  if (isSearchResult) {
+    initialIsOpenState = true;
+  } else if (isDefaultContextOpen !== undefined) {
+    initialIsOpenState = isDefaultContextOpen;
+  } else {
+    initialIsOpenState = !!isDefaultOpen;
+  }
+  const [isOpen, setIsOpen] = useState(initialIsOpenState);
 
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible)

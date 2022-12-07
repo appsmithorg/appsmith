@@ -6,6 +6,7 @@ import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getShouldFocusPropertySearch } from "selectors/propertyPaneSelectors";
 import { isCurrentFocusOnInput } from "utils/editorContextUtils";
+import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "ce/constants/messages";
 
 const SearchInputWrapper = styled.div`
   position: sticky;
@@ -34,6 +35,7 @@ export function PropertyPaneSearchInput(props: {
 
   useEffect(() => {
     // Checks if the property pane opened not because of focusing an input inside a widget
+    // The same functionality is being used for context preservation. Need to check if we can piggy back on that.
     const isActiveFocusNotFromWidgetInput = !isCurrentFocusOnInput();
     if (shouldFocusSearch && isActiveFocusNotFromWidgetInput)
       wrapperRef.current?.focus();
@@ -74,7 +76,7 @@ export function PropertyPaneSearchInput(props: {
         className="propertyPaneSearch"
         fill
         onChange={props.onTextChange}
-        placeholder="Search for controls, labels etc"
+        placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}
         ref={inputRef}
         tabIndex={-1}
         variant={SearchVariant.BACKGROUND}
