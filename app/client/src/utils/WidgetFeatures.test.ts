@@ -39,8 +39,22 @@ describe("Widget Features tests", () => {
       expect(result).toBe(true);
     });
   });
-  it("Make sure hidden hook for dynamic Height enabled if dynamic height is enabled", () => {
-    const inputs = [DynamicHeight.HUG_CONTENTS, "HUG_CONTENTS"];
+  it("Make sure hidden hook for dynamic Height disabled if dynamic height with limits is disabled", () => {
+    const inputs = [DynamicHeight.AUTO_HEIGHT, "AUTO_HEIGHT"];
+
+    inputs.forEach((dynamicHeight) => {
+      const result = hideDynamicHeightPropertyControl({
+        ...DUMMY_WIDGET,
+        dynamicHeight,
+      });
+      expect(result).toBe(true);
+    });
+  });
+  it("Make sure hidden hook for dynamic Height enabled if dynamic height with limits is enabled", () => {
+    const inputs = [
+      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS,
+      "AUTO_HEIGHT_WITH_LIMITS",
+    ];
 
     inputs.forEach((dynamicHeight) => {
       const result = hideDynamicHeightPropertyControl({

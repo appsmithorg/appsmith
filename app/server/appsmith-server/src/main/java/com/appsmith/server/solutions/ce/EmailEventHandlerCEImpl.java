@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 
 
@@ -54,6 +54,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     private final EmailConfig emailConfig;
 
     private final UserWorkspaceService userWorkspaceService;
+    private final ApplicationPermission applicationPermission;
 
     public Mono<Boolean> publish(String authorUserName, String applicationId, Comment comment, String originHeader, Set<String> subscribers) {
         if(CollectionUtils.isEmpty(subscribers)) {  // no subscriber found, return without doing anything
@@ -136,7 +137,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
 
     private String getCommentThreadLink(Application application, String pageId, String threadId, String username, String originHeader) {
         Boolean canManageApplication = policyUtils.isPermissionPresentForUser(
-                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), username
+                application.getPolicies(), applicationPermission.getEditPermission().getValue(), username
         );
         String urlPostfix = "/edit";
         if (Boolean.FALSE.equals(canManageApplication)) {  // user has no permission to manage application

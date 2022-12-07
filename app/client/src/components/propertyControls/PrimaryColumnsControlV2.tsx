@@ -249,7 +249,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           </EvaluatedValuePopupWrapper>
 
           <AddColumnButton
-            category={Category.tertiary}
+            category={Category.secondary}
             className="t--add-column-btn"
             icon="plus"
             onClick={this.addNewColumn}
