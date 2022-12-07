@@ -1,7 +1,7 @@
 import { setFormEvaluationSaga } from "../formEval";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 
-export default function(request: EvalWorkerRequest) {
+export default function(request: EvalWorkerSyncRequest) {
   const { requestData } = request;
   const { currentEvalState, payload, type } = requestData;
   const response = setFormEvaluationSaga(type, payload, currentEvalState);

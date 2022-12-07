@@ -1,8 +1,8 @@
 import { dataTreeEvaluator } from "./evalTree";
 import { removeFunctions } from "../evaluationUtils";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 
-export default function(request: EvalWorkerRequest) {
+export default function(request: EvalWorkerSyncRequest) {
   const { requestData } = request;
   const { bindings, executionParams } = requestData;
   if (!dataTreeEvaluator) {

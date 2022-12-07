@@ -8,7 +8,6 @@ import unescapeJS from "unescape-js";
 import { LogObject, Severity } from "entities/AppsmithConsole";
 import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
-import { completePromise } from "workers/Evaluation/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs from "./UserLog";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -74,7 +73,15 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
 function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
-    if (key === "evaluationVersion" || key === "window" || key === "document")
+    //TODO: Remove this once we have a better way to handle this
+    if (
+      key === "evaluationVersion" ||
+      key === "window" ||
+      key === "document" ||
+      key === "location" ||
+      key === "localStorage" ||
+      key === "screen"
+    )
       continue;
     if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
     if (libraryReservedNames.has(key)) continue;
@@ -359,21 +366,12 @@ export async function evaluateAsync(
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
       // leading the app into a bad state.
-      try {
-        completePromise(requestId, {
-          result,
-          errors,
-          logs,
-          triggers: Array.from(self.TRIGGER_COLLECTOR),
-        });
-      } catch (error) {
-        completePromise(requestId, {
-          result,
-          errors,
-          logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
-          triggers: Array.from(self.TRIGGER_COLLECTOR),
-        });
-      }
+      return {
+        result,
+        errors,
+        logs,
+        triggers: Array.from(self.TRIGGER_COLLECTOR),
+      };
     }
   })();
 }

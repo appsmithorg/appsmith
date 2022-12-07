@@ -1,8 +1,8 @@
 import evaluateSync from "../evaluate";
 import { dataTreeEvaluator } from "./evalTree";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 
-export default function(request: EvalWorkerRequest) {
+export default function(request: EvalWorkerSyncRequest) {
   const { requestData } = request;
   const { functionCall } = requestData;
 
@@ -11,12 +11,11 @@ export default function(request: EvalWorkerRequest) {
   }
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
-  const { errors, logs, result } = evaluateSync(
+  return evaluateSync(
     functionCall,
     evalTree,
     resolvedFunctions,
     false,
     undefined,
   );
-  return { errors, logs, result };
 }

@@ -2,12 +2,12 @@ import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 
 import { Position } from "codemirror";
 import {
-  EVAL_WORKER_ACTIONS,
   isDynamicValue,
   isPathADynamicBinding,
   LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
 import {
   JSHINT as jshint,
   LintError as JSHintError,

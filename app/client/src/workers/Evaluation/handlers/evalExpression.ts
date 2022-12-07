@@ -1,15 +1,11 @@
-import evaluateSync, { evaluateAsync } from "../evaluate";
-import { EvalWorkerRequest } from "../types";
+import { evaluateAsync } from "../evaluate";
+import { EvalWorkerASyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";
 
-export default function(request: EvalWorkerRequest) {
+export default function(request: EvalWorkerASyncRequest) {
   const { requestData } = request;
-  const { expression, isTrigger } = requestData;
+  const { expression } = requestData;
   const evalTree = dataTreeEvaluator?.evalTree;
   if (!evalTree) return {};
-  if (isTrigger) {
-    evaluateAsync(expression, evalTree, "SNIPPET", {});
-    return;
-  }
-  return evaluateSync(expression, evalTree, {}, false);
+  return evaluateAsync(expression, evalTree, "SNIPPET", {});
 }

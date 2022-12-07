@@ -1,8 +1,8 @@
 import { dataTreeEvaluator } from "./evalTree";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerASyncRequest } from "../types";
 import { createUnEvalTreeForEval } from "../dataTreeUtils";
 
-export default function(request: EvalWorkerRequest) {
+export default async function(request: EvalWorkerASyncRequest) {
   const { requestData, requestId } = request;
   const {
     callbackData,
@@ -27,7 +27,7 @@ export default function(request: EvalWorkerRequest) {
   const evalTree = dataTreeEvaluator.evalTree;
   const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
-  dataTreeEvaluator.evaluateTriggers(
+  return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
     evalTree,
     requestId,

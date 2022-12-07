@@ -1,6 +1,10 @@
 import noop from "lodash/noop";
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
-import { EvalWorkerRequest } from "../types";
+import {
+  EVAL_WORKER_ACTIONS,
+  EVAL_WORKER_ASYNC_ACTION,
+  EVAL_WORKER_SYNC_ACTION,
+} from "workers/Evaluation/evalWorkerActions";
+import { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";
 import evalTree, { clearCache } from "./evalTree";
@@ -14,15 +18,13 @@ import setupEvaluationEnvironment, {
 } from "./setupEvalEnv";
 import validateProperty from "./validateProperty";
 
-const handlerMap: Record<
-  EVAL_WORKER_ACTIONS,
-  (req: EvalWorkerRequest) => any
+const syncHandlerMap: Record<
+  EVAL_WORKER_SYNC_ACTION,
+  (req: EvalWorkerSyncRequest) => any
 > = {
   [EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS]: evalActionBindings,
   [EVAL_WORKER_ACTIONS.EVAL_TREE]: evalTree,
-  [EVAL_WORKER_ACTIONS.EVAL_TRIGGER]: evalTrigger,
   [EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS]: executeSyncJS,
-  [EVAL_WORKER_ACTIONS.EVAL_EXPRESSION]: evalExpression,
   [EVAL_WORKER_ACTIONS.UNDO]: undo,
   [EVAL_WORKER_ACTIONS.REDO]: redo,
   [EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT]: updateReplayObject,
@@ -38,4 +40,12 @@ const handlerMap: Record<
   [EVAL_WORKER_ACTIONS.INIT_FORM_EVAL]: initFormEval,
 };
 
-export default handlerMap;
+const asyncHandlerMap: Record<
+  EVAL_WORKER_ASYNC_ACTION,
+  (req: EvalWorkerASyncRequest) => any
+> = {
+  [EVAL_WORKER_ACTIONS.EVAL_TRIGGER]: evalTrigger,
+  [EVAL_WORKER_ACTIONS.EVAL_EXPRESSION]: evalExpression,
+};
+
+export { syncHandlerMap, asyncHandlerMap };

@@ -27,9 +27,9 @@ import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import {
   EvalError,
-  EVAL_WORKER_ACTIONS,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {

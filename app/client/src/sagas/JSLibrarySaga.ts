@@ -20,7 +20,7 @@ import {
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
+import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
 import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";

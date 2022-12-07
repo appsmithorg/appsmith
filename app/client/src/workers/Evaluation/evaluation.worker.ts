@@ -1,29 +1,45 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
 import { WorkerErrorTypes } from "workers/common/types";
-import { EvalWorkerRequest } from "./types";
-import handlerMap from "./handlers";
+import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
+import { syncHandlerMap, asyncHandlerMap } from "./handlers";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
-function messageEventListener(e: MessageEvent<EvalWorkerRequest>) {
+function syncRequestMessageListener(e: MessageEvent<EvalWorkerSyncRequest>) {
   const startTime = performance.now();
-  const { method, requestData, requestId } = e.data;
+  const { method, requestId } = e.data;
   if (!method) return;
-  const messageHandler = handlerMap[method];
+  const messageHandler = syncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
   const responseData = messageHandler(e.data);
   if (!responseData) return;
   const endTime = performance.now();
+  respond(requestId, responseData, endTime - startTime);
+}
+
+async function asyncRequestMessageListener(
+  e: MessageEvent<EvalWorkerASyncRequest>,
+) {
+  const start = performance.now();
+  const { method, requestId } = e.data;
+  if (!method) return;
+  const messageHandler = asyncHandlerMap[method];
+  if (typeof messageHandler !== "function") return;
+  const responseData = await messageHandler(e.data);
+  if (!responseData) return;
+  const end = performance.now();
+  respond(requestId, responseData, end - start);
+}
+
+function respond(requestId: string, responseData: unknown, timeTaken: number) {
   try {
     self.postMessage({
       requestId,
       responseData,
-      timeTaken: (endTime - startTime).toFixed(2),
+      timeTaken: timeTaken.toFixed(2),
     });
   } catch (e) {
     console.error(e);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { dataTree, ...rest } = requestData;
     self.postMessage({
       requestId,
       responseData: {
@@ -31,13 +47,14 @@ function messageEventListener(e: MessageEvent<EvalWorkerRequest>) {
           {
             type: WorkerErrorTypes.CLONE_ERROR,
             message: (e as Error)?.message,
-            context: JSON.stringify(rest),
+            context: JSON.stringify(responseData),
           },
         ],
       },
-      timeTaken: (endTime - startTime).toFixed(2),
+      timeTaken: timeTaken.toFixed(2),
     });
   }
 }
 
-self.onmessage = messageEventListener;
+self.addEventListener("message", syncRequestMessageListener);
+self.addEventListener("message", asyncRequestMessageListener);

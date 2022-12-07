@@ -8,7 +8,7 @@ const ctx: Worker = self as any;
  *
  * needs a REQUEST_ID to be passed in to know which request is going on right now
  */
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
+import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
 import {
   ActionDescription,
   ActionTriggerType,
