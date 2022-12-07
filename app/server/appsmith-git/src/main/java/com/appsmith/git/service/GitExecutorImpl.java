@@ -746,22 +746,4 @@ public class GitExecutorImpl implements GitExecutor {
                     });
         }
     }
-
-    @Override
-    public Mono<Boolean> revertToLastCommit(Path repoSuffix, String branchName) {
-        return this.checkoutToBranch(repoSuffix, branchName)
-                .flatMap(aBoolean -> {
-                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
-                        Iterator<RevCommit> history = git.log().call().iterator();
-                        RevCommit commit = history.next();
-                        RevCommit revCommit = git.revert().include(commit).call();
-                        return Mono.just(true);
-                    } catch (GitAPIException e) {
-                        log.error("Error while reverting the commit, {}", e.getMessage());
-                    } catch (IOException e) {
-                        log.error("Error while reverting the commit, {}", e.getMessage());
-                    }
-                    return Mono.just(false);
-                });
-    }
 }

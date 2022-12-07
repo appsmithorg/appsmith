@@ -173,9 +173,4 @@ public interface GitExecutor {
      * @return boolean if the connection can be established with the given keys
      */
     Mono<Boolean> testConnection(String publicKey, String privateKey, String remoteUrl);
-
-    /**
-    * 
-    */
-    Mono<Boolean> revertToLastCommit(Path repoSuffix, String branchName);
 }
