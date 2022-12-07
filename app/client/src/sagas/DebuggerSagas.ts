@@ -1,5 +1,5 @@
 import {
-  addErrorLog,
+  addErrorLogs,
   debuggerLog,
   debuggerLogInit,
   deleteErrorLog,
@@ -25,7 +25,7 @@ import {
   take,
   takeEvery,
 } from "redux-saga/effects";
-import { findIndex, get, isMatch, set } from "lodash";
+import { findIndex, flatten, get, isEmpty, isMatch, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import {
   getAction,
@@ -116,160 +116,260 @@ function* formatActionRequestSaga(
   }
 }
 
-function* onEntityDeleteSaga(payload: Log) {
-  const source = payload.source;
-
-  if (!source) {
-    yield put(debuggerLog([payload]));
-    return;
+function* onEntityDeleteSaga(payload: Log[]) {
+  const sortedLogs = payload.reduce(
+    (
+      sortedLogs: {
+        withSource: Log[];
+        withoutSource: Log[];
+      },
+      log,
+    ) => {
+      return log.source
+        ? { ...sortedLogs, withSource: [...sortedLogs.withSource, log] }
+        : { ...sortedLogs, withSource: [...sortedLogs.withoutSource, log] };
+    },
+    {
+      withSource: [],
+      withoutSource: [],
+    },
+  );
+  if (!isEmpty(sortedLogs.withoutSource)) {
+    yield put(debuggerLog(sortedLogs.withoutSource));
   }
+  if (isEmpty(sortedLogs.withSource)) return;
 
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
   const errorIds = Object.keys(errors);
+  const logSourceIds = sortedLogs.withSource.map((log) => log.source?.id);
 
-  errorIds.map((e) => {
-    const includes = e.includes(source.id);
+  const errorsToDelete = errorIds.reduce((errorList: Log[], currentId) => {
+    const isPresent = logSourceIds.some((id) => id && currentId.includes(id));
+    return isPresent ? [...errorList, errors[currentId]] : errorList;
+  }, []);
 
-    if (includes) {
-      AppsmithConsole.deleteError(e, payload.analytics);
-    }
-  });
+  sortedLogs.withSource.filter(
+    (log) => log.source && errorIds.includes(log.source.id),
+  );
 
-  yield put(debuggerLog([payload]));
+  if (!isEmpty(errorsToDelete)) {
+    const errorPayload = errorsToDelete.map((log) => ({
+      id: log.id as string,
+      analytics: log.analytics,
+    }));
+    AppsmithConsole.deleteErrors(errorPayload);
+  }
+  yield put(debuggerLog(sortedLogs.withSource));
 }
 
-function* logDependentEntityProperties(payload: Log) {
-  const { source, state } = payload;
-  if (!state || !source) return;
+function getLogsFromDependencyChain(
+  dependencyChain: string[],
+  payload: Log,
+  dataTree: DataTree,
+) {
+  return dependencyChain.map((path) => {
+    const entityInfo = getEntityNameAndPropertyPath(path);
+    const entity = dataTree[entityInfo.entityName];
+    let log = {
+      ...payload,
+      state: {
+        [entityInfo.propertyPath]: get(dataTree, path),
+      },
+    };
+
+    if (isAction(entity)) {
+      log = {
+        ...log,
+        text: createMessage(ACTION_CONFIGURATION_UPDATED),
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: entityInfo.entityName,
+          id: entity.actionId,
+        },
+      };
+    } else if (isWidget(entity)) {
+      log = {
+        ...log,
+        text: createMessage(WIDGET_PROPERTIES_UPDATED),
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          name: entityInfo.entityName,
+          id: entity.widgetId,
+        },
+      };
+    }
+
+    return log;
+  });
+}
+
+function* logDependentEntityProperties(payload: Log[]) {
+  const validLogs = payload.filter((log) => log.state && log.source);
+  if (isEmpty(validLogs)) return;
 
   yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   const dataTree: DataTree = yield select(getDataTree);
-
-  const propertyPath = `${source.name}.` + payload.source?.propertyPath;
   const inverseDependencyMap: DependencyMap = yield select(
     getEvaluationInverseDependencyMap,
   );
-  const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
-  //logging them all at once rather than updating them individually
-  yield put(
-    debuggerLog(
-      finalValue.map((path) => {
-        const entityInfo = getEntityNameAndPropertyPath(path);
-        const entity = dataTree[entityInfo.entityName];
-        let log = {
-          ...payload,
-          state: {
-            [entityInfo.propertyPath]: get(dataTree, path),
-          },
-        };
+  const finalPayload: Log[][] = [];
 
-        if (isAction(entity)) {
-          log = {
-            ...log,
-            text: createMessage(ACTION_CONFIGURATION_UPDATED),
-            source: {
-              type: ENTITY_TYPE.ACTION,
-              name: entityInfo.entityName,
-              id: entity.actionId,
-            },
-          };
-        } else if (isWidget(entity)) {
-          log = {
-            ...log,
-            text: createMessage(WIDGET_PROPERTIES_UPDATED),
-            source: {
-              type: ENTITY_TYPE.WIDGET,
-              name: entityInfo.entityName,
-              id: entity.widgetId,
-            },
-          };
-        }
-
-        return log;
-      }),
-    ),
-  );
-}
-
-function* onTriggerPropertyUpdates(payload: Log) {
-  const dataTree: DataTree = yield select(getDataTree);
-  const source = payload.source;
-
-  if (!source || !source.propertyPath) return;
-  const widget = dataTree[source.name];
-  // If property is not a trigger property we ignore
-  if (!isWidget(widget) || !(source.propertyPath in widget.triggerPaths))
-    return;
-  // If the value of the property is empty(or set to 'No Action')
-  if (widget[source.propertyPath] === "") {
-    AppsmithConsole.deleteError(`${source.id}-${source.propertyPath}`);
+  for (const log of validLogs) {
+    const propertyPath = `${log.source?.name}.` + log.source?.propertyPath;
+    const dependencyChain = getDependencyChain(
+      propertyPath,
+      inverseDependencyMap,
+    );
+    const payloadValue = getLogsFromDependencyChain(
+      dependencyChain,
+      log,
+      dataTree,
+    );
+    finalPayload.push(payloadValue);
   }
+
+  //logging them all at once rather than updating them individually
+  yield put(debuggerLog(flatten(finalPayload)));
 }
 
-function* debuggerLogSaga(action: ReduxAction<Log>) {
-  const { payload } = action;
+function* onTriggerPropertyUpdates(payload: Log[]) {
+  const dataTree: DataTree = yield select(getDataTree);
+  const validLogs = payload.filter(
+    (log) => log.source && log.source.propertyPath,
+  );
+  if (isEmpty(validLogs)) return;
 
-  switch (payload.logType) {
-    case LOG_TYPE.WIDGET_UPDATE:
-      yield put(debuggerLog([payload]));
-      yield call(logDependentEntityProperties, payload);
-      yield call(onTriggerPropertyUpdates, payload);
-      return;
-    case LOG_TYPE.ACTION_UPDATE:
-      yield put(debuggerLog([payload]));
-      yield call(logDependentEntityProperties, payload);
-      return;
-    case LOG_TYPE.JS_ACTION_UPDATE:
-      yield put(debuggerLog([payload]));
-      return;
-    case LOG_TYPE.JS_PARSE_ERROR:
-      yield put(addErrorLog(payload));
-      break;
-    case LOG_TYPE.JS_PARSE_SUCCESS:
-      AppsmithConsole.deleteError(payload.source?.id ?? "");
-      break;
-    // @ts-expect-error: Types are not available
-    case LOG_TYPE.TRIGGER_EVAL_ERROR:
-      yield put(debuggerLog([payload]));
-    case LOG_TYPE.EVAL_ERROR:
-    case LOG_TYPE.LINT_ERROR:
-    case LOG_TYPE.EVAL_WARNING:
-    case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
-      if (payload.source && payload.source.propertyPath) {
-        if (payload.text) {
-          yield put(addErrorLog(payload));
+  const errorsPathsToDeleteFromConsole = new Set<string>();
+
+  for (const log of validLogs) {
+    const { source } = log;
+    if (!source || !source.propertyPath) continue;
+    const widget = dataTree[source.name];
+    // If property is not a trigger property we ignore
+    if (!isWidget(widget) || !(source.propertyPath in widget.triggerPaths))
+      return false;
+    // If the value of the property is empty(or set to 'No Action')
+    if (widget[source.propertyPath] === "") {
+      errorsPathsToDeleteFromConsole.add(`${source.id}-${source.propertyPath}`);
+    }
+  }
+  const errorIdsToDelete = Array.from(
+    errorsPathsToDeleteFromConsole,
+  ).map((path) => ({ id: path }));
+  AppsmithConsole.deleteErrors(errorIdsToDelete);
+}
+
+function* debuggerLogSaga(action: ReduxAction<Log[]>) {
+  const { payload: logs } = action;
+  // array of logs without LOG_TYPE and logs which are not handled in switch statement below.
+  let otherLogs: Log[] = [];
+
+  // Group logs by LOG_TYPE
+  const sortedLogs = logs.reduce(
+    (sortedLogs: Record<string, Log[]>, currentLog: Log) => {
+      if (currentLog.logType) {
+        return sortedLogs.hasOwnProperty(currentLog.logType)
+          ? {
+              ...sortedLogs,
+              [currentLog.logType]: [
+                ...sortedLogs[currentLog.logType],
+                currentLog,
+              ],
+            }
+          : {
+              ...sortedLogs,
+              [currentLog.logType]: [currentLog],
+            };
+      } else {
+        otherLogs.push(currentLog);
+        return sortedLogs;
+      }
+    },
+    {},
+  );
+  for (const item in sortedLogs) {
+    const logType = Number(item);
+    const payload = sortedLogs[item];
+    switch (logType) {
+      case LOG_TYPE.WIDGET_UPDATE:
+        yield put(debuggerLog(payload));
+        yield call(logDependentEntityProperties, payload);
+        yield call(onTriggerPropertyUpdates, payload);
+        return;
+      case LOG_TYPE.ACTION_UPDATE:
+        yield put(debuggerLog(payload));
+        yield call(logDependentEntityProperties, payload);
+        return;
+      case LOG_TYPE.JS_ACTION_UPDATE:
+        yield put(debuggerLog(payload));
+        return;
+      case LOG_TYPE.JS_PARSE_ERROR:
+        yield put(addErrorLogs(payload));
+        break;
+      case LOG_TYPE.JS_PARSE_SUCCESS: {
+        const errorIds = payload.map((log) => ({ id: log.source?.id ?? "" }));
+        AppsmithConsole.deleteErrors(errorIds);
+        break;
+      }
+      // @ts-expect-error: Types are not available
+      case LOG_TYPE.TRIGGER_EVAL_ERROR:
+        yield put(debuggerLog(payload));
+      case LOG_TYPE.EVAL_ERROR:
+      case LOG_TYPE.LINT_ERROR:
+      case LOG_TYPE.EVAL_WARNING:
+      case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR: {
+        const filteredLogs = payload.filter(
+          (log) => log.source && log.source.propertyPath && log.text,
+        );
+        yield put(addErrorLogs(filteredLogs));
+        break;
+      }
+
+      case LOG_TYPE.ACTION_EXECUTION_ERROR:
+        {
+          const allFormatedLogs: Log[] = [];
+
+          for (const log of payload) {
+            const formattedLog: Log = yield call(
+              formatActionRequestSaga,
+              log,
+              "state",
+            );
+            allFormatedLogs.push(formattedLog);
+          }
+          yield put(addErrorLogs(allFormatedLogs));
+          yield put(debuggerLog(allFormatedLogs));
         }
-      }
-      break;
-    case LOG_TYPE.ACTION_EXECUTION_ERROR:
-      {
-        const formattedLog: Log = yield call(
-          formatActionRequestSaga,
-          payload,
-          "state",
-        );
-        yield put(addErrorLog(formattedLog));
-        yield put(debuggerLog([formattedLog]));
-      }
-      break;
-    case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
-      {
-        const formattedLog: Log = yield call(
-          formatActionRequestSaga,
-          payload,
-          "state.request",
-        );
+        break;
+      case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
+        {
+          const allFormatedLogs: Log[] = [];
 
-        AppsmithConsole.deleteError(payload.source?.id ?? "");
+          for (const log of payload) {
+            const formattedLog: Log = yield call(
+              formatActionRequestSaga,
+              log,
+              "state.request",
+            );
+            allFormatedLogs.push(formattedLog);
+          }
+          const payloadIds = payload.map((log) => ({
+            id: log.source?.id ?? "",
+          }));
+          AppsmithConsole.deleteErrors(payloadIds);
 
-        yield put(debuggerLog([formattedLog]));
-      }
-      break;
-    case LOG_TYPE.ENTITY_DELETED:
-      yield fork(onEntityDeleteSaga, payload);
-      break;
-    default:
-      yield put(debuggerLog([payload]));
+          yield put(debuggerLog(allFormatedLogs));
+        }
+        break;
+      case LOG_TYPE.ENTITY_DELETED:
+        yield fork(onEntityDeleteSaga, payload);
+        break;
+      default:
+        otherLogs = otherLogs.concat(payload);
+    }
+  }
+  if (!isEmpty(otherLogs)) {
+    yield put(debuggerLog(otherLogs));
   }
 }
 
@@ -344,152 +444,169 @@ function* logDebuggerErrorAnalyticsSaga(
   }
 }
 
-function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
-  const payload = action.payload;
-  const errors: Record<string, Log> = yield select(getDebuggerErrors);
+function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
+  const errorLogs = action.payload;
+  const currentDebuggerErrors: Record<string, Log> = yield select(
+    getDebuggerErrors,
+  );
+  yield put(debuggerLogInit(errorLogs));
+  const validErrorLogs = errorLogs.filter((log) => log.source && log.id);
+  if (isEmpty(validErrorLogs)) return;
 
-  if (!payload.source || !payload.id) return;
+  for (const errorLog of validErrorLogs) {
+    const { id, messages, source } = errorLog;
+    if (!source || !id) continue;
+    const analyticsPayload = {
+      entityName: source.name,
+      entityType: source.type,
+      entityId: source.id,
+      propertyPath: source.propertyPath ?? "",
+    };
 
-  yield put(debuggerLogInit(payload));
+    // If this is a new error
+    if (!currentDebuggerErrors.hasOwnProperty(id)) {
+      const errorMessages = errorLog.messages ?? [];
 
-  const analyticsPayload = {
-    entityName: payload.source.name,
-    entityType: payload.source.type,
-    entityId: payload.source.id,
-    propertyPath: payload.source.propertyPath ?? "",
-  };
+      yield put({
+        type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+        payload: {
+          ...analyticsPayload,
+          eventName: "DEBUGGER_NEW_ERROR",
+          errorMessages,
+        },
+      });
 
-  // If this is a new error
-  if (!(payload.id in errors)) {
-    const errorMessages = payload.messages ?? [];
+      // Log analytics for new error messages
+      if (errorMessages.length && errorLog) {
+        yield all(
+          errorMessages.map((errorMessage) =>
+            put({
+              type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+              payload: {
+                ...analyticsPayload,
+                eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+                errorMessage: errorMessage.message,
+                errorType: errorMessage.type,
+                errorSubType: errorMessage.subType,
+              },
+            }),
+          ),
+        );
+      }
+    } else {
+      const updatedErrorMessages = messages ?? [];
+      const existingErrorMessages = currentDebuggerErrors[id].messages ?? [];
+      // Log new error messages
+      yield all(
+        updatedErrorMessages.map((updatedErrorMessage) => {
+          const exists = findIndex(
+            existingErrorMessages,
+            (existingErrorMessage) => {
+              return isMatch(existingErrorMessage, updatedErrorMessage);
+            },
+          );
+
+          if (exists < 0) {
+            return put({
+              type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+              payload: {
+                ...analyticsPayload,
+                eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+                errorMessage: updatedErrorMessage.message,
+                errorType: updatedErrorMessage.type,
+                errorSubType: updatedErrorMessage.subType,
+              },
+            });
+          }
+        }),
+      );
+      // Log resolved error messages
+      yield all(
+        existingErrorMessages.map((existingErrorMessage) => {
+          const exists = findIndex(
+            updatedErrorMessages,
+            (updatedErrorMessage) => {
+              return isMatch(updatedErrorMessage, existingErrorMessage);
+            },
+          );
+
+          if (exists < 0) {
+            return put({
+              type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+              payload: {
+                ...analyticsPayload,
+                eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+                errorMessage: existingErrorMessage.message,
+                errorType: existingErrorMessage.type,
+                errorSubType: existingErrorMessage.subType,
+              },
+            });
+          }
+        }),
+      );
+    }
+  }
+}
+
+function* deleteDebuggerErrorLogsSaga(
+  action: ReduxAction<{ id: string; analytics: Log["analytics"] }[]>,
+) {
+  const { payload } = action;
+  const currentDebuggerErrors: Record<string, Log> = yield select(
+    getDebuggerErrors,
+  );
+  const existingErrorPayloads = payload.filter((item) =>
+    currentDebuggerErrors.hasOwnProperty(item.id),
+  );
+  if (isEmpty(existingErrorPayloads)) return;
+
+  const validErrorPayloadsToDelete = existingErrorPayloads.filter((payload) => {
+    const existingError = currentDebuggerErrors[payload.id];
+    return existingError && existingError.source;
+  });
+
+  if (isEmpty(validErrorPayloadsToDelete)) return;
+
+  for (const validErrorPayload of validErrorPayloadsToDelete) {
+    const error = currentDebuggerErrors[validErrorPayload.id];
+    if (!error || !error.source) continue;
+    const analyticsPayload = {
+      entityName: error.source.name,
+      entityType: error.source.type,
+      entityId: error.source.id,
+      propertyPath: error.source.propertyPath ?? "",
+      analytics: validErrorPayload.analytics,
+    };
+    const errorMessages = error.messages;
 
     yield put({
       type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
       payload: {
         ...analyticsPayload,
-        eventName: "DEBUGGER_NEW_ERROR",
-        errorMessages: payload.messages,
+        eventName: "DEBUGGER_RESOLVED_ERROR",
+        errorMessages,
       },
     });
 
-    // Log analytics for new error messages
-    if (errorMessages.length && payload) {
+    if (errorMessages) {
       yield all(
-        errorMessages.map((errorMessage) =>
-          put({
-            type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-            payload: {
-              ...analyticsPayload,
-              eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-              errorMessage: errorMessage.message,
-              errorType: errorMessage.type,
-              errorSubType: errorMessage.subType,
-            },
-          }),
-        ),
-      );
-    }
-  } else {
-    const updatedErrorMessages = payload.messages ?? [];
-    const existingErrorMessages = errors[payload.id].messages ?? [];
-    // Log new error messages
-    yield all(
-      updatedErrorMessages.map((updatedErrorMessage) => {
-        const exists = findIndex(
-          existingErrorMessages,
-          (existingErrorMessage) => {
-            return isMatch(existingErrorMessage, updatedErrorMessage);
-          },
-        );
-
-        if (exists < 0) {
-          return put({
-            type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-            payload: {
-              ...analyticsPayload,
-              eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-              errorMessage: updatedErrorMessage.message,
-              errorType: updatedErrorMessage.type,
-              errorSubType: updatedErrorMessage.subType,
-            },
-          });
-        }
-      }),
-    );
-    // Log resolved error messages
-    yield all(
-      existingErrorMessages.map((existingErrorMessage) => {
-        const exists = findIndex(
-          updatedErrorMessages,
-          (updatedErrorMessage) => {
-            return isMatch(updatedErrorMessage, existingErrorMessage);
-          },
-        );
-
-        if (exists < 0) {
+        errorMessages.map((errorMessage) => {
           return put({
             type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
             payload: {
               ...analyticsPayload,
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-              errorMessage: existingErrorMessage.message,
-              errorType: existingErrorMessage.type,
-              errorSubType: existingErrorMessage.subType,
+              errorMessage: errorMessage.message,
+              errorType: errorMessage.type,
+              errorSubType: errorMessage.subType,
             },
           });
-        }
-      }),
-    );
+        }),
+      );
+    }
   }
-}
-
-function* deleteDebuggerErrorLogSaga(
-  action: ReduxAction<{ id: string; analytics: Log["analytics"] }>,
-) {
-  const errors: Record<string, Log> = yield select(getDebuggerErrors);
-  // If no error exists with this id
-  if (!(action.payload.id in errors)) return;
-
-  const error = errors[action.payload.id];
-
-  if (!error || !error.source) return;
-
-  const analyticsPayload = {
-    entityName: error.source.name,
-    entityType: error.source.type,
-    entityId: error.source.id,
-    propertyPath: error.source.propertyPath ?? "",
-    analytics: action.payload.analytics,
-  };
-  const errorMessages = error.messages;
-
-  yield put({
-    type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-    payload: {
-      ...analyticsPayload,
-      eventName: "DEBUGGER_RESOLVED_ERROR",
-      errorMessages,
-    },
-  });
-
-  if (errorMessages) {
-    yield all(
-      errorMessages.map((errorMessage) => {
-        return put({
-          type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-          payload: {
-            ...analyticsPayload,
-            eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-            errorMessage: errorMessage.message,
-            errorType: errorMessage.type,
-            errorSubType: errorMessage.subType,
-          },
-        });
-      }),
-    );
-  }
-
-  yield put(deleteErrorLog(action.payload.id));
+  const validErrorIds = validErrorPayloadsToDelete.map((payload) => payload.id);
+  yield put(deleteErrorLog(validErrorIds));
 }
 
 // takes a log object array and stores it in the redux store
@@ -551,11 +668,11 @@ export default function* debuggerSagasListeners() {
     ),
     takeEvery(
       ReduxActionTypes.DEBUGGER_ADD_ERROR_LOG_INIT,
-      addDebuggerErrorLogSaga,
+      addDebuggerErrorLogsSaga,
     ),
     takeEvery(
       ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
-      deleteDebuggerErrorLogSaga,
+      deleteDebuggerErrorLogsSaga,
     ),
   ]);
 }

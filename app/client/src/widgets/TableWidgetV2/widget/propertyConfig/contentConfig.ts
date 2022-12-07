@@ -11,6 +11,7 @@ import {
   updateColumnOrderHook,
   updateInlineEditingSaveOptionHook,
   updateInlineEditingOptionDropdownVisibilityHook,
+  updateCustomColumnAliasOnLabelChange,
 } from "../propertyUtils";
 import {
   createMessage,
@@ -50,6 +51,7 @@ export default [
         updateHook: composePropertyUpdateHook([
           updateColumnOrderHook,
           updateInlineEditingOptionDropdownVisibilityHook,
+          updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
           "columnOrder",
