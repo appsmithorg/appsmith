@@ -3,8 +3,8 @@ name: Add all issues & PR with label UI Builders Pod to UI Builder Pod Project
 on:
   issues:
     types: [opened, labeled]
-  #pull_request:
-  #  types: [opened, labeled]
+  pull_request:
+    types: [opened, labeled]
 
 jobs:
   add-to-project:
