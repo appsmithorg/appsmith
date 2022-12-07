@@ -103,8 +103,6 @@ function GeneralSettings() {
           }}
           placeholder="App name"
           type="input"
-          // https://github.com/appsmithorg/appsmith/issues/17393
-          // also need to re-visit validation across entity explorer and setting pane
           validator={(value: string) => {
             let result: { isValid: boolean; message?: string } = {
               isValid: true,

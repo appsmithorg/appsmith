@@ -14,6 +14,7 @@ import {
   PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
   ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR,
+  PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
@@ -33,10 +34,11 @@ import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { getUrlPreview } from "../Utils";
+import { getUrlPreview, specialCharacterCheckRegex } from "../Utils";
 import { AppState } from "ce/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
+import { checkRegex } from "utils/validation/CheckRegex";
 
 const SwitchWrapper = styled.div`
   &&&&&&&
@@ -102,7 +104,7 @@ function PageSettings(props: { page: Page }) {
   const [isPageNameValid, setIsPageNameValid] = useState(true);
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
-  const [isCustomSlugValid] = useState(true); // will be revisited https://github.com/appsmithorg/appsmith/issues/17393
+  const [isCustomSlugValid, setIsCustomSlugValid] = useState(true);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
 
   const [isShown, setIsShown] = useState(!!!page.isHidden);
@@ -212,8 +214,6 @@ function PageSettings(props: { page: Page }) {
           }}
           placeholder="Page name"
           type="input"
-          // https://github.com/appsmithorg/appsmith/issues/17393
-          // also need to re-visit validation across entity explorer and setting pane
           validator={(value: string) => {
             let result: { isValid: boolean; message?: string } = {
               isValid: true,
@@ -270,9 +270,7 @@ function PageSettings(props: { page: Page }) {
           fill
           id="t--page-settings-custom-slug"
           onBlur={saveCustomSlug}
-          onChange={(value: string) =>
-            setCustomSlug(resolveAsSpaceChar(value, 30))
-          }
+          onChange={setCustomSlug}
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveCustomSlug();
@@ -281,14 +279,12 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page URL"
           readOnly={appNeedsUpdate}
           type="input"
-          // https://github.com/appsmithorg/appsmith/issues/17393
-          // also need to re-visit validation across entity explorer and setting pane
-          // validator={checkRegex(
-          //   specialCharacterCheckRegex,
-          //   PAGE_SETTINGS_SPECIAL_CHARACTER_ERROR(),
-          //   false,
-          //   setIsCustomSlugValid,
-          // )}
+          validator={checkRegex(
+            specialCharacterCheckRegex,
+            PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR(),
+            false,
+            setIsCustomSlugValid,
+          )}
           value={customSlug}
         />
       </div>
@@ -318,7 +314,7 @@ function PageSettings(props: { page: Page }) {
                 <strong
                   className={`text-[color:var(--appsmith-color-black-800))]`}
                 >
-                  {decodeURI(pathPreview.splitRelativePath[1])}
+                  {pathPreview.splitRelativePath[1]}
                 </strong>
                 {pathPreview.splitRelativePath[2]}
                 {pathPreview.splitRelativePath[3]}
