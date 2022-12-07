@@ -235,7 +235,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
 
-        AclPermission permission = viewMode ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
+        // Fetch the page with read permission in both editor and in viewer.
+        AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .flatMap(newPage -> {
                     return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage.getId(), viewMode));
