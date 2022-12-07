@@ -16,7 +16,11 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
+import {
+  ButtonPosition,
+  GRID_DENSITY_MIGRATION_V1,
+  ICON_NAMES,
+} from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
@@ -410,6 +414,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super.handleKeyDown(e);
   };
 
+  componentDidMount() {
+    //conditionally update the value of showStepArrows and store it
+    this.updateShowStepArrows();
+  }
+
   componentDidUpdate = (prevProps: InputWidgetProps) => {
     if (
       prevProps.inputText !== this.props.inputText &&
@@ -467,6 +476,14 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       getParsedText("", this.props.inputType),
     );
   };
+
+  updateShowStepArrows() {
+    const { showStepArrows } = this.props;
+    this.updateWidgetProperty(
+      "showStepArrows",
+      showStepArrows === undefined ? true : showStepArrows,
+    );
+  }
 
   getPageView() {
     const value = this.props.inputText ?? "";
@@ -534,6 +551,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
         );
       }
+    }
+
+    if (
+      this.props.inputType === InputTypes.NUMBER &&
+      this.props.showStepArrows === false
+    ) {
+      conditionalProps.buttonPosition = ButtonPosition.NONE;
+    } else {
+      conditionalProps.buttonPosition = ButtonPosition.RIGHT;
     }
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip

@@ -30,7 +30,7 @@ import {
   limitDecimalValue,
 } from "../component/utilities";
 import { getLocale, mergeWidgetConfig } from "utils/helpers";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { ButtonPosition, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
@@ -268,6 +268,9 @@ class CurrencyInputWidget extends BaseInputWidget<
   componentDidMount() {
     //format the defaultText and store it in text
     this.formatText();
+
+    //conditionally update the value of showStepArrows and store it
+    this.updateShowStepArrows();
   }
 
   componentDidUpdate(prevProps: CurrencyInputWidgetProps) {
@@ -314,6 +317,14 @@ class CurrencyInputWidget extends BaseInputWidget<
         Sentry.captureException(e);
       }
     }
+  }
+
+  updateShowStepArrows() {
+    const { showStepArrows } = this.props;
+    this.updateWidgetProperty(
+      "showStepArrows",
+      showStepArrows === undefined ? true : showStepArrows,
+    );
   }
 
   onValueChange = (value: string) => {
@@ -414,6 +425,12 @@ class CurrencyInputWidget extends BaseInputWidget<
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+    }
+
+    if (this.props.showStepArrows === false) {
+      conditionalProps.buttonPosition = ButtonPosition.NONE;
+    } else {
+      conditionalProps.buttonPosition = ButtonPosition.RIGHT;
     }
 
     return (
