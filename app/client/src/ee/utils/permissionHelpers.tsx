@@ -40,6 +40,8 @@ enum EE_PERMISSION_TYPE {
   UNASSIGN_PERMISSIONGROUPS = "unassign:permissionGroups",
   /* Audit Logs */
   READ_AUDIT_LOGS = "readAuditLogs:tenant",
+  /* Workspace Permissions */
+  DELETE_WORKSPACE = "delete:workspace",
 }
 
 export const PERMISSION_TYPE = {
@@ -56,7 +58,7 @@ export const hasCreateNewAppPermission = (permissions: string[] = []) => {
 };
 
 export const hasDeleteWorkspacePermission = (permissions: string[] = []) => {
-  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_WORKSPACE);
+  return isPermitted(permissions, PERMISSION_TYPE.DELETE_WORKSPACE);
 };
 
 export const hasCreateDatasourcePermission = (permissions: string[] = []) =>
