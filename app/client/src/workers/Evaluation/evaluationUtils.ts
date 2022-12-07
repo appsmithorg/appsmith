@@ -369,6 +369,12 @@ export function isWidget(
   );
 }
 
+export const shouldSuppressAutoComplete = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressAutoComplete);
+
+export const shouldSuppressDebuggerError = (widget: DataTreeWidget) =>
+  Boolean(widget.suppressDebuggerError);
+
 export function isAction(
   entity: Partial<DataTreeEntity>,
 ): entity is DataTreeAction {
@@ -706,6 +712,27 @@ export const getDataTreeWithoutPrivateWidgets = (
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
   return treeWithoutPrivateWidgets;
 };
+
+const getDataTreeWithoutSuppressedAutoComplete = (
+  dataTree: DataTree,
+): DataTree => {
+  const entityIds = Object.keys(dataTree).filter((entityName) => {
+    const entity = dataTree[entityName];
+    return isWidget(entity) && shouldSuppressAutoComplete(entity);
+  });
+
+  return _.omit(dataTree, entityIds);
+};
+
+export const getFilteredDataTree = (dataTree: DataTree): DataTree => {
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  const treeWithoutSuppressedAutoComplete = getDataTreeWithoutSuppressedAutoComplete(
+    treeWithoutPrivateWidgets,
+  );
+
+  return treeWithoutSuppressedAutoComplete;
+};
+
 /**
  *  overrideWidgetProperties method has logic to update overriddenPropertyPaths when overridingPropertyPaths are evaluated.
  *
