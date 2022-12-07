@@ -1,4 +1,4 @@
-name: Label PRs based on title
+name: Check for test files
 
 on:
   pull_request:
