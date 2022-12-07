@@ -682,7 +682,11 @@ export default class DataTreeEvaluator {
             !isATriggerPath &&
             (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
           if (propertyPath) {
-            set(currentTree, getEvalErrorPath(fullPropertyPath), []);
+            set(
+              this.evalValuesAndError,
+              getEvalErrorPath(fullPropertyPath),
+              [],
+            );
           }
           if (requiresEval) {
             const evaluationSubstitutionType =
@@ -924,7 +928,12 @@ export default class DataTreeEvaluator {
               !toBeSentForEval.includes("console."),
           );
           if (fullPropertyPath && result.errors.length) {
-            addErrorToEntityProperty(result.errors, data, fullPropertyPath);
+            addErrorToEntityProperty({
+              errors: result.errors,
+              evalValuesAndError: this.evalValuesAndError,
+              fullPropertyPath,
+              dataTree: data,
+            });
           }
           // if there are any console outputs found from the evaluation, extract them and add them to the logs array
           if (
@@ -983,8 +992,8 @@ export default class DataTreeEvaluator {
         );
       } catch (error) {
         if (fullPropertyPath) {
-          addErrorToEntityProperty(
-            [
+          addErrorToEntityProperty({
+            errors: [
               {
                 raw: dynamicBinding,
                 errorType: PropertyEvaluationErrorType.PARSE,
@@ -992,9 +1001,10 @@ export default class DataTreeEvaluator {
                 severity: Severity.ERROR,
               },
             ],
-            data,
+            evalValuesAndError: this.evalValuesAndError,
             fullPropertyPath,
-          );
+            dataTree: data,
+          });
         }
         return undefined;
       }
@@ -1167,7 +1177,12 @@ export default class DataTreeEvaluator {
           }) ?? [];
         // saves error in dataTree at fullPropertyPath
         // Later errors can consumed by the forms and debugger
-        addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
+        addErrorToEntityProperty({
+          errors: evalErrors,
+          evalValuesAndError: this.evalValuesAndError,
+          fullPropertyPath,
+          dataTree: currentTree,
+        });
       }
     }
   }

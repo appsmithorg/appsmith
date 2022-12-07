@@ -52,7 +52,10 @@ export function validateAndParseWidgetProperty({
   if (isValid) {
     evaluatedValue = parsed;
     // remove validation errors is already present
-    resetValidationErrorsForEntityProperty(currentTree, fullPropertyPath);
+    resetValidationErrorsForEntityProperty({
+      evalValuesAndError,
+      fullPropertyPath,
+    });
   } else {
     evaluatedValue = isUndefined(transformed) ? evalPropertyValue : transformed;
 
@@ -66,7 +69,12 @@ export function validateAndParseWidgetProperty({
         };
       }) ?? [];
     // Add validation errors
-    addErrorToEntityProperty(evalErrors, currentTree, fullPropertyPath);
+    addErrorToEntityProperty({
+      errors: evalErrors,
+      evalValuesAndError,
+      fullPropertyPath,
+      dataTree: currentTree,
+    });
   }
   // set evaluated value
   const safeEvaluatedValue = removeFunctions(evaluatedValue);
@@ -154,14 +162,15 @@ export function getValidatedTree(
               severity: Severity.ERROR,
               raw: value,
             })) ?? [];
-          addErrorToEntityProperty(
-            evalErrors,
-            tree,
-            getEvalErrorPath(`${entityKey}.${property}`, {
+          addErrorToEntityProperty({
+            errors: evalErrors,
+            evalValuesAndError,
+            fullPropertyPath: getEvalErrorPath(`${entityKey}.${property}`, {
               isPopulated: false,
-              fullPath: false,
+              fullPath: true,
             }),
-          );
+            dataTree: tree,
+          });
         }
       },
     );
