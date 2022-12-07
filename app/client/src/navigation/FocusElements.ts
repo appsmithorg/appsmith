@@ -75,9 +75,6 @@ import {
   setPropertyPaneWidthAction,
   setSelectedPropertyPanels,
 } from "actions/propertyPaneActions";
-import { setAllMetaProps } from "actions/metaActions";
-import { getWidgetsMeta } from "sagas/selectors";
-import { initialState as metaState } from "reducers/entityReducers/metaReducer";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
@@ -153,12 +150,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getAllSubEntityCollapsibleStates,
       setter: setAllSubEntityCollapsibleStates,
       defaultValue: {},
-    },
-    {
-      name: FocusElement.WidgetMeta,
-      selector: getWidgetsMeta,
-      setter: setAllMetaProps,
-      defaultValue: metaState,
     },
     {
       name: FocusElement.ExplorerSwitchIndex,

@@ -43,7 +43,6 @@ import editorContextSagas from "sagas/editorContextSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import tenantSagas from "@appsmith/sagas/tenantSagas";
-import metaSagas from "sagas/MetaSaga";
 
 export const sagas = [
   initSagas,
@@ -91,5 +90,4 @@ export const sagas = [
   PageVisibilitySaga,
   AutoHeightSagas,
   tenantSagas,
-  metaSagas,
 ];

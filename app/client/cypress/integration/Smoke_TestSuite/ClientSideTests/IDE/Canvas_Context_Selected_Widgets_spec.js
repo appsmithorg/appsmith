@@ -220,51 +220,51 @@ describe("Canvas context widget selection", function() {
     cy.get(".t--property-pane-title").should("contain", "Text1");
   });
 
-  it("9. Widget inside non default tab in tab widget should be selected and modal should be open while switching back and forth between pages", function() {
-    //switch to tab 2 and select widget a button inside tab 2 in page1
-    cy.get(".t--tabid-tab2").click({ force: true });
-    cy.SearchEntityandOpen("Button4", "Widgets");
+  // it("9. Widget inside non default tab in tab widget should be selected and modal should be open while switching back and forth between pages", function() {
+  //   //switch to tab 2 and select widget a button inside tab 2 in page1
+  //   cy.get(".t--tabid-tab2").click({ force: true });
+  //   cy.SearchEntityandOpen("Button4", "Widgets");
 
-    //verify the tab 2 is open and Button 4 is selected in page1
-    cy.get(".is-selected").should("contain", "Tab 2");
-    cy.get(".t--property-pane-title").should("contain", "Button4");
+  //   //verify the tab 2 is open and Button 4 is selected in page1
+  //   cy.get(".is-selected").should("contain", "Tab 2");
+  //   cy.get(".t--property-pane-title").should("contain", "Button4");
 
-    //switch to page2
-    ee.SelectEntityByName(page2, "Pages");
+  //   //switch to page2
+  //   ee.SelectEntityByName(page2, "Pages");
 
-    //select widget in page2
-    cy.SearchEntityandOpen("Text1", "Widgets");
+  //   //select widget in page2
+  //   cy.SearchEntityandOpen("Text1", "Widgets");
 
-    //verify the widget is selected in page2
-    cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
+  //   //verify the widget is selected in page2
+  //   cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
-    //switch to page1
-    ee.SelectEntityByName(page1, "Pages");
+  //   //switch to page1
+  //   ee.SelectEntityByName(page1, "Pages");
 
-    //verify the tab 2 is open and Button 4 is selected in page1
-    cy.get(".is-selected").should("contain", "Tab 2");
-    cy.get(".t--property-pane-title").should("contain", "Button4");
-  });
+  //   //verify the tab 2 is open and Button 4 is selected in page1
+  //   cy.get(".is-selected").should("contain", "Tab 2");
+  //   cy.get(".t--property-pane-title").should("contain", "Button4");
+  // });
 
-  it("10. Widget inside non default tab in tab widget should be selected and modal should be open while switching back to page from API pane", function() {
-    //switch to tab 2 and select widget a button inside tab 2 in page1
-    cy.get(".t--tabid-tab2").click({ force: true });
-    cy.SearchEntityandOpen("Button4", "Widgets");
+  // it("10. Widget inside non default tab in tab widget should be selected and modal should be open while switching back to page from API pane", function() {
+  //   //switch to tab 2 and select widget a button inside tab 2 in page1
+  //   cy.get(".t--tabid-tab2").click({ force: true });
+  //   cy.SearchEntityandOpen("Button4", "Widgets");
 
-    //verify the tab 2 is open and Button 4 is selected in page1
-    cy.get(".is-selected").should("contain", "Tab 2");
-    cy.get(".t--property-pane-title").should("contain", "Button4");
+  //   //verify the tab 2 is open and Button 4 is selected in page1
+  //   cy.get(".is-selected").should("contain", "Tab 2");
+  //   cy.get(".t--property-pane-title").should("contain", "Button4");
 
-    //navigate to API1
-    ee.SelectEntityByName(api1, "Queries/JS");
-    cy.wait(500);
+  //   //navigate to API1
+  //   ee.SelectEntityByName(api1, "Queries/JS");
+  //   cy.wait(500);
 
-    //navigate back to page1
-    cy.get(".t--close-editor").click();
-    cy.wait(500);
+  //   //navigate back to page1
+  //   cy.get(".t--close-editor").click();
+  //   cy.wait(500);
 
-    //verify the tab 2 is open and Button 4 is selected in page1
-    cy.get(".is-selected").should("contain", "Tab 2");
-    cy.get(".t--property-pane-title").should("contain", "Button4");
-  });
+  //   //verify the tab 2 is open and Button 4 is selected in page1
+  //   cy.get(".is-selected").should("contain", "Tab 2");
+  //   cy.get(".t--property-pane-title").should("contain", "Button4");
+  // });
 });

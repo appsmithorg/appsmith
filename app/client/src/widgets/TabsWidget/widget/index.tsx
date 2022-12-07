@@ -384,7 +384,7 @@ class TabsWidget extends BaseWidget<
     return [];
   };
 
-  setDefaultSelectedTabWidgetId = (onMount = false) => {
+  setDefaultSelectedTabWidgetId = () => {
     const visibleTabs = this.getVisibleTabs();
     // Find the default Tab object
     const defaultTab = find(visibleTabs, {
@@ -394,11 +394,10 @@ class TabsWidget extends BaseWidget<
     const defaultTabWidgetId =
       defaultTab?.widgetId ?? visibleTabs?.[0]?.widgetId; // in case the default tab is deleted
 
-    if (!defaultTabWidgetId) return;
     // If we have a legitimate default tab Id and it is not already the selected Tab
     if (
-      (onMount && !this.props.selectedTabWidgetId) ||
-      (!onMount && defaultTabWidgetId !== this.props.selectedTabWidgetId)
+      defaultTabWidgetId &&
+      defaultTabWidgetId !== this.props.selectedTabWidgetId
     ) {
       // Select the default tab
       this.props.updateWidgetMetaProperty(
@@ -411,7 +410,7 @@ class TabsWidget extends BaseWidget<
 
   componentDidMount() {
     Object.keys(this.props.tabsObj || {}).length &&
-      this.setDefaultSelectedTabWidgetId(true);
+      this.setDefaultSelectedTabWidgetId();
   }
 }
 
