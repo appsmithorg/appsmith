@@ -111,8 +111,7 @@ export default (props: PopperProps) => {
       // However, the performance benefit gained by such an optimization
       // remains to be discovered.
       const _popper = new PopperJS(
-        // eslint-disable-next-line
-        props.targetNode!,
+        props.targetNode,
         (contentRef.current as unknown) as Element,
         {
           ...(isDraggable && disablePopperEvents

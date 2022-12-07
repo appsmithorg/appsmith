@@ -116,7 +116,8 @@ export const editorContextReducer = createImmerReducer(initialState, {
     state: EditorContextState,
     action: { payload: { index: number } },
   ) => {
-    state.selectedPropertyTabIndex = action.payload.index;
+    if (action.payload?.index !== undefined)
+      state.selectedPropertyTabIndex = action.payload.index;
   },
   [ReduxActionTypes.SET_CANVAS_DEBUGGER_SELECTED_TAB]: (
     state: EditorContextState,

@@ -114,7 +114,6 @@ export enum FocusElement {
   SelectedPropertyPanel = "SelectedPropertyPanel",
   SelectedWidgets = "SelectedWidgets",
   SubEntityCollapsibleState = "SubEntityCollapsibleState",
-  WidgetMeta = "WidgetMeta",
 }
 
 type Config = {
@@ -144,6 +143,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.EntityCollapsibleState,
       selector: getAllEntityCollapsibleStates,
       setter: setAllEntityCollapsibleStates,
+      defaultValue: {},
     },
     {
       name: FocusElement.SubEntityCollapsibleState,
