@@ -318,7 +318,7 @@ function PageSettings(props: { page: Page }) {
                 <strong
                   className={`text-[color:var(--appsmith-color-black-800))]`}
                 >
-                  {pathPreview.splitRelativePath[1]}
+                  {decodeURI(pathPreview.splitRelativePath[1])}
                 </strong>
                 {pathPreview.splitRelativePath[2]}
                 {pathPreview.splitRelativePath[3]}
