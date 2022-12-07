@@ -114,7 +114,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         />
         <StyledPropertyPaneButtonWrapper>
           <AddNewButton
-            category={Category.tertiary}
+            category={Category.secondary}
             icon="plus"
             onClick={this.addOption}
             size={Size.medium}

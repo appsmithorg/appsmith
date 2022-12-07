@@ -1261,7 +1261,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.18.3", "@babel/runtime@^7.2.0", "@babel/runtime@^7.7.6":
+"@babel/runtime@^7.18.3":
   version "7.18.9"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.18.9.tgz#b4fcfce55db3d2e5e080d2490f608a3b9f407f4a"
   integrity sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw==
@@ -1422,7 +1422,7 @@
     resize-observer-polyfill "^1.5.1"
     tslib "~1.13.0"
 
-"@blueprintjs/datetime@3.23.6", "@blueprintjs/datetime@^3.23.6":
+"@blueprintjs/datetime@^3.23.6":
   version "3.23.6"
   resolved "https://registry.yarnpkg.com/@blueprintjs/datetime/-/datetime-3.23.6.tgz#5d9588ae4537e87a6d14d765db722b9a2f449d95"
   integrity sha512-OACqjo7HQQnEvILj9L/4w0jbM34+aAP8g78eqcOl8E/R+W4U/V9ePBrlcY2eknkgalyueOkx5/0Ee852v5FL/w==
@@ -6197,24 +6197,12 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.36":
-  version "1.0.36"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.36.tgz#3385278aef96ef87c57b2c8efe8faf66bd1c28e3"
-  integrity sha512-BgU8hfZTlzRMX6B4vMqHj08/1kc7Ao8gV0KY7zdze+mMWC8WU2am3wEGdSsPD07oiWjhMlZg943qYv/P3fik3A==
+"design-system@npm:@appsmithorg/design-system@1.0.37":
+  version "1.0.37"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.37.tgz#1e38df952bc19b4542407b8b0666e62fd845ff04"
+  integrity sha512-1y424NBUHyRjSygjLvk9hTu2J+/WxzUFw9QeAjBxqfslvYEopZGCW8Y//nAG2jSKQ0Y1GnRmWmKfC8Px3ijgBA==
   dependencies:
-    "@blueprintjs/datetime" "3.23.6"
-    copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
-    react-dnd "^9.3.4"
-    react-dnd-html5-backend "^9.3.4"
-    react-redux "^7.2.4"
-    react-router-dom "^6.3.0"
-    react-table "^7.8.0"
-    react-tabs "3.1.1"
-    react-toastify "^5.5.0"
-    redux-form "8.2.6"
-    remixicon-react "^1.0.0"
-    tinycolor2 "^1.4.2"
 
 destroy@1.2.0:
   version "1.2.0"
@@ -8219,18 +8207,11 @@ history@^4.10.1, history@^4.9.0:
     tiny-warning "^1.0.0"
     value-equal "^1.0.1"
 
-history@^5.2.0:
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/history/-/history-5.3.0.tgz#1548abaa245ba47992f063a0783db91ef201c73b"
-  integrity sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==
-  dependencies:
-    "@babel/runtime" "^7.7.6"
-
 hoist-non-react-statics@^2.3.1:
   version "2.5.5"
   resolved "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-2.5.5.tgz"
 
-hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.2.1, hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
+hoist-non-react-statics@^3.0.0, hoist-non-react-statics@^3.1.0, hoist-non-react-statics@^3.3.0, hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz"
   dependencies:
@@ -8484,11 +8465,6 @@ immer@^9.0.7:
   version "9.0.14"
   resolved "https://registry.npmjs.org/immer/-/immer-9.0.14.tgz"
   integrity sha512-ubBeqQutOSLIFCUBN03jGeOS6a3DoYlSYwYJTa+gSKEZKU5redJIqkIdZ3JVv/4RZpfcXdAWH5zCNLWPRv2WDw==
-
-immutable@3.8.2:
-  version "3.8.2"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
-  integrity sha512-15gZoQ38eYjEjxkorfbcgBKBL6R7T459OuK+CpcWt7O3KF4uPCx2tD0uFETlUDIyo+1789crbMhTvQBSR5yBMg==
 
 immutable@~3.7.4:
   version "3.7.6"
@@ -9988,7 +9964,7 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
-lodash-es@4.17.21, lodash-es@^4.17.15, lodash-es@^4.17.21:
+lodash-es@4.17.21, lodash-es@^4.17.21:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.21.tgz"
 
@@ -12759,14 +12735,6 @@ react-router-dom@^5.1.2:
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
-react-router-dom@^6.3.0:
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.3.0.tgz#a0216da813454e521905b5fa55e0e5176123f43d"
-  integrity sha512-uaJj7LKytRxZNQV8+RbzJWnJ8K2nPsOOEuX7aQstlMZKQT0164C+X2w6bnkqU3sjtLvpd5ojrezAyfZ1+0sStw==
-  dependencies:
-    history "^5.2.0"
-    react-router "6.3.0"
-
 react-router@5.2.0, react-router@^5.1.2:
   version "5.2.0"
   resolved "https://registry.npmjs.org/react-router/-/react-router-5.2.0.tgz"
@@ -12781,13 +12749,6 @@ react-router@5.2.0, react-router@^5.1.2:
     react-is "^16.6.0"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
-
-react-router@6.3.0:
-  version "6.3.0"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.3.0.tgz#3970cc64b4cb4eae0c1ea5203a80334fdd175557"
-  integrity sha512-7Wh1DzVQ+tlFjkeo+ujvjSqSJmkt1+8JO+T5xklPlgrh70y7ogx75ODRW0ThWhY7S+6yEDks8TYrtQe/aoboBQ==
-  dependencies:
-    history "^5.2.0"
 
 react-scripts@^5.0.1:
   version "5.0.1"
@@ -12890,12 +12851,7 @@ react-table@^7.0.0:
   version "7.6.0"
   resolved "https://registry.npmjs.org/react-table/-/react-table-7.6.0.tgz"
 
-react-table@^7.8.0:
-  version "7.8.0"
-  resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.8.0.tgz#07858c01c1718c09f7f1aed7034fcfd7bda907d2"
-  integrity sha512-hNaz4ygkZO4bESeFfnfOft73iBUj8K5oKi1EcSHPAibEydfsX2MyU6Z8KCr3mv3C9Kqqh71U+DhZkFvibbnPbA==
-
-react-tabs@3.1.1, react-tabs@^3.0.0:
+react-tabs@^3.0.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/react-tabs/-/react-tabs-3.1.1.tgz#b363a239f76046bb2158875a1e5921b11064052f"
   integrity sha512-HpySC29NN1BkzBAnOC+ajfzPbTaVZcSWzMSjk56uAhPC/rBGtli8lTysR4CfPAyEE/hfweIzagOIoJ7nu80yng==
@@ -13091,24 +13047,6 @@ redux-devtools@^3.5.0:
     lodash "^4.17.19"
     prop-types "^15.7.2"
     redux-devtools-instrument "^1.10.0"
-
-redux-form@8.2.6:
-  version "8.2.6"
-  resolved "https://registry.yarnpkg.com/redux-form/-/redux-form-8.2.6.tgz#6840bbe9ed5b2aaef9dd82e6db3e5efcfddd69b1"
-  integrity sha512-krmF7wl1C753BYpEpWIVJ5NM4lUJZFZc5GFUVgblT+jprB99VVBDyBcgrZM3gWWLOcncFyNsHcKNQQcFg8Uanw==
-  dependencies:
-    "@babel/runtime" "^7.2.0"
-    es6-error "^4.1.1"
-    hoist-non-react-statics "^3.2.1"
-    invariant "^2.2.4"
-    is-promise "^2.1.0"
-    lodash "^4.17.15"
-    lodash-es "^4.17.15"
-    prop-types "^15.6.1"
-    react-is "^16.7.0"
-    react-lifecycles-compat "^3.0.4"
-  optionalDependencies:
-    immutable "3.8.2"
 
 redux-form@^8.2.6:
   version "8.3.6"
