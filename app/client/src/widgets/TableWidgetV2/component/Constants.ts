@@ -8,6 +8,11 @@ import {
   ButtonVariant,
 } from "components/constants";
 import { DropdownOption } from "widgets/SelectWidget/constants";
+import {
+  ConfigureMenuItems,
+  MenuItem,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
 import { ColumnTypes } from "../constants";
 
 export type TableSizes = {
@@ -148,13 +153,20 @@ export interface ButtonCellProperties {
   iconAlign?: Alignment;
 }
 
+export type MenuItems = Record<string, MenuItem>;
+
 export interface MenuButtonCellProperties {
   menuButtonLabel?: string;
   menuItems: MenuItems;
+  getVisibleItems: () => Array<MenuItem>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   menuButtoniconName?: IconName;
   onItemClicked?: (onClick: string | undefined) => void;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
+  sourceDataKeys?: Array<string>;
 }
 
 export interface URLCellProperties {
@@ -197,24 +209,6 @@ export interface CellLayoutProperties
     SelectCellProperties,
     ImageCellProperties,
     BaseCellProperties {}
-
-export type MenuItems = Record<
-  string,
-  {
-    widgetId: string;
-    id: string;
-    index: number;
-    isVisible?: boolean;
-    isDisabled?: boolean;
-    label?: string;
-    backgroundColor?: string;
-    textColor?: string;
-    iconName?: IconName;
-    iconColor?: string;
-    iconAlign?: Alignment;
-    onClick?: string;
-  }
->;
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
@@ -338,6 +332,11 @@ export interface ColumnProperties
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
+  getVisibleItems?: () => Array<MenuItem>;
+  menuItemsSource?: MenuItemsSource;
+  configureMenuItems?: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
+  sourceDataKeys?: Array<string>;
 }
 
 export const ConditionFunctions: {

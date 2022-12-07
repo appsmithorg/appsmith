@@ -13,6 +13,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { createEditActionColumn } from "./utilities";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -640,4 +641,29 @@ export const updateCustomColumnAliasOnLabelChange = (
       },
     ];
   }
+};
+
+export const hideByMenuItemsSource = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  menuItemsSource: MenuItemsSource,
+) => {
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const currentMenuItemsSource = get(
+    props,
+    `${baseProperty}.menuItemsSource`,
+    "",
+  );
+
+  return currentMenuItemsSource === menuItemsSource;
+};
+
+export const hideIfMenuItemsSourceDataIsFalsy = (
+  props: TableWidgetProps,
+  propertyPath: string,
+) => {
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const sourceData = get(props, `${baseProperty}.sourceData`, "");
+
+  return !sourceData;
 };
