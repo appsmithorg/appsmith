@@ -41,7 +41,7 @@ export function* FetchAdminSettingsSaga() {
       ),
     };
 
-    //Converting empty values to boolean false
+    // Converting empty values to boolean false
     Object.keys(settings).forEach((key) => {
       if ((settings[key] as string).trim() === "") {
         settings[key] = false;
