@@ -705,7 +705,7 @@ function ApplicationsSection(props: any) {
 
         const showWorkspaceMenuOptions =
           canInviteToWorkspace ||
-          hasManageWorkspacePermissions ||
+          hasCreateNewApplicationPermission ||
           hasCreateNewAppPermission ||
           canDeleteWorkspace;
 
