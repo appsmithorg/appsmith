@@ -133,6 +133,14 @@ describe("Single Select Widget Functionality", function() {
       "select option",
     );
   });
+
+  it("9. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("singleselecttreewidget");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".tree-select-tooltip").should("be.visible");
+  });
 });
 afterEach(() => {
   // put your clean up code if any

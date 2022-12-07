@@ -79,4 +79,12 @@ describe("Select widget", () => {
       .invoke("val")
       .should("not.be.empty");
   });
+
+  it("5. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("selectwidget");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".select-tooltip").should("be.visible");
+  });
 });

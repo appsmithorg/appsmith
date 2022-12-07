@@ -203,4 +203,12 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(10000);
   });
+
+  it("10. Datepicker tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("datepickerwidgetv2");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".datepicker-tooltip").should("be.visible");
+  });
 });

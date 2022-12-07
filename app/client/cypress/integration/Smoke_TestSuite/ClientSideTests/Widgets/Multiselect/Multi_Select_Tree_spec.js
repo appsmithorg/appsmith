@@ -119,6 +119,14 @@ describe("MultiSelectTree Widget Functionality", function() {
       "No Results Found",
     );
   });
+
+  it("8. Select tooltip renders if tooltip prop is not empty", () => {
+    cy.openPropertyPane("multiselecttreewidget");
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
+    // tooltip help icon shows
+    cy.get(".multitree-select-tooltip").should("be.visible");
+  });
 });
 afterEach(() => {
   // put your clean up code if any
