@@ -82,6 +82,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple5;
 
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
@@ -106,11 +107,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -632,10 +629,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-    @Override
-    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
-        // 1. Validate input parameters which are required for mustache replacements
-        List<Param> params = executeActionDTO.getParams();
+
+    protected void replaceNullWithQuotesForParamValues(List<Param> params) {
+
         if (!CollectionUtils.isEmpty(params)) {
             for (Param param : params) {
                 // In case the parameter values turn out to be null, set it to empty string instead to allow
@@ -646,10 +642,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             }
         }
 
+    }
+
+
+    protected Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> getExecuteActionPublishers(ExecuteActionDTO executeActionDTO) {
         String actionId = executeActionDTO.getActionId();
-        AtomicReference<String> actionName = new AtomicReference<>();
-        // Initialize the name to be empty value
-        actionName.set("");
+
         // 2. Fetch the action from the DB and check if it can be executed
         Mono<NewAction> actionMono = repository.findById(actionId, actionPermission.getExecutePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
@@ -692,13 +690,73 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         // 4. Execute the query
-        Mono<ActionExecutionResult> actionExecutionResultMono = Mono
-                .zip(
+        return Mono.zip(
                         actionDTOMono,
                         datasourceMono,
                         pluginExecutorMono,
-                        pluginMono
-                )
+                        pluginMono,
+                        actionMono
+                );
+
+    }
+
+    protected Mono<ActionExecutionResult> getExecutionMonoFromValidatedDatasourceMono(ExecuteActionDTO executeActionDTO, Mono<Datasource> validatedDatasourceMono, Plugin plugin, PluginExecutor pluginExecutor, ActionDTO action, Datasource datasource) {
+        Integer timeoutDuration = action.getActionConfiguration().getTimeoutInMillisecond();
+
+        Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
+                .flatMap(datasource1 -> {
+                    if (plugin.isRemotePlugin()) {
+                        return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
+                    } else {
+                        return datasourceContextService.getDatasourceContext(datasource1);
+                    }
+
+                })
+                // Now that we have the context (connection details), execute the action.
+                .flatMap(resourceContext -> validatedDatasourceMono
+                        .flatMap(datasource1 -> {
+                            final Instant requestedAt = Instant.now();
+                            return ((Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
+                                    resourceContext.getConnection(),
+                                    executeActionDTO,
+                                    datasource1.getDatasourceConfiguration(),
+                                    action.getActionConfiguration()
+                            )).map(actionExecutionResult -> {
+                                ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+                                if (actionExecutionRequest == null) {
+                                    actionExecutionRequest = new ActionExecutionRequest();
+                                }
+                                actionExecutionRequest.setActionId(executeActionDTO.getActionId());
+                                actionExecutionRequest.setRequestedAt(requestedAt);
+
+                                actionExecutionResult.setRequest(actionExecutionRequest);
+
+                                return actionExecutionResult;
+                            });
+                        })
+                );
+
+        return executionMono
+                .onErrorResume(StaleConnectionException.class, error -> {
+                    log.info("Looks like the connection is stale. Retrying with a fresh context.");
+                    return datasourceContextService
+                            .deleteDatasourceContext(datasource.getId())
+                            .then(executionMono);
+                })
+                .timeout(Duration.ofMillis(timeoutDuration))
+                .onErrorMap(TimeoutException.class,
+                        error -> new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                action.getName(), timeoutDuration
+                        )
+                );
+    }
+
+    protected Mono<ActionExecutionResult> getActionExecutionResult( ExecuteActionDTO executeActionDTO,
+                                                                                      Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> executeActionPublishersCache,
+                                                                                      AtomicReference<String> actionName,
+                                                                                      String actionId) {
+        return executeActionPublishersCache
                 .flatMap(tuple -> {
                     final ActionDTO action = tuple.getT1();
                     final Datasource datasource = tuple.getT2();
@@ -718,58 +776,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
 
-                    Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
-                            .flatMap(datasource1 -> {
-                                if (plugin.isRemotePlugin()) {
-                                    return datasourceContextService.getRemoteDatasourceContext(plugin, datasource1);
-                                } else {
-                                    return datasourceContextService.getDatasourceContext(datasource1);
-                                }
-                            })
-                            // Now that we have the context (connection details), execute the action.
-                            .flatMap(resourceContext -> validatedDatasourceMono
-                                    .flatMap(datasource1 -> {
-                                        final Instant requestedAt = Instant.now();
-                                        return ((Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
-                                                resourceContext.getConnection(),
-                                                executeActionDTO,
-                                                datasource1.getDatasourceConfiguration(),
-                                                actionConfiguration
-                                        )).map(actionExecutionResult -> {
-                                            ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
-                                            if (actionExecutionRequest == null) {
-                                                actionExecutionRequest = new ActionExecutionRequest();
-                                            }
-                                            actionExecutionRequest.setActionId(actionId);
-                                            actionExecutionRequest.setRequestedAt(requestedAt);
+                    Mono<ActionExecutionResult> executionMono  = getExecutionMonoFromValidatedDatasourceMono(executeActionDTO, validatedDatasourceMono, plugin, pluginExecutor, action, datasource);
 
-                                            actionExecutionResult.setRequest(actionExecutionRequest);
-
-                                            return actionExecutionResult;
-                                        });
-                                    })
-                            );
-
-                    return executionMono
-                            .onErrorResume(StaleConnectionException.class, error -> {
-                                log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                                return datasourceContextService
-                                        .deleteDatasourceContext(datasource.getId())
-                                        .then(executionMono);
-                            })
-                            .timeout(Duration.ofMillis(timeoutDuration))
-                            .onErrorMap(TimeoutException.class,
-                                    error -> new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
-                                            action.getName(), timeoutDuration
-                                    )
-                            )
-                            .onErrorMap(
-                                    StaleConnectionException.class,
-                                    error -> new AppsmithPluginException(
+                    return executionMono.onErrorMap(StaleConnectionException.class, error ->
+                                    new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_ERROR,
-                                            "Secondary stale connection error."
-                                    )
+                                            "Secondary stale connection error.")
                             )
                             .onErrorResume(e -> {
                                 log.debug("{}: In the action execution error mode.",
@@ -783,11 +795,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 result.setRequest(actionExecutionRequest);
                                 // Set the status code for Appsmith plugin errors
                                 if (e instanceof AppsmithPluginException) {
-                                    result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
+                                    result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode()
+                                            .toString());
                                     result.setTitle(((AppsmithPluginException) e).getTitle());
                                     result.setErrorType(((AppsmithPluginException) e).getErrorType());
                                 } else {
-                                    result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                                    result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode()
+                                            .toString());
 
                                     if (e instanceof AppsmithException) {
                                         result.setTitle(((AppsmithException) e).getTitle());
@@ -803,18 +817,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                         ActionExecutionResult result = tuple1.getT2();
 
                                         log.debug("{}: Action {} with id {} execution time : {} ms",
-                                                Thread.currentThread().getName(),
+                                                Thread.currentThread()
+                                                        .getName(),
                                                 actionName.get(),
                                                 actionId,
                                                 timeElapsed
                                         );
 
-                                        return Mono.zip(actionMono, actionDTOMono, datasourceMono)
-                                                .flatMap(tuple2 -> {
+                                        return executeActionPublishersCache
+                                                .flatMap(tuple4 -> {
                                                     ActionExecutionResult actionExecutionResult = result;
-                                                    NewAction actionFromDb = tuple2.getT1();
-                                                    ActionDTO actionDTO = tuple2.getT2();
-                                                    Datasource datasourceFromDb = tuple2.getT3();
+                                                    NewAction actionFromDb = tuple4.getT5();
+                                                    ActionDTO actionDTO = tuple4.getT1();
+                                                    Datasource datasourceFromDb = tuple4.getT2();
 
                                                     return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO, actionExecutionResult, timeElapsed))
                                                             .thenReturn(result);
@@ -825,46 +840,52 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .onErrorResume(AppsmithException.class, error -> {
                     ActionExecutionResult result = new ActionExecutionResult();
                     result.setIsExecutionSuccess(false);
-                    result.setStatusCode(error.getAppErrorCode().toString());
+                    result.setStatusCode(error.getAppErrorCode()
+                            .toString());
                     result.setBody(error.getMessage());
                     result.setTitle(error.getTitle());
                     result.setErrorType(error.getErrorType());
                     return Mono.just(result);
                 });
 
-        Mono<Map> editorConfigLabelMapMono = datasourceMono
-                .flatMap(datasource -> {
-                    if (datasource.getId() != null) {
-                        return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
-                    }
 
-                    return Mono.just(new HashMap());
+    }
+
+    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
+        // 1. Validate input parameters which are required for mustache replacements
+        replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
+
+        String actionId = executeActionDTO.getActionId();
+        AtomicReference<String> actionName = new AtomicReference<>();
+        actionName.set("");
+        // Initialize the name to be empty value
+
+        Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> executeActionPublishersCache = getExecuteActionPublishers(executeActionDTO)
+                .cache();
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =  getActionExecutionResult(executeActionDTO, executeActionPublishersCache, actionName, actionId);
+
+        Mono<Map> editorConfigLabelMapMono = executeActionPublishersCache.map(Tuple2::getT2)
+                .flatMap(datasource -> {
+                    if (!StringUtils.hasLength(datasource.getId())) {
+                        return Mono.just(new HashMap());
+                    }
+                    return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
                 });
 
-        return Mono.zip(actionExecutionResultMono, editorConfigLabelMapMono)
-                .flatMap(tuple -> {
-                    ActionExecutionResult result = tuple.getT1();
-                    // In case the action was executed in view mode, do not return the request object
+        return actionExecutionResultMono
+                .zipWith(editorConfigLabelMapMono, (result, labelMap) -> {
                     if (TRUE.equals(executeActionDTO.getViewMode())) {
                         result.setRequest(null);
-                        return Mono.just(result);
+                    } else if (result.getRequest() != null && result.getRequest().getRequestParams()!= null) {
+                        transformRequestParams(result, labelMap);
                     }
-
-                    if (result.getRequest() == null || result.getRequest().getRequestParams() == null) {
-                        return Mono.just(result);
-                    }
-
-                    Map labelMap = tuple.getT2();
-                    transformRequestParams(result, labelMap);
-
-                    return Mono.just(result);
+                    return result;
                 })
                 .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
-    @Override
-    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName) {
-
+    protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
         final ExecuteActionDTO dto = new ExecuteActionDTO();
         return partFlux
                 .flatMap(part -> {
@@ -936,22 +957,31 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     params.forEach(
                             param -> {
                                 String pseudoBindingName = param.getPseudoBindingName();
-                                param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
+                                param.setKey(dto.getInvertParameterMap()
+                                        .get(pseudoBindingName));
                                 //if the type is not an array e.g. "k1": "string" or "k1": "boolean"
-                                if (dto.getParamProperties().get(pseudoBindingName) instanceof String) {
-                                    param.setClientDataType(ClientDataType.valueOf(String.valueOf(dto.getParamProperties().get(pseudoBindingName)).toUpperCase()));
-                                } else if (dto.getParamProperties().get(pseudoBindingName) instanceof LinkedHashMap) {
+                                if (dto.getParamProperties()
+                                        .get(pseudoBindingName) instanceof String) {
+                                    param.setClientDataType(ClientDataType.valueOf(String.valueOf(dto.getParamProperties()
+                                                    .get(pseudoBindingName))
+                                            .toUpperCase()));
+                                } else if (dto.getParamProperties()
+                                        .get(pseudoBindingName) instanceof LinkedHashMap) {
                                     //if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
                                     LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
-                                            (LinkedHashMap<String, ArrayList>) dto.getParamProperties().get(pseudoBindingName);
-                                    Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet().stream().findFirst();
+                                            (LinkedHashMap<String, ArrayList>) dto.getParamProperties()
+                                                    .get(pseudoBindingName);
+                                    Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet()
+                                            .stream()
+                                            .findFirst();
                                     if (firstKeyOpt.isPresent()) {
                                         String firstKey = firstKeyOpt.get();
                                         param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
                                         List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
                                         List<ClientDataType> dataTypesOfArrayElements =
                                                 individualTypes.stream()
-                                                        .map(it -> ClientDataType.valueOf(String.valueOf(it).toUpperCase()))
+                                                        .map(it -> ClientDataType.valueOf(String.valueOf(it)
+                                                                .toUpperCase()))
                                                         .collect(Collectors.toList());
                                         param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
                                     }
@@ -961,7 +991,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     );
                     dto.setParams(params);
                     return Mono.just(dto);
-                })
+                });
+    }
+
+    @Override
+    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName) {
+        return createExecuteActionDTO(partFlux)
                 .flatMap(executeActionDTO -> this
                         .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .map(branchedAction -> {
