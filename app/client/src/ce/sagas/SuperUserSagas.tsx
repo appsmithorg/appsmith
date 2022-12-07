@@ -41,12 +41,12 @@ export function* FetchAdminSettingsSaga() {
       ),
     };
 
-    //Converting empty string values to boolean false
-    for (const key in settings) {
-      if (!settings[key]) {
+    //Converting empty values to boolean false
+    Object.keys(settings).forEach((key) => {
+      if ((settings[key] as string).trim() === "") {
         settings[key] = false;
       }
-    }
+    });
 
     yield put({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
