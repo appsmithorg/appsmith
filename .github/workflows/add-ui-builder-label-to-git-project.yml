@@ -1,0 +1,26 @@
+name: Add all issues & PR with label UI Builders Pod to UI Builder Pod Project
+
+on:
+  issues:
+    types:
+      - labeled
+      - opened
+  
+  pull_request:
+    types:
+      - labeled
+      - opened
+
+jobs:
+  add-to-project:
+    name: UI Builders Pod
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@RELEASE_VERSION
+        with:
+          # You can target a repository in a different organization
+          # to the issue
+          project-url: https://github.com/orgs/appsmithorg/projects/6
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          labeled: UI Builders Pod
+          label-operator: OR
