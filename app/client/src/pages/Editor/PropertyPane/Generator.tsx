@@ -29,12 +29,14 @@ export type PropertyControlsGeneratorProps = {
   panel: IPanelProps;
   theme: EditorTheme;
   searchQuery?: string;
+  isChildOfListWidget?: boolean;
 };
 
 type SectionProps = {
   sectionConfig: PropertyPaneSectionConfig;
   config: PropertyPaneConfig;
   generatorProps: PropertyControlsGeneratorProps;
+  isChildOfListWidget?: boolean;
 };
 
 function Section(props: SectionProps) {
@@ -73,6 +75,7 @@ function Section(props: SectionProps) {
         collapsible={sectionConfig.collapsible ?? true}
         hidden={isSectionHidden}
         id={config.id || sectionName}
+        isChildOfListWidget={!!props.isChildOfListWidget}
         isDefaultOpen={sectionConfig.isDefaultOpen}
         key={config.id + generatorProps.id + generatorProps.searchQuery}
         name={sectionName}
@@ -97,6 +100,7 @@ const generatePropertyControl = (
         <Section
           config={config}
           generatorProps={props}
+          isChildOfListWidget={!!props.isChildOfListWidget}
           key={config.id + props.id}
           sectionConfig={sectionConfig}
         />
@@ -114,6 +118,7 @@ const generatePropertyControl = (
           <PropertyControl
             key={config.id + props.id}
             {...(config as PropertyPaneControlConfig)}
+            isChildOfListWidget={!!props.isChildOfListWidget}
             panel={props.panel}
             theme={props.theme}
           />

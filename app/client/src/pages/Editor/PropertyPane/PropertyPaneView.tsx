@@ -38,7 +38,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
-import { disableWidgetFeatures } from "utils/WidgetFeatures";
+import { getIsChildOfListWidget } from "selectors/widgetSelectors";
+import { AppState } from "ce/reducers";
 
 export const StyledSearchInput = React.memo(styled(SearchInput)`
   position: sticky;
@@ -114,6 +115,10 @@ function PropertyPaneView(
       );
     };
   }, []);
+
+  const isChildOfListWidget = useSelector((state: AppState) =>
+    getIsChildOfListWidget(state, widgetProperties?.widgetId),
+  );
 
   /**
    * on delete button click
@@ -263,11 +268,11 @@ function PropertyPaneView(
               contentComponent={
                 isContentConfigAvailable ? (
                   <PropertyControlsGenerator
-                    config={disableWidgetFeatures(
+                    config={WidgetFactory.getWidgetPropertyPaneContentConfig(
                       widgetProperties.type,
-                      widgetProperties.disabledWidgetFeatures,
                     )}
                     id={widgetProperties.widgetId}
+                    isChildOfListWidget={isChildOfListWidget}
                     panel={panel}
                     searchQuery={searchText}
                     theme={EditorTheme.LIGHT}

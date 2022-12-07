@@ -290,7 +290,7 @@ export function* getUpdateDslAfterCreatingChild(
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     traverseTreeAndExecuteBlueprintChildOperations,
     parent,
-    addChildPayload.newWidgetId,
+    [addChildPayload.newWidgetId],
     widgets,
   );
 

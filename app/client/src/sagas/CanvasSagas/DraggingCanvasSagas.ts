@@ -24,6 +24,7 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { traverseTreeAndExecuteBlueprintChildOperations } from "sagas/WidgetBlueprintSagas";
 import {
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -154,6 +155,9 @@ function* addWidgetAndMoveWidgetsSaga(
     ) {
       throw Error;
     }
+    // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
+    // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+    // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
     yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
     yield put({
@@ -242,7 +246,14 @@ function* moveAndUpdateWidgets(
       bottomRow: updatedCanvasBottomRow,
     };
   }
-  return updatedWidgets;
+
+  const modifiedWidgets: CanvasWidgetsReduxState = yield call(
+    traverseTreeAndExecuteBlueprintChildOperations,
+    updatedWidgets[canvasId],
+    movedWidgetIds, //CHeck && filter out MODAL WIDGET
+    updatedWidgets,
+  );
+  return modifiedWidgets;
 }
 
 function getParentWidgetType(

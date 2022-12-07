@@ -84,10 +84,15 @@ type PropertySectionProps = {
   hidden?: boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
+  isChildOfListWidget?: boolean;
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
-  return prev.id === next.id && prev.hidden === next.hidden;
+  return (
+    prev.id === next.id &&
+    prev.hidden === next.hidden &&
+    prev.isChildOfListWidget === next.isChildOfListWidget
+  );
 };
 
 //Context is being provided to re-render anything that subscribes to this context on open and close

@@ -1128,6 +1128,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  if (currentDSL.version === 70) {
+    currentDSL = migrateListWidgetChildren(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
   return currentDSL;
 };
 
@@ -1568,3 +1573,36 @@ export const migrateFilterValueForDropDownWidget = (currentDSL: DSLWidget) => {
 
   return newDSL;
 };
+
+function migrateListWidgetChildren(
+  currentDSL: DSLWidget,
+  isChildOfListWidget = false,
+): DSLWidget {
+  if (!currentDSL) return currentDSL;
+
+  let isCurrentListWidget = false;
+  if (currentDSL.type === "LIST_WIDGET") isCurrentListWidget = true;
+
+  const children = currentDSL.children?.map((childDSL: DSLWidget) =>
+    migrateListWidgetChildren(
+      childDSL,
+      isCurrentListWidget || isChildOfListWidget,
+    ),
+  );
+
+  let newDSL;
+  if (isChildOfListWidget) {
+    newDSL = {
+      ...currentDSL,
+      children,
+      dynamicHeight: "FIXED",
+    };
+  } else {
+    newDSL = {
+      ...currentDSL,
+      children,
+    };
+  }
+
+  return newDSL;
+}

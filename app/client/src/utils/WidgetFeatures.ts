@@ -1,18 +1,16 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
+  propertyHiddenOptions,
   PropertyPaneConfig,
   PropertyPaneControlConfig,
-  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import {
   GridDefaults,
   WidgetHeightLimits,
   WidgetType,
 } from "constants/WidgetConstants";
-import { klona } from "klona/lite";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
-import WidgetFactory from "./WidgetFactory";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -317,6 +315,13 @@ export const PropertyPaneConfigTemplates: Record<
         "isCanvas",
       ],
       updateHook: updateMinMaxDynamicHeight,
+      hidden: (
+        props: WidgetProps,
+        propertyPath: string,
+        options?: propertyHiddenOptions,
+      ) => {
+        return !!options?.isChildOfListWidget;
+      },
       helperText: (props: WidgetProps) => {
         return props.isCanvas &&
           props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
@@ -341,36 +346,3 @@ export const PropertyPaneConfigTemplates: Record<
     },
   ],
 };
-
-//TODO make this logic a lot cleaner
-export function disableWidgetFeatures(
-  widgetType: WidgetType,
-  disabledWidgetFeatures?: string[],
-): PropertyPaneConfig[] {
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneContentConfig(
-    widgetType,
-  ) as PropertyPaneConfig[];
-
-  if (!disabledWidgetFeatures || disabledWidgetFeatures.length <= 0)
-    return widgetConfig;
-
-  const clonedConfig = klona(widgetConfig);
-  const GeneralConfig = clonedConfig.find(
-    (sectionConfig) =>
-      (sectionConfig as PropertyPaneSectionConfig)?.sectionName === "General",
-  );
-
-  for (let i = 0; i < (GeneralConfig?.children?.length || -1); i++) {
-    const config = GeneralConfig?.children?.[i];
-    if (
-      disabledWidgetFeatures.indexOf(
-        (config as PropertyPaneControlConfig)?.propertyName || "",
-      ) > -1
-    ) {
-      GeneralConfig?.children?.splice(i, 1);
-      i--;
-    }
-  }
-
-  return clonedConfig;
-}

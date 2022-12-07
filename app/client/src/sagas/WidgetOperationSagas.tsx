@@ -144,6 +144,7 @@ import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -1691,7 +1692,16 @@ function* pasteWidgetSaga(
     reflowedMovementMap,
   );
 
-  yield put(updateAndSaveLayout(reflowedWidgets));
+  // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
+  // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
+  // while traversing, if we find any widget which has CHILD_OPERATION, we will call the fn in it
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    traverseTreeAndExecuteBlueprintChildOperations,
+    reflowedWidgets[pastingIntoWidgetId],
+    newlyCreatedWidgetIds, //CHeck && filter out MODAL WIDGET
+    reflowedWidgets,
+  );
+  yield put(updateAndSaveLayout(updatedWidgets));
 
   const pageId: string = yield select(getCurrentPageId);
 

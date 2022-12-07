@@ -142,6 +142,28 @@ export function getParentToOpenIfAny(
   return;
 }
 
+function getIsChildOfListWidgetHelper(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string | undefined,
+): boolean {
+  if (!widgetId || !widgets[widgetId]) return false;
+
+  if (widgets[widgetId]?.type === "LIST_WIDGET") return true;
+
+  return getIsChildOfListWidgetHelper(widgets, widgets[widgetId]?.parentId);
+}
+
+export const getIsChildOfListWidget = createSelector(
+  [getCanvasWidgets, (_state: AppState, widgetId: string) => widgetId],
+  (widgets: CanvasWidgetsReduxState, widgetId: string): boolean => {
+    //if widget does not exist or if itself is list widget return false
+    if (!widgets[widgetId] || widgets[widgetId]?.type === "LIST_WIDGET")
+      return false;
+
+    return getIsChildOfListWidgetHelper(widgets, widgets[widgetId]?.parentId);
+  },
+);
+
 export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
   return createSelector(
     getFocusedWidget,
