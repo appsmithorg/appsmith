@@ -4,7 +4,7 @@ import {
   PLATFORM_ERROR,
   Severity,
 } from "entities/AppsmithConsole";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { DataTree, UnEvalTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
@@ -41,7 +41,7 @@ import { AppState } from "@appsmith/reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import TernServer from "utils/autocomplete/TernServer";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { JSAction } from "entities/JSCollection";
@@ -281,7 +281,7 @@ export function* evalErrorHandler(
 }
 
 export function* logSuccessfulBindings(
-  unEvalTree: DataTree,
+  unEvalTree: UnEvalTree,
   dataTree: DataTree,
   evaluationOrder: string[],
   isCreateFirstTree: boolean,
@@ -337,55 +337,36 @@ export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
 // is accurate
 export function* updateTernDefinitions(
   dataTree: DataTree,
-  updates?: DataTreeDiff[],
+  updates: DataTreeDiff[],
+  isCreateFirstTree: boolean,
 ) {
-  let shouldUpdate: boolean;
-  // No updates, means it was a first Eval
-  if (!updates) {
-    shouldUpdate = true;
-  } else if (updates.length === 0) {
-    // update length is 0 means no significant updates
-    shouldUpdate = false;
-  } else {
-    // Only when new field is added or deleted, we want to re-create the def
-    shouldUpdate = some(updates, (update) => {
-      if (
-        update.event === DataTreeDiffEvent.NEW ||
-        update.event === DataTreeDiffEvent.DELETE
-      ) {
-        return true;
-      }
-
-      if (update.event === DataTreeDiffEvent.NOOP) {
-        const { entityName } = getEntityNameAndPropertyPath(
-          update.payload.propertyPath,
-        );
-        const entity = dataTree[entityName];
-        if (entity && isWidget(entity)) {
-          // if widget property name is modified then update tern def
-          return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
-        }
-      }
-
-      return false;
+  const shouldUpdate: boolean =
+    isCreateFirstTree ||
+    some(updates, (update) => {
+      if (update.event === DataTreeDiffEvent.NEW) return true;
+      if (update.event === DataTreeDiffEvent.DELETE) return true;
+      if (update.event === DataTreeDiffEvent.EDIT) return false;
+      const { entityName } = getEntityNameAndPropertyPath(
+        update.payload.propertyPath,
+      );
+      const entity = dataTree[entityName];
+      if (!entity || !isWidget(entity)) return false;
+      return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
     });
-  }
-  if (shouldUpdate) {
-    const start = performance.now();
-    // remove private widgets from dataTree used for autocompletion
-    const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
-      dataTree,
-    );
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    const { def, entityInfo } = dataTreeTypeDefCreator(
-      treeWithoutPrivateWidgets,
-      !!featureFlags.JS_EDITOR,
-    );
-    TernServer.updateDef("DATA_TREE", def, entityInfo);
-    const end = performance.now();
-    log.debug("Tern", { updates });
-    log.debug("Tern definitions updated took ", (end - start).toFixed(2));
-  }
+
+  if (!shouldUpdate) return;
+  const start = performance.now();
+  // remove private widgets from dataTree used for autocompletion
+  const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(dataTree);
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+  const { def, entityInfo } = dataTreeTypeDefCreator(
+    treeWithoutPrivateWidgets,
+    !!featureFlags.JS_EDITOR,
+  );
+  CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
+  const end = performance.now();
+  log.debug("Tern", { updates });
+  log.debug("Tern definitions updated took ", (end - start).toFixed(2));
 }
 
 export function* handleJSFunctionExecutionErrorLog(

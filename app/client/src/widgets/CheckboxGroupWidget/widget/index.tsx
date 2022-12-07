@@ -1,26 +1,24 @@
 import React from "react";
 import { compact, xor } from "lodash";
-
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-
+import { Alignment } from "@blueprintjs/core";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import CheckboxGroupComponent from "../component";
+import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { Stylesheet } from "entities/AppTheming";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
 } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-
-import CheckboxGroupComponent from "../component";
-import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function defaultSelectedValuesValidation(
@@ -217,6 +215,16 @@ class CheckboxGroupWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             propertyName: "isVisible",
             label: "Visible",
@@ -483,6 +491,13 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+    };
+  }
+
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
     if (
       Array.isArray(prevProps.options) &&
@@ -561,6 +576,7 @@ class CheckboxGroupWidget extends BaseWidget<
         labelText={this.props.labelText}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}

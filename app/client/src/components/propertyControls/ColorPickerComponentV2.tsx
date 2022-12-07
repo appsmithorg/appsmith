@@ -15,7 +15,7 @@ import {
 import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
 import { Colors } from "constants/Colors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import {
   colorsPropertyName,
@@ -43,6 +43,7 @@ interface ColorPickerProps {
   evaluatedColorValue?: string;
   autoFocus?: boolean;
   isOpen?: boolean;
+  portalContainer?: HTMLElement;
 }
 
 /**
@@ -517,6 +518,7 @@ const ColorPickerComponent = React.forwardRef(
           minimal
           modifiers={POPOVER_MODFIER}
           onInteraction={handleOnInteraction}
+          portalContainer={props.portalContainer}
         >
           <StyledInputGroup
             autoFocus={props.autoFocus}

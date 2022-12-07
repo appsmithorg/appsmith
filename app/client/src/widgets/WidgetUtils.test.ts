@@ -581,7 +581,7 @@ describe("Auto Height Utils", () => {
     expect(result).toBeUndefined();
   });
 
-  it("should return 4 if widget has AUTO_HEIGHT", () => {
+  it("should return 20 if widget has AUTO_HEIGHT and props has 20", () => {
     const props = {
       ...DUMMY_WIDGET,
       dynamicHeight: "AUTO_HEIGHT",
@@ -589,7 +589,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMinAutoHeight(props);
-    expect(result).toBe(WidgetHeightLimits.MIN_HEIGHT_IN_ROWS);
+    expect(result).toBe(20);
   });
   it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
     const props = {

@@ -6,6 +6,7 @@ export const navigateToCanvas = (pageId: string, widgetId?: string) => {
   const canvasEditorURL = `${builderURL({
     pageId,
     hash: widgetId,
+    persistExistingParams: true,
   })}`;
   if (currentPath !== canvasEditorURL) {
     history.push(canvasEditorURL);

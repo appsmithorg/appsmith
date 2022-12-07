@@ -1,7 +1,7 @@
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import styled from "styled-components";
-import store, { useSelector } from "store";
+import store from "store";
 import { CanvasWidgetStructure } from "widgets/constants";
 import WidgetFactory from "utils/WidgetFactory";
 import React, { memo, useCallback, useEffect } from "react";
@@ -12,7 +12,7 @@ import CanvasMultiPointerArena, {
 import { throttle } from "lodash";
 import { RenderModes } from "constants/WidgetConstants";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { initPageLevelSocketConnection } from "actions/websocketActions";
 import { collabShareUserPointerEvent } from "actions/appCollabActions";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
@@ -94,11 +94,9 @@ const Canvas = memo((props: CanvasProps) => {
    * background for canvas
    */
   let backgroundForCanvas;
-  let renderMode = RenderModes.CANVAS;
 
   if (isPreviewMode) {
     backgroundForCanvas = "initial";
-    renderMode = RenderModes.PREVIEW;
   } else {
     backgroundForCanvas = selectedTheme.properties.colors.backgroundColor;
   }
@@ -125,7 +123,10 @@ const Canvas = memo((props: CanvasProps) => {
         }}
       >
         {props.widgetsStructure.widgetId &&
-          WidgetFactory.createWidget(props.widgetsStructure, renderMode)}
+          WidgetFactory.createWidget(
+            props.widgetsStructure,
+            RenderModes.CANVAS,
+          )}
         {isMultiplayerEnabledForUser && (
           <CanvasMultiPointerArena pageId={pageId} />
         )}

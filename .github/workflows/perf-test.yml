@@ -168,6 +168,18 @@ jobs:
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
+      - name: Load docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p ~/git-server/keys
+          mkdir -p ~/git-server/repos
+          docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+            
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
@@ -181,6 +193,10 @@ jobs:
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
           CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
           CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}

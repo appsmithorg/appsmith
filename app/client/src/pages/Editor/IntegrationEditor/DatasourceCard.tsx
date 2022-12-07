@@ -15,7 +15,6 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import {
   Button,
@@ -41,7 +40,11 @@ import {
   createMessage,
   CONFIRM_CONTEXT_DELETING,
 } from "@appsmith/constants/messages";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -197,6 +200,15 @@ function DatasourceCard(props: DatasourceCardProps) {
       action.config.datasource.id === datasource.id,
   ).length;
 
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
+
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const isDeletingDatasource = !!datasource.isDeleting;
@@ -221,18 +233,19 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasourceId: datasource.id,
           params: {
             from: "datasources",
+            viewMode: "false",
             ...getQueryParams(),
           },
         }),
       );
     } else {
-      dispatch(setDatsourceEditorMode({ id: datasource.id, viewMode: false }));
       history.push(
         datasourcesEditorIdURL({
           pageId,
           datasourceId: datasource.id,
           params: {
             from: "datasources",
+            viewMode: "false",
             ...getQueryParams(),
           },
         }),
@@ -314,6 +327,7 @@ function DatasourceCard(props: DatasourceCardProps) {
             {datasource.isConfigured && (
               <NewActionButton
                 datasource={datasource}
+                disabled={!canCreateDatasourceActions}
                 eventFrom="active-datasources"
                 plugin={plugin}
               />

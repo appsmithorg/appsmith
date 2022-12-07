@@ -12,6 +12,7 @@ import { DeployMode } from "../Pages/DeployModeHelper";
 import { GitSync } from "../Pages/GitSync";
 import { FakerHelper } from "../Pages/FakerHelper";
 import { DebuggerHelper } from "../Pages/DebuggerHelper";
+import { AppSettings } from "../Pages/AppSettings/AppSettings";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -124,6 +125,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.DebuggerHelper__ = new DebuggerHelper();
     }
     return ObjectsRegistry.DebuggerHelper__;
+  }
+
+  private static AppSettings__: AppSettings;
+  static get AppSettings(): AppSettings {
+    if (ObjectsRegistry.AppSettings__ === undefined) {
+      ObjectsRegistry.AppSettings__ = new AppSettings();
+    }
+    return ObjectsRegistry.AppSettings__;
   }
 }
 
