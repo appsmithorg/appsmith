@@ -5,7 +5,7 @@ import { uniqueId } from "lodash";
 import {
   BaseAclProps,
   UpdateRoleData,
-} from "@appsmith/pages/AdminSettings/acl/types";
+} from "@appsmith/pages/AdminSettings/AccessControl/types";
 
 export interface FetchAclUsersResponse extends ApiResponse {
   id: string;

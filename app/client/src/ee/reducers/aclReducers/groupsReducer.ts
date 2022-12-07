@@ -2,7 +2,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { GroupProps } from "@appsmith/pages/AdminSettings/acl/types";
+import { GroupProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 
 export const groupsReducers = {
   [ReduxActionTypes.FETCH_ACL_GROUPS]: (state: any) => ({

@@ -7,7 +7,7 @@ import {
   GroupProps,
   RoleProps,
   UserProps,
-} from "@appsmith/pages/AdminSettings/acl/types";
+} from "@appsmith/pages/AdminSettings/AccessControl/types";
 
 export const initialState: AclReduxState = {
   isLoading: false,
