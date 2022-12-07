@@ -134,10 +134,6 @@ export const StyledDropDown = styled(Dropdown)`
   .left-icon-wrapper {
     font-family: "Twemoji Country Flags";
   }
-
-  .t--dropdown-option > span:first-child {
-    font-family: "Twemoji Country Flags";
-  }
 `;
 
 export const StyledMenu = styled(Menu)`
