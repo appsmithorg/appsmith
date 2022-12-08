@@ -1160,7 +1160,7 @@ export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
   `Allowed formats for logo are svg, png and jpg`;
 export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
-  `Upload a .SVG .PNG or .JPG. of max 2MB`;
+  `Upload a .SVG .PNG or .JPG file of max 2MB`;
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
   `Favicon should be max 32px in width and 32px in height`;
 export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
