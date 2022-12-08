@@ -126,7 +126,7 @@ function* setFormEvaluationSagaAsync(
 }
 
 // Function to fetch the dynamic values one by one from the queue
-function* fetchDynamicValuesSaga(
+export function* fetchDynamicValuesSaga(
   queueOfValuesToBeFetched: Record<string, ConditionalOutput>,
   formId: string,
   datasourceId: string,

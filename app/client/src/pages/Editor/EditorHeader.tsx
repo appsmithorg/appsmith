@@ -37,9 +37,15 @@ import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import { Button, Icon, IconSize, Size, TooltipComponent } from "design-system";
+import {
+  Button,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Size,
+  TooltipComponent,
+} from "design-system";
 import { Profile } from "pages/common/ProfileImage";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -59,6 +65,7 @@ import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
+  DEPLOY_MENU_OPTION,
   INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
   LOCK_ENTITY_EXPLORER_MESSAGE,
@@ -93,7 +100,7 @@ const HeaderWrapper = styled.div`
   box-shadow: none;
   border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
   & .editable-application-name {
-    ${(props) => getTypographyByKey(props, "h4")}
+    ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
   }
   & ${Profile} {
@@ -147,7 +154,7 @@ const ProfileDropdownContainer = styled.div``;
 const StyledInviteButton = styled(Button)`
   margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
-  ${(props) => getTypographyByKey(props, "btnLarge")}
+  ${getTypographyByKey("btnLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
@@ -396,12 +403,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={deployLink}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               defaultValue={currentApplication?.name || ""}
-              deploy={() => handleClickDeploy(false)}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -485,7 +490,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   isLoading={isPublishing}
                   onClick={() => handleClickDeploy(true)}
                   size={Size.small}
-                  text={"Deploy"}
+                  text={DEPLOY_MENU_OPTION()}
                 />
               </TooltipComponent>
 

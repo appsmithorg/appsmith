@@ -13,7 +13,7 @@ describe("Entity explorer datasource structure", function() {
     //cy.ClearSearch();
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
-    cy.get("@createDatasource").then((httpResponse) => {
+    cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
   });

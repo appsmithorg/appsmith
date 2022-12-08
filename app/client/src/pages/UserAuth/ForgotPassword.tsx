@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { withRouter, RouteComponentProps, Link } from "react-router-dom";
 import {
   change,
   reduxForm,
@@ -103,12 +103,21 @@ export const ForgotPassword = withTheme(
             <FormMessage
               actions={[
                 {
-                  url: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
+                  linkElement: (
+                    <a
+                      href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      Configure Email service
+                    </a>
+                  ),
                   text: "Configure Email service",
                   intent: "primary",
                 },
               ]}
               intent="warning"
+              linkAs={Link}
               message={
                 "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
               }

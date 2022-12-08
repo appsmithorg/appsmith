@@ -32,7 +32,7 @@ import {
   createMessage,
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { getTypographyByKey } from "design-system";
 import { Colors } from "constants/Colors";
 import { onboardingCheckListUrl } from "RouteBuilder";
 
@@ -64,7 +64,7 @@ const Wrapper = styled.div<{ active: boolean }>`
 
 const TitleWrapper = styled.p`
   color: ${Colors.GREY_10};
-  ${(props) => getTypographyByKey(props, "p4")}
+  ${getTypographyByKey("p4")}
 `;
 
 const StatusText = styled.p`

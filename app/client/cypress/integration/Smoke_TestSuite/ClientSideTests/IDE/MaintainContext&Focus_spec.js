@@ -4,6 +4,9 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const dataSources = ObjectsRegistry.DataSources;
+const ee = ObjectsRegistry.EntityExplorer;
+const apiPage = ObjectsRegistry.ApiPage;
 
 describe("MaintainContext&Focus", function() {
   it("1. Import the test application", () => {
@@ -134,5 +137,47 @@ describe("MaintainContext&Focus", function() {
 
     cy.SearchEntityandOpen("JSObject2");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
+  });
+
+  it("7. Check if selected tab on right tab persists", () => {
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.SelectRightPaneTab("connections");
+    ee.SelectEntityByName("SQL_Query");
+    ee.SelectEntityByName("Rest_Api_1");
+    apiPage.AssertRightPaneSelectedTab("connections");
+  });
+
+  it("8. Datasource edit mode has to be maintained", () => {
+    ee.SelectEntityByName("Appsmith");
+    dataSources.EditDatasource();
+    dataSources.SaveDSFromDialog(false);
+    ee.SelectEntityByName("Github");
+    dataSources.AssertViewMode();
+    ee.SelectEntityByName("Appsmith");
+    dataSources.AssertEditMode();
+  });
+
+  it("9. Datasource collapse state has to be maintained", () => {
+    // Create datasource 1
+    dataSources.SaveDSFromDialog(false);
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    agHelper.RenameWithInPane("Postgres1", false);
+    // Expand section with index 1
+    dataSources.ExpandSection(1);
+    // Create and switch to datasource 2
+    dataSources.SaveDSFromDialog(true);
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("MongoDB");
+    agHelper.RenameWithInPane("Mongo1", false);
+    // Validate if section with index 1 is collapsed
+    dataSources.AssertSectionCollapseState(1, false);
+    // Switch back to datasource 1
+    dataSources.SaveDSFromDialog(false);
+    dataSources.CreateNewQueryInDS("Postgres1");
+    ee.SelectEntityByName("Postgres1");
+    dataSources.EditDatasource();
+    // Validate if section with index 1 is expanded
+    dataSources.AssertSectionCollapseState(1, false);
   });
 });

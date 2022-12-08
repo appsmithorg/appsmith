@@ -7,8 +7,14 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getTypographyByKey } from "constants/DefaultTheme";
-import { Button, Classes, Icon, IconSize, Variant } from "design-system";
+import {
+  Button,
+  Classes,
+  getTypographyByKey,
+  Icon,
+  IconSize,
+  Variant,
+} from "design-system";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
@@ -17,7 +23,7 @@ import { Colors } from "constants/Colors";
 import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const EVDebugButton = styled.button`
-  ${(props) => getTypographyByKey(props, "btnSmall")};
+  ${getTypographyByKey("btnSmall")};
   display: flex;
   padding: ${(props) => props.theme.spaces[1]}px;
   border: 1px solid
@@ -93,7 +99,7 @@ const StyledButton = styled(Button)`
     margin-top: 4px;
     text-transform: none;
     height: 26px;
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${getTypographyByKey("p2")}
     .${Classes.ICON} {
       margin-right: 5px;
     }

@@ -33,14 +33,15 @@ import {
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  previewModeSelector,
   snipingModeSelector,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import {
   isCurrentWidgetFocused,
@@ -111,8 +112,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       width: newDimensions.width - dimensions.width,
     };
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
-    let canResizeHorizontally = true,
-      canResizeVertically = true;
+    let canResizeVertically = true;
+    let canResizeHorizontally = true;
 
     // this is required for list widget so that template have no collision
     if (props.ignoreCollision)
@@ -136,7 +137,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     ) {
       canResizeVertically = false;
     }
-
     const resizedPositions = {
       id: props.widgetId,
       left: newRowCols.leftColumn,
@@ -144,6 +144,12 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottom: newRowCols.bottomRow,
       right: newRowCols.rightColumn,
     };
+
+    if (isAutoHeightEnabledForWidget(props)) {
+      canResizeVertically = false;
+      resizedPositions.top = props.topRow;
+      resizedPositions.bottom = props.bottomRow;
+    }
 
     // Check if new row cols are occupied by sibling widgets
     return {
@@ -246,7 +252,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode;
-
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const gridProps = {
@@ -269,12 +274,25 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
+  const snapGrid = useMemo(
+    () => ({
+      x: props.parentColumnSpace,
+      y: props.parentRowSpace,
+    }),
+    [props.parentColumnSpace, props.parentRowSpace],
+  );
+
+  const isVerticalResizeEnabled = useMemo(() => {
+    return !isAutoHeightEnabledForWidget(props) && isEnabled;
+  }, [props, isAutoHeightEnabledForWidget, isEnabled]);
+
   return (
     <Resizable
       allowResize={!isMultiSelected}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
-      enable={isEnabled}
+      enableHorizontalResize={isEnabled}
+      enableVerticalResize={isVerticalResizeEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
@@ -282,7 +300,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStop={updateSize}
       originalPositions={originalPositions}
       parentId={props.parentId}
-      snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
+      snapGrid={snapGrid}
       updateBottomRow={updateBottomRow}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
