@@ -1,17 +1,22 @@
 import DataTreeEvaluator from ".";
 import {
   asyncTagUnevalTree,
+  emptyTreeWithAppsmithObject,
   lintingUnEvalTree,
   unEvalTree,
 } from "./mockData/mockUnEvalTree";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { DataTreeDiff } from "workers/Evaluation/evaluationUtils";
+import {
+  DataTreeDiff,
+  DataTreeDiffEvent,
+} from "workers/Evaluation/evaluationUtils";
 import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
-// import { parseJSActions } from "workers/Evaluation/JSObject";
+import { parseJSActionsForUpdateTree } from "workers/Evaluation/JSObject";
 import { WidgetConfiguration } from "widgets/constants";
+import { JSUpdate, ParsedBody } from "../../../utils/JSPaneUtils";
 
 const widgetConfigMap: Record<
   string,
@@ -208,18 +213,32 @@ describe("DataTreeEvaluator", () => {
     });
   });
 
-  // describe("parseJsActions", () => {
-  //   beforeEach(() => {
-  //     dataTreeEvaluator.setupFirstTree(({} as unknown) as DataTree);
-  //     dataTreeEvaluator.evalAndValidateFirstTree();
-  //   });
-  //   it("set's isAsync tag for cross JsObject references", () => {
-  //     const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
-  //     const jsUpdates = result ? result.jsUpdates : {};
-  //     expect(jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync).toBe(true);
-  //     expect(jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync).toBe(true);
-  //   });
-  // });
+  describe("parseJsActions", () => {
+    beforeEach(() => {
+      dataTreeEvaluator.setupFirstTree(emptyTreeWithAppsmithObject);
+      dataTreeEvaluator.evalAndValidateFirstTree();
+    });
+    it("set's isAsync tag for cross JsObject references", () => {
+      const result = parseJSActionsForUpdateTree(
+        dataTreeEvaluator,
+        asyncTagUnevalTree,
+        [
+          {
+            event: DataTreeDiffEvent.EDIT,
+            payload: {
+              propertyPath: "JSObject1.body",
+              value:
+                "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: (data = 0) => {\n\t\t//write code here\n\t\tlet sum = 0;\n\t\tconsole.log(\"hello hi bye bye\");\n\t\tsum = 1 + 2 + data;\n\t\t// showAlert(`${sum}`);\n\t\tshowAlert('');\n\t\treturn sum;\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t\tawait Api1.run();\n\t}\n}",
+            },
+          },
+        ],
+      );
+      const jsUpdatesForJsObject1 = (result as Record<string, JSUpdate>)[
+        "JSObject1"
+      ].parsedBody as ParsedBody;
+      expect(jsUpdatesForJsObject1.actions[0].isAsync).toBe(true);
+    });
+  });
 
   describe("array accessor dependency handling", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);

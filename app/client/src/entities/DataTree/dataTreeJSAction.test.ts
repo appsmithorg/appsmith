@@ -158,11 +158,13 @@ describe("generateDataTreeJSAction", () => {
             arguments: [],
             isAsync: true,
             confirmBeforeExecute: false,
+            body: "async () => {\n\t\t//use async-await or promises\n\t}",
           },
           myFun1: {
             arguments: [],
             isAsync: false,
             confirmBeforeExecute: false,
+            body: "() => {\n\t\t//write code here\n\t}",
           },
         },
         bindingPaths: {
@@ -349,11 +351,13 @@ describe("generateDataTreeJSAction", () => {
             arguments: [],
             isAsync: true,
             confirmBeforeExecute: false,
+            body: "async () => {\n\t\t//use async-await or promises\n\t}",
           },
           myFun1: {
             arguments: [],
             isAsync: false,
             confirmBeforeExecute: false,
+            body: "() => {\n\t\t//write code here\n\t}",
           },
         },
         bindingPaths: {
