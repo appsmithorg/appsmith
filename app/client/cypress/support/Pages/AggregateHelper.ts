@@ -530,7 +530,12 @@ export class AggregateHelper {
     return cy.get(selector).invoke("val");
   }
 
-  public TypeText(selector: string, value: string, index = 0, parseSpecialCharSeq = false) {
+  public TypeText(
+    selector: string,
+    value: string,
+    index = 0,
+    parseSpecialCharSeq = false,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
@@ -571,9 +576,13 @@ export class AggregateHelper {
 
   public CheckUncheck(selector: string, check = true) {
     if (check) {
-      this.GetElement(selector).check({ force: true }).should("be.checked");
+      this.GetElement(selector)
+        .check({ force: true })
+        .should("be.checked");
     } else {
-      this.GetElement(selector).uncheck({ force: true }).should("not.be.checked");
+      this.GetElement(selector)
+        .uncheck({ force: true })
+        .should("not.be.checked");
     }
     this.Sleep();
   }
@@ -597,8 +606,16 @@ export class AggregateHelper {
     }
   }
 
-  public AssertAttribute(selector : string, attribName: string, attribValue: string){
-    return this.GetElement(selector).should("have.attr", attribName, attribValue);
+  public AssertAttribute(
+    selector: string,
+    attribName: string,
+    attribValue: string,
+  ) {
+    return this.GetElement(selector).should(
+      "have.attr",
+      attribName,
+      attribValue,
+    );
   }
 
   public ToggleSwitch(
@@ -944,6 +961,10 @@ export class AggregateHelper {
       return this.GetElement(selector, timeout)
         .contains(text)
         .should(exists);
+  }
+
+  public ValidateURL(url: string) {
+    cy.url().should("include", url);
   }
 
   public ScrollTo(

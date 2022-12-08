@@ -46,8 +46,8 @@ describe("Git Bugs", function() {
     agHelper
       .GetText(locator._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
-    cy.url().should("include", "branch=" + testName);
-    cy.url().should("include", "testQP=Yes");
+    agHelper.ValidateURL("branch=" + testName); //Validate we are still in Git branch
+    agHelper.ValidateURL("testQP=Yes");//Validate we also ve the Query Params from Page1
   });
 
   after(() => {
