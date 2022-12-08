@@ -104,7 +104,7 @@ export class AggregateHelper {
   public RenameWithInPane(renameVal: string, query = true) {
     const name = query ? this.locator._queryName : this.locator._dsName;
     const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
-    cy.get(name).click({ force: true });
+    this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
       .type(renameVal, { force: true })
