@@ -64,7 +64,7 @@ const StyledColorInputIcon = styled.input`
   border: red;
   z-index: 1;
   display: flex;
-  border: 1px solid #e0dede;
+  border: 1px solid var(--ads-text-input-text-box-default-border-color);
   border-radius: 100%;
   &::-webkit-color-swatch {
     border-radius: 15px;

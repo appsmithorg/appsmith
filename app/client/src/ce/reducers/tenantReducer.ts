@@ -13,11 +13,11 @@ export interface TenantReduxState {
 }
 
 export const defaultBrandingConfig = {
-  brandFaviconUrl: "/favicon-orange.ico",
+  brandFaviconUrl: "/static/img/favicon-orange.ico",
   brandColors: {
     ...createBrandColorsFromPrimaryColor("#F86A2B"),
   },
-  brandLogoUrl: "/appsmith-logo.svg",
+  brandLogoUrl: "/static/img/appsmith-logo.svg",
 };
 
 export const initialState: TenantReduxState = {

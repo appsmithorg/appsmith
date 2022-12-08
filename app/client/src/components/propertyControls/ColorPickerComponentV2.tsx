@@ -26,7 +26,7 @@ import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
-import { getTenantConfig } from "ce/selectors/tenantSelectors";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;

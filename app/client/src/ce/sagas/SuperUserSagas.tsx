@@ -62,7 +62,7 @@ export function* SaveAdminSettingsSaga(
     needsRestart: boolean;
   }>,
 ) {
-  const { needsRestart, settings } = action.payload;
+  const { needsRestart = true, settings } = action.payload;
 
   try {
     const response: ApiResponse = yield call(
@@ -80,17 +80,16 @@ export function* SaveAdminSettingsSaga(
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
       });
 
-      if (needsRestart) {
-        // if tenant settings are saved, we need to fetch the tenant settings again
-        yield put({
-          type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
-        });
-      } else {
-        yield put({
-          type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
-          payload: settings,
-        });
+      yield put({
+        type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
+      });
 
+      yield put({
+        type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,
+        payload: settings,
+      });
+
+      if (needsRestart) {
         yield put({
           type: ReduxActionTypes.RESTART_SERVER_POLL,
         });
