@@ -140,24 +140,39 @@ describe("MaintainContext&Focus", function() {
   });
 
   it("7. Check if selected tab on right tab persists", () => {
-    ee.SelectEntityByName("Rest_Api_1");
+    ee.SelectEntityByName("Rest_Api_1", "Queries/JS");
     apiPage.SelectRightPaneTab("connections");
     ee.SelectEntityByName("SQL_Query");
     ee.SelectEntityByName("Rest_Api_1");
     apiPage.AssertRightPaneSelectedTab("connections");
   });
 
-  it("8. Datasource edit mode has to be maintained", () => {
-    ee.SelectEntityByName("Appsmith");
+  it("8. Check if the URL is persisted while switching pages", () => {
+    cy.Createpage("Page2");
+
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Rest_Api_1", "Queries/JS");
+
+    ee.SelectEntityByName("Page2", "Pages");
+    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
+
+    ee.SelectEntityByName("Page1", "Pages");
+    cy.get(".t--nameOfApi .bp3-editable-text-content").should(
+      "contain",
+      "Rest_Api_1",
+    );
+  });
+  it("9. Datasource edit mode has to be maintained", () => {
+    ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.EditDatasource();
     dataSources.SaveDSFromDialog(false);
-    ee.SelectEntityByName("Github");
+    ee.SelectEntityByName("Github", "Datasources");
     dataSources.AssertViewMode();
-    ee.SelectEntityByName("Appsmith");
+    ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.AssertEditMode();
   });
 
-  it("9. Datasource collapse state has to be maintained", () => {
+  it("10. Datasource collapse state has to be maintained", () => {
     // Create datasource 1
     dataSources.SaveDSFromDialog(false);
     dataSources.NavigateToDSCreateNew();

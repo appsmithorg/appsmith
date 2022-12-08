@@ -13,11 +13,24 @@ import {
 import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
+  getAllEntityCollapsibleStates,
   getAllPropertySectionState,
+  getAllSubEntityCollapsibleStates,
+  getCodeEditorHistory,
+  getExplorerSwitchIndex,
+  getPropertyPanelState,
   getFocusableCodeEditorField,
   getSelectedCanvasDebuggerTab,
-  getSelectedPropertyTabIndex,
+  getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
+import {
+  setAllEntityCollapsibleStates,
+  setAllSubEntityCollapsibleStates,
+  setCodeEditorHistory,
+  setExplorerSwitchIndex,
+  setPanelPropertiesState,
+  setWidgetSelectedPropertyTabIndex,
+} from "actions/editorContextActions";
 import { setFocusableCodeEditorField } from "actions/editorContextActions";
 import {
   getAllDatasourceCollapsibleState,
@@ -48,10 +61,23 @@ import {
   setJsPaneResponsePaneHeight,
   setJsPaneResponseSelectedTab,
 } from "actions/jsPaneActions";
+import { getExplorerWidth } from "selectors/explorerSelector";
+import { updateExplorerWidthAction } from "actions/explorerActions";
+import {
+  DEFAULT_ENTITY_EXPLORER_WIDTH,
+  DEFAULT_PROPERTY_PANE_WIDTH,
+} from "constants/AppConstants";
+import {
+  getPropertyPaneWidth,
+  getSelectedPropertyPanel,
+} from "selectors/propertyPaneSelectors";
+import {
+  setPropertyPaneWidthAction,
+  setSelectedPropertyPanels,
+} from "actions/propertyPaneActions";
 import {
   setAllPropertySectionState,
   setFocusablePropertyPaneField,
-  setSelectedPropertyTabIndex,
 } from "actions/propertyPaneActions";
 import { setCanvasDebuggerSelectedTab } from "actions/debuggerActions";
 import {
@@ -65,6 +91,11 @@ export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
   ApiPaneResponseTabs = "ApiPaneResponseTabs",
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
+  CanvasDebuggerTabs = "CanvasDebuggerTabs",
+  CodeEditorHistory = "CodeEditorHistory",
+  EntityCollapsibleState = "EntityCollapsibleState",
+  EntityExplorerWidth = "EntityExplorerWidth",
+  ExplorerSwitchIndex = "ExplorerSwitchIndex",
   DatasourceViewMode = "DatasourceViewMode",
   DatasourceAccordions = "DatasourceAccordions",
   ApiRightPaneTabs = "ApiRightPaneTabs",
@@ -78,8 +109,11 @@ export enum FocusElement {
   PropertyField = "PropertyField",
   PropertySections = "PropertySections",
   PropertyTabs = "PropertyTabs",
+  PropertyPanelContext = "PropertyPanelContext",
+  PropertyPaneWidth = "PropertyPaneWidth",
+  SelectedPropertyPanel = "SelectedPropertyPanel",
   SelectedWidgets = "SelectedWidgets",
-  CanvasDebuggerTabs = "CanvasDebuggerTabs",
+  SubEntityCollapsibleState = "SubEntityCollapsibleState",
 }
 
 type Config = {
@@ -92,11 +126,55 @@ type Config = {
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.NONE]: [],
+  [FocusEntity.PAGE]: [
+    {
+      name: FocusElement.CodeEditorHistory,
+      selector: getCodeEditorHistory,
+      setter: setCodeEditorHistory,
+      defaultValue: {},
+    },
+    {
+      name: FocusElement.EntityExplorerWidth,
+      selector: getExplorerWidth,
+      setter: updateExplorerWidthAction,
+      defaultValue: DEFAULT_ENTITY_EXPLORER_WIDTH,
+    },
+    {
+      name: FocusElement.EntityCollapsibleState,
+      selector: getAllEntityCollapsibleStates,
+      setter: setAllEntityCollapsibleStates,
+      defaultValue: {},
+    },
+    {
+      name: FocusElement.SubEntityCollapsibleState,
+      selector: getAllSubEntityCollapsibleStates,
+      setter: setAllSubEntityCollapsibleStates,
+      defaultValue: {},
+    },
+    {
+      name: FocusElement.ExplorerSwitchIndex,
+      selector: getExplorerSwitchIndex,
+      setter: setExplorerSwitchIndex,
+      defaultValue: 0,
+    },
+    {
+      name: FocusElement.PropertyPanelContext,
+      selector: getPropertyPanelState,
+      setter: setPanelPropertiesState,
+      defaultValue: {},
+    },
+  ],
   [FocusEntity.CANVAS]: [
     {
       name: FocusElement.PropertySections,
       selector: getAllPropertySectionState,
       setter: setAllPropertySectionState,
+      defaultValue: {},
+    },
+    {
+      name: FocusElement.SelectedPropertyPanel,
+      selector: getSelectedPropertyPanel,
+      setter: setSelectedPropertyPanels,
       defaultValue: {},
     },
     {
@@ -110,6 +188,12 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getSelectedCanvasDebuggerTab,
       setter: setCanvasDebuggerSelectedTab,
       defaultValue: 0,
+    },
+    {
+      name: FocusElement.PropertyPaneWidth,
+      selector: getPropertyPaneWidth,
+      setter: setPropertyPaneWidthAction,
+      defaultValue: DEFAULT_PROPERTY_PANE_WIDTH,
     },
   ],
   [FocusEntity.DATASOURCE]: [
@@ -178,8 +262,8 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.PROPERTY_PANE]: [
     {
       name: FocusElement.PropertyTabs,
-      selector: getSelectedPropertyTabIndex,
-      setter: setSelectedPropertyTabIndex,
+      selector: getWidgetSelectedPropertyTabIndex,
+      setter: setWidgetSelectedPropertyTabIndex,
       defaultValue: 0,
     },
     {
