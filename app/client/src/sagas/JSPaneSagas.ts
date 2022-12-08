@@ -286,7 +286,9 @@ function* updateJSCollection(data: {
           );
           // delete all execution error logs for deletedActions if present
           deletedActions.forEach((action) =>
-            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
+            AppsmithConsole.deleteErrors([
+              { id: `${jsCollection.id}-${action.id}` },
+            ]),
           );
         }
 
@@ -399,22 +401,26 @@ export function* handleExecuteJSFunctionSaga(data: {
         variant: Variant.success,
       });
   } catch (error) {
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: createMessage(JS_EXECUTION_FAILURE),
-      source: {
-        type: ENTITY_TYPE.JSACTION,
-        name: collectionName + "." + action.name,
-        id: collectionId,
-      },
-      messages: [
-        {
-          message: (error as Error).message,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: createMessage(JS_EXECUTION_FAILURE),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collectionName + "." + action.name,
+            id: collectionId,
+          },
+          messages: [
+            {
+              message: (error as Error).message,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
     Toaster.show({
       text:
         (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),

@@ -130,4 +130,9 @@ export const rolesReducers = {
     iconLocations: [],
     isLoading: false,
   }),
+  [ReduxActionTypes.RESET_ROLES_DATA]: (state: any) => ({
+    ...state,
+    selectedRole: null,
+    roles: [],
+  }),
 };

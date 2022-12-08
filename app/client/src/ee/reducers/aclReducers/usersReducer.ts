@@ -107,4 +107,9 @@ export const userReducers = {
     },
     isLoading: false,
   }),
+  [ReduxActionTypes.RESET_USERS_DATA]: (state: any) => ({
+    ...state,
+    selectedUser: null,
+    users: [],
+  }),
 };

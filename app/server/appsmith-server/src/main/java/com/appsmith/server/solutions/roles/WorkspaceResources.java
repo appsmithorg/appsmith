@@ -17,6 +17,14 @@ import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.ActionCollectionResourceDTO;
@@ -27,14 +35,6 @@ import com.appsmith.server.solutions.roles.dtos.EntityView;
 import com.appsmith.server.solutions.roles.dtos.IdPermissionDTO;
 import com.appsmith.server.solutions.roles.dtos.PageResourcesDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
-import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.TenantService;
 import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -57,12 +57,13 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getPermissionViewableName;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateBaseViewDto;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
+import static com.appsmith.server.solutions.roles.HelperUtil.getLateralPermMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getRoleViewPermissionDTO;
+import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getPermissionViewableName;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -102,6 +103,10 @@ public class WorkspaceResources {
     public Mono<RoleTabDTO> createApplicationResourcesTabView(String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
 
         Flux<Workspace> workspaceFlux = dataFromRepositoryForAllTabs.getWorkspaceFlux();
+        Flux<Application> applicationFlux = dataFromRepositoryForAllTabs.getApplicationFlux();
+        Flux<NewPage> pageFlux = dataFromRepositoryForAllTabs.getPageFlux();
+        Flux<NewAction> actionFlux = dataFromRepositoryForAllTabs.getActionFlux();
+        Flux<ActionCollection> actionCollectionFlux = dataFromRepositoryForAllTabs.getActionCollectionFlux();
 
         Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono = dataFromRepositoryForAllTabs.getPageActionMapMono();
         Mono<Map<String, Collection<ActionResourceDTO>>> pageActionsMapMono = pageActionNotDtoMapMono
@@ -119,7 +124,10 @@ public class WorkspaceResources {
         Mono<Map<String, Collection<NewPage>>> applicationPagesMapMono = dataFromRepositoryForAllTabs.applicationPageMapMono;
 
         // Get the permission hover interaction hashmap
-        Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getLinkedPermissionsForApplicationResources(RoleTab.APPLICATION_RESOURCES, workspaceFlux, workspaceApplicationsMapMono, applicationPagesMapMono, pageActionsMapMono, pageActionCollectionMapMono);
+        Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getHoverPermissionMapForApplicationResources(RoleTab.APPLICATION_RESOURCES, workspaceFlux, workspaceApplicationsMapMono, applicationPagesMapMono, pageActionsMapMono, pageActionCollectionMapMono);
+
+        // Get the map for disabled edit interaction
+        Mono<Map<String, Set<IdPermissionDTO>>> disableMapForApplicationResourcesMono = getDisableMapForApplicationResources(RoleTab.APPLICATION_RESOURCES, workspaceFlux, applicationFlux, pageFlux, actionFlux, actionCollectionFlux);
 
         Mono<EntityView> entityViewMono = Mono.zip(workspaceApplicationsMapMono, applicationPagesMapMono, pageActionsMapMono, pageActionCollectionMapMono)
                 .flatMap(tuple -> {
@@ -138,14 +146,16 @@ public class WorkspaceResources {
                             });
                 });
 
-        return Mono.zip(entityViewMono, linkedPermissionsMono)
+        return Mono.zip(entityViewMono, linkedPermissionsMono, disableMapForApplicationResourcesMono)
                 .map(tuple -> {
                     EntityView entityView = tuple.getT1();
                     Map<String, Set<IdPermissionDTO>> linkedPermissions = tuple.getT2();
+                    Map<String, Set<IdPermissionDTO>> disableMap = tuple.getT3();
                     RoleTabDTO roleTabDTO = new RoleTabDTO();
                     roleTabDTO.setData(entityView);
                     roleTabDTO.setPermissions(RoleTab.APPLICATION_RESOURCES.getViewablePermissions());
                     roleTabDTO.setHoverMap(linkedPermissions);
+                    roleTabDTO.setDisableHelperMap(disableMap);
 
                     return roleTabDTO;
                 });
@@ -176,6 +186,12 @@ public class WorkspaceResources {
                 RoleTab.DATASOURCES_QUERIES, workspaceFlux, workspaceDatasourceNotDtoMapMono,
                 datasourceFlux, actionFlux, pageFlux, permissionGroupId);
 
+
+        // Get the map for disabled edit interaction
+        Mono<Map<String, Set<IdPermissionDTO>>> disableMapForDatasourceResourcesMono = getDisableMapsForDatasourceResources(
+                RoleTab.DATASOURCES_QUERIES, workspaceFlux, datasourceFlux);
+
+
         Mono<EntityView> entityViewMono = Mono.zip(workspaceDatasourcesDtoMap, workspaceApplicationMapMono, applicationPageMapMono, pageActionsMapMono, pageActionCollectionMapMono)
                 .flatMapMany(tuple -> {
                     Map<String, Collection<DatasourceResourceDTO>> workspaceDatasources = tuple.getT1();
@@ -194,14 +210,16 @@ public class WorkspaceResources {
                     return entityView;
                 });
 
-        return Mono.zip(entityViewMono, linkedPermissionsMono)
+        return Mono.zip(entityViewMono, linkedPermissionsMono, disableMapForDatasourceResourcesMono)
                 .map(tuple -> {
                     EntityView entityView = tuple.getT1();
                     Map<String, Set<IdPermissionDTO>> linkedPermissions = tuple.getT2();
+                    Map<String, Set<IdPermissionDTO>> disableHelper = tuple.getT3();
                     RoleTabDTO roleTabDTO = new RoleTabDTO();
                     roleTabDTO.setData(entityView);
                     roleTabDTO.setPermissions(RoleTab.DATASOURCES_QUERIES.getViewablePermissions());
                     roleTabDTO.setHoverMap(linkedPermissions);
+                    roleTabDTO.setDisableHelperMap(disableHelper);
 
                     return roleTabDTO;
                 });
@@ -262,7 +280,6 @@ public class WorkspaceResources {
 
                 });
     }
-
 
 
     private Map<String, Collection<DatasourceResourceDTO>> getWorkspaceDatasourceMap(Map<String, Collection<Datasource>> workspaceDatasourceNotDtoMap, RoleTab roleTab, String permissionGroupId) {
@@ -340,7 +357,6 @@ public class WorkspaceResources {
         });
         return pageActionsMap;
     }
-
 
 
     private Flux<BaseView> getWorkspaceDTOsForApplicationResources(String permissionGroupId,
@@ -467,12 +483,89 @@ public class WorkspaceResources {
                 .collectList();
     }
 
-    private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForApplicationResources(RoleTab roleTab,
-                                                                                               Flux<Workspace> workspaceFlux,
-                                                                                               Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono,
-                                                                                               Mono<Map<String, Collection<NewPage>>> applicationPageMapMono,
-                                                                                               Mono<Map<String, Collection<ActionResourceDTO>>> pageActionMapMono,
-                                                                                               Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono) {
+    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapForApplicationResources(RoleTab roleTab,
+                                                                                         Flux<Workspace> workspaceFlux,
+                                                                                         Flux<Application> applicationFlux,
+                                                                                         Flux<NewPage> pageFlux,
+                                                                                         Flux<NewAction> actionFlux,
+                                                                                         Flux<ActionCollection> actionCollectionFlux) {
+        Set<AclPermission> tabPermissions = roleTab.getPermissions();
+
+        Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> workspaceLateralMap = getLateralPermMap(workspacePermissions, policyGenerator, roleTab);
+
+        Set<AclPermission> applicationPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Application.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> applicationLateralMap = getLateralPermMap(applicationPermissions, policyGenerator, roleTab);
+
+        Set<AclPermission> pagePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Page.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> pageLateralMap = getLateralPermMap(pagePermissions, policyGenerator, roleTab);
+
+        Set<AclPermission> actionPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Action.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> actionLateralMap = getLateralPermMap(actionPermissions, policyGenerator, roleTab);
+
+        ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap = new ConcurrentHashMap<>();
+
+        Mono<Void> updateWorkspaceDisableMapMono = workspaceFlux
+                .map(workspace -> {
+                    String workspaceId = workspace.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(workspaceLateralMap, disableMap, workspaceId, workspaceId, Workspace.class);
+                    return workspaceId;
+                })
+                .then();
+
+        Mono<Void> updateApplicationDisableMapMono = applicationFlux
+                .map(application -> {
+                    String applicationId = application.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(applicationLateralMap, disableMap, applicationId, applicationId, Application.class);
+                    return applicationId;
+                })
+                .then();
+
+        Mono<Void> updatePageDisableMapMono = pageFlux
+                .map(page -> {
+                    String pageId = page.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(pageLateralMap, disableMap, pageId, pageId, Page.class);
+                    return pageId;
+                })
+                .then();
+
+        Mono<Void> updateActionDisableMapMono = actionFlux
+                .map(action -> {
+                    String actionId = action.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(actionLateralMap, disableMap, actionId, actionId, Action.class);
+                    return actionId;
+                })
+                .then();
+
+        Mono<Void> updateActionCollectionDisableMapMono = actionCollectionFlux
+                .map(actionCollection -> {
+                    String actionCollectionId = actionCollection.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(actionLateralMap, disableMap, actionCollectionId, actionCollectionId, Action.class);
+                    return actionCollectionId;
+                })
+                .then();
+
+        return Mono.when(
+                        updateWorkspaceDisableMapMono,
+                        updateApplicationDisableMapMono,
+                        updatePageDisableMapMono,
+                        updateActionDisableMapMono,
+                        updateActionCollectionDisableMapMono
+                )
+                .then(Mono.just(disableMap))
+                .map(disableMap1 -> {
+                    disableMap1.values().removeIf(Set::isEmpty);
+                    return disableMap1;
+                });
+
+    }
+
+    private Mono<Map<String, Set<IdPermissionDTO>>> getHoverPermissionMapForApplicationResources(RoleTab roleTab,
+                                                                                                 Flux<Workspace> workspaceFlux,
+                                                                                                 Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono,
+                                                                                                 Mono<Map<String, Collection<NewPage>>> applicationPageMapMono,
+                                                                                                 Mono<Map<String, Collection<ActionResourceDTO>>> pageActionMapMono,
+                                                                                                 Mono<Map<String, Collection<ActionCollectionResourceDTO>>> pageActionCollectionMapMono) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
@@ -566,13 +659,55 @@ public class WorkspaceResources {
 
     }
 
+    private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapsForDatasourceResources(RoleTab roleTab,
+                                                                                         Flux<Workspace> workspaceFlux,
+                                                                                         Flux<Datasource> datasourceFlux) {
+
+        Set<AclPermission> tabPermissions = roleTab.getPermissions();
+
+        Set<AclPermission> workspacePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Workspace.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> workspaceLateralMap = getLateralPermMap(workspacePermissions, policyGenerator, roleTab);
+
+        Set<AclPermission> datasourcePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Datasource.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> datasourceLateralMap = getLateralPermMap(datasourcePermissions, policyGenerator, roleTab);
+
+        ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap = new ConcurrentHashMap<>();
+
+        Mono<Void> updateWorkspaceDisableMapMono = workspaceFlux
+                .map(workspace -> {
+                    String workspaceId = workspace.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(workspaceLateralMap, disableMap, workspaceId, workspaceId, Workspace.class);
+                    return workspaceId;
+                })
+                .then();
+
+        Mono<Void> updateDatasourceDisableMapMono = datasourceFlux
+                .map(datasource -> {
+                    String datasourceId = datasource.getId();
+                    generateLateralPermissionDTOsAndUpdateMap(datasourceLateralMap, disableMap, datasourceId, datasourceId, Datasource.class);
+                    return datasourceId;
+                })
+                .then();
+
+        return Mono.when(
+                        updateWorkspaceDisableMapMono,
+                        updateDatasourceDisableMapMono
+                )
+                .then(Mono.just(disableMap))
+                .map(disableMap1 -> {
+                    disableMap1.values().removeIf(Set::isEmpty);
+                    return disableMap1;
+                });
+
+    }
+
     private Mono<Map<String, Set<IdPermissionDTO>>> getLinkedPermissionsForDatasourceResources(RoleTab roleTab,
-                                                                                              Flux<Workspace> workspaceFlux,
-                                                                                              Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono,
-                                                                                              Flux<Datasource> datasourceFlux,
-                                                                                              Flux<NewAction> actionFlux,
-                                                                                              Flux<NewPage> pageFlux,
-                                                                                              String permissionGroupId) {
+                                                                                               Flux<Workspace> workspaceFlux,
+                                                                                               Mono<Map<String, Collection<Datasource>>> workspaceDatasourceMapMono,
+                                                                                               Flux<Datasource> datasourceFlux,
+                                                                                               Flux<NewAction> actionFlux,
+                                                                                               Flux<NewPage> pageFlux,
+                                                                                               String permissionGroupId) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
@@ -778,14 +913,14 @@ public class WorkspaceResources {
                     for (EntityView child : children) {
                         List<? extends BaseView> childEntities = child.getEntities();
                         List<? extends BaseView> newChildEntities = childEntities.stream()
-                                .filter(childEntity -> ! childEntity.getChildren().isEmpty()).collect(Collectors.toList());
+                                .filter(childEntity -> !childEntity.getChildren().isEmpty()).collect(Collectors.toList());
                         child.setEntities(newChildEntities);
                     }
-                    Set<EntityView> newChildren = children.stream().filter(child -> ! child.getEntities().isEmpty()).collect(Collectors.toSet());
+                    Set<EntityView> newChildren = children.stream().filter(child -> !child.getEntities().isEmpty()).collect(Collectors.toSet());
                     applicationDTOEntity.setChildren(newChildren);
                     return applicationDTOEntity;
                 })
-                .filter(applicationDTOEntity -> ! applicationDTOEntity.getChildren().isEmpty());
+                .filter(applicationDTOEntity -> !applicationDTOEntity.getChildren().isEmpty());
     }
 
 

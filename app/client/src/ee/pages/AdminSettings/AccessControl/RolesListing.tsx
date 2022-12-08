@@ -93,6 +93,12 @@ export function RolesListing() {
     }
   }, [selectedRoleId]);
 
+  useEffect(() => {
+    return () => {
+      dispatch({ type: ReduxActionTypes.RESET_ROLES_DATA });
+    };
+  }, []);
+
   const columns = [
     {
       Header: `Roles (${data.length})`,
