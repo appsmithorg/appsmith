@@ -2,7 +2,7 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import { createGlobalData } from "workers/Evaluation/evaluate";
 import uniqueId from "lodash/uniqueId";
-import { MessageType } from "utils/MessageUtil";
+import { TMessageType } from "utils/MessageUtil";
 jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
@@ -42,7 +42,7 @@ describe("Add functions", () => {
 
   const messageCreator = (type: string, body: unknown) => ({
     messageId: expect.stringContaining(type),
-    messageType: MessageType.REQUEST,
+    messageType: TMessageType.REQUEST,
     body,
   });
 

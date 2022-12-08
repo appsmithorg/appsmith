@@ -4,7 +4,7 @@ import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
-import { sendMessage, MessageType } from "utils/MessageUtil";
+import { sendMessage, TMessageType } from "utils/MessageUtil";
 import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
 
 class UserLog {
@@ -29,7 +29,7 @@ class UserLog {
       const logs = this.flushLogs();
       sendMessage.call(self, {
         messageId: "",
-        messageType: MessageType.REQUEST,
+        messageType: TMessageType.REQUEST,
         body: {
           data: {
             logs,

@@ -2,7 +2,7 @@ import { cancelled, delay, put, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import { uniqueId } from "lodash";
 import log from "loglevel";
-import { Message, MessageType, sendMessage } from "./MessageUtil";
+import { TMessage, TMessageType, sendMessage } from "./MessageUtil";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -50,7 +50,7 @@ export class GracefulWorkerService {
 
   private readonly _workerClass: Worker;
 
-  private listenerChannel: Channel<Message<any>>;
+  private listenerChannel: Channel<TMessage<any>>;
 
   constructor(workerClass: Worker) {
     this.shutdown = this.shutdown.bind(this);
@@ -117,7 +117,7 @@ export class GracefulWorkerService {
     if (!messageId) return;
     yield this.ready(true);
     if (!this._Worker) return;
-    const messageType = MessageType.RESPONSE;
+    const messageType = TMessageType.RESPONSE;
     sendMessage.call(this._Worker, {
       body: {
         data,
@@ -152,7 +152,7 @@ export class GracefulWorkerService {
 
     try {
       sendMessage.call(this._Worker, {
-        messageType: MessageType.REQUEST,
+        messageType: TMessageType.REQUEST,
         body: {
           method,
           data,
@@ -187,10 +187,10 @@ export class GracefulWorkerService {
     }
   }
 
-  private _broker(event: MessageEvent<Message<any>>) {
+  private _broker(event: MessageEvent<TMessage<any>>) {
     if (!event || !event.data) return;
     const { body, messageId, messageType } = event.data;
-    if (messageType === MessageType.REQUEST) {
+    if (messageType === TMessageType.REQUEST) {
       this.listenerChannel.put(event.data);
     } else {
       if (!messageId) return;

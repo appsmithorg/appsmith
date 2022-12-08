@@ -1,12 +1,12 @@
-export enum MessageType {
+export enum TMessageType {
   REQUEST = "REQUEST",
   RESPONSE = "RESPONSE",
 }
 
-export type Message<T> = {
-  body: T;
+export type TMessage<TBody> = {
+  body: TBody;
   messageId: string;
-  messageType: MessageType;
+  messageType: TMessageType;
 };
 
 /** Avoid from using postMessage directly.
@@ -15,7 +15,7 @@ export type Message<T> = {
  */
 export function sendMessage(
   this: Worker | typeof globalThis,
-  message: Message<unknown>,
+  message: TMessage<unknown>,
   options?: WindowPostMessageOptions,
 ) {
   this.postMessage(message, options);

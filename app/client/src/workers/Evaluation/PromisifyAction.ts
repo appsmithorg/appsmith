@@ -12,7 +12,7 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
-import { Message, sendMessage, MessageType } from "utils/MessageUtil";
+import { TMessage, sendMessage, TMessageType } from "utils/MessageUtil";
 
 export const promisifyAction = (
   actionDescription: ActionDescription,
@@ -37,19 +37,19 @@ export const promisifyAction = (
     };
     sendMessage.call(ctx, {
       messageId,
-      messageType: MessageType.REQUEST,
+      messageType: TMessageType.REQUEST,
       body: {
         method: "PROCESS_TRIGGER",
         data,
       },
     });
-    const processResponse = function(event: MessageEvent<Message<any>>) {
+    const processResponse = function(event: MessageEvent<TMessage<any>>) {
       const { body, messageId: resMessageId, messageType } = event.data;
       const { data: messageData } = body;
       const { data, eventType, success } = messageData;
       // This listener will get all the messages that come to the worker
       // we need to find the correct one pertaining to this promise
-      if (resMessageId === messageId && messageType === MessageType.RESPONSE) {
+      if (resMessageId === messageId && messageType === TMessageType.RESPONSE) {
         // If we get a response for this same promise we will resolve or reject it
         // We could not find a data tree evaluator,
         // maybe the page changed, or we have a cyclical dependency

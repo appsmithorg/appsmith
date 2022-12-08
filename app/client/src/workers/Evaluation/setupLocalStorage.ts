@@ -1,5 +1,5 @@
 import { get, set } from "lodash";
-import { MessageType, sendMessage } from "utils/MessageUtil";
+import { TMessageType, sendMessage } from "utils/MessageUtil";
 import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
 import { DATA_TREE_FUNCTIONS } from "./Actions";
 
@@ -16,7 +16,7 @@ export default function setupLocalStorage() {
       const payload = DATA_TREE_FUNCTIONS.storeValue(key, value);
       sendMessage.call(self, {
         messageId: "",
-        messageType: MessageType.REQUEST,
+        messageType: TMessageType.REQUEST,
         body: {
           data: {
             trigger: payload,
