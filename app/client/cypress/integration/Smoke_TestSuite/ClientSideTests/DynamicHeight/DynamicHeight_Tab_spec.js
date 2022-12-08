@@ -2,8 +2,7 @@ const dsl = require("../../../../fixtures/dynamicTabWidgetdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 
-
-describe("Dynamic Height Width validation for Tab widget", function () {
+describe("Dynamic Height Width validation for Tab widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -30,7 +29,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
           });
       });
   }
-  it("Tab widget validation of height with dynamic height feature with publish mode", function () {
+  it("Tab widget validation of height with dynamic height feature with publish mode", function() {
     //changing the Text Name and verifying
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
@@ -41,7 +40,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     validateHeight();
     cy.get(publish.backToEditor).click();
     cy.get(".t--switch-preview-mode-toggle").should("be.visible");
-    cy.get(".t--switch-preview-mode-toggle").click({force: true});
+    cy.get(".t--switch-preview-mode-toggle").click({ force: true });
     cy.wait(5000);
     cy.get(".t--tabid-tab1").click({ force: true });
     cy.wait(3000);
@@ -59,9 +58,9 @@ describe("Dynamic Height Width validation for Tab widget", function () {
       });
   });
 
-  it("Tab widget validation of height with preview mode", function () {
+  it("Tab widget validation of height with preview mode", function() {
     cy.get(".t--switch-comment-mode-off").should("be.visible");
-    cy.get(".t--switch-comment-mode-off").click({force: true});    
+    cy.get(".t--switch-comment-mode-off").click({ force: true });
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
     cy.changeLayoutHeight(commonlocators.fixed);
@@ -94,7 +93,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
       });
   });
 
-  it("Tab widget validation of height with reload", function () {
+  it("Tab widget validation of height with reload", function() {
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
     cy.get(commonlocators.generalSectionHeight).should("be.visible");

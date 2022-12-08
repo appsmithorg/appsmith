@@ -134,7 +134,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
 
             <ButtonWrapper>
               <Button
-                category={Category.tertiary}
+                category={Category.secondary}
                 disabled={forkingApplication}
                 onClick={() => setModalClose && setModalClose(false)}
                 size={Size.large}

@@ -13,13 +13,11 @@ import {
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
 import { CalloutV2, CalloutType } from "design-system";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { Colors } from "constants/Colors";
 import { Button, Category, Icon, TooltipComponent } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const { intercomAppID } = getAppsmithConfigs();
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -126,17 +124,18 @@ const Label = styled.span<{ enterprise?: boolean }>`
   font-size: 12px;
 `;
 
+export function Upgrade(message: string, method: string) {
+  const { onUpgrade } = useOnUpgrade({
+    logEventName: "ADMIN_SETTINGS_UPGRADE_AUTH_METHOD",
+    logEventData: { method },
+    intercomMessage: message,
+  });
+
+  return onUpgrade();
+}
+
 export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const history = useHistory();
-
-  const triggerIntercom = (authLabel: string) => {
-    if (intercomAppID && window.Intercom) {
-      window.Intercom(
-        "showNewMessage",
-        createMessage(UPGRADE_TO_EE, authLabel),
-      );
-    }
-  };
 
   const onClickHandler = (method: AuthMethodType) => {
     if (!method.needsUpgrade || method.isConnected) {
@@ -155,10 +154,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         }),
       );
     } else {
-      AnalyticsUtil.logEvent("ADMIN_SETTINGS_UPGRADE_AUTH_METHOD", {
-        method: method.label,
-      });
-      triggerIntercom(method.label);
+      Upgrade(createMessage(UPGRADE_TO_EE, method.label), method.label);
     }
   };
 

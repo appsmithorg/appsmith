@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { WidgetProps } from "widgets/BaseWidget";
 import { PanelConfig } from "constants/PropertyControlConstants";
@@ -14,6 +14,7 @@ import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
+import { unsetSelectedPropertyPanel } from "actions/propertyPaneActions";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
@@ -21,6 +22,11 @@ const PanelWrapper = styled.div`
 `;
 
 function PanelHeader(props: PanelHeaderProps) {
+  const dispatch = useDispatch();
+  const onBackClick = () => {
+    dispatch(unsetSelectedPropertyPanel(props.parentPropertyPath));
+    props.closePanel();
+  };
   return (
     <div
       onClick={(e: any) => {
@@ -30,7 +36,7 @@ function PanelHeader(props: PanelHeaderProps) {
       <PropertyPaneTitle
         actions={[]}
         isPanelTitle
-        onBackClick={props.closePanel}
+        onBackClick={onBackClick}
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}
       />
@@ -119,10 +125,10 @@ export function PanelPropertiesEditor(
   );
 
   useEffect(() => {
-    if (panelProps.propPaneId !== widgetProperties.widgetId) {
+    if (panelProps.propPaneId !== widgetProperties?.widgetId) {
       props.closePanel();
     }
-  }, [widgetProperties.widgetId]);
+  }, [widgetProperties?.widgetId]);
 
   const { searchText, setSearchText } = useSearchText("");
 
@@ -155,11 +161,20 @@ export function PanelPropertiesEditor(
     }
   };
 
+  const parentPropertyPath = `${
+    widgetProperties ? `${widgetProperties.widgetName}.` : ""
+  }${panelParentPropertyPath}`;
+
+  const panelPropertyPath = `${parentPropertyPath}.${
+    panelProps[panelConfig.titlePropertyName]
+  }`;
+
   return (
     <div className="w-full overflow-y-auto">
       <PanelHeader
         closePanel={closePanel}
         isEditable={panelConfig.editableTitle}
+        parentPropertyPath={parentPropertyPath}
         propertyName={panelConfig.titlePropertyName}
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
@@ -184,6 +199,7 @@ export function PanelPropertiesEditor(
                     config={panelConfigsWithStyleAndContent.content}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    panelPropertyPath={panelPropertyPath}
                     searchQuery={searchText}
                     theme={theme}
                     type={widgetProperties.type}
@@ -192,6 +208,7 @@ export function PanelPropertiesEditor(
               ) : null
             }
             isPanelProperty
+            panelPropertyPath={panelPropertyPath}
             styleComponent={
               panelConfigsWithStyleAndContent.style ? (
                 <PanelWrapper>
@@ -199,6 +216,7 @@ export function PanelPropertiesEditor(
                     config={panelConfigsWithStyleAndContent.style}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    panelPropertyPath={panelPropertyPath}
                     searchQuery={searchText}
                     theme={theme}
                     type={widgetProperties.type}
@@ -215,6 +233,7 @@ export function PanelPropertiesEditor(
               config={panelConfigs}
               id={widgetProperties.widgetId}
               panel={panel}
+              panelPropertyPath={panelPropertyPath}
               searchQuery={searchText}
               theme={theme}
               type={widgetProperties.type}
@@ -240,6 +259,7 @@ interface PanelPropertiesEditorPanelProps {
 interface PanelHeaderProps {
   isEditable: boolean;
   widgetProperties?: WidgetProps;
+  parentPropertyPath: string;
   title: string;
   closePanel: () => void;
   propertyName: string;

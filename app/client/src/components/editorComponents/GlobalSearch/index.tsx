@@ -300,7 +300,12 @@ function GlobalSearch() {
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
-      return filterCategoryList.filter((cat: SearchCategory) => !isMenu(cat));
+      const shouldRemoveActionCreation = !filteredFileOperations.length;
+      return filterCategoryList.filter(
+        (cat: SearchCategory) =>
+          !isMenu(cat) &&
+          (isActionOperation(cat) ? !shouldRemoveActionCreation : true),
+      );
     }
     if (isActionOperation(category)) {
       return filteredFileOperations;

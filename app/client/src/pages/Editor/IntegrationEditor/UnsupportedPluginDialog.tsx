@@ -155,7 +155,7 @@ function UnsupportedPluginDialog(props: Props) {
 
       <ActionButtonWrapper>
         <ActionButton
-          category={Category.tertiary}
+          category={Category.secondary}
           onClick={() => {
             AnalyticsUtil.logEvent("UNSUPPORTED_PLUGIN_DIALOG_BACK_ACTION");
             handleClose();
