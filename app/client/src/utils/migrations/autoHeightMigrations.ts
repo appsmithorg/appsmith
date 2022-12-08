@@ -72,14 +72,16 @@ export function migrateListWidgetChildrenForAutoHeight(
   if (isChildOfListWidget && !currentDSL.detachFromLayout) {
     newDSL = {
       ...currentDSL,
-      children,
       dynamicHeight: "FIXED",
     };
   } else {
     newDSL = {
       ...currentDSL,
-      children,
     };
+  }
+
+  if (children) {
+    newDSL.children = children;
   }
 
   return newDSL;
