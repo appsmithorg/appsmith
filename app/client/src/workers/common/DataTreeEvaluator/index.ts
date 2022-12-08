@@ -146,6 +146,9 @@ export default class DataTreeEvaluator {
   sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: DependencyMap = {};
 
+  /**
+   * Sanitized eval values and errors
+   */
   evalValuesAndError: EvalValuesAndErrors = {};
   public hasCyclicalDependency = false;
   constructor(
@@ -776,12 +779,12 @@ export default class DataTreeEvaluator {
                 );
               }
             }
-            const safeEvaluatedValue = removeFunctions(evalPropertyValue);
+
             if (!propertyPath) return currentTree;
             set(
               this.evalValuesAndError,
               getEvalValuePath(fullPropertyPath),
-              safeEvaluatedValue,
+              removeFunctions(evalPropertyValue),
             );
             set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
@@ -802,7 +805,7 @@ export default class DataTreeEvaluator {
                     isPopulated: true,
                     fullPath: true,
                   }),
-                  evalPropertyValue,
+                  removeFunctions(evalPropertyValue),
                 );
                 set(currentTree, fullPropertyPath, evalPropertyValue);
               } else {

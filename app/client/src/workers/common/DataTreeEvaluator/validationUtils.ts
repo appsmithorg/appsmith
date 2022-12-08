@@ -76,15 +76,13 @@ export function validateAndParseWidgetProperty({
       dataTree: currentTree,
     });
   }
-  // set evaluated value
-  const safeEvaluatedValue = removeFunctions(evaluatedValue);
   set(
     evalValuesAndError,
     getEvalValuePath(fullPropertyPath, {
       isPopulated: false,
       fullPath: true,
     }),
-    safeEvaluatedValue,
+    removeFunctions(evaluatedValue),
   );
 
   return parsed;
@@ -145,14 +143,13 @@ export function getValidatedTree(
           : isUndefined(transformed)
           ? value
           : transformed;
-        const safeEvaluatedValue = removeFunctions(evaluatedValue);
         set(
           evalValuesAndError,
           getEvalValuePath(`${entityKey}.${property}`, {
             isPopulated: false,
             fullPath: true,
           }),
-          safeEvaluatedValue,
+          removeFunctions(evaluatedValue),
         );
         if (!isValid) {
           const evalErrors: EvaluationError[] =
@@ -160,7 +157,7 @@ export function getValidatedTree(
               errorType: PropertyEvaluationErrorType.VALIDATION,
               errorMessage: message,
               severity: Severity.ERROR,
-              raw: value,
+              raw: removeFunctions(value),
             })) ?? [];
           addErrorToEntityProperty({
             errors: evalErrors,
