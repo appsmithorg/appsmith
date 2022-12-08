@@ -7,8 +7,8 @@ const appSettings = ObjectsRegistry.AppSettings,
 
 describe("General Settings", () => {
   it("App name change updates URL", () => {
-    appSettings.openPaneFromCta();
-    appSettings.goToGeneralSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToGeneralSettings();
     appSettings.general.changeAppNameAndVerifyUrl(true, "myapp");
     homePage.GetAppName().then((appName) => {
       deployMode.DeployApp();
@@ -18,8 +18,8 @@ describe("General Settings", () => {
   });
 
   it("Handles app icon change", () => {
-    appSettings.openPaneFromCta();
-    appSettings.goToGeneralSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToGeneralSettings();
     appSettings.general.changeAppIcon();
   });
 });

@@ -14,7 +14,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.editColumn("id");
     cy.get(widgetsPage.tableBtn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    cy.changeColumnType("Button", false);
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     // Selecting button action to show message
@@ -85,7 +85,7 @@ describe("Table Widget property pane feature validation", function() {
       .children()
       .contains("Plain Text")
       .click();
-    cy.changeColumnType("Button"); */
+    cy.changeColumnType("Button", false); */
     const color1 = "rgb(255, 0, 0)";
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
@@ -128,7 +128,7 @@ describe("Table Widget property pane feature validation", function() {
     //Open New Custom Column
     cy.editColumn("customColumn1");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon Button");
+    cy.changeColumnType("Icon Button", false);
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -167,7 +167,7 @@ describe("Table Widget property pane feature validation", function() {
     //Open New Custom Column
     cy.editColumn("customColumn1");
     // Change Column type to icon Button
-    cy.changeColumnType("Menu Button");
+    cy.changeColumnType("Menu Button", false);
     //Changing the text on the Menu Button
     cy.testJsontext("label", "Menu button");
     // Select Icon from Icon Control
@@ -205,15 +205,18 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color2);
 
     // Add a Menu item 1
-    cy.get(".t--add-menu-item-btn").click({
-      force: true,
-    });
+    cy.get(".t--add-menu-item-btn")
+      .click({
+        force: true,
+      })
+      .wait(500);
     // Edit a Menu item
     cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
       .first()
       .click({
         force: true,
       });
+    cy.wait(1000);
     // update menu item background color
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .type("#03b365", {
