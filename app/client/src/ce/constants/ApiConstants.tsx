@@ -37,4 +37,12 @@ export const getExportAppAPIRoute = (applicationId: string) =>
 
 export enum POST_MESSAGE_TYPE {
   TOKEN = "TOKEN",
+  SNACKBAR = "SNACKBAR",
+}
+
+export const enum Severity {
+  SUCCESS = "success",
+  INFO = "info",
+  WARNING = "warning",
+  ERROR = "error",
 }
