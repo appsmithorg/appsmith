@@ -129,10 +129,10 @@ export const editorContextReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_FOCUSABLE_FORM_CONTROL_FIELD]: (
     state: EditorContextState,
     action: {
-      payload: { path: string };
+      payload: { key: string };
     },
   ) => {
-    state.focusableFormControl = action.payload.path;
+    state.focusableFormControl = action.payload.key;
   },
   [ReduxActionTypes.SET_PANEL_SELECTED_PROPERTY_TAB_INDEX]: (
     state: EditorContextState,
