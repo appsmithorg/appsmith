@@ -8,7 +8,7 @@ import {
   LintTreeRequest,
 } from "./types";
 import { getlintErrorsFromTree } from "./utils";
-import { TMessage, TMessageType, sendMessage } from "utils/MessageUtil";
+import { TMessage, MessageType, sendMessage } from "utils/MessageUtil";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
   return (event: MessageEvent<TMessage<LintWorkerRequest>>) => {
@@ -25,7 +25,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
     try {
       sendMessage.call(self, {
         messageId,
-        messageType: TMessageType.RESPONSE,
+        messageType: MessageType.RESPONSE,
         body: {
           data: responseData,
           timeTaken: (endTime - startTime).toFixed(2),
@@ -36,7 +36,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
       console.error(e);
       sendMessage.call(self, {
         messageId,
-        messageType: TMessageType.RESPONSE,
+        messageType: MessageType.RESPONSE,
         body: {
           data: {
             errors: [

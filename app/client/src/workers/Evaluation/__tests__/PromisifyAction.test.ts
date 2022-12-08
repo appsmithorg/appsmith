@@ -1,6 +1,6 @@
 import { createGlobalData } from "workers/Evaluation/evaluate";
 import _ from "lodash";
-import { TMessageType } from "utils/MessageUtil";
+import { MessageType } from "utils/MessageUtil";
 jest.mock("../handlers/evalTree", () => {
   return {
     dataTreeEvaluator: {
@@ -22,7 +22,7 @@ describe("promise execution", () => {
 
   const requestMessageCreator = (type: string, body: unknown) => ({
     messageId: expect.stringContaining(`${type}_`),
-    messageType: TMessageType.REQUEST,
+    messageType: MessageType.REQUEST,
     body,
   });
 
@@ -72,7 +72,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           messageId,
-          messageType: TMessageType.RESPONSE,
+          messageType: MessageType.RESPONSE,
           body: {
             data: {
               data: { resolve: ["123"] },
@@ -100,7 +100,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           messageId: requestArgs.messageId,
-          messageType: TMessageType.RESPONSE,
+          messageType: MessageType.RESPONSE,
           body: {
             data: { data: { reason: "testing" }, success: false },
             method: "PROCESS_TRIGGER",
@@ -125,7 +125,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           messageId: "wrongMessageId",
-          messageType: TMessageType.RESPONSE,
+          messageType: MessageType.RESPONSE,
           body: {
             data: {
               data: {
@@ -143,7 +143,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           messageId: correctId,
-          messageType: TMessageType.RESPONSE,
+          messageType: MessageType.RESPONSE,
           body: {
             data: {
               data: {
@@ -173,7 +173,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           messageId,
-          messageType: TMessageType.RESPONSE,
+          messageType: MessageType.RESPONSE,
           body: {
             data: {
               data: {
@@ -191,7 +191,7 @@ describe("promise execution", () => {
       new MessageEvent("message", {
         data: {
           messageId,
-          messageType: TMessageType.RESPONSE,
+          messageType: MessageType.RESPONSE,
           body: {
             data: { data: { resolve: ["wrongRequest"] }, success: true },
             method: "PROCESS_TRIGGER",

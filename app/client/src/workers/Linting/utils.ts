@@ -52,7 +52,7 @@ import {
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
-import { TMessageType, sendMessage } from "utils/MessageUtil";
+import { MessageType, sendMessage } from "utils/MessageUtil";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -471,7 +471,7 @@ export function initiateLinting(
   if (!requiresLinting) return;
   sendMessage.call(self, {
     messageId: "",
-    messageType: TMessageType.REQUEST,
+    messageType: MessageType.REQUEST,
     body: {
       data: {
         lintOrder,

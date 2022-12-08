@@ -3,7 +3,7 @@
 import { WorkerErrorTypes } from "workers/common/types";
 import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
-import { TMessage, sendMessage, TMessageType } from "utils/MessageUtil";
+import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function syncRequestMessageListener(
@@ -11,7 +11,7 @@ function syncRequestMessageListener(
 ) {
   const startTime = performance.now();
   const { body, messageId, messageType } = e.data;
-  if (messageType === TMessageType.RESPONSE) return;
+  if (messageType === MessageType.RESPONSE) return;
   const { method } = body;
   if (!method) return;
   const messageHandler = syncHandlerMap[method];
@@ -27,7 +27,7 @@ async function asyncRequestMessageListener(
 ) {
   const start = performance.now();
   const { body, messageId, messageType } = e.data;
-  if (messageType === TMessageType.RESPONSE) return;
+  if (messageType === MessageType.RESPONSE) return;
   const { method } = body;
   if (!method) return;
   const messageHandler = asyncHandlerMap[method];
@@ -42,14 +42,14 @@ function respond(messageId: string, data: unknown, timeTaken: number) {
   try {
     sendMessage.call(self, {
       messageId,
-      messageType: TMessageType.RESPONSE,
+      messageType: MessageType.RESPONSE,
       body: { data, timeTaken },
     });
   } catch (e) {
     console.error(e);
     sendMessage.call(self, {
       messageId,
-      messageType: TMessageType.RESPONSE,
+      messageType: MessageType.RESPONSE,
       body: {
         timeTaken: timeTaken.toFixed(2),
         data: {
