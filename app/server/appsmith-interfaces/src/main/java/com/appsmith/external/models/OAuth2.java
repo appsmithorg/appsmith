@@ -79,11 +79,6 @@ public class OAuth2 extends AuthenticationDTO {
 
     boolean useSelfSignedCert = false;
 
-    @Override
-    protected String getSecret() {
-        return clientSecret;
-    }
-
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {
             return scopeString;
@@ -100,6 +95,11 @@ public class OAuth2 extends AuthenticationDTO {
                     .map(String::trim)
                     .collect(Collectors.toSet());
         }
+    }
+
+    @Override
+    protected void buildSecretExists(SecretExists secretExists) {
+        secretExists.setClientSecret(StringUtils.hasLength(clientSecret));
     }
 
     @Override

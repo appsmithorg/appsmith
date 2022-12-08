@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 @Builder
 @Getter
@@ -37,7 +38,7 @@ public class ApiKeyAuth extends AuthenticationDTO {
     String value;
 
     @Override
-    protected String getSecret() {
-        return value;
+    protected void buildSecretExists(SecretExists secretExists) {
+        secretExists.setValue(StringUtils.hasLength(value));
     }
 }

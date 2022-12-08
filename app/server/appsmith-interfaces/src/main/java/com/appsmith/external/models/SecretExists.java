@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-//@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SecretExists {
 
     private Boolean password;

@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -24,7 +25,7 @@ public class BearerTokenAuth extends AuthenticationDTO {
     String bearerToken;
 
     @Override
-    protected String getSecret() {
-        return bearerToken;
+    protected void buildSecretExists(SecretExists secretExists) {
+        secretExists.setBearerToken(StringUtils.hasLength(bearerToken));
     }
 }

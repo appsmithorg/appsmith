@@ -1,7 +1,6 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
-import com.appsmith.external.helpers.PluginUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -51,11 +49,13 @@ public abstract class AuthenticationDTO implements AppsmithDomain {
     @JsonIgnore
     AuthenticationResponse authenticationResponse;
 
-    protected abstract String getSecret();
+    protected abstract void buildSecretExists(SecretExists secretExists);
 
     @JsonProperty
-    protected boolean secretExists() {
-        return StringUtils.hasLength(getSecret());
+    protected SecretExists secretExists() {
+        SecretExists secretExists = new SecretExists();
+        buildSecretExists(secretExists);
+        return secretExists;
     }
 
     public Mono<Boolean> hasExpired() {

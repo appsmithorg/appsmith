@@ -35,7 +35,7 @@ public class DBAuth extends AuthenticationDTO {
     String databaseName;
 
     @Override
-    protected String getSecret() {
-        return password;
+    protected void buildSecretExists(SecretExists secretExists) {
+        secretExists.setPassword(StringUtils.hasLength(password));
     }
 }

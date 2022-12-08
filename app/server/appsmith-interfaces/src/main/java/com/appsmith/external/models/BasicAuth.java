@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -25,9 +26,8 @@ public class BasicAuth extends AuthenticationDTO {
     @Encrypted
     String password;
 
-
     @Override
-    protected String getSecret() {
-        return password;
+    protected void buildSecretExists(SecretExists secretExists) {
+        secretExists.setPassword(StringUtils.hasLength(password));
     }
 }
