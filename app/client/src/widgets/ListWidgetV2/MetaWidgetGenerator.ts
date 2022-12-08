@@ -1018,7 +1018,7 @@ class MetaWidgetGenerator {
   private hasOptionsChanged = (nextOptions: GeneratorOptions) => {
     return (
       !equal(nextOptions.cacheIndexArr, this.cacheIndexArr) ||
-      nextOptions?.currTemplateWidgets !== this?.currTemplateWidgets ||
+      nextOptions?.currTemplateWidgets !== nextOptions?.prevTemplateWidgets ||
       nextOptions.data.length !== this.data.length ||
       nextOptions.infiniteScroll !== this.infiniteScroll ||
       nextOptions.itemGap !== this.itemGap ||
