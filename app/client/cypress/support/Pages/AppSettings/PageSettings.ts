@@ -4,6 +4,7 @@ import { checkUrl } from "./Utils";
 export class PageSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private homePage = ObjectsRegistry.HomePage;
+  private designSystem = ObjectsRegistry.DesignSystem;
   private locators = {
     pageNameField: "#t--page-settings-name",
     customSlugField: "#t--page-settings-custom-slug",
@@ -12,7 +13,35 @@ export class PageSettings {
     homePageHeader: "#t--page-settings-default-page",
   };
 
-  changePageNameAndVerifyUrl(newPageName: string) {
+  tryPageNameAndVerifyTextValue(newPageName: string, verifyPageNameAs: string) {
+    this.agHelper
+      .InvokeVal(this.locators.pageNameField)
+      .then((currentPageName) => {
+        const currentPageNameLength = (currentPageName as string).length;
+        this.agHelper.RemoveCharsNType(
+          this.locators.pageNameField,
+          currentPageNameLength,
+          newPageName,
+        );
+        this.agHelper
+          .GetText(this.locators.pageNameField, "val")
+          .then((fieldValue) => {
+            expect(fieldValue).to.equal(verifyPageNameAs);
+            this.agHelper.RemoveCharsNType(
+              this.locators.pageNameField,
+              (fieldValue as string).length,
+              currentPageName as string,
+            );
+          });
+      });
+  }
+
+  changePageNameAndVerifyUrl(
+    newPageName: string,
+    verifyPageNameAs?: string,
+    reset = true,
+  ) {
+    const pageNameToBeVerified = verifyPageNameAs ?? newPageName;
     this.agHelper
       .InvokeVal(this.locators.pageNameField)
       .then((currentPageName) => {
@@ -26,7 +55,17 @@ export class PageSettings {
           );
           this.agHelper.PressEnter();
           this.agHelper.ValidateNetworkStatus("@updatePage", 200);
-          checkUrl(appName as string, newPageName);
+          checkUrl(appName as string, pageNameToBeVerified);
+          if (reset) {
+            this.agHelper.RemoveCharsNType(
+              this.locators.pageNameField,
+              newPageName.length,
+              currentPageName as string,
+            );
+            this.agHelper.PressEnter();
+            this.agHelper.ValidateNetworkStatus("@updatePage", 200);
+            checkUrl(appName as string, currentPageName as string);
+          }
         });
       });
   }
@@ -52,6 +91,15 @@ export class PageSettings {
           checkUrl(appName as string, "", customSlug);
         });
       });
+  }
+
+  tryPageNameAndVerifyErrorMessage(newPageName: string, errorMessage: string) {
+    this.designSystem.TextInput.tryValueAndAssertErrorMessage(
+      this.locators.pageNameField,
+      newPageName,
+      errorMessage,
+      true,
+    );
   }
 
   changePageNavigationSetting() {

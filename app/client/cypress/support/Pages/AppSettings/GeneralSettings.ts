@@ -3,6 +3,7 @@ import { checkUrl } from "./Utils";
 
 export class GeneralSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private designSystem = ObjectsRegistry.DesignSystem;
   private locators = {
     appNameField: "#t--general-settings-app-name",
     appNonSelectedIcon: ".t--icon-not-selected",
@@ -12,8 +13,10 @@ export class GeneralSettings {
   changeAppNameAndVerifyUrl(
     reset: boolean,
     newAppName: string,
+    verifyAppNameAs?: string,
     pageName = "page1",
   ) {
+    const appNameToBeVerified = verifyAppNameAs ?? newAppName;
     this.agHelper
       .InvokeVal(this.locators.appNameField)
       .then((currentAppName) => {
@@ -24,7 +27,7 @@ export class GeneralSettings {
         );
         this.agHelper.PressEnter();
         this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
-        checkUrl(newAppName, pageName);
+        checkUrl(appNameToBeVerified, pageName);
         if (reset) {
           this.agHelper.RemoveCharsNType(
             this.locators.appNameField,
@@ -36,6 +39,15 @@ export class GeneralSettings {
           checkUrl(currentAppName as string, pageName);
         }
       });
+  }
+
+  tryAppNameAndVerifyErrorMessage(newAppName: string, errorMessage: string) {
+    this.designSystem.TextInput.tryValueAndAssertErrorMessage(
+      this.locators.appNameField,
+      newAppName,
+      errorMessage,
+      true,
+    );
   }
 
   changeAppIcon() {

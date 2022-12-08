@@ -12,7 +12,7 @@ describe("Page Settings", () => {
   it("Page name change updates URL", () => {
     appSettings.openPaneFromCta();
     appSettings.goToPageSettings("Page1");
-    appSettings.page.changePageNameAndVerifyUrl("Page2");
+    appSettings.page.changePageNameAndVerifyUrl("Page2", undefined, false);
     homePage.GetAppName().then((appName) => {
       deployMode.DeployApp();
       checkUrl(appName as string, "Page2", undefined, false);
@@ -51,5 +51,29 @@ describe("Page Settings", () => {
     agHelper.GetNClick(commonLocators._previewModeToggle);
     agHelper.AssertElementAbsence(commonLocators._deployedPage);
     agHelper.GetNClick(commonLocators._editModeToggle);
+  });
+
+  it("Page name allows accented character", () => {
+    appSettings.openPaneFromCta();
+    appSettings.goToPageSettings("Page3");
+    appSettings.page.changePageNameAndVerifyUrl("Page3œßð", "Page3");
+    appSettings.closePane();
+  });
+
+  it("Page name deosn't allow special character", () => {
+    appSettings.openPaneFromCta();
+    appSettings.goToPageSettings("Page3");
+    appSettings.page.tryPageNameAndVerifyTextValue("Page3!@#", "Page3 ");
+    appSettings.closePane();
+  });
+
+  it("Page name doesn't allow empty", () => {
+    appSettings.openPaneFromCta();
+    appSettings.goToPageSettings("Page3");
+    appSettings.page.tryPageNameAndVerifyErrorMessage(
+      "",
+      "Page name cannot be empty",
+    );
+    appSettings.closePane();
   });
 });

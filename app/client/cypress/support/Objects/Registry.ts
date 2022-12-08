@@ -4,6 +4,7 @@ import { EntityExplorer } from "../Pages/EntityExplorer";
 import { CommonLocators } from "./CommonLocators";
 import { ApiPage } from "../Pages/ApiPage";
 import { HomePage } from "../Pages/HomePage";
+import { DesignSystem } from "../Pages/DesignSystem";
 import { DataSources } from "../Pages/DataSources";
 import { Table } from "../Pages/Table";
 import { TableV2 } from "../Pages/TableV2";
@@ -61,6 +62,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.homePage__ = new HomePage();
     }
     return ObjectsRegistry.homePage__;
+  }
+
+  private static designSystem__: DesignSystem;
+  static get DesignSystem(): DesignSystem {
+    if (ObjectsRegistry.designSystem__ === undefined) {
+      ObjectsRegistry.designSystem__ = new DesignSystem();
+    }
+    return ObjectsRegistry.designSystem__;
   }
 
   private static dataSources__: DataSources;
