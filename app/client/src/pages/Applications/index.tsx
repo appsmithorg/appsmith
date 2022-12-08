@@ -742,7 +742,7 @@ function ApplicationsSection(props: any) {
                       title={`Invite Users to ${workspace.name}`}
                       trigger={
                         <Button
-                          category={Category.tertiary}
+                          category={Category.secondary}
                           icon={"share-line"}
                           size={Size.medium}
                           tag="button"
