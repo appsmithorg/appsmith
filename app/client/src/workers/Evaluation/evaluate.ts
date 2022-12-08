@@ -79,14 +79,18 @@ function resetWorkerGlobalScope() {
       key === "window" ||
       key === "document" ||
       key === "location" ||
-      key === "localStorage" ||
-      key === "screen"
+      key === "localStorage"
     )
       continue;
     if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
     if (libraryReservedNames.has(key)) continue;
-    // @ts-expect-error: Types are not available
-    self[key] = undefined;
+    try {
+      // @ts-expect-error: Types are not available
+      delete self[key];
+    } catch (e) {
+      // @ts-expect-error: Types are not available
+      self[key] = undefined;
+    }
   }
 }
 

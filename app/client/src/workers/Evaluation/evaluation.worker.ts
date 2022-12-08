@@ -40,14 +40,14 @@ async function asyncRequestMessageListener(
 
 function respond(messageId: string, data: unknown, timeTaken: number) {
   try {
-    sendMessage(self)({
+    sendMessage.call(self, {
       messageId,
       messageType: MessageType.RESPONSE,
       body: { data, timeTaken },
     });
   } catch (e) {
     console.error(e);
-    sendMessage(self)({
+    sendMessage.call(self, {
       messageId,
       messageType: MessageType.RESPONSE,
       body: {

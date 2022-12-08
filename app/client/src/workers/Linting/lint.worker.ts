@@ -23,7 +23,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
     if (!responseData) return;
 
     try {
-      sendMessage(self)({
+      sendMessage.call(self, {
         messageId,
         messageType: MessageType.RESPONSE,
         body: {
@@ -34,7 +34,7 @@ function messageEventListener(fn: typeof eventRequestHandler) {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-      sendMessage(self)({
+      sendMessage.call(self, {
         messageId,
         messageType: MessageType.RESPONSE,
         body: {

@@ -31,7 +31,6 @@ import { Message, MessageType, sendMessage } from "./MessageUtil";
  * Note: The worker will hold ALL requests, even in case of restarts.
  * If we do not want that behaviour, we should create a new GracefulWorkerService.
  */
-// TODO: Add a compatible listener layer on the worker to complete the framework.
 // TODO: Extract the worker wrapper into a library to be useful to anyone with WebWorkers + redux-saga.
 // TODO: Add support for timeouts on requests and shutdown.
 // TODO: Add a readiness + liveness probes.
@@ -119,7 +118,7 @@ export class GracefulWorkerService {
     yield this.ready(true);
     if (!this._Worker) return;
     const messageType = MessageType.RESPONSE;
-    sendMessage(this._Worker)({
+    sendMessage.call(this._Worker, {
       body: {
         data,
       },
@@ -152,7 +151,7 @@ export class GracefulWorkerService {
     let timeTaken;
 
     try {
-      sendMessage(this._Worker)({
+      sendMessage.call(this._Worker, {
         messageType: MessageType.REQUEST,
         body: {
           method,

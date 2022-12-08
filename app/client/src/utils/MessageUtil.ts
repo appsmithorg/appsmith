@@ -9,8 +9,14 @@ export type Message<T> = {
   messageType: MessageType;
 };
 
-export function sendMessage(ctx: Worker | typeof globalThis) {
-  return function(message: Message<any>) {
-    ctx.postMessage(message);
-  };
+/** Avoid from using postMessage directly.
+ * This function should be used to send messages to the worker and back.
+ * Purpose: To have some standardization in the messages that are transferred.
+ */
+export function sendMessage(
+  this: Worker | typeof globalThis,
+  message: Message<unknown>,
+  options?: WindowPostMessageOptions,
+) {
+  this.postMessage(message, options);
 }

@@ -469,7 +469,7 @@ export function initiateLinting(
   requiresLinting: boolean,
 ) {
   if (!requiresLinting) return;
-  sendMessage(self)({
+  sendMessage.call(self, {
     messageId: "",
     messageType: MessageType.REQUEST,
     body: {

@@ -27,7 +27,7 @@ class UserLog {
     if (this.flushLogTimerId) _internalClearTimeout(this.flushLogTimerId);
     this.flushLogTimerId = _internalSetTimeout(() => {
       const logs = this.flushLogs();
-      sendMessage(self)({
+      sendMessage.call(self, {
         messageId: "",
         messageType: MessageType.REQUEST,
         body: {

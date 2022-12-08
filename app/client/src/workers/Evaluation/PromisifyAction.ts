@@ -35,7 +35,7 @@ export const promisifyAction = (
       trigger: actionDescription,
       eventType,
     };
-    sendMessage(ctx)({
+    sendMessage.call(ctx, {
       messageId,
       messageType: MessageType.REQUEST,
       body: {
