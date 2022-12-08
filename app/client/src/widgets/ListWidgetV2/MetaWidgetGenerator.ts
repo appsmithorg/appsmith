@@ -29,7 +29,6 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import equal from "fast-deep-equal/es6";
 
 type TemplateWidgets = ListWidgetProps<
   WidgetProps
@@ -120,7 +119,7 @@ type AddDynamicPathsPropertiesOptions = {
 
 enum MODIFICATION_TYPE {
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
-  OPTIONS_MODIFIED = "OPTIONS_MODIFIED",
+  REGENERATE_META_WIDGETS = "REGENERATE_META_WIDGETS",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -282,13 +281,6 @@ class MetaWidgetGenerator {
   };
 
   generate = () => {
-    if (!this.modificationsQueue.has(MODIFICATION_TYPE.OPTIONS_MODIFIED)) {
-      return {
-        metaWidgets: {},
-        removedMetaWidgetIds: [],
-      };
-    }
-
     const data = this.getData();
     const dataCount = data.length;
     const indices = Array.from(Array(dataCount).keys());
@@ -297,39 +289,43 @@ class MetaWidgetGenerator {
     ];
     let metaWidgets: MetaWidgets = {};
 
-    // Reset
-    this.currViewMetaWidgetIds = [];
+    if (
+      this.modificationsQueue.has(MODIFICATION_TYPE.REGENERATE_META_WIDGETS)
+    ) {
+      // Reset
+      this.currViewMetaWidgetIds = [];
 
-    this.generateWidgetCacheForContainerParent(containerParentWidget);
-    this.updateTemplateWidgetStatus();
+      this.generateWidgetCacheForContainerParent(containerParentWidget);
+      this.updateTemplateWidgetStatus();
 
-    if (dataCount > 0) {
-      const startIndex = this.getStartIndex();
+      if (dataCount > 0) {
+        const startIndex = this.getStartIndex();
 
-      indices.forEach((viewIndex) => {
-        const rowIndex = startIndex + viewIndex;
+        indices.forEach((viewIndex) => {
+          const rowIndex = startIndex + viewIndex;
 
-        this.generateWidgetCacheData(rowIndex, viewIndex);
+          this.generateWidgetCacheData(rowIndex, viewIndex);
 
-        const {
-          childMetaWidgets,
-          metaWidget,
-        } = this.generateMetaWidgetRecursively({
-          rowIndex,
-          parentId: this.containerParentId,
-          templateWidgetId: this.containerWidgetId,
-          viewIndex,
+          const {
+            childMetaWidgets,
+            metaWidget,
+          } = this.generateMetaWidgetRecursively({
+            rowIndex,
+            parentId: this.containerParentId,
+            templateWidgetId: this.containerWidgetId,
+            viewIndex,
+          });
+
+          metaWidgets = {
+            ...metaWidgets,
+            ...childMetaWidgets,
+          };
+
+          if (metaWidget) {
+            metaWidgets[metaWidget.widgetId] = metaWidget;
+          }
         });
-
-        metaWidgets = {
-          ...metaWidgets,
-          ...childMetaWidgets,
-        };
-
-        if (metaWidget) {
-          metaWidgets[metaWidget.widgetId] = metaWidget;
-        }
-      });
+      }
     }
 
     this.cacheRowIndices(this.cacheIndexArr);
@@ -939,8 +935,8 @@ class MetaWidgetGenerator {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
 
-    if (this.hasOptionsChanged(nextOptions)) {
-      this.modificationsQueue.add(MODIFICATION_TYPE.OPTIONS_MODIFIED);
+    if (this.hasRegenerationOptionsChanged(nextOptions)) {
+      this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }
   };
 
@@ -1015,9 +1011,8 @@ class MetaWidgetGenerator {
     );
   };
 
-  private hasOptionsChanged = (nextOptions: GeneratorOptions) => {
+  private hasRegenerationOptionsChanged = (nextOptions: GeneratorOptions) => {
     return (
-      !equal(nextOptions.cacheIndexArr, this.cacheIndexArr) ||
       nextOptions?.currTemplateWidgets !== nextOptions?.prevTemplateWidgets ||
       nextOptions.data.length !== this.data.length ||
       nextOptions.infiniteScroll !== this.infiniteScroll ||
