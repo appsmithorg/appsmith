@@ -9,7 +9,7 @@ const FaviconPreview = (props: PreviewsProps) => {
   const { favicon } = props;
 
   return (
-    <PreviewBox className="items-center p-4 bg-gray-100 " title="Favicon">
+    <PreviewBox className="items-center p-4 bg-gray-100 " title="Browser tab">
       <div className="w-full h-full bg-white">
         <div className="flex items-center gap-2 px-4 pt-2 bg-gray-200 ">
           <div className="flex items-center gap-2 px-3 py-2 bg-white w-fit">

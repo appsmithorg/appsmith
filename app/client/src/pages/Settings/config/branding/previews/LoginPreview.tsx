@@ -12,7 +12,7 @@ const LoginPreview = (props: PreviewsProps) => {
       style={{
         backgroundColor: shades?.background,
       }}
-      title="Sign In"
+      title="Login screen"
     >
       <div
         className="w-7/12 bg-white border-t-4 border-l border-r h-4/5"

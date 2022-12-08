@@ -7,7 +7,7 @@ const DashboardPreview = (props: PreviewsProps) => {
   const { logo, shades } = props;
 
   return (
-    <PreviewBox className="items-center p-4 bg-gray-100 " title="Dashboard">
+    <PreviewBox className="items-center p-4 bg-gray-100 " title="Home">
       <div className="w-full h-full bg-white">
         <div className="flex flex-col">
           <header className="px-3 py-2 border-b">

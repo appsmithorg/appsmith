@@ -8,7 +8,8 @@ import {
   UseFormSetValue,
   UseFormResetField,
 } from "react-hook-form";
-import { Button, Size } from "design-system";
+import QuestionIcon from "remixicon-react/QuestionFillIcon";
+import { Button, Size, TooltipComponent } from "design-system";
 
 import { Inputs } from "./BrandingPage";
 import {
@@ -19,6 +20,7 @@ import {
   ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY,
   ADMIN_BRANDING_COLOR_TOOLTIP_HOVER,
   ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED,
+  ADMIN_BRANDING_COLOR_TOOLTIP,
   createMessage,
 } from "@appsmith/constants/messages";
 import { ColorInput } from "pages/Settings/FormGroup/ColorInput";
@@ -109,14 +111,20 @@ function SettingsForm(props: SettingsFormProps) {
 
         {/* COLOR */}
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between">
+          <div className="flex items-center gap-1">
             <label
               className="font-semibold"
               htmlFor="APPSMITH_BRAND_PRIMARY_COLOR"
             >
               Color
             </label>
+            <TooltipComponent
+              content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}
+            >
+              <QuestionIcon className="w-4 h-4 text-[color:var(--ads-color-black-470)] cursor-help" />
+            </TooltipComponent>
           </div>
+
           <Controller
             control={control}
             name="brandColors"

@@ -7,7 +7,7 @@ const NotFoundPreview = (props: PreviewsProps) => {
   const { shades } = props;
 
   return (
-    <PreviewBox className="items-center p-4 bg-gray-100 " title="404">
+    <PreviewBox className="items-center p-4 bg-gray-100 " title="404 page">
       <div
         className="flex flex-col items-center justify-center w-full h-full gap-3 px-5"
         style={{

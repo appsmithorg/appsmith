@@ -12,7 +12,7 @@ const EmailPreview = (props: PreviewsProps) => {
       style={{
         backgroundColor: shades.background,
       }}
-      title="Email"
+      title="E-mail"
     >
       <div
         className="w-7/12 bg-white border-t-4 border-l border-r b h-4/5"
