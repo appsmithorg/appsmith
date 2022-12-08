@@ -610,11 +610,10 @@ class CodeEditor extends Component<Props, State> {
 
   handleClick = (cm: CodeMirror.Editor, event: MouseEvent) => {
     const entityInfo = this.getEntityInformation();
-
-    // Event targets are html elements that have node methods
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    if (event.target.hasAttribute(NAVIGATE_TO_ATTRIBUTE)) {
+    if (
+      event.target instanceof Element &&
+      event.target.hasAttribute(NAVIGATE_TO_ATTRIBUTE)
+    ) {
       if (event.ctrlKey || event.metaKey) {
         // Event targets are html elements that have node methods
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
