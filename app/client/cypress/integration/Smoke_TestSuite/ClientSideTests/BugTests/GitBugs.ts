@@ -6,16 +6,26 @@ let dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   propPane = ObjectsRegistry.PropertyPane,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  apiPage = ObjectsRegistry.ApiPage;
 
 let testName: any;
 describe("Git Bugs", function() {
-  before(() => {
-    gitSync.CreateNConnectToGit();
-    gitSync.CreateGitBranch();
+  it("1. Bug 16248, When GitSync modal is open, block shortcut action execution", function() {
+    const largeResponseApiUrl = "https://jsonplaceholder.typicode.com/users";
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+    apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
+    gitSync.OpenGitSyncModal();
+    cy.get("body").type(`{${modifierKey}}{enter}`);
+    cy.get("@postExecute").should("not.exist");
+    gitSync.CloseGitSyncModal();
+    cy.get("body").type(`{${modifierKey}}{enter}`);
+    agHelper.ValidateNetworkStatus("@postExecute");
   });
 
-  it("1. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
+  it("2. Bug 18665 : Creates a new Git branch, Create datasource, discard it and check current branch", function() {
+    gitSync.CreateNConnectToGit();
+    gitSync.CreateGitBranch();
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     dataSources.SaveDSFromDialog(false);
@@ -25,7 +35,7 @@ describe("Git Bugs", function() {
     });
   });
 
-  it("2. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
+  it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
     ee.AddNewPage();
     ee.DragDropWidgetNVerify(WIDGET.TEXT);
     ee.SelectEntityByName("Page1", "Pages");
@@ -47,7 +57,7 @@ describe("Git Bugs", function() {
       .GetText(locator._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
     agHelper.ValidateURL("branch=" + testName); //Validate we are still in Git branch
-    agHelper.ValidateURL("testQP=Yes");//Validate we also ve the Query Params from Page1
+    agHelper.ValidateURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
   after(() => {
