@@ -124,7 +124,7 @@ export const StickyCanvasArena = forwardRef(
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
         <canvas
-          data-sl="canvas-mq"
+          data-sl="canvas-mq" // attribute to enable canvas on smartlook
           data-testid={canvasId}
           id={canvasId}
           ref={stickyCanvasRef}
