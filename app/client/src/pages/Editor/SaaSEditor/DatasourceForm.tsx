@@ -193,7 +193,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       unblock: this.props?.history?.block((tx: any) => {
         this.setState(
           {
-            navigation: () => this.props.history.push(tx.pathname),
+            // need to pass in query params as well as state, when user navigates away from ds form page
+            navigation: () =>
+              this.props.history.push(tx.pathname + tx.search, tx.state),
             showDialog: true,
             routesBlocked: true,
           },
@@ -254,6 +256,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     const params: string = location.search;
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
+
+    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
+
     return (
       <>
         <form
@@ -266,7 +271,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               <FormTitleContainer>
                 <PluginImage alt="Datasource" src={this.props.pluginImage} />
                 <FormTitle
-                  disabled={!canManageDatasource}
+                  disabled={!createFlow && !canManageDatasource}
                   focusOnMount={this.props.isNewDatasource}
                 />
               </FormTitleContainer>
@@ -318,6 +323,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           )}
         </form>
         <SaveOrDiscardDatasourceModal
+          datasourceId={datasourceId}
+          datasourcePermissions={datasource?.userPermissions || []}
           isOpen={this.state.showDialog}
           onClose={this.closeDialog}
           onDiscard={this.onDiscard}
