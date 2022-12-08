@@ -25,7 +25,7 @@ import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
 import { Icon, IconSize } from "design-system";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
-import { getTenantConfig } from "ce/selectors/tenantSelectors";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;

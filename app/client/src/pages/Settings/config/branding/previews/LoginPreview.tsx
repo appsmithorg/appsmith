@@ -22,7 +22,7 @@ const LoginPreview = (props: PreviewsProps) => {
       >
         <div className="flex flex-col gap-3 pt-6 px-9">
           <img
-            alt=""
+            alt="Logo"
             className="block h-4 m-auto t--branding-logo"
             src={logo as string}
           />

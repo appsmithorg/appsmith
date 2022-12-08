@@ -862,7 +862,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                   )}
                   {!isMenuOpen && (
                     <Button
-                      category={Category.tertiary}
+                      category={Category.secondary}
                       className="t--application-view-link"
                       fill
                       href={viewModeURL}
