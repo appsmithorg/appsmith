@@ -209,7 +209,7 @@ init_keycloak() {
    fi
 
    if [[ -z ${APPSMITH_KEYCLOAK_DB_URL-} ]]; then
-       export APPSMITH_KEYCLOAK_DB_URL="$\{jboss.server.data.dir}"
+       export APPSMITH_KEYCLOAK_DB_URL="\${jboss.server.data.dir}"
    fi
 
    if [[ -z ${APPSMITH_KEYCLOAK_DB_NAME-} ]]; then
