@@ -1,9 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
-import { Button as AdsButton, Category } from "design-system";
+import { Category } from "design-system";
 import { Datasource } from "entities/Datasource";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import { RouteComponentProps } from "react-router";
@@ -13,9 +12,12 @@ import {
   getDatasource,
   getPluginImages,
   getDatasourceFormButtonConfig,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
+  ActionWrapper,
+  EditDatasourceButton,
   FormTitleContainer,
   Header,
   JSONtoForm,
@@ -24,12 +26,16 @@ import {
 } from "../DataSourceEditor/JSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
 import Connected from "../DataSourceEditor/Connected";
-import { Colors } from "constants/Colors";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import DatasourceAuth from "../../common/datasourceAuth";
+import DatasourceAuth from "pages/common/datasourceAuth";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
+import NewActionButton from "../DataSourceEditor/NewActionButton";
+import { Plugin } from "api/PluginApi";
+import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import { PluginPackageName } from "entities/Action";
+import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -38,6 +44,7 @@ interface StateProps extends JSONtoFormProps {
   loadingFormConfigs: boolean;
   isNewDatasource: boolean;
   pluginImage: string;
+  plugin?: Plugin;
   pluginId: string;
   actions: ActionDataState;
   datasource?: Datasource;
@@ -56,16 +63,6 @@ type DatasourceSaaSEditorProps = StateProps &
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
-
-const EditDatasourceButton = styled(AdsButton)`
-  padding: 10px 20px;
-  &&&& {
-    height: 32px;
-    max-width: 160px;
-    border: 1px solid ${Colors.HIT_GRAY};
-    width: auto;
-  }
-`;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props> {
   render() {
@@ -89,12 +86,24 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
       formData,
       hiddenHeader,
       pageId,
+      plugin,
       pluginPackageName,
     } = this.props;
 
     const params: string = location.search;
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
+
+    /* 
+      TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
+      Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
+    */
+    const isGoogleSheetPlugin =
+      plugin?.packageName === PluginPackageName.GOOGLE_SHEETS;
+
+    const isPluginAuthorized =
+      plugin && isDatasourceAuthorizedForQueryCreation(formData, plugin);
+
     return (
       <form
         onSubmit={(e) => {
@@ -108,25 +117,40 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               <FormTitle focusOnMount={this.props.isNewDatasource} />
             </FormTitleContainer>
 
-            {viewMode && (
-              <EditDatasourceButton
-                category={Category.tertiary}
-                className="t--edit-datasource"
-                onClick={() => {
-                  this.props.history.replace(
-                    saasEditorDatasourceIdURL({
-                      pageId: pageId || "",
-                      pluginPackageName,
-                      datasourceId,
-                      params: {
-                        viewMode: false,
-                      },
-                    }),
-                  );
-                }}
-                text="EDIT"
-              />
-            )}
+            <ActionWrapper>
+              {viewMode && (
+                <>
+                  <EditDatasourceButton
+                    category={Category.tertiary}
+                    className="t--edit-datasource"
+                    onClick={() => {
+                      this.props.history.replace(
+                        saasEditorDatasourceIdURL({
+                          pageId: pageId || "",
+                          pluginPackageName,
+                          datasourceId,
+                          params: {
+                            viewMode: false,
+                          },
+                        }),
+                      );
+                    }}
+                    text="EDIT"
+                  />
+                  {isGoogleSheetPlugin && (
+                    <NewActionButton
+                      datasource={datasource}
+                      disabled={!isPluginAuthorized}
+                      eventFrom="datasource-pane"
+                      plugin={plugin}
+                      style={{
+                        marginLeft: "16px",
+                      }}
+                    />
+                  )}
+                </>
+              )}
+            </ActionWrapper>
           </Header>
         )}
         {!viewMode ? (
@@ -137,7 +161,18 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             {""}
           </>
         ) : (
-          <Connected />
+          <Connected
+            errorComponent={
+              datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+                <AuthMessage
+                  actionType="authorize"
+                  datasource={datasource}
+                  pageId={pageId}
+                />
+              ) : null
+            }
+            showDatasourceSavedText={!isGoogleSheetPlugin}
+          />
         )}
         {/* Render datasource form call-to-actions */}
         {datasource && (
@@ -148,6 +183,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isInvalid={this.validate()}
             pageId={pageId}
+            shouldDisplayAuthMessage={!isGoogleSheetPlugin}
             shouldRender={!viewMode}
           />
         )}
@@ -164,6 +200,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_SAAS_FORM)(state) as Datasource;
   const pluginId = _.get(datasource, "pluginId", "");
+  const plugin = getPlugin(state, pluginId);
   const formConfig = formConfigs[pluginId];
   const initialValues = {};
   if (formConfig) {
@@ -186,6 +223,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     formConfig,
     isNewDatasource: datasourcePane.newDatasource === datasourceId,
     pageId: props.pageId || props.match?.params?.pageId,
+    plugin: plugin,
     pluginImage: getPluginImages(state)[pluginId],
     pluginPackageName:
       props.pluginPackageName || props.match?.params?.pluginPackageName,

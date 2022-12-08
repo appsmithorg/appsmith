@@ -1,0 +1,52 @@
+import { AppState } from "@appsmith/reducers";
+import { redirectAuthorizationCode } from "actions/datasourceActions";
+import { CalloutV2 } from "design-system";
+import { Datasource } from "entities/Datasource";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getPluginTypeFromDatasourceId } from "selectors/entitiesSelector";
+import styled from "styled-components";
+
+const StyledAuthMessage = styled.div`
+  max-width: 560px;
+  margin-bottom: 16px;
+  & > div {
+    margin: 0;
+  }
+`;
+
+type AuthMessageProps = {
+  // We can handle for other action types as well eg. save, delete etc.
+  actionType?: "authorize";
+  datasource: Datasource;
+  pageId?: string;
+};
+
+export default function AuthMessage(props: AuthMessageProps) {
+  const { actionType, datasource, pageId } = props;
+  const dispatch = useDispatch();
+  const pluginType = useSelector((state: AppState) =>
+    getPluginTypeFromDatasourceId(state, datasource.id),
+  );
+  const handleOauthAuthorization: any = () => {
+    if (!pluginType || !pageId) return;
+    dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
+  };
+
+  const extraInfo: Partial<React.ComponentProps<typeof CalloutV2>> = {};
+
+  if (actionType === "authorize") {
+    extraInfo.actionLabel = "Re-Authorize Datasource";
+    extraInfo.onClick = handleOauthAuthorization;
+  }
+
+  return (
+    <StyledAuthMessage>
+      <CalloutV2
+        desc="Data source is not authorized, please re-authorize to continue."
+        type="Warning"
+        {...extraInfo}
+      />
+    </StyledAuthMessage>
+  );
+}

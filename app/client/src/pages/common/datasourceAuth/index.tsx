@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import {
-  ActionButton,
-  SaveButtonContainer,
-} from "pages/Editor/DataSourceEditor/JSONtoForm";
+import { ActionButton } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import EditButton from "components/editorComponents/Button";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -33,6 +30,7 @@ import {
   AuthenticationStatus,
 } from "entities/Datasource";
 import {
+  CONFIRM_CONTEXT_DELETING,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
@@ -43,15 +41,17 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
+import { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 
 interface Props {
   datasource: Datasource;
-  formData: Datasource;
+  formData: Datasource | ApiDatasourceForm;
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
   pageId?: string;
-  shouldRender: boolean;
+  shouldRender?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
+  shouldDisplayAuthMessage?: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -85,6 +85,12 @@ const StyledButton = styled(EditButton)<{ fluidWidth?: boolean }>`
   }
 `;
 
+const SaveButtonContainer = styled.div`
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const StyledAuthMessage = styled.div`
   color: ${(props) => props.theme.colors.error};
   margin-top: 15px;
@@ -101,11 +107,13 @@ function DatasourceAuth({
   getSanitizedFormData,
   isInvalid,
   pageId: pageIdProp,
-  shouldRender,
+  shouldRender = true,
+  shouldDisplayAuthMessage = true,
 }: Props) {
   const authType =
-    formData &&
-    formData?.datasourceConfiguration?.authentication?.authenticationType;
+    formData && "authType" in formData
+      ? formData?.authType
+      : formData?.datasourceConfiguration?.authentication?.authenticationType;
 
   const { id: datasourceId, isDeleting } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
@@ -237,10 +245,14 @@ function DatasourceAuth({
           className="t--delete-datasource"
           loading={isDeleting}
           onClick={() => {
-            confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
+            if (!isDeleting) {
+              confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
+            }
           }}
           text={
-            confirmDelete && !isDeleting
+            isDeleting
+              ? createMessage(CONFIRM_CONTEXT_DELETING)
+              : confirmDelete
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }
@@ -287,9 +299,11 @@ function DatasourceAuth({
 
   return (
     <>
-      {authType === AuthType.OAUTH2 && !isAuthorized && (
-        <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
-      )}
+      {authType === AuthType.OAUTH2 &&
+        !isAuthorized &&
+        shouldDisplayAuthMessage && (
+          <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+        )}
       {shouldRender && (
         <SaveButtonContainer>
           {datasourceButtonConfiguration?.map((btnConfig) =>
@@ -297,7 +311,6 @@ function DatasourceAuth({
           )}
         </SaveButtonContainer>
       )}
-      {""}
     </>
   );
 }

@@ -1,3 +1,11 @@
+import { Plugin } from "api/PluginApi";
+import { PluginPackageName } from "entities/Action";
+import {
+  AuthenticationStatus,
+  AuthType,
+  Datasource,
+} from "entities/Datasource";
+
 /**
  * Append PageId to path and return the key
  * @param path
@@ -46,4 +54,36 @@ export function getPropertyControlFocusElement(
   return element?.children?.[1]?.querySelector(
     'button:not([tabindex="-1"]), input, [tabindex]:not([tabindex="-1"])',
   ) as HTMLElement | undefined;
+}
+
+/**
+ * Returns true if :
+ * - authentication type is not oauth2
+ * - authentication type is oauth2 and authorized status success
+ * @param element
+ * @returns
+ */
+export function isDatasourceAuthorizedForQueryCreation(
+  datasource: Datasource,
+  plugin: Plugin,
+): boolean {
+  if (!datasource) return false;
+  const authType =
+    datasource &&
+    datasource?.datasourceConfiguration?.authentication?.authenticationType;
+
+  /* 
+    TODO: This flag will be removed once the multiple environment is merged to avoid design inconsistency between different datasources.
+    Search for: GoogleSheetPluginFlag to check for all the google sheet conditional logic throughout the code.
+  */
+  const isGoogleSheetPlugin =
+    plugin.packageName === PluginPackageName.GOOGLE_SHEETS;
+  if (isGoogleSheetPlugin && authType === AuthType.OAUTH2) {
+    const isAuthorized =
+      datasource?.datasourceConfiguration?.authentication
+        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+    return isAuthorized;
+  }
+
+  return true;
 }

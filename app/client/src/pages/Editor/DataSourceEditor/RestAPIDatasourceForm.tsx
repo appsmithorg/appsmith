@@ -14,7 +14,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
 import { ApiActionConfig, PluginType } from "entities/Action";
@@ -39,22 +38,25 @@ import {
   GrantType,
   SSLType,
 } from "entities/Datasource/RestAPIForm";
-import {
-  createMessage,
-  CONTEXT_DELETE,
-  CONFIRM_CONTEXT_DELETE,
-  INVALID_URL,
-} from "@appsmith/constants/messages";
+import { createMessage, INVALID_URL } from "@appsmith/constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { Callout } from "design-system";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { ButtonVariantTypes } from "components/constants";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  FormContainer,
+  FormContainerBody,
+  FormTitleContainer,
+  Header,
+  PluginImage,
+} from "./JSONtoForm";
+import DatasourceAuth, {
+  DatasourceButtonType,
+} from "pages/common/datasourceAuth";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -86,66 +88,8 @@ interface DatasourceRestApiEditorProps {
 type Props = DatasourceRestApiEditorProps &
   InjectedFormProps<ApiDatasourceForm, DatasourceRestApiEditorProps>;
 
-const RestApiForm = styled.div`
-  flex: 1;
-  padding: 20px;
-  margin-left: 10px;
-  margin-right: 0px;
-  overflow: auto;
-  .backBtn {
-    padding-bottom: 1px;
-    cursor: pointer;
-  }
-  .backBtnText {
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-  }
-`;
-
 const FormInputContainer = styled.div`
   margin-top: 16px;
-`;
-
-export const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
-
-const PluginImage = styled.img`
-  height: 40px;
-  width: auto;
-`;
-
-export const FormTitleContainer = styled.div`
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-`;
-
-export const Header = styled.div`
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const SaveButtonContainer = styled.div`
-  margin-top: 24px;
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const ActionButton = styled(BaseButton)`
-  &&& {
-    width: auto;
-    min-width: 74px;
-    margin-right: 9px;
-    min-height: 32px;
-
-    & > span {
-      max-width: 100%;
-    }
-  }
 `;
 
 const StyledButton = styled(Button)`
@@ -274,11 +218,11 @@ class DatasourceRestAPIEditor extends React.Component<
     return !formData.url;
   };
 
+  getSanitizedFormData = () =>
+    formValuesToDatasource(this.props.datasource, this.props.formData);
+
   save = (onSuccess?: ReduxAction<unknown>) => {
-    const normalizedValues = formValuesToDatasource(
-      this.props.datasource,
-      this.props.formData,
-    );
+    const normalizedValues = this.getSanitizedFormData();
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: this.props.pageId,
       appId: this.props.applicationId,
@@ -348,11 +292,13 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
+    const { datasource, formData, hiddenHeader, pageId } = this.props;
+
     return (
-      <>
+      <FormContainer>
         {/* this is true during import flow */}
-        {!this.props.hiddenHeader && <CloseEditor />}
-        <RestApiForm>
+        {!hiddenHeader && <CloseEditor />}
+        <FormContainerBody>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -360,10 +306,20 @@ class DatasourceRestAPIEditor extends React.Component<
           >
             {this.renderHeader()}
             {this.renderEditor()}
-            {this.renderSave()}
+            <DatasourceAuth
+              datasource={datasource}
+              datasourceButtonConfiguration={[
+                DatasourceButtonType.DELETE,
+                DatasourceButtonType.SAVE,
+              ]}
+              formData={formData}
+              getSanitizedFormData={this.getSanitizedFormData}
+              isInvalid={this.disableSave()}
+              pageId={pageId}
+            />
           </form>
-        </RestApiForm>
-      </>
+        </FormContainerBody>
+      </FormContainer>
     );
   };
 
@@ -377,50 +333,6 @@ class DatasourceRestAPIEditor extends React.Component<
         </FormTitleContainer>
       </Header>
     ) : null;
-  };
-
-  renderSave = () => {
-    const {
-      datasourceId,
-      deleteDatasource,
-      hiddenHeader,
-      isDeleting,
-      isSaving,
-    } = this.props;
-    return (
-      <SaveButtonContainer>
-        {!hiddenHeader && (
-          <ActionButton
-            // accent="error"
-            buttonStyle="DANGER"
-            buttonVariant={ButtonVariantTypes.PRIMARY}
-            className="t--delete-datasource"
-            loading={isDeleting}
-            onClick={() => {
-              this.state.confirmDelete
-                ? deleteDatasource(datasourceId)
-                : this.setState({ confirmDelete: true });
-            }}
-            text={
-              this.state.confirmDelete
-                ? createMessage(CONFIRM_CONTEXT_DELETE)
-                : createMessage(CONTEXT_DELETE)
-            }
-          />
-        )}
-
-        <StyledButton
-          className="t--save-datasource"
-          disabled={this.disableSave()}
-          filled
-          intent="primary"
-          loading={isSaving}
-          onClick={() => this.save()}
-          size="small"
-          text="Save"
-        />
-      </SaveButtonContainer>
-    );
   };
 
   renderEditor = () => {

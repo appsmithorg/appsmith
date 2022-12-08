@@ -42,6 +42,7 @@ import {
   CONFIRM_CONTEXT_DELETING,
 } from "@appsmith/constants/messages";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -311,13 +312,14 @@ function DatasourceCard(props: DatasourceCardProps) {
                 }
               />
             )}
-            {datasource.isConfigured && (
-              <NewActionButton
-                datasource={datasource}
-                eventFrom="active-datasources"
-                plugin={plugin}
-              />
-            )}
+            <NewActionButton
+              datasource={datasource}
+              disabled={
+                !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
+              }
+              eventFrom="active-datasources"
+              plugin={plugin}
+            />
             <MenuWrapper
               className="t--datasource-menu-option"
               onClick={(e) => {

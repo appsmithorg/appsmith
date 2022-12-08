@@ -25,7 +25,7 @@ const ValueWrapper = styled.div`
 `;
 
 const FieldWrapper = styled.div`
-  &:not(first-child) {
+  &:not(:first-child) {
     margin-top: 9px;
   }
 `;

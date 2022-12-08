@@ -16,6 +16,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { EventLocation } from "utils/AnalyticsUtil";
+import { noop } from "utils/AppsmithUtils";
 
 const ActionButton = styled(Button)`
   padding: 10px 10px;
@@ -42,9 +43,11 @@ type NewActionButtonProps = {
   isLoading?: boolean;
   eventFrom?: string; // this is to track from where the new action is being generated
   plugin?: Plugin;
+  disabled?: boolean;
+  style?: any;
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, plugin } = props;
+  const { datasource, plugin, style = {} } = props;
   const pluginType = plugin?.type;
   const [isSelected, setIsSelected] = useState(false);
 
@@ -87,11 +90,17 @@ function NewActionButton(props: NewActionButtonProps) {
   return (
     <ActionButton
       className="t--create-query"
+      disabled={!!props.disabled}
       icon="plus"
       iconPosition={IconPositions.left}
       isLoading={isSelected || props.isLoading}
-      onClick={createQueryAction}
-      text={pluginType === PluginType.DB ? "New Query" : "New API"}
+      onClick={props.disabled ? noop : createQueryAction}
+      style={style}
+      text={
+        pluginType === PluginType.DB || pluginType === PluginType.SAAS
+          ? "New Query"
+          : "New API"
+      }
     />
   );
 }
