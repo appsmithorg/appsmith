@@ -237,7 +237,7 @@ class JSONFormWidget extends BaseWidget<
       this.state.resetObserverCallback(this.props.schema);
     }
 
-    const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+    const { schema } = this.constructAndSaveSchemaIfRequired();
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
@@ -276,20 +276,20 @@ class JSONFormWidget extends BaseWidget<
    * we would get stale/previous data from the __evaluations__ object.
    * So it will always stay 1 step behind the actual value.
    */
-  constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {
+  constructAndSaveSchemaIfRequired = () => {
     if (!this.props.autoGenerateForm)
       return {
         status: ComputedSchemaStatus.UNCHANGED,
-        schema: prevProps?.schema || {},
+        schema: this.props?.schema || {},
       };
 
-    const prevSourceData = this.getPreviousSourceData(prevProps);
+    const prevSourceData = this.getPreviousSourceData(this.props);
     const currSourceData = this.props?.sourceData;
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
       currSourceData,
-      prevSchema: prevProps?.schema,
+      prevSchema: this.props?.schema,
       prevSourceData,
       widgetName: this.props.widgetName,
       fieldThemeStylesheets: this.props.childStylesheet,
@@ -319,7 +319,7 @@ class JSONFormWidget extends BaseWidget<
        * This means there was no schema before and the computeSchema returns a
        * fresh schema than can be directly updated.
        */
-      if (isEmpty(prevProps?.schema)) {
+      if (isEmpty(this.props?.schema)) {
         payload.modify = {
           ...payload.modify,
           schema,
