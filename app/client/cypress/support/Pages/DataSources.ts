@@ -31,7 +31,7 @@ export class DataSources {
   private _saveDs = ".t--save-datasource";
   private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
-  private _editButton = ".t--edit-datasource";
+  _editButton = ".t--edit-datasource";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
@@ -740,13 +740,14 @@ export class DataSources {
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(schema: string, isUpdate = false) {
+  public verifySchema(dataSourceName : string, schema: string, isUpdate = false) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.updateDatasource();
     } else {
       this.SaveDatasource();
     }
+    this.ee.ActionContextMenuByEntityName(dataSourceName, "Refresh");
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });

@@ -1,18 +1,3 @@
-/**
- * Append PageId to path and return the key
- * @param path
- * @param currentPageId
- * @returns
- */
-export function generatePropertyKey(
-  path: string | undefined,
-  currentPageId: string,
-) {
-  if (!path) return;
-
-  return `Page[${currentPageId}].${path}`;
-}
-
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(

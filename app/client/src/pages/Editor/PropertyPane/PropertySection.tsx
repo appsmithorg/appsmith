@@ -92,6 +92,7 @@ type PropertySectionProps = {
   isDefaultOpen?: boolean;
   propertyPath?: string;
   tag?: string; // Used to show a tag on the section title on search results
+  panelPropertyPath?: string;
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
@@ -107,7 +108,10 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
   const isDefaultContextOpen = useSelector(
     (state: AppState) =>
-      getPropertySectionState(state, `${currentWidgetId}.${props.id}`),
+      getPropertySectionState(state, {
+        key: `${currentWidgetId}.${props.id}`,
+        panelPropertyPath: props.panelPropertyPath,
+      }),
     () => true,
   );
   const isSearchResult = props.tag !== undefined;
@@ -124,7 +128,13 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible)
       setIsOpen((x) => {
-        dispatch(setPropertySectionState(`${currentWidgetId}.${props.id}`, !x));
+        dispatch(
+          setPropertySectionState(
+            `${currentWidgetId}.${props.id}`,
+            !x,
+            props.panelPropertyPath,
+          ),
+        );
         return !x;
       });
   }, [props.collapsible, props.id, currentWidgetId]);
