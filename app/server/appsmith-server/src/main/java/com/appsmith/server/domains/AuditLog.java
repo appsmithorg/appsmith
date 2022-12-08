@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -39,4 +40,10 @@ public class AuditLog extends BaseDomain {
     ArrayList<String> invitedUsers;
 
     Set<String> instanceSettings;
+
+    @Override
+    @JsonIgnore
+    public boolean isNew() {
+        return super.isNew();
+    }
 }
