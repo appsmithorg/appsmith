@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { createMessage, ENTER_AUDIO_URL } from "@appsmith/constants/messages";
 export interface AudioComponentProps {
   url?: string;
-  autoplay?: boolean;
+  playing?: boolean;
   controls?: boolean;
   onStart?: () => void;
   onPlay?: () => void;
@@ -29,7 +29,6 @@ const Error = styled.span``;
 
 export default function AudioComponent(props: AudioComponentProps) {
   const {
-    autoplay,
     controls,
     onEnded,
     onError,
@@ -40,6 +39,7 @@ export default function AudioComponent(props: AudioComponentProps) {
     onSeek,
     onStart,
     player,
+    playing,
     url,
   } = props;
   return url ? (
@@ -63,7 +63,7 @@ export default function AudioComponent(props: AudioComponentProps) {
       onSeek={onSeek}
       onStart={onStart}
       pip={false}
-      playing={autoplay}
+      playing={playing}
       ref={player}
       url={url}
       width="100%"

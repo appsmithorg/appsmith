@@ -17,8 +17,14 @@ import {
   SECURITY_APPS_LEAST_PRIVILEGE,
   SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1,
 } from "@appsmith/constants/messages";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export function AccessControlUpgradePage() {
+  const { onUpgrade } = useOnUpgrade({
+    logEventName: "ADMIN_SETTINGS_UPGRADE_HOOK",
+    logEventData: { source: "Granular Access Control" },
+  });
+
   const header: Header = {
     heading: createMessage(
       INTRODUCING,
@@ -64,7 +70,9 @@ export function AccessControlUpgradePage() {
     design: "split-left-trigger",
   };
   const footer = {
-    onClick: () => null,
+    onClick: () => {
+      onUpgrade();
+    },
     message: createMessage(ACCESS_CONTROL_UPGRADE_PAGE_FOOTER),
   };
   const props = { header, carousel, footer };
