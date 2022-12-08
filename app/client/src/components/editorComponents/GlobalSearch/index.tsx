@@ -406,7 +406,7 @@ function GlobalSearch() {
       activeItem.type,
       activeItem.pageId,
       NavigationMethod.Omnibar,
-      lastSelectedWidgetId === activeItem.widgetI,
+      lastSelectedWidgetId === activeItem.widgetId,
     );
   };
 
