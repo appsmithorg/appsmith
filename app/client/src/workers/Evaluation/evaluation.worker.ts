@@ -3,54 +3,57 @@
 import { WorkerErrorTypes } from "workers/common/types";
 import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
+import { MessageType } from "utils/WorkerUtil";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function syncRequestMessageListener(e: MessageEvent<EvalWorkerSyncRequest>) {
   const startTime = performance.now();
-  const { method, requestId } = e.data;
+  const { id, method } = e.data;
   if (!method) return;
   const messageHandler = syncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
   const responseData = messageHandler(e.data);
   if (!responseData) return;
   const endTime = performance.now();
-  respond(requestId, responseData, endTime - startTime);
+  respond(id, responseData, endTime - startTime);
 }
 
 async function asyncRequestMessageListener(
   e: MessageEvent<EvalWorkerASyncRequest>,
 ) {
   const start = performance.now();
-  const { method, requestId } = e.data;
+  const { id, method } = e.data;
   if (!method) return;
   const messageHandler = asyncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
-  const responseData = await messageHandler(e.data);
-  if (!responseData) return;
+  const data = await messageHandler(e.data);
+  if (!data) return;
   const end = performance.now();
-  respond(requestId, responseData, end - start);
+  respond(id, data, end - start);
 }
 
-function respond(requestId: string, responseData: unknown, timeTaken: number) {
+function respond(id: string, data: unknown, timeTaken: number) {
   try {
     self.postMessage({
-      requestId,
-      responseData,
+      id,
+      data,
+      messageType: MessageType.RESPONSE,
       timeTaken: timeTaken.toFixed(2),
     });
   } catch (e) {
     console.error(e);
     self.postMessage({
-      requestId,
-      responseData: {
+      id,
+      data: {
         errors: [
           {
             type: WorkerErrorTypes.CLONE_ERROR,
             message: (e as Error)?.message,
-            context: JSON.stringify(responseData),
+            context: JSON.stringify(data),
           },
         ],
       },
+      messageType: MessageType.RESPONSE,
       timeTaken: timeTaken.toFixed(2),
     });
   }

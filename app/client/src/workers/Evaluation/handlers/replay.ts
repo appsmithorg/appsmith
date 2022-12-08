@@ -1,28 +1,28 @@
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 import { CANVAS, replayMap } from "./evalTree";
 
-export function undo(request: EvalWorkerRequest) {
-  const { requestData } = request;
-  const { entityId } = requestData;
+export function undo(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const { entityId } = data;
   if (!replayMap[entityId || CANVAS]) return;
   const replayResult = replayMap[entityId || CANVAS].replay("UNDO");
   replayMap[entityId || CANVAS].clearLogs();
   return replayResult;
 }
 
-export function redo(request: EvalWorkerRequest) {
-  const { requestData } = request;
-  const { entityId } = requestData;
+export function redo(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const { entityId } = data;
   if (!replayMap[entityId ?? CANVAS]) return;
   const replayResult = replayMap[entityId ?? CANVAS].replay("REDO");
   replayMap[entityId ?? CANVAS].clearLogs();
   return replayResult;
 }
 
-export function updateReplayObject(request: EvalWorkerRequest) {
-  const { requestData } = request;
-  const { entity, entityId, entityType } = requestData;
+export function updateReplayObject(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const { entity, entityId, entityType } = data;
   const replayObject = replayMap[entityId];
   if (replayObject) {
     replayObject.update(entity);

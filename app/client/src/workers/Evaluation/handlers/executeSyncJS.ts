@@ -3,8 +3,8 @@ import { dataTreeEvaluator } from "./evalTree";
 import { EvalWorkerSyncRequest } from "../types";
 
 export default function(request: EvalWorkerSyncRequest) {
-  const { requestData } = request;
-  const { functionCall } = requestData;
+  const { data } = request;
+  const { functionCall } = data;
 
   if (!dataTreeEvaluator) {
     return true;

@@ -326,7 +326,6 @@ export async function evaluateAsync(
     /**** Setting the eval context ****/
     userLogs.resetLogs();
     userLogs.setCurrentRequestInfo({
-      requestId,
       eventType: context?.eventType,
       triggerMeta: context?.triggerMeta,
     });

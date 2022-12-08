@@ -16,6 +16,7 @@ import {
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
+import { MessageType } from "utils/WorkerUtil";
 
 export const promisifyAction = (
   workerRequestId: string,
@@ -36,7 +37,7 @@ export const promisifyAction = (
     // We create a new sub request id for each request going on so that we can resolve the correct one later on
     const subRequestId = _.uniqueId(`${workerRequestIdCopy}_`);
     // send an execution request to the main thread
-    const responseData = {
+    const data = {
       trigger: actionDescription,
       errors: [],
       subRequestId,
@@ -44,19 +45,16 @@ export const promisifyAction = (
     };
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-      responseData,
-      requestId: workerRequestIdCopy,
-      promisified: true,
+      data,
+      id: workerRequestIdCopy,
+      messageType: MessageType.REQUEST,
     });
     const processResponse = function(event: MessageEvent) {
-      const { data, eventType, method, requestId, success } = event.data;
+      const { data: messageData, id, messageType } = event.data;
+      const { data, eventType, success } = messageData;
       // This listener will get all the messages that come to the worker
       // we need to find the correct one pertaining to this promise
-      if (
-        method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER &&
-        requestId === workerRequestIdCopy &&
-        subRequestId === event.data.data.subRequestId
-      ) {
+      if (id === workerRequestIdCopy && messageType === MessageType.RESPONSE) {
         // If we get a response for this same promise we will resolve or reject it
 
         // We could not find a data tree evaluator,

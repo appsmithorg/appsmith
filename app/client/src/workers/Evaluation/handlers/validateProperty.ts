@@ -1,10 +1,10 @@
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { removeFunctions } from "../evaluationUtils";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 
-export default function(request: EvalWorkerRequest) {
-  const { requestData } = request;
-  const { property, props, validation, value } = requestData;
+export default function(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const { property, props, validation, value } = data;
   return removeFunctions(
     validateWidgetProperty(validation, value, props, property),
   );

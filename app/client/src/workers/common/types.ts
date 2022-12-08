@@ -9,6 +9,6 @@ export enum WorkerErrorTypes {
 
 export interface WorkerRequest<TData, TActions> {
   method: TActions;
-  requestData: TData;
-  requestId: string;
+  data: TData;
+  id: string;
 }

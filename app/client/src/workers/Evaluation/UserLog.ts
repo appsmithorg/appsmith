@@ -4,6 +4,7 @@ import { LogObject, Methods, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import { MessageType } from "utils/WorkerUtil";
 import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
 
 class UserLog {
@@ -11,13 +12,11 @@ class UserLog {
   private logs: LogObject[] = [];
   private flushLogTimerId: number | undefined;
   private requestInfo: {
-    requestId?: string;
     eventType?: EventType;
     triggerMeta?: TriggerMeta;
   } | null = null;
 
   public setCurrentRequestInfo(requestInfo: {
-    requestId?: string;
     eventType?: EventType;
     triggerMeta?: TriggerMeta;
   }) {
@@ -29,13 +28,12 @@ class UserLog {
     this.flushLogTimerId = _internalSetTimeout(() => {
       const logs = this.flushLogs();
       self.postMessage({
-        promisified: true,
-        responseData: {
+        data: {
           logs,
           eventType: this.requestInfo?.eventType,
           triggerMeta: this.requestInfo?.triggerMeta,
         },
-        requestId: this.requestInfo?.requestId,
+        messageType: MessageType.REQUEST,
       });
     }, this.flushLogsTimerDelay);
   }

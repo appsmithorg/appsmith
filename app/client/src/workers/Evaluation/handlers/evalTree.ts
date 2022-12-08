@@ -31,7 +31,7 @@ export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
 
 export default function(request: EvalWorkerSyncRequest) {
-  const { requestData } = request;
+  const { data } = request;
   let evalOrder: string[] = [];
   let lintOrder: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
@@ -54,7 +54,7 @@ export default function(request: EvalWorkerSyncRequest) {
     unevalTree: __unevalTree__,
     widgets,
     widgetTypeConfigMap,
-  } = requestData as EvalTreeRequestData;
+  } = data as EvalTreeRequestData;
 
   const unevalTree = createUnEvalTreeForEval(__unevalTree__);
 

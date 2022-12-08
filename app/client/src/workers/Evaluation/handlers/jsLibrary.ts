@@ -2,7 +2,7 @@ import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
 import difference from "lodash/difference";
 import { JSLibraries, libraryReservedNames } from "../../common/JSLibrary";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 
 enum LibraryInstallError {
   NameCollisionError,
@@ -47,9 +47,9 @@ class LibraryOverrideError extends Error {
   }
 }
 
-export function installLibrary(request: EvalWorkerRequest) {
-  const { requestData } = request;
-  const { takenAccessors, takenNamesMap, url } = requestData;
+export function installLibrary(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const { takenAccessors, takenNamesMap, url } = data;
   const defs: any = {};
   try {
     const currentEnvKeys = Object.keys(self);
@@ -113,9 +113,9 @@ export function installLibrary(request: EvalWorkerRequest) {
   }
 }
 
-export function uninstallLibrary(request: EvalWorkerRequest) {
-  const { requestData } = request;
-  const accessor = requestData;
+export function uninstallLibrary(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const accessor = data;
   try {
     for (const key of accessor) {
       //@ts-expect-error test
@@ -128,10 +128,10 @@ export function uninstallLibrary(request: EvalWorkerRequest) {
   }
 }
 
-export function loadLibraries(request: EvalWorkerRequest) {
+export function loadLibraries(request: EvalWorkerSyncRequest) {
   //Add types
-  const { requestData } = request;
-  const urls = requestData.map((lib: any) => lib.url);
+  const { data } = request;
+  const urls = data.map((lib: any) => lib.url);
   const keysBefore = Object.keys(self);
   let message = "";
 
@@ -146,7 +146,7 @@ export function loadLibraries(request: EvalWorkerRequest) {
   for (const key of newKeys) {
     libraryReservedNames.add(key);
   }
-  JSLibraries.push(...requestData);
+  JSLibraries.push(...data);
   return { success: !message, message };
 }
 

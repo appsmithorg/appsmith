@@ -3,7 +3,7 @@ import interceptAndOverrideHttpRequest from "../HTTPRequestOverride";
 import { resetJSLibraries } from "../../common/JSLibrary";
 import SetupDOM from "../SetupDOM";
 import overrideTimeout from "../TimeoutOverride";
-import { EvalWorkerRequest } from "../types";
+import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../UserLog";
 
 export default function() {
@@ -27,9 +27,9 @@ export default function() {
   return true;
 }
 
-export function setEvaluationVersion(request: EvalWorkerRequest) {
-  const { requestData } = request;
-  const { version } = requestData;
+export function setEvaluationVersion(request: EvalWorkerSyncRequest) {
+  const { data } = request;
+  const { version } = data;
   self.evaluationVersion = version || 1;
   // TODO: Move this to setup
   resetJSLibraries();
