@@ -61,6 +61,7 @@ import SettingsReducer, {
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
+import { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import tenantReducer, {
   TenantReduxState,
 } from "@appsmith/reducers/tenantReducer";
@@ -125,6 +126,7 @@ export interface AppState {
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
+    appSettingsPane: AppSettingsPaneReduxState;
     focusHistory: FocusHistoryState;
     editorContext: EditorContextState;
     autoHeightUI: AutoHeightUIState;

@@ -350,4 +350,40 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(widgetsPage.searchField).should("have.value", "data");
     cy.get(publish.backToEditor).click();
   });
+
+  it("13. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function() {
+    // Open property pane
+    cy.openPropertyPane("tablewidgetv2");
+    cy.moveToContentTab();
+    cy.addColumnV2("customColumn18");
+    cy.editColumn("customColumn1");
+    cy.get(".t--property-control-propertyname pre span span").should(
+      "have.text",
+      "customColumn18",
+    );
+    cy.editColName("customColumn00");
+    cy.get(".t--property-control-propertyname pre span span").should(
+      "have.text",
+      "customColumn00",
+    );
+    cy.get(".t--property-pane-back-btn").click();
+    cy.get('[data-rbd-draggable-id="customColumn1"] input').should(
+      "have.value",
+      "customColumn00",
+    );
+    cy.get("[data-rbd-draggable-id='customColumn1'] input[type='text']").clear({
+      force: true,
+    });
+    cy.get("[data-rbd-draggable-id='customColumn1'] input[type='text']").type(
+      "customColumn99",
+      {
+        force: true,
+      },
+    );
+    cy.editColumn("customColumn1");
+    cy.get(".t--property-control-propertyname pre span span").should(
+      "have.text",
+      "customColumn99",
+    );
+  });
 });
