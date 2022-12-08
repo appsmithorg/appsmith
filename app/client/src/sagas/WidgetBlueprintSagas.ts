@@ -157,8 +157,10 @@ export function* executeWidgetBlueprintChildOperations(
       ),
     };
 
+    let currMessage;
+
     ({
-      message,
+      message: currMessage,
       widgets,
     } = (operation.fn as BlueprintOperationChildOperationsFn)(
       widgets,
@@ -166,6 +168,8 @@ export function* executeWidgetBlueprintChildOperations(
       parentId,
       widgetPropertyMaps,
     ));
+    //set message if one of the widget has any message to show
+    if (currMessage) message = currMessage;
   }
 
   // If something odd happens show the message related to the odd scenario
