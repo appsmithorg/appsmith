@@ -625,7 +625,6 @@ export class DataSources {
       } else {
         this.SaveDatasource();
       }
-
       cy.wrap(dataSourceName).as("dsName");
     });
   }

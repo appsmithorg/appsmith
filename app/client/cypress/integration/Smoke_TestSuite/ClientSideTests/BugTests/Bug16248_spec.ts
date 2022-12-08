@@ -9,10 +9,10 @@ describe("Block Shortcut Action Execution", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
     apiPage.CreateAndFillApi(largeResponseApiUrl, "GitSyncTest");
-    gitSync.openGitSyncModal();
+    gitSync.OpenGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
     cy.get("@postExecute").should("not.exist");
-    gitSync.closeGitSyncModal();
+    gitSync.CloseGitSyncModal();
     cy.get("body").type(`{${modifierKey}}{enter}`);
     cy.wait("@postExecute");
   });

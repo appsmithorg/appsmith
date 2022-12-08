@@ -72,6 +72,10 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
     "')]//button[contains(@class, 't--open-dropdown-Select-Action')]";
+    _selectPropPageDropdown = (ddName: string) =>
+    "//div[contains(@class, 't--property-control-" +
+    ddName.replace(/ +/g, "").toLowerCase() +
+    "')]//button[contains(@class, 't--open-dropdown-Select-Page')]";
   _dropDownValue = (dropdownOption: string) =>
     ".single-select:contains('" + dropdownOption + "')";
   _selectOptionValue = (dropdownOption: string) =>
