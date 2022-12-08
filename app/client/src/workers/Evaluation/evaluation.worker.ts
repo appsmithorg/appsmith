@@ -281,7 +281,7 @@ function eventRequestHandler({
           dataTree = makeEntityConfigsAsObjProperties(
             dataTreeResponse.evalTree,
             {
-              evalValuesAndError: dataTreeEvaluator.evalValuesAndError,
+              evalValuesAndErrors: dataTreeEvaluator.evalValuesAndErrors,
             },
           );
         } else if (dataTreeEvaluator.hasCyclicalDependency) {
@@ -323,7 +323,7 @@ function eventRequestHandler({
           dataTree = makeEntityConfigsAsObjProperties(
             dataTreeResponse.evalTree,
             {
-              evalValuesAndError: dataTreeEvaluator.evalValuesAndError,
+              evalValuesAndErrors: dataTreeEvaluator.evalValuesAndErrors,
             },
           );
         } else {
@@ -360,7 +360,7 @@ function eventRequestHandler({
           dataTree = makeEntityConfigsAsObjProperties(
             dataTreeEvaluator.evalTree,
             {
-              evalValuesAndError: dataTreeEvaluator.evalValuesAndError,
+              evalValuesAndErrors: dataTreeEvaluator.evalValuesAndErrors,
             },
           );
           evalMetaUpdates = JSON.parse(
@@ -397,7 +397,7 @@ function eventRequestHandler({
         dataTree = getSafeToRenderDataTree(
           makeEntityConfigsAsObjProperties(unevalTree, {
             sanitizeDataTree: false,
-            evalValuesAndError: dataTreeEvaluator?.evalValuesAndError,
+            evalValuesAndErrors: dataTreeEvaluator?.evalValuesAndErrors,
           }),
           widgetTypeConfigMap,
         );

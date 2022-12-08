@@ -564,13 +564,13 @@ export function getSafeToRenderDataTree(
 export const addErrorToEntityProperty = ({
   dataTree,
   errors,
-  evalValuesAndError,
+  evalValuesAndErrors,
   fullPropertyPath,
 }: {
   errors: EvaluationError[];
   dataTree: DataTree;
   fullPropertyPath: string;
-  evalValuesAndError: EvalValuesAndErrors;
+  evalValuesAndErrors: EvalValuesAndErrors;
 }) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
@@ -582,22 +582,22 @@ export const addErrorToEntityProperty = ({
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrors = get(
-      evalValuesAndError,
+      evalValuesAndErrors,
       errorPath,
       [],
     ) as EvaluationError[];
-    set(evalValuesAndError, errorPath, existingErrors.concat(errors));
+    set(evalValuesAndErrors, errorPath, existingErrors.concat(errors));
   }
 
   return dataTree;
 };
 
 export const resetValidationErrorsForEntityProperty = ({
-  evalValuesAndError,
+  evalValuesAndErrors,
   fullPropertyPath,
 }: {
   fullPropertyPath: string;
-  evalValuesAndError: EvalValuesAndErrors;
+  evalValuesAndErrors: EvalValuesAndErrors;
 }) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
     fullPropertyPath,
@@ -605,13 +605,13 @@ export const resetValidationErrorsForEntityProperty = ({
   if (propertyPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrorsExceptValidation = (_.get(
-      evalValuesAndError,
+      evalValuesAndErrors,
       errorPath,
       [],
     ) as EvaluationError[]).filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
-    _.set(evalValuesAndError, errorPath, existingErrorsExceptValidation);
+    _.set(evalValuesAndErrors, errorPath, existingErrorsExceptValidation);
   }
 };
 

@@ -149,7 +149,7 @@ export default class DataTreeEvaluator {
   /**
    * Sanitized eval values and errors
    */
-  evalValuesAndError: EvalValuesAndErrors = {};
+  evalValuesAndErrors: EvalValuesAndErrors = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -302,7 +302,7 @@ export default class DataTreeEvaluator {
     // Validate Widgets
     this.setEvalTree(
       getValidatedTree(evaluatedTree, {
-        evalValuesAndError: this.evalValuesAndError,
+        evalValuesAndErrors: this.evalValuesAndErrors,
       }),
     );
     const validationEndTime = performance.now();
@@ -686,7 +686,7 @@ export default class DataTreeEvaluator {
             (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
           if (propertyPath) {
             set(
-              this.evalValuesAndError,
+              this.evalValuesAndErrors,
               getEvalErrorPath(fullPropertyPath),
               [],
             );
@@ -733,7 +733,7 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
-                evalValuesAndError: this.evalValuesAndError,
+                evalValuesAndErrors: this.evalValuesAndErrors,
               });
 
               this.setParsedValue({
@@ -782,7 +782,7 @@ export default class DataTreeEvaluator {
 
             if (!propertyPath) return currentTree;
             set(
-              this.evalValuesAndError,
+              this.evalValuesAndErrors,
               getEvalValuePath(fullPropertyPath),
               removeFunctions(evalPropertyValue),
             );
@@ -792,7 +792,7 @@ export default class DataTreeEvaluator {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
               const currentEvaluatedValue = get(
-                this.evalValuesAndError,
+                this.evalValuesAndErrors,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
@@ -800,7 +800,7 @@ export default class DataTreeEvaluator {
               );
               if (!currentEvaluatedValue) {
                 set(
-                  this.evalValuesAndError,
+                  this.evalValuesAndErrors,
                   getEvalValuePath(fullPropertyPath, {
                     isPopulated: true,
                     fullPath: true,
@@ -933,7 +933,7 @@ export default class DataTreeEvaluator {
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty({
               errors: result.errors,
-              evalValuesAndError: this.evalValuesAndError,
+              evalValuesAndErrors: this.evalValuesAndErrors,
               fullPropertyPath,
               dataTree: data,
             });
@@ -1004,7 +1004,7 @@ export default class DataTreeEvaluator {
                 severity: Severity.ERROR,
               },
             ],
-            evalValuesAndError: this.evalValuesAndError,
+            evalValuesAndErrors: this.evalValuesAndErrors,
             fullPropertyPath,
             dataTree: data,
           });
@@ -1128,7 +1128,7 @@ export default class DataTreeEvaluator {
             this.oldUnEvalTree,
             fullPath,
           ) as unknown) as string,
-          evalValuesAndError: this.evalValuesAndError,
+          evalValuesAndErrors: this.evalValuesAndErrors,
         });
       });
     }
@@ -1182,7 +1182,7 @@ export default class DataTreeEvaluator {
         // Later errors can consumed by the forms and debugger
         addErrorToEntityProperty({
           errors: evalErrors,
-          evalValuesAndError: this.evalValuesAndError,
+          evalValuesAndErrors: this.evalValuesAndErrors,
           fullPropertyPath,
           dataTree: currentTree,
         });

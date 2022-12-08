@@ -43,10 +43,10 @@ export function makeEntityConfigsAsObjProperties(
   dataTree: DataTree,
   option = {} as {
     sanitizeDataTree?: boolean;
-    evalValuesAndError?: EvalValuesAndErrors;
+    evalValuesAndErrors?: EvalValuesAndErrors;
   },
 ): DataTree {
-  const { evalValuesAndError, sanitizeDataTree = true } = option;
+  const { evalValuesAndErrors, sanitizeDataTree = true } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entityConfig = Object.getPrototypeOf(dataTree[entityName]) || {};
@@ -57,10 +57,10 @@ export function makeEntityConfigsAsObjProperties(
     ? JSON.parse(JSON.stringify(newDataTree))
     : newDataTree;
 
-  if (!evalValuesAndError) return dataTreeToReturn;
+  if (!evalValuesAndErrors) return dataTreeToReturn;
 
   for (const [entityName, entityEvalValues] of Object.entries(
-    evalValuesAndError,
+    evalValuesAndErrors,
   )) {
     if (!entityEvalValues.__evaluation__) continue;
     set(

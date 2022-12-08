@@ -22,7 +22,7 @@ import { EvalValuesAndErrors } from ".";
 export function validateAndParseWidgetProperty({
   currentTree,
   evalPropertyValue,
-  evalValuesAndError,
+  evalValuesAndErrors,
   fullPropertyPath,
   unEvalPropertyValue,
   widget,
@@ -32,7 +32,7 @@ export function validateAndParseWidgetProperty({
   currentTree: DataTree;
   evalPropertyValue: unknown;
   unEvalPropertyValue: string;
-  evalValuesAndError: EvalValuesAndErrors;
+  evalValuesAndErrors: EvalValuesAndErrors;
 }): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   if (isPathADynamicTrigger(widget, propertyPath)) {
@@ -53,7 +53,7 @@ export function validateAndParseWidgetProperty({
     evaluatedValue = parsed;
     // remove validation errors is already present
     resetValidationErrorsForEntityProperty({
-      evalValuesAndError,
+      evalValuesAndErrors,
       fullPropertyPath,
     });
   } else {
@@ -71,13 +71,13 @@ export function validateAndParseWidgetProperty({
     // Add validation errors
     addErrorToEntityProperty({
       errors: evalErrors,
-      evalValuesAndError,
+      evalValuesAndErrors,
       fullPropertyPath,
       dataTree: currentTree,
     });
   }
   set(
-    evalValuesAndError,
+    evalValuesAndErrors,
     getEvalValuePath(fullPropertyPath, {
       isPopulated: false,
       fullPath: true,
@@ -118,9 +118,9 @@ export function validateActionProperty(
 
 export function getValidatedTree(
   tree: DataTree,
-  option: { evalValuesAndError: EvalValuesAndErrors },
+  option: { evalValuesAndErrors: EvalValuesAndErrors },
 ) {
-  const { evalValuesAndError } = option;
+  const { evalValuesAndErrors } = option;
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const parsedEntity = tree[entityKey];
     if (!isWidget(parsedEntity)) {
@@ -144,7 +144,7 @@ export function getValidatedTree(
           ? value
           : transformed;
         set(
-          evalValuesAndError,
+          evalValuesAndErrors,
           getEvalValuePath(`${entityKey}.${property}`, {
             isPopulated: false,
             fullPath: true,
@@ -161,7 +161,7 @@ export function getValidatedTree(
             })) ?? [];
           addErrorToEntityProperty({
             errors: evalErrors,
-            evalValuesAndError,
+            evalValuesAndErrors,
             fullPropertyPath: getEvalErrorPath(`${entityKey}.${property}`, {
               isPopulated: false,
               fullPath: true,
