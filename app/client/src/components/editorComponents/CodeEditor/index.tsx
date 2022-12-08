@@ -106,7 +106,7 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   CodeEditorFocusState,
-  generateKeyAndSetCodeEditorLastFocus,
+  setEditorFieldFocusAction,
 } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
@@ -1061,7 +1061,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(executeCommandAction(payload)),
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
-    dispatch(generateKeyAndSetCodeEditorLastFocus(payload)),
+    dispatch(setEditorFieldFocusAction(payload)),
 });
 
 export default Sentry.withProfiler(
