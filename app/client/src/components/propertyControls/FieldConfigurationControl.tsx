@@ -11,12 +11,13 @@ import SchemaParser, {
 import styled from "constants/DefaultTheme";
 import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
 import { Category, Size } from "design-system";
-import { BaseItemProps, DroppableComponent } from "./DraggableListComponent";
+import { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
 import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -196,7 +197,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     const addNewFieldButton = (
       <AddFieldButton
-        category={Category.tertiary}
+        category={Category.secondary}
         className="t--add-column-btn"
         icon="plus"
         onClick={this.addNewField}
@@ -258,13 +259,14 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     return (
       <TabsWrapper>
-        <DroppableComponent
+        <DraggableListControl
           deleteOption={this.onDeleteOption}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={draggableComponentColumns}
           onEdit={this.onEdit}
-          renderComponent={(props) => {
+          propertyPath={this.props.dataTreePath}
+          renderComponent={(props: any) => {
             const { id, isCustomField } = props.item;
 
             return DraggableListCard({
