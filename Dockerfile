@@ -80,6 +80,7 @@ COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/mongo-init.js.sh\
   ./deploy/docker/templates/docker.env.sh \
   ./deploy/docker/templates/keycloak-standalone.xml \
+  ./deploy/docker/templates/postgres-module.xml \
   ./deploy/docker/templates/postgresql-42.2.20.jar \
   templates/
 
