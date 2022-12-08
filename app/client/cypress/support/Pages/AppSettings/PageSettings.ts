@@ -14,26 +14,22 @@ export class PageSettings {
   };
 
   tryPageNameAndVerifyTextValue(newPageName: string, verifyPageNameAs: string) {
-    this.agHelper
-      .InvokeVal(this.locators.pageNameField)
-      .then((currentPageName) => {
-        const currentPageNameLength = (currentPageName as string).length;
-        this.agHelper.RemoveCharsNType(
-          this.locators.pageNameField,
-          currentPageNameLength,
-          newPageName,
-        );
-        this.agHelper
-          .GetText(this.locators.pageNameField, "val")
-          .then((fieldValue) => {
-            expect(fieldValue).to.equal(verifyPageNameAs);
-            this.agHelper.RemoveCharsNType(
-              this.locators.pageNameField,
-              (fieldValue as string).length,
-              currentPageName as string,
-            );
-          });
-      });
+    this.designSystem.TextInput.tryAndAssertValue(
+      this.locators.pageNameField,
+      newPageName,
+      verifyPageNameAs,
+    );
+  }
+
+  tryCustomSlugAndVerifyTextValue(
+    newCustomSlug: string,
+    verifyCustomSlugAs: string,
+  ) {
+    this.designSystem.TextInput.tryAndAssertValue(
+      this.locators.customSlugField,
+      newCustomSlug,
+      verifyCustomSlugAs,
+    );
   }
 
   changePageNameAndVerifyUrl(

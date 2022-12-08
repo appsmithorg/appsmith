@@ -76,4 +76,34 @@ describe("Page Settings", () => {
     );
     appSettings.ClosePane();
   });
+
+  it("Page name doesn't allow duplicate name", () => {
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToPageSettings("Page3");
+    appSettings.page.tryPageNameAndVerifyErrorMessage(
+      "Page2",
+      "Page2 is already being used.",
+    );
+    appSettings.ClosePane();
+  });
+
+  it("Page name doesn't allow keywords", () => {
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToPageSettings("Page3");
+    appSettings.page.tryPageNameAndVerifyErrorMessage(
+      "appsmith",
+      "appsmith is already being used.",
+    );
+    appSettings.ClosePane();
+  });
+
+  it("Custom slug doesn't allow special/accented characters", () => {
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToPageSettings("Page3");
+    appSettings.page.tryCustomSlugAndVerifyTextValue(
+      "custom-slug!@#œßð",
+      "custom-slug",
+    );
+    appSettings.ClosePane();
+  });
 });
