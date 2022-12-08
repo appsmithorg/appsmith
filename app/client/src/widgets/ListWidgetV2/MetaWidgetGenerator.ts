@@ -29,6 +29,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import equal from "fast-deep-equal/es6";
 
 type TemplateWidgets = ListWidgetProps<
   WidgetProps
@@ -119,6 +120,7 @@ type AddDynamicPathsPropertiesOptions = {
 
 enum MODIFICATION_TYPE {
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
+  OPTIONS_MODIFIED = "OPTIONS_MODIFIED",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -280,6 +282,13 @@ class MetaWidgetGenerator {
   };
 
   generate = () => {
+    if (!this.modificationsQueue.has(MODIFICATION_TYPE.OPTIONS_MODIFIED)) {
+      return {
+        metaWidgets: {},
+        removedMetaWidgetIds: [],
+      };
+    }
+
     const data = this.getData();
     const dataCount = data.length;
     const indices = Array.from(Array(dataCount).keys());
@@ -929,6 +938,10 @@ class MetaWidgetGenerator {
     ) {
       this.modificationsQueue.add(MODIFICATION_TYPE.UPDATE_CONTAINER);
     }
+
+    if (this.hasOptionsChanged(nextOptions)) {
+      this.modificationsQueue.add(MODIFICATION_TYPE.OPTIONS_MODIFIED);
+    }
   };
 
   private flushModificationQueue = () => {
@@ -999,6 +1012,21 @@ class MetaWidgetGenerator {
       !isMetaWidgetPresentInCurrentView ||
       isTemplateWidgetChanged ||
       (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved)
+    );
+  };
+
+  private hasOptionsChanged = (nextOptions: GeneratorOptions) => {
+    return (
+      !equal(nextOptions.cacheIndexArr, this.cacheIndexArr) ||
+      nextOptions?.currTemplateWidgets !== this?.currTemplateWidgets ||
+      nextOptions.data.length !== this.data.length ||
+      nextOptions.infiniteScroll !== this.infiniteScroll ||
+      nextOptions.itemGap !== this.itemGap ||
+      nextOptions.pageNo !== this.pageNo ||
+      nextOptions.pageSize !== this.pageSize ||
+      nextOptions.primaryKeys !== this.primaryKeys ||
+      nextOptions.serverSidePagination !== this.serverSidePagination ||
+      nextOptions.templateBottomRow !== this.templateBottomRow
     );
   };
 
