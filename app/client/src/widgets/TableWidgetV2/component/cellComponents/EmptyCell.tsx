@@ -20,7 +20,7 @@ export const renderEmptyRows = (
   if (page.length) {
     const row = page[0];
 
-    return rows.map((item: string, index: number) => {
+    return rows.map((__: string, index: number) => {
       prepareRow?.(row);
       const rowProps = {
         ...row.getRowProps(),
@@ -36,12 +36,8 @@ export const renderEmptyRows = (
           {row.cells.map((cell: Cell<Record<string, unknown>>) => {
             const cellProps = cell.getCellProps();
             return (
-              <div
-                {...cellProps}
-                className="td skeleton-cell"
-                key={cellProps.key}
-              >
-                <span className="skeleton" />
+              <div {...cellProps} className="td" key={cellProps.key}>
+                <span />
               </div>
             );
           })}

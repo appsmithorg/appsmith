@@ -295,7 +295,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   const memoziedEnableDrag = useCallback(() => disableDrag(false), [
     disableDrag,
   ]);
-
   return (
     <Table
       accentColor={props.accentColor}

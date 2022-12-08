@@ -90,6 +90,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import store from "store";
 import { getAppStoreName } from "constants/AppConstants";
+import { DEFAULT_ROWS_PER_PAGE } from "./derived";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -876,7 +877,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
@@ -887,11 +887,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
-    const isVisibleHeaderOptions =
-      isVisibleDownload ||
-      isVisibleFilters ||
-      isVisiblePagination ||
-      isVisibleSearch;
+    // const isVisibleHeaderOptions =
+    //   isVisibleDownload ||
+    //   isVisibleFilters ||
+    //   isVisiblePagination ||
+    //   isVisibleSearch;
 
     const {
       componentHeight,
@@ -944,9 +944,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
-          pageSize={
-            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
-          }
+          pageSize={DEFAULT_ROWS_PER_PAGE}
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           searchKey={this.props.searchText}

@@ -148,11 +148,10 @@ export function Table(props: TableProps) {
     is set higher/lower than the visible number of rows in the table
   */
   const pageCount =
-    props.serverSidePaginationEnabled &&
-    props.totalRecordsCount &&
-    props.data.length
-      ? Math.ceil(props.totalRecordsCount / props.data.length)
-      : Math.ceil(props.data.length / props.pageSize);
+    (props.serverSidePaginationEnabled &&
+      props.totalRecordsCount &&
+      Math.ceil(props.totalRecordsCount / props.pageSize)) ||
+    0;
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
 
   const {

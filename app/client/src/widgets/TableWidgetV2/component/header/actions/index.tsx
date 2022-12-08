@@ -127,8 +127,15 @@ export interface ActionsPropsType {
 }
 
 function Actions(props: ActionsPropsType) {
-  const startIndex = props.currentPageIndex * props.tableData.length + 1;
-  const endIndex = startIndex + props.tableData.length - 1;
+  const isLastPage = props.currentPageIndex === props.pageCount - 1;
+  let startIndex: number, endIndex: number;
+  if (isLastPage) {
+    startIndex = props.currentPageIndex * props.pageSize + 1;
+    endIndex = props.totalRecordsCount || 0;
+  } else {
+    startIndex = props.currentPageIndex * props.pageSize + 1;
+    endIndex = startIndex + props.pageSize - 1;
+  }
 
   return (
     <>
