@@ -268,6 +268,7 @@ export type EventName =
   | "BINDING_COPIED"
   | "AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE"
   | AUDIT_LOGS_EVENT_NAMES
+  | "Cmd+Click Navigation"
   | LIBRARY_EVENTS;
 
 export enum LIBRARY_EVENTS {
