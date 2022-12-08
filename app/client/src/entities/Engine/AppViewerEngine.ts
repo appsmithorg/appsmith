@@ -78,7 +78,6 @@ export default class AppViewerEngine extends AppEngine {
         fetchPublishedPage(toLoadPageId, true, true),
       ],
       [
-        ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
         ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
         ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
         ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -86,7 +85,6 @@ export default class AppViewerEngine extends AppEngine {
         fetchPublishedPageSuccess().type,
       ],
       [
-        ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
         ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
         ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
         ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
