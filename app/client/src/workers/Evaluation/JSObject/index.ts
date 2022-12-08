@@ -256,33 +256,29 @@ export function viewModeSaveResolvedFunctions(
     const jsActions = entity.meta;
     const jsActionList = Object.keys(jsActions);
     for (const jsAction of jsActionList) {
-      try {
-        const { result } = evaluateSync(
-          jsActions[jsAction].body,
-          unEvalDataTree,
-          {},
-          false,
-          undefined,
-          undefined,
-          true,
+      const { result } = evaluateSync(
+        jsActions[jsAction].body,
+        unEvalDataTree,
+        {},
+        false,
+        undefined,
+        undefined,
+        true,
+      );
+
+      if (!!result) {
+        const functionString = jsActions[jsAction].body;
+
+        set(
+          dataTreeEvalRef.resolvedFunctions,
+          `${entityName}.${jsAction}`,
+          result,
         );
-
-        if (!!result) {
-          const functionString = jsActions[jsAction].body;
-
-          set(
-            dataTreeEvalRef.resolvedFunctions,
-            `${entityName}.${jsAction}`,
-            result,
-          );
-          set(
-            dataTreeEvalRef.currentJSCollectionState,
-            `${entityName}.${jsAction}`,
-            functionString,
-          );
-        }
-      } catch {
-        // in case we need to handle error state
+        set(
+          dataTreeEvalRef.currentJSCollectionState,
+          `${entityName}.${jsAction}`,
+          functionString,
+        );
       }
     }
   } catch (e) {
@@ -295,7 +291,7 @@ export function parseJSActionsForUpdateTree(
   unEvalDataTree: DataTree,
   differences: DataTreeDiff[],
 ) {
-  const jsUpdates: Record<string, JSUpdate> = {};
+  let jsUpdates: Record<string, JSUpdate> = {};
   for (const diff of differences) {
     const payLoadPropertyPath = diff.payload.propertyPath;
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
@@ -317,7 +313,7 @@ export function parseJSActionsForUpdateTree(
         break;
       case DataTreeDiffEvent.EDIT:
         if (propertyPath === "body") {
-          saveResolvedFunctionsAndJSUpdates(
+          jsUpdates = saveResolvedFunctionsAndJSUpdates(
             dataTreeEvalRef,
             entity,
             unEvalDataTree,
@@ -328,7 +324,7 @@ export function parseJSActionsForUpdateTree(
         break;
       case DataTreeDiffEvent.NEW:
         if (propertyPath === "") {
-          saveResolvedFunctionsAndJSUpdates(
+          jsUpdates = saveResolvedFunctionsAndJSUpdates(
             dataTreeEvalRef,
             entity,
             unEvalDataTree,
@@ -351,7 +347,7 @@ export function parseJSActionsForFirstTreeInViewMode(
   for (const entityName of unEvalDataTreeKeys) {
     const entity = unEvalDataTree[entityName];
     if (!isJSAction(entity)) {
-      return;
+      continue;
     }
     viewModeSaveResolvedFunctions(
       dataTreeEvalRef,
@@ -366,14 +362,14 @@ export function parseJSActionsForFirstTreeInEditMode(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
 ) {
-  const jsUpdates: Record<string, JSUpdate> = {};
+  let jsUpdates: Record<string, JSUpdate> = {};
   const unEvalDataTreeKeys = Object.keys(unEvalDataTree);
   for (const entityName of unEvalDataTreeKeys) {
     const entity = unEvalDataTree[entityName];
     if (!isJSAction(entity)) {
-      return;
+      continue;
     }
-    saveResolvedFunctionsAndJSUpdates(
+    jsUpdates = saveResolvedFunctionsAndJSUpdates(
       dataTreeEvalRef,
       entity,
       unEvalDataTree,
@@ -392,7 +388,7 @@ export function parseJSUpdates(
   const jsUpdateKeys = Object.keys(jsUpdates);
   for (const entityName of jsUpdateKeys) {
     const parsedBody = jsUpdates[entityName].parsedBody;
-    if (!parsedBody) return;
+    if (!parsedBody) continue;
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
