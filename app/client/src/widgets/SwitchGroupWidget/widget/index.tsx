@@ -1,17 +1,17 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import { xor } from "lodash";
-
+import { isString, xor } from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-
-import SwitchGroupComponent, { OptionProps } from "../component";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Stylesheet } from "entities/AppTheming";
+import SwitchGroupComponent, { OptionProps } from "../component";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -109,6 +109,7 @@ class SwitchGroupWidget extends BaseWidget<
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -175,6 +176,16 @@ class SwitchGroupWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "labelTooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             propertyName: "isVisible",
             helpText: "Controls the visibility of the widget",
@@ -359,6 +370,12 @@ class SwitchGroupWidget extends BaseWidget<
     ];
   }
 
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+    };
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedValuesArray: "defaultSelectedValues",
@@ -419,6 +436,7 @@ class SwitchGroupWidget extends BaseWidget<
       labelText,
       labelTextColor,
       labelTextSize,
+      labelTooltip,
       options,
       selectedValues,
       topRow,
@@ -426,6 +444,15 @@ class SwitchGroupWidget extends BaseWidget<
     } = this.props;
 
     const { componentHeight } = this.getComponentDimensions();
+
+    // TODO(abhinav): Not sure why we have to do this.
+    // Check with the App Viewers Pod
+    let _options = options;
+    if (isString(options)) {
+      try {
+        _options = JSON.parse(options as string);
+      } catch (e) {}
+    }
 
     return (
       <SwitchGroupComponent
@@ -435,15 +462,17 @@ class SwitchGroupWidget extends BaseWidget<
         disabled={isDisabled}
         height={componentHeight}
         inline={isInline}
+        isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         labelAlignment={labelAlignment}
         labelPosition={labelPosition}
         labelStyle={labelStyle}
         labelText={labelText}
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize}
+        labelTooltip={labelTooltip}
         labelWidth={this.getLabelWidth()}
         onChange={this.handleSwitchStateChange}
-        options={options}
+        options={_options}
         required={isRequired}
         selected={selectedValues}
         valid={isValid}

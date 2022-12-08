@@ -5,14 +5,21 @@ import { createSelector } from "reselect";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { PropertyPaneReduxState } from "reducers/uiReducers/propertyPaneReducer";
+import {
+  DataTree,
+  DataTreeEntity,
+  DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
+import {
+  PropertyPaneReduxState,
+  SelectedPropertyPanel,
+} from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -20,6 +27,9 @@ export type WidgetProperties = WidgetProps & {
 
 export const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
+
+export const getSelectedPropertyPanel = (state: AppState) =>
+  state.ui.propertyPane.selectedPropertyPanel;
 
 export const getCurrentWidgetId = createSelector(
   getPropertyPaneState,
@@ -58,6 +68,7 @@ export const getWidgetPropsForPropertyPane = createSelector(
 );
 
 type WidgetPropertiesForPropertyPaneView = {
+  disabledWidgetFeatures?: RegisteredWidgetFeatures[];
   type: string;
   widgetId: string;
   widgetName: string;
@@ -72,6 +83,7 @@ export const getWidgetPropsForPropertyPaneView = createSelector(
       "widgetId",
       "widgetName",
       "displayName",
+      "disabledWidgetFeatures",
     ]) as WidgetPropertiesForPropertyPaneView,
 );
 
@@ -224,5 +236,42 @@ export const getIsPropertyPaneVisible = createSelector(
       el &&
       pane.widgetId
     );
+  },
+);
+
+/**
+ * returns the width of propertypane
+ *
+ * @param state
+ * @returns
+ */
+export const getPropertyPaneWidth = (state: AppState) => {
+  return state.ui.propertyPane.width;
+};
+export const getFocusablePropertyPaneField = (state: AppState) =>
+  state.ui.propertyPane.focusedProperty;
+
+export const getShouldFocusPropertyPath = createSelector(
+  [
+    getFocusablePropertyPaneField,
+    (_state: AppState, key: string | undefined) => key,
+  ],
+  (focusableField: string | undefined, key: string | undefined): boolean => {
+    return !!(key && focusableField === key);
+  },
+);
+
+export const getSelectedPropertyPanelIndex = createSelector(
+  [
+    getSelectedPropertyPanel,
+    (_state: AppState, path: string | undefined) => path,
+  ],
+  (
+    selectedPropertyPanel: SelectedPropertyPanel,
+    path: string | undefined,
+  ): number | undefined => {
+    if (!path || selectedPropertyPanel[path] === undefined) return;
+
+    return selectedPropertyPanel[path];
   },
 );

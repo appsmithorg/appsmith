@@ -7,13 +7,13 @@ import { noop } from "lodash";
 import {
   CommonComponentProps,
   EditInteractionKind,
+  getTypographyByKey,
   Icon,
   IconSize,
   SavingState,
   Toaster,
   Variant,
 } from "design-system";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
@@ -27,7 +27,6 @@ type EditorAppNameProps = CommonComponentProps &
     placeholder?: string;
     editInteractionKind: EditInteractionKind;
     defaultSavingState: SavingState;
-    deploy: typeof noop;
     onBlur?: (value: string) => void;
     isEditingDefault?: boolean;
     inputValidation?: (value: string) => string | boolean;
@@ -35,7 +34,6 @@ type EditorAppNameProps = CommonComponentProps &
     fill?: boolean;
     isError?: boolean;
     isNewApp: boolean;
-    currentDeployLink: string;
     isPopoverOpen: boolean;
     setIsPopoverOpen: typeof noop;
   };
@@ -71,7 +69,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
   }
   &&&& .${Classes.EDITABLE_TEXT_CONTENT}, &&&& .${Classes.EDITABLE_TEXT_INPUT} {
     display: block;
-    ${(props) => getTypographyByKey(props, "h4")};
+    ${getTypographyByKey("h4")};
     line-height: ${(props) => props.theme.smallHeaderHeight} !important;
     padding: 0 ${(props) => props.theme.spaces[2]}px;
   }
@@ -90,7 +88,7 @@ const StyledMenu = styled(Menu)`
   background: ${(props) =>
     props.theme.colors.navigationMenu.backgroundInactive};
   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
-  ${(props) => getTypographyByKey(props, "p1")};
+  ${getTypographyByKey("p1")};
   border-radius: 0;
   padding: 0;
 
@@ -132,10 +130,8 @@ const StyledMenu = styled(Menu)`
 
 export function EditorAppName(props: EditorAppNameProps) {
   const {
-    currentDeployLink,
     defaultSavingState,
     defaultValue,
-    deploy,
     isNewApp,
     isPopoverOpen,
     setIsPopoverOpen,
@@ -190,9 +186,7 @@ export function EditorAppName(props: EditorAppNameProps) {
   }, []);
 
   const NavigationMenuData = GetNavigationMenuData({
-    currentDeployLink,
     editMode,
-    deploy,
     theme,
   });
 

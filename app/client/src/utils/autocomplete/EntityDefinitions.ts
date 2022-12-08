@@ -155,6 +155,9 @@ export const entityDefinitions = {
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
     pageOffset: generateTypeDef(widget.pageOffset),
+    tableHeaders: generateTypeDef(widget.tableHeaders),
+    newRow: generateTypeDef(widget.newRow),
+    isAddRowInProgress: "bool",
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -328,7 +331,6 @@ export const entityDefinitions = {
   },
   MODAL_WIDGET: {
     isVisible: isVisible,
-    isOpen: "bool",
   },
   RICH_TEXT_EDITOR_WIDGET: {
     isVisible: isVisible,

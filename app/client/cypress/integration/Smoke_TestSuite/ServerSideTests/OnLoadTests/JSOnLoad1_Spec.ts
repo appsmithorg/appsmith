@@ -154,8 +154,9 @@ describe("JSObjects OnLoad Actions tests", function() {
       jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("No");
-    agHelper.ValidateToastMessage(`${jsName + ".getEmployee"} was cancelled`);
+    agHelper.AssertContains(`${jsName + ".getEmployee"} was cancelled`);
     table.WaitForTableEmpty();
+    agHelper.WaitUntilAllToastsDisappear();
     agHelper.RefreshPage();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(

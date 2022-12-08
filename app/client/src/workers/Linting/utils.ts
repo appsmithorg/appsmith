@@ -23,6 +23,8 @@ import {
   CustomLintErrorCode,
   CUSTOM_LINT_ERRORS,
   IGNORED_LINT_ERRORS,
+  INVALID_JSOBJECT_START_STATEMENT,
+  JS_OBJECT_START_STATEMENT,
   SUPPORTED_WEB_APIS,
 } from "components/editorComponents/CodeEditor/constants";
 import {
@@ -49,7 +51,7 @@ import {
   isWidget,
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
-import { JSUpdate } from "utils/JSPaneUtils";
+import { Severity } from "entities/AppsmithConsole";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -155,6 +157,27 @@ function lintBindingPath(
   globalData: ReturnType<typeof createGlobalData>,
 ) {
   let lintErrors: LintError[] = [];
+
+  if (isJSAction(entity)) {
+    if (!entity.body) return lintErrors;
+    if (!entity.body.startsWith(JS_OBJECT_START_STATEMENT)) {
+      return lintErrors.concat([
+        {
+          errorType: PropertyEvaluationErrorType.LINT,
+          errorSegment: "",
+          originalBinding: entity.body,
+          line: 0,
+          ch: 0,
+          code: entity.body,
+          variables: [],
+          raw: entity.body,
+          errorMessage: INVALID_JSOBJECT_START_STATEMENT,
+          severity: Severity.ERROR,
+        },
+      ]);
+    }
+  }
+
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   // Get the {{binding}} bound values
   const { jsSnippets, stringSegments } = getDynamicBindings(
@@ -437,7 +460,6 @@ function getInvalidPropertyErrorsFromScript(
 
 export function initiateLinting(
   lintOrder: string[],
-  jsUpdates: Record<string, JSUpdate>,
   unevalTree: DataTree,
   requiresLinting: boolean,
 ) {
@@ -446,7 +468,6 @@ export function initiateLinting(
     promisified: true,
     responseData: {
       lintOrder,
-      jsUpdates,
       unevalTree,
       type: EVAL_WORKER_ACTIONS.LINT_TREE,
     },

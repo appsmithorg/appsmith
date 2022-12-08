@@ -9,7 +9,6 @@ import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { Colors } from "constants/Colors";
 import { Button } from "design-system";
 
@@ -72,7 +71,7 @@ export const ActionWrapper = styled.div`
   display: flex;
 `;
 
-export const ActionButton = styled(BaseButton)`
+export const ActionButton = styled(Button)`
   &&& {
     width: auto;
     min-width: 74px;
@@ -246,7 +245,7 @@ export class JSONtoForm<
         if (isArrayorObject(valueType)) {
           this.getTrimmedData(formData[key]);
         } else if (valueType === Types.STRING) {
-          formData[key] = formData[key].trim();
+          _.set(formData, key, formData[key].trim());
         }
       });
     }
@@ -267,7 +266,7 @@ export class JSONtoForm<
     return (
       <Collapsible
         defaultIsOpen={index === 0}
-        key={index}
+        key={section.sectionName}
         showSection={index !== 0}
         showTopBorder={index !== 0}
         title={section.sectionName}

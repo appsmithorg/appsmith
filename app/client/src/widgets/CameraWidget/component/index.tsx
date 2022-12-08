@@ -26,7 +26,7 @@ import {
 } from "components/constants";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
-import { useSelector } from "store";
+import { useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import {
   getBrowserInfo,

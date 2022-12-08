@@ -10,6 +10,9 @@ import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
 
+import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
+
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};
   font-size: 17px;
@@ -41,6 +44,7 @@ function Connected({
   showDatasourceSavedText?: boolean;
 }) {
   const params = useParams<{ datasourceId: string }>();
+
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
@@ -52,6 +56,15 @@ function Connected({
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, datasource?.pluginId ?? ""),
   );
+
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
+    ...datasourcePermissions,
+    ...pagePermissions,
+  ]);
 
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
@@ -66,12 +79,11 @@ function Connected({
               height={30}
               width={30}
             />
-
             <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
           </ConnectedText>
-
           <NewActionButton
             datasource={datasource}
+            disabled={!canCreateDatasourceActions}
             eventFrom="datasource-pane"
             plugin={plugin}
           />

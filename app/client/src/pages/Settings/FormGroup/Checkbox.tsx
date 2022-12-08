@@ -75,7 +75,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
         <div>{labelSuffix}</div>
         {props.needsUpgrade && (
           <UpgradeButton
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={onUpgrade}
             text="UPGRADE"
           />

@@ -1,10 +1,23 @@
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import log from "loglevel";
 import { generateReactKey } from "./generators";
-import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
+import { WidgetType } from "./WidgetFactory";
+import {
+  PropertyPaneConfigTemplates,
+  RegisteredWidgetFeatures,
+  WidgetFeaturePropertyPaneEnhancements,
+  WidgetFeatures,
+} from "./WidgetFeatures";
+
+export enum PropertyPaneConfigTypes {
+  STYLE = "STYLE",
+  CONTENT = "CONTENT",
+}
 
 /* This function recursively parses the property pane configuration and
    adds random hash values as `id`.
@@ -63,11 +76,43 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
 export function enhancePropertyPaneConfig(
   config: PropertyPaneConfig[],
   features?: WidgetFeatures,
+  configType?: PropertyPaneConfigTypes,
+  widgetType?: WidgetType,
 ) {
-  // Enhance property pane for dynamic height feature
-  if (features && features.dynamicHeight) {
-    config.splice(1, 0, PropertyPaneConfigTemplates.DYNAMIC_HEIGHT);
+  // Enhance property pane with widget features
+  // TODO(abhinav): The following "configType" check should come
+  // from the features themselves.
+  if (
+    features &&
+    (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
+  ) {
+    Object.keys(features).forEach((registeredFeature: string) => {
+      const { sectionIndex } = features[
+        registeredFeature as RegisteredWidgetFeatures
+      ];
+      const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
+        ?.sectionName;
+      if (!sectionName || sectionName !== "General") {
+        log.error(`Invalid section index for feature: ${registeredFeature}`);
+      }
+      if (
+        Array.isArray(config[sectionIndex].children) &&
+        PropertyPaneConfigTemplates[
+          registeredFeature as RegisteredWidgetFeatures
+        ]
+      ) {
+        config[sectionIndex].children?.push(
+          ...PropertyPaneConfigTemplates[
+            registeredFeature as RegisteredWidgetFeatures
+          ],
+        );
+        config = WidgetFeaturePropertyPaneEnhancements[
+          registeredFeature as RegisteredWidgetFeatures
+        ](config, widgetType);
+      }
+    });
   }
+
   return config;
 }
 

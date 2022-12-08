@@ -39,15 +39,15 @@ const ActionButton = styled(Button)`
 
 type NewActionButtonProps = {
   datasource?: Datasource;
+  disabled?: boolean;
   packageName?: string;
   isLoading?: boolean;
   eventFrom?: string; // this is to track from where the new action is being generated
   plugin?: Plugin;
-  disabled?: boolean;
   style?: any;
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, plugin, style = {} } = props;
+  const { datasource, disabled, plugin, style = {} } = props;
   const pluginType = plugin?.type;
   const [isSelected, setIsSelected] = useState(false);
 
@@ -90,12 +90,13 @@ function NewActionButton(props: NewActionButtonProps) {
   return (
     <ActionButton
       className="t--create-query"
-      disabled={!!props.disabled}
+      disabled={!!disabled}
       icon="plus"
       iconPosition={IconPositions.left}
       isLoading={isSelected || props.isLoading}
-      onClick={props.disabled ? noop : createQueryAction}
+      onClick={disabled ? noop : createQueryAction}
       style={style}
+      tag="button"
       text={
         pluginType === PluginType.DB || pluginType === PluginType.SAAS
           ? "New Query"
