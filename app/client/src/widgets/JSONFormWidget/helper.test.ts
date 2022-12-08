@@ -10,6 +10,7 @@ import {
   convertSchemaItemToFormData,
   countFields,
   mergeAllObjectsInAnArray,
+  mergeSourceAndFormData,
   schemaItemDefaultValue,
   validateOptions,
 } from "./helper";
@@ -823,5 +824,16 @@ describe(".convertSchemaItemToFormData", () => {
     );
 
     expect(result).toEqual(expectedOutput);
+  });
+});
+
+describe(".mergeSourceAndFormData", () => {
+  it("It should include existing field on source data to form data if missing", () => {
+    const name = "sample name";
+    const sourceDataInput = { name: "", age: 10 };
+    const formDataInput = { name };
+    const expectedOutput = JSON.stringify({ name, age: 10 });
+    const result = mergeSourceAndFormData(formDataInput, sourceDataInput);
+    expect(JSON.stringify(result)).toEqual(expectedOutput);
   });
 });

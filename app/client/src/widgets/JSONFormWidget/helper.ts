@@ -135,6 +135,18 @@ const convertArrayTypeToFormData = (
 };
 
 /**
+ * Functions merge hidden field values present in source data to form data values.
+ */
+export const mergeSourceAndFormData = (formValue: any, sourceData: any) => {
+  const formData: Record<string, unknown> = {};
+  Object.keys({ ...formValue, ...sourceData }).forEach((key) => {
+    formData[key] = formValue[key] ?? sourceData[key];
+  });
+
+  return formData;
+};
+
+/**
  * This function iterates through the schemaItem and returns a value
  * that matches with the the value param passed. The return value key-value pairs
  * are determined by what the fromKey and toKey values are. If the fromKey is accessor

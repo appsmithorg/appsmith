@@ -28,7 +28,7 @@ import {
 } from "./helper";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { convertSchemaItemToFormData } from "../helper";
+import { convertSchemaItemToFormData, mergeSourceAndFormData } from "../helper";
 import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 
 export interface JSONFormWidgetProps extends WidgetProps {
@@ -51,6 +51,7 @@ export interface JSONFormWidgetProps extends WidgetProps {
   scrollContents: boolean;
   showReset: boolean;
   sourceData?: Record<string, unknown>;
+  useSourceData?: boolean;
   submitButtonLabel: string;
   submitButtonStyles: ButtonStyleProps;
   title: string;
@@ -237,12 +238,34 @@ class JSONFormWidget extends BaseWidget<
     ) {
       this.state.resetObserverCallback(this.props.schema);
     }
-
+    if (prevProps.useSourceData !== this.props.useSourceData) {
+      this.updateAndMergeFormDataIfRequired();
+    }
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
     );
+  }
+
+  updateAndMergeFormDataIfRequired() {
+    const { formData, sourceData, useSourceData } = this.props;
+
+    const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
+    // If useSourceData is toggled off, remove hidden fields value if any.
+    let formValue =
+      !isEmpty(formData) && !useSourceData
+        ? convertSchemaItemToFormData(rootSchemaItem, formData, {
+            fromId: "identifier",
+            toId: "accessor",
+          })
+        : formData;
+
+    formValue = useSourceData
+      ? mergeSourceAndFormData(formValue, sourceData)
+      : formValue;
+
+    this.props.updateWidgetMetaProperty("formData", formValue);
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {
@@ -316,6 +339,7 @@ class JSONFormWidget extends BaseWidget<
 
   updateFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
+    const { sourceData, useSourceData } = this.props;
     let formData = values;
 
     if (!skipConversion) {
@@ -324,6 +348,10 @@ class JSONFormWidget extends BaseWidget<
         toId: "accessor",
       });
     }
+
+    formData = useSourceData
+      ? mergeSourceAndFormData(formData, sourceData)
+      : formData;
 
     this.props.updateWidgetMetaProperty("formData", formData);
 
