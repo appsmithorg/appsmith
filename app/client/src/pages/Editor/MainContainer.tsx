@@ -1,12 +1,11 @@
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Route, Switch, useLocation } from "react-router";
 
 import EditorsRouter from "./routes";
 import BottomBar from "./BottomBar";
-import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import WidgetsEditor from "./WidgetsEditor";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
@@ -18,6 +17,7 @@ import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { routeChanged } from "actions/focusHistoryActions";
+import { getExplorerWidth } from "selectors/explorerSelector";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -32,9 +32,7 @@ const Container = styled.div`
 
 function MainContainer() {
   const dispatch = useDispatch();
-  const [sidebarWidth, setSidebarWidth] = useState(
-    DEFAULT_ENTITY_EXPLORER_WIDTH,
-  );
+  const sidebarWidth = useSelector(getExplorerWidth);
 
   /**
    * on entity explorer sidebar width change
@@ -42,7 +40,7 @@ function MainContainer() {
    * @return void
    */
   const onLeftSidebarWidthChange = useCallback((newWidth) => {
-    setSidebarWidth(newWidth);
+    dispatch(updateExplorerWidthAction(newWidth));
   }, []);
 
   /**
