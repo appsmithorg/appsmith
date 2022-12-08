@@ -19,7 +19,9 @@ function Page(props: PageProps) {
           {errorCode}
         </div>
       )}
-      {title && <p className="text-3xl font-semibold">{title}</p>}
+      {title && (
+        <p className="text-3xl font-semibold t--error-page-title">{title}</p>
+      )}
       {description && <p className="text-center">{description}</p>}
       {cta}
     </div>

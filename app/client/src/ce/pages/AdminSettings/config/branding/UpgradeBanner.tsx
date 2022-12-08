@@ -2,8 +2,8 @@ import React from "react";
 import { Button } from "design-system";
 
 import {
-  ADMIN_BRANDING_UPGRADE_BANNER_SUBTITLE,
-  ADMIN_BRANDING_UPGRADE_BANNER_TITLE,
+  ADMIN_BRANDING_SETTINGS_SUBTITLE,
+  ADMIN_BRANDING_SETTINGS_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -27,10 +27,10 @@ const UpgradeBanner = () => {
             Business
           </div>
           <SettingsHeader className="mt-1">
-            {createMessage(ADMIN_BRANDING_UPGRADE_BANNER_TITLE)}
+            {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
           </SettingsHeader>
           <SettingsSubHeader className="w-7/12 mt-1">
-            {createMessage(ADMIN_BRANDING_UPGRADE_BANNER_SUBTITLE)}
+            {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
           </SettingsSubHeader>
         </main>
         <aside>
