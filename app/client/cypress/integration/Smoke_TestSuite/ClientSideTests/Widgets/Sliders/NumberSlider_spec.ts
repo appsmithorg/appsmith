@@ -119,7 +119,8 @@ describe("Number Slider spec", () => {
     agHelper
       .GetElement(locator._sliderThumb)
       .focus()
-      .type("{rightArrow}");
+      .type("{rightArrow}")
+      .wait(500);
 
     agHelper.Sleep(2000); //for the changes to reflect in text widget
 

@@ -32,15 +32,11 @@ describe("Login from UI and check the functionality", function() {
     cy.get("@deleteApplication").should("have.property", "status", 200);
   });
 
-  it("Login/Logout click Appsmith logo should route to login page", function() {
+  it.only("Login/Logout click Appsmith logo should route to login page", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(homePage.headerAppSmithLogo).click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-    cy.url().should("include", "user/login");
   });
 });

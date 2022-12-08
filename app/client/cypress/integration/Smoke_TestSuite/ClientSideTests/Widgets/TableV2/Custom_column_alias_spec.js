@@ -56,6 +56,7 @@ describe("Custom column alias functionality", () => {
     cy.openPropertyPane("textwidget");
     propPane.UpdatePropertyFieldValue("Text", "{{Table1.triggeredRow}}");
     cy.openPropertyPane("tablewidgetv2");
+    cy.backFromPropertyPanel();
     cy.get(widgetsPage.addColumn).scrollIntoView();
     cy.get(widgetsPage.addColumn).click({ force: true });
     cy.wait(500);
