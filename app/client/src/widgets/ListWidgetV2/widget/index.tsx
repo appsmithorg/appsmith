@@ -169,8 +169,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       this.generateMetaWidgets();
     }
 
-    // add privateWidgets to ListWidget
-    this.addPrivateWidgetsForChildren(this.props);
     this.setupMetaWidgets();
   }
 
@@ -476,21 +474,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         : componentHeight;
     }
   };
-
-  // updates the "privateWidgets" field of the List Widget
-  addPrivateWidgetsForChildren(props: ListWidgetProps) {
-    const privateWidgets: PrivateWidgets = {};
-    const listWidgetChildren: WidgetProps[] = get(
-      props,
-      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
-    );
-    if (!listWidgetChildren) return;
-    listWidgetChildren.map((child) => {
-      privateWidgets[child.widgetName] = true;
-    });
-
-    super.updateWidgetProperty("privateWidgets", privateWidgets);
-  }
 
   onPageChange = (page: number) => {
     const currentPage = this.props.pageNo;

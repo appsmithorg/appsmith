@@ -457,6 +457,8 @@ class MetaWidgetGenerator {
 
     if (this.isRowNonConfigurable(rowIndex)) {
       this.disableWidgetOperations(metaWidget);
+      metaWidget.suppressAutoComplete = true;
+      metaWidget.suppressDebuggerError = true;
     }
 
     metaWidget.currentIndex = rowIndex;
