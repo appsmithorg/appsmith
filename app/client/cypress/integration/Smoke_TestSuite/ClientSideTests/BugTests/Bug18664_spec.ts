@@ -17,7 +17,7 @@ describe("Bug 18664: datasource unsaved changes popup shows even without changes
       cy.wait(1000);
       dataSources.EditDatasource();
       agHelper.GoBack();
-      cy.get(dataSources._activeDS).should("be.visible");
+      agHelper.AssertElementVisible(dataSources._activeDS);
       dataSources.DeleteDatasouceFromActiveTab(dsName);
     });
   });
