@@ -69,6 +69,7 @@ export const CONFIG = {
     pageSize: DEFAULT_LIST_DATA.length,
     widgetName: "List",
     children: [],
+    passThroughPropsKeys: ["level", "levelData", "prefixMetaWidgetId"],
     primaryKeys:
       '{{List1.listData.map((currentItem, currentIndex) => currentItem["id"] )}}',
     blueprint: {
