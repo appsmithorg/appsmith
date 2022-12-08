@@ -38,7 +38,7 @@ public class ApplicationJson {
 
     Application exportedApplication;
 
-    Set<CustomJSLib> customJSLibSet;
+    List<CustomJSLib> customJSLibList;
 
     List<Datasource> datasourceList;
 

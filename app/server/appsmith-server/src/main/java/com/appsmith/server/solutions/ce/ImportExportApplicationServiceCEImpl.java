@@ -88,6 +88,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -182,7 +184,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 customJSLibService.getAllJSLibsInApplication(applicationId, null, false);
         Mono<List<CustomJSLib>> publishedCustomJSLibListMono =
                 customJSLibService.getAllJSLibsInApplication(applicationId, null, true);
-        Mono<Set<CustomJSLib>> allCustomJSLibSetMono = Mono.zip(unpublishedCustomJSLibListMono,
+        Mono<List<CustomJSLib>> allCustomJSLibListMono = Mono.zip(unpublishedCustomJSLibListMono,
                         publishedCustomJSLibListMono)
                 .map(tuple -> {
                     List<CustomJSLib> unpublishedCustomJSLibList = tuple.getT1();
@@ -191,7 +193,13 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Set<CustomJSLib> allCustomJSLibSet = new HashSet<>();
                     allCustomJSLibSet.addAll(unpublishedCustomJSLibList);
                     allCustomJSLibSet.addAll(publishedCustomJSLibList);
-                    return allCustomJSLibSet;
+                    List<CustomJSLib> allCustomJSLibList = new ArrayList<>(allCustomJSLibSet);
+                    /*
+                        Previously it was a Set and as Set is an unordered collection of elements that resulted
+                        in uncommitted changes. Making it a list and sorting it by the UidString ensure that the order will be maintained. And this solves the issue.
+                     */
+                    Collections.sort(allCustomJSLibList, Comparator.comparing(CustomJSLib::getUidString));
+                    return allCustomJSLibList;
                 });
 
         Mono<Application> applicationMono =
@@ -488,9 +496,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
                     return applicationJson;
                 })
-                .then(allCustomJSLibSetMono)
-                .map(allCustomJSLibSet -> {
-                    applicationJson.setCustomJSLibSet(allCustomJSLibSet);
+                .then(allCustomJSLibListMono)
+                .map(allCustomLibList -> {
+                    applicationJson.setCustomJSLibList(allCustomLibList);
                     return applicationJson;
                 })
                 .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
@@ -706,7 +714,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
-        Set<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibSet();
+        List<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibList();
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
