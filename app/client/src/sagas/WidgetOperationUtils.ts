@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { find, isString, remove } from "lodash";
+import _, { find, isString, reduce, remove } from "lodash";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -317,6 +317,43 @@ export function getAllMetaWidgetCreatorIds(
   return creatorIds;
 }
 
+function sortWidgetsMetaByParent(
+  widgetsMeta: MetaWidgetsReduxState,
+  parentId: string,
+) {
+  return reduce(
+    widgetsMeta,
+    function(
+      result: {
+        childrenWidgetsMeta: MetaWidgetsReduxState;
+        otherWidgetsMeta: MetaWidgetsReduxState;
+      },
+      currentWidgetMeta,
+      key,
+    ) {
+      return key.startsWith(parentId + "_")
+        ? {
+            ...result,
+            childrenWidgetsMeta: {
+              ...result.childrenWidgetsMeta,
+              [key]: currentWidgetMeta,
+            },
+          }
+        : {
+            ...result,
+            otherWidgetsMeta: {
+              ...result.otherWidgetsMeta,
+              [key]: currentWidgetMeta,
+            },
+          };
+    },
+    {
+      childrenWidgetsMeta: {},
+      otherWidgetsMeta: {},
+    },
+  );
+}
+
 export type ChildrenWidgetMap = {
   id: string;
   evaluatedWidget: DataTreeWidget | undefined;
@@ -364,12 +401,11 @@ export function getWidgetChildren(
     }
   }
 
-  // Add modified meta widgets which are children of widget to childrenList
-  const childrenMetaWidgetsIds = Object.keys(widgetsMeta).filter((id) =>
-    id.startsWith(widgetId + "_"),
-  );
+  const sortedWidgetsMeta = sortWidgetsMetaByParent(widgetsMeta, widgetId);
 
-  for (const childMetaWidgetId of childrenMetaWidgetsIds) {
+  for (const childMetaWidgetId of Object.keys(
+    sortedWidgetsMeta.childrenWidgetsMeta,
+  )) {
     const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
       return isWidget(entity) && entity.widgetId === childMetaWidgetId;
     }) as DataTreeWidget | undefined;
@@ -381,7 +417,7 @@ export function getWidgetChildren(
       canvasWidgets,
       childMetaWidgetId,
       evaluatedDataTree,
-      widgetsMeta,
+      sortedWidgetsMeta.otherWidgetsMeta,
     );
     if (grandChildren.length) {
       childrenList.push(...grandChildren);
