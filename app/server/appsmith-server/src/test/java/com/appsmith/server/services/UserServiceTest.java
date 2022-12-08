@@ -121,8 +121,8 @@ public class UserServiceTest {
 
         Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, false);
         assertEquals(expectedUrl, params.get("inviteUrl"));
-        assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
-        assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
+        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
+        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
     }
 
     @Test
@@ -138,8 +138,8 @@ public class UserServiceTest {
 
         Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, true);
         assertEquals(inviteUrl, params.get("inviteUrl"));
-        assertEquals("inviterUserToApplication", params.get("Inviter_First_Name"));
-        assertEquals("UserServiceTest Update Org", params.get("inviter_org_name"));
+        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
+        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
     }
 
     //Test the update workspace flow.
