@@ -121,7 +121,7 @@ function PageSettings(props: { page: Page }) {
   ])(page.pageId, pageName, page.pageName, customSlug, page.customSlug);
 
   const conflictingNames = useSelector(
-    (state: AppState) => getUsedActionNames(state, page?.pageId || ""),
+    (state: AppState) => getUsedActionNames(state, ""),
     shallowEqual,
   );
 
