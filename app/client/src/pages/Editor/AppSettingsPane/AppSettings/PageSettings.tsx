@@ -13,7 +13,7 @@ import {
   PAGE_SETTINGS_NAME_EMPTY_MESSAGE,
   PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
-  ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR,
+  PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
 } from "ce/constants/messages";
 import { Page } from "ce/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
@@ -227,7 +227,7 @@ function PageSettings(props: { page: Page }) {
             ) {
               result = {
                 isValid: false,
-                message: ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR(value),
+                message: PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value),
               };
             }
             setIsPageNameValid(result.isValid);

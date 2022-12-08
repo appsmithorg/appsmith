@@ -1344,6 +1344,8 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
   "This is the current home page, you can change this by setting another page as the home page";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
+export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used.`;
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
