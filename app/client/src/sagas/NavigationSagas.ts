@@ -7,10 +7,13 @@ import { setFocusHistory } from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import { FocusElementsConfig } from "navigation/FocusElements";
+import history from "utils/history";
 import {
   FocusEntity,
   FocusEntityInfo,
   identifyEntityFromPath,
+  isSameBranch,
+  shouldStoreURLforFocus,
 } from "navigation/FocusEntity";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
@@ -38,6 +41,35 @@ function* handleRouteChange(
   } finally {
     previousPath = pathname;
     previousHash = hash;
+  }
+}
+
+function* handlePageChange(
+  action: ReduxAction<{
+    pageId: string;
+    currPath: string;
+    currParamString: string;
+    fromPath: string;
+    fromParamString: string;
+  }>,
+) {
+  const {
+    currParamString,
+    currPath,
+    fromParamString,
+    fromPath,
+    pageId,
+  } = action.payload;
+  try {
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const fromPageId = identifyEntityFromPath(fromPath)?.pageId;
+    if (featureFlags.CONTEXT_SWITCHING && fromPageId && fromPageId !== pageId) {
+      yield call(storeStateOfPage, fromPageId, fromPath, fromParamString);
+
+      yield call(setStateOfPage, pageId, currPath, currParamString);
+    }
+  } catch (e) {
+    log.error("Error on page change", e);
   }
 }
 
@@ -117,6 +149,64 @@ function* setStateOfPath(path: string, hash?: string) {
   }
 }
 
+function* storeStateOfPage(
+  pageId: string,
+  fromPath: string,
+  fromParam: string | undefined,
+) {
+  const entity = FocusEntity.PAGE;
+
+  const selectors = FocusElementsConfig[entity];
+  const state: Record<string, any> = {};
+  for (const selectorInfo of selectors) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    state[selectorInfo.name] = yield select(selectorInfo.selector);
+  }
+  if (shouldStoreURLforFocus(fromPath)) {
+    if (fromPath) {
+      state._routingURL = fromPath;
+    }
+
+    if (fromParam !== undefined) {
+      state._paramString = fromParam;
+    }
+  }
+
+  const entityInfo = { entity, id: pageId };
+  yield put(setFocusHistory(pageId, { entityInfo, state }));
+}
+
+function* setStateOfPage(
+  pageId: string,
+  currPath: string,
+  paramString: string,
+) {
+  const focusHistory: FocusState = yield select(getCurrentFocusInfo, pageId);
+
+  const entity = FocusEntity.PAGE;
+
+  const selectors = FocusElementsConfig[entity];
+
+  if (focusHistory) {
+    for (const selectorInfo of selectors) {
+      yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
+    }
+    if (
+      focusHistory.state._routingURL &&
+      focusHistory.state._routingURL !== currPath &&
+      isSameBranch(focusHistory.state._paramString, paramString)
+    ) {
+      history.push(`${focusHistory.state._routingURL}${paramString || ""}`);
+    }
+  } else {
+    for (const selectorInfo of selectors) {
+      if ("defaultValue" in selectorInfo)
+        yield put(selectorInfo.setter(selectorInfo.defaultValue));
+    }
+  }
+}
+
 function* getEntitySubType(entityInfo: FocusEntityInfo) {
   if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
     const action: Action = yield select(getAction, entityInfo.id);
@@ -182,4 +272,5 @@ function shouldStoreStateForCanvas(
 
 export default function* rootSaga() {
   yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
+  yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
 }

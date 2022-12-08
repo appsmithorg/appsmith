@@ -5,7 +5,6 @@ import { PageSettings } from "./PageSettings";
 
 export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private commonLocators = ObjectsRegistry.CommonLocators;
   private locators = {
     _appSettings_cta: "#t--app-settings-cta",
     _closeSettings: "#t--close-app-settings-pane",
@@ -19,41 +18,41 @@ export class AppSettings {
   public readonly general = new GeneralSettings();
   public readonly page = new PageSettings();
 
-  public openPaneFromCta() {
+  public OpenPaneFromCta() {
     this.agHelper.GetNClick(this.locators._appSettings_cta);
   }
 
-  public closePane() {
+  public ClosePane() {
     this.agHelper.GetNClick(this.locators._closeSettings);
   }
 
-  public goToThemeSettings() {
+  public GoToThemeSettings() {
     this.agHelper.GetNClick(this.locators._themeSettingsHeader);
   }
 
-  public goToGeneralSettings() {
+  public GoToGeneralSettings() {
     this.agHelper.GetNClick(this.locators._generalSettingsHeader);
   }
 
-  public goToPageSettings(pageName: string) {
+  public GoToPageSettings(pageName: string) {
     this.agHelper.GetNClick(this.locators._getPageSettingsHeader(pageName));
   }
 
-  public openPaneAndChangeTheme(themeName: string) {
-    this.openPaneFromCta();
-    this.goToThemeSettings();
+  public OpenPaneAndChangeTheme(themeName: string) {
+    this.OpenPaneFromCta();
+    this.GoToThemeSettings();
     this.theme.ChangeTheme(themeName);
-    this.closePane();
+    this.ClosePane();
   }
 
-  public openPaneAndChangeThemeColors(
+  public OpenPaneAndChangeThemeColors(
     primaryColorIndex: number,
     backgroundColorIndex: number,
   ) {
-    this.openPaneFromCta();
-    this.goToThemeSettings();
+    this.OpenPaneFromCta();
+    this.GoToThemeSettings();
     this.theme.ChangeThemeColor(primaryColorIndex, "Primary");
     this.theme.ChangeThemeColor(backgroundColorIndex, "Background");
-    this.closePane();
+    this.ClosePane();
   }
 }

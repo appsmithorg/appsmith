@@ -3,7 +3,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   dataSource = ObjectsRegistry.DataSources,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  ee = ObjectsRegistry.EntityExplorer;
 
 describe("Datasource form related tests", function() {
   beforeEach(() => {
@@ -36,6 +37,7 @@ describe("Datasource form related tests", function() {
 
   it("3. Check if saved api as a datasource does not fail on cloning", function() {
     cy.NavigateToAPI_Panel();
+    ee.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-name")
       .contains("Api")
       .trigger("mouseover");

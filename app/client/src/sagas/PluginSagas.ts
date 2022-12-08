@@ -8,6 +8,7 @@ import PluginsApi, { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
+  getActions,
   getDatasources,
   getPlugin,
   getPluginForm,
@@ -36,6 +37,7 @@ import {
   FormDependencyConfigs,
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 
 function* fetchPluginsSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -84,6 +86,12 @@ function* fetchPluginFormConfigsSaga() {
 
     if (graphqlPlugin) {
       pluginIdFormsToFetch.add(graphqlPlugin.id);
+    }
+
+    const actions: ActionDataState = yield select(getActions);
+    const actionPluginIds = actions.map((action) => action.config.pluginId);
+    for (const pluginId of actionPluginIds) {
+      pluginIdFormsToFetch.add(pluginId);
     }
 
     const pluginFormData: PluginFormPayload[] = [];
