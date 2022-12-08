@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { isString, remove } from "lodash";
+import _, { find, isString, remove } from "lodash";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -54,6 +54,7 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -316,7 +317,10 @@ export function getAllMetaWidgetCreatorIds(
   return creatorIds;
 }
 
-export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
+export type ChildrenWidgetMap = {
+  id: string;
+  evaluatedWidget: DataTreeWidget | undefined;
+};
 /**
  * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
  *
@@ -325,42 +329,65 @@ export function getWidgetChildren(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   evaluatedDataTree: DataTree,
+  widgetsMeta: MetaWidgetsReduxState,
 ): ChildrenWidgetMap[] {
   const childrenList: ChildrenWidgetMap[] = [];
   const widget = _.get(canvasWidgets, widgetId);
-  // When a form widget tries to resetChildrenMetaProperties
-  // But one or more of its container like children
-  // have just been deleted, widget can be undefined
-  if (widget === undefined) {
-    return [];
-  }
 
-  const { children = [] } = widget;
-  if (children && children.length) {
-    for (const childIndex in children) {
-      if (children.hasOwnProperty(childIndex)) {
-        const childWidgetId = children[childIndex];
+  if (widget) {
+    const { children = [] } = widget;
+    if (children && children.length) {
+      for (const childIndex in children) {
+        if (children.hasOwnProperty(childIndex)) {
+          const childWidgetId = children[childIndex];
 
-        const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
-        const childWidgetName = childCanvasWidget.widgetName;
-        const childWidget = evaluatedDataTree[childWidgetName];
-        if (isWidget(childWidget)) {
-          childrenList.push({
-            id: childWidgetId,
-            evaluatedWidget: childWidget,
-          });
-          const grandChildren = getWidgetChildren(
-            canvasWidgets,
-            childWidgetId,
-            evaluatedDataTree,
-          );
-          if (grandChildren.length) {
-            childrenList.push(...grandChildren);
+          const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
+          const childWidgetName = childCanvasWidget.widgetName;
+          const childWidget = evaluatedDataTree[childWidgetName];
+          if (isWidget(childWidget)) {
+            childrenList.push({
+              id: childWidgetId,
+              evaluatedWidget: childWidget,
+            });
+            const grandChildren = getWidgetChildren(
+              canvasWidgets,
+              childWidgetId,
+              evaluatedDataTree,
+              widgetsMeta,
+            );
+            if (grandChildren.length) {
+              childrenList.push(...grandChildren);
+            }
           }
         }
       }
     }
   }
+
+  // Add modified meta widgets which are children of widget to childrenList
+  const childrenMetaWidgetsIds = Object.keys(widgetsMeta).filter((id) =>
+    id.startsWith(widgetId + "_"),
+  );
+
+  for (const childMetaWidgetId of childrenMetaWidgetsIds) {
+    const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
+      return isWidget(entity) && entity.widgetId === childMetaWidgetId;
+    }) as DataTreeWidget | undefined;
+    childrenList.push({
+      id: childMetaWidgetId,
+      evaluatedWidget: evaluatedChildWidget,
+    });
+    const grandChildren = getWidgetChildren(
+      canvasWidgets,
+      childMetaWidgetId,
+      evaluatedDataTree,
+      widgetsMeta,
+    );
+    if (grandChildren.length) {
+      childrenList.push(...grandChildren);
+    }
+  }
+
   return childrenList;
 }
 

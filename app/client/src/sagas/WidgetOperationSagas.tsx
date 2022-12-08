@@ -9,12 +9,7 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  getWidget,
-  getWidgetByID,
-  getWidgets,
-  getWidgetsMeta,
-} from "./selectors";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 import {
   actionChannel,
   all,
@@ -46,7 +41,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, find, isString, set, uniq } from "lodash";
+import _, { cloneDeep, isString, set, uniq } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
@@ -73,7 +68,7 @@ import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
-import { getAllPaths, isWidget } from "workers/Evaluation/evaluationUtils";
+import { getAllPaths } from "workers/Evaluation/evaluationUtils";
 import {
   createMessage,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
@@ -121,7 +116,7 @@ import {
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
@@ -720,11 +715,13 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
 function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetsMeta: MetaWidgetsReduxState = yield select(getWidgetsMeta);
   const evaluatedDataTree: DataTree = yield select(getDataTree);
   const childrenList = getWidgetChildren(
     canvasWidgets,
     parentWidgetId,
     evaluatedDataTree,
+    widgetsMeta,
   );
 
   for (const childIndex in childrenList) {
@@ -732,22 +729,6 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
       childIndex
     ];
     yield put(resetWidgetMetaProperty(childId, childWidget));
-  }
-}
-
-function* resetMetaWidgetsMetaSaga(action: ReduxAction<{ widgetId: string }>) {
-  const { widgetId: parentWidgetId } = action.payload;
-  const evaluatedDataTree: DataTree = yield select(getDataTree);
-  const widgetsMeta: MetaWidgetsReduxState = yield select(getWidgetsMeta);
-  const childrenMetaWidgetsIds = Object.keys(widgetsMeta).filter((widgetId) =>
-    widgetId.startsWith(parentWidgetId + "_"),
-  );
-  for (const childMetaWidgetId of childrenMetaWidgetsIds) {
-    const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
-      return isWidget(entity) && entity.widgetId === childMetaWidgetId;
-    }) as DataTreeWidget | undefined;
-
-    yield put(resetWidgetMetaProperty(childMetaWidgetId, evaluatedChildWidget));
   }
 }
 
@@ -1801,10 +1782,6 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.RESET_CHILDREN_WIDGET_META,
       resetChildrenMetaSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.RESET_META_WIDGETS_META,
-      resetMetaWidgetsMetaSaga,
     ),
     takeEvery(
       ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,

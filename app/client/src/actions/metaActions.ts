@@ -57,17 +57,6 @@ export const resetChildrenMetaProperty = (
   };
 };
 
-export const resetMetaWidgetsMetaProperty = (
-  widgetId: string,
-): ReduxAction<{ widgetId: string }> => {
-  return {
-    type: ReduxActionTypes.RESET_META_WIDGETS_META,
-    payload: {
-      widgetId,
-    },
-  };
-};
-
 export const updateMetaState = (evalMetaUpdates: EvalMetaUpdates) => {
   return {
     type: ReduxActionTypes.UPDATE_META_STATE,
