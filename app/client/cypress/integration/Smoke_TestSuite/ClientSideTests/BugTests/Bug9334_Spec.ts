@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Bug 9334: The Select widget value is sent as null when user switches between the pages", function() {
   before(() => {
-    appSettings.openPaneAndChangeTheme("Pampas");
+    appSettings.OpenPaneAndChangeTheme("Pampas");
   });
 
   it("1. Create Postgress DS", function() {

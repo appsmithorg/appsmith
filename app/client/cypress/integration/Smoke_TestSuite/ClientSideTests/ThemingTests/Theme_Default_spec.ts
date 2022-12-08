@@ -33,8 +33,8 @@ describe("Theme validation for default data", function() {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
@@ -71,7 +71,7 @@ describe("Theme validation for default data", function() {
     cy.validateColor(0, "#553DE9");
     cy.colorMouseover(1, "Background Color");
     cy.validateColor(1, "#F8FAFC");
-    appSettings.closePane();
+    appSettings.ClosePane();
   });
 
   it("Validate Default Theme change across application", function() {
@@ -93,8 +93,8 @@ describe("Theme validation for default data", function() {
       .should("have.css", "background-color")
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(".cursor-pointer:contains('Applied Theme')").click({ force: true });

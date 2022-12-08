@@ -287,7 +287,7 @@ function ActionSidebar({
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className={"t--select-in-canvas"}
               onClick={handleBindData}
               size={Size.medium}
