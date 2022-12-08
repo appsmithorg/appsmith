@@ -21,23 +21,23 @@ describe("General Settings", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToGeneralSettings();
     appSettings.general.changeAppIcon();
-    appSettings.closePane();
+    appSettings.ClosePane();
   });
 
   it("App name allows special and accented character", () => {
-    appSettings.openPaneFromCta();
-    appSettings.goToGeneralSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToGeneralSettings();
     appSettings.general.changeAppNameAndVerifyUrl(true, "myapp!@#œ™¡", "myapp");
-    appSettings.closePane();
+    appSettings.ClosePane();
   });
 
   it("App name doesn't allow empty", () => {
-    appSettings.openPaneFromCta();
-    appSettings.goToGeneralSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToGeneralSettings();
     appSettings.general.tryAppNameAndVerifyErrorMessage(
       "",
       "App name cannot be empty",
     );
-    appSettings.closePane();
+    appSettings.ClosePane();
   });
 });
