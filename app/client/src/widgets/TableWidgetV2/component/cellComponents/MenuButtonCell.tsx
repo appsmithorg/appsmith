@@ -7,6 +7,11 @@ import { ButtonVariant } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import MenuButtonTableComponent from "./menuButtonTableComponent";
+import {
+  ConfigureMenuItems,
+  MenuItem,
+  MenuItemsSource,
+} from "widgets/MenuButtonWidget/constants";
 
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
   action?: ColumnAction;
@@ -16,6 +21,8 @@ function MenuButton({
   borderRadius,
   boxShadow,
   compactMode,
+  configureMenuItems,
+  getVisibleItems,
   iconAlign,
   iconName,
   isCompact,
@@ -24,9 +31,11 @@ function MenuButton({
   label,
   menuColor,
   menuItems,
+  menuItemsSource,
   menuVariant,
   onCommandClick,
   rowIndex,
+  sourceData,
 }: MenuButtonProps): JSX.Element {
   const handlePropagation = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -47,6 +56,8 @@ function MenuButton({
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         compactMode={compactMode}
+        configureMenuItems={configureMenuItems}
+        getVisibleItems={getVisibleItems}
         iconAlign={iconAlign}
         iconName={iconName}
         isCompact={isCompact}
@@ -54,9 +65,11 @@ function MenuButton({
         label={label}
         menuColor={menuColor}
         menuItems={{ ...menuItems }}
+        menuItemsSource={menuItemsSource}
         menuVariant={menuVariant}
         onItemClicked={onItemClicked}
         rowIndex={rowIndex}
+        sourceData={sourceData}
       />
     </div>
   );
@@ -76,6 +89,11 @@ export interface RenderMenuButtonProps extends BaseCellComponentProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   rowIndex: number;
+  getVisibleItems: (rowIndex: number) => Array<MenuItem>;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
+  sourceData?: Array<Record<string, unknown>>;
+  sourceDataKeys?: Array<string>;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {

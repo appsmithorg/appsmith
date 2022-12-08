@@ -298,7 +298,7 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      sourceData: getPropertyValue(columnProperties.sourceData, rowIndex, true),
+      sourceData: columnProperties.sourceData,
       configureMenuItems: getPropertyValue(
         columnProperties.configureMenuItems,
         rowIndex,

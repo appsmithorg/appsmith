@@ -162,8 +162,8 @@ export interface MenuButtonCellProperties {
   menuColor?: string;
   menuButtoniconName?: IconName;
   onItemClicked?: (onClick: string | undefined) => void;
-  menuItemsSource?: MenuItemsSource;
-  configureMenuItems?: ConfigureMenuItems;
+  menuItemsSource: MenuItemsSource;
+  configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
   sourceDataKeys?: Array<string>;
 }

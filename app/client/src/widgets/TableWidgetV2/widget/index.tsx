@@ -13,6 +13,7 @@ import _, {
   isEmpty,
   union,
   isObject,
+  orderBy,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -58,6 +59,7 @@ import {
   getCellProperties,
   isColumnTypeEditable,
   getColumnType,
+  getBooleanPropertyValue,
 } from "./utilities";
 import {
   ColumnProperties,
@@ -85,6 +87,7 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import { Stylesheet } from "entities/AppTheming";
+import { MenuItem, MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1585,6 +1588,63 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.MENU_BUTTON:
+        const getVisibleItems = (rowIndex: number) => {
+          const {
+            configureMenuItems,
+            menuItems,
+            menuItemsSource,
+            sourceData,
+          } = cellProperties;
+
+          if (menuItemsSource === MenuItemsSource.STATIC) {
+            const visibleItems = Object.keys(menuItems)
+              .map((itemKey) => menuItems[itemKey])
+              .filter((item) =>
+                getBooleanPropertyValue(item.isVisible, rowIndex),
+              );
+
+            return orderBy(visibleItems, ["index"], ["asc"]);
+          } else if (
+            menuItemsSource === MenuItemsSource.DYNAMIC &&
+            isArray(sourceData) &&
+            sourceData?.length &&
+            configureMenuItems?.config
+          ) {
+            const { config } = configureMenuItems;
+            const getValue = (propertyName: keyof MenuItem, index: number) => {
+              const value = config[propertyName];
+
+              if (isArray(value)) {
+                return value[index];
+              }
+
+              return value ?? null;
+            };
+
+            const visibleItems = sourceData
+              .map((item, index) => ({
+                ...item,
+                id: index.toString(),
+                isVisible: getValue("isVisible", index),
+                isDisabled: getValue("isDisabled", index),
+                index: index,
+                widgetId: "",
+                label: getValue("label", index),
+                onClick: config?.onClick,
+                textColor: getValue("textColor", index),
+                backgroundColor: getValue("backgroundColor", index),
+                iconAlign: getValue("iconAlign", index),
+                iconColor: getValue("iconColor", index),
+                iconName: getValue("iconName", index),
+              }))
+              .filter((item) => item.isVisible === true);
+
+            return visibleItems;
+          }
+
+          return [];
+        };
+
         return (
           <MenuButtonCell
             allowCellWrapping={cellProperties.allowCellWrapping}
@@ -1594,7 +1654,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             boxShadow={cellProperties.boxShadow}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            configureMenuItems={cellProperties.configureMenuItems}
             fontStyle={cellProperties.fontStyle}
+            getVisibleItems={getVisibleItems}
             horizontalAlignment={cellProperties.horizontalAlignment}
             iconAlign={cellProperties.iconAlign}
             iconName={cellProperties.menuButtoniconName || undefined}
@@ -1609,6 +1671,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               cellProperties.menuColor || this.props.accentColor || Colors.GREEN
             }
             menuItems={cellProperties.menuItems}
+            menuItemsSource={cellProperties.menuItemsSource}
             menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
             onCommandClick={(action: string, onComplete?: () => void) =>
               this.onColumnEvent({
@@ -1620,6 +1683,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               })
             }
             rowIndex={originalIndex}
+            sourceData={cellProperties.sourceData}
+            sourceDataKeys={cellProperties.sourceDataKeys}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
