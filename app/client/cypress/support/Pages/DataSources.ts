@@ -226,6 +226,40 @@ export class DataSources {
     this.agHelper.GetNClick(this._editButton);
   }
 
+  public ExpandSection(index: number) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .click();
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .find(this.locator._chevronUp)
+      .should("be.visible");
+  }
+
+  public ExpandSectionByName(locator: string) {
+    // Click on collapse section only if it collapsed, if it is expanded
+    // we ignore
+    cy.get(`${locator} span`)
+      .invoke("attr", "icon")
+      .then((iconName) => {
+        if (iconName === "chevron-down") {
+          cy.get(locator).click();
+        }
+      });
+  }
+
+  public AssertSectionCollapseState(index: number, collapsed = false) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .within(() => {
+        if (collapsed) {
+          cy.get(this.locator._chevronUp).should("not.exist");
+        } else {
+          cy.get(this.locator._chevronUp).should("exist");
+        }
+      });
+  }
+
   public NavigateToDSCreateNew() {
     this.agHelper.GetNClick(this._addNewDataSource);
     // cy.get(this._dsCreateNewTab)
@@ -706,7 +740,11 @@ export class DataSources {
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(dataSourceName : string, schema: string, isUpdate = false) {
+  public verifySchema(
+    dataSourceName: string,
+    schema: string,
+    isUpdate = false,
+  ) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.updateDatasource();

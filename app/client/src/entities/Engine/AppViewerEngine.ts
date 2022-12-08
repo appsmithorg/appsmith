@@ -70,7 +70,7 @@ export default class AppViewerEngine extends AppEngine {
   *loadAppEntities(toLoadPageId: string, applicationId: string): any {
     const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
       [
-        fetchJSLibraries(applicationId),
+        // fetchJSLibraries(applicationId),
         fetchActionsForView({ applicationId }),
         fetchJSCollectionsForView({ applicationId }),
         fetchSelectedAppThemeAction(applicationId),

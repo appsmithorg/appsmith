@@ -92,7 +92,7 @@ export default class AppEditorEngine extends AppEngine {
   ) {
     const initActionsCalls = [
       fetchPage(toLoadPageId, true),
-      fetchJSLibraries(applicationId),
+      // fetchJSLibraries(applicationId),
       fetchActions({ applicationId }, []),
       fetchJSCollections({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
@@ -100,11 +100,12 @@ export default class AppEditorEngine extends AppEngine {
     ];
 
     const successActionEffects = [
+      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
       ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_SUCCESS,
-      ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
+      // ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
     ];
 
     const failureActionEffects = [
