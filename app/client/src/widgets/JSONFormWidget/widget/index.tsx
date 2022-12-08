@@ -237,7 +237,7 @@ class JSONFormWidget extends BaseWidget<
       this.state.resetObserverCallback(this.props.schema);
     }
 
-    const { schema } = this.constructAndSaveSchemaIfRequired();
+    const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
@@ -276,14 +276,14 @@ class JSONFormWidget extends BaseWidget<
    * we would get stale/previous data from the __evaluations__ object.
    * So it will always stay 1 step behind the actual value.
    */
-  constructAndSaveSchemaIfRequired = () => {
+  constructAndSaveSchemaIfRequired = (prevProps?: JSONFormWidgetProps) => {
     if (!this.props.autoGenerateForm)
       return {
         status: ComputedSchemaStatus.UNCHANGED,
         schema: this.props?.schema || {},
       };
 
-    const prevSourceData = this.getPreviousSourceData(this.props);
+    const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
 
     const computedSchema = computeSchema({
