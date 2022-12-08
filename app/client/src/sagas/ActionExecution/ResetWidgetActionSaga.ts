@@ -2,6 +2,7 @@ import { put, select, take } from "redux-saga/effects";
 import { getWidgetByName } from "sagas/selectors";
 import {
   resetChildrenMetaProperty,
+  resetMetaWidgetsMetaProperty,
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -46,6 +47,9 @@ export default function* resetWidgetActionSaga(
     yield put(resetWidgetMetaProperty(widget.widgetId, evaluatedEntity));
     if (payload.resetChildren) {
       yield put(resetChildrenMetaProperty(widget.widgetId));
+    }
+    if (evaluatedEntity.hasMetaWidgets) {
+      yield put(resetMetaWidgetsMetaProperty(widget.widgetId));
     }
   }
 
