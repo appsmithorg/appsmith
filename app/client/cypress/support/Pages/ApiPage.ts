@@ -196,7 +196,7 @@ export class ApiPage {
   ToggleOnPageLoadRun(enable = true || false) {
     this.SelectPaneTab("Settings");
     if (enable)
-      if (enable) this.agHelper.CheckUncheck(this._onPageLoad, true);
+      this.agHelper.CheckUncheck(this._onPageLoad, true);
       else this.agHelper.CheckUncheck(this._onPageLoad, false);
   }
 
