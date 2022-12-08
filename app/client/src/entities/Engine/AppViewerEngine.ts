@@ -23,7 +23,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
-import { fetchJSLibraries } from "actions/JSLibraryActions";
+// import { fetchJSLibraries } from "actions/JSLibraryActions";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
