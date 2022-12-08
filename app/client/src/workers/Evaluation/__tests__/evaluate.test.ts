@@ -117,7 +117,7 @@ describe("evaluateSync", () => {
       logs: [],
       errors: [
         {
-          errorMessage: "TypeError: setImmediate is not a function",
+          errorMessage: "ReferenceError: setImmediate is not defined",
           errorType: "PARSE",
           raw: `
   function closedFunction () {
@@ -192,7 +192,7 @@ describe("evaluateAsync", () => {
   it("runs and completes", async () => {
     const js = "(() => new Promise((resolve) => { resolve(123) }))()";
     self.postMessage = jest.fn();
-    const response = await evaluateAsync(js, {}, "TEST_REQUEST", {});
+    const response = await evaluateAsync(js, {}, {}, {});
     expect(response).toStrictEqual({
       errors: [],
       logs: [],
@@ -204,7 +204,7 @@ describe("evaluateAsync", () => {
     jest.restoreAllMocks();
     const js = "(() => new Promise((resolve) => { randomKeyword }))()";
     self.postMessage = jest.fn();
-    const result = await evaluateAsync(js, {}, "TEST_REQUEST_1", {});
+    const result = await evaluateAsync(js, {}, {}, {});
     expect(result).toStrictEqual({
       errors: [
         {
