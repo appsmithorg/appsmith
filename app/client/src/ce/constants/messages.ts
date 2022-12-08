@@ -1156,7 +1156,8 @@ export const ADMIN_BRANDING_UPGRADE_BANNER_SUBTITLE = () =>
   "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
-export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () => `Logo should be below 2MB`;
+export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
+  `Uploaded file must be less than 2MB`;
 export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
   `Logo should  be atleast 256px in height`;
 export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
@@ -1166,7 +1167,7 @@ export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
 export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
   `Uploaded file must have a max size of 32X32 pixels`;
 export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
-  `Favicon should be below 2MB`;
+  `Uploaded file must be less than 2MB`;
 export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
   `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
 export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
