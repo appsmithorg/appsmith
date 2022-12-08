@@ -293,6 +293,17 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      menuItemsSource: getPropertyValue(
+        columnProperties.menuItemsSource,
+        rowIndex,
+        true,
+      ),
+      sourceData: getPropertyValue(columnProperties.sourceData, rowIndex, true),
+      configureMenuItems: getPropertyValue(
+        columnProperties.configureMenuItems,
+        rowIndex,
+        true,
+      ),
       buttonVariant: getPropertyValue(
         columnProperties.buttonVariant,
         rowIndex,

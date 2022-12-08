@@ -9,10 +9,10 @@ import {
   hideByMenuItemsSource,
   hideIfMenuItemsSourceDataIsFalsy,
   updateIconAlignment,
+  updateMenuItemsSource,
 } from "../../propertyUtils";
 import { IconNames } from "@blueprintjs/icons";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import { updateMenuItemsSource } from "widgets/MenuButtonWidget/widget/propertyConfig/propertyUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import configureMenuItemsConfig from "widgets/MenuButtonWidget/widget/propertyConfig/childPanels/configureMenuItemsConfig";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";

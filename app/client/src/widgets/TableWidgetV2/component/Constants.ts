@@ -158,13 +158,12 @@ export type MenuItems = Record<string, MenuItem>;
 export interface MenuButtonCellProperties {
   menuButtonLabel?: string;
   menuItems: MenuItems;
-  getVisibleItems: () => Array<MenuItem>;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   menuButtoniconName?: IconName;
   onItemClicked?: (onClick: string | undefined) => void;
-  menuItemsSource: MenuItemsSource;
-  configureMenuItems: ConfigureMenuItems;
+  menuItemsSource?: MenuItemsSource;
+  configureMenuItems?: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
   sourceDataKeys?: Array<string>;
 }
