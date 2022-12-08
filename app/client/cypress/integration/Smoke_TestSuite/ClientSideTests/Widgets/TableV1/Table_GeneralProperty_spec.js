@@ -159,7 +159,7 @@ describe("Table Widget property pane feature validation", function() {
     // Open email property pane
     cy.editColumn("email");
     // Change column type to url
-    cy.changeColumnType("URL");
+    cy.changeColumnType("URL", false);
     //Check all the occurance
     cy.get(".link-text").should("have.length", "3");
     /*

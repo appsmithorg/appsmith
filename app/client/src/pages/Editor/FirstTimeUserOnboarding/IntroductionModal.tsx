@@ -213,7 +213,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             </ModalFooterText>
             <div>
               <StyledButton
-                category={Category.tertiary}
+                category={Category.secondary}
                 className="t--introduction-modal-build-button my-6"
                 onClick={onBuildApp}
                 size={Size.large}
