@@ -118,7 +118,7 @@ import {
   EntityNavigationData,
   getEntitiesForNavigation,
 } from "selectors/navigationSelectors";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -173,12 +173,6 @@ export type CodeEditorGutter = {
     | ((editorValue: string, cursorLineNumber: number) => GutterConfig | null)
     | null;
   gutterId: string;
-};
-
-export type CustomKeyMap = {
-  // combination of keys
-  combination: string;
-  onKeyDown: (cm: CodeMirror.Editor) => void;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -609,8 +603,6 @@ class CodeEditor extends Component<Props, State> {
   }
 
   handleClick = (cm: CodeMirror.Editor, event: MouseEvent) => {
-    const entityInfo = this.getEntityInformation();
-
     // Event targets are html elements that have node methods
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -633,17 +625,14 @@ class CodeEditor extends Component<Props, State> {
             const navigationData = this.props.entitiesForNavigation[
               entityToNavigate
             ];
-            history.push(navigationData.url, { directNavigation: true });
+            history.push(navigationData.url, {
+              invokedBy: NavigationMethod.CommandClick,
+            });
 
             // TODO fix the widget navigation issue to remove this
             if (navigationData.type === ENTITY_TYPE.WIDGET) {
               this.props.selectWidget(navigationData.id);
             }
-
-            AnalyticsUtil.logEvent("Cmd+Click Navigation", {
-              toType: navigationData.type,
-              fromType: entityInfo.entityType,
-            });
           },
         );
       }

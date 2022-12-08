@@ -21,6 +21,7 @@ import history, {
 } from "utils/history";
 import { EventChannel, eventChannel } from "redux-saga";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -72,10 +73,20 @@ function* logNavigationAnalytics(payload: LocationChangePayload) {
   const {
     location: { hash, pathname, state },
   } = payload;
+  const recentEntityIds: Array<string> = yield select(getRecentEntityIds);
+  const currentEntity = identifyEntityFromPath(pathname, hash);
+  const previousEntity = identifyEntityFromPath(previousPath, previousHash);
+  const isRecent = recentEntityIds.some(
+    (entityId) => entityId === currentEntity.id,
+  );
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
-    path: pathname + hash,
-    from: previousPath + previousHash,
-    navigationMethod: state.navigationVia,
+    toPath: pathname + hash,
+    fromPath: previousPath + previousHash || undefined,
+    navigationMethod: state?.invokedBy,
+    isRecent,
+    recentLength: recentEntityIds.length,
+    toType: currentEntity.entity,
+    fromType: previousEntity.entity,
   });
 }
 
@@ -181,8 +192,8 @@ function shouldSetState(
 ) {
   if (
     state &&
-    state.navigationVia &&
-    state.navigationVia === NavigationMethod.CommandClick
+    state.invokedBy &&
+    state.invokedBy === NavigationMethod.CommandClick
   ) {
     // If it is a command click navigation, we will set the state
     return true;
