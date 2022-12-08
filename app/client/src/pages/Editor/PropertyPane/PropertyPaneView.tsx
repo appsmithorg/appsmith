@@ -179,7 +179,7 @@ function PropertyPaneView(
 
   useEffect(() => {
     setSearchText("");
-  }, [widgetProperties.widgetId]);
+  }, [widgetProperties?.widgetId]);
 
   if (!widgetProperties) return null;
 

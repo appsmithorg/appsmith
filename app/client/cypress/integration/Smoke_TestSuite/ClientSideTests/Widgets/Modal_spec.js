@@ -120,6 +120,8 @@ describe("Modal Widget Functionality", function() {
     //paste
     cy.get("body").type(`{${modifierKey}}v`);
 
+    ee.ExpandCollapseEntity("Widgets", true);
+
     //verify that the two modal widget should have pasted on the main canvas
     cy.get('.bp3-collapse-body > [step="0"]')
       .eq(1)

@@ -55,7 +55,7 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import { generateKeyAndSetFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 
 type Props = PropertyPaneControlConfig & {
@@ -577,7 +577,7 @@ const PropertyControl = memo((props: Props) => {
       if (!shouldFocusPropertyPath) {
         hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
-          dispatch(generateKeyAndSetFocusablePropertyPaneField(dataTreePath));
+          dispatch(setFocusablePropertyPaneField(dataTreePath));
         }, 0);
       }
     };
