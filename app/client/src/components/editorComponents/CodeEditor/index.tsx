@@ -615,12 +615,11 @@ class CodeEditor extends Component<Props, State> {
       event.target.hasAttribute(NAVIGATE_TO_ATTRIBUTE)
     ) {
       if (event.ctrlKey || event.metaKey) {
-        // Event targets are html elements that have node methods
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const entityToNavigate = event.target.attributes.getNamedItem(
+        const navigationAttribute = event.target.attributes.getNamedItem(
           NAVIGATE_TO_ATTRIBUTE,
-        ).value;
+        );
+        if (!navigationAttribute) return;
+        const entityToNavigate = navigationAttribute.value;
 
         // focus out of the input
         document.body.focus();
