@@ -196,6 +196,34 @@ use-mongodb-key() {
 }
 
 init_keycloak() {
+   # Add Postgres jar to get keycloak to use it.
+   mkdir -p /opt/keycloak/modules/system/layers/keycloak/com/postgres/main/;
+   cp /opt/appsmith/templates/postgresql-42.2.20.jar /opt/keycloak/modules/system/layers/keycloak/com/postgres/main/postgresql-42.2.20.jar
+   cp /opt/appsmith/templates/postgres-module.xml /opt/keycloak/modules/system/layers/keycloak/com/postgres/main/module.xml
+
+   # Add default values as env variable in script to start keycloak (Used only docker deployment)
+   # These values are computed in helmchart for kubernetes deployment
+
+   if [[ -z ${APPSMITH_KEYCLOAK_DB_DRIVER-} ]]; then
+       export APPSMITH_KEYCLOAK_DB_DRIVER="h2"
+   fi
+
+   if [[ -z ${APPSMITH_KEYCLOAK_DB_URL-} ]]; then
+       export APPSMITH_KEYCLOAK_DB_URL="\${jboss.server.data.dir}"
+   fi
+
+   if [[ -z ${APPSMITH_KEYCLOAK_DB_NAME-} ]]; then
+       export APPSMITH_KEYCLOAK_DB_NAME="keycloak"
+   fi
+
+   if [[ -z ${APPSMITH_KEYCLOAK_DB_USERNAME-} ]]; then
+       export APPSMITH_KEYCLOAK_DB_USERNAME="sa"
+   fi
+
+   if [[ -z ${APPSMITH_KEYCLOAK_DB_PASSWORD-} ]]; then
+       export APPSMITH_KEYCLOAK_DB_PASSWORD="sa"
+   fi
+
   if [[ -z ${KEYCLOAK_ADMIN_USERNAME-} ]]; then
     export KEYCLOAK_ADMIN_USERNAME=admin
     echo $'\nKEYCLOAK_ADMIN_USERNAME='"$KEYCLOAK_ADMIN_USERNAME" >> "$stacks_path/configuration/docker.env"
