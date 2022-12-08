@@ -143,7 +143,6 @@ describe("Git import flow", function() {
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
 
-  //Skipping due to Open bug # 18776
   it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     cy.createGitBranch(newBranch);
     cy.get(".tbody")
@@ -214,7 +213,6 @@ describe("Git import flow", function() {
     cy.wait(2000);
   });
 
-  //Skipping due to Open bug # 18776
   it("5. Switch to master and verify data in edit and view mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
@@ -238,7 +236,6 @@ describe("Git import flow", function() {
     cy.wait(2000);
   });
 
-  //Skipping due to Open bug # 18776
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
