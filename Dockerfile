@@ -19,11 +19,11 @@ RUN apt-get update \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove --yes git python3-pip
 
-# Install MongoDB v5.0.x, Redis, NodeJS - Service Layer
+# Install MongoDB v5.0.14, Redis, NodeJS - Service Layer
 RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
   && curl --silent --show-error --location https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get install --no-install-recommends --yes mongodb-org nodejs redis build-essential \
+  && apt-get install --no-install-recommends --yes mongodb-org=5.0.14 nodejs redis build-essential \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
