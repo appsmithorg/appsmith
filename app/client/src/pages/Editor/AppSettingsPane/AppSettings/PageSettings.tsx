@@ -33,7 +33,7 @@ import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { getUrlPreview, specialCharacterCheckRegex } from "../Utils";
+import { getUrlPreview } from "../Utils";
 import { AppState } from "ce/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
@@ -81,6 +81,8 @@ const UrlPreviewScroll = styled.div`
   }
 `;
 
+const specialCharacterCheckRegex = /^[A-Za-z0-9\s\-]+$/g;
+
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
   const page = props.page;
@@ -102,7 +104,6 @@ function PageSettings(props: { page: Page }) {
   const [isPageNameValid, setIsPageNameValid] = useState(true);
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
-  const [isCustomSlugValid] = useState(true);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
 
   const [isShown, setIsShown] = useState(!!!page.isHidden);
@@ -163,15 +164,14 @@ function PageSettings(props: { page: Page }) {
   }, [page.pageId, page.pageName, pageName, isPageNameValid]);
 
   const saveCustomSlug = useCallback(() => {
-    if (!canManagePages || !isCustomSlugValid || page.customSlug === customSlug)
-      return;
+    if (!canManagePages || page.customSlug === customSlug) return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
       customSlug: customSlug || "",
     };
     setIsCustomSlugSaving(true);
     dispatch(updatePage(payload));
-  }, [page.pageId, page.customSlug, customSlug, isCustomSlugValid]);
+  }, [page.pageId, page.customSlug, customSlug]);
 
   const saveIsShown = useCallback(
     (isShown: boolean) => {
@@ -258,7 +258,6 @@ function PageSettings(props: { page: Page }) {
         className={classNames({
           "py-1 relative": true,
           "pb-2": appNeedsUpdate,
-          "pb-6": !appNeedsUpdate && !isCustomSlugValid,
         })}
       >
         {isCustomSlugSaving && <TextLoaderIcon />}
@@ -281,12 +280,6 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page URL"
           readOnly={appNeedsUpdate}
           type="input"
-          // validator={checkRegex(
-          //   specialCharacterCheckRegex,
-          //   PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR(),
-          //   false,
-          //   setIsCustomSlugValid,
-          // )}
           value={customSlug}
         />
       </div>
