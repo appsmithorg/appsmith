@@ -247,13 +247,19 @@ function* moveAndUpdateWidgets(
     };
   }
 
-  const modifiedWidgets: CanvasWidgetsReduxState = yield call(
-    traverseTreeAndExecuteBlueprintChildOperations,
-    updatedWidgets[canvasId],
-    movedWidgetIds, //CHeck && filter out MODAL WIDGET
-    updatedWidgets,
-  );
-  return modifiedWidgets;
+  const widgetPayload = draggedBlocksToUpdate?.[0]?.updateWidgetParams?.payload;
+  //execute blueprint sagas when moving to a different canvas
+  if (widgetPayload && widgetPayload.newParentId !== widgetPayload.parentId) {
+    const modifiedWidgets: CanvasWidgetsReduxState = yield call(
+      traverseTreeAndExecuteBlueprintChildOperations,
+      updatedWidgets[canvasId],
+      movedWidgetIds,
+      updatedWidgets,
+    );
+    return modifiedWidgets;
+  }
+
+  return updatedWidgets;
 }
 
 function getParentWidgetType(

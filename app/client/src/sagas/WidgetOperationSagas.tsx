@@ -1698,7 +1698,9 @@ function* pasteWidgetSaga(
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     traverseTreeAndExecuteBlueprintChildOperations,
     reflowedWidgets[pastingIntoWidgetId],
-    newlyCreatedWidgetIds, //CHeck && filter out MODAL WIDGET
+    newlyCreatedWidgetIds.filter(
+      (widgetId) => !reflowedWidgets[widgetId]?.detachFromLayout,
+    ),
     reflowedWidgets,
   );
   yield put(updateAndSaveLayout(updatedWidgets));

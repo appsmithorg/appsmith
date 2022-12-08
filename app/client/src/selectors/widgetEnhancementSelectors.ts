@@ -26,6 +26,7 @@ export type EnhancementFns = {
     autoCompleteEnhancementFn: any;
     customJSControlEnhancementFn: any;
     hideEvaluatedValueEnhancementFn: any;
+    shouldHidePropertyFn: any;
   };
   parentIdWithEnhancementFn: any;
 };
@@ -41,6 +42,7 @@ export const getWidgetEnhancementSelector = (widgetId: string) => {
         autoCompleteEnhancementFn: undefined,
         customJSControlEnhancementFn: undefined,
         hideEvaluatedValueEnhancementFn: undefined,
+        shouldHidePropertyFn: undefined,
       };
 
       // Get the parent which wants to enhance this widget
@@ -78,6 +80,10 @@ export const getWidgetEnhancementSelector = (widgetId: string) => {
           hideEvaluatedValueEnhancementFn: getWidgetEnhancementFn(
             parentWithEnhancementFn.type,
             WidgetEnhancementType.HIDE_EVALUATED_VALUE,
+          ),
+          shouldHidePropertyFn: getWidgetEnhancementFn(
+            parentWithEnhancementFn.type,
+            WidgetEnhancementType.SHOULD_HIDE_PROPERTY,
           ),
         };
 

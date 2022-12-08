@@ -68,7 +68,10 @@ import { migrateMapChartWidgetReskinningData } from "./migrations/MapChartReskin
 import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigrations";
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
-import { migratePropertiesForDynamicHeight } from "./migrations/autoHeightMigrations";
+import {
+  migrateListWidgetChildrenForAutoHeight,
+  migratePropertiesForDynamicHeight,
+} from "./migrations/autoHeightMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1125,11 +1128,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 69) {
     currentDSL = migrateMenuButtonDynamicItems(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 70;
   }
 
   if (currentDSL.version === 70) {
-    currentDSL = migrateListWidgetChildren(currentDSL);
+    currentDSL = migrateListWidgetChildrenForAutoHeight(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -1573,36 +1576,3 @@ export const migrateFilterValueForDropDownWidget = (currentDSL: DSLWidget) => {
 
   return newDSL;
 };
-
-function migrateListWidgetChildren(
-  currentDSL: DSLWidget,
-  isChildOfListWidget = false,
-): DSLWidget {
-  if (!currentDSL) return currentDSL;
-
-  let isCurrentListWidget = false;
-  if (currentDSL.type === "LIST_WIDGET") isCurrentListWidget = true;
-
-  const children = currentDSL.children?.map((childDSL: DSLWidget) =>
-    migrateListWidgetChildren(
-      childDSL,
-      isCurrentListWidget || isChildOfListWidget,
-    ),
-  );
-
-  let newDSL;
-  if (isChildOfListWidget) {
-    newDSL = {
-      ...currentDSL,
-      children,
-      dynamicHeight: "FIXED",
-    };
-  } else {
-    newDSL = {
-      ...currentDSL,
-      children,
-    };
-  }
-
-  return newDSL;
-}

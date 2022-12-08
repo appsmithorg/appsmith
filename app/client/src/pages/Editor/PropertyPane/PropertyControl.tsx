@@ -61,14 +61,9 @@ import WidgetFactory from "utils/WidgetFactory";
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
-  isChildOfListWidget: boolean;
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
-
-const shouldRender = (currProps: Props, prevProps: Props) => {
-  return currProps.isChildOfListWidget === prevProps.isChildOfListWidget;
-};
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -181,6 +176,7 @@ const PropertyControl = memo((props: Props) => {
     customJSControlEnhancementFn: childWidgetCustomJSControlEnhancementFn,
     hideEvaluatedValueEnhancementFn: childWidgetHideEvaluatedValueEnhancementFn,
     propertyPaneEnhancementFn: childWidgetPropertyUpdateEnhancementFn,
+    shouldHidePropertyFn: childWidgetShouldHidePropertyFn,
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = enhancementFns;
 
@@ -477,11 +473,10 @@ const PropertyControl = memo((props: Props) => {
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
     if (
-      (props.hidden &&
-        props.hidden(widgetProperties, props.propertyName, {
-          isChildOfListWidget: props.isChildOfListWidget,
-        })) ||
-      props.invisible
+      (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
+      props.invisible ||
+      (childWidgetShouldHidePropertyFn &&
+        childWidgetShouldHidePropertyFn(props.propertyName))
     ) {
       return null;
     }
@@ -712,7 +707,7 @@ const PropertyControl = memo((props: Props) => {
     }
   }
   return null;
-}, shouldRender);
+});
 
 PropertyControl.displayName = "PropertyControl";
 

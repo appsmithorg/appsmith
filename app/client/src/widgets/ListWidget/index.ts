@@ -33,6 +33,11 @@ export const CONFIG = {
         updateDataTreePath: (parentProps: any, dataTreePath: string) => {
           return `${parentProps.widgetName}.template.${dataTreePath}`;
         },
+        shouldHideProperty: (parentProps: any, propertyName: string) => {
+          if (propertyName === "dynamicHeight") return true;
+
+          return false;
+        },
         propertyUpdateHook: (
           parentProps: any,
           widgetName: string,
@@ -381,11 +386,11 @@ export const CONFIG = {
               };
             }
 
-            const template = {
-              ...get(parent, "template", {}),
-              [widget.widgetName]: widget,
-            };
-            parent.template = template;
+            // const template = {
+            //   ...get(parent, "template", {}),
+            //   [widget.widgetName]: widget,
+            // };
+            //parent.template = template;
 
             // add logBlackList for the children being added
             Object.keys(widget).map((key) => {

@@ -1,6 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
-  propertyHiddenOptions,
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
@@ -315,13 +314,6 @@ export const PropertyPaneConfigTemplates: Record<
         "isCanvas",
       ],
       updateHook: updateMinMaxDynamicHeight,
-      hidden: (
-        props: WidgetProps,
-        propertyPath: string,
-        options?: propertyHiddenOptions,
-      ) => {
-        return !!options?.isChildOfListWidget;
-      },
       helperText: (props: WidgetProps) => {
         return props.isCanvas &&
           props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
