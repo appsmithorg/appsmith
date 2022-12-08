@@ -431,8 +431,7 @@ Cypress.Commands.add("updateComputedValueV2", (value) => {
   cy.wait(1000);
 });
 
-
-Cypress.Commands.add("testCodeMirrorWithIndex", (value,index) => {
+Cypress.Commands.add("testCodeMirrorWithIndex", (value, index) => {
   cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .eq(index)
@@ -884,8 +883,8 @@ Cypress.Commands.add("addAction", (value, property) => {
   cy.enterActionValue(value, property);
 });
 
-Cypress.Commands.add("addEvent", (value) => {
-  cy.get(commonlocators.dropdownSelectButton)
+Cypress.Commands.add("addEvent", (value, selector) => {
+  cy.get(selector + " " + commonlocators.dropdownSelectButton)
     .last()
     .click();
   cy.get(commonlocators.chooseAction)
