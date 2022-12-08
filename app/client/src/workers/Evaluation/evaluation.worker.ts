@@ -3,58 +3,65 @@
 import { WorkerErrorTypes } from "workers/common/types";
 import { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 import { syncHandlerMap, asyncHandlerMap } from "./handlers";
-import { MessageType } from "utils/WorkerUtil";
+import { Message, sendMessage, MessageType } from "utils/MessageUtil";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
-function syncRequestMessageListener(e: MessageEvent<EvalWorkerSyncRequest>) {
+function syncRequestMessageListener(
+  e: MessageEvent<Message<EvalWorkerSyncRequest>>,
+) {
   const startTime = performance.now();
-  const { id, method } = e.data;
+  const { body, messageId, messageType } = e.data;
+  if (messageType === MessageType.RESPONSE) return;
+  const { method } = body;
   if (!method) return;
   const messageHandler = syncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
-  const responseData = messageHandler(e.data);
+  const responseData = messageHandler(body);
   if (!responseData) return;
   const endTime = performance.now();
-  respond(id, responseData, endTime - startTime);
+  respond(messageId, responseData, endTime - startTime);
 }
 
 async function asyncRequestMessageListener(
-  e: MessageEvent<EvalWorkerASyncRequest>,
+  e: MessageEvent<Message<EvalWorkerASyncRequest>>,
 ) {
   const start = performance.now();
-  const { id, method } = e.data;
+  const { body, messageId, messageType } = e.data;
+  if (messageType === MessageType.RESPONSE) return;
+  const { method } = body;
   if (!method) return;
   const messageHandler = asyncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
-  const data = await messageHandler(e.data);
+  const data = await messageHandler(body);
   if (!data) return;
   const end = performance.now();
-  respond(id, data, end - start);
+  respond(messageId, data, end - start);
 }
 
-function respond(id: string, data: unknown, timeTaken: number) {
+function respond(messageId: string, data: unknown, timeTaken: number) {
   try {
-    self.postMessage({
-      id,
-      data,
+    sendMessage(self)({
+      messageId,
       messageType: MessageType.RESPONSE,
-      timeTaken: timeTaken.toFixed(2),
+      body: { data, timeTaken },
     });
   } catch (e) {
     console.error(e);
-    self.postMessage({
-      id,
-      data: {
-        errors: [
-          {
-            type: WorkerErrorTypes.CLONE_ERROR,
-            message: (e as Error)?.message,
-            context: JSON.stringify(data),
-          },
-        ],
-      },
+    sendMessage(self)({
+      messageId,
       messageType: MessageType.RESPONSE,
-      timeTaken: timeTaken.toFixed(2),
+      body: {
+        timeTaken: timeTaken.toFixed(2),
+        data: {
+          errors: [
+            {
+              type: WorkerErrorTypes.CLONE_ERROR,
+              message: (e as Error)?.message,
+              context: JSON.stringify(data),
+            },
+          ],
+        },
+      },
     });
   }
 }

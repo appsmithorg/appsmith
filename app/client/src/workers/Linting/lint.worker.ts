@@ -8,37 +8,46 @@ import {
   LintTreeRequest,
 } from "./types";
 import { getlintErrorsFromTree } from "./utils";
+import { Message, MessageType, sendMessage } from "utils/MessageUtil";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
-  return (event: MessageEvent<LintWorkerRequest>) => {
-    const { method, requestId } = event.data;
+  return (event: MessageEvent<Message<LintWorkerRequest>>) => {
+    const { body, messageId, messageType } = event.data;
+    if (messageType !== "REQUEST") return;
+    const { data, method } = body;
     if (!method) return;
 
     const startTime = performance.now();
-    const responseData = fn(event.data);
+    const responseData = fn({ method, requestData: data });
     const endTime = performance.now();
     if (!responseData) return;
 
     try {
-      self.postMessage({
-        requestId,
-        responseData,
-        timeTaken: (endTime - startTime).toFixed(2),
+      sendMessage(self)({
+        messageId,
+        messageType: MessageType.RESPONSE,
+        body: {
+          data: responseData,
+          timeTaken: (endTime - startTime).toFixed(2),
+        },
       });
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-      self.postMessage({
-        requestId,
-        responseData: {
-          errors: [
-            {
-              type: WorkerErrorTypes.CLONE_ERROR,
-              message: (e as Error)?.message,
-            },
-          ],
+      sendMessage(self)({
+        messageId,
+        messageType: MessageType.RESPONSE,
+        body: {
+          data: {
+            errors: [
+              {
+                type: WorkerErrorTypes.CLONE_ERROR,
+                message: (e as Error)?.message,
+              },
+            ],
+          },
+          timeTaken: (endTime - startTime).toFixed(2),
         },
-        timeTaken: (endTime - startTime).toFixed(2),
       });
     }
   };

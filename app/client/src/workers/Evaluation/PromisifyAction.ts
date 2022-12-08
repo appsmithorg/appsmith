@@ -1,4 +1,4 @@
-import { createGlobalData, EvalResult } from "workers/Evaluation/evaluate";
+import { createGlobalData } from "workers/Evaluation/evaluate";
 const ctx: Worker = self as any;
 
 /*
@@ -8,18 +8,13 @@ const ctx: Worker = self as any;
  *
  * needs a REQUEST_ID to be passed in to know which request is going on right now
  */
-import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
-import {
-  ActionDescription,
-  ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
-import { MessageType } from "utils/WorkerUtil";
+import { Message, sendMessage, MessageType } from "utils/MessageUtil";
 
 export const promisifyAction = (
-  workerRequestId: string,
   actionDescription: ActionDescription,
   eventType?: EventType,
 ) => {
@@ -32,31 +27,30 @@ export const promisifyAction = (
     self.IS_ASYNC = true;
     throw new Error("Async function called in a sync field");
   }
-  const workerRequestIdCopy = workerRequestId.concat("");
   return new Promise((resolve, reject) => {
     // We create a new sub request id for each request going on so that we can resolve the correct one later on
-    const subRequestId = _.uniqueId(`${workerRequestIdCopy}_`);
+    const messageId = _.uniqueId(`${actionDescription.type}_`);
     // send an execution request to the main thread
     const data = {
       trigger: actionDescription,
-      errors: [],
-      subRequestId,
       eventType,
     };
-    ctx.postMessage({
-      type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-      data,
-      id: workerRequestIdCopy,
+    sendMessage(ctx)({
+      messageId,
       messageType: MessageType.REQUEST,
+      body: {
+        method: "PROCESS_TRIGGER",
+        data,
+      },
     });
-    const processResponse = function(event: MessageEvent) {
-      const { data: messageData, id, messageType } = event.data;
+    const processResponse = function(event: MessageEvent<Message<any>>) {
+      const { body, messageId: resMessageId, messageType } = event.data;
+      const { data: messageData } = body;
       const { data, eventType, success } = messageData;
       // This listener will get all the messages that come to the worker
       // we need to find the correct one pertaining to this promise
-      if (id === workerRequestIdCopy && messageType === MessageType.RESPONSE) {
+      if (resMessageId === messageId && messageType === MessageType.RESPONSE) {
         // If we get a response for this same promise we will resolve or reject it
-
         // We could not find a data tree evaluator,
         // maybe the page changed, or we have a cyclical dependency
         if (!dataTreeEvaluator) {
@@ -69,7 +63,6 @@ export const promisifyAction = (
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
             isTriggerBased: true,
             context: {
-              requestId: workerRequestId,
               eventType,
             },
           });
@@ -91,32 +84,4 @@ export const promisifyAction = (
     };
     ctx.addEventListener("message", processResponse);
   });
-};
-// To indicate the main thread that the processing of the trigger is done
-// we send a finished message
-export const completePromise = (requestId: string, result: EvalResult) => {
-  ctx.postMessage({
-    type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-    responseData: {
-      finished: true,
-      result,
-    },
-    requestId,
-    promisified: true,
-  });
-};
-
-export const confirmationPromise = function(
-  requestId: string,
-  func: any,
-  name: string,
-  ...args: any[]
-) {
-  const payload: ActionDescription = {
-    type: ActionTriggerType.CONFIRMATION_MODAL,
-    payload: {
-      funName: name,
-    },
-  };
-  return promisifyAction(requestId, payload).then(() => func(...args));
 };

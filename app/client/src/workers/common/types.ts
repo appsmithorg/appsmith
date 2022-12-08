@@ -10,5 +10,4 @@ export enum WorkerErrorTypes {
 export interface WorkerRequest<TData, TActions> {
   method: TActions;
   data: TData;
-  id: string;
 }

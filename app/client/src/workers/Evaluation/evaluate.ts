@@ -156,7 +156,6 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     //// Add internal functions to dataTree;
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
       dataTree,
-      context?.requestId,
       skipEntityFunctions,
       context?.eventType,
     );
@@ -313,7 +312,6 @@ export default function evaluateSync(
 export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
-  requestId: string,
   resolvedFunctions: Record<string, any>,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
@@ -333,7 +331,7 @@ export async function evaluateAsync(
       dataTree,
       resolvedFunctions,
       isTriggerBased: true,
-      context: { ...context, requestId },
+      context,
       evalArguments,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);

@@ -52,6 +52,7 @@ import {
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
 import { JSLibraries } from "workers/common/JSLibrary";
+import { MessageType, sendMessage } from "utils/MessageUtil";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
@@ -468,12 +469,15 @@ export function initiateLinting(
   requiresLinting: boolean,
 ) {
   if (!requiresLinting) return;
-  postMessage({
-    promisified: true,
-    responseData: {
-      lintOrder,
-      unevalTree,
-      type: EVAL_WORKER_ACTIONS.LINT_TREE,
+  sendMessage(self)({
+    messageId: "",
+    messageType: MessageType.REQUEST,
+    body: {
+      data: {
+        lintOrder,
+        unevalTree,
+      },
+      method: EVAL_WORKER_ACTIONS.LINT_TREE,
     },
   });
 }

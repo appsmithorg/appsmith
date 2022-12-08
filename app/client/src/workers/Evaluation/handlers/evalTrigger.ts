@@ -3,7 +3,7 @@ import { EvalWorkerASyncRequest } from "../types";
 import { createUnEvalTreeForEval } from "../dataTreeUtils";
 
 export default async function(request: EvalWorkerASyncRequest) {
-  const { data, id } = request;
+  const { data } = request;
   const {
     callbackData,
     dynamicTrigger,
@@ -30,7 +30,6 @@ export default async function(request: EvalWorkerASyncRequest) {
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
     evalTree,
-    id,
     resolvedFunctions,
     callbackData,
     {

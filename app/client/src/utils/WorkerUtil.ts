@@ -2,16 +2,7 @@ import { cancelled, delay, put, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import { uniqueId } from "lodash";
 import log from "loglevel";
-
-export enum MessageType {
-  REQUEST = "REQUEST",
-  RESPONSE = "RESPONSE",
-}
-
-export type WorkerReqMessage = {
-  data: unknown;
-  id?: string;
-};
+import { Message, MessageType, sendMessage } from "./MessageUtil";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -60,7 +51,7 @@ export class GracefulWorkerService {
 
   private readonly _workerClass: Worker;
 
-  private listenerChannel: Channel<WorkerReqMessage>;
+  private listenerChannel: Channel<Message<any>>;
 
   constructor(workerClass: Worker) {
     this.shutdown = this.shutdown.bind(this);
@@ -123,13 +114,17 @@ export class GracefulWorkerService {
     return false;
   }
 
-  *respond(id: string, data = {}): any {
+  *respond(messageId = "", data = {}): any {
+    if (!messageId) return;
     yield this.ready(true);
     if (!this._Worker) return;
-    this._Worker.postMessage({
-      data,
-      id,
-      messageType: MessageType.RESPONSE,
+    const messageType = MessageType.RESPONSE;
+    sendMessage(this._Worker)({
+      body: {
+        data,
+      },
+      messageId,
+      messageType,
     });
   }
 
@@ -150,18 +145,20 @@ export class GracefulWorkerService {
     /**
      * We create a unique channel to wait for a response of this specific request.
      */
-    const id = `${method}__${uniqueId()}`;
+    const messageId = `${method}__${uniqueId()}`;
     const ch = channel();
-    this._channels.set(id, ch);
+    this._channels.set(messageId, ch);
     const mainThreadStartTime = performance.now();
     let timeTaken;
 
     try {
-      this._Worker.postMessage({
+      sendMessage(this._Worker)({
         messageType: MessageType.REQUEST,
-        method,
-        data,
-        id,
+        body: {
+          method,
+          data,
+        },
+        messageId,
       });
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
@@ -187,22 +184,21 @@ export class GracefulWorkerService {
       }
       // Cleanup
       ch.close();
-      this._channels.delete(id);
+      this._channels.delete(messageId);
     }
   }
 
-  private _broker(event: MessageEvent) {
-    if (!event || !event.data) {
-      return;
-    }
-    const { data, id, messageType, timeTaken } = event.data;
+  private _broker(event: MessageEvent<Message<any>>) {
+    if (!event || !event.data) return;
+    const { body, messageId, messageType } = event.data;
     if (messageType === MessageType.REQUEST) {
-      this.listenerChannel.put({ data, id });
+      this.listenerChannel.put(event.data);
     } else {
-      const ch = this._channels.get(id);
+      if (!messageId) return;
+      const ch = this._channels.get(messageId);
       if (ch) {
-        ch.put({ data, id, messageType, timeTaken });
-        this._channels.delete(id);
+        ch.put(body);
+        this._channels.delete(messageId);
       }
     }
   }

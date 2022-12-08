@@ -24,7 +24,7 @@ import {
 } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
-import { GracefulWorkerService, WorkerReqMessage } from "utils/WorkerUtil";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 import {
   EvalError,
   PropertyEvaluationErrorType,
@@ -108,6 +108,7 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
+import { Message } from "utils/MessageUtil";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -319,44 +320,50 @@ export function* evaluateAndExecuteDynamicTrigger(
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
-    const request: WorkerReqMessage = yield take(listenerChannel);
+    const request: Message<any> = yield take(listenerChannel);
     yield spawn(handleEvalWorkerRequest, request);
   }
 }
 
-export function* handleEvalWorkerRequest(request: any) {
-  const { data, id } = request;
-  const { eventType, logs, trigger, triggerMeta } = data as any;
-  if (logs) {
-    yield call(
-      storeLogs,
-      data.logs,
-      triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
-      eventType === EventType.ON_JS_FUNCTION_EXECUTE
-        ? ENTITY_TYPE.JSACTION
-        : ENTITY_TYPE.WIDGET,
-      triggerMeta?.source?.id || "",
-    );
-  }
-  if (trigger) {
-    // if we have found a trigger, we need to execute it and respond back
-    log.debug({ trigger: data.trigger });
-    const result: ResponsePayload = yield call(
-      executeTriggerRequestSaga,
-      trigger,
-      eventType,
-      triggerMeta,
-    );
-    yield call(evalWorker.respond, id, result);
-  }
-  if (data.type === EVAL_WORKER_ACTIONS.LINT_TREE) {
-    yield put({
-      type: ReduxActionTypes.LINT_TREE,
-      payload: {
-        pathsToLint: data.lintOrder,
-        unevalTree: data.unevalTree,
-      },
-    });
+export function* handleEvalWorkerRequest(request: Message<any>) {
+  const { body, messageId } = request;
+  const { data, method } = body;
+  switch (method) {
+    case "LINT_TREE": {
+      yield put({
+        type: ReduxActionTypes.LINT_TREE,
+        payload: {
+          pathsToLint: data.lintOrder,
+          unevalTree: data.unevalTree,
+        },
+      });
+      break;
+    }
+    case "PROCESS_LOGS": {
+      const { logs = [], triggerMeta, eventType } = data;
+      yield call(
+        storeLogs,
+        logs,
+        triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "",
+        eventType === EventType.ON_JS_FUNCTION_EXECUTE
+          ? ENTITY_TYPE.JSACTION
+          : ENTITY_TYPE.WIDGET,
+        triggerMeta?.source?.id || "",
+      );
+      break;
+    }
+    case "PROCESS_TRIGGER": {
+      const { eventType, trigger, triggerMeta } = data;
+      log.debug({ trigger: data.trigger });
+      const result: ResponsePayload = yield call(
+        executeTriggerRequestSaga,
+        trigger,
+        eventType,
+        triggerMeta,
+      );
+      yield call(evalWorker.respond, messageId, result);
+      break;
+    }
   }
   yield call(evalErrorHandler, data?.errors || []);
 }
@@ -608,7 +615,7 @@ export function* evaluateSnippetSaga(action: any) {
     let { expression } = action.payload;
     const { dataType, isTrigger } = action.payload;
     if (isTrigger) {
-      expression = `function() { ${expression} }`;
+      expression = `(function() { ${expression} })()`;
     }
     const workerResponse: {
       errors: any;
