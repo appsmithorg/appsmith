@@ -62,6 +62,7 @@ function changeFieldType(fieldName, fieldType) {
 
 function addCustomField(fieldType) {
   cy.openPropertyPane("jsonformwidget");
+  cy.backFromPropertyPanel();
 
   // Add new field
   cy.get(commonlocators.jsonFormAddNewCustomFieldBtn).click({
@@ -97,8 +98,8 @@ describe("JSON Form Hidden fields", () => {
   it("2. can hide Array Field's inner fields", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("education");
-    cy.openFieldConfiguration("__array_item__");
-    cy.openFieldConfiguration("college");
+    cy.openFieldConfiguration("__array_item__", false);
+    cy.openFieldConfiguration("college", false);
 
     hideAndVerifyProperties("education-0--college", "MIT", (formData) => {
       return formData.education[0].college;
