@@ -38,6 +38,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
     Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName);
+
+    Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName, String environmentName);
     
     Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction);
 

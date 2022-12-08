@@ -629,8 +629,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-
     protected void replaceNullWithQuotesForParamValues(List<Param> params) {
+
         if (!CollectionUtils.isEmpty(params)) {
             for (Param param : params) {
                 // In case the parameter values turn out to be null, set it to empty string instead to allow
@@ -642,64 +642,72 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
     }
 
+    protected Mono<NewAction> getAction(String actionId) {
 
-    protected Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> getExecuteActionPublishers(ExecuteActionDTO executeActionDTO) {
-        String actionId = executeActionDTO.getActionId();
-
-        // 2. Fetch the action from the DB and check if it can be executed
-        Mono<NewAction> actionMono = repository.findById(actionId, actionPermission.getExecutePermission())
+        return repository.findById(actionId, actionPermission.getExecutePermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, actionId)))
                 .cache();
+    }
 
-        Mono<ActionDTO> actionDTOMono = actionMono
+    protected Mono<ActionDTO> getActionDTO(Mono<NewAction> actionMono, ExecuteActionDTO executeActionDTO, String actionId) {
+
+        return actionMono
                 .flatMap(action -> getValidActionForExecution(executeActionDTO, actionId, action))
                 .cache();
+    }
 
-        // 3. Instantiate the implementation class based on the query type
+    protected Mono<Datasource> getDatasource(Mono<ActionDTO> actionDTOMono) {
 
-        Mono<Datasource> datasourceMono = actionDTOMono
+        return actionDTOMono
                 .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO, datasourcePermission.getExecutePermission()))
                 .cache();
+    }
 
-        Mono<Plugin> pluginMono = datasourceMono
+    protected Mono<Plugin> getPlugin (Mono<Datasource> datasourceMono, String actionId) {
+        return datasourceMono
                 .flatMap(datasource -> {
-                    // For embedded datasources, validate the datasource for each execution
+                    // For embedded datasource, validate the datasource for each execution
                     if (datasource.getId() == null) {
                         return datasourceService.validateDatasource(datasource);
                     }
 
-                    // The external datasources have already been validated. No need to validate again.
+                    // The external datasource have already been validated. No need to validate again.
                     return Mono.just(datasource);
                 })
                 .flatMap(datasource -> {
                     Set<String> invalids = datasource.getInvalids();
                     if (!CollectionUtils.isEmpty(invalids)) {
                         log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
-                                actionId, ArrayUtils.toString(invalids));
+                                  actionId, ArrayUtils.toString(invalids));
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
-                                datasource.getName(),
-                                ArrayUtils.toString(invalids)));
+                                                                datasource.getName(),
+                                                                ArrayUtils.toString(invalids)));
                     }
                     return pluginService.findById(datasource.getPluginId());
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN)))
                 .cache();
-
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
-
-        // 4. Execute the query
-        return Mono.zip(
-                        actionDTOMono,
-                        datasourceMono,
-                        pluginExecutorMono,
-                        pluginMono,
-                        actionMono
-                );
-
     }
 
-    protected Mono<ActionExecutionResult> getExecutionMonoFromValidatedDatasourceMono(ExecuteActionDTO executeActionDTO, Mono<Datasource> validatedDatasourceMono, Plugin plugin, PluginExecutor pluginExecutor, ActionDTO action, Datasource datasource) {
-        Integer timeoutDuration = action.getActionConfiguration().getTimeoutInMillisecond();
+    protected Mono<Map> getEditorConfigLabelMap (Mono<Datasource> datasourceMono) {
+
+        return datasourceMono.flatMap(datasource -> {
+            if (!StringUtils.hasLength(datasource.getId())) {
+                return Mono.just(new HashMap());
+            }
+
+            return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
+        });
+    }
+
+    protected Mono<ActionExecutionResult> verifyDatasourceAndMakeRequest (ExecuteActionDTO executeActionDTO,
+                                                                          ActionDTO actionDTO,
+                                                                          Datasource datasource,
+                                                                          Plugin plugin,
+                                                                          PluginExecutor pluginExecutor,
+                                                                          String environmentName) {
+
+        Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource).cache();
 
         Mono<ActionExecutionResult> executionMono = validatedDatasourceMono
                 .flatMap(datasource1 -> {
@@ -708,76 +716,74 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     } else {
                         return datasourceContextService.getDatasourceContext(datasource1);
                     }
-
-                })
-                // Now that we have the context (connection details), execute the action.
+                }) // Now that we have the context (connection details), execute the action.
                 .flatMap(resourceContext -> validatedDatasourceMono
                         .flatMap(datasource1 -> {
                             final Instant requestedAt = Instant.now();
-                            return ((Mono<ActionExecutionResult>) pluginExecutor.executeParameterized(
-                                    resourceContext.getConnection(),
-                                    executeActionDTO,
-                                    datasource1.getDatasourceConfiguration(),
-                                    action.getActionConfiguration()
-                            )).map(actionExecutionResult -> {
-                                ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
-                                if (actionExecutionRequest == null) {
-                                    actionExecutionRequest = new ActionExecutionRequest();
-                                }
-                                actionExecutionRequest.setActionId(executeActionDTO.getActionId());
-                                actionExecutionRequest.setRequestedAt(requestedAt);
+                            return ((Mono<ActionExecutionResult>) pluginExecutor.
+                                    executeParameterized(resourceContext.getConnection(),
+                                                         executeActionDTO,
+                                                         datasource1.getDatasourceConfiguration(),
+                                                         actionDTO.getActionConfiguration()))
+                                    .map(actionExecutionResult -> {
+                                        ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
+                                        if (actionExecutionRequest == null) {
+                                            actionExecutionRequest = new ActionExecutionRequest();
+                                        }
+                                        actionExecutionRequest.setActionId(executeActionDTO.getActionId());
+                                        actionExecutionRequest.setRequestedAt(requestedAt);
 
-                                actionExecutionResult.setRequest(actionExecutionRequest);
-
-                                return actionExecutionResult;
+                                        actionExecutionResult.setRequest(actionExecutionRequest);
+                                        return actionExecutionResult;
                             });
-                        })
-                );
+                }));
 
-        return executionMono
-                .onErrorResume(StaleConnectionException.class, error -> {
-                    log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                    return datasourceContextService
-                            .deleteDatasourceContext(datasource.getId())
-                            .then(executionMono);
-                })
-                .timeout(Duration.ofMillis(timeoutDuration))
-                .onErrorMap(TimeoutException.class,
-                        error -> new AppsmithPluginException(
-                                AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
-                                action.getName(), timeoutDuration
-                        )
-                );
+        return executionMono.onErrorResume(StaleConnectionException.class, error -> {
+            log.info("Looks like the connection is stale. Retrying with a fresh context.");
+            return datasourceContextService.deleteDatasourceContext(datasource.getId())
+                    .then(executionMono);
+        });
+
     }
 
     protected Mono<ActionExecutionResult> getActionExecutionResult( ExecuteActionDTO executeActionDTO,
-                                                                                      Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> executeActionPublishersCache,
-                                                                                      AtomicReference<String> actionName,
-                                                                                      String actionId) {
+                                                                    Mono<NewAction> actionMono,
+                                                                    Mono<ActionDTO> actionDTOMono,
+                                                                    Mono<Datasource> datasourceMono,
+                                                                    Mono<Plugin> pluginMono,
+                                                                    Mono<PluginExecutor> pluginExecutorMono,
+                                                                    AtomicReference<String> actionName,
+                                                                    String actionId,
+                                                                    String environmentName) {
+
+        Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> executeActionPublishersCache =
+                Mono.zip(actionDTOMono, datasourceMono, pluginExecutorMono, pluginMono, actionMono).cache();
+
         return executeActionPublishersCache
                 .flatMap(tuple -> {
-                    final ActionDTO action = tuple.getT1();
+                    final ActionDTO actionDTO = tuple.getT1();
                     final Datasource datasource = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
 
                     // Set the action name
-                    actionName.set(action.getName());
+                    actionName.set(actionDTO.getName());
 
                     log.debug("[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
                             Thread.currentThread().getName(),
-                            action.getPageId(), actionId, action.getName());
+                            actionDTO.getPageId(), actionId, actionDTO.getName());
 
-                    Mono<Datasource> validatedDatasourceMono = authenticationValidator.validateAuthentication(datasource)
-                            .cache();
+                    Integer timeoutDuration = actionDTO.getActionConfiguration().getTimeoutInMillisecond();
 
-                    Mono<ActionExecutionResult> executionMono  = getExecutionMonoFromValidatedDatasourceMono(executeActionDTO, validatedDatasourceMono, plugin, pluginExecutor, action, datasource);
-
-                    return executionMono.onErrorMap(StaleConnectionException.class, error ->
-                                    new AppsmithPluginException(
-                                            AppsmithPluginError.PLUGIN_ERROR,
-                                            "Secondary stale connection error.")
-                            )
+                    return verifyDatasourceAndMakeRequest(executeActionDTO, actionDTO, datasource, plugin, pluginExecutor, environmentName)
+                            .timeout(Duration.ofMillis(timeoutDuration))
+                            .onErrorMap(TimeoutException.class, error ->
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                                                                actionDTO.getName(),
+                                                                timeoutDuration))
+                            .onErrorMap(StaleConnectionException.class, error ->
+                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                                                                "Secondary stale connection error."))
                             .onErrorResume(e -> {
                                 log.debug("{}: In the action execution error mode.",
                                         Thread.currentThread().getName(), e);
@@ -821,10 +827,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                 .flatMap(tuple5 -> {
                                                     ActionExecutionResult actionExecutionResult = result;
                                                     NewAction actionFromDb = tuple5.getT5();
-                                                    ActionDTO actionDTO = tuple5.getT1();
+                                                    ActionDTO actionDTO1 = tuple5.getT1();
                                                     Datasource datasourceFromDb = tuple5.getT2();
 
-                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO, datasourceFromDb, executeActionDTO, actionExecutionResult, timeElapsed))
+                                                    return Mono.when(sendExecuteAnalyticsEvent(actionFromDb, actionDTO1, datasourceFromDb, executeActionDTO, actionExecutionResult, timeElapsed))
                                                             .thenReturn(result);
                                                 });
                                     }
@@ -843,27 +849,36 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     }
 
-    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
+    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentName) {
+
         // 1. Validate input parameters which are required for mustache replacements
         replaceNullWithQuotesForParamValues(executeActionDTO.getParams());
 
         String actionId = executeActionDTO.getActionId();
         AtomicReference<String> actionName = new AtomicReference<>();
         actionName.set("");
-        // Initialize the name to be empty value
 
-        Mono<Tuple5<ActionDTO, Datasource, PluginExecutor, Plugin, NewAction>> executeActionPublishersCache = getExecuteActionPublishers(executeActionDTO)
-                .cache();
+        // 2. Fetch the action from the DB and check if it can be executed
+        Mono<NewAction> actionMono = getAction(actionId);
+        Mono<ActionDTO> actionDTOMono = getActionDTO(actionMono, executeActionDTO, actionId);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono =  getActionExecutionResult(executeActionDTO, executeActionPublishersCache, actionName, actionId);
+        // 3. Instantiate the implementation class based on the query type
+        Mono<Datasource> datasourceMono = getDatasource(actionDTOMono);
+        Mono<Plugin> pluginMono = getPlugin(datasourceMono, actionId);
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
-        Mono<Map> editorConfigLabelMapMono = executeActionPublishersCache.map(Tuple2::getT2)
-                .flatMap(datasource -> {
-                    if (!StringUtils.hasLength(datasource.getId())) {
-                        return Mono.just(new HashMap());
-                    }
-                    return pluginService.getEditorConfigLabelMap(datasource.getPluginId());
-                });
+        // 4. Execute the query
+        Mono<ActionExecutionResult> actionExecutionResultMono = getActionExecutionResult(executeActionDTO,
+                                                                                         actionMono,
+                                                                                         actionDTOMono,
+                                                                                         datasourceMono,
+                                                                                         pluginMono,
+                                                                                         pluginExecutorMono,
+                                                                                         actionName,
+                                                                                         actionId,
+                                                                                         environmentName);
+
+        Mono<Map> editorConfigLabelMapMono = getEditorConfigLabelMap(datasourceMono);
 
         return actionExecutionResultMono
                 .zipWith(editorConfigLabelMapMono, (result, labelMap) -> {
@@ -875,6 +890,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return result;
                 })
                 .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
+    }
+
+    public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
+        return executeAction(executeActionDTO, null);
     }
 
     protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
@@ -987,16 +1006,21 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName) {
+    public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentName) {
         return createExecuteActionDTO(partFlux)
-                .flatMap(executeActionDTO -> this
-                        .findByBranchNameAndDefaultActionId(branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
+                .flatMap(executeActionDTO -> findByBranchNameAndDefaultActionId(branchName,
+                                                                                executeActionDTO.getActionId(),
+                                                                                actionPermission.getExecutePermission())
                         .map(branchedAction -> {
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
-                        })
-                )
+                        }))
                 .flatMap(this::executeAction);
+    }
+
+    @Override
+    public Mono<ActionExecutionResult> executeAction (Flux<Part> partFlux, String branchName) {
+        return executeAction(partFlux, branchName, null);
     }
 
     @Override
