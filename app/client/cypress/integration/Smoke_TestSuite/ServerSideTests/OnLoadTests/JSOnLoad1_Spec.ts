@@ -90,64 +90,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     jsEditor.VerifyAsyncFuncSettings("getEmployee", true, true);
   });
 
-  //Skipping due to - "tableData":"ERROR: invalid input syntax for type smallint: "{}""
-  it.skip("3. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "Queries/JS");
-    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
-    //jsEditor.RunJSObj(); //Even running JS functin before delpoying does not help
-    //agHelper.Sleep(2000);
-    deployMode.DeployApp();
-    agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementAbsence(
-      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
-    );
-    // assert that on view mode, we don't get "successful run" toast message for onpageload actions
-    agHelper.AssertElementAbsence(locator._specificToast("ran successfully")); //failed toast is appearing hence skipping
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("2");
-    });
-    deployMode.NavigateBacktoEditor();
-  });
-
-  it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "Queries/JS");
-    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
-    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
-    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
-    deployMode.NavigateBacktoEditor();
-    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName(jsName as string);
-    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
-  });
-
-  it.skip("5. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
-    // ee.ExpandCollapseEntity("Queries/JS");
-    // ee.SelectEntityByName(jsName as string);
-    // jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
-    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
-    agHelper.Sleep(6000); //incase toast appears
-    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
-    );
-    agHelper.ClickButton("Yes");
-    agHelper.AssertElementAbsence(locator._toastMsg);
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
-      expect(cellData).to.be.equal("2");
-    });
-    //agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    deployMode.NavigateBacktoEditor();
-    agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
-    agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
-    );
-    agHelper.ClickButton("Yes");
-    agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
-  });
-
-  it("6. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No & then Yes in Confirmation dialog", function() {
+  it("3. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No & then Yes in Confirmation dialog", function() {
     deployMode.DeployApp();//Adding this check since GetEmployee failure toast is always coming & making product flaky
     //agHelper.WaitUntilAllToastsDisappear();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
@@ -177,6 +120,62 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
     agHelper.ClickButton("Yes");
     agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
+  });
+
+  //Skipping due to - "tableData":"ERROR: invalid input syntax for type smallint: "{}""
+  it.skip("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function() {
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
+    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
+    //jsEditor.RunJSObj(); //Even running JS functin before delpoying does not help
+    //agHelper.Sleep(2000);
+    deployMode.DeployApp();
+    agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
+    agHelper.AssertElementAbsence(
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
+    );
+    // assert that on view mode, we don't get "successful run" toast message for onpageload actions
+    agHelper.AssertElementAbsence(locator._specificToast("ran successfully")); //failed toast is appearing hence skipping
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    table.ReadTableRowColumnData(0, 0).then((cellData) => {
+      expect(cellData).to.be.equal("2");
+    });
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it("5. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
+    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
+    deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
+    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
+    deployMode.NavigateBacktoEditor();
+    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
+    // ee.ExpandCollapseEntity("Queries/JS");
+    // ee.SelectEntityByName(jsName as string);
+    // jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
+    // agHelper.GetNClick(jsEditor._runButton);
+    // agHelper.ClickButton("Yes");
+  });
+
+  it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject & deleting testdata", function() {
+    // deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
+    // agHelper.WaitUntilAllToastsDisappear();    //incase toast appears, GetEmployee failure toast is appearing
+    // agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    // agHelper.AssertElementVisible(
+    //   jsEditor._dialogBody((jsName as string) + ".getEmployee"),
+    // );
+    // agHelper.ClickButton("Yes");
+    // agHelper.AssertElementAbsence(locator._toastMsg);
+    // table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    //   expect(cellData).to.be.equal("2");
+    // });
+    // //agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    // deployMode.NavigateBacktoEditor();
+    // agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
+    // agHelper.AssertElementVisible(
+    //   jsEditor._dialogBody((jsName as string) + ".getEmployee"),
+    // );
+    // agHelper.ClickButton("Yes");
+    // agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
 
     ee.SelectEntityByName(jsName as string, "Queries/JS");
     ee.ActionContextMenuByEntityName(
@@ -185,7 +184,6 @@ describe("JSObjects OnLoad Actions tests", function() {
       "Are you sure?",
       true,
     );
-
     ee.ActionContextMenuByEntityName("GetEmployee", "Delete", "Are you sure?");
   });
 
