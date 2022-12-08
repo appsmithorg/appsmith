@@ -13,13 +13,11 @@ export interface TenantReduxState {
 }
 
 export const defaultBrandingConfig = {
-  brandFaviconUrl:
-    "https://res.cloudinary.com/dwpfockn8/image/upload/v1597920848/favicons/favicon-orange_pxfmdc.ico",
+  brandFaviconUrl: "/favicon-orange.ico",
   brandColors: {
     ...createBrandColorsFromPrimaryColor("#F86A2B"),
   },
-  brandLogoUrl:
-    "https://global-uploads.webflow.com/61531b23c347e4fbd4a84209/61531b23c347e41e24a8423e_Logo.svg",
+  brandLogoUrl: "/appsmith-logo.svg",
 };
 
 export const initialState: TenantReduxState = {
