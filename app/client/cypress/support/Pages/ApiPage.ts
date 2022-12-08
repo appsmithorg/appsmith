@@ -197,7 +197,7 @@ export class ApiPage {
     this.SelectPaneTab("Settings");
     if (enable)
       if (enable) this.agHelper.CheckUncheck(this._onPageLoad, true);
-      else if (enable) this.agHelper.CheckUncheck(this._onPageLoad, false);
+      else this.agHelper.CheckUncheck(this._onPageLoad, false);
   }
 
   ToggleConfirmBeforeRunningApi(enable = true || false) {
