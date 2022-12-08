@@ -27,24 +27,30 @@ describe("Git Bugs", function() {
 
   it("2. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
     ee.AddNewPage();
+    ee.DragDropWidgetNVerify(WIDGET.TEXT);
     ee.SelectEntityByName("Page1", "Pages");
     ee.DragDropWidgetNVerify(WIDGET.BUTTON);
     propPane.SelectPropertiesDropDown("onClick", "Navigate to");
-    propPane.SelectPropertiesDropDown("onClick", "Page2");
-    propPane.UpdatePropertyFieldValue("Query Params", `{{{testQP: "Yes"}}}`);
+    agHelper.Sleep(500);
+    propPane.SelectPropertiesDropDown("onClick", "Page2", "Page");
+    agHelper.EnterActionValue("Query Params", `{{{testQP: "Yes"}}}`);
     ee.SelectEntityByName("Page2", "Pages");
-    ee.DragDropWidgetNVerify(WIDGET.TEXT);
+    ee.SelectEntityByName("Text1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "Text",
       "{{appsmith.URL.queryParams.testQP}}",
     );
+    ee.SelectEntityByName("Page1", "Pages");
+    agHelper.ClickButton("Submit");
+    agHelper.Sleep(500);
     agHelper
       .GetText(locator._textWidget)
       .then(($qp) => expect($qp).to.eq("Yes"));
+    cy.url().should("include", "branch=" + testName);
+    cy.url().should("include", "testQP=Yes");
   });
 
   after(() => {
-    cy.log("gitRepoName is " + testName);
-    //gitSync.DeleteTestGithubRepo(testName);
+    gitSync.DeleteTestGithubRepo(testName);
   });
 });

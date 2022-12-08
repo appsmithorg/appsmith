@@ -172,8 +172,8 @@ export class PropertyPane {
   public SelectPropertiesDropDown(
     endpoint: string,
     dropdownOption: string,
-    index = 0,
     action: "Action" | "Page" = "Action",
+    index = 0,
   ) {
     if (action == "Action")
       this.agHelper.GetNClick(
