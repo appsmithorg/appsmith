@@ -112,16 +112,10 @@ export const getFocusableFormControlField = (state: AppState) =>
 export const getShouldFocusControlField = createSelector(
   [
     getFocusableFormControlField,
-    getCurrentPageId,
     (_state: AppState, key: string | undefined) => key,
   ],
-  (
-    focusableField: string | undefined,
-    pageId: string,
-    key: string | undefined,
-  ): boolean => {
-    const formControlKey = generatePropertyKey(key, pageId);
-    return !!(formControlKey && focusableField === formControlKey);
+  (focusableField: string | undefined, key: string | undefined): boolean => {
+    return !!(key && focusableField === key);
   },
 );
 

@@ -24,7 +24,7 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import { AppState } from "@appsmith/reducers";
-import { generateKeyAndSetFocusableFormControlField } from "actions/queryPaneActions";
+import { setFocusableFormControlFieldInit } from "actions/queryPaneActions";
 import { getShouldFocusControlField } from "selectors/editorContextSelectors";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 
@@ -80,7 +80,7 @@ export default function FormConfig(props: FormConfigProps) {
       // Need an additional identifier to trigger another render when configProperty
       // are same for two different entitites
       dispatch(
-        generateKeyAndSetFocusableFormControlField(
+        setFocusableFormControlFieldInit(
           `${entityInfo.id}.${props.config.configProperty}`,
         ),
       );

@@ -67,22 +67,17 @@ function* setSelectedPropertyTabIndexSaga(
   }
 }
 
-function* generateKeyAndSetFocusableFormControlField(
-  action: ReduxAction<{ path?: string }>,
-) {
-  const currentPageId: string = yield select(getCurrentPageId);
+function* setFocusFormControlFieldSaga(action: ReduxAction<{ key?: string }>) {
+  const { key } = action.payload;
   const entityInfo = identifyEntityFromPath(
     window.location.pathname,
     window.location.hash,
   );
 
-  const propertyFieldKey = generatePropertyKey(
-    action.payload.path,
-    currentPageId,
-  );
-
-  if (propertyFieldKey && entityInfo.entity !== FocusEntity.DATASOURCE) {
-    yield put(setFocusableFormControlField(propertyFieldKey));
+  if (key) {
+    if (entityInfo.entity !== FocusEntity.DATASOURCE) {
+      yield put(setFocusableFormControlField(key));
+    }
   }
 }
 
@@ -96,10 +91,10 @@ export default function* editorContextSagas() {
       ReduxActionTypes.SET_SELECTED_PROPERTY_TAB_INDEX,
       setSelectedPropertyTabIndexSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.GENERATE_KEY_AND_SET_FORM_CONTROL_FIELD,
-      generateKeyAndSetFocusableFormControlField,
-    ),
     takeLatest(ReduxActionTypes.SET_EDITOR_FIELD_FOCUS, setEditorFieldFocus),
+    takeLatest(
+      ReduxActionTypes.SET_FOCUSABLE_FORM_CONTROL_FIELD_INIT,
+      setFocusFormControlFieldSaga,
+    ),
   ]);
 }
