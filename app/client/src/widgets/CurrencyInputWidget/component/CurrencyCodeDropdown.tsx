@@ -12,7 +12,7 @@ const StyledDropdown = styled(Dropdown)`
     We use this font family to show emoji flags
     on windows devices
   */
-  .t--dropdown-option > span:first-child {
+  .left-icon-wrapper {
     font-family: "Twemoji Country Flags";
   }
 `;

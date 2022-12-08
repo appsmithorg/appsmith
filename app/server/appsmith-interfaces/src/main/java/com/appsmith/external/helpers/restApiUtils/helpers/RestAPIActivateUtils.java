@@ -47,7 +47,7 @@ import java.util.Set;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @NoArgsConstructor
-public class TriggerUtils {
+public class RestAPIActivateUtils {
 
     public static String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
     public static String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
