@@ -329,6 +329,8 @@ function shouldStoreStateForCanvas(
   );
 }
 export default function* rootSaga() {
-  yield call(navigationListenerSaga);
-  yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
+  yield all([
+    call(navigationListenerSaga),
+    takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange),
+  ]);
 }
