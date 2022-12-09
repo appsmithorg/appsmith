@@ -640,6 +640,22 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 });
     }
 
+  /**
+   * A filter function on getAll that returns env variables which are having non-empty values
+   */
+    @Override
+    public Mono<Map<String, String>> getAllNonEmpty() {
+        return getAll().flatMap(map -> {
+              Map<String, String> nonEmptyValuesMap = new HashMap<>();
+              for (Map.Entry<String, String> entry: map.entrySet()) {
+                  if (StringUtils.hasText(entry.getValue())) {
+                      nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
+                  }
+              }
+              return Mono.just(nonEmptyValuesMap);
+        });
+    }
+
     @Override
     public Mono<User> verifyCurrentUserIsSuper() {
 
