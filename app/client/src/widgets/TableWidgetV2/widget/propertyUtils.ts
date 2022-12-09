@@ -5,15 +5,14 @@ import {
   InlineEditingSaveOptions,
   TableWidgetProps,
 } from "../constants";
-import _, { get, isBoolean, without } from "lodash";
+import _, { get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { createEditActionColumn, updateLocalColumnOrder } from "./utilities";
+import { createEditActionColumn, handleColumnSticky } from "./utilities";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
-import { RenderModes } from "constants/WidgetConstants";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -301,118 +300,6 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
 
 const CELL_EDITABLITY_PATH_REGEX = /^primaryColumns\.(\w+)\.isCellEditable$/;
 
-/**
- * For the columns that are fixed by dev, we need to pass sticky to be undefined.
- */
-export const handleColumnSticky = (
-  primaryColumns: Record<string, ColumnProperties>,
-  columnOrder: string[],
-  columnName: string,
-  sticky?: string,
-  renderMode = RenderModes.CANVAS,
-  canUserFreezeColumn = false,
-) => {
-  let newColumnOrder = [...columnOrder];
-  newColumnOrder = without(newColumnOrder, columnName);
-
-  if (renderMode === RenderModes.PAGE && canUserFreezeColumn) {
-    updateLocalColumnOrder(newColumnOrder, columnName, sticky);
-  }
-
-  // Get the updated column orders
-  const leftOrder = localStorage.getItem("leftOrder");
-  const rightOrder = localStorage.getItem("rightOrder");
-
-  if (sticky === "left") {
-    /**
-     * This block will calculate the index position for the new column that needs to be placed when frozen left.
-     * This position is calculated by iterating over the columns that are already frozen.
-     * lastLeftIndex: stores the index position of the new frozen column.
-     */
-    let lastLeftIndex = 0;
-
-    // Iterate over the columns that are frozen by developers. Developer frozen columns are present in the primaryColumns[columnName].sticky property.
-    for (let i = 0; i < columnOrder.length; i++) {
-      const leftCol = columnOrder[i];
-      if (primaryColumns[leftCol].sticky === "left") {
-        lastLeftIndex = i + 1;
-      }
-    }
-
-    /**
-     * Also, iterate over the columns that are frozen by the user.
-     * For column that are frozen by the user we refer to the localStorage
-     */
-    if (renderMode === RenderModes.PAGE && canUserFreezeColumn && leftOrder) {
-      lastLeftIndex = lastLeftIndex + JSON.parse(leftOrder).length - 1;
-    }
-
-    newColumnOrder.splice(lastLeftIndex, 0, columnName);
-  } else if (sticky === "right") {
-    let lastRightIndex = columnOrder.length - 1;
-
-    for (let j = 0; j < columnOrder.length; j++) {
-      const rightCol = columnOrder[j];
-      if (primaryColumns[rightCol].sticky === "right") {
-        lastRightIndex = j - 1;
-        break;
-      }
-    }
-
-    // Check local right columns: local + normal:
-    if (renderMode === RenderModes.PAGE && canUserFreezeColumn && rightOrder) {
-      lastRightIndex = lastRightIndex - JSON.parse(rightOrder).length + 1;
-    }
-
-    newColumnOrder.splice(lastRightIndex, 0, columnName);
-  } else {
-    /**
-     * This block will manage the unfreezing of the columns.
-     * Unfreezing can happen in CANVAS or PAGE mode.
-     * Logic:
-     * --> If the column is unfrozen when its on the left, then it should be unfrozen after the last left frozen column.
-     * --> If the column is unfrozen when its on the right, then it should be unfrozen before the first right frozen column.
-     */
-    let frozenColumnLastIdx = -1;
-    if (renderMode === RenderModes.PAGE && canUserFreezeColumn) {
-      if (leftOrder) {
-        const parsedLeftOrder = JSON.parse(leftOrder);
-        if (parsedLeftOrder.includes(columnName)) {
-          parsedLeftOrder.forEach((colName: string) => {
-            // Unfreeze user column at the index found in the original columnOrder.
-            const originalIdx = columnOrder.indexOf(colName);
-            frozenColumnLastIdx = originalIdx;
-          });
-        }
-      } else if (rightOrder) {
-        const parsedRightOrder = JSON.parse(rightOrder);
-        if (parsedRightOrder.includes(columnName)) {
-          parsedRightOrder.forEach((colName: string) => {
-            const originalIdx = columnOrder.indexOf(colName);
-            frozenColumnLastIdx = originalIdx;
-          });
-        }
-      }
-    } else {
-      const currentPropertyValue = get(primaryColumns, `${columnName}`);
-
-      for (let k = 0; k < columnOrder.length; k++) {
-        const colName = columnOrder[k];
-        if (primaryColumns[colName].sticky === currentPropertyValue.sticky) {
-          if (primaryColumns[colName].sticky === "right") {
-            frozenColumnLastIdx = k;
-            break;
-          }
-          if (primaryColumns[colName].sticky === "left") {
-            frozenColumnLastIdx = k;
-          }
-        }
-      }
-    }
-    newColumnOrder.splice(frozenColumnLastIdx, 0, columnName);
-  }
-  return newColumnOrder;
-};
 /**
  * Hook that updates frozen column's old indices and also adds columns to the frozen positions.
  */

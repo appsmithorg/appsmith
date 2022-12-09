@@ -11,7 +11,7 @@ import {
   StyledHiddenIcon,
   StyledCheckbox,
   StyledActionContainer,
-  StyledFrozenPinIcon,
+  StyledPinIcon,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
 import { CheckboxType } from "design-system";
@@ -149,7 +149,7 @@ export function DraggableListCard(props: RenderComponentProps) {
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item.sticky ? (
-        <StyledFrozenPinIcon height={20} width={20} />
+        <StyledPinIcon height={20} width={20} />
       ) : (
         <StyledDragIcon height={20} width={20} />
       )}

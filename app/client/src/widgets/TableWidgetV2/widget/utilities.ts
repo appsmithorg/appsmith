@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { FontStyleTypes } from "constants/WidgetConstants";
+import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
 import _, { isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
@@ -681,93 +681,109 @@ export const getColumnType = (
   }
 };
 
-export const updateLocalColumnOrder = (
+/**
+ * For the columns that are fixed by dev, we need to pass sticky to be undefined.
+ */
+export const handleColumnSticky = (
+  primaryColumns: Record<string, ColumnProperties>,
   columnOrder: string[],
   columnName: string,
   sticky?: string,
+  leftOrder?: string[],
+  rightOrder?: string[],
+  renderMode = RenderModes.CANVAS,
+  canUserFreezeColumn = false,
 ) => {
-  /**
-   * Update localStorage logic when Render Mode is PAGE
-   */
-  localStorage.setItem("columnOrder", JSON.stringify(columnOrder));
+  let newColumnOrder = [...columnOrder];
+  newColumnOrder = without(newColumnOrder, columnName);
 
-  const leftOrder = localStorage.getItem("leftOrder");
-  const rightOrder = localStorage.getItem("rightOrder");
-  const parsedLeftOrder = leftOrder ? JSON.parse(leftOrder) : [];
-  const parsedRightOrder = rightOrder ? JSON.parse(rightOrder) : [];
-
-  // Update local storages based on sticky value
   if (sticky === "left") {
-    // Build left column order for columns that are frozen to left.
-    const newLeftOrder =
-      parsedLeftOrder.length === 0
-        ? JSON.stringify([columnName])
-        : JSON.stringify(uniq([...parsedLeftOrder, columnName]));
-
     /**
-     * Remove the column from the rightOrder if user freezes the column to the left that was frozen right earlier
-     * i.e. Column is frozen from Right(previous) -> Left(new)
+     * This block will calculate the index position for the new column that needs to be placed when frozen left.
+     * This position is calculated by iterating over the columns that are already frozen.
+     * lastLeftIndex: stores the index position of the new frozen column.
      */
-    if (rightOrder) {
-      const remainingRightOrder = without(parsedRightOrder, columnName);
-      if (remainingRightOrder.length === 0) {
-        localStorage.removeItem("rightOrder");
-      } else {
-        localStorage.setItem("rightOrder", JSON.stringify(remainingRightOrder));
+    let lastLeftIndex = 0;
+
+    // Iterate over the columns that are frozen by developers. Developer frozen columns are present in the primaryColumns[columnName].sticky property.
+    for (let i = 0; i < columnOrder.length; i++) {
+      const leftCol = columnOrder[i];
+      if (primaryColumns[leftCol].sticky === "left") {
+        lastLeftIndex = i + 1;
       }
     }
 
-    localStorage.setItem("leftOrder", newLeftOrder);
+    /**
+     * Also, iterate over the columns that are frozen by the user.
+     * For column that are frozen by the user we refer to meta property
+     */
+    if (renderMode === RenderModes.PAGE && canUserFreezeColumn && leftOrder) {
+      lastLeftIndex = lastLeftIndex + leftOrder.length - 1;
+    }
+
+    newColumnOrder.splice(lastLeftIndex, 0, columnName);
   } else if (sticky === "right") {
-    // Build right column order for columns that are frozen to right.
-    const newRightOrder =
-      parsedRightOrder.length === 0
-        ? JSON.stringify([columnName])
-        : JSON.stringify(uniq([...parsedRightOrder, columnName]));
+    let lastRightIndex = columnOrder.length - 1;
 
-    /**
-     * Remove the column from the leftOrder if user freezes the column to the right that was frozen left earlier
-     * i.e. Column is frozen from left(previous) -> right(new)
-     */
-    if (leftOrder) {
-      const remainingLeftOrder = without(parsedLeftOrder, columnName);
-      if (remainingLeftOrder.length === 0) {
-        localStorage.removeItem("leftOrder");
-      } else {
-        localStorage.setItem("leftOrder", JSON.stringify(remainingLeftOrder));
+    for (let j = 0; j < columnOrder.length; j++) {
+      const rightCol = columnOrder[j];
+      if (primaryColumns[rightCol].sticky === "right") {
+        lastRightIndex = j - 1;
+        break;
       }
     }
-    localStorage.setItem("rightOrder", newRightOrder);
+
+    // Check local right columns: local + normal:
+    if (renderMode === RenderModes.PAGE && canUserFreezeColumn && rightOrder) {
+      lastRightIndex = lastRightIndex - rightOrder.length + 1;
+    }
+
+    newColumnOrder.splice(lastRightIndex, 0, columnName);
   } else {
-    // Perform clean up of column orders when value is undefined
-    if (leftOrder) {
-      /**
-       * If only one column is present in the leftOrder, then remove the leftOrder
-       * Else remove the column from the leftOrder, if it contains multiple columns.
-       */
-      if (parsedLeftOrder.length === 1 && parsedLeftOrder[0] === columnName) {
-        localStorage.removeItem("leftOrder");
-      } else {
-        localStorage.setItem(
-          "leftOrder",
-          JSON.stringify(without(parsedLeftOrder, columnName)),
-        );
-      }
-    }
-
     /**
-     * If only one column is present in the rightOrder, then remove the rightOrder
-     * Else remove the column from the rightOrder, if it contains multiple columns.
+     * This block will manage the unfreezing of the columns.
+     * Unfreezing can happen in CANVAS or PAGE mode.
+     * Logic:
+     * --> If the column is unfrozen when its on the left, then it should be unfrozen after the last left frozen column.
+     * --> If the column is unfrozen when its on the right, then it should be unfrozen before the first right frozen column.
      */
-    if (rightOrder) {
-      if (parsedRightOrder.length === 1 && parsedRightOrder[0] === columnName) {
-        localStorage.removeItem("rightOrder");
+    let frozenColumnLastIdx = -1;
+    if (renderMode === RenderModes.PAGE && canUserFreezeColumn) {
+      if (leftOrder) {
+        if (leftOrder.includes(columnName)) {
+          leftOrder.forEach((colName: string) => {
+            // Unfreeze user column at the index found in the original columnOrder.
+            const originalIdx = columnOrder.indexOf(colName);
+            frozenColumnLastIdx = originalIdx;
+          });
+        }
+      } else if (rightOrder) {
+        if (rightOrder.includes(columnName)) {
+          rightOrder.forEach((colName: string) => {
+            const originalIdx = columnOrder.indexOf(colName);
+            frozenColumnLastIdx = originalIdx;
+          });
+        }
       } else {
-        localStorage.setItem(
-          "rightOrder",
-          JSON.stringify(without(parsedRightOrder, columnName)),
-        );
+        frozenColumnLastIdx = columnOrder.indexOf(columnName);
+      }
+    } else {
+      const currentPropertyValue = get(primaryColumns, `${columnName}`);
+
+      for (let k = 0; k < columnOrder.length; k++) {
+        const colName = columnOrder[k];
+        if (primaryColumns[colName].sticky === currentPropertyValue.sticky) {
+          if (primaryColumns[colName].sticky === "right") {
+            frozenColumnLastIdx = k;
+            break;
+          }
+          if (primaryColumns[colName].sticky === "left") {
+            frozenColumnLastIdx = k;
+          }
+        }
       }
     }
+    newColumnOrder.splice(frozenColumnLastIdx, 0, columnName);
   }
+  return newColumnOrder;
 };
