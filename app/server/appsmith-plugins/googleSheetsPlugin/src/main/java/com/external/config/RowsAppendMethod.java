@@ -73,9 +73,8 @@ public class RowsAppendMethod implements ExecutionMethod, TemplateMethod {
             if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
                         "Row object cannot be empty.");
-            } else {
-                throw e;
             }
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, methodConfig.getRowObjects(),
