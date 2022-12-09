@@ -268,7 +268,8 @@ export type EventName =
   | "BINDING_COPIED"
   | "AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE"
   | AUDIT_LOGS_EVENT_NAMES
-  | "Cmd+Click Navigation";
+  | "Cmd+Click Navigation"
+  | "MIXPANEL_IDS";
 
 export type AUDIT_LOGS_EVENT_NAMES =
   | "AUDIT_LOGS_CLEAR_FILTERS"
@@ -410,10 +411,6 @@ class AnalyticsUtil {
         AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);
         windowDoc.analytics.identify(userId, userProperties);
-        console.log(
-          "mixpanel id",
-          windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
-        );
       } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
         // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
@@ -432,11 +429,15 @@ class AnalyticsUtil {
           AnalyticsUtil.cachedAnonymoustId,
           userProperties,
         );
-        console.log(
-          "mixpanel id anonymous",
-          windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
-        );
       }
+      const mixpanelIds = {
+        distinct_id: windowDoc.mixpanel.get_distinct_id(),
+        user_id: windowDoc.mixpanel.get_property("user_id"),
+        insert_id: windowDoc.mixpanel.get_property("insert_id"),
+        identified_id: windowDoc.mixpanel.get_property("identified_id"),
+      };
+      console.log("mixpanel id's", mixpanelIds);
+      this.logEvent("MIXPANEL_IDS", mixpanelIds);
     }
 
     if (sentry.enabled) {
