@@ -143,7 +143,7 @@ export default function LeftPane() {
       </>
       <>
         <HeaderContainer>
-          <StyledHeader>Enterprise</StyledHeader>
+          <StyledHeader>Business</StyledHeader>
         </HeaderContainer>
         <CategoryList data-testid="t--enterprise-settings-category-list">
           {features.RBAC && (
