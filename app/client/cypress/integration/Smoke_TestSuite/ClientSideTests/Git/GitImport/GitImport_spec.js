@@ -9,18 +9,18 @@ const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json
 const jsObject = "JSObject1";
 const newBranch = "feat/temp";
 const mainBranch = "master";
-let repoName;
+let repoName, newWorkspaceName;
 
 describe("Git import flow", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
+      newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
   });
-  it("1. Import an app from JSON with Postgres, MySQL, Mongo db", () => {
+  it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     cy.NavigateToHome();
     cy.get(homePage.optionsIcon)
       .first()
@@ -71,9 +71,10 @@ describe("Git import flow", function() {
         cy.connectToGitRepo(repoName);
       });
     });
+    cy.wait(4000); // for git connection to settle!
   });
 
-  it("2. Import an app from Git and reconnect Postgres, MySQL and Mongo db ", () => {
+  it("2. Import the previous app connected to Git and reconnect Postgres, MySQL and Mongo db ", () => {
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
@@ -116,7 +117,7 @@ describe("Git import flow", function() {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    cy.wait(1000);
+    cy.wait(6000); //for git connection to settle
     /* cy.get(homePage.toastMessage).should(
       "contain",
      "Application imported successfully",

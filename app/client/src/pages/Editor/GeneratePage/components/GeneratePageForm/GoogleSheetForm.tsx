@@ -137,6 +137,7 @@ function GoogleSheetForm(props: Props) {
   const { fetchAllSpreadsheets } = spreadSheetsProps;
   const {
     columnHeaderList,
+    errorFetchingColumnHeaderList,
     fetchColumnHeaderList,
     isFetchingColumnHeaderList,
   } = sheetColumnsHeaderProps;
@@ -381,7 +382,10 @@ function GoogleSheetForm(props: Props) {
       {selectedSheet.value
         ? renderSubmitButton({
             onSubmit,
-            disabled: !columnHeaderList.length || isFetchingColumnHeaderList,
+            disabled:
+              !columnHeaderList.length ||
+              isFetchingColumnHeaderList ||
+              !!errorFetchingColumnHeaderList,
             isLoading: isFetchingColumnHeaderList,
           })
         : null}

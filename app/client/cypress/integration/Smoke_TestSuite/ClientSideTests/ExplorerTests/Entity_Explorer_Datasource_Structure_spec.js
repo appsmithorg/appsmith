@@ -32,10 +32,9 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
-    cy.CheckAndUnfoldEntityItem("Datasources");
-    cy.get(".t--entity-name")
-      .contains(datasourceName)
-      .click({ force: true });
+    ee.ExpandCollapseEntity("Datasources");
+    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
+    cy.wait(2000); //for the tables to open
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",

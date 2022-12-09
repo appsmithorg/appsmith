@@ -42,7 +42,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Check Image alignment is working as expected", function() {
     cy.SearchEntityandOpen("Table1");
     cy.editColumn("avatar");
-    cy.changeColumnType("Image");
+    cy.changeColumnType("Image", false);
     cy.closePropertyPane();
     cy.SearchEntityandOpen("Table1");
     cy.get(widgetsPage.centerAlign)
@@ -72,6 +72,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Update table json data and check the derived column values after update", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.backFromPropertyPanel();
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("name");
     cy.tableColumnDataValidation("status");

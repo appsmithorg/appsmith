@@ -84,6 +84,7 @@ type PropertySectionProps = {
   hidden?: boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
+  panelPropertyPath?: string;
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
@@ -99,7 +100,10 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
   const isDefaultContextOpen = useSelector(
     (state: AppState) =>
-      getPropertySectionState(state, `${widgetProps?.widgetId}.${props.id}`),
+      getPropertySectionState(state, {
+        key: `${widgetProps?.widgetId}.${props.id}`,
+        panelPropertyPath: props.panelPropertyPath,
+      }),
     () => true,
   );
   const [isOpen, setIsOpen] = useState(
@@ -110,7 +114,11 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     if (props.collapsible)
       setIsOpen((x) => {
         dispatch(
-          setPropertySectionState(`${widgetProps?.widgetId}.${props.id}`, !x),
+          setPropertySectionState(
+            `${widgetProps?.widgetId}.${props.id}`,
+            !x,
+            props.panelPropertyPath,
+          ),
         );
         return !x;
       });
