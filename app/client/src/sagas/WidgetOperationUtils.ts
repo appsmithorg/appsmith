@@ -336,21 +336,25 @@ function sortWidgetsMetaByParent(widgetsMeta: MetaState, parentId: string) {
   );
 }
 
-export type ChildrenWidgetMap = {
+export type DescendantWidgetMap = {
   id: string;
+  // To accomodate metaWidgets which might not be present on the evalTree, evaluatedWidget might be undefined
   evaluatedWidget: DataTreeWidget | undefined;
 };
+
 /**
- * getWidgetChildren: It gets all the child widgets of given widget's id with evaluated values
- *
+ * As part of widget's descendant, we add both children and metaWidgets.
+ * children are assessed from "widget.children"
+ * metaWidgets are assessed from the metaState, since we care about only metawidgets whose values have been changed.
+ * NB: metaWidgets id start with parentId + "_"
  */
-export function getWidgetChildren(
+export function getWidgetDescendantToReset(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   evaluatedDataTree: DataTree,
   widgetsMeta: MetaState,
-): ChildrenWidgetMap[] {
-  const childrenList: ChildrenWidgetMap[] = [];
+): DescendantWidgetMap[] {
+  const descendantList: DescendantWidgetMap[] = [];
   const widget = _.get(canvasWidgets, widgetId);
 
   const sortedWidgetsMeta = sortWidgetsMetaByParent(widgetsMeta, widgetId);
@@ -360,18 +364,18 @@ export function getWidgetChildren(
     const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
       return isWidget(entity) && entity.widgetId === childMetaWidgetId;
     }) as DataTreeWidget | undefined;
-    childrenList.push({
+    descendantList.push({
       id: childMetaWidgetId,
       evaluatedWidget: evaluatedChildWidget,
     });
-    const grandChildren = getWidgetChildren(
+    const grandChildren = getWidgetDescendantToReset(
       canvasWidgets,
       childMetaWidgetId,
       evaluatedDataTree,
       sortedWidgetsMeta.otherWidgetsMeta,
     );
     if (grandChildren.length) {
-      childrenList.push(...grandChildren);
+      descendantList.push(...grandChildren);
     }
   }
 
@@ -386,18 +390,18 @@ export function getWidgetChildren(
           const childWidgetName = childCanvasWidget.widgetName;
           const childWidget = evaluatedDataTree[childWidgetName];
           if (isWidget(childWidget)) {
-            childrenList.push({
+            descendantList.push({
               id: childWidgetId,
               evaluatedWidget: childWidget,
             });
-            const grandChildren = getWidgetChildren(
+            const grandChildren = getWidgetDescendantToReset(
               canvasWidgets,
               childWidgetId,
               evaluatedDataTree,
               sortedWidgetsMeta.otherWidgetsMeta,
             );
             if (grandChildren.length) {
-              childrenList.push(...grandChildren);
+              descendantList.push(...grandChildren);
             }
           }
         }
@@ -405,7 +409,7 @@ export function getWidgetChildren(
     }
   }
 
-  return childrenList;
+  return descendantList;
 }
 
 export const getParentWidgetIdForPasting = function*(

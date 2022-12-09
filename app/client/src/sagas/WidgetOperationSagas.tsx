@@ -85,7 +85,7 @@ import {
   doesTriggerPathsContainPropertyPath,
   getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForPasting,
-  getWidgetChildren,
+  getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
   getSelectedWidgetWhenPasting,
@@ -816,7 +816,7 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const evaluatedDataTree: DataTree = yield select(getDataTree);
   const widgetsMeta: MetaState = yield select(getWidgetsMeta);
-  const childrenList = getWidgetChildren(
+  const childrenList = getWidgetDescendantToReset(
     canvasWidgets,
     parentWidgetId,
     evaluatedDataTree,
