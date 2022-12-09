@@ -36,6 +36,7 @@ type DropTargetComponentProps = WidgetProps & {
   minHeight: number;
   noPad?: boolean;
   isWrapper?: boolean;
+  useAutoLayout?: boolean;
 };
 
 const StyledDropTarget = styled.div`
@@ -105,7 +106,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const { deselectAll, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
   const showDragLayer =
-    (isDragging && draggedOn === props.widgetId) || isResizing;
+    ((isDragging && draggedOn === props.widgetId) || isResizing) &&
+    !props.useAutoLayout;
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);

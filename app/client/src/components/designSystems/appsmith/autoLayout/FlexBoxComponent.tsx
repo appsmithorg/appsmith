@@ -15,7 +15,6 @@ import { isCurrentCanvasDragging } from "selectors/autoLayoutSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;

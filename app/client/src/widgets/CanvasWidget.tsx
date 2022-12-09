@@ -1,5 +1,4 @@
 import {
-  Alignment,
   LayoutDirection,
   Overflow,
   Positioning,
@@ -53,6 +52,7 @@ class CanvasWidget extends ContainerWidget {
         {...canvasProps}
         {...this.getSnapSpaces()}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
+        useAutoLayout={this.props.useAutoLayout}
       >
         {this.renderAsContainerComponent(canvasProps)}
       </DropTargetComponent>
