@@ -386,12 +386,6 @@ export const CONFIG = {
               };
             }
 
-            // const template = {
-            //   ...get(parent, "template", {}),
-            //   [widget.widgetName]: widget,
-            // };
-            //parent.template = template;
-
             // add logBlackList for the children being added
             Object.keys(widget).map((key) => {
               logBlackList[key] = true;
