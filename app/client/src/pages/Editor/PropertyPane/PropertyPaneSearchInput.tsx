@@ -13,7 +13,7 @@ import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "ce/constants/messages";
 
 const SearchInputWrapper = styled.div`
   position: sticky;
-  top: 44px;
+  top: 42px;
   z-index: 3;
   border: 1px solid ${Colors.GRAY_50};
   :focus-within {
@@ -25,7 +25,7 @@ const StyledSearchInput = React.memo(styled(SearchInput)`
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
     padding: 0 8px;
-    height: 32px;
+    height: 34px;
   }
 `);
 
@@ -45,7 +45,6 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
     // The same functionality is being used for context preservation. Need to check if we can piggy back on that.
     const isActiveFocusNotFromWidgetInput = !isCurrentFocusOnInput();
     if (shouldFocusSearch && isActiveFocusNotFromWidgetInput) {
-      console.log("bla", props.isPanel, shouldFocusPanelSearch);
       if (!props.isPanel && !shouldFocusPanelSearch) {
         setTimeout(() => {
           wrapperRef.current?.focus();
