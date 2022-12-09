@@ -9,7 +9,7 @@ const appSettings = ObjectsRegistry.AppSettings,
   homePage = ObjectsRegistry.HomePage;
 
 describe("Page Settings", () => {
-  it("Page name change updates URL", () => {
+  it("1. Page name change updates URL", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page1");
     appSettings.page.changePageNameAndVerifyUrl("Page2");
@@ -21,7 +21,7 @@ describe("Page Settings", () => {
     cy.wait(2000);
   });
 
-  it("Custom slug change updates URL", () => {
+  it("2. Custom slug change updates URL", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page2");
     appSettings.page.changeCustomSlugAndVerifyUrl("custom");
@@ -33,7 +33,7 @@ describe("Page Settings", () => {
     cy.wait(2000);
   });
 
-  it("Check default page is updated", () => {
+  it("3. Check default page is updated", () => {
     ee.AddNewPage();
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page3");
@@ -41,7 +41,7 @@ describe("Page Settings", () => {
     appSettings.page.isHomePage("Page3");
   });
 
-  it("Check page navigation is updated", () => {
+  it("4. Check page navigation is updated", () => {
     agHelper.GetNClick(commonLocators._previewModeToggle);
     agHelper.AssertElementExist(commonLocators._deployedPage);
     agHelper.GetNClick(commonLocators._editModeToggle);
