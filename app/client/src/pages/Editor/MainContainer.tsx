@@ -18,6 +18,7 @@ import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { routeChanged } from "actions/focusHistoryActions";
 import { getExplorerWidth } from "selectors/explorerSelector";
+import { AppsmithLocationState } from "utils/history";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -54,10 +55,10 @@ function MainContainer() {
 
   const isPreviewMode = useSelector(previewModeSelector);
 
-  const location = useLocation();
+  const location = useLocation<AppsmithLocationState>();
 
   useEffect(() => {
-    dispatch(routeChanged(location.pathname, location.hash));
+    dispatch(routeChanged(location));
   }, [location.pathname, location.hash]);
 
   return (
