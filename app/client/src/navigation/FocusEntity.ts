@@ -40,6 +40,7 @@ export function shouldStoreURLforFocus(path: string) {
     FocusEntity.QUERY,
     FocusEntity.API,
     FocusEntity.JS_OBJECT,
+    FocusEntity.DATASOURCE,
   ];
 
   const entity = identifyEntityFromPath(path)?.entity;
