@@ -129,7 +129,6 @@ export const ForgotPasswordLink = styled.div`
   ${getTypographyByKey("cardSubheader")}
   color: ${(props) => props.theme.colors.auth.text};
   text-align: center;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
   & a {
     color: ${(props) => props.theme.colors.auth.text};
   }
