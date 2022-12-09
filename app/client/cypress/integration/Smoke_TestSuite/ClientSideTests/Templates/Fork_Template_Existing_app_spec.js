@@ -4,6 +4,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 
 describe("Fork a template to the current app from new page popover", () => {
   it("1. Fork template from page section", () => {
+    cy.wait(5000);
     cy.AddPageFromTemplate();
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
