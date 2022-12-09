@@ -90,7 +90,7 @@ describe("Git import flow", function() {
       .next()
       .click();
     cy.importAppFromGit(repoName);
-    cy.wait(100);
+    cy.wait(5000);
     cy.get(reconnectDatasourceModal.Modal).should("be.visible");
     cy.ReconnectDatasource("TEDPostgres");
     cy.wait(500);
@@ -117,7 +117,7 @@ describe("Git import flow", function() {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    cy.wait(10000); //for git connection to settle
+    cy.wait(6000); //for git connection to settle
     /* cy.get(homePage.toastMessage).should(
       "contain",
      "Application imported successfully",
