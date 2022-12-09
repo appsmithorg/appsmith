@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { Switch } from "design-system";
+import { Toggle } from "design-system";
 import { ControlType } from "constants/PropertyControlConstants";
 import { Field, WrappedFieldProps } from "redux-form";
 import styled from "styled-components";
@@ -56,13 +56,12 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
   render() {
     return (
       <SwitchWrapped data-cy={this.props.input.name}>
-        <Switch
-          checked={this.value}
+        <Toggle
           className="switch-control"
           disabled={this.props.disabled}
-          large
           name={this.props.input.name}
-          onChange={this.onChange}
+          onToggle={this.onChange}
+          value={this.value}
         />
       </SwitchWrapped>
     );

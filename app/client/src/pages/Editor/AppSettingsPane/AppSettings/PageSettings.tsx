@@ -19,8 +19,7 @@ import { Page } from "ce/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
 import { Colors } from "constants/Colors";
-import { Text, TextInput, TextType } from "design-system";
-import AdsSwitch from "design-system/build/Switch";
+import { Text, TextInput, TextType, Toggle } from "design-system";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
@@ -306,16 +305,15 @@ function PageSettings(props: { page: Page }) {
           />
         </div>
         <SwitchWrapper>
-          <AdsSwitch
-            checked={isShown}
+          <Toggle
             className="mb-0"
             disabled={isShownSaving || !canManagePages}
             id="t--page-settings-show-nav-control"
-            large
-            onChange={() => {
+            onToggle={() => {
               setIsShown(!isShown);
               saveIsShown(!isShown);
             }}
+            value={isShown}
           />
         </SwitchWrapper>
       </div>
@@ -334,18 +332,18 @@ function PageSettings(props: { page: Page }) {
           />
         </div>
         <SwitchWrapper>
-          <AdsSwitch
-            checked={isDefault}
+          <Toggle
             className="mb-0"
             disabled={isDefaultSaving || page.isDefault || !canManagePages}
             id="t--page-settings-home-page-control"
             large
-            onChange={() => {
+            onToggle={() => {
               if (!canManagePages) return;
               setIsDefault(!isDefault);
               setIsDefaultSaving(true);
               dispatch(setPageAsDefault(page.pageId, applicationId));
             }}
+            value={isDefault}
           />
         </SwitchWrapper>
       </div>

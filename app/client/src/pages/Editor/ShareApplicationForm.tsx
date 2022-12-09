@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { Switch } from "design-system";
+import { Toggle } from "design-system";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -45,16 +45,15 @@ export function ShareApplicationForm(props: any) {
           <Spinner size={20} />
         )}
         {currentApplicationDetails && (
-          <Switch
-            checked={currentApplicationDetails.isPublic}
+          <Toggle
             disabled={isChangingViewAccess || isFetchingApplication}
-            large
-            onChange={() => {
+            onToggle={() => {
               changeAppViewAccess(
                 applicationId,
                 !currentApplicationDetails.isPublic,
               );
             }}
+            value={currentApplicationDetails.isPublic}
           />
         )}
       </ShareToggle>
