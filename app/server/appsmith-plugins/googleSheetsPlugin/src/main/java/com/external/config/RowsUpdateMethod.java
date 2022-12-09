@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
 import com.external.constants.FieldName;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -69,7 +70,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
         } catch (IllegalArgumentException e) {
             if (!StringUtils.hasLength(body)) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Row object cannot be empty.");
+                        ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
             }
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
@@ -226,12 +227,12 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
         if (body.isArray()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected a row object.");
+                    ErrorMessages.EXPECTED_ROW_OBJECT_MESSAGE);
         }
 
         if (body.isEmpty()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Row object cannot be empty.");
+                    ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
         }
 
         return new RowObject(

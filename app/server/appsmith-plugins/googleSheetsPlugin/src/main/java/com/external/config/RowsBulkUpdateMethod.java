@@ -4,6 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.util.WebClientUtils;
+import com.external.constants.ErrorMessages;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -67,7 +68,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
         } catch (IllegalArgumentException e) {
             if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        "Row array object cannot be empty.");
+                        ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
             }
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
@@ -248,12 +249,12 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
         if (!body.isArray()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Expected an array of row objects");
+                    ErrorMessages.EXPECTED_ARRAY_OF_ROW_OBJECT_MESSAGE);
         }
 
         if (body.isEmpty()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    "Row array object cannot be empty.");
+                    ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
         }
 
         return StreamSupport
