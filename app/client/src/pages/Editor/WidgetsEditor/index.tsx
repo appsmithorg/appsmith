@@ -54,6 +54,7 @@ function WidgetsEditor() {
         appName: currentApp?.name,
         mode: "EDIT",
       });
+      AnalyticsUtil.logMixPanelIds();
     }
   }, [currentPageName, currentPageId]);
 
