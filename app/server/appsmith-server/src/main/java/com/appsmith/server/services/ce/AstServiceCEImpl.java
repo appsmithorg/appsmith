@@ -76,17 +76,12 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .retrieve()
                 .bodyToMono(GetIdentifiersResponseBulk.class)
                 .retryWhen(Retry.max(3))
-                .elapsed()
-                .map(tuple -> {
-                    log.debug("Time elapsed since AST get identifiers call: {} ms, for size: {}", tuple.getT1(), bindingValues.size());
-                    return tuple.getT2().data;
-                })
-                .flatMapIterable(getIdentifiersResponseDetails -> getIdentifiersResponseDetails)
+                .flatMapIterable(getIdentifiersResponseDetails -> getIdentifiersResponseDetails.data)
                 .index()
                 .flatMap(tuple2 -> {
-                        long currentIndex = tuple2.getT1();
-                        Set<String> references = tuple2.getT2().getReferences();
-                        return Mono.zip(Mono.just(bindingValues.get((int) currentIndex)), Mono.just(references));
+                    long currentIndex = tuple2.getT1();
+                    Set<String> references = tuple2.getT2().getReferences();
+                    return Mono.zip(Mono.just(bindingValues.get((int) currentIndex)), Mono.just(references));
                 });
         // TODO: add error handling scenario for when RTS is not accessible in fat container
     }

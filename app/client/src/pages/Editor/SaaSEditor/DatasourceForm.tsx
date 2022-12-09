@@ -193,7 +193,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       unblock: this.props?.history?.block((tx: any) => {
         this.setState(
           {
-            navigation: () => this.props.history.push(tx.pathname),
+            // need to pass in query params as well as state, when user navigates away from ds form page
+            navigation: () =>
+              this.props.history.push(tx.pathname + tx.search, tx.state),
             showDialog: true,
             routesBlocked: true,
           },
@@ -276,7 +278,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
               {viewMode && (
                 <EditDatasourceButton
-                  category={Category.tertiary}
+                  category={Category.secondary}
                   className="t--edit-datasource"
                   onClick={() => {
                     this.props.setDatasourceViewMode(false);

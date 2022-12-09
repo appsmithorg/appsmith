@@ -43,6 +43,7 @@ interface ColorPickerProps {
   evaluatedColorValue?: string;
   autoFocus?: boolean;
   isOpen?: boolean;
+  placeholderText?: string;
   portalContainer?: HTMLElement;
 }
 
@@ -312,7 +313,7 @@ const POPOVER_MODFIER = {
 
 const ColorPickerComponent = React.forwardRef(
   (props: ColorPickerProps, containerRef: any) => {
-    const { isOpen: isOpenProp = false } = props;
+    const { isOpen: isOpenProp = false, placeholderText } = props;
     const popupRef = useRef<HTMLDivElement>(null);
     const inputGroupRef = useRef<HTMLInputElement>(null);
     // isClick is used to track whether the input field is in focus by mouse click or by keyboard
@@ -528,7 +529,7 @@ const ColorPickerComponent = React.forwardRef(
             }
             onChange={handleChangeColor}
             onClick={handleInputClick}
-            placeholder="enter color name or hex"
+            placeholder={placeholderText || "enter color name or hex"}
             value={color}
           />
 
