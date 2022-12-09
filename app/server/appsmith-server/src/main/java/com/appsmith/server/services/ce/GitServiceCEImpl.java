@@ -953,11 +953,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // Since the users will be in a bad state where the changes are committed locally but they are not able to
                         // push them changes or revert the changes either.
                         // TODO Support protected branch flow within Appsmith
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.GIT_ACTION_FAILED,
-                                "push",
-                                "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
-                                        + application.getGitApplicationMetadata().getBranchName()));
+                        Path path = Paths.get(application.getWorkspaceId(), application.getGitApplicationMetadata().getDefaultApplicationId(), application.getGitApplicationMetadata().getRepoName());
+                        return gitExecutor.resetHard(path, application.getGitApplicationMetadata().getBranchName())
+                                .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push",
+                                        "Unable to push changes as pre-receive hook declined. Please make sure that you don't have any rules enabled on the branch "
+                                                + application.getGitApplicationMetadata().getBranchName())));
                     }
                     return Mono.just(pushResult).zipWith(Mono.just(tuple.getT2()));
                 })

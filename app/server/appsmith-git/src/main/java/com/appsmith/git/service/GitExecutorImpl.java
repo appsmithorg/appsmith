@@ -746,4 +746,17 @@ public class GitExecutorImpl implements GitExecutor {
                     });
         }
     }
+
+    public Mono<Boolean> resetHard(Path repoSuffix, String branchName) {
+        return this.checkoutToBranch(repoSuffix, branchName)
+                .flatMap(aBoolean -> {
+                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+                        Ref ref = git.reset().setMode(ResetCommand.ResetType.HARD).setRef("HEAD~1").call();
+                        return Mono.just(true);
+                    } catch (GitAPIException | IOException e) {
+                        log.error("Error while resetting the commit, {}", e.getMessage());
+                    }
+                    return Mono.just(false);
+                });
+    }
 }
