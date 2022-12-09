@@ -120,6 +120,7 @@ type AddDynamicPathsPropertiesOptions = {
 enum MODIFICATION_TYPE {
   UPDATE_CONTAINER = "UPDATE_CONTAINER",
   REGENERATE_META_WIDGETS = "REGENERATE_META_WIDGETS",
+  LEVEL_DATA_UPDATED = "LEVEL_DATA_UPDATED",
 }
 
 const ROOT_CONTAINER_PARENT_KEY = "__$ROOT_CONTAINER_PARENT$__";
@@ -938,6 +939,10 @@ class MetaWidgetGenerator {
     if (this.hasRegenerationOptionsChanged(nextOptions)) {
       this.modificationsQueue.add(MODIFICATION_TYPE.REGENERATE_META_WIDGETS);
     }
+
+    if (this.levelData !== nextOptions.levelData) {
+      this.modificationsQueue.add(MODIFICATION_TYPE.LEVEL_DATA_UPDATED);
+    }
   };
 
   private flushModificationQueue = () => {
@@ -988,6 +993,9 @@ class MetaWidgetGenerator {
     const containerUpdateRequired = this.modificationsQueue.has(
       MODIFICATION_TYPE.UPDATE_CONTAINER,
     );
+    const levelDataUpdated = this.modificationsQueue.has(
+      MODIFICATION_TYPE.LEVEL_DATA_UPDATED,
+    );
     const shouldMainContainerUpdate =
       templateWidgetsAddedOrRemoved || containerUpdateRequired;
 
@@ -1001,18 +1009,25 @@ class MetaWidgetGenerator {
      * or
      * if nested primary widget type (list widget) and templateWidgetsAddedOrRemoved
      * is true (levelData should be updated in this case).
+     * or
+     * if nested primary widget type (list widget) and levelData updated.
      */
 
     return (
       (isMainContainerWidget && shouldMainContainerUpdate) ||
       !isMetaWidgetPresentInCurrentView ||
       isTemplateWidgetChanged ||
-      (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved)
+      (type === this.primaryWidgetType && templateWidgetsAddedOrRemoved) ||
+      (type === this.primaryWidgetType && levelDataUpdated)
     );
   };
 
   private hasRegenerationOptionsChanged = (nextOptions: GeneratorOptions) => {
     return (
+      nextOptions.containerParentId !== this.containerParentId ||
+      nextOptions.containerWidgetId !== this.containerWidgetId ||
+      nextOptions.widgetName !== this.widgetName ||
+      nextOptions.levelData !== this.levelData ||
       nextOptions?.currTemplateWidgets !== nextOptions?.prevTemplateWidgets ||
       nextOptions.data.length !== this.data.length ||
       nextOptions.infiniteScroll !== this.infiniteScroll ||
