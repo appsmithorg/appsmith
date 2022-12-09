@@ -217,6 +217,7 @@ export class DataSources {
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("Duplicate key error"),
     );
+    this.agHelper.PressEscape();
     // if (waitForToastDisappear)
     //   this.agHelper.WaitUntilToastDisappear("datasource created");
     // else this.agHelper.AssertContains("datasource created");
@@ -625,7 +626,6 @@ export class DataSources {
       } else {
         this.SaveDatasource();
       }
-
       cy.wrap(dataSourceName).as("dsName");
     });
   }
