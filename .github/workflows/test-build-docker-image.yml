@@ -230,6 +230,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
@@ -720,6 +721,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       - name: Download the react build artifact
         uses: actions/download-artifact@v3
@@ -1128,6 +1130,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'

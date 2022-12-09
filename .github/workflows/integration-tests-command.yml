@@ -148,6 +148,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: "11.0.10"
+          distribution: adopt
 
       - name: Download the client build artifact
         uses: actions/download-artifact@v3
