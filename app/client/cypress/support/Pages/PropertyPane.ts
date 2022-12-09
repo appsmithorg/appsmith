@@ -180,11 +180,22 @@ export class PropertyPane {
       .click({ force: true });
   }
 
-  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endpoint))
-      .first()
-      .scrollIntoView()
-      .click();
+  public SelectPropertiesDropDown(
+    endpoint: string,
+    dropdownOption: string,
+    action: "Action" | "Page" = "Action",
+    index = 0,
+  ) {
+    if (action == "Action")
+      this.agHelper.GetNClick(
+        this.locator._selectPropDropdown(endpoint),
+        index,
+      );
+    else
+      this.agHelper.GetNClick(
+        this.locator._selectPropPageDropdown(endpoint),
+        index,
+      );
     cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
