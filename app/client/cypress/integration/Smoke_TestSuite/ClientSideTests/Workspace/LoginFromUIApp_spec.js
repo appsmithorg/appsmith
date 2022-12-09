@@ -32,7 +32,7 @@ describe("Login from UI and check the functionality", function() {
     cy.get("@deleteApplication").should("have.property", "status", 200);
   });
 
-  it.only("Login/Logout click Appsmith logo should route to login page", function() {
+  it("Login/Logout click Appsmith logo should route to login page", function() {
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
