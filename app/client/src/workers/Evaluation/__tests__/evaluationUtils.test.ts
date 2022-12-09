@@ -9,6 +9,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { PrivateWidgets } from "entities/DataTree/types";
 import {
+  addErrorToEntityProperty,
   DataTreeDiff,
   DataTreeDiffEvent,
   getAllPaths,
@@ -784,3 +785,9 @@ describe("6. Evaluated Datatype of a given value", () => {
     expect(findDatatype("a, b, c")).not.toBe("array");
   });
 });
+
+// describe("7. Test addErrorToEntityProperty method", () => {
+//   it("Add error ", () => {
+//     addErrorToEntityProperty({})
+//   })
+// })
