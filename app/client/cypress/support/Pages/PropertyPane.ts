@@ -95,9 +95,15 @@ export class PropertyPane {
       this.agHelper.GetNClick(this._colorPickerV2Popover);
       this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
     } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
+      this.agHelper
+        .GetElement(this._colorInput(type))
+        .clear()
+        .wait(200);
       this.agHelper.TypeText(this._colorInput(type), colorIndex);
       //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
     }
@@ -163,11 +169,22 @@ export class PropertyPane {
       .click({ force: true });
   }
 
-  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endpoint))
-      .first()
-      .scrollIntoView()
-      .click();
+  public SelectPropertiesDropDown(
+    endpoint: string,
+    dropdownOption: string,
+    action: "Action" | "Page" = "Action",
+    index = 0,
+  ) {
+    if (action == "Action")
+      this.agHelper.GetNClick(
+        this.locator._selectPropDropdown(endpoint),
+        index,
+      );
+    else
+      this.agHelper.GetNClick(
+        this.locator._selectPropPageDropdown(endpoint),
+        index,
+      );
     cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
