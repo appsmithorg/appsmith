@@ -20,4 +20,7 @@ public class AuditLogResource {
 
     // Visibility(public or private) for application resources
     String visibility;
+
+    // Action execution parameters
+    String executionParams;
 }

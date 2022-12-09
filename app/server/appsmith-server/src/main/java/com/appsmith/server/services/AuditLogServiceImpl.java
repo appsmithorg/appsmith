@@ -468,6 +468,9 @@ public class AuditLogServiceImpl implements AuditLogService {
                 if (properties.containsKey(FieldName.TIME_ELAPSED)) {
                     auditLogResource.setResponseTime((Long) properties.get(FieldName.TIME_ELAPSED));
                 }
+                if (properties.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS)) {
+                    auditLogResource.setExecutionParams((String) properties.get(FieldName.ACTION_EXECUTION_REQUEST_PARAMS));
+                }
             }
             auditLog.setResource(auditLogResource);
             auditLogMono = setPage(auditLog, newAction.getUnpublishedAction().getPageId(), properties)

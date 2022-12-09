@@ -2326,6 +2326,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource().getExecutionStatus()).isNotNull();
                     assertThat(auditLog.getResource().getResponseCode()).isNotNull();
                     assertThat(auditLog.getResource().getResponseTime()).isNotNegative();
+                    assertThat(auditLog.getResource().getExecutionParams()).isNotNull();
 
                     // Page validation
                     assertThat(auditLog.getPage().getId()).isEqualTo(createdPageDTO.getId());
@@ -2446,6 +2447,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getResource().getExecutionStatus()).isNotNull();
                     assertThat(auditLog.getResource().getResponseCode()).isNotNull();
                     assertThat(auditLog.getResource().getResponseTime()).isNotNegative();
+                    assertThat(auditLog.getResource().getExecutionParams()).isNotNull();
 
                     // Page validation
                     assertThat(auditLog.getPage().getId()).isEqualTo(createdPageDTO.getId());
