@@ -6,6 +6,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WorkspacePermissionImpl extends WorkspacePermissionCEImpl implements WorkspacePermission {
+    @Override
+    public AclPermission getDeletePermission() {
+        return AclPermission.DELETE_WORKSPACES;
+    }
 
     @Override
     public AclPermission getApplicationCreatePermission() {
