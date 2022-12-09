@@ -431,10 +431,16 @@ class AnalyticsUtil {
         );
       }
       const mixpanelIds = {
-        distinct_id: windowDoc.mixpanel.get_distinct_id(),
-        user_id: windowDoc.mixpanel.get_property("user_id"),
-        insert_id: windowDoc.mixpanel.get_property("insert_id"),
-        identified_id: windowDoc.mixpanel.get_property("identified_id"),
+        distinct_id: windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
+        user_id:
+          windowDoc.mixpanel && windowDoc.mixpanel.get_property("user_id"),
+        insert_id:
+          windowDoc.mixpanel && windowDoc.mixpanel.get_property("insert_id"),
+        identified_id:
+          windowDoc.mixpanel &&
+          windowDoc.mixpanel.get_property("identified_id"),
+        anonymous_id:
+          windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymous_id"),
       };
       console.log("mixpanel id's", mixpanelIds);
       this.logEvent("MIXPANEL_IDS", mixpanelIds);

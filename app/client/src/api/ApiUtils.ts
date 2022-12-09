@@ -51,7 +51,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   if (config.headers)
-    config.headers["X-User-Id"] = AnalyticsUtil.getMixPanelId();
+    config.headers["X-User-Id"] = AnalyticsUtil.getMixPanelId() ?? "";
 
   return { ...config, timer: performance.now() };
 };
