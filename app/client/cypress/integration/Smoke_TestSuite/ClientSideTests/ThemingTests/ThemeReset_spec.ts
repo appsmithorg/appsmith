@@ -24,8 +24,8 @@ describe("Theme validation usecases", function() {
     // click on canvas to see the theming pane
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToThemeSettings();
     // reset theme
     cy.contains("Theme Properties")
       .closest("div")
@@ -45,6 +45,6 @@ describe("Theme validation usecases", function() {
           backgroudColor,
         );
       });
-    appSettings.closePane();
+    appSettings.ClosePane();
   });
 });

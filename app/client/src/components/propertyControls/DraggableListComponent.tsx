@@ -22,7 +22,7 @@ export type RenderComponentProps<TItem extends BaseItemProps> = {
   isDelete?: boolean;
 };
 
-type DroppableComponentProps<TItem extends BaseItemProps> = {
+export type DroppableComponentProps<TItem extends BaseItemProps> = {
   className?: string;
   fixedHeight?: number | boolean;
   focusedIndex: number | null | undefined;
