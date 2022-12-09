@@ -1047,7 +1047,7 @@ export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
 export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Enterprise Plan`;
+  `The ${featureName} feature is exclusive to workspaces on the Business Plan`;
 // Audit logs Upgrade page end
 // Audit logs end
 

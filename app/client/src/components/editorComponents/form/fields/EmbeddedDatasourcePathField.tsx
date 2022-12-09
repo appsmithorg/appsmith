@@ -28,7 +28,10 @@ import {
   EditorSize,
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
+import {
+  bindingMarker,
+  entityMarker,
+} from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
@@ -456,7 +459,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       theme: this.props.theme,
       tabBehaviour: TabBehaviour.INPUT,
       size: EditorSize.COMPACT,
-      marking: [bindingMarker, this.handleDatasourceHighlight()],
+      marking: [bindingMarker, this.handleDatasourceHighlight(), entityMarker],
       hinting: [bindingHint, this.handleDatasourceHint()],
       showLightningMenu: false,
       fill: true,
