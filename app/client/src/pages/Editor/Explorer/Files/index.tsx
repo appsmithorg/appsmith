@@ -65,7 +65,7 @@ function Files() {
           return (
             <div
               className={`text-sm text-[${Colors.CODE_GRAY}] pl-8 bg-trueGray-50 overflow-hidden overflow-ellipsis whitespace-nowrap`}
-              key={entity.name}
+              key={entity.name || "Queries"}
             >
               {entity.name}
             </div>
@@ -111,7 +111,9 @@ function Files() {
       disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
-      isDefaultExpanded={isFilesOpen ?? true}
+      isDefaultExpanded={
+        isFilesOpen === null || isFilesOpen === undefined ? false : isFilesOpen
+      }
       isSticky
       key={pageId + "_widgets"}
       name="Queries/JS"

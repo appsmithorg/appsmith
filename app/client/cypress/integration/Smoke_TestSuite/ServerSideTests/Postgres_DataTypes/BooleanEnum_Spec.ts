@@ -14,7 +14,7 @@ describe("Boolean & Enum Datatype tests", function() {
     cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    appSettings.openPaneAndChangeThemeColors(-18, -20);
+    appSettings.OpenPaneAndChangeThemeColors(-18, -20);
   });
 
   it("1. Create Postgress DS", function() {
@@ -39,7 +39,8 @@ describe("Boolean & Enum Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
-    //ee.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
+    ee.ExpandCollapseEntity("Datasources");
+    ee.ExpandCollapseEntity(dsName); //Clicking Create Query from Active DS is already expanding ds
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer("public.boolenumtypes"),
