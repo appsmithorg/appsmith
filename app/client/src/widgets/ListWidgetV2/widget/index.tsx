@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import React, { createRef, RefObject } from "react";
-import { get, isEmpty, floor } from "lodash";
+import { isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -17,7 +17,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
@@ -85,12 +84,6 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 };
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
-
-/* in the List Widget, "children.0.children.0.children.0.children" is the path to the list of all
-  widgets present in the List Widget
-*/
-const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
-  "children.0.children.0.children.0.children";
 
 class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   componentRef: RefObject<HTMLDivElement>;
