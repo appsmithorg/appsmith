@@ -48,7 +48,9 @@ class TextInput {
   ) {
     this.agHelper.InvokeVal(locator).then((currentValue) => {
       const currentValueLength = (currentValue as string).length;
-      this.agHelper.RemoveCharsNType(locator, currentValueLength, newValue);
+      if (currentValueLength === 0) this.agHelper.TypeText(locator, newValue);
+      else
+        this.agHelper.RemoveCharsNType(locator, currentValueLength, newValue);
 
       this.agHelper.GetText(locator, "val").then((fieldValue) => {
         expect(fieldValue).to.equal(verifyValueAs);

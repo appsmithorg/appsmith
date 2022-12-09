@@ -6,7 +6,7 @@ const appSettings = ObjectsRegistry.AppSettings,
   homePage = ObjectsRegistry.HomePage;
 
 describe("General Settings", () => {
-  it("App name change updates URL", () => {
+  it("1. App name change updates URL", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToGeneralSettings();
     appSettings.general.changeAppNameAndVerifyUrl(true, "myapp");
@@ -17,21 +17,21 @@ describe("General Settings", () => {
     });
   });
 
-  it("Handles app icon change", () => {
+  it("2. Handles app icon change", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToGeneralSettings();
     appSettings.general.changeAppIcon();
     appSettings.ClosePane();
   });
 
-  it("App name allows special and accented character", () => {
+  it("3. App name allows special and accented character", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToGeneralSettings();
     appSettings.general.changeAppNameAndVerifyUrl(true, "myapp!@#œ™¡", "myapp");
     appSettings.ClosePane();
   });
 
-  it("App name doesn't allow empty", () => {
+  it("4. App name doesn't allow empty", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToGeneralSettings();
     appSettings.general.tryAppNameAndVerifyErrorMessage(

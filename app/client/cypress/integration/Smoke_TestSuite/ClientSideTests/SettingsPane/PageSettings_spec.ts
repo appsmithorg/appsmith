@@ -9,7 +9,7 @@ const appSettings = ObjectsRegistry.AppSettings,
   homePage = ObjectsRegistry.HomePage;
 
 describe("Page Settings", () => {
-  it("Page name change updates URL", () => {
+  it("1. Page name change updates URL", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page1");
     appSettings.page.changePageNameAndVerifyUrl("Page2", undefined, false);
@@ -21,7 +21,7 @@ describe("Page Settings", () => {
     cy.wait(2000);
   });
 
-  it("Custom slug change updates URL", () => {
+  it("2. Custom slug change updates URL", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page2");
     appSettings.page.changeCustomSlugAndVerifyUrl("custom");
@@ -33,7 +33,7 @@ describe("Page Settings", () => {
     cy.wait(2000);
   });
 
-  it("Check default page is updated", () => {
+  it("3. Check default page is updated", () => {
     ee.AddNewPage();
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page3");
@@ -41,7 +41,7 @@ describe("Page Settings", () => {
     appSettings.page.isHomePage("Page3");
   });
 
-  it("Check page navigation is updated", () => {
+  it("4. Check page navigation is updated", () => {
     agHelper.GetNClick(commonLocators._previewModeToggle);
     agHelper.AssertElementExist(commonLocators._deployedPage);
     agHelper.GetNClick(commonLocators._editModeToggle);
@@ -53,21 +53,21 @@ describe("Page Settings", () => {
     agHelper.GetNClick(commonLocators._editModeToggle);
   });
 
-  it("Page name allows accented character", () => {
+  it("5. Page name allows accented character", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page3");
     appSettings.page.changePageNameAndVerifyUrl("Page3œßð", "Page3");
     appSettings.ClosePane();
   });
 
-  it("Page name deosn't allow special character", () => {
+  it("6. Page name doesn't allow special character", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page3");
     appSettings.page.tryPageNameAndVerifyTextValue("Page3!@#", "Page3 ");
     appSettings.ClosePane();
   });
 
-  it("Page name doesn't allow empty", () => {
+  it("7. Page name doesn't allow empty", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page3");
     appSettings.page.tryPageNameAndVerifyErrorMessage(
@@ -77,7 +77,7 @@ describe("Page Settings", () => {
     appSettings.ClosePane();
   });
 
-  it("Page name doesn't allow duplicate name", () => {
+  it("8. Page name doesn't allow duplicate name", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page3");
     appSettings.page.tryPageNameAndVerifyErrorMessage(
@@ -87,7 +87,7 @@ describe("Page Settings", () => {
     appSettings.ClosePane();
   });
 
-  it("Page name doesn't allow keywords", () => {
+  it("9. Page name doesn't allow keywords", () => {
     appSettings.OpenPaneFromCta();
     appSettings.GoToPageSettings("Page3");
     appSettings.page.tryPageNameAndVerifyErrorMessage(
@@ -97,9 +97,9 @@ describe("Page Settings", () => {
     appSettings.ClosePane();
   });
 
-  it("Custom slug doesn't allow special/accented characters", () => {
+  it("10. Custom slug doesn't allow special/accented characters", () => {
     appSettings.OpenPaneFromCta();
-    appSettings.GoToPageSettings("Page3");
+    appSettings.GoToPageSettings("Page2");
     appSettings.page.tryCustomSlugAndVerifyTextValue(
       "custom-slug!@#œßð",
       "custom-slug",
