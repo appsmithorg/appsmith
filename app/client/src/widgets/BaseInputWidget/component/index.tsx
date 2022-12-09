@@ -393,9 +393,6 @@ const TextInputWrapper = styled.div<{
 
   ${({ inputHtmlType }) =>
     inputHtmlType && inputHtmlType !== InputTypes.TEXT && `&&& {flex-grow: 0;}`}
-
-  ${({ isDynamicHeightEnabled }) =>
-    isDynamicHeightEnabled ? "&& { height: auto; }" : ""};
 `;
 
 export type InputHTMLType = "TEXT" | "NUMBER" | "PASSWORD" | "EMAIL" | "TEL";
@@ -714,7 +711,10 @@ class BaseInputComponent extends React.Component<
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.renderInputComponent(inputHTMLType, !!multiline)}
+            {this.renderInputComponent(
+              inputHTMLType,
+              isDynamicHeightEnabled ? false : !!multiline,
+            )}
           </ErrorTooltip>
         </TextInputWrapper>
       </InputComponentWrapper>
