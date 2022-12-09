@@ -371,6 +371,28 @@ export function getWidgetChildren(
   const childrenList: ChildrenWidgetMap[] = [];
   const widget = _.get(canvasWidgets, widgetId);
 
+  const sortedWidgetsMeta = sortWidgetsMetaByParent(widgetsMeta, widgetId);
+  for (const childMetaWidgetId of Object.keys(
+    sortedWidgetsMeta.childrenWidgetsMeta,
+  )) {
+    const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
+      return isWidget(entity) && entity.widgetId === childMetaWidgetId;
+    }) as DataTreeWidget | undefined;
+    childrenList.push({
+      id: childMetaWidgetId,
+      evaluatedWidget: evaluatedChildWidget,
+    });
+    const grandChildren = getWidgetChildren(
+      canvasWidgets,
+      childMetaWidgetId,
+      evaluatedDataTree,
+      sortedWidgetsMeta.otherWidgetsMeta,
+    );
+    if (grandChildren.length) {
+      childrenList.push(...grandChildren);
+    }
+  }
+
   if (widget) {
     const { children = [] } = widget;
     if (children && children.length) {
@@ -390,7 +412,7 @@ export function getWidgetChildren(
               canvasWidgets,
               childWidgetId,
               evaluatedDataTree,
-              widgetsMeta,
+              sortedWidgetsMeta.otherWidgetsMeta,
             );
             if (grandChildren.length) {
               childrenList.push(...grandChildren);
@@ -398,29 +420,6 @@ export function getWidgetChildren(
           }
         }
       }
-    }
-  }
-
-  const sortedWidgetsMeta = sortWidgetsMetaByParent(widgetsMeta, widgetId);
-
-  for (const childMetaWidgetId of Object.keys(
-    sortedWidgetsMeta.childrenWidgetsMeta,
-  )) {
-    const evaluatedChildWidget = find(evaluatedDataTree, function(entity) {
-      return isWidget(entity) && entity.widgetId === childMetaWidgetId;
-    }) as DataTreeWidget | undefined;
-    childrenList.push({
-      id: childMetaWidgetId,
-      evaluatedWidget: evaluatedChildWidget,
-    });
-    const grandChildren = getWidgetChildren(
-      canvasWidgets,
-      childMetaWidgetId,
-      evaluatedDataTree,
-      sortedWidgetsMeta.otherWidgetsMeta,
-    );
-    if (grandChildren.length) {
-      childrenList.push(...grandChildren);
     }
   }
 
