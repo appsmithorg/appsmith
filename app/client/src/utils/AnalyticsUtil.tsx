@@ -410,6 +410,10 @@ class AnalyticsUtil {
         AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);
         windowDoc.analytics.identify(userId, userProperties);
+        console.log(
+          "mixpanel id",
+          windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
+        );
       } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
         // This is done by setting environment variable APPSMITH_DISABLE_TELEMETRY in the docker.env file
@@ -427,6 +431,10 @@ class AnalyticsUtil {
         windowDoc.analytics.identify(
           AnalyticsUtil.cachedAnonymoustId,
           userProperties,
+        );
+        console.log(
+          "mixpanel id anonymous",
+          windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
         );
       }
     }
@@ -452,6 +460,11 @@ class AnalyticsUtil {
         username: userData.username,
       });
     }
+  }
+
+  static getMixPanelId() {
+    const windowDoc: any = window;
+    return windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id();
   }
 
   static reset() {
