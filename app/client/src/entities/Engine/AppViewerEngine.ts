@@ -23,7 +23,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
-// import { fetchJSLibraries } from "actions/JSLibraryActions";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -70,7 +70,7 @@ export default class AppViewerEngine extends AppEngine {
   *loadAppEntities(toLoadPageId: string, applicationId: string): any {
     const resultOfPrimaryCalls: boolean = yield failFastApiCalls(
       [
-        // fetchJSLibraries(applicationId),
+        fetchJSLibraries(applicationId),
         fetchActionsForView({ applicationId }),
         fetchJSCollectionsForView({ applicationId }),
         fetchSelectedAppThemeAction(applicationId),
@@ -83,6 +83,7 @@ export default class AppViewerEngine extends AppEngine {
         ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
         ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
         fetchPublishedPageSuccess().type,
+        ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
       ],
       [
         ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
@@ -90,6 +91,7 @@ export default class AppViewerEngine extends AppEngine {
         ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
         ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
         ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
+        ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
       ],
     );
 
