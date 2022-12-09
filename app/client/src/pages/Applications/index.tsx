@@ -706,7 +706,7 @@ function ApplicationsSection(props: any) {
         const showWorkspaceMenuOptions =
           canInviteToWorkspace ||
           hasManageWorkspacePermissions ||
-          hasCreateNewAppPermission ||
+          hasCreateNewApplicationPermission ||
           canDeleteWorkspace;
 
         return (
@@ -850,6 +850,20 @@ function ApplicationsSection(props: any) {
                               text="Import"
                             />
                           )}
+                        {hasManageWorkspacePermissions && canInviteToWorkspace && (
+                          <MenuItem
+                            icon="member"
+                            onSelect={() =>
+                              getOnSelectAction(
+                                DropdownOnSelectActions.REDIRECT,
+                                {
+                                  path: `/workspace/${workspace.id}/settings/members`,
+                                },
+                              )
+                            }
+                            text="Members"
+                          />
+                        )}
                         {canInviteToWorkspace && (
                           <MenuItem
                             icon="logout"
@@ -865,20 +879,6 @@ function ApplicationsSection(props: any) {
                                 : "Are you sure?"
                             }
                             type={!warnLeavingWorkspace ? undefined : "warning"}
-                          />
-                        )}
-                        {hasManageWorkspacePermissions && canInviteToWorkspace && (
-                          <MenuItem
-                            icon="member"
-                            onSelect={() =>
-                              getOnSelectAction(
-                                DropdownOnSelectActions.REDIRECT,
-                                {
-                                  path: `/workspace/${workspace.id}/settings/members`,
-                                },
-                              )
-                            }
-                            text="Members"
                           />
                         )}
                         {applications.length === 0 && canDeleteWorkspace && (

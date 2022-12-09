@@ -13794,9 +13794,10 @@ slice-ansi@^5.0.0:
     ansi-styles "^6.0.0"
     is-fullwidth-code-point "^4.0.0"
 
-smartlook-client@^4.5.1:
-  version "4.6.1"
-  resolved "https://registry.npmjs.org/smartlook-client/-/smartlook-client-4.6.1.tgz"
+smartlook-client@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/smartlook-client/-/smartlook-client-8.0.0.tgz#71825b41bd467effe0091df40ec1e254bfccb202"
+  integrity sha512-gx0+mYv5hUKGE/ZcuPcft2OWR8BetnTw3QWZXX2QQjhJbgliKcioDC+NrczxZmnwUalpW4RjXb4iS8lQUAZkEQ==
 
 snake-case@^3.0.4:
   version "3.0.4"
