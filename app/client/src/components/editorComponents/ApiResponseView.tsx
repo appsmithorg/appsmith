@@ -581,7 +581,7 @@ function ApiResponseView(props: Props) {
                 {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
               </Text>
               <CancelRequestButton
-                category={Category.tertiary}
+                category={Category.secondary}
                 className={`t--cancel-action-button`}
                 onClick={() => {
                   handleCancelActionExecution();

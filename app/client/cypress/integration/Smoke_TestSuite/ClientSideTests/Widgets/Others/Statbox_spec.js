@@ -86,15 +86,4 @@ describe("Statbox Widget Functionality", function() {
         parseSpecialCharSequences: false,
       });
   });
-
-  it("5. Verify Statbox can be placed inside another widget", () => {
-    cy.addDsl(dsl1);
-    cy.get(explorer.addWidget).click();
-    // placing statbox widget inside container widget
-    //cy.dragAndDropToCanvas("containerwidget", { x: 500, y: 300 });
-    cy.dragAndDropToWidget("statboxwidget", "containerwidget", {
-      x: 100,
-      y: 100,
-    });
-  });
 });
