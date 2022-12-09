@@ -708,7 +708,7 @@ class DatasourceRestAPIEditor extends React.Component<
             dataType: "PASSWORD",
             encrypted: true,
             isRequired: false,
-            valueExistPath: "authentication.secretExists",
+            valueExistPath: "authentication.secretExists.password",
           })}
         </FormInputContainer>
       </>
@@ -826,6 +826,7 @@ class DatasourceRestAPIEditor extends React.Component<
             dataType: "PASSWORD",
             encrypted: true,
             isRequired: false,
+            valueExistPath: "authentication.secretExists.clientSecret",
           })}
         </FormInputContainer>
         <FormInputContainer data-replay-id={btoa("authentication.scopeString")}>

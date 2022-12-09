@@ -133,6 +133,7 @@ const formToDatasourceAuthentication = (
         authenticationType: AuthType.basic,
         username: authentication.username,
         password: authentication.password,
+        secretExists: authentication.secretExists,
       };
       return basic;
     }
