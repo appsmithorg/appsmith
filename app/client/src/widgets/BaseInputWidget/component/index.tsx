@@ -342,7 +342,6 @@ const TextInputWrapper = styled.div<{
   accentColor?: string;
   hasError?: boolean;
   disabled?: boolean;
-  isDynamicHeightEnabled?: boolean;
 }>`
   width: 100%;
   display: flex;
@@ -700,7 +699,6 @@ class BaseInputComponent extends React.Component<
           disabled={this.props.disabled}
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
-          isDynamicHeightEnabled={isDynamicHeightEnabled}
           labelPosition={labelPosition}
         >
           <ErrorTooltip
