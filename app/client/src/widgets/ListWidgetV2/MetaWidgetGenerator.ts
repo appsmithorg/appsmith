@@ -455,7 +455,7 @@ class MetaWidgetGenerator {
       this.addLevelData(metaWidget, viewIndex);
     }
 
-    if (this.isRowNonConfigurable(rowIndex)) {
+    if (this.isRowNonConfigurable(metaCacheProps)) {
       this.disableWidgetOperations(metaWidget);
       metaWidget.suppressAutoComplete = true;
       metaWidget.suppressDebuggerError = true;
@@ -962,8 +962,14 @@ class MetaWidgetGenerator {
     );
   };
 
-  private isRowNonConfigurable = (rowIndex: number) => {
-    return rowIndex > 0 && this.renderMode === RenderModes.CANVAS;
+  private isRowNonConfigurable = ({
+    metaWidgetId,
+    templateWidgetId,
+  }: MetaWidgetCacheProps) => {
+    return (
+      templateWidgetId !== metaWidgetId &&
+      this.renderMode === RenderModes.CANVAS
+    );
   };
 
   private shouldGenerateMetaWidgetFor = (
