@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { isString, remove } from "lodash";
+import _, { isString, reduce, remove } from "lodash";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -54,7 +54,7 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-
+import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 export interface CopiedWidgetGroup {
   widgetId: string;
   parentId: string;
@@ -300,6 +300,42 @@ export function getWidgetChildrenIds(
     }
   }
   return childrenIds;
+}
+function sortWidgetsMetaByParent(
+  widgetsMeta: MetaWidgetsReduxState,
+  parentId: string,
+) {
+  return reduce(
+    widgetsMeta,
+    function(
+      result: {
+        childrenWidgetsMeta: MetaWidgetsReduxState;
+        otherWidgetsMeta: MetaWidgetsReduxState;
+      },
+      currentWidgetMeta,
+      key,
+    ) {
+      return key.startsWith(parentId + "_")
+        ? {
+            ...result,
+            childrenWidgetsMeta: {
+              ...result.childrenWidgetsMeta,
+              [key]: currentWidgetMeta,
+            },
+          }
+        : {
+            ...result,
+            otherWidgetsMeta: {
+              ...result.otherWidgetsMeta,
+              [key]: currentWidgetMeta,
+            },
+          };
+    },
+    {
+      childrenWidgetsMeta: {},
+      otherWidgetsMeta: {},
+    },
+  );
 }
 
 export type ChildrenWidgetMap = { id: string; evaluatedWidget: DataTreeWidget };
