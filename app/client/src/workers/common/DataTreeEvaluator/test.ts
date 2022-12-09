@@ -14,7 +14,7 @@ import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
 import { updateDependencyMap } from "workers/common/DependencyMap";
-import { parseJSActionsForUpdateTree } from "workers/Evaluation/JSObject";
+import { parseJSActions } from "workers/Evaluation/JSObject";
 import { WidgetConfiguration } from "widgets/constants";
 import { JSUpdate, ParsedBody } from "../../../utils/JSPaneUtils";
 
@@ -215,28 +215,21 @@ describe("DataTreeEvaluator", () => {
 
   describe("parseJsActions", () => {
     beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(emptyTreeWithAppsmithObject);
+      dataTreeEvaluator.setupFirstTree(
+        (emptyTreeWithAppsmithObject as unknown) as DataTree,
+      );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
     it("set's isAsync tag for cross JsObject references", () => {
-      const result = parseJSActionsForUpdateTree(
-        dataTreeEvaluator,
-        asyncTagUnevalTree,
-        [
-          {
-            event: DataTreeDiffEvent.EDIT,
-            payload: {
-              propertyPath: "JSObject1.body",
-              value:
-                "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: (data = 0) => {\n\t\t//write code here\n\t\tlet sum = 0;\n\t\tconsole.log(\"hello hi bye bye\");\n\t\tsum = 1 + 2 + data;\n\t\t// showAlert(`${sum}`);\n\t\tshowAlert('');\n\t\treturn sum;\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t\tawait Api1.run();\n\t}\n}",
-            },
-          },
-        ],
-      );
+      const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
       const jsUpdatesForJsObject1 = (result as Record<string, JSUpdate>)[
         "JSObject1"
       ].parsedBody as ParsedBody;
+      const jsUpdatesForJsObject2 = (result as Record<string, JSUpdate>)[
+        "JSObject2"
+      ].parsedBody as ParsedBody;
       expect(jsUpdatesForJsObject1.actions[0].isAsync).toBe(true);
+      expect(jsUpdatesForJsObject2.actions[0].isAsync).toBe(true);
     });
   });
 

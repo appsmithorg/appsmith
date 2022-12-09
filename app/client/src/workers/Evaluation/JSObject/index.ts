@@ -286,7 +286,7 @@ export function viewModeSaveResolvedFunctions(
   }
 }
 
-export function parseJSActionsForUpdateTree(
+export function parseJSActionsWithDifferences(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
   differences: DataTreeDiff[],
@@ -300,7 +300,7 @@ export function parseJSActionsForUpdateTree(
     const entity = unEvalDataTree[entityName];
 
     if (!isJSAction(entity)) {
-      return false;
+      continue;
     }
 
     switch (diff.event) {
@@ -335,11 +335,10 @@ export function parseJSActionsForUpdateTree(
         break;
     }
   }
-
   return parseJSUpdates(jsUpdates, unEvalDataTree, dataTreeEvalRef);
 }
 
-export function parseJSActionsForFirstTreeInViewMode(
+export function parseJSActionsForViewMode(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
 ) {
@@ -358,7 +357,7 @@ export function parseJSActionsForFirstTreeInViewMode(
   }
 }
 
-export function parseJSActionsForFirstTreeInEditMode(
+export function parseJSActions(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalDataTree: DataTree,
 ) {

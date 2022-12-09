@@ -382,13 +382,13 @@ export const asyncTagUnevalTree: DataTree = {
     pluginType: PluginType.JS,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     body:
-      "export default { \n\tmyFun1: async () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
+      "export default { \n\tmyFun1: () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
     meta: {
       myFun1: {
         arguments: [],
         isAsync: false,
         confirmBeforeExecute: false,
-        body: "myFun1: async () => {\n\t\treturn JSObject2.callApi();\n\t}",
+        body: "myFun1: () => {\n\t\treturn JSObject2.callApi();\n\t}",
       },
     },
     bindingPaths: {
@@ -421,13 +421,13 @@ export const asyncTagUnevalTree: DataTree = {
     pluginType: PluginType.JS,
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
     body:
-      "export default {\n\tcallApi: async () => {\n\t\treturn Api1.run()\n\t},\n}",
+      "export default {\n\tcallApi: () => {\n\t\treturn Api1.run()\n\t},\n}",
     meta: {
       callApi: {
         arguments: [],
         isAsync: false,
         confirmBeforeExecute: false,
-        body: "callApi: async () => {\n\t\treturn Api1.run()\n\t}",
+        body: "callApi: () => {\n\t\treturn Api1.run()\n\t}",
       },
     },
     bindingPaths: {

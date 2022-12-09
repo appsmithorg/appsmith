@@ -89,9 +89,9 @@ import {
 import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
-  parseJSActionsForFirstTreeInViewMode,
-  parseJSActionsForFirstTreeInEditMode,
-  parseJSActionsForUpdateTree,
+  parseJSActionsForViewMode,
+  parseJSActions,
+  parseJSActionsWithDifferences,
 } from "workers/Evaluation/JSObject";
 import { getFixedTimeDifference } from "./utils";
 import {
@@ -149,8 +149,8 @@ export default class DataTreeEvaluator {
   inverseValidationDependencyMap: DependencyMap = {};
   public hasCyclicalDependency = false;
   parseJsActionsConfig = {
-    [APP_MODE.EDIT]: parseJSActionsForFirstTreeInEditMode,
-    [APP_MODE.PUBLISHED]: parseJSActionsForFirstTreeInViewMode,
+    [APP_MODE.EDIT]: parseJSActions,
+    [APP_MODE.PUBLISHED]: parseJSActionsForViewMode,
   };
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -376,11 +376,16 @@ export default class DataTreeEvaluator {
     );
     // save parsed functions in resolveJSFunctions, update current state of js collection
     jsUpdates =
-      parseJSActionsForUpdateTree(this, localUnEvalTree, jsTranslatedDiffs) ||
-      {};
+      (!!jsTranslatedDiffs && !!this.oldUnEvalTree
+        ? parseJSActionsWithDifferences(
+            this,
+            localUnEvalTree,
+            jsTranslatedDiffs,
+          )
+        : parseJSActions(this, localUnEvalTree)) || {};
     // update local data tree if js body has updated (remove/update/add js functions or variables)
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-      jsUpdates,
+      jsUpdates || {},
       localUnEvalTree,
     );
 
