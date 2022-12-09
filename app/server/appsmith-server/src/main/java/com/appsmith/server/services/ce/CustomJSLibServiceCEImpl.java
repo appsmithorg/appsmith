@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.repositories.CustomJSLibRepository;
@@ -26,9 +27,6 @@ import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCusto
 
 @Slf4j
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String> implements CustomJSLibServiceCE {
-    public static final String UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "unpublishedCustomJSLibs";
-    public static final String PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS = "publishedCustomJSLibs";
-
     ApplicationService applicationService;
 
     public CustomJSLibServiceCEImpl(Scheduler scheduler,
@@ -62,7 +60,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return jsLibDTOsInApplication;
                 })
                 .flatMap(updatedJSLibDTOList -> applicationService.update(applicationId,
-                        UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList, branchName))
+                        FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList, branchName))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
@@ -100,7 +98,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return jsLibDTOSet;
                 })
                 .flatMap(updatedJSLibDTOList -> applicationService.update(applicationId,
-                        UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList, branchName))
+                        FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList, branchName))
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
@@ -126,8 +124,8 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                                                                                          String branchName,
                                                                                          Boolean isViewMode) {
         return applicationService.findByIdAndBranchName(applicationId,
-                List.of(isViewMode ? PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS :
-                        UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS), branchName)
+                List.of(isViewMode ? FieldName.PUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS :
+                        FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS), branchName)
                 .map(application -> {
                     if (isViewMode) {
                         return application.getPublishedCustomJSLibs() == null ? new HashSet<>() :
