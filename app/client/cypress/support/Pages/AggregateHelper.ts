@@ -104,7 +104,7 @@ export class AggregateHelper {
   public RenameWithInPane(renameVal: string, query = true) {
     const name = query ? this.locator._queryName : this.locator._dsName;
     const text = query ? this.locator._queryNameTxt : this.locator._dsNameTxt;
-    cy.get(name).click({ force: true });
+    this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
       .type(renameVal, { force: true })
@@ -481,7 +481,23 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
-  public GoBack(){
+  public GetSiblingNClick(
+    selector: string,
+    siblingSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return this.GetElement(selector)
+      .siblings(siblingSelector)
+      .first()
+      .eq(index)
+      .scrollIntoView()
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
+  public GoBack() {
     this.GetNClick(this.locator._visibleTextSpan("Back"));
   }
 
@@ -506,7 +522,20 @@ export class AggregateHelper {
     }
   }
 
-  public TypeText(selector: string, value: string, index = 0) {
+  public ClearTextField(selector: string) {
+    this.GetElement(selector).clear();
+  }
+
+  public InvokeVal(selector: string) {
+    return cy.get(selector).invoke("val");
+  }
+
+  public TypeText(
+    selector: string,
+    value: string,
+    index = 0,
+    parseSpecialCharSeq = false,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
@@ -514,7 +543,7 @@ export class AggregateHelper {
       .eq(index)
       .focus()
       .type(value, {
-        parseSpecialCharSequences: false,
+        parseSpecialCharSequences: parseSpecialCharSeq,
         //delay: 3,
         //force: true,
       });
@@ -546,13 +575,14 @@ export class AggregateHelper {
   }
 
   public CheckUncheck(selector: string, check = true) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
     if (check) {
-      locator.check({ force: true }).should("be.checked");
+      this.GetElement(selector)
+        .check({ force: true })
+        .should("be.checked");
     } else {
-      locator.uncheck({ force: true }).should("not.be.checked");
+      this.GetElement(selector)
+        .uncheck({ force: true })
+        .should("not.be.checked");
     }
     this.Sleep();
   }
@@ -574,6 +604,18 @@ export class AggregateHelper {
         expect(classes).includes(toggle);
       });
     }
+  }
+
+  public AssertAttribute(
+    selector: string,
+    attribName: string,
+    attribValue: string,
+  ) {
+    return this.GetElement(selector).should(
+      "have.attr",
+      attribName,
+      attribValue,
+    );
   }
 
   public ToggleSwitch(
@@ -919,6 +961,10 @@ export class AggregateHelper {
       return this.GetElement(selector, timeout)
         .contains(text)
         .should(exists);
+  }
+
+  public ValidateURL(url: string) {
+    cy.url().should("include", url);
   }
 
   public ScrollTo(

@@ -17,6 +17,7 @@ export class DataSources {
   private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
+  private _collapseContainer = ".t--collapse-section-container";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
   private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
@@ -30,6 +31,7 @@ export class DataSources {
   private _saveDs = ".t--save-datasource";
   private _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   private _datasourceCard = ".t--datasource";
+  _editButton = ".t--edit-datasource";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
@@ -110,6 +112,14 @@ export class DataSources {
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
+
+  public AssertViewMode() {
+    this.agHelper.AssertElementExist(this._editButton);
+  }
+
+  public AssertEditMode() {
+    this.agHelper.AssertElementAbsence(this._editButton);
+  }
 
   public StartDataSourceRoutes() {
     cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
@@ -207,9 +217,48 @@ export class DataSources {
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("Duplicate key error"),
     );
+    this.agHelper.PressEscape();
     // if (waitForToastDisappear)
     //   this.agHelper.WaitUntilToastDisappear("datasource created");
     // else this.agHelper.AssertContains("datasource created");
+  }
+
+  public EditDatasource() {
+    this.agHelper.GetNClick(this._editButton);
+  }
+
+  public ExpandSection(index: number) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .click();
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .find(this.locator._chevronUp)
+      .should("be.visible");
+  }
+
+  public ExpandSectionByName(locator: string) {
+    // Click on collapse section only if it collapsed, if it is expanded
+    // we ignore
+    cy.get(`${locator} span`)
+      .invoke("attr", "icon")
+      .then((iconName) => {
+        if (iconName === "chevron-down") {
+          cy.get(locator).click();
+        }
+      });
+  }
+
+  public AssertSectionCollapseState(index: number, collapsed = false) {
+    cy.get(this._collapseContainer)
+      .eq(index)
+      .within(() => {
+        if (collapsed) {
+          cy.get(this.locator._chevronUp).should("not.exist");
+        } else {
+          cy.get(this.locator._chevronUp).should("exist");
+        }
+      });
   }
 
   public NavigateToDSCreateNew() {
@@ -245,7 +294,7 @@ export class DataSources {
     cy.get(this._databaseName)
       .clear()
       .type(databaseName);
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(
       username == "" ? datasourceFormData["postgres-username"] : username,
     );
@@ -260,7 +309,7 @@ export class DataSources {
       : datasourceFormData["mongo-host"];
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["mongo-port"].toString());
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._databaseName)
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -278,7 +327,7 @@ export class DataSources {
     cy.get(this._databaseName)
       .clear()
       .type(databaseName);
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
   }
@@ -577,7 +626,6 @@ export class DataSources {
       } else {
         this.SaveDatasource();
       }
-
       cy.wrap(dataSourceName).as("dsName");
     });
   }
@@ -687,18 +735,19 @@ export class DataSources {
 
   //Update with new password in the datasource conf page
   public updatePassword(newPassword: string) {
-    cy.get(this._sectionAuthentication).click();
+    this.ExpandSectionByName(this._sectionAuthentication);
     cy.get(this._password).type(newPassword);
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(schema: string, isUpdate = false) {
+  public verifySchema(dataSourceName : string, schema: string, isUpdate = false) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.updateDatasource();
     } else {
       this.SaveDatasource();
     }
+    this.ee.ActionContextMenuByEntityName(dataSourceName, "Refresh");
     cy.wait("@getDSStructure").then(() => {
       cy.get(".bp3-collapse-body").contains(schema);
     });

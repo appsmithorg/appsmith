@@ -44,8 +44,7 @@ spec:
       secretName: {{ .secretName }}
     {{- end }}
   {{- end }}
-  certManager: {{ .Values.ingress.certManager }}
-  className: {{ .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
     {{- if not .Values.ingress.hosts }}
     - host:

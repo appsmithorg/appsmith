@@ -529,11 +529,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> uploadLogo(String workspaceId, Part filePart) {
+        if (filePart == null) {
+            return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
+        }
+
         final Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // We don't execute the upload Mono if we don't find the workspace.
-        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.WORKSPACE_LOGO_SIZE_KB, false);
+        final Mono<Asset> uploadAssetMono = assetService.upload(List.of(filePart), Constraint.WORKSPACE_LOGO_SIZE_KB, false);
 
         return findWorkspaceMono
                 .flatMap(workspace -> Mono.zip(Mono.just(workspace), uploadAssetMono))
@@ -590,10 +594,13 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         .flatMap(workspace -> {
 
                             // Delete permission groups associated with this workspace before deleting the workspace
+                            // Since we have already asserted that the user has the delete permission on the workspace,
+                            // lets go ahead with the cleanup without permissions for the default permission groups (roles)
+                            // since we can't leave the permission groups in a state where they are not associated with any workspace
 
                             Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
                             return Flux.fromIterable(defaultPermissionGroups)
-                                    .flatMap(permissionGroupService::delete)
+                                    .flatMap(permissionGroupService::deleteWithoutPermission)
                                     .then(Mono.just(workspace));
                         })
                         .flatMap(repository::archive)

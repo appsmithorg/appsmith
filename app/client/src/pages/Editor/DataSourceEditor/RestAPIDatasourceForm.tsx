@@ -55,6 +55,10 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  hasDeleteDatasourcePermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -286,9 +290,17 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   disableSave = (): boolean => {
-    const { formData } = this.props;
+    const { datasource, datasourceId, formData } = this.props;
+    const createMode = datasourceId === TEMP_DATASOURCE_ID;
+    const canManageDatasource = hasManageDatasourcePermission(
+      datasource?.userPermissions || [],
+    );
     if (!formData) return true;
-    return !formData.url || !this.props.isFormDirty;
+    return (
+      !formData.url ||
+      !this.props.isFormDirty ||
+      (!createMode && !canManageDatasource)
+    );
   };
 
   save = (onSuccess?: ReduxAction<unknown>) => {
@@ -401,12 +413,25 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderHeader = () => {
-    const { hiddenHeader, isNewDatasource, pluginImage } = this.props;
+    const {
+      datasource,
+      datasourceId,
+      hiddenHeader,
+      isNewDatasource,
+      pluginImage,
+    } = this.props;
+    const createMode = datasourceId === TEMP_DATASOURCE_ID;
+    const canManageDatasource = hasManageDatasourcePermission(
+      datasource?.userPermissions || [],
+    );
     return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
           <PluginImage alt="Datasource" src={pluginImage} />
-          <FormTitle focusOnMount={isNewDatasource} />
+          <FormTitle
+            disabled={!createMode && !canManageDatasource}
+            focusOnMount={isNewDatasource}
+          />
         </FormTitleContainer>
       </Header>
     ) : null;
@@ -414,6 +439,10 @@ class DatasourceRestAPIEditor extends React.Component<
 
   renderSave = () => {
     const { datasourceId, hiddenHeader, isDeleting, isSaving } = this.props;
+    const createMode = datasourceId === TEMP_DATASOURCE_ID;
+    const canDeleteDatasource = hasDeleteDatasourcePermission(
+      this.props.datasource?.userPermissions || [],
+    );
 
     return (
       <SaveButtonContainer>
@@ -421,7 +450,7 @@ class DatasourceRestAPIEditor extends React.Component<
           <ActionButton
             category={Category.primary}
             className="t--delete-datasource"
-            disabled={datasourceId === TEMP_DATASOURCE_ID}
+            disabled={createMode || !canDeleteDatasource}
             isLoading={isDeleting}
             onClick={() => {
               this.state.confirmDelete
