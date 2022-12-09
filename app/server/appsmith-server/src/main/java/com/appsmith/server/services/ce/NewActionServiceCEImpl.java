@@ -629,6 +629,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
+    /**
+     * Sets the param value to "" if key is not empty and value is null for each param
+     * @param params
+     */
     protected void replaceNullWithQuotesForParamValues(List<Param> params) {
 
         if (!CollectionUtils.isEmpty(params)) {
@@ -659,10 +663,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param actionMono
      * @param executeActionDTO
      * @param actionId
-     * @return
+     * @return actionDTOMono
      */
-    protected Mono<ActionDTO> getCachedActionDTOForActionExecution(Mono<NewAction> actionMono, ExecuteActionDTO executeActionDTO, String actionId) {
-
+    protected Mono<ActionDTO> getCachedActionDTOForActionExecution(Mono<NewAction> actionMono,
+                                                                   ExecuteActionDTO executeActionDTO,
+                                                                   String actionId) {
         return actionMono
                 .flatMap(action -> getValidActionForExecution(executeActionDTO, actionId, action))
                 .cache();
@@ -671,12 +676,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     /**
      * Fetches, validates and caches the datasource from actionDTO
      * @param actionDTOMono
-     * @return
+     * @return datasourceMono
      */
     protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono) {
 
         return actionDTOMono
-                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO, datasourcePermission.getExecutePermission()))
+                .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO,
+                                                                                    datasourcePermission.getExecutePermission()))
                 .flatMap(datasource -> {
                     // For embedded datasource, validate the datasource for each execution
                     if (datasource.getId() == null) {
@@ -689,6 +695,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .cache();
     }
 
+    /**
+     * fetches and caches plugin by pluginId after checking datasource for invalids(issues)
+     * @param datasourceMono
+     * @param actionId
+     * @return pluginMono if datasource has no issues and plugin is find, else throws error
+     */
     protected Mono<Plugin> getCachedPluginForActionExecution(Mono<Datasource> datasourceMono, String actionId) {
         return datasourceMono
                 .flatMap(datasource -> {
@@ -706,6 +718,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .cache();
     }
 
+    /**
+     * Fetches and returns editorConfigLabelMap if datasourceId is present
+     * @param datasourceMono
+     * @return an Empty hashMap if datasource doesn't have id, else configLabelMap from plugin service
+     */
     protected Mono<Map> getEditorConfigLabelMap (Mono<Datasource> datasourceMono) {
 
         return datasourceMono
@@ -935,6 +952,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
+    /**
+     * Fetches the required Mono (action, datasource, and plugin) and makes actionExecution call to plugin
+     * @param executeActionDTO
+     * @param environmentName
+     * @return actionExecutionResult if query succeeds, error messages otherwise
+     */
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO, String environmentName) {
 
         // 1. Validate input parameters which are required for mustache replacements
@@ -979,9 +1002,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
+        // this is to keep the test cases pointing to same method
         return executeAction(executeActionDTO, null);
     }
 
+    /**
+     * Creates the ExecuteActionDTO from Flux of ByteBuffers
+     * @param partFlux
+     * @return an executionDTO object with parameterMap
+     */
     protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
         final ExecuteActionDTO dto = new ExecuteActionDTO();
         return partFlux
@@ -1091,6 +1120,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
+    /**
+     * Executes the action(queries) by creating executeActionDTO and sending it to the plugin for further execution
+     * @param partFlux
+     * @param branchName
+     * @param environmentName
+     * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
+     */
     @Override
     public Mono<ActionExecutionResult> executeAction(Flux<Part> partFlux, String branchName, String environmentName) {
         return createExecuteActionDTO(partFlux)
@@ -1101,7 +1137,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             executeActionDTO.setActionId(branchedAction.getId());
                             return executeActionDTO;
                         }))
-                .flatMap(this::executeAction);
+                .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentName));
     }
 
     @Override
