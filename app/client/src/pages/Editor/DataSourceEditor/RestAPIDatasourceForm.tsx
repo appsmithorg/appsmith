@@ -411,6 +411,46 @@ class DatasourceRestAPIEditor extends React.Component<
           messages.map((msg, i) => (
             <Callout fill key={i} text={msg} variant={Variant.warning} />
           ))}
+        {this.renderGeneralSettings()}
+        {this.renderAuthFields()}
+        {this.renderOauth2AdvancedSettings()}
+        {this.renderSelfSignedCertificateFields()}
+        {formData.authType &&
+          formData.authType === AuthType.OAuth2 &&
+          _.get(authentication, "grantType") ===
+            GrantType.AuthorizationCode && (
+            <FormInputContainer>
+              <AuthorizeButton
+                category={Category.primary}
+                className="t--save-and-authorize-datasource"
+                disabled={this.validate() || !this.props.isFormDirty}
+                isLoading={isSaving}
+                onClick={() =>
+                  this.save(
+                    redirectAuthorizationCode(
+                      pageId,
+                      datasourceId,
+                      PluginType.API,
+                    ),
+                  )
+                }
+                tag="button"
+                text={
+                  isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
+                }
+                variant={Variant.success}
+              />
+            </FormInputContainer>
+          )}
+      </>
+    );
+  };
+
+  renderGeneralSettings = () => {
+    const { formData } = this.props;
+
+    return (
+      <section data-cy="section-General" data-replay-id="section-General">
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl(
             "url",
@@ -500,39 +540,7 @@ class DatasourceRestAPIEditor extends React.Component<
             "",
           )}
         </FormInputContainer>
-        {this.renderAuthFields()}
-        <Collapsible title="Advanced Settings">
-          {this.renderOauth2AdvancedSettings()}
-        </Collapsible>
-        {this.renderSelfSignedCertificateFields()}
-        {formData.authType &&
-          formData.authType === AuthType.OAuth2 &&
-          _.get(authentication, "grantType") ===
-            GrantType.AuthorizationCode && (
-            <FormInputContainer>
-              <AuthorizeButton
-                category={Category.primary}
-                className="t--save-and-authorize-datasource"
-                disabled={this.validate() || !this.props.isFormDirty}
-                isLoading={isSaving}
-                onClick={() =>
-                  this.save(
-                    redirectAuthorizationCode(
-                      pageId,
-                      datasourceId,
-                      PluginType.API,
-                    ),
-                  )
-                }
-                tag="button"
-                text={
-                  isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"
-                }
-                variant={Variant.success}
-              />
-            </FormInputContainer>
-          )}
-      </>
+      </section>
     );
   };
 
@@ -835,7 +843,7 @@ class DatasourceRestAPIEditor extends React.Component<
       _.get(connection, "ssl.authType") === SSLType.SELF_SIGNED_CERTIFICATE;
 
     return (
-      <>
+      <Collapsible title="Advanced Settings">
         {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
           <FormInputContainer
             data-replay-id={btoa("authentication.sendScopeWithRefreshToken")}
@@ -914,7 +922,7 @@ class DatasourceRestAPIEditor extends React.Component<
             )}
           </FormInputContainer>
         )}
-      </>
+      </Collapsible>
     );
   };
 

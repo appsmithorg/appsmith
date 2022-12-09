@@ -79,13 +79,11 @@ function Collapsible(props: Props) {
   }, [defaultIsOpen, isOpen]);
 
   return (
-    <>
+    <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
       {showTopBorder && <TopBorder className="t--collapse-top-border" />}
       {showSection && (
         <SectionContainer
           className="t--collapse-section-container"
-          data-cy={`section-${title}`}
-          data-replay-id={`section-${title}`}
           onClick={() => setIsOpen(!isOpen)}
         >
           <SectionLabel>
@@ -109,7 +107,7 @@ function Collapsible(props: Props) {
       <Collapse isOpen={isOpen} keepChildrenMounted>
         {children}
       </Collapse>
-    </>
+    </section>
   );
 }
 
