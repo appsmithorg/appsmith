@@ -18,6 +18,9 @@ import java.util.Set;
 public class AuditLog extends BaseDomain {
     String event;
 
+    // Origin of Audit Log event to understand whether client generated or server generated
+    String origin;
+
     Instant timestamp;
 
     AuditLogApplicationMetadata application;

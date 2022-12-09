@@ -207,6 +207,10 @@ public class AuditLogServiceImpl implements AuditLogService {
         String eventName = resourceName + FieldName.AUDIT_LOG_EVENT_DELIMITER + actionName;
         auditLog.setEvent(eventName);
         auditLog.setTimestamp(Instant.now());
+        auditLog.setOrigin(FieldName.AUDIT_LOGS_ORIGIN_SERVER);
+        if (null != properties && properties.containsKey(FieldName.AUDIT_LOGS_ORIGIN)) {
+            auditLog.setOrigin((String) properties.get(FieldName.AUDIT_LOGS_ORIGIN));
+        }
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 

@@ -693,6 +693,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("workspace.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdWorkspace.getId());
@@ -744,6 +745,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("workspace.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(updatedWorkspace.getId());
@@ -793,6 +795,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("workspace.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(deletedWorkspace.getId());
@@ -844,6 +847,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getId());
@@ -903,6 +907,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getId());
@@ -961,6 +966,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getId());
@@ -1019,6 +1025,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.imported");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getId());
@@ -1077,6 +1084,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.exported");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getId());
@@ -1135,6 +1143,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.cloned");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(clonedApplication.getId());
@@ -1198,6 +1207,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.forked");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getId());
@@ -1259,6 +1269,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.forked");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getId());
@@ -1322,6 +1333,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.deployed");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getId());
@@ -1416,6 +1428,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(pageDTO.getId());
@@ -1495,6 +1508,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
                     // Creating a page will result in page.updated event
                     // The actual update event we look for will the second event in which we update the updatedAt of first event
                     // TODO: Remove this once page.updated system event is removed on page creation
@@ -1594,6 +1608,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.viewed");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getPublishedPages().get(0).getDefaultPageId());
@@ -1659,6 +1674,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.viewed");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getPublishedPages().get(0).getDefaultPageId());
@@ -1722,6 +1738,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(pageDTO.getId());
@@ -1812,6 +1829,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("datasource.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(finalDatasource.getId());
@@ -1865,6 +1883,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("datasource.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(finalDatasource.getId());
@@ -1919,6 +1938,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("datasource.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(deletedDatasource.getId());
@@ -1988,6 +2008,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("query.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(actionDTO.getId());
@@ -2071,6 +2092,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("query.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(actionDTO.getId());
@@ -2203,6 +2225,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("query.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(actionDTO.getId());
@@ -2318,6 +2341,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("query.executed");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(executeActionDTO.getActionId());
@@ -2439,6 +2463,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("query.executed");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(executeActionDTO.getActionId());
@@ -2533,6 +2558,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("user.signed_up");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isEqualTo(createdUser.getId());
@@ -2637,6 +2663,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("user.invited");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -2696,6 +2723,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -2733,6 +2761,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -2785,6 +2814,7 @@ public class AuditLogServiceTest {
                     AuditLog auditLog = auditLogs.get(0);
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
                     assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
@@ -2816,6 +2846,7 @@ public class AuditLogServiceTest {
                     AuditLog auditLog = auditLogs.get(0);
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
                     assertThat(auditLog.getUser().getEmail()).isEqualTo("api_user");
@@ -2867,6 +2898,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -2904,6 +2936,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -2957,6 +2990,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -2994,6 +3028,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -3043,6 +3078,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("workspace.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isEqualTo(createdUser.getId());
@@ -3150,6 +3186,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("query.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdAction.getId());
@@ -3220,6 +3257,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("instance_setting.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // User validation
                     assertThat(auditLog.getUser().getId()).isNotNull();
@@ -3319,6 +3357,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("page.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
                     // Creating a page will result in page.updated event
                     // The actual update event we look for will the second event in which we update the updatedAt of first event
                     // TODO: Remove this once page.updated system event is removed on page creation
@@ -3389,6 +3428,7 @@ public class AuditLogServiceTest {
 
                     assertThat(auditLog.getEvent()).isEqualTo("application.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
                     assertThat(auditLog.getResource().getId()).isEqualTo(createdApplication.getId());
@@ -3440,6 +3480,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("group.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3474,6 +3515,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("group.updated");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3512,6 +3554,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("group.inviteUsers");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3553,6 +3596,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("group.removeUsers");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3591,6 +3635,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("group.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3643,6 +3688,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("role.created");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3720,6 +3766,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("role.assignedGroups");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3765,6 +3812,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("role.unAssignedGroups");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3810,6 +3858,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("role.assignedUsers");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3855,6 +3904,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("role.unAssignedUsers");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
@@ -3895,6 +3945,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getEvent()).isEqualTo("role.deleted");
                     assertThat(auditLog.getTimestamp()).isBefore(Instant.now());
                     assertThat(auditLog.getCreatedAt()).isBefore(Instant.now());
+                    assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     assertThat(auditLog.getResource()).isNotNull();
                     assertThat(auditLog.getMetadata()).isNotNull();
