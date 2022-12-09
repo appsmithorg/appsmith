@@ -387,131 +387,26 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
 
         Mono<AuditLog> auditLogMono = Mono.just(auditLog);
-        // TODO Use view mode for the action and Page, refactor the code to avoid the if else condition
         if (resource instanceof Workspace) {
-            Workspace workspace = (Workspace) resource;
-            auditLogResource.setId(workspace.getId());
-            auditLogResource.setName(workspace.getName());
-            auditLog.setResource(auditLogResource);
-            auditLogMono = Mono.just(auditLog);
+            auditLogMono = setResourceProperties((Workspace) resource, auditLog, auditLogResource);
         }
         else if (resource instanceof Datasource) {
-            Datasource datasource = (Datasource) resource;
-            auditLogResource.setId(datasource.getId());
-            auditLogResource.setName(datasource.getName());
-            // Plugin name is required as DatasourceType in Audit Logs
-            // Plugin name is fetched from DB since delete events does not have pluginName set by default
-            if(!Optional.ofNullable(datasource.getPluginId()).isEmpty()) {
-                final Mono<Plugin> setResourceWithPluginNameMono = pluginRepository.findById(datasource.getPluginId())
-                        .flatMap(plugin -> {
-                            auditLogResource.setDatasourceType(plugin.getName());
-                            auditLog.setResource(auditLogResource);
-                            return Mono.just(plugin);
-                        });
-                auditLogMono = setResourceWithPluginNameMono
-                        .then(setWorkspace(auditLog, datasource.getWorkspaceId(), properties))
-                        .thenReturn(auditLog);
-            }
+            auditLogMono = setResourceProperties((Datasource) resource, auditLog, auditLogResource, properties);
         }
         else if (resource instanceof Application) {
-            Application application = (Application) resource;
-            auditLogResource.setId(application.getId());
-            auditLogResource.setName(application.getName());
-            // Application related event require visibility of application to be logged
-            Mono<String> publicPermissionGroupIdMono = getPublicPermissionGroupId();
-            Mono<AuditLogResource> setResourceWithVisibilityMono = publicPermissionGroupIdMono
-                    .flatMap(publicPermissionGroupId -> {
-                        boolean isApplicationPublic = isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
-                        auditLogResource.setVisibility(isApplicationPublic ? FieldName.PUBLIC : FieldName.PRIVATE);
-                        auditLog.setResource(auditLogResource);
-                        return Mono.just(auditLogResource);
-                    });
-            // Special handling for application.forked event to incorporate source and destination workspaces
-            if (AnalyticsEvents.FORK.equals(event)) {
-                auditLogMono = setResourceWithVisibilityMono
-                        .then(setApplication(auditLog, application.getClonedFromApplicationId(), new HashMap<>()))
-                        .flatMap(application1 -> {
-                            String sourceWorkspaceId = application1.getWorkspaceId();
-                            auditLog.setApplication(null);
-                            return setWorkspace(auditLog, application.getWorkspaceId(), sourceWorkspaceId, properties);
-                        })
-                        .thenReturn(auditLog);
-            }
-            else {
-                auditLogMono = setResourceWithVisibilityMono
-                        .then(setWorkspace(auditLog, application.getWorkspaceId(), properties))
-                        .thenReturn(auditLog);
-            }
+            auditLogMono = setResourceProperties((Application) resource, auditLog, auditLogResource, properties, event);
         }
         else if (resource instanceof NewPage) {
-            NewPage newPage = (NewPage) resource;
-            auditLogResource.setId(newPage.getId());
-            auditLogResource.setName(newPage.getUnpublishedPage().getName());
-            auditLog.setResource(auditLogResource);
-            auditLogMono = setApplication(auditLog, newPage.getApplicationId(), properties)
-                    .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
-                    .thenReturn(auditLog);
+            auditLogMono = setResourceProperties((NewPage) resource, auditLog, auditLogResource, properties);
         }
         else if (resource instanceof NewAction) {
-            NewAction newAction = (NewAction) resource;
-            auditLogResource.setId(newAction.getId());
-            auditLogResource.setName(newAction.getUnpublishedAction().getName());
-
-            // Execution details for query.executed events
-            if (AnalyticsEvents.EXECUTE_ACTION.equals(event) && properties != null) {
-                if (properties.containsKey(FieldName.IS_SUCCESSFUL_EXECUTION)) {
-                    auditLogResource.setExecutionStatus((Boolean) properties.get(FieldName.IS_SUCCESSFUL_EXECUTION) ? FieldName.SUCCESS : FieldName.FAILED);
-                }
-                if (properties.containsKey(FieldName.STATUS_CODE)) {
-                    auditLogResource.setResponseCode(properties.get(FieldName.STATUS_CODE).toString());
-                }
-                if (properties.containsKey(FieldName.TIME_ELAPSED)) {
-                    auditLogResource.setResponseTime((Long) properties.get(FieldName.TIME_ELAPSED));
-                }
-                if (properties.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS)) {
-                    auditLogResource.setExecutionParams((String) properties.get(FieldName.ACTION_EXECUTION_REQUEST_PARAMS));
-                }
-            }
-            auditLog.setResource(auditLogResource);
-            auditLogMono = setPage(auditLog, newAction.getUnpublishedAction().getPageId(), properties)
-                    .flatMap(newPage -> setApplication(auditLog, newAction.getApplicationId(), properties))
-                    .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
-                    .thenReturn(auditLog);
+            auditLogMono = setResourceProperties((NewAction) resource, auditLog, auditLogResource, properties, event);
         }
         else if (resource instanceof UserGroup) {
-            UserGroup userGroup = (UserGroup) resource;
-            auditLogResource.setId(userGroup.getId());
-            auditLogResource.setName(userGroup.getName());
-            auditLog.setResource(auditLogResource);
-
-            if (null != properties) {
-                AuditLogUserGroupMetadata userGroupMetadata = new AuditLogUserGroupMetadata();
-                if (properties.containsKey(FieldName.INVITED_USERS_TO_USER_GROUPS)) {
-                    userGroupMetadata.setInvitedUsers((Set) properties.get(FieldName.INVITED_USERS_TO_USER_GROUPS));
-                } else if (properties.containsKey(FieldName.REMOVED_USERS_FROM_USER_GROUPS)) {
-                    userGroupMetadata.setRemovedUsers((Set) properties.get(FieldName.REMOVED_USERS_FROM_USER_GROUPS));
-                }
-                auditLog.setUserGroup(userGroupMetadata);
-            }
-            auditLogMono = Mono.just(auditLog);
+            auditLogMono = setResourceProperties((UserGroup) resource, auditLog, auditLogResource, properties);
         }
         else if (resource instanceof PermissionGroup) {
-            PermissionGroup permissionGroup = (PermissionGroup) resource;
-            auditLogResource.setId(permissionGroup.getId());
-            auditLogResource.setName(permissionGroup.getName());
-            auditLog.setResource(auditLogResource);
-            if (null != properties) {
-                AuditLogPermissionGroupMetadata permissionGroupMetadata = new AuditLogPermissionGroupMetadata();
-                if (properties.containsKey(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS))
-                    permissionGroupMetadata.setAssignedUsers((List) properties.get(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS));
-                if (properties.containsKey(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS))
-                    permissionGroupMetadata.setUnAssignedUsers((List) properties.get(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS));
-                if (properties.containsKey(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS))
-                    permissionGroupMetadata.setAssignedUserGroups((List) properties.get(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS));
-                if (properties.containsKey(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS))
-                    permissionGroupMetadata.setUnAssignedUserGroups((List) properties.get(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
-                auditLog.setPermissionGroup(permissionGroupMetadata);
-            }
+            auditLogMono = setResourceProperties((PermissionGroup) resource, auditLog, auditLogResource, properties);
         }
 
         // Instance setting events
@@ -531,6 +426,188 @@ public class AuditLogServiceImpl implements AuditLogService {
         }
 
         return auditLogMono;
+    }
+
+    /**
+     * To set resourceProperties for the resource Workspace
+     * @param workspace Workspace
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(Workspace workspace, AuditLog auditLog, AuditLogResource auditLogResource) {
+        auditLogResource.setId(workspace.getId());
+        auditLogResource.setName(workspace.getName());
+        auditLog.setResource(auditLogResource);
+
+        return Mono.just(auditLog);
+    }
+
+    /**
+     * To set resourceProperties for the resource Datasource
+     * @param datasource Datasource
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(Datasource datasource, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+        auditLogResource.setId(datasource.getId());
+        auditLogResource.setName(datasource.getName());
+        // Plugin name is required as DatasourceType in Audit Logs
+        // Plugin name is fetched from DB since delete events does not have pluginName set by default
+        if(!Optional.ofNullable(datasource.getPluginId()).isEmpty()) {
+            final Mono<Plugin> setResourceWithPluginNameMono = pluginRepository.findById(datasource.getPluginId())
+                    .flatMap(plugin -> {
+                        auditLogResource.setDatasourceType(plugin.getName());
+                        auditLog.setResource(auditLogResource);
+                        return Mono.just(plugin);
+                    });
+            return setResourceWithPluginNameMono
+                    .then(setWorkspace(auditLog, datasource.getWorkspaceId(), properties))
+                    .thenReturn(auditLog);
+        }
+
+        return Mono.just(auditLog);
+    }
+
+    /**
+     * To set resourceProperties for the resource Application
+     * @param application Application
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(Application application, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties, AnalyticsEvents event) {
+        auditLogResource.setId(application.getId());
+        auditLogResource.setName(application.getName());
+        // Application related event require visibility of application to be logged
+        Mono<String> publicPermissionGroupIdMono = getPublicPermissionGroupId();
+        Mono<AuditLogResource> setResourceWithVisibilityMono = publicPermissionGroupIdMono
+                .flatMap(publicPermissionGroupId -> {
+                    boolean isApplicationPublic = isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
+                    auditLogResource.setVisibility(isApplicationPublic ? FieldName.PUBLIC : FieldName.PRIVATE);
+                    auditLog.setResource(auditLogResource);
+                    return Mono.just(auditLogResource);
+                });
+        // Special handling for application.forked event to incorporate source and destination workspaces
+        if (AnalyticsEvents.FORK.equals(event)) {
+            return setResourceWithVisibilityMono
+                    .then(setApplication(auditLog, application.getClonedFromApplicationId(), new HashMap<>()))
+                    .flatMap(application1 -> {
+                        String sourceWorkspaceId = application1.getWorkspaceId();
+                        auditLog.setApplication(null);
+                        return setWorkspace(auditLog, application.getWorkspaceId(), sourceWorkspaceId, properties);
+                    })
+                    .thenReturn(auditLog);
+        }
+        else {
+            return setResourceWithVisibilityMono
+                    .then(setWorkspace(auditLog, application.getWorkspaceId(), properties))
+                    .thenReturn(auditLog);
+        }
+    }
+
+    /**
+     * To set resourceProperties for the resource NewPage
+     * @param newPage NewPage
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(NewPage newPage, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+        auditLogResource.setId(newPage.getId());
+        auditLogResource.setName(newPage.getUnpublishedPage().getName());
+        auditLog.setResource(auditLogResource);
+
+        return setApplication(auditLog, newPage.getApplicationId(), properties)
+                .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
+                .thenReturn(auditLog);
+    }
+
+    /**
+     * To set resourceProperties for the resource NewAction
+     * @param newAction NewAction
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(NewAction newAction, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties, AnalyticsEvents event) {
+        auditLogResource.setId(newAction.getId());
+        auditLogResource.setName(newAction.getUnpublishedAction().getName());
+
+        // Execution details for query.executed events
+        if (AnalyticsEvents.EXECUTE_ACTION.equals(event) && properties != null) {
+            if (properties.containsKey(FieldName.IS_SUCCESSFUL_EXECUTION)) {
+                auditLogResource.setExecutionStatus((Boolean) properties.get(FieldName.IS_SUCCESSFUL_EXECUTION) ? FieldName.SUCCESS : FieldName.FAILED);
+            }
+            if (properties.containsKey(FieldName.STATUS_CODE)) {
+                auditLogResource.setResponseCode(properties.get(FieldName.STATUS_CODE).toString());
+            }
+            if (properties.containsKey(FieldName.TIME_ELAPSED)) {
+                auditLogResource.setResponseTime((Long) properties.get(FieldName.TIME_ELAPSED));
+            }
+            if (properties.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS)) {
+                auditLogResource.setExecutionParams((String) properties.get(FieldName.ACTION_EXECUTION_REQUEST_PARAMS));
+            }
+        }
+        auditLog.setResource(auditLogResource);
+
+        return setPage(auditLog, newAction.getUnpublishedAction().getPageId(), properties)
+                .flatMap(newPage -> setApplication(auditLog, newAction.getApplicationId(), properties))
+                .flatMap(application -> setWorkspace(auditLog, application.getWorkspaceId(), properties))
+                .thenReturn(auditLog);
+    }
+
+    /**
+     * To set resourceProperties for the resource UserGroup
+     * @param userGroup UserGroup
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(UserGroup userGroup, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+        auditLogResource.setId(userGroup.getId());
+        auditLogResource.setName(userGroup.getName());
+        auditLog.setResource(auditLogResource);
+
+        if (null != properties) {
+            AuditLogUserGroupMetadata userGroupMetadata = new AuditLogUserGroupMetadata();
+            if (properties.containsKey(FieldName.INVITED_USERS_TO_USER_GROUPS)) {
+                userGroupMetadata.setInvitedUsers((Set) properties.get(FieldName.INVITED_USERS_TO_USER_GROUPS));
+            } else if (properties.containsKey(FieldName.REMOVED_USERS_FROM_USER_GROUPS)) {
+                userGroupMetadata.setRemovedUsers((Set) properties.get(FieldName.REMOVED_USERS_FROM_USER_GROUPS));
+            }
+            auditLog.setUserGroup(userGroupMetadata);
+        }
+
+        return Mono.just(auditLog);
+    }
+
+    /**
+     * To set resourceProperties for the resource PermissionGroup
+     * @param permissionGroup PermissionGroup
+     * @param auditLog AuditLog
+     * @param auditLogResource AuditLogResource
+     * @return Mono of AuditLog
+     */
+    private Mono<AuditLog> setResourceProperties(PermissionGroup permissionGroup, AuditLog auditLog, AuditLogResource auditLogResource, Map<String, Object> properties) {
+        auditLogResource.setId(permissionGroup.getId());
+        auditLogResource.setName(permissionGroup.getName());
+        auditLog.setResource(auditLogResource);
+        if (null != properties) {
+            AuditLogPermissionGroupMetadata permissionGroupMetadata = new AuditLogPermissionGroupMetadata();
+            if (properties.containsKey(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS))
+                permissionGroupMetadata.setAssignedUsers((List) properties.get(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS));
+            if (properties.containsKey(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS))
+                permissionGroupMetadata.setUnAssignedUsers((List) properties.get(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS));
+            if (properties.containsKey(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS))
+                permissionGroupMetadata.setAssignedUserGroups((List) properties.get(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS));
+            if (properties.containsKey(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS))
+                permissionGroupMetadata.setUnAssignedUserGroups((List) properties.get(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
+            auditLog.setPermissionGroup(permissionGroupMetadata);
+        }
+
+        return Mono.just(auditLog);
     }
 
     /**
