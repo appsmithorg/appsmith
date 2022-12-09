@@ -147,10 +147,9 @@ function getParsedBody(
 ) {
   const actions: Actions[] = [];
   const variables: Variables[] = [];
-
   for (const parsedElement of parsedObject) {
     switch (parsedElement.type) {
-      case NodeTypes.Literal:
+      case "literal":
         continue;
       case NodeTypes.ArrowFunctionExpression:
       case NodeTypes.FunctionExpression:
