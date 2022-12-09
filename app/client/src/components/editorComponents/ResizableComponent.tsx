@@ -38,10 +38,7 @@ import {
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { focusWidget } from "actions/widgetActions";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
@@ -96,13 +93,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     isCurrentWidgetLastSelected(parentWidgetToSelect?.widgetId || ""),
   );
   const isWidgetFocused = isFocused || isLastSelected || isSelected;
-
-  const { dragDetails } = useSelector(
-    (state: AppState) => state.ui.widgetDragResize,
-  );
-
-  const isCurrentCanvasDragging =
-    dragDetails && dragDetails?.draggedOn === props.parentId;
 
   const isMobile = useSelector(getIsMobile);
   // Calculate the dimensions of the widget,
@@ -311,9 +301,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     }
   };
 
-  const isAffectedByDrag =
-    isCurrentCanvasDragging ||
-    (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
+  const isAffectedByDrag: boolean = isDragging;
 
   return (
     <Resizable

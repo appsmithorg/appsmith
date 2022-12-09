@@ -15,6 +15,7 @@ import { isCurrentCanvasDragging } from "selectors/autoLayoutSelectors";
 import { getAppMode } from "selectors/entitiesSelector";
 import { getIsMobile } from "selectors/mainCanvasSelectors";
 import AutoLayoutLayer from "./AutoLayoutLayer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export interface FlexBoxProps {
   direction?: LayoutDirection;
@@ -97,7 +98,7 @@ export const DropPosition = styled.div<{
   height: ${({ isNewLayer, isVertical }) =>
     isVertical && !isNewLayer ? "auto" : `${DEFAULT_HIGHLIGHT_SIZE}px`};
   background-color: rgba(223, 158, 206, 0.6);
-  margin: 2px;
+  margin: ${({ isVertical }) => (isVertical ? "2px 4px" : "2px")};
   display: ${({ isDragging }) => (isDragging ? "block" : "none")};
   align-self: stretch;
   opacity: 0;
@@ -119,10 +120,16 @@ function FlexBoxComponent(props: FlexBoxProps) {
   const appMode = useSelector(getAppMode);
   const leaveSpaceForWidgetName = appMode === APP_MODE.EDIT;
   // TODO: Add support for multiple dragged widgets
-  const draggedWidget = useSelector(
-    (state: AppState) =>
-      state.ui.widgetDragResize?.dragDetails?.draggingGroupCenter?.widgetId,
+  const { dragDetails } = useSelector(
+    (state: AppState) => state.ui.widgetDragResize,
   );
+  const draggedOn: string | undefined = dragDetails
+    ? dragDetails?.draggedOn
+    : undefined;
+
+  const draggedWidget = dragDetails
+    ? dragDetails?.draggingGroupCenter?.widgetId
+    : "";
 
   const isDragging = useSelector(isCurrentCanvasDragging(props.widgetId));
 
@@ -175,7 +182,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
         } layer-index-${props.layerIndex} child-index-${props.childIndex} ${
           props.isVertical ? "isVertical" : "isHorizontal"
         } ${props.isNewLayer ? "isNewLayer" : ""} row-index-${props.rowIndex}`}
-        isDragging={isDragging}
+        isDragging={draggedOn !== undefined}
         isNewLayer={props.isNewLayer}
         isVertical={props.isVertical}
       />

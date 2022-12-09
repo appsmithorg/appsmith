@@ -68,11 +68,10 @@ const FlexWidget = styled.div<{
   &:hover {
     z-index: ${({ zIndexOnHover }) => zIndexOnHover} !important;
   }
-  margin: ${({ dragMargin, isAffectedByDrag }) =>
-    isAffectedByDrag ? `2px ${dragMargin / 2}px` : "0px"};
+  margin-top: ${({ isAffectedByDrag }) => (isAffectedByDrag ? "4px" : "0px")};
 `;
 
-const DEFAULT_MARGIN = 20;
+const DEFAULT_MARGIN = 16;
 
 export function FlexComponent(props: AutoLayoutProps) {
   const isMobile = useSelector(getIsMobile);
@@ -86,8 +85,7 @@ export function FlexComponent(props: AutoLayoutProps) {
     (state: AppState) => state.ui.widgetDragResize,
   );
   const isDragging: boolean = dragDetails?.draggedOn !== undefined;
-  const isCurrentCanvasDragging: boolean =
-    dragDetails?.draggedOn === props.parentId;
+
   const siblingCount = useSelector(
     getSiblingCount(props.widgetId, props.parentId || MAIN_CONTAINER_WIDGET_ID),
   );
@@ -119,9 +117,8 @@ export function FlexComponent(props: AutoLayoutProps) {
     props.parentId === MAIN_CONTAINER_WIDGET_ID
       ? DEFAULT_MARGIN
       : Math.max(props.parentColumnSpace, DRAG_MARGIN);
-  const isAffectedByDrag: boolean =
-    isCurrentCanvasDragging ||
-    (isDragging && props.parentId === MAIN_CONTAINER_WIDGET_ID);
+
+  const isAffectedByDrag: boolean = isDragging;
   // TODO: Simplify this logic.
   /**
    * resize logic:
@@ -134,11 +131,8 @@ export function FlexComponent(props: AutoLayoutProps) {
     ? props.componentWidth -
       dragMargin -
       (props.parentId !== MAIN_CONTAINER_WIDGET_ID && siblingCount > 0
-        ? DEFAULT_MARGIN / siblingCount
-        : 0) -
-      (props.parentId !== MAIN_CONTAINER_WIDGET_ID || isCurrentCanvasDragging
-        ? 8
-        : 4)
+        ? (DEFAULT_MARGIN * siblingCount + 2) / siblingCount
+        : 0)
     : props.componentWidth;
 
   return (
