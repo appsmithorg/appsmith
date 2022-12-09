@@ -372,18 +372,20 @@ export function getSearchData(data: any, searchValue: string) {
   });
 }
 
-export function getEntireHoverMap(hoverMap: any, key: string) {
+export function getEntireMap(hoverMap: any, key: string, includeSelf = true) {
   const currentKeyMap = hoverMap?.[key] || [];
-  let finalMap: any[] = [
-    {
-      id: key.split("_")[0],
-      p: key.split("_")[1],
-    },
-  ];
+  let finalMap: any[] = includeSelf
+    ? [
+        {
+          id: key.split("_")[0],
+          p: key.split("_")[1],
+        },
+      ]
+    : [];
   for (const map of currentKeyMap) {
     finalMap = _.unionWith(
       finalMap,
-      getEntireHoverMap(hoverMap, `${map?.id}_${map?.p}`),
+      getEntireMap(hoverMap, `${map?.id}_${map?.p}`),
       _.isEqual,
     );
   }
@@ -397,7 +399,9 @@ export function traverseSubRows(subrows: any[], map: any): any {
 }
 
 export function updateDataToBeSent(row: any, mapPIndex: number, value: any) {
-  const replaceDataIndex = dataToBeSent.findIndex((a: any) => a.id === row.id);
+  const replaceDataIndex = dataToBeSent.findIndex(
+    (a: any) => a.id === row.id && a.name === row.name,
+  );
   if (replaceDataIndex > -1) {
     dataToBeSent[replaceDataIndex] = {
       id: row.id,
@@ -520,7 +524,7 @@ export function updateData(
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
         newValue,
-        getEntireHoverMap(hoverMap, cellId),
+        getEntireMap(hoverMap, cellId),
         permissions,
       );
     } else if (updatedData[parseInt(rowIdArray[0])]?.subRows) {
@@ -638,8 +642,9 @@ export default function RolesTree(props: RoleTreeProps) {
         const [isChecked, setIsChecked] = React.useState(
           value === 1 ? true : false,
         );
+
         const removeHoverClass = (id: string, rIndex: number) => {
-          const values = getEntireHoverMap(tabData.hoverMap, id);
+          const values = getEntireMap(tabData.hoverMap, id);
           for (const val of values) {
             const allEl = document.querySelectorAll(
               `[data-cellId="${val.id}_${val.p}"]`,
@@ -655,7 +660,7 @@ export default function RolesTree(props: RoleTreeProps) {
         };
 
         const addHoverClass = (id: string, rIndex: number) => {
-          const values = getEntireHoverMap(tabData.hoverMap, id);
+          const values = getEntireMap(tabData.hoverMap, id);
           for (const val of values) {
             const allEl = document.querySelectorAll(
               `[data-cellId="${val.id}_${val.p}"]`,
