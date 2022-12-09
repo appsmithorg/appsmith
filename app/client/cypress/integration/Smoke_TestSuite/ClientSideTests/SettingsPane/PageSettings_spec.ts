@@ -69,7 +69,7 @@ describe("Page Settings", () => {
     _.appSettings.ClosePane();
   });
 
-  it("8. Page name doesn't allow duplicate name", () => {
+  it("8. Bug #18698 : Page name doesn't allow duplicate name", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.AssertPageErrorMessage(
