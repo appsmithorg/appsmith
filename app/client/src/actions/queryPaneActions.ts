@@ -39,17 +39,3 @@ export const setQueryPaneResponsePaneHeight: (
   type: ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT,
   payload: { height: payload },
 });
-
-export const setFocusableFormControlField = (key?: string) => {
-  return {
-    type: ReduxActionTypes.SET_FOCUSABLE_FORM_CONTROL_FIELD,
-    payload: { key },
-  };
-};
-
-export const setFocusableFormControlFieldInit = (key?: string) => {
-  return {
-    type: ReduxActionTypes.SET_FOCUSABLE_FORM_CONTROL_FIELD_INIT,
-    payload: { key },
-  };
-};

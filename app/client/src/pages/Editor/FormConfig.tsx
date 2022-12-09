@@ -19,14 +19,14 @@ import { FormControlProps } from "./FormControl";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { AppState } from "@appsmith/reducers";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
-import { AppState } from "@appsmith/reducers";
-import { setFocusableFormControlFieldInit } from "actions/queryPaneActions";
-import { getShouldFocusControlField } from "selectors/editorContextSelectors";
-import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { getIsControlFieldFocused } from "selectors/editorContextSelectors";
+import { setFocusableControlField } from "actions/editorContextActions";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -80,7 +80,7 @@ export default function FormConfig(props: FormConfigProps) {
       // Need an additional identifier to trigger another render when configProperty
       // are same for two different entitites
       dispatch(
-        setFocusableFormControlFieldInit(
+        setFocusableControlField(
           `${entityInfo.id}.${props.config.configProperty}`,
         ),
       );
@@ -88,7 +88,7 @@ export default function FormConfig(props: FormConfigProps) {
   };
 
   const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
-    getShouldFocusControlField(
+    getIsControlFieldFocused(
       state,
       `${entityInfo.id}.${props.config.configProperty}`,
     ),

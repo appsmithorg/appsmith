@@ -13,10 +13,9 @@ import { all, put, takeLatest } from "redux-saga/effects";
 import {
   CodeEditorFocusState,
   setCodeEditorCursorAction,
-  setFocusableCodeEditorField,
+  setFocusableControlField,
 } from "actions/editorContextActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { setFocusableFormControlField } from "actions/queryPaneActions";
 
 /**
  * This method appends the PageId along with the focusable propertyPath
@@ -29,11 +28,11 @@ function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
     window.location.pathname,
     window.location.hash,
   );
-  const ignoredEntities = [FocusEntity.PROPERTY_PANE, FocusEntity.QUERY];
+  const ignoredEntities = [FocusEntity.DATASOURCE];
 
   if (key) {
     if (!ignoredEntities.includes(entityInfo.entity)) {
-      yield put(setFocusableCodeEditorField(key));
+      yield put(setFocusableControlField(key));
     }
     yield put(setCodeEditorCursorAction(key, cursorPosition));
   }
@@ -67,20 +66,6 @@ function* setSelectedPropertyTabIndexSaga(
   }
 }
 
-function* setFocusFormControlFieldSaga(action: ReduxAction<{ key?: string }>) {
-  const { key } = action.payload;
-  const entityInfo = identifyEntityFromPath(
-    window.location.pathname,
-    window.location.hash,
-  );
-
-  if (key) {
-    if (entityInfo.entity !== FocusEntity.DATASOURCE) {
-      yield put(setFocusableFormControlField(key));
-    }
-  }
-}
-
 export default function* editorContextSagas() {
   yield all([
     takeLatest(
@@ -92,9 +77,5 @@ export default function* editorContextSagas() {
       setSelectedPropertyTabIndexSaga,
     ),
     takeLatest(ReduxActionTypes.SET_EDITOR_FIELD_FOCUS, setEditorFieldFocus),
-    takeLatest(
-      ReduxActionTypes.SET_FOCUSABLE_FORM_CONTROL_FIELD_INIT,
-      setFocusFormControlFieldSaga,
-    ),
   ]);
 }

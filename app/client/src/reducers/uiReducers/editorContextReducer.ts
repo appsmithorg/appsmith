@@ -32,12 +32,11 @@ export type EditorContextState = {
   entityCollapsibleFields: Record<string, boolean>;
   subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
-  focusableCodeEditor?: string;
+  focusedControlField?: string;
   codeEditorHistory: Record<string, CodeEditorContext>;
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
   selectedDebuggerTab: string;
-  focusableFormControl?: string;
   propertyPanelState: PropertyPanelState;
 };
 
@@ -62,14 +61,14 @@ export const isSubEntities = (name: string): boolean => {
  * Context Reducer to store states of different components of editor
  */
 export const editorContextReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD]: (
+  [ReduxActionTypes.SET_FOCUSABLE_CONTROL_FIELD]: (
     state: EditorContextState,
     action: {
       payload: { path: string };
     },
   ) => {
     const { path } = action.payload;
-    state.focusableCodeEditor = path;
+    state.focusedControlField = path;
   },
   [ReduxActionTypes.SET_CODE_EDITOR_CURSOR]: (
     state: EditorContextState,
@@ -125,14 +124,6 @@ export const editorContextReducer = createImmerReducer(initialState, {
     action: { payload: string },
   ) => {
     state.selectedDebuggerTab = action.payload;
-  },
-  [ReduxActionTypes.SET_FOCUSABLE_FORM_CONTROL_FIELD]: (
-    state: EditorContextState,
-    action: {
-      payload: { key: string };
-    },
-  ) => {
-    state.focusableFormControl = action.payload.key;
   },
   [ReduxActionTypes.SET_PANEL_SELECTED_PROPERTY_TAB_INDEX]: (
     state: EditorContextState,

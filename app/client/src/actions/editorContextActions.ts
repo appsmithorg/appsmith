@@ -5,9 +5,9 @@ import {
   PropertyPanelContext,
 } from "reducers/uiReducers/editorContextReducer";
 
-export const setFocusableCodeEditorField = (path: string | undefined) => {
+export const setFocusableControlField = (path: string | undefined) => {
   return {
-    type: ReduxActionTypes.SET_FOCUSABLE_CODE_EDITOR_FIELD,
+    type: ReduxActionTypes.SET_FOCUSABLE_CONTROL_FIELD,
     payload: { path },
   };
 };

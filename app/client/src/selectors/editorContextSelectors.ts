@@ -11,8 +11,8 @@ import { createSelector } from "reselect";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 
-export const getFocusableCodeEditorField = (state: AppState) =>
-  state.ui.editorContext.focusableCodeEditor;
+export const getFocusableControlField = (state: AppState) =>
+  state.ui.editorContext.focusedControlField;
 
 export const getCodeEditorHistory = (state: AppState) =>
   state.ui.editorContext.codeEditorHistory;
@@ -67,9 +67,9 @@ export const getSelectedPropertyTabIndex = createSelector(
   },
 );
 
-export const getIsCodeEditorFocused = createSelector(
+export const getIsControlFieldFocused = createSelector(
   [
-    getFocusableCodeEditorField,
+    getFocusableControlField,
     selectFeatureFlags,
     (_state: AppState, key: string | undefined) => key,
   ],
@@ -103,19 +103,6 @@ export const getEvaluatedPopupState = createSelector(
     key: string | undefined,
   ): EvaluatedPopupState | undefined => {
     return key ? codeEditorHistory?.[key]?.evalPopupState : undefined;
-  },
-);
-
-export const getFocusableFormControlField = (state: AppState) =>
-  state.ui.editorContext.focusableFormControl;
-
-export const getShouldFocusControlField = createSelector(
-  [
-    getFocusableFormControlField,
-    (_state: AppState, key: string | undefined) => key,
-  ],
-  (focusableField: string | undefined, key: string | undefined): boolean => {
-    return !!(key && focusableField === key);
   },
 );
 
