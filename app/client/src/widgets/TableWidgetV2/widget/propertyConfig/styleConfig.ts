@@ -1,4 +1,9 @@
+import { ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 import { updateColumnStyles } from "../propertyUtils";
 
 export default [
@@ -29,6 +34,13 @@ export default [
           },
         ],
       },
+    ],
+  },
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(),
     ],
   },
   {

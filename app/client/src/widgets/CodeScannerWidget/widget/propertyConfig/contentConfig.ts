@@ -1,17 +1,9 @@
-import { ValidationTypes } from "constants/WidgetValidation";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   CodeScannerWidgetProps,
   ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
-import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
 
 export default [
   {
@@ -101,8 +93,6 @@ export default [
           props.scannerLayout === ScannerLayout.ALWAYS_ON,
         dependencies: ["scannerLayout"],
       },
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {

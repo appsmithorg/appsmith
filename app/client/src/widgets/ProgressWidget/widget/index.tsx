@@ -1,20 +1,17 @@
 import React from "react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import ProgressComponent from "../component";
-import { ProgressType, ProgressVariant } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ResponsiveBehavior } from "components/constants";
 import { Colors } from "constants/Colors";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import ProgressComponent from "../component";
+import { ProgressType, ProgressVariant } from "../constants";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -130,8 +127,6 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
             dependencies: ["isIndeterminate"],
           },
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
     ];
@@ -139,6 +134,13 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Color",
         children: [

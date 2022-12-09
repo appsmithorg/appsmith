@@ -16,10 +16,7 @@ import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { ResponsiveBehavior } from "components/constants";
 
 const { google } = getAppsmithConfigs();
 
@@ -208,8 +205,6 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
@@ -258,6 +253,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Border and Shadow",
         children: [

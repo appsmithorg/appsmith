@@ -18,7 +18,6 @@ import {
   ButtonPlacementTypes,
   ButtonPlacement,
   ResponsiveBehavior,
-  FlexVerticalAlignment,
 } from "components/constants";
 import {
   generateResponsiveBehaviorConfig,
@@ -107,8 +106,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug) },
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
@@ -222,6 +219,13 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               },
             },
           },
+        ],
+      },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
         ],
       },
       {

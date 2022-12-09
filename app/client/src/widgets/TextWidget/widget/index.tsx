@@ -6,22 +6,19 @@ import { countOccurrences } from "workers/Evaluation/helpers";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import { Color } from "constants/Colors";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import TextComponent, { TextAlign } from "../component";
-import { ContainerStyle } from "widgets/ContainerWidget/component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { OverflowTypes } from "../constants";
+import { ResponsiveBehavior } from "components/constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import { Color } from "constants/Colors";
 import { pick } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { ContainerStyle } from "widgets/ContainerWidget/component";
+import TextComponent, { TextAlign } from "../component";
+import { OverflowTypes } from "../constants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -98,8 +95,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
     ];
@@ -210,6 +205,13 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
               type: ValidationTypes.TEXT,
             },
           },
+        ],
+      },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
         ],
       },
       {

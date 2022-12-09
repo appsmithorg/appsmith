@@ -1,24 +1,16 @@
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  LabelPosition,
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import {
-  maxValueValidation,
-  minValueValidation,
-  minRangeValidation,
-  stepSizeValidation,
-  startValueValidation,
-  endValueValidation,
-} from "../../validations";
+import { LabelPosition } from "components/constants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { RangeSliderWidgetProps } from "..";
 import {
-  generateResponsiveBehaviorConfig,
-  generateVerticalAlignmentConfig,
-} from "utils/layoutPropertiesUtils";
+  endValueValidation,
+  maxValueValidation,
+  minRangeValidation,
+  minValueValidation,
+  startValueValidation,
+  stepSizeValidation,
+} from "../../validations";
 
 export default [
   {
@@ -311,8 +303,6 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {

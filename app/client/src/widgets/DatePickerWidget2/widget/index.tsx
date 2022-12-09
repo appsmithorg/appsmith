@@ -10,11 +10,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 import derivedProperties from "./parseDerivedProperties";
 import { DatePickerType, TimePrecision } from "../constants";
-import {
-  LabelPosition,
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { DateFormatOptions } from "./constants";
@@ -287,8 +283,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
@@ -311,6 +305,13 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Label Styles",
         children: [

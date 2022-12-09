@@ -1,25 +1,24 @@
 import { Alignment } from "@blueprintjs/core";
 
-import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { JSONFormWidgetProps } from ".";
-import { ROOT_SCHEMA_KEY } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import {
-  ButtonVariantTypes,
   ButtonPlacementTypes,
+  ButtonVariantTypes,
   ResponsiveBehavior,
-  FlexVerticalAlignment,
 } from "components/constants";
-import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
-import { ComputedSchemaStatus, computeSchema } from "./helper";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
+import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+import { JSONFormWidgetProps } from ".";
+import { ROOT_SCHEMA_KEY } from "../constants";
+import { ComputedSchemaStatus, computeSchema } from "./helper";
+import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -271,8 +270,6 @@ export const contentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {
@@ -463,6 +460,13 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
 ];
 
 export const styleConfig = [
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(),
+    ],
+  },
   {
     sectionName: "Color",
     children: [

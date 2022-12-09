@@ -1,21 +1,17 @@
-import React, { Suspense, lazy } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ButtonBorderRadius, ResponsiveBehavior } from "components/constants";
 import Skeleton from "components/utils/Skeleton";
-import { retryPromise } from "utils/AppsmithUtils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import React, { lazy, Suspense } from "react";
 import ReactPlayer from "react-player";
+import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import {
-  ButtonBorderRadius,
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -90,8 +86,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
@@ -131,6 +125,13 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Color",
         children: [

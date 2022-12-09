@@ -14,11 +14,7 @@ import MultiSelectComponent from "../component";
 import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import {
-  LabelPosition,
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
@@ -439,8 +435,6 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
@@ -462,6 +456,13 @@ class MultiSelectWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Label Styles",
         children: [

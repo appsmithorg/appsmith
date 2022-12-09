@@ -8,6 +8,11 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
+import { ResponsiveBehavior } from "components/constants";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {
@@ -222,6 +227,13 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
+        ],
+      },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
         ],
       },
       {

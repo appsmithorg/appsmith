@@ -1,4 +1,9 @@
+import { ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 export default [
   {
@@ -32,6 +37,13 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+    ],
+  },
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+      generateVerticalAlignmentConfig(),
     ],
   },
   {

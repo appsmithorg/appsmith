@@ -26,10 +26,7 @@ import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { ResponsiveBehavior } from "components/constants";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
@@ -210,8 +207,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
@@ -299,6 +294,13 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+        ],
+      },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+          generateVerticalAlignmentConfig(),
         ],
       },
       {

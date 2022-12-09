@@ -22,7 +22,10 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -276,7 +279,6 @@ class CheckboxGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
         ],
       },
       {
@@ -298,6 +300,13 @@ class CheckboxGroupWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Label Styles",
         children: [

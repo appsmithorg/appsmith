@@ -1,22 +1,13 @@
-import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import SelectComponent from "../component";
-import { DropdownOption } from "../constants";
+import { WidgetType } from "constants/WidgetConstants";
 import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import {
-  LabelPosition,
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import equal from "fast-deep-equal/es6";
 import {
   findIndex,
   isArray,
@@ -25,12 +16,17 @@ import {
   isString,
   LoDashStatic,
 } from "lodash";
-import equal from "fast-deep-equal/es6";
-import derivedProperties from "./parseDerivedProperties";
+import React from "react";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
+import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
+import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import SelectComponent from "../component";
+import { DropdownOption } from "../constants";
+import derivedProperties from "./parseDerivedProperties";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -364,8 +360,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
       {
@@ -387,6 +381,13 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Label Styles",
         children: [

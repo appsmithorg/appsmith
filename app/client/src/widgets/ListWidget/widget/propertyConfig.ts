@@ -4,16 +4,13 @@ import { ListWidgetProps } from "../constants";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { ResponsiveBehavior } from "components/constants";
 
 export const PropertyPaneContentConfig = [
   {
@@ -97,8 +94,6 @@ export const PropertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
-      { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {
@@ -151,6 +146,13 @@ export const PropertyPaneStyleConfig = [
         inputType: "INTEGER",
         validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
       },
+    ],
+  },
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(),
     ],
   },
   {

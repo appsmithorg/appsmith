@@ -16,11 +16,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { compact, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import {
-  Positioning,
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 import {
   generatePositioningConfig,
   generateResponsiveBehaviorConfig,
@@ -70,9 +66,6 @@ export class ContainerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          generatePositioningConfig(Positioning.Vertical),
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-          generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
         ],
       },
     ];
@@ -80,6 +73,14 @@ export class ContainerWidget extends BaseWidget<
 
   static getPropertyPaneStyleConfig() {
     return [
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generatePositioningConfig(Positioning.Vertical),
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
+        ],
+      },
       {
         sectionName: "Color",
         children: [

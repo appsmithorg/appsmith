@@ -7,10 +7,7 @@ import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { ResponsiveBehavior } from "components/constants";
 
 export const contentConfig = [
   {
@@ -249,8 +246,6 @@ export const contentConfig = [
           x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
         dependencies: ["chartType"],
       },
-      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
-      generateVerticalAlignmentConfig(FlexVerticalAlignment.Top),
     ],
   },
   {
@@ -337,6 +332,13 @@ export const contentConfig = [
 ];
 
 export const styleConfig = [
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+      generateVerticalAlignmentConfig(),
+    ],
+  },
   {
     sectionName: "Border and Shadow",
     children: [

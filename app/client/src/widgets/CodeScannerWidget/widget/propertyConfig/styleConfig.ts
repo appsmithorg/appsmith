@@ -1,12 +1,23 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonPlacementTypes } from "components/constants";
+import { ButtonPlacementTypes, ResponsiveBehavior } from "components/constants";
 import { updateStyles } from "../propertyUtils";
 import {
   CodeScannerWidgetProps,
   ScannerLayout,
 } from "widgets/CodeScannerWidget/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  generateVerticalAlignmentConfig,
+} from "utils/layoutPropertiesUtils";
 
 export default [
+  {
+    sectionName: "Responsive Layout",
+    children: [
+      generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
+      generateVerticalAlignmentConfig(),
+    ],
+  },
   {
     sectionName: "Icon",
     children: [

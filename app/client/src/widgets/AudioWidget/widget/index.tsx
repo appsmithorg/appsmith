@@ -7,10 +7,7 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import {
-  ResponsiveBehavior,
-  FlexVerticalAlignment,
-} from "components/constants";
+import { ResponsiveBehavior } from "components/constants";
 import {
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
@@ -89,8 +86,6 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
-          { ...generateVerticalAlignmentConfig(FlexVerticalAlignment.Top) },
         ],
       },
       {
@@ -123,6 +118,13 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: true,
           },
+        ],
+      },
+      {
+        sectionName: "Responsive Layout",
+        children: [
+          generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
+          generateVerticalAlignmentConfig(),
         ],
       },
     ];
