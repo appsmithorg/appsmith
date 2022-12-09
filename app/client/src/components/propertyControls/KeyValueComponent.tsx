@@ -235,7 +235,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       })}
 
       <StyledPropertyPaneButton
-        category={Category.tertiary}
+        category={Category.secondary}
         className="t--property-control-options-add"
         icon="plus"
         onClick={addPair}

@@ -1,11 +1,11 @@
 import React, {
   ReactNode,
-  useState,
   useEffect,
   useRef,
   forwardRef,
   useCallback,
   RefObject,
+  useMemo,
 } from "react";
 import styled, { css } from "styled-components";
 import { Colors } from "constants/Colors";
@@ -26,6 +26,9 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
+import { AppState } from "@appsmith/reducers";
+import { setEntityCollapsibleState } from "actions/editorContextActions";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -220,36 +223,37 @@ export type EntityProps = {
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
+    const isEntityOpen = useSelector((state: AppState) =>
+      getEntityCollapsibleState(state, props.name),
+    );
+    const isDefaultExpanded = useMemo(() => !!props.isDefaultExpanded, []);
     const { canEditEntityName = false, showAddButton = false } = props;
-    const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
     const dispatch = useDispatch();
     const guidedTourEnabled = useSelector(inGuidedTour);
 
-    /* eslint-disable react-hooks/exhaustive-deps */
-    useEffect(() => {
-      if (props.isDefaultExpanded || props.searchKeyword) {
-        open(true);
-        props.onToggle && props.onToggle(true);
-      }
-    }, [props.isDefaultExpanded, props.searchKeyword]);
-    useEffect(() => {
-      if (!props.searchKeyword && !props.isDefaultExpanded) {
-        open(false);
-      }
-    }, [props.searchKeyword]);
-    /* eslint-enable react-hooks/exhaustive-deps */
+    const isOpen =
+      (isEntityOpen === undefined ? isDefaultExpanded : isEntityOpen) ||
+      !!props.searchKeyword;
 
+    const open = (shouldOpen: boolean | undefined) => {
+      if (!!props.children && props.name && isOpen !== shouldOpen) {
+        dispatch(setEntityCollapsibleState(props.name, !!shouldOpen));
+      }
+    };
+
+    useEffect(() => {
+      if (isEntityOpen !== undefined) open(isOpen);
+    }, [props.name]);
+
+    /* eslint-enable react-hooks/exhaustive-deps */
     const toggleChildren = (e: any) => {
+      props.onToggle && props.onToggle(!isOpen);
       // Make sure this entity is enabled before toggling the collpse of children.
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {
         props.action && props.action(e);
-      }
-
-      if (props.onToggle) {
-        props.onToggle(!isOpen);
       }
     };
 
@@ -335,7 +339,7 @@ export const Entity = forwardRef(
             <CollapseToggle
               className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
               disabled={!!props.disabled}
-              isOpen={isOpen}
+              isOpen={!!isOpen}
               isVisible={!!props.children}
               onClick={toggleChildren}
             />
@@ -378,7 +382,7 @@ export const Entity = forwardRef(
           <Collapse
             active={props.active}
             collapseRef={props.collapseRef}
-            isOpen={isOpen}
+            isOpen={!!isOpen}
             step={props.step}
           >
             {props.children}

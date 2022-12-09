@@ -1,6 +1,8 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 
 const widgetName = "filepickerwidgetv2";
 
@@ -14,7 +16,7 @@ describe("File picker widget v2", () => {
     cy.updateCodeInput(".t--property-control-text", `{{FilePicker1.isDirty}}`);
   });
 
-  it("Check isDirty meta property", function() {
+  it("2. Check isDirty meta property", function() {
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Upload a new file
@@ -29,7 +31,7 @@ describe("File picker widget v2", () => {
     cy.get(".t--widget-textwidget").should("contain", "true");
   });
 
-  it("Check if the uploaded data does not reset when back from query page", () => {
+  it("3. Check if the uploaded data does not reset when back from query page", () => {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -56,12 +58,13 @@ describe("File picker widget v2", () => {
     cy.get(".t--widget-textwidget").should("contain", "testFile.mov");
   });
 
-  it("Check if the uploaded file is removed on click of cancel button", () => {
+  it("4. Check if the uploaded file is removed on click of cancel button", () => {
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
     cy.get(widgetsPage.explorerSwitchId).click();
+    ee.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
     cy.get("[class*='t--actionConfiguration']")
       .eq(0)
