@@ -9,7 +9,6 @@ import {
 } from "redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
-  AuthCardHeader,
   FormActions,
   BlackAuthCardNavLink,
   FormMessagesContainer,
@@ -38,6 +37,7 @@ import {
   forgotPasswordSubmitHandler,
 } from "./helpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import Container from "./Container";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -76,19 +76,18 @@ export const ForgotPassword = withTheme(
     }, [props.emailValue]);
 
     return (
-      <>
-        <AuthCardHeader>
-          <h1>{createMessage(FORGOT_PASSWORD_PAGE_TITLE)}</h1>
-        </AuthCardHeader>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
+      <Container
+        subtitle={
+          <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
             <Icon
               icon="arrow-left"
               style={{ marginRight: props.theme.spaces[3] }}
             />
             {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
           </BlackAuthCardNavLink>
-        </div>
+        }
+        title={createMessage(FORGOT_PASSWORD_PAGE_TITLE)}
+      >
         <FormMessagesContainer>
           {submitSucceeded && (
             <FormMessage
@@ -152,7 +151,7 @@ export const ForgotPassword = withTheme(
             />
           </FormActions>
         </StyledForm>
-      </>
+      </Container>
     );
   },
 );

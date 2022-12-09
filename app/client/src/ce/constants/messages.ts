@@ -53,8 +53,6 @@ export const FORM_VALIDATION_PASSWORD_RULE = () =>
   `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
-export const LOGIN_PAGE_SUBTITLE = () => `Use your workspace email`;
-export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
@@ -65,7 +63,9 @@ export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
   `Reset Password`;
-export const NEW_TO_APPSMITH = () => `New to Appsmith?`;
+export const NEW_TO_APPSMITH = () => `Don't have an account?`;
+export const LOGIN_PAGE_TITLE = () => `Sign in`;
+export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
@@ -337,7 +337,22 @@ export const WIDGET_BIND_HELP = () =>
 
 export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
+// error pages
+export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
+export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
+export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
+  "Appsmith server is unavailable";
+export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
+  "Please try again later";
+export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
+export const PAGE_SERVER_TIMEOUT_TITLE = () =>
+  "Appsmith server is taking too long to respond";
+export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
+  `Please retry after some time`;
+export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
+export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
+  "This is embarrassing, please contact Appsmith support for help";
 
 // comments
 export const POST = () => "Post";
@@ -1130,6 +1145,40 @@ export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
 export const DANGER_ZONE = () => "Danger Zone";
 export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
+
+// Branding
+export const ADMIN_BRANDING_SETTINGS_TITLE = () =>
+  "Custom branding for your workspaces";
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.";
+export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
+  `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
+export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
+  `Uploaded file must be less than 2MB`;
+export const ADMIN_BRANDING_LOGO_DIMENSION_ERROR = () =>
+  `Logo should  be atleast 256px in height`;
+export const ADMIN_BRANDING_LOGO_FORMAT_ERROR = () =>
+  `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
+export const ADMIN_BRANDING_LOGO_REQUIREMENT = () =>
+  `.SVG, .PNG, or .JPG only • Max 2MB`;
+export const ADMIN_BRANDING_FAVICON_DIMENSION_ERROR = () =>
+  `Uploaded file must have a max size of 32X32 pixels`;
+export const ADMIN_BRANDING_FAVICON_SIZE_ERROR = () =>
+  `Uploaded file must be less than 2MB`;
+export const ADMIN_BRANDING_FAVICON_FORMAT_ERROR = () =>
+  `Uploaded file must be in .ICO, .PNG, and .JPG formats`;
+export const ADMIN_BRANDING_FAVICON_REQUIREMENT = () =>
+  `.ICO, .PNG, or .JPG only • Max 32X32`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY = () =>
+  `Used on buttons, links, and other interactive elements.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND = () =>
+  `Used as background color for the auth pages`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_HOVER = () =>
+  `Used as hover color for the button.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_FONT = () =>
+  `Used as text color for the buttons.`;
+export const ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED = () =>
+  `Used as background color for disabled buttons.`;
 
 // Guided tour
 // -- STEPS ---
