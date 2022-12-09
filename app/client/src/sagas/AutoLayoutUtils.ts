@@ -261,11 +261,10 @@ export function alterLayoutForMobile(
   for (const child of children) {
     const widget = { ...widgets[child] };
 
-    // if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-    //   widget.rightColumn = 64;
-    //   widget.leftColumn = 0;
-    // }
-    if (widget.minWidth && !widget.mobileRightColumn) {
+    if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+      widget.rightColumn = 64;
+      widget.leftColumn = 0;
+    } else if (widget.minWidth && !widget.mobileRightColumn) {
       const { minWidth, rightColumn } = widget;
       const columnSpace = canvasWidth / 64;
       if (columnSpace * rightColumn < minWidth) {
