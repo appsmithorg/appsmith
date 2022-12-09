@@ -55,6 +55,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
+import { AppState } from "reducers";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -202,6 +203,7 @@ export function Login(props: LoginFormProps) {
                 disabled={!isFormValid}
                 fill
                 onClick={() => {
+                  sessionStorage.setItem(LOGIN_FORM_EMAIL_FIELD_NAME, email);
                   PerformanceTracker.startTracking(
                     PerformanceTransactionName.LOGIN_CLICK,
                   );
@@ -228,13 +230,29 @@ export function Login(props: LoginFormProps) {
 }
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
-export default connect((state) => ({
-  emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
-  isPasswordFieldDirty: isDirty(LOGIN_FORM_NAME)(
-    state,
-    LOGIN_FORM_PASSWORD_FIELD_NAME,
-  ),
-}))(
+
+const mapStateToProps = (state: AppState) => {
+  const queryParams = new URLSearchParams(location.search);
+
+  return {
+    initialValues: {
+      /* 
+        take username(email) from local storage if error param is present in URL 
+        otherwise use empty string 
+      */
+      username: queryParams.get("error")
+        ? sessionStorage.getItem(LOGIN_FORM_EMAIL_FIELD_NAME) || ""
+        : "",
+    },
+    emailValue: selector(state, LOGIN_FORM_EMAIL_FIELD_NAME),
+    isPasswordFieldDirty: isDirty(LOGIN_FORM_NAME)(
+      state,
+      LOGIN_FORM_PASSWORD_FIELD_NAME,
+    ),
+  };
+};
+
+export default connect(mapStateToProps)(
   reduxForm<LoginFormValues, { emailValue: string }>({
     validate,
     touchOnBlur: false,
