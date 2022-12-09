@@ -30,7 +30,7 @@ describe("Switch Widget within Form widget Functionality", function() {
     const nextDay = dayjs().format("DD/MM/YYYY");
     cy.log(nextDay);
     cy.get(
-      commonlocators.onDateSelectedField + widgetsPage.actionSelect,
+      commonlocators.onDateSelectedField + " " + widgetsPage.actionSelect,
     ).click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
