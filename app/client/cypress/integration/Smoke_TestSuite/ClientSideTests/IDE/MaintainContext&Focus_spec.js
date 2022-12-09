@@ -89,7 +89,7 @@ describe("MaintainContext&Focus", function() {
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
-    cy.assertSoftFocusOnCodeInput(".t--property-control-text", {
+    cy.assertCursorOnCodeInput(".t--property-control-text", {
       ch: 2,
       line: 0,
     });
@@ -116,18 +116,18 @@ describe("MaintainContext&Focus", function() {
 
   it("5. Maintains focus on Query panes", () => {
     cy.SearchEntityandOpen("SQL_Query");
-    cy.assertSoftFocusOnCodeInput(".t--actionConfiguration\\.body", {
+    cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
       ch: 5,
       line: 0,
     });
 
     cy.SearchEntityandOpen("S3_Query");
-    cy.assertSoftFocusOnCodeInput(
+    cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
       { ch: 2, line: 0 },
     );
     cy.SearchEntityandOpen("Mongo_Query");
-    cy.assertSoftFocusOnCodeInput(
+    cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
   });
@@ -198,7 +198,6 @@ describe("MaintainContext&Focus", function() {
   });
 
   it("10. Maintain focus of form control inputs", () => {
-    dataSources.SaveDSFromDialog(false);
     ee.SelectEntityByName("SQL_Query");
     dataSources.ToggleUsePreparedStatement(false);
     cy.SearchEntityandOpen("S3_Query");
