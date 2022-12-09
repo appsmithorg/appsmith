@@ -90,4 +90,4 @@ jobs:
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
       
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result

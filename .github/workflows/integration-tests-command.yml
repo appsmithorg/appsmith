@@ -95,7 +95,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -361,7 +361,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "::run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec_fat and add a dummy file
       # This will ensure upload and download steps are successfull
@@ -439,7 +439,7 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test:
     needs: [client-build, server-build, rts-build]
@@ -478,7 +478,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -534,7 +534,7 @@ jobs:
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -731,7 +731,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "::run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec and add a dummy file
       # This will ensure upload and download steps are successfull
@@ -803,7 +803,7 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test-result:
     needs: [ui-test, fat-container-test]

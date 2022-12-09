@@ -107,12 +107,12 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
-          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          echo "::REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+              echo "::REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
           fi
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+              echo "::REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
@@ -120,7 +120,7 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
 
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
@@ -156,4 +156,4 @@ jobs:
           path: app/client/build/
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result

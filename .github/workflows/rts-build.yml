@@ -101,8 +101,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo ::version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo ::tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       # Install all the dependencies
       - name: Install dependencies
@@ -124,7 +124,7 @@ jobs:
       - name: Set result as failed if there are build failures
         if: failure()
         run: |
-          echo "::set-output name=run_result::failed" > ~/run_result
+          echo "::run_result=failed" >> $GITHUB_OUTPUT > ~/run_result
           exit 1;
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
@@ -149,4 +149,4 @@ jobs:
           path: app/rts/rts-dist.tar
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result

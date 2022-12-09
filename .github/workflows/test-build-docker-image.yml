@@ -54,7 +54,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -76,7 +76,7 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -87,7 +87,7 @@ jobs:
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -112,12 +112,12 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
-          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          echo "::REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+              echo "::REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
           fi
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+              echo "::REACT_APP_ENVIRONMENT=STAGING" >> $GITHUB_OUTPUT
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
@@ -125,7 +125,7 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation
@@ -166,7 +166,7 @@ jobs:
           path: app/client/build/
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   buildServer:
     defaults:
@@ -203,7 +203,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -258,8 +258,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo ::version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo ::tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       - name: Test and Build package
         if: steps.run_result.outputs.run_result != 'success'
@@ -297,7 +297,7 @@ jobs:
           name: server-build
           path: app/server/dist/
 
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   buildRts:
     defaults:
@@ -320,7 +320,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -361,8 +361,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo ::version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo ::tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
@@ -393,7 +393,7 @@ jobs:
           path: app/rts/rts-dist.tar
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   perf-test:
     needs: [buildClient, buildServer, buildRts]
@@ -433,7 +433,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -455,7 +455,7 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -466,7 +466,7 @@ jobs:
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -617,7 +617,7 @@ jobs:
           path: app/client/perf/traces
 
         # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   fat-container-test:
     needs: [buildClient, buildServer, buildRts]
@@ -668,7 +668,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -921,7 +921,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "::run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec_fat and add a dummy file
       # This will ensure upload and download steps are successfull
@@ -999,7 +999,7 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test:
     needs: [buildClient, buildServer, buildRts]
@@ -1077,7 +1077,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -1165,8 +1165,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo ::version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo ::tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       # Start server
       - name: Start server
@@ -1211,7 +1211,7 @@ jobs:
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "::dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -1356,7 +1356,7 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+        run: echo "::run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec and add a dummy file
       # This will ensure upload and download steps are successfull
@@ -1434,7 +1434,7 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test-result:
     needs: [ui-test, fat-container-test]
@@ -1593,7 +1593,7 @@ jobs:
       # first 11 characters. This can be used to build images for several branches
       - name: Get the version to tag the Docker image
         id: vars
-        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+        run: echo ::tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       - name: Set up Depot CLI
         uses: depot/setup-action@v1

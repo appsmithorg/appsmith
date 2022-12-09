@@ -118,8 +118,8 @@ jobs:
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+          echo ::version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
+          echo ::tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
       # Build and test the code
       - name: Build and test
@@ -154,4 +154,4 @@ jobs:
           name: build
           path: app/server/dist/
 
-      - run: echo "::set-output name=run_result::success" > ~/run_result
+      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result

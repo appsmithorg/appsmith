@@ -94,9 +94,9 @@ jobs:
       - name: Set result as failed if there are build failures
         if: failure()
         run: |
-          echo "::set-output name=appsmithctl_run_result::failed" > ~/appsmithctl_run_result
+          echo "::appsmithctl_run_result=failed" >> $GITHUB_OUTPUT > ~/appsmithctl_run_result
           exit 1;
 
   
       # Set status = success
-      - run: echo "::set-output name=appsmithctl_run_result::success" > ~/appsmithctl_run_result
+      - run: echo "::appsmithctl_run_result=success" >> $GITHUB_OUTPUT > ~/appsmithctl_run_result
