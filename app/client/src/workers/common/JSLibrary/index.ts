@@ -69,8 +69,13 @@ export function resetJSLibraries() {
   );
   for (const key of libraryReservedNames) {
     if (!defaultLibraryAccessors.includes(key)) {
-      // @ts-expect-error: Types are not available
-      self[key] = undefined;
+      try {
+        // @ts-expect-error: Types are not available
+        delete self[key];
+      } catch (e) {
+        // @ts-expect-error: Types are not available
+        self[key] = undefined;
+      }
       libraryReservedNames.delete(key);
     }
   }

@@ -1,6 +1,6 @@
 import { isEqual } from "lodash";
 import { WorkerErrorTypes } from "workers/common/types";
-import { JSLibraries } from "workers/common/JSLibrary";
+import { JSLibraries, resetJSLibraries } from "workers/common/JSLibrary";
 import {
   LintWorkerRequest,
   LintTreeResponse,
@@ -74,7 +74,7 @@ function eventRequestHandler({
       const { add, libs } = requestData;
       if (add) {
         JSLibraries.push(...libs);
-      } else {
+      } else if (add === false) {
         for (const lib of libs) {
           const idx = JSLibraries.findIndex((l) =>
             isEqual(l.accessor.sort(), lib.accessor.sort()),
@@ -82,10 +82,12 @@ function eventRequestHandler({
           if (idx === -1) return;
           JSLibraries.splice(idx, 1);
         }
+      } else {
+        resetJSLibraries();
+        JSLibraries.push(...libs);
       }
-      return;
+      return true;
     }
-
     default: {
       // eslint-disable-next-line no-console
       console.error("Action not registered on lintWorker ", method);

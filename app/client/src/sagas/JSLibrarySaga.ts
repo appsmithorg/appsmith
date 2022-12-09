@@ -348,7 +348,6 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
         type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
         payload: {
           libs: libraries,
-          add: true,
         },
       });
     }

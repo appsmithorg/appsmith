@@ -20,6 +20,15 @@ export default [
     icon: "https://github.com/LiosK.png?s=20",
   },
   {
+    name: "i18next",
+    url: "https://cdn.jsdelivr.net/npm/i18next@22.1.4/dist/umd/i18next.min.js",
+    description: "i18next internationalization framework",
+    author: "i18next",
+    version: "22.1.4",
+    icon: "https://github.com/i18next.png?s=20",
+    docsURL: "https://www.i18next.com/overview/getting-started",
+  },
+  {
     name: "jsonwebtoken",
     description: "JSON Web Token implementation (symmetric and asymmetric)",
     author: "auth0",
@@ -131,7 +140,7 @@ export default [
     name: "crypto-js",
     url:
       "https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js",
-    description: "JavaScript library of crypto standards.",
+    description: "JavaScript library of crypto standards",
     version: "4.1.1",
     author: "brix",
     docsURL: "https://github.com/brix/crypto-js/#crypto-js",
@@ -141,7 +150,7 @@ export default [
     name: "jsonpath",
     url: "https://cdn.jsdelivr.net/npm/jsonpath@1.1.1/jsonpath.min.js",
     description:
-      "Query JavaScript objects with JSONPath expressions. Robust / safe JSONPath engine for Node.js.",
+      "Query JavaScript objects with JSONPath expressions. Robust / safe JSONPath engine for Node.js",
     version: "1.1.1",
     author: "dchester",
     docsURL: "https://github.com/dchester/jsonpath/#jsonpath",

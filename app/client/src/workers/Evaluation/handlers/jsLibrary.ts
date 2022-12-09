@@ -118,8 +118,12 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
   const accessor = data;
   try {
     for (const key of accessor) {
-      //@ts-expect-error test
-      self[key] = undefined;
+      try {
+        delete self[key];
+      } catch (e) {
+        //@ts-expect-error ignore
+        self[key] = undefined;
+      }
       libraryReservedNames.delete(key);
     }
     return { success: true };

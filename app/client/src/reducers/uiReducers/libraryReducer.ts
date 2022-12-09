@@ -92,7 +92,9 @@ const jsLibraryReducer = createImmerReducer(initialState, {
     state: LibraryState,
     action: ReduxAction<TJSLibrary[]>,
   ) => {
-    state.installedLibraries.unshift(...action.payload);
+    state.installedLibraries = action.payload.concat(
+      initialState.installedLibraries,
+    );
   },
   [ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS]: (
     state: LibraryState,
