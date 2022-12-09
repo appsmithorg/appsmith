@@ -272,7 +272,7 @@ public class EnvManagerTest {
                 )
         ))
                 .matches(value -> value instanceof AppsmithException
-                        && AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) value).getError()));
+                        && AppsmithError.GENERIC_BAD_REQUEST.equals(((AppsmithException) value).getError()));
     }
 
     @Test
