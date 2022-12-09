@@ -1,16 +1,16 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
-import { checkUrl } from "./Utils";
 
 export class GeneralSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private designSystem = ObjectsRegistry.DesignSystem;
+  private appSettings = ObjectsRegistry.AppSettings;
+
   private locators = {
-    appNameField: "#t--general-settings-app-name",
-    appNonSelectedIcon: ".t--icon-not-selected",
-    appIconSelector: "#t--general-settings-app-icon",
+    _appNameField: "#t--general-settings-app-name",
+    _appNonSelectedIcon: ".t--icon-not-selected",
+    _appIconSelector: "#t--general-settings-app-icon",
   };
 
-  changeAppNameAndVerifyUrl(
+  UpdateAppNameAndVerifyUrl(
     reset: boolean,
     newAppName: string,
     verifyAppNameAs?: string,
@@ -18,40 +18,41 @@ export class GeneralSettings {
   ) {
     const appNameToBeVerified = verifyAppNameAs ?? newAppName;
     this.agHelper
-      .InvokeVal(this.locators.appNameField)
+      .GetText(this.locators._appNameField, "val")
       .then((currentAppName) => {
         this.agHelper.RemoveCharsNType(
-          this.locators.appNameField,
+          this.locators._appNameField,
           (currentAppName as string).length,
           newAppName,
         );
         this.agHelper.PressEnter();
+        this.agHelper.Sleep();
         this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
-        checkUrl(appNameToBeVerified, pageName);
+        this.appSettings.CheckUrl(appNameToBeVerified, pageName);
         if (reset) {
           this.agHelper.RemoveCharsNType(
-            this.locators.appNameField,
+            this.locators._appNameField,
             newAppName.length,
             currentAppName as string,
           );
           this.agHelper.PressEnter();
           this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
-          checkUrl(currentAppName as string, pageName);
+          this.appSettings.CheckUrl(currentAppName as string, pageName);
         }
       });
   }
 
-  tryAppNameAndVerifyErrorMessage(newAppName: string, errorMessage: string) {
-    this.designSystem.TextInput.tryValueAndAssertErrorMessage(
-      this.locators.appNameField,
+  AssertAppErrorMessage(newAppName: string, errorMessage: string) {
+    this.appSettings.AssertErrorMessage(
+      this.locators._appNameField,
       newAppName,
       errorMessage,
       true,
     );
   }
 
-  changeAppIcon() {
-    this.agHelper.GetNClick(this.locators.appNonSelectedIcon, 0);
+  UpdateAppIcon() {
+    this.agHelper.GetNClick(this.locators._appNonSelectedIcon, 0);
     this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
   }
 }

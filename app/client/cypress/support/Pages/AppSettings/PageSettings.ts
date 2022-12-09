@@ -1,120 +1,145 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
-import { checkUrl } from "./Utils";
 
 export class PageSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private homePage = ObjectsRegistry.HomePage;
-  private designSystem = ObjectsRegistry.DesignSystem;
+  private appSettings = ObjectsRegistry.AppSettings;
+
   private locators = {
-    pageNameField: "#t--page-settings-name",
-    customSlugField: "#t--page-settings-custom-slug",
-    showPageNavSwitch: "#t--page-settings-show-nav-control",
-    setAsHomePageSwitch: "#t--page-settings-home-page-control",
-    homePageHeader: "#t--page-settings-default-page",
+    _pageNameField: "#t--page-settings-name",
+    _customSlugField: "#t--page-settings-custom-slug",
+    _showPageNavSwitch: "#t--page-settings-show-nav-control",
+    _setAsHomePageSwitch: "#t--page-settings-home-page-control",
+    _setHomePageToggle : ".bp3-control-indicator",
+    _homePageHeader: "#t--page-settings-default-page",
   };
 
-  tryPageNameAndVerifyTextValue(newPageName: string, verifyPageNameAs: string) {
-    this.designSystem.TextInput.tryAndAssertValue(
-      this.locators.pageNameField,
+  UpdatePageNameAndVerifyTextValue(newPageName: string, verifyPageNameAs: string) {
+    this.AssertPageValue(
+      this.locators._pageNameField,
       newPageName,
       verifyPageNameAs,
     );
   }
 
-  tryCustomSlugAndVerifyTextValue(
+  UpdateCustomSlugAndVerifyTextValue(
     newCustomSlug: string,
     verifyCustomSlugAs: string,
   ) {
-    this.designSystem.TextInput.tryAndAssertValue(
-      this.locators.customSlugField,
+    this.AssertPageValue(
+      this.locators._customSlugField,
       newCustomSlug,
       verifyCustomSlugAs,
     );
   }
 
-  changePageNameAndVerifyUrl(
+  public AssertPageValue(
+    locator: string,
+    newValue: string,
+    verifyValueAs: string,
+  ) {
+    this.agHelper.GetText(locator, "val").then((currentValue) => {
+      const currentValueLength = (currentValue as string).length;
+      if (currentValueLength === 0) this.agHelper.TypeText(locator, newValue);
+      else
+        this.agHelper.RemoveCharsNType(locator, currentValueLength, newValue);
+
+      this.agHelper.GetText(locator, "val").then((fieldValue) => {
+        expect(fieldValue).to.equal(verifyValueAs);
+        if (currentValueLength === 0) this.agHelper.ClearTextField(locator);
+        else
+          this.agHelper.RemoveCharsNType(
+            locator,
+            (fieldValue as string).length,
+            currentValue as string,
+          );
+      });
+    });
+  }
+
+  UpdatePageNameAndVerifyUrl(
     newPageName: string,
     verifyPageNameAs?: string,
     reset = true,
   ) {
     const pageNameToBeVerified = verifyPageNameAs ?? newPageName;
     this.agHelper
-      .InvokeVal(this.locators.pageNameField)
+      .GetText(this.locators._pageNameField, "val")
       .then((currentPageName) => {
         const currentPageNameLength = (currentPageName as string).length;
 
         this.homePage.GetAppName().then((appName) => {
           this.agHelper.RemoveCharsNType(
-            this.locators.pageNameField,
+            this.locators._pageNameField,
             currentPageNameLength,
             newPageName,
           );
           this.agHelper.PressEnter();
           this.agHelper.ValidateNetworkStatus("@updatePage", 200);
-          checkUrl(appName as string, pageNameToBeVerified);
+          this.appSettings.CheckUrl(appName as string, pageNameToBeVerified);
           if (reset) {
             this.agHelper.RemoveCharsNType(
-              this.locators.pageNameField,
+              this.locators._pageNameField,
               newPageName.length,
               currentPageName as string,
             );
             this.agHelper.PressEnter();
             this.agHelper.ValidateNetworkStatus("@updatePage", 200);
-            checkUrl(appName as string, currentPageName as string);
+            this.appSettings.CheckUrl(appName as string, currentPageName as string);
           }
         });
       });
   }
 
-  changeCustomSlugAndVerifyUrl(customSlug: string) {
+  UpdateCustomSlugAndVerifyUrl(customSlug: string) {
     this.agHelper
-      .InvokeVal(this.locators.customSlugField)
+      .GetText(this.locators._customSlugField, "val")
       .then((currentCustomSlug) => {
         const currentCustomSlugLength = (currentCustomSlug as string).length;
 
         this.homePage.GetAppName().then((appName) => {
           if (currentCustomSlugLength === 0) {
-            this.agHelper.TypeText(this.locators.customSlugField, customSlug);
+            this.agHelper.TypeText(this.locators._customSlugField, customSlug);
           } else {
             this.agHelper.RemoveCharsNType(
-              this.locators.customSlugField,
+              this.locators._customSlugField,
               currentCustomSlugLength,
               customSlug,
             );
           }
           this.agHelper.PressEnter();
           this.agHelper.ValidateNetworkStatus("@updatePage", 200);
-          checkUrl(appName as string, "", customSlug);
+          this.appSettings.CheckUrl(appName as string, "", customSlug);
         });
       });
   }
 
-  tryPageNameAndVerifyErrorMessage(newPageName: string, errorMessage: string) {
-    this.designSystem.TextInput.tryValueAndAssertErrorMessage(
-      this.locators.pageNameField,
+  AssertPageErrorMessage(newPageName: string, errorMessage: string) {
+    this.appSettings.AssertErrorMessage(
+      this.locators._pageNameField,
       newPageName,
       errorMessage,
       true,
     );
   }
 
-  changePageNavigationSetting() {
+  TogglePageNavigation() {
     this.agHelper.GetSiblingNClick(
-      this.locators.showPageNavSwitch,
-      ".bp3-control-indicator",
+      this.locators._showPageNavSwitch,
+      this.locators._setHomePageToggle,
     );
     this.agHelper.ValidateNetworkStatus("@updatePage", 200);
   }
 
-  setAsHomePage() {
+  ToggleHomePage() {
     this.agHelper.GetSiblingNClick(
-      this.locators.setAsHomePageSwitch,
-      ".bp3-control-indicator",
+      this.locators._setAsHomePageSwitch,
+      this.locators._setHomePageToggle,
     );
     this.agHelper.ValidateNetworkStatus("@makePageDefault", 200);
   }
 
-  isHomePage(pageName: string) {
-    this.agHelper.AssertText(this.locators.homePageHeader, "text", pageName);
+  AssertHomePage(pageName: string) {
+    this.agHelper.AssertText(this.locators._homePageHeader, "text", pageName);
   }
 }

@@ -1,43 +1,43 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { checkUrl } from "../../../../support/Pages/AppSettings/Utils";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const appSettings = ObjectsRegistry.AppSettings,
-  deployMode = ObjectsRegistry.DeployMode,
-  homePage = ObjectsRegistry.HomePage;
-
+let guid: string;
 describe("General Settings", () => {
+  before(() => {
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid: any) => {
+      guid = uid;
+    });
+  });
+
   it("1. App name change updates URL", () => {
-    appSettings.OpenPaneFromCta();
-    appSettings.GoToGeneralSettings();
-    appSettings.general.changeAppNameAndVerifyUrl(true, "myapp");
-    homePage.GetAppName().then((appName) => {
-      deployMode.DeployApp();
-      checkUrl(appName as string, "Page1", undefined, false);
-      deployMode.NavigateBacktoEditor();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.UpdateAppNameAndVerifyUrl(true, guid);
+    _.homePage.GetAppName().then((appName) => {
+      _.deployMode.DeployApp();
+      _.appSettings.CheckUrl(appName as string, "Page1", undefined, false);
+      _.deployMode.NavigateBacktoEditor();
     });
   });
 
   it("2. Handles app icon change", () => {
-    appSettings.OpenPaneFromCta();
-    appSettings.GoToGeneralSettings();
-    appSettings.general.changeAppIcon();
-    appSettings.ClosePane();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.UpdateAppIcon();
+    _.appSettings.ClosePane();
   });
 
   it("3. App name allows special and accented character", () => {
-    appSettings.OpenPaneFromCta();
-    appSettings.GoToGeneralSettings();
-    appSettings.general.changeAppNameAndVerifyUrl(true, "myapp!@#œ™¡", "myapp");
-    appSettings.ClosePane();
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.UpdateAppNameAndVerifyUrl(true, guid + "!@#œ™¡", guid);
+    _.appSettings.ClosePane();
   });
 
-  it("4. App name doesn't allow empty", () => {
-    appSettings.OpenPaneFromCta();
-    appSettings.GoToGeneralSettings();
-    appSettings.general.tryAppNameAndVerifyErrorMessage(
-      "",
-      "App name cannot be empty",
-    );
-    appSettings.ClosePane();
+  it("4. Veirfy App name doesn't allow empty", () => {
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.AssertAppErrorMessage("", "App name cannot be empty");
+    _.appSettings.ClosePane();
   });
 });

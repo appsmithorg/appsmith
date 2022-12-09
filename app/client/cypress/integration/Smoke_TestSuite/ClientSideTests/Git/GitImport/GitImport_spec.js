@@ -117,7 +117,7 @@ describe("Git import flow", function() {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    cy.wait(6000); //for git connection to settle
+    cy.wait(10000); //for git connection to settle
     /* cy.get(homePage.toastMessage).should(
       "contain",
      "Application imported successfully",

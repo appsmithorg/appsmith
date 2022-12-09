@@ -526,10 +526,6 @@ export class AggregateHelper {
     this.GetElement(selector).clear();
   }
 
-  public InvokeVal(selector: string) {
-    return cy.get(selector).invoke("val");
-  }
-
   public TypeText(
     selector: string,
     value: string,
