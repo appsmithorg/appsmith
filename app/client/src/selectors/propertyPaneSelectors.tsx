@@ -58,6 +58,13 @@ export const getCurrentWidgetProperties = createSelector(
   },
 );
 
+const getCurrentWidgetName = createSelector(
+  getCurrentWidgetProperties,
+  (widget) => {
+    return get(widget, "widgetName");
+  },
+);
+
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
   getDataTree,
@@ -295,5 +302,16 @@ export const getShouldFocusPropertySearch = createSelector(
     focusableField: string | undefined,
   ) => {
     return !isCurrentWidgetRecentlyAdded && !focusableField;
+  },
+);
+
+export const getShouldFocusPanelPropertySearch = createSelector(
+  getSelectedPropertyPanel,
+  getCurrentWidgetName,
+  (propertyPanel, widgetName) => {
+    if (!widgetName) return false;
+    return Object.keys(propertyPanel)
+      .map((x) => x.split(".")[0])
+      .includes(widgetName);
   },
 );

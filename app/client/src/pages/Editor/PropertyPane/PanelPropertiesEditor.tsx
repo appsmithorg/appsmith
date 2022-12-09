@@ -202,7 +202,7 @@ export function PanelPropertiesEditor(
       {panelConfigsWithStyleAndContent?.content ||
       panelConfigsWithStyleAndContent?.style ? (
         <>
-          <PropertyPaneSearchInput onTextChange={setSearchText} />
+          <PropertyPaneSearchInput isPanel onTextChange={setSearchText} />
           {searchText.length > 0 ? (
             <PanelWrapper>
               <PropertyControlsGenerator
