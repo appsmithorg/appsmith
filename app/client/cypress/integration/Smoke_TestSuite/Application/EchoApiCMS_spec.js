@@ -97,6 +97,7 @@ describe("Content Management System App", function() {
       .click({ force: true });
     cy.xpath(appPage.pagebutton).click({ force: true });
     //cy.xpath(appPage.datasourcesbutton).click({ force: true });
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.xpath(appPage.postApi).click({ force: true });
     cy.ResponseCheck("Test");
     // cy.ResponseCheck("Task completed");

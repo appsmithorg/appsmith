@@ -49,7 +49,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    appSettings.openPaneAndChangeTheme("Sunrise");
+    appSettings.OpenPaneAndChangeTheme("Sunrise");
   });
 
   it("2. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new collection", () => {

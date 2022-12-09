@@ -27,7 +27,7 @@ export default function ButtonComponent({ setting }: SettingComponentProps) {
     <FormGroup setting={setting}>
       <ButtonWrapper>
         <StyledButton
-          category={Category.tertiary}
+          category={Category.secondary}
           data-testid="admin-settings-button"
           disabled={setting.isDisabled && setting.isDisabled(settings)}
           onClick={() => {

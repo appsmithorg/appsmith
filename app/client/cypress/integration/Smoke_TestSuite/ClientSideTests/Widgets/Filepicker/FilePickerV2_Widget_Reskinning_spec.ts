@@ -15,12 +15,12 @@ describe("Checkbox Widget Functionality", function() {
     // Click on canvas to get global theme settings
     cy.get(commonlocators.canvas).click({ force: true });
 
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToThemeSettings();
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .last()
       .click();
-    appSettings.closePane();
+    appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();
 
@@ -61,12 +61,12 @@ describe("Checkbox Widget Functionality", function() {
 
     // Change the theme border radius to M and check if the remove file icon's border radius is 4px;
     cy.get(commonlocators.canvas).click({ force: true });
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToThemeSettings();
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(1)
       .click();
-    appSettings.closePane();
+    appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();
 
@@ -85,8 +85,8 @@ describe("Checkbox Widget Functionality", function() {
     // Change the global theme primary color
     cy.get(commonlocators.canvas).click({ force: true });
     cy.wait(300);
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToThemeSettings();
 
     cy.get(themeLocator.inputColor).click({ force: true });
     cy.get(".t--colorpicker-v2-color")
@@ -94,7 +94,7 @@ describe("Checkbox Widget Functionality", function() {
       .click({ force: true })
       .then(($elem) => {
         const primaryColor = $elem.css("background-color");
-        appSettings.closePane();
+        appSettings.ClosePane();
         cy.get(commonlocators.filepickerv2).click();
         cy.get(".uppy-StatusBar-actionBtn--upload").should(
           "have.css",
@@ -118,13 +118,13 @@ describe("Checkbox Widget Functionality", function() {
     cy.get(".uppy-Dashboard-close").click({ force: true });
     cy.get(commonlocators.canvas).click({ force: true });
     cy.wait(300);
-    appSettings.openPaneFromCta();
-    appSettings.goToThemeSettings();
+    appSettings.OpenPaneFromCta();
+    appSettings.GoToThemeSettings();
 
     cy.get(themeLocator.fontsSelected).click({ force: true });
 
     cy.contains("Roboto").click({ force: true });
-    appSettings.closePane();
+    appSettings.ClosePane();
 
     cy.get(commonlocators.filepickerv2).click();
     cy.get(".uppy-DashboardContent-back").should(
