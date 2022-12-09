@@ -107,10 +107,10 @@ const StyledAuthButton = styled(Button)`
   padding: 8px 16px;
 `;
 
-const Label = styled.span<{ enterprise?: boolean }>`
+const Label = styled.span<{ business?: boolean }>`
   display: inline;
   ${(props) =>
-    props.enterprise
+    props.business
       ? `
     border: 1px solid ${Colors.COD_GRAY};
     color: ${Colors.COD_GRAY};
@@ -177,7 +177,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                     {method.label}&nbsp;
                     {method.needsUpgrade && (
                       <>
-                        <Label enterprise>Enterprise</Label>
+                        <Label business>Business</Label>
                         &nbsp;
                       </>
                     )}

@@ -57,11 +57,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-
-    deployMode.NavigateBacktoEditor();
   });
 
   it("2. With Optional chaining : {{ (function() { return this?.params?.condition })() }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params?.condition })() || '1=1'}} order by id",
@@ -73,10 +72,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("3. With Optional chaining : {{ (() => { return this?.params?.condition })() }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params?.condition })() || '1=1'}} order by id",
@@ -88,10 +87,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("4. With Optional chaining : {{ this?.params.condition }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this?.params.condition || '1=1'}} order by id",
@@ -103,10 +102,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("5. With Optional chaining : {{ (function() { return this?.params.condition })() }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this?.params.condition })() || '1=1'}} order by id",
@@ -118,10 +117,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("6. With Optional chaining : {{ (() => { return this?.params.condition })() }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this?.params.condition })() || '1=1'}} order by id",
@@ -133,10 +132,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("7. With No Optional chaining : {{ this.params.condition }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{this.params.condition || '1=1'}} order by id",
@@ -148,10 +147,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("8. With No Optional chaining : {{ (function() { return this.params.condition })() }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(function() { return this.params.condition })() || '1=1'}} order by id",
@@ -163,10 +162,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("9. With No Optional chaining : {{ (() => { return this.params.condition })() }}", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '1=1'}} order by id",
@@ -178,10 +177,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("9");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("10. With Optional chaining : {{ this.params.condition }} && direct paramter passed", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })() || '7'}} order by id",
@@ -197,10 +196,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("11. With Optional chaining : {{ this.params.condition }} && no optional paramter passed", function() {
+    deployMode.NavigateBacktoEditor();
     ee.SelectEntityByName("ParamsTest", "Queries/JS");
     dataSources.EnterQuery(
       "SELECT * FROM public.users where id = {{(() => { return this.params.condition })()}} order by id",
@@ -211,10 +210,10 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
       expect(cellData).to.be.equal("8");
     });
-    deployMode.NavigateBacktoEditor();
   });
 
   it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
+    deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("ParamsTest", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deleteAction", 200);

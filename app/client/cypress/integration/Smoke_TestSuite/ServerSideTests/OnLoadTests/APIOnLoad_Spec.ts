@@ -38,6 +38,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       "PageLoadApi2",
     );
     apiPage.ToggleOnPageLoadRun(true);
+    ee.ExpandCollapseEntity("Widgets")
     ee.ExpandCollapseEntity("Container3");
     ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue(
