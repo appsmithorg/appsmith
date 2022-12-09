@@ -901,13 +901,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pull } = await github.pulls.get({
+            const { data: pull } = await github.rest.pulls.get({
               ...context.repo,
               pull_number: process.env.number
             });
             const ref = pull.head.sha;
 
-            const { data: checks } = await github.checks.listForRef({
+            const { data: checks } = await github.rest.checks.listForRef({
               ...context.repo,
               ref
             });
@@ -916,7 +916,7 @@ jobs:
 
             if(check.length == 0) {
               const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.checks.create({
+              const { data: completed_at } = await github.rest.checks.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
@@ -932,7 +932,7 @@ jobs:
               return completed_at;
             } else {
               try {
-                const { data: result } = await github.checks.update({
+                const { data: result } = await github.rest.checks.update({
                   ...context.repo,
                   check_run_id: check[0].id,
                   status: 'completed',
@@ -983,13 +983,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pull } = await github.pulls.get({
+            const { data: pull } = await github.rest.pulls.get({
               ...context.repo,
               pull_number: process.env.number
             });
             const ref = pull.head.sha;
 
-            const { data: checks } = await github.checks.listForRef({
+            const { data: checks } = await github.rest.checks.listForRef({
               ...context.repo,
               ref
             });
@@ -998,7 +998,7 @@ jobs:
 
             if(check.length == 0) {
               const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.checks.create({
+              const { data: completed_at } = await github.rest.checks.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 head_sha: head_sha,
@@ -1013,7 +1013,7 @@ jobs:
 
               return completed_at;
             } else {
-              const { data: result } = await github.checks.update({
+              const { data: result } = await github.rest.checks.update({
               ...context.repo,
               check_run_id: check[0].id,
               status: 'completed',
