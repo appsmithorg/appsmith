@@ -48,6 +48,7 @@ import AppEngine, {
   PluginsNotFoundError,
 } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -72,6 +73,7 @@ export default class AppEditorEngine extends AppEngine {
   public *setupEngine(payload: AppEnginePayload): any {
     yield* super.setupEngine.call(this, payload);
     yield put(resetEditorSuccess());
+    CodemirrorTernService.resetServer();
   }
 
   public startPerformanceTracking() {

@@ -147,13 +147,10 @@ class CodeMirrorTernService {
     this.server = new TernWorkerServer(this);
   }
 
-  resetServer() {
-    this.server = new tern.Server({
-      async: true,
-      defs: DEFS,
-    });
+  resetServer = () => {
+    this.server = new TernWorkerServer(this);
     this.docs = Object.create(null);
-  }
+  };
 
   complete(cm: CodeMirror.Editor) {
     cm.showHint({
