@@ -273,6 +273,7 @@ function DatasourceAuth({
           category={Category.primary}
           className="t--delete-datasource"
           disabled={createMode || !canDeleteDatasource}
+          isLoading={isDeleting}
           key={buttonType}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);

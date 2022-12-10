@@ -100,6 +100,12 @@ describe("Others tab permission Tests", function() {
     cy.get(homePage.workspaceNamePopoverContent)
       .find("a")
       .should("have.length", 5);
+    /* checking negative scenario for audit logs access */
+    cy.wait(2000);
+    cy.visit("/applications");
+    cy.get(locators.AdminSettingsEntryLink).should("be.visible");
+    cy.get(locators.AdminSettingsEntryLink).click();
+    cy.get(locators.LeftPaneAuditLogsLink).should("not.exist");
   });
 
   it("5. Verify user with EditWorkspaceRole is able to edit workspace name ", function() {
