@@ -16,6 +16,11 @@ export const Wrapper = styled.div`
     props.theme.homePage.leftPane.width +
     props.theme.homePage.leftPane.leftPadding}px;
   padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export const HeaderContainer = styled.div``;
@@ -34,7 +39,6 @@ export const CategoryList = styled.ul`
   margin: 0;
   padding: 0 0 0 16px;
   list-style-type: none;
-  width: 264px;
 `;
 
 export const CategoryItem = styled.li`
