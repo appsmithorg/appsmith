@@ -8,9 +8,11 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.EncryptionConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -62,14 +64,22 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
 import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.ArrayUtils;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.CollectionCallback;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.index.Index;
@@ -78,6 +88,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
+import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
@@ -2779,4 +2791,107 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
 
+    @ChangeSet(order = "038", id = "deprecate-queryabletext-encryption", author = "")
+    public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate, EncryptionConfig encryptionConfig, EncryptionService encryptionService) {
+
+        /**
+         * - List of attributes in datasources that need to be encoded.
+         * - Each path represents where the attribute exists in mongo db document.
+         */
+        List<String> datasourcePathList = new ArrayList<>();
+        datasourcePathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
+        datasourcePathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
+        datasourcePathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
+        datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
+        datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
+        datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
+        datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.password");
+        datasourcePathList.add("datasourceConfiguration.authentication.value");
+        datasourcePathList.add("datasourceConfiguration.authentication.password");
+        datasourcePathList.add("datasourceConfiguration.authentication.bearerToken");
+        datasourcePathList.add("datasourceConfiguration.authentication.clientSecret");
+        datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.token");
+        datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.refreshToken");
+        datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.tokenResponse");
+        List<Bson> datasourcePathListExists = datasourcePathList
+                .stream()
+                .map(Filters::exists)
+                .collect(Collectors.toList());
+
+        List<Bson> gitDeployKeysPathListExists = new ArrayList<>();
+        ArrayList<String> gitDeployKeysPathList = new ArrayList<>();
+        gitDeployKeysPathList.add("gitAuth.privateKey");
+        gitDeployKeysPathListExists.add(Filters.exists("gitAuth.privateKey"));
+
+        List<Bson> applicationPathListExists = new ArrayList<>();
+        ArrayList<String> applicationPathList = new ArrayList<>();
+        applicationPathList.add("gitApplicationMetadata.gitAuth.privateKey");
+        applicationPathListExists.add(Filters.exists("gitApplicationMetadata.gitAuth.privateKey"));
+
+        mongockTemplate.execute("datasource", getNewEncryptionCallback(encryptionConfig, encryptionService, datasourcePathListExists, datasourcePathList));
+        mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(encryptionConfig, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList));
+        mongockTemplate.execute("application", getNewEncryptionCallback(encryptionConfig, encryptionService, applicationPathListExists, applicationPathList));
+    }
+
+    private CollectionCallback<String> getNewEncryptionCallback(
+            EncryptionConfig encryptionConfig,
+            EncryptionService encryptionService,
+            Iterable<Bson> collectionFilterIterable,
+            List<String> pathList) {
+        return new CollectionCallback<String>() {
+            @Override
+            public String doInCollection(MongoCollection<Document> collection) {
+                MongoCursor<Document> cursor = collection.find(Filters.or(collectionFilterIterable)).cursor();
+
+                List<List<Document>> documentPairList = new ArrayList<>();
+                while (cursor.hasNext()) {
+                    Document old = cursor.next();
+                    // This document will have the encrypted values.
+                    Document updated = Document.parse(old.toJson());
+                    // Encrypt attributes
+                    pathList.stream()
+                            .forEach(path -> reapplyNewEncryptionToPathValueIfExists(updated, path, encryptionConfig, encryptionService));
+                    documentPairList.add(List.of(old, updated));
+                }
+
+                /**
+                 * - Replace old document with the updated document that has encrypted values.
+                 * - Replacing here instead of the while loop above makes sure that we attempt replacement only if
+                 * the encryption step succeeded without error for each selected document.
+                 */
+                documentPairList.stream()
+                        .forEach(docPair -> collection.findOneAndReplace(docPair.get(0), docPair.get(1)));
+
+                return null;
+            }
+        };
+    }
+
+    private void reapplyNewEncryptionToPathValueIfExists(Document document, String path, EncryptionConfig encryptionConfig, EncryptionService encryptionService) {
+        String[] pathKeys = path.split("\\.");
+        /**
+         * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content", first get the parent
+         * document that contains the attribute 'base64Content' i.e. fetch the document corresponding to path
+         * "datasourceConfiguration.connection.ssl.keyFile"
+         */
+        String parentDocumentPath = org.apache.commons.lang.StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
+        Document parentDocument = DatabaseChangelog.getDocumentFromPath(document, parentDocumentPath);
+
+        if (parentDocument != null) {
+            /**
+             * - Replace old value with new encrypted value if the key exists and is non-null.
+             * - Use the last element in pathKeys since it the key that names the attribute that needs to be encrypted
+             * e.g. 'base64Content' in "datasourceConfiguration.connection.ssl.keyFile.base64Content"
+             */
+            parentDocument.computeIfPresent(
+                    pathKeys[pathKeys.length - 1],
+                    (k, v) -> {
+                        String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
+                        TextEncryptor textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
+                        String decryptedValue = textEncryptor.decrypt(String.valueOf(v));
+                        return encryptionService.encryptString(decryptedValue);
+                    }
+            );
+        }
+    }
 }
