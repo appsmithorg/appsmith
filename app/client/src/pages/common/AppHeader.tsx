@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import PageHeader from "pages/common/PageHeader";
-import LoginHeader from "pages/common/LoginHeader";
 import { Route, Switch } from "react-router";
 import {
   VIEWER_PATH,
@@ -37,7 +36,7 @@ class AppHeader extends React.Component<Props, any> {
     return (
       <Switch>
         <Route component={PageHeader} path={ADMIN_SETTINGS_CATEGORY_PATH} />
-        <Route component={LoginHeader} path={USER_AUTH_URL} />
+        <Route component={undefined} path={USER_AUTH_URL} />
         <Route path={SETUP} />
         <Route path={SIGNUP_SUCCESS_URL} />
         <Route component={AppEditorHeader} path={BUILDER_PATH_DEPRECATED} />
