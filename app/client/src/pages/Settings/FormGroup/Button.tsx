@@ -12,7 +12,7 @@ const ButtonWrapper = styled.div`
   margin-top: 3px;
 `;
 
-const StyledButton = styled(Button)`
+export const StyledButton = styled(Button)`
   height: 30px;
   display: inline-block;
   padding: 7px 16px;

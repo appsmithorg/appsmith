@@ -10,7 +10,7 @@ function BackToHomeButton() {
 
   return (
     <Link
-      className="flex items-center gap-1 group t--back-to-home hover:no-underline"
+      className="flex items-center gap-2 group t--back-to-home hover:no-underline"
       to="/applications"
     >
       <AppsIcon
