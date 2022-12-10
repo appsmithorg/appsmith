@@ -206,4 +206,19 @@ public class DatabaseChangelogEE {
         ensureIndexes(mongoTemplate, EnvironmentVariable.class, createdAt);
     }
 
+    @ChangeSet(order = "009", id = "remove-default-logo-urls", author = "")
+    public void removeDefaultLogoURLs(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                new Query(where("tenantConfiguration.whiteLabelLogo").is("https://assets.appsmith.com/appsmith-logo-full.png")),
+                new Update().unset("tenantConfiguration.whiteLabelLogo"),
+                Tenant.class
+        );
+
+        mongockTemplate.updateMulti(
+                new Query(where("tenantConfiguration.whiteLabelFavicon").is("https://assets.appsmith.com/appsmith-favicon-orange.ico")),
+                new Update().unset("tenantConfiguration.whiteLabelFavicon"),
+                Tenant.class
+        );
+    }
+
 }

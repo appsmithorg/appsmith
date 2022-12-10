@@ -12,6 +12,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -82,6 +83,9 @@ public class EnvManagerTest {
 
     EnvManager envManager;
 
+    @MockBean
+    AssetService assetService;
+
     @BeforeEach
     public void setup() {
         envManager = new EnvManagerImpl(sessionUserService,
@@ -99,7 +103,8 @@ public class EnvManagerTest {
                 configService,
                 userUtils,
                 tenantService,
-                objectMapper);
+                objectMapper,
+                assetService);
     }
 
     @Test

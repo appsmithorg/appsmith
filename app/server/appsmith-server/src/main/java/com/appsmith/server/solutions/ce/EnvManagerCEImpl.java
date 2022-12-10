@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
@@ -22,17 +23,20 @@ import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.bson.types.Binary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -48,6 +52,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -56,6 +61,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -121,6 +127,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final ObjectMapper objectMapper;
 
+    private final AssetService assetService;
+
+    private static final Set<String> ASSET_VALUE_KEYS = Set.of(
+            "APPSMITH_BRAND_LOGO",
+            "APPSMITH_BRAND_FAVICON"
+    );
+
+    private static final int MAX_LOGO_SIZE_KB = 1024;
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -149,7 +164,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             ConfigService configService,
                             UserUtils userUtils,
                             TenantService tenantService,
-                            ObjectMapper objectMapper) {
+                            ObjectMapper objectMapper,
+                            AssetService assetService) {
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.analyticsService = analyticsService;
@@ -166,6 +182,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userUtils = userUtils;
         this.tenantService = tenantService;
         this.objectMapper = objectMapper;
+        this.assetService = assetService;
     }
 
     /**
@@ -330,9 +347,20 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         }
     }
 
-
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
+
+        final String brandColorsChanges = changes.remove("brandColors");
+        if (StringUtils.hasText(brandColorsChanges)) {
+            try {
+                tenantConfiguration.setBrandColors(objectMapper.readValue(brandColorsChanges, TenantConfiguration.BrandColors.class));
+            } catch (JsonProcessingException e) {
+                // Just printing the message, since we don't need the full stack trace here. But don't share details to the client.
+                log.error("Error parsing brandColors JSON: " + e.getMessage());
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "brandColors"));
+            }
+        }
+
         // Write the changes to the tenant collection in configuration field
         return Flux.fromIterable(changes.entrySet())
                 .map(map -> {
@@ -490,7 +518,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     @Override
     @NotNull
     public Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION, "File upload is not supported"));
+        if (!ASSET_VALUE_KEYS.contains(key)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, key));
+        }
+        // TODO: Delete existing/previous logo, if present.
+        return assetService.upload(parts, MAX_LOGO_SIZE_KB, false)
+                .map(asset -> Map.entry(key, "asset:" + asset.getId()));
     }
 
     /**

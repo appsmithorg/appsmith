@@ -559,18 +559,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
         Map<String, String> params = new HashMap<>();
         params.put("primaryLinkUrl", originHeader);
-        Mono<User> emailMono = emailSender
-                .sendMail(user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, params)
-                .onErrorResume(error -> {
-                    // Swallowing this exception because we don't want this to affect the rest of the flow.
-                    log.error(
-                            "Ignoring error: Unable to send welcome email to the user {}. Cause: ",
-                            user.getEmail(),
-                            Exceptions.unwrap(error)
-                    );
-                    return Mono.just(TRUE);
-                })
-                .thenReturn(user);
 
         return updateTenantLogoInParams(params)
                 .flatMap(updatedParams -> emailSender.sendMail(

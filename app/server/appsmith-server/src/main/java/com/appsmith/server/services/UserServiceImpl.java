@@ -16,6 +16,8 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
 import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.core.Authentication;
@@ -24,13 +26,14 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Slf4j
@@ -39,7 +42,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final UserDataService userDataService;
     private final UserRepository userRepository;
     private final TenantService tenantService;
-    private static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo-full.png";
+    private static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo.svg";
+    public static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -112,15 +116,30 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
 
     @Override
     public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params) {
-        return tenantService.getDefaultTenant()
-                .map(tenant -> {
-                    TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    String logo = DEFAULT_APPSMITH_LOGO;
-                    if (Boolean.parseBoolean(tenantConfiguration.getWhiteLabelEnable()) && StringUtils.hasText(tenantConfiguration.getWhiteLabelLogo())) {
-                        logo = tenantConfiguration.getWhiteLabelLogo();
+        final Mono<String> originMono = Mono.deferContextual(contextView -> {
+                    if (contextView.hasKey(ServerWebExchange.class)) {
+                        return Mono.justOrEmpty(
+                                contextView.get(ServerWebExchange.class).getRequest().getHeaders().getFirst("Origin")
+                        );
+                    }
+                    return Mono.empty();
+                })
+                .defaultIfEmpty("");
+
+        return Mono.zip(originMono, tenantService.getDefaultTenant())
+                .map(tuple -> {
+                    final String origin = tuple.getT1();
+                    final TenantConfiguration tenantConfiguration = tuple.getT2().getTenantConfiguration();
+                    String logoUrl = null;
+                    String primaryColor = null;
+
+                    if (StringUtils.isNotEmpty(origin) && tenantConfiguration.isWhitelabelEnabled()) {
+                        logoUrl = origin + tenantConfiguration.getBrandLogoUrl();
+                        primaryColor = tenantConfiguration.getBrandColors().getPrimary();
                     }
 
-                    params.put("brandLogo", logo);
+                    params.put("logoUrl", StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
+                    params.put("primaryColor", StringUtils.defaultIfEmpty(primaryColor, DEFAULT_PRIMARY_COLOR));
                     return params;
                 });
     }

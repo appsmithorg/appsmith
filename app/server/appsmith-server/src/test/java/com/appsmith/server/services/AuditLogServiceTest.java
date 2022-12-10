@@ -107,6 +107,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -114,6 +115,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -2700,15 +2702,15 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_InstanceSettingUpdated_GitHubAuth_success() {
-        Map<String, String> emptyEnvChanges = Map.of(
+        Map<String, String> emptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "",
                 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name(), ""
-        );
+        ));
 
-        Map<String, String> nonEmptyEnvChanges = Map.of(
+        Map<String, String> nonEmptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET.name(), "testClientSecret"
-        );
+        ));
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2793,14 +2795,14 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_InstanceSettingUpdated_GoogleAuth_success() {
-        Map<String, String> emptyEnvChanges = Map.of(
+        Map<String, String> emptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), ""
-        );
-        Map<String, String> nonEmptyEnvChanges = Map.of(
+        ));
+        Map<String, String> nonEmptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET.name(), "testClientSecret"
-        );
+        ));
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2875,15 +2877,15 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_InstanceSettingUpdated_OIDCAuth_success() {
-        Map<String, String> emptyEnvChanges = Map.of(
+        Map<String, String> emptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "",
                 APPSMITH_OAUTH2_OIDC_CLIENT_SECRET.name(), ""
-        );
+        ));
 
-        Map<String, String> nonEmptyEnvChanges = Map.of(
+        Map<String, String> nonEmptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_OAUTH2_OIDC_CLIENT_ID.name(), "testClientId",
                 APPSMITH_OAUTH2_OIDC_CLIENT_SECRET.name(), "testClientSecret"
-        );
+        ));
 
         envManager.applyChanges(nonEmptyEnvChanges).block();
 
@@ -2968,13 +2970,13 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_InstanceSettingUpdated_SAMLAuth_success() {
-        Map<String, String> emptyEnvChanges = Map.of(
+        Map<String, String> emptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_SSO_SAML_ENABLED.name(), "false"
-        );
+        ));
 
-        Map<String, String> nonEmptyEnvChanges = Map.of(
+        Map<String, String> nonEmptyEnvChanges = new HashMap<>(Map.of(
                 APPSMITH_SSO_SAML_ENABLED.name(), "true"
-        );
+        ));
 
         // Test adding configuration
         envManager.applyChanges(nonEmptyEnvChanges).block();
@@ -3232,7 +3234,7 @@ public class AuditLogServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void logEvent_InstanceSettingUpdated_GeneralAdminSettings_success() {
-        Map<String, String> envChanges = Map.ofEntries(
+        Map<String, String> envChanges = new HashMap<>(Map.ofEntries(
                 entry(APPSMITH_INSTANCE_NAME.name(), "testInstanceName"),
                 entry(APPSMITH_HIDE_WATERMARK.name(), "true"),
                 entry(APPSMITH_DISABLE_TELEMETRY.name(), "true"),
@@ -3242,7 +3244,7 @@ public class AuditLogServiceTest {
                 entry(APPSMITH_REPLY_TO.name(), "testemail@test.com"),
                 entry(APPSMITH_GOOGLE_MAPS_API_KEY.name(), "testGoogleMapsAPIKey"),
                 entry(APPSMITH_CUSTOM_DOMAIN.name(), "testCustomDomain")
-        );
+        ));
 
         envManager.applyChanges(envChanges).block();
 
