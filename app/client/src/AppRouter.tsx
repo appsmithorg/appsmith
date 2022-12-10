@@ -35,7 +35,7 @@ import LandingScreen from "./LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import ErrorPage from "pages/common/ErrorPage";
-import PageNotFound from "pages/common/PageNotFound";
+import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
@@ -64,6 +64,7 @@ import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import useBrandingTheme from "utils/hooks/useBrandingTheme";
 
 /*
     We use this polyfill to show emoji flags
@@ -115,6 +116,8 @@ function AppRouter(props: {
   useEffect(() => {
     changeAppBackground(props.currentTheme);
   }, [props.currentTheme]);
+
+  useBrandingTheme();
 
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
