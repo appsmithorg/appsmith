@@ -26,6 +26,7 @@ describe("Property Pane Search", function() {
   // });
 
   it("2. Search for Properties", function() {
+    ee.SelectEntityByName("Table1", "Widgets");
     // Search for a property inside content tab
     propPane.Search("visible");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
