@@ -58,7 +58,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -75,12 +75,12 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -91,7 +91,7 @@ jobs:
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -152,7 +152,7 @@ jobs:
         run: |
           sleep 30s
 
-      - name: Exit if Server hasnt started
+      - name: Exit if Server hasn't started
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
@@ -210,7 +210,7 @@ jobs:
         run: |
           ref=${{ github.event.client_payload.slash_command.args.named.ref }}
           if [[ -z "$ref" ]]; then ref="main"; fi
-          echo ::ref=$ref >> $GITHUB_OUTPUT
+          echo ref=$ref >> $GITHUB_OUTPUT
 
       - name: Checkout Performance Infra code
         uses: actions/checkout@v3
@@ -268,4 +268,4 @@ jobs:
           path: app/client/perf/traces
 
         # Set status = success
-      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

@@ -74,7 +74,7 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      # Incase of prior failure run the job
+      # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
@@ -90,4 +90,4 @@ jobs:
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
       
       # Set status = success
-      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

@@ -95,7 +95,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -124,7 +124,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       # failed_spec_env will contain list of all failed specs
-      # We are using evnironment variable instead of regular to support multiline
+      # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
@@ -168,7 +168,7 @@ jobs:
           name: rts-dist
           path: app/rts/dist
 
-      - name: Untar the rts folder
+      - name: Un-tar the rts folder
         run: |
           tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
           echo "Cleaning up the tar files"
@@ -306,7 +306,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      # Incase of second attemtp only run failed specs
+      # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -345,7 +345,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
     
-      - name: Collect fat conatianer logs
+      - name: Collect fat container logs
         if: always()
         working-directory: "."
         run: |
@@ -361,18 +361,18 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec_fat and add a dummy file
-      # This will ensure upload and download steps are successfull
-      - name: Create direcotrs for failed tests
+      # This will ensure upload and download steps are successful
+      - name: Create directory for failed tests
         if: always()
         run: |
           mkdir -p  ~/failed_spec_fat
           echo  "empty" >> ~/failed_spec_fat/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
-      - name: Incase of test failures copy them to a file
+      - name: In case of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
@@ -439,7 +439,7 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test:
     needs: [client-build, server-build, rts-build]
@@ -478,7 +478,7 @@ jobs:
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -507,7 +507,7 @@ jobs:
             ${{ github.run_id }}-${{ github.job }}
 
       # failed_spec_env will contain list of all failed specs
-      # We are using evnironment variable instead of regular to support multiline
+      # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
@@ -534,7 +534,7 @@ jobs:
       - name: Get yarn cache directory path
         if: steps.run_result.outputs.run_result != 'success'
         id: yarn-dep-cache-dir-path
-        run: echo "::dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
@@ -596,7 +596,7 @@ jobs:
         run: |
           sleep 30s
 
-      - name: Exit if Server hasnt started
+      - name: Exit if Server hasn't started
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
@@ -690,7 +690,7 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
-      # Incase of second attemtp only run failed specs
+      # In case of second attempt only run failed specs
       - name: Run the cypress test with failed tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: cypress-io/github-action@v2
@@ -731,18 +731,18 @@ jobs:
       # Set status = failedtest
       - name: Set fail if there are test failures
         if: failure()
-        run: echo "::run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
+        run: echo "run_result=failedtest" >> $GITHUB_OUTPUT > ~/run_result
 
       # Create a directory ~/failed_spec and add a dummy file
-      # This will ensure upload and download steps are successfull
-      - name: Create direcotrs for failed tests
+      # This will ensure upload and download steps are successful
+      - name: Create directory for failed tests
         if: always()
         run: |
           mkdir -p  ~/failed_spec
           echo  "empty" >> ~/failed_spec/dummy-${{ matrix.job }}
 
       # add list failed tests to a file
-      - name: Incase of test failures copy them to a file
+      - name: In case of test failures copy them to a file
         if: failure()
         run: |
           cd ${{ github.workspace }}/app/client/cypress/
@@ -803,7 +803,7 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "::run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test-result:
     needs: [ui-test, fat-container-test]
@@ -835,12 +835,12 @@ jobs:
           name: failed-spec-fat
           path: ~/failed_spec_fat
 
-      # Incase for any uti-test job failure, create combined failed spec
+      # In case for any uti-test job failure, create combined failed spec
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
 
-      # Incase for any fat-container job failure, create combined failed spec
+      # In case for any fat-container job failure, create combined failed spec
       - name: "combine all specs for fat"
         if: needs.fat-container-test.result != 'success'
         run: cat ~/failed_spec_fat/failed_spec_fat* >> ~/combined_failed_spec_fat

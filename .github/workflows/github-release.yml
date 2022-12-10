@@ -33,11 +33,11 @@ jobs:
         id: get_version
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          echo "::tag=$tag" >> $GITHUB_OUTPUT
+          echo "tag=$tag" >> $GITHUB_OUTPUT
           if [[ $tag == *"beta"* ]]; then
-            echo "::is_beta=true" >> $GITHUB_OUTPUT
+            echo "is_beta=true" >> $GITHUB_OUTPUT
           else
-            echo "::is_beta=false" >> $GITHUB_OUTPUT
+            echo "is_beta=false" >> $GITHUB_OUTPUT
           fi
 
   buildClient:
