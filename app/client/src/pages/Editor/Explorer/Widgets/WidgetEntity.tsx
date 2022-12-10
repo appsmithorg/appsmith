@@ -85,7 +85,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const icon = <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 
-  const shouldExpand = widgetsToExpand.includes(props.widgetId);
+  const forceExpand = widgetsToExpand.includes(props.widgetId);
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -153,10 +153,10 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
+      forceExpand={forceExpand}
       highlight={lastSelectedWidget === props.widgetId}
       icon={icon}
       isDefaultExpanded={
-        shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
