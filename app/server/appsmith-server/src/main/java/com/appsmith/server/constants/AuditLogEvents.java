@@ -51,7 +51,19 @@ public class AuditLogEvents {
         USER_LOGGED_OUT,
         USER_SIGNED_UP,
         USER_INVITED,
-        INSTANCE_SETTING_UPDATED
+        INSTANCE_SETTING_UPDATED,
+        GROUP_CREATED,
+        GROUP_UPDATED,
+        GROUP_DELETED,
+        GROUP_INVITE_USERS,
+        GROUP_REMOVE_USERS,
+        ROLE_CREATED,
+        ROLE_UPDATED,
+        ROLE_DELETED,
+        ROLE_ASSIGNED_GROUPS,
+        ROLE_ASSIGNED_USERS,
+        ROLE_UNASSIGNED_GROUPS,
+        ROLE_UNASSIGNED_USERS
     }
 
     // Map of AnalyticEvent name with their corresponding Audit Log Action name
