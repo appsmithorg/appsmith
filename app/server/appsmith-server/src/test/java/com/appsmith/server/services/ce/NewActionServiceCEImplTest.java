@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -339,7 +340,7 @@ public class NewActionServiceCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(Mockito.any(ExecuteActionDTO.class), any());
         doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 
@@ -389,7 +390,7 @@ public class NewActionServiceCEImplTest {
 
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
-        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(any());
+        doReturn(Mono.just(mockResult)).when(newActionServiceSpy).executeAction(Mockito.any(ExecuteActionDTO.class), any());
         doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 

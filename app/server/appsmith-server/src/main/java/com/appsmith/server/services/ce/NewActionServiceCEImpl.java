@@ -1001,6 +1001,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
+    /**
+     * The current usage is to maintain compatibility.
+     * @deprecated
+     * @see NewActionServiceCEImpl#executeAction(ExecuteActionDTO, String)
+     * @param executeActionDTO
+     * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
+     */
     public Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO) {
         // this is to keep the test cases pointing to same method
         return executeAction(executeActionDTO, null);
@@ -1140,6 +1147,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(executeActionDTO -> this.executeAction(executeActionDTO, environmentName));
     }
 
+    /**
+     * @deprecated
+     * @see NewActionServiceCEImpl#executeAction(Flux, String, String) 
+     * @param partFlux
+     * @param branchName
+     * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
+     */
     @Override
     public Mono<ActionExecutionResult> executeAction (Flux<Part> partFlux, String branchName) {
         return executeAction(partFlux, branchName, null);
