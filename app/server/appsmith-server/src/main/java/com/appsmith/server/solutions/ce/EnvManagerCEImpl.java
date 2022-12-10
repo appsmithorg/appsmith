@@ -348,6 +348,9 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
+        // Create a new mutable map, so we don't modify the original map, or end up in an error if the map is immutable.
+        changes = new HashMap<>(changes);
+
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
 
         final String brandColorsChanges = changes.remove("brandColors");
