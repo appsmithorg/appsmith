@@ -147,7 +147,7 @@ export function PanelPropertiesEditor(
     sendPropertyPaneSearchAnalytics({
       widgetType: widgetProperties?.type,
       searchText,
-      widgetName: widgetProperties.widgetName,
+      widgetName: widgetProperties?.widgetName,
       searchPath,
     });
   }, [searchText]);
