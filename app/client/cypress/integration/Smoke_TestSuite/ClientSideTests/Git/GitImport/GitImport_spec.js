@@ -11,7 +11,7 @@ const newBranch = "feat/temp";
 const mainBranch = "master";
 let repoName, newWorkspaceName;
 
-describe("Git import flow", function() {
+describe("Git import flow ", function() {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -117,7 +117,7 @@ describe("Git import flow", function() {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    cy.wait(6000); //for git connection to settle
+    cy.wait(4000); //for git connection to settle
     /* cy.get(homePage.toastMessage).should(
       "contain",
      "Application imported successfully",
@@ -142,8 +142,8 @@ describe("Git import flow", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']").should("be.visible");
   });
-
-  it("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
+  // skipping these tests until bug #18776 is fixed
+  it.skip("4. Create a new branch, clone page and validate data on that branch in view and edit mode", () => {
     cy.createGitBranch(newBranch);
     cy.get(".tbody")
       .first()
@@ -213,7 +213,7 @@ describe("Git import flow", function() {
     cy.wait(2000);
   });
 
-  it("5. Switch to master and verify data in edit and view mode", () => {
+  it.skip("5. Switch to master and verify data in edit and view mode", () => {
     cy.switchGitBranch("master");
     cy.wait(2000);
     // validate data binding in edit and deploy mode
@@ -236,7 +236,7 @@ describe("Git import flow", function() {
     cy.wait(2000);
   });
 
-  it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
+  it.skip("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     cy.get(explorer.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
