@@ -149,4 +149,5 @@ jobs:
           path: app/rts/rts-dist.tar
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

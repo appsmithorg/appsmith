@@ -80,7 +80,8 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -268,4 +269,5 @@ jobs:
           path: app/client/perf/traces
 
         # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result

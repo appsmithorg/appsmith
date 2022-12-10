@@ -99,4 +99,5 @@ jobs:
 
   
       # Set status = success
-      - run: echo "appsmithctl_run_result=success" >> $GITHUB_OUTPUT > ~/appsmithctl_run_result
+      - name: Save the status of the run
+        run: echo "appsmithctl_run_result=success" >> $GITHUB_OUTPUT > ~/appsmithctl_run_result

@@ -76,7 +76,8 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -166,7 +167,8 @@ jobs:
           path: app/client/build/
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   buildServer:
     defaults:
@@ -297,7 +299,8 @@ jobs:
           name: server-build
           path: app/server/dist/
 
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   buildRts:
     defaults:
@@ -393,7 +396,8 @@ jobs:
           path: app/rts/rts-dist.tar
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   perf-test:
     needs: [buildClient, buildServer, buildRts]
@@ -455,7 +459,8 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -617,7 +622,8 @@ jobs:
           path: app/client/perf/traces
 
         # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   fat-container-test:
     needs: [buildClient, buildServer, buildRts]
@@ -999,7 +1005,8 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test:
     needs: [buildClient, buildServer, buildRts]
@@ -1434,7 +1441,8 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test-result:
     needs: [ui-test, fat-container-test]

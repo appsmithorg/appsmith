@@ -439,7 +439,8 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test:
     needs: [client-build, server-build, rts-build]
@@ -803,7 +804,8 @@ jobs:
           path: app/server/server-logs.log
 
       # Set status = success
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
   ui-test-result:
     needs: [ui-test, fat-container-test]

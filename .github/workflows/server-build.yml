@@ -154,4 +154,5 @@ jobs:
           name: build
           path: app/server/dist/
 
-      - run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
