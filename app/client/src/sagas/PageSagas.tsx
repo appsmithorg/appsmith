@@ -111,7 +111,10 @@ import { GenerateTemplatePageRequest } from "api/PageApi";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
-import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import {
+  selectMultipleWidgetsAction,
+  selectWidgetInitAction,
+} from "actions/widgetSelectionActions";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import {
   fetchJSCollectionsForPage,
@@ -127,8 +130,6 @@ import { failFastApiCalls } from "./InitSagas";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
-import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
-import { showModal } from "actions/widgetActions";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
@@ -1117,18 +1118,10 @@ export function* generateTemplatePageSaga(
 
 function* restoreSelectedWidgetContext() {
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const allWidgets: CanvasWidgetsReduxState = yield select(
-    getCanvasWidgetsWithParentId,
-  );
   if (!selectedWidgets.length) return;
 
-  if (
-    selectedWidgets.length === 1 &&
-    allWidgets[selectedWidgets[0]]?.type === "MODAL_WIDGET"
-  ) {
-    yield put(showModal(selectedWidgets[0], false));
-  } else if (allWidgets[selectedWidgets[0]]?.parentModalId) {
-    yield put(showModal(allWidgets[selectedWidgets[0]]?.parentModalId, false));
+  if (selectedWidgets.length === 1) {
+    yield put(selectWidgetInitAction(selectedWidgets[0]));
   }
 
   quickScrollToWidget(selectedWidgets[0]);

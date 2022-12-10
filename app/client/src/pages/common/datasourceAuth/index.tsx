@@ -40,11 +40,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+
 import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 interface Props {
   datasource: Datasource;
@@ -83,20 +84,7 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const StyledActionButton = styled(ActionButton)`
-  &&& {
-    width: auto;
-    min-width: 74px;
-    margin-right: 9px;
-    min-height: 32px;
-
-    & > span {
-      max-width: 100%;
-    }
-  }
-`;
-
-const StyledButton = styled(StyledActionButton)<{ fluidWidth?: boolean }>`
+const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
   &&&& {
     height: 32px;
     width: ${(props) => (props.fluidWidth ? "" : "87px")};

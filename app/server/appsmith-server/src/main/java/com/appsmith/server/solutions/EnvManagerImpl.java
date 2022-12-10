@@ -10,6 +10,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -46,11 +47,12 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
                           ConfigService configService,
                           UserUtils userUtils,
                           TenantService tenantService,
-                          ObjectMapper objectMapper) {
+                          ObjectMapper objectMapper,
+                          AssetService assetService) {
 
         super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
                 emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper);
+                userUtils, tenantService, objectMapper, assetService);
     }
 
     /**

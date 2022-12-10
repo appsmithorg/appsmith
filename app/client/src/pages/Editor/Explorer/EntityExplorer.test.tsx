@@ -325,25 +325,4 @@ describe("Entity Explorer tests", () => {
     expect(highlighted.length).toBe(1);
     expect(active.length).toBe(1);
   });
-  // it("checks queries/js sections in explorer", async () => {
-  //   store.dispatch({
-  //     type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-  //     payload: mockApiDatas,
-  //   });
-  //   store.dispatch({
-  //     type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-  //     payload: mockJsActions,
-  //   });
-  //   jest
-  //     .spyOn(entitiesSelectors, "selectFilesForExplorer")
-  //     .mockImplementation(mockEntitiesFilesSelector);
-  //   jest
-  //     .spyOn(permissionUtils, "hasCreateActionPermission")
-  //     .mockReturnValue(true);
-  //   store.dispatch(updateCurrentPage("pageId"));
-  //   const { container, debug } = render(<Files />);
-  //   const entities = container.getElementsByClassName("t--entity-item");
-  //   debug(entities[2]);
-  //   expect(container.getElementsByClassName("t--entity").length).toBe(5);
-  // });
 });

@@ -117,6 +117,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartData = () => {
     const chartData: AllChartData = this.props.chartData;
     const dataLength = Object.keys(chartData).length;
+    const chartType = this.props.chartType;
 
     // if datalength is zero, just pass a empty datum
     if (dataLength === 0) {
@@ -130,6 +131,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
     const firstKey = Object.keys(chartData)[0] as string;
     let data = get(chartData, `${firstKey}.data`, []) as ChartDataPoint[];
+    const color = chartData[firstKey] && chartData[firstKey].color;
 
     if (!Array.isArray(data)) {
       data = [];
@@ -148,6 +150,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       return {
         label: item.x,
         value: item.y,
+        color:
+          chartType === "PIE_CHART"
+            ? ""
+            : color
+            ? color
+            : this.props.primaryColor,
       };
     });
   };
@@ -221,7 +229,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   getChartDataset = (chartData: AllChartData) => {
     const categories: string[] = this.getChartCategoriesMultiSeries(chartData);
 
-    const dataset = Object.keys(chartData).map((key: string) => {
+    const dataset = Object.keys(chartData).map((key: string, index) => {
       const item = get(chartData, `${key}`);
 
       const seriesChartData: Array<Record<
@@ -230,6 +238,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       >> = this.getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
+        color: item.color
+          ? item.color
+          : index === 0
+          ? this.props.primaryColor
+          : "",
         data: seriesChartData,
       };
     });

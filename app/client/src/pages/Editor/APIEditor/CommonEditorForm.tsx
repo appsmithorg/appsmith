@@ -438,13 +438,6 @@ function ImportedKeyValue(props: { datas: any }) {
 const BoundaryContainer = styled.div`
   border: 1px solid transparent;
   border-right: none;
-
-  /*.t--apiFormHttpMethod > div {
-    background: var(--appsmith-color-black-900);
-    .appsmith-select__single-value {
-      color: white;
-    }
-  }*/
 `;
 
 function renderImportedDatasButton(
