@@ -23,7 +23,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    appSettings.openPaneAndChangeTheme("Water Lily");
+    appSettings.OpenPaneAndChangeTheme("Water Lily");
 
     dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {

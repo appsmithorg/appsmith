@@ -170,13 +170,10 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
       context?.eventType,
     );
     ///// Adding Data tree with functions
-    Object.keys(dataTreeWithFunctions).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-    });
+    Object.assign(GLOBAL_DATA, dataTreeWithFunctions);
   } else {
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
-    });
+    // Object.assign removes prototypes of the entity object making sure configs are not shown to user.
+    Object.assign(GLOBAL_DATA, dataTree);
   }
   if (!isEmpty(resolvedFunctions)) {
     Object.keys(resolvedFunctions).forEach((datum: any) => {
@@ -187,8 +184,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
           const data = dataTreeKey[key]?.data;
           //do not remove we will be investigating this
           //const isAsync = dataTreeKey?.meta[key]?.isAsync || false;
-          //const confirmBeforeExecute =
-          dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
+          //const confirmBeforeExecute = dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
           dataTreeKey[key] = resolvedObject[key];
           // if (isAsync && confirmBeforeExecute) {
           //   dataTreeKey[key] = confirmationPromise.bind(

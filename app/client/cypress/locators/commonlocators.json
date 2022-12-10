@@ -99,6 +99,8 @@
   "chooseAction": ".single-select",
   "chooseMsgType": ".t--open-dropdown-Select-type",
   "onPause": ".t--property-control-onpause .t--open-dropdown-Select-Action",
+  "chooseWidget": ".t--open-dropdown-Select-Widget",
+  "onClick": ".t--property-control-onclick .t--open-dropdown-Select-Action",
   "changeZoomlevel": ".t--property-control-maxzoomlevel .bp3-popover-target",
   "selectedZoomlevel": ".t--property-control-maxzoomlevel .bp3-popover-target ",
   "imgWidget": "div[data-testid='styledImage']",
@@ -202,5 +204,6 @@
   "overlayMax": "[data-cy='t--auto-height-overlay-max']",
   "addOption": ".t--property-control-options-add",
   "showTabsControl": ".t--property-control-showtabs .bp3-control-indicator",
-  "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator"
+  "checkboxIndicator": ".t--draggable-checkboxwidget .bp3-control-indicator",
+  "generalSectionHeight": ".t--property-pane-section-general .t--property-control-label:contains('Height')"
 }

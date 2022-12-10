@@ -12,7 +12,7 @@ export type AutoHeightLayoutTreePayload = {
 };
 
 export type AutoHeightLayoutTreeReduxState = {
-  [widgetId: string]: TreeNode & { level?: number };
+  [widgetId: string]: TreeNode;
 };
 const initialState: AutoHeightLayoutTreeReduxState = {};
 

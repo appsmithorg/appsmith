@@ -1,4 +1,12 @@
-import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  select,
+  take,
+  takeEvery,
+  fork,
+} from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import {
   ReduxAction,
@@ -7,7 +15,7 @@ import {
   ReduxActionWithMeta,
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { getFormData } from "selectors/formSelectors";
+import { getDynamicTriggers, getFormData } from "selectors/formSelectors";
 import {
   DATASOURCE_DB_FORM,
   QUERY_EDITOR_FORM_NAME,
@@ -75,6 +83,9 @@ import {
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { FormDataPaths } from "workers/Evaluation/formEval";
+import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
+import { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
 import { hasManageActionPermission } from "@appsmith/utils/permissionHelpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
@@ -179,6 +190,15 @@ function* formValueChangeSaga(
       });
     }
 
+    // If there is a change in the command type of a form and the value is an empty string, we prevent the command action value from being updated and form evaluations from being performed on it.
+    // We do this because by default the command value of an action should always be set to a non empty string value (impossible case).
+    if (field === FormDataPaths.COMMAND && actionPayload.payload === "") {
+      return;
+    }
+
+    const plugins: Plugin[] = yield select(getPlugins);
+    const uiComponent = getUIComponent(values.pluginId, plugins);
+
     if (field === "datasource.id") {
       const datasource: Datasource | undefined = yield select(
         getDatasource,
@@ -199,11 +219,44 @@ function* formValueChangeSaga(
 
       AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
+      if (
+        uiComponent === UIComponentTypes.UQIDbEditorForm &&
+        !!values?.id &&
+        !!datasource?.id &&
+        !!values?.pluginId
+      ) {
+        // get dynamic triggers that need to be refetched. i.e. allowedToFetch is true.
+        const allTriggers: FormEvalOutput | undefined = yield select(
+          getDynamicTriggers,
+          values.id,
+        );
+
+        try {
+          // if all triggers exist then set their loading states to true and refetch them.
+          if (!!allTriggers) {
+            yield put({
+              type: ReduxActionTypes.SET_TRIGGER_VALUES_LOADING,
+              payload: {
+                formId: values.id,
+                keys: Object.keys(allTriggers),
+                value: true,
+              },
+            });
+
+            // refetch trigger values.
+            yield fork(
+              fetchDynamicValuesSaga,
+              allTriggers,
+              values.id,
+              datasource.id,
+              values.pluginId,
+            );
+          }
+        } catch (err) {}
+      }
+
       return;
     }
-
-    const plugins: Plugin[] = yield select(getPlugins);
-    const uiComponent = getUIComponent(values.pluginId, plugins);
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
