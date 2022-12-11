@@ -406,7 +406,6 @@ function GlobalSearch() {
       activeItem.type,
       activeItem.pageId,
       lastSelectedWidgetId === activeItem.widgetId,
-      activeItem.parentModalId,
     );
   };
 
