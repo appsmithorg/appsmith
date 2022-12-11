@@ -10,6 +10,7 @@ import { createMessage } from "design-system/build/constants/messages";
 import { USAGE_AND_BILLING } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -129,6 +130,12 @@ export default function LeftPane() {
   const categories = getSettingsCategory();
   const { category, selected: subCategory } = useParams() as any;
 
+  function triggerAnalytics(source: string) {
+    AnalyticsUtil.logEvent("ADMIN_SETTINGS_CLICK", {
+      source,
+    });
+  }
+
   return (
     <Wrapper>
       <>
@@ -164,6 +171,7 @@ export default function LeftPane() {
             <StyledLink
               $active={category === "audit-logs"}
               data-testid="t--enterprise-settings-category-item-audit-logs"
+              onClick={() => triggerAnalytics("AuditLogs")}
               to="/settings/audit-logs"
             >
               <div>
@@ -177,6 +185,7 @@ export default function LeftPane() {
               <StyledLink
                 $active={category === "usage"}
                 data-testid="t--enterprise-settings-category-item-usage"
+                onClick={() => triggerAnalytics("Usage")}
                 to="/settings/usage"
               >
                 <div>
