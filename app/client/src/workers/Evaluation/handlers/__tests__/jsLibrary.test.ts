@@ -1,4 +1,4 @@
-import { installLibrary } from "../jsLibrary";
+import { installLibrary, uninstallLibrary } from "../jsLibrary";
 import { EVAL_WORKER_SYNC_ACTION } from "workers/Evaluation/evalWorkerActions";
 import * as mod from "../../../common/JSLibrary/ternDefinitionGenerator";
 
@@ -78,5 +78,17 @@ describe("Tests to assert install/uninstall flows", function() {
       defs: {},
       error: expect.any(Error),
     });
+  });
+
+  it("Removes or set the accessors to undefined on the global object on uninstallation", function() {
+    //@ts-expect-error ignore
+    self.lodash = {};
+    const res = uninstallLibrary({
+      data: ["lodash"],
+      method: EVAL_WORKER_SYNC_ACTION.UNINSTALL_LIBRARY,
+    });
+    expect(res).toEqual({ success: true });
+    //@ts-expect-error ignore
+    expect(self.lodash).toBeUndefined();
   });
 });

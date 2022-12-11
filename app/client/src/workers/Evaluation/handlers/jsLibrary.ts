@@ -64,7 +64,6 @@ export function installLibrary(request: EvalWorkerSyncRequest) {
     }
 
     try {
-      //@ts-expect-error Local install begins.
       self.importScripts(url);
     } catch (e) {
       throw new ImportError(url);
@@ -140,7 +139,6 @@ export function loadLibraries(request: EvalWorkerSyncRequest) {
   let message = "";
 
   try {
-    //@ts-expect-error no types found
     self.importScripts(...urls);
   } catch (e) {
     message = (e as Error).message;
