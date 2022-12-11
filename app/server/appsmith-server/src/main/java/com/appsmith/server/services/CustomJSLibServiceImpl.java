@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.ce.CustomJSLibServiceCEImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,7 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
 
     public CustomJSLibServiceImpl(Scheduler scheduler, Validator validator, MongoConverter mongoConverter,
                                   ReactiveMongoTemplate reactiveMongoTemplate, CustomJSLibRepository repository,
-                                  ApplicationService applicationService, AnalyticsService analyticsService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, applicationService, analyticsService);
+                                  ApplicationService applicationService, AnalyticsService analyticsService, FeatureFlagService featureFlagService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, applicationService, analyticsService, featureFlagService);
     }
 }

@@ -3,10 +3,14 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.FeatureFlagService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -29,16 +33,19 @@ import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCusto
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String> implements CustomJSLibServiceCE {
     ApplicationService applicationService;
 
+    FeatureFlagService featureFlagService;
     public CustomJSLibServiceCEImpl(Scheduler scheduler,
                                     Validator validator,
                                     MongoConverter mongoConverter,
                                     ReactiveMongoTemplate reactiveMongoTemplate,
                                     CustomJSLibRepository repository,
                                     ApplicationService applicationService,
-                                    AnalyticsService analyticsService) {
+                                    AnalyticsService analyticsService,
+                                    FeatureFlagService featureFlagService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
         this.applicationService = applicationService;
+        this.featureFlagService = featureFlagService;
     }
 
     @Override
@@ -105,6 +112,21 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     @Override
     public Mono<List<CustomJSLib>> getAllJSLibsInApplication(@NotNull String applicationId, String branchName,
                                                              Boolean isViewMode) {
+        return featureFlagService.check(FeatureFlagEnum.CUSTOM_JS_LIBRARY)
+                        .flatMap(truth -> {
+                            if (!truth) {
+                                return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                            }
+                            return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
+                        });
+    }
+
+    @Override
+    public Mono<List<CustomJSLib>> getAllJSLibsInApplicationForExport(String applicationId, String branchName, Boolean isViewMode) {
+        return getAllCustomJSLibsFromApplication(applicationId, branchName, isViewMode);
+    }
+
+    private Mono<List<CustomJSLib>> getAllCustomJSLibsFromApplication(String applicationId, String branchName, boolean isViewMode) {
         return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)
                 .map(jsLibDTOSet -> jsLibDTOSet.stream()
                         .map(dto -> dto.getUidString())

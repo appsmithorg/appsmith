@@ -181,9 +181,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         Mono<List<CustomJSLib>> unpublishedCustomJSLibListMono =
-                customJSLibService.getAllJSLibsInApplication(applicationId, null, false);
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, false);
         Mono<List<CustomJSLib>> publishedCustomJSLibListMono =
-                customJSLibService.getAllJSLibsInApplication(applicationId, null, true);
+                customJSLibService.getAllJSLibsInApplicationForExport(applicationId, null, true);
         Mono<List<CustomJSLib>> allCustomJSLibListMono = Mono.zip(unpublishedCustomJSLibListMono,
                         publishedCustomJSLibListMono)
                 .map(tuple -> {
