@@ -1,5 +1,6 @@
 import {
   ApplicationPayload,
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -227,6 +228,13 @@ export function* fetchAppAndPagesSaga(
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
+      const prevPagesState: Page[] = yield select(
+        (state: AppState) => state.entities.pageList.pages,
+      );
+      const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
+        acc[page.pageId] = page.userPermissions ?? [];
+        return acc;
+      }, {} as Record<string, string[]>);
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         payload: { ...response.data.application, pages: response.data.pages },
@@ -242,7 +250,9 @@ export function* fetchAppAndPagesSaga(
             isHidden: !!page.isHidden,
             slug: page.slug,
             customSlug: page.customSlug,
-            userPermissions: page.userPermissions,
+            userPermissions: page.userPermissions
+              ? page.userPermissions
+              : pagePermissionsMap[page.id],
           })),
           applicationId: response.data.application?.id,
         },
