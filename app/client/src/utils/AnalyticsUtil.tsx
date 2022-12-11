@@ -272,7 +272,8 @@ export type EventName =
   | "BRANDING_UPGRADE_CLICK"
   | "BRANDING_PROPERTY_UPDATE"
   | "BRANDING_SUBMIT_CLICK"
-  | "Cmd+Click Navigation";
+  | "Cmd+Click Navigation"
+  | "WIDGET_PROPERTY_SEARCH";
 
 export type AUDIT_LOGS_EVENT_NAMES =
   | "AUDIT_LOGS_CLEAR_FILTERS"

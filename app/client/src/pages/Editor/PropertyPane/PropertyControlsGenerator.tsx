@@ -5,22 +5,17 @@ import {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { WidgetType } from "constants/WidgetConstants";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
-import { searchProperty } from "./helpers";
 import { EmptySearchResult } from "./EmptySearchResult";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { isFunction } from "lodash";
-
-export enum PropertyPaneGroup {
-  CONTENT,
-  STYLE,
-}
+import { searchPropertyPaneConfig } from "./propertyPaneSearch";
+import { evaluateHiddenProperty } from "./helpers";
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -33,76 +28,39 @@ export type PropertyControlsGeneratorProps = {
   searchQuery?: string;
 };
 
-type SectionProps = {
-  sectionConfig: PropertyPaneSectionConfig;
-  config: PropertyPaneConfig;
-  generatorProps: PropertyControlsGeneratorProps;
-};
-
-function Section(props: SectionProps) {
-  const { config, generatorProps, sectionConfig } = props;
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
-  const [hidden, setHidden] = useState(false);
-
-  const isSectionHidden =
-    sectionConfig.hidden &&
-    sectionConfig.hidden(widgetProps, sectionConfig.propertySectionPath || "");
-  const sectionName = isFunction(sectionConfig.sectionName)
-    ? sectionConfig.sectionName(
-        widgetProps,
-        sectionConfig.propertySectionPath || "",
-      )
-    : sectionConfig.sectionName;
-
-  useEffect(() => {
-    if (sectionRef.current?.childElementCount === 0) {
-      // Fix issue where the section is not hidden when it has no children
-      setHidden(true);
-    } else {
-      setHidden(false);
-    }
-  }, [generatorProps.searchQuery]);
-
-  return hidden ? null : (
-    <Boxed
-      key={config.id + generatorProps.id}
-      show={sectionName !== "General" && generatorProps.type === "TABLE_WIDGET"}
-      step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
-    >
-      <PropertySection
-        childrenWrapperRef={sectionRef}
-        collapsible={sectionConfig.collapsible ?? true}
-        hidden={isSectionHidden}
-        id={config.id || sectionName}
-        isDefaultOpen={sectionConfig.isDefaultOpen}
-        key={config.id + generatorProps.id + generatorProps.searchQuery}
-        name={sectionName}
-        panelPropertyPath={generatorProps.panelPropertyPath}
-        propertyPath={sectionConfig.propertySectionPath}
-      >
-        {config.children &&
-          generatePropertyControl(config.children, generatorProps)}
-      </PropertySection>
-    </Boxed>
-  );
-}
-
 const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
+  isSearchResult: boolean,
 ) => {
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
     if ((config as PropertyPaneSectionConfig).sectionName) {
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
-        <Section
-          config={config}
-          generatorProps={props}
+        <Boxed
           key={config.id + props.id}
-          sectionConfig={sectionConfig}
-        />
+          show={
+            sectionConfig.sectionName !== "General" &&
+            props.type === "TABLE_WIDGET"
+          }
+          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
+        >
+          <PropertySection
+            childrenId={sectionConfig.childrenId}
+            collapsible={sectionConfig.collapsible ?? true}
+            hidden={sectionConfig.hidden}
+            id={config.id || sectionConfig.sectionName}
+            isDefaultOpen={sectionConfig.isDefaultOpen}
+            name={sectionConfig.sectionName}
+            panelPropertyPath={props.panelPropertyPath}
+            propertyPath={sectionConfig.propertySectionPath}
+            tag={sectionConfig.tag}
+          >
+            {config.children &&
+              generatePropertyControl(config.children, props, isSearchResult)}
+          </PropertySection>
+        </Boxed>
       );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
@@ -118,6 +76,7 @@ const generatePropertyControl = (
             isPanelProperty={!!props.isPanelProperty}
             key={config.id + props.id}
             {...(config as PropertyPaneControlConfig)}
+            isSearchResult={isSearchResult}
             panel={props.panel}
             theme={props.theme}
           />
@@ -129,12 +88,16 @@ const generatePropertyControl = (
 };
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
-  const searchResults = searchProperty(props.config, props.searchQuery);
+  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  if (!widgetProps) return null;
+  const finalProps = evaluateHiddenProperty(props.config, widgetProps);
+  const searchResults = searchPropertyPaneConfig(
+    finalProps as PropertyPaneSectionConfig[],
+    props.searchQuery,
+  );
 
-  const isSearchResultEmpty =
-    props.searchQuery &&
-    props.searchQuery.length > 0 &&
-    searchResults.length === 0;
+  const isSearchResultEmpty = searchResults.length === 0;
+  const isSearchResult = finalProps !== searchResults;
 
   return isSearchResultEmpty ? (
     <EmptySearchResult />
@@ -143,6 +106,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
       {generatePropertyControl(
         searchResults as readonly PropertyPaneConfig[],
         props,
+        isSearchResult,
       )}
     </>
   );
