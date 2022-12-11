@@ -232,7 +232,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         children: [
           {
             helpText: "Show help text or details about current selection",
-            propertyName: "tooltip",
+            propertyName: "labelTooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
             placeholderText: "Add tooltip text here",
@@ -497,6 +497,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         labelText={this.props.label}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
+        labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
@@ -504,7 +505,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}
-        tooltip={this.props.tooltip}
         widgetId={this.props.widgetId}
       />
     );
@@ -556,7 +556,6 @@ export interface DatePickerWidget2Props extends WidgetProps {
   accentColor: string;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
-  tooltip?: string;
 }
 
 export default DatePickerWidget;

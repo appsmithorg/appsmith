@@ -612,7 +612,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         resetFilterTextOnClose={!this.props.serverSideFiltering}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
-        tooltip={this.props.tooltip}
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -691,7 +690,6 @@ export interface SelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   isDirty?: boolean;
   filterText: string;
-  tooltip?: string;
 }
 
 export default SelectWidget;

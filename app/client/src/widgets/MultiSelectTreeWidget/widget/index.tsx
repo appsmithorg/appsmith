@@ -555,7 +555,6 @@ class MultiSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
-        tooltip={this.props.tooltip}
         value={this.props.selectedOptionValues}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -618,7 +617,6 @@ export interface MultiSelectTreeWidgetProps extends WidgetProps {
   boxShadow?: string;
   accentColor: string;
   isDirty: boolean;
-  tooltip?: string;
 }
 
 export default MultiSelectTreeWidget;

@@ -63,7 +63,6 @@ export interface MultiSelectProps
   onFocus?: (e: React.FocusEvent) => void;
   onBlur?: (e: React.FocusEvent) => void;
   renderMode?: RenderMode;
-  tooltip?: string;
   isDynamicHeightEnabled?: boolean;
 }
 

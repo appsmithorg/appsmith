@@ -61,7 +61,6 @@ export interface TreeSelectProps
   isFilterable: boolean;
   renderMode?: RenderMode;
   options?: DefaultOptionType[];
-  tooltip?: string;
 }
 
 export const NoDataFoundContainer = styled.div`

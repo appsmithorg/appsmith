@@ -516,7 +516,6 @@ class SingleSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
-        tooltip={this.props.tooltip}
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -577,7 +576,6 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   boxShadow?: string;
   accentColor: string;
   isDirty?: boolean;
-  tooltip?: string;
 }
 
 export default SingleSelectTreeWidget;

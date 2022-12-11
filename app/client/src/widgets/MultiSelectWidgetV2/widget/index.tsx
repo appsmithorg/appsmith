@@ -689,7 +689,6 @@ class MultiSelectWidget extends BaseWidget<
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
         serverSideFiltering={this.props.serverSideFiltering}
-        tooltip={this.props.tooltip}
         value={values}
         widgetId={this.props.widgetId}
         width={componentWidth}
@@ -773,7 +772,6 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelAlignment?: Alignment;
   labelWidth?: number;
   isDirty?: boolean;
-  tooltip?: string;
 }
 
 export default MultiSelectWidget;
