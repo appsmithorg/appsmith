@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -96,7 +95,7 @@ public class UserAndAccessManagementServiceTest {
                     UserForManagementDTO apiUserDto = users.stream().filter(user -> user.getUsername().equals("api_user")).findFirst().get();
                     assertThat(apiUserDto.getId()).isEqualTo(api_user.getId());
                     assertThat(apiUserDto.getGroups().size()).isEqualTo(0);
-                    assertThat(apiUserDto.getRoles().size()).isEqualTo(2);
+                    assertThat(apiUserDto.getRoles().size()).isEqualTo(1);
 
                     boolean adminRole = apiUserDto.getRoles().stream()
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
@@ -136,7 +135,7 @@ public class UserAndAccessManagementServiceTest {
 
                     assertThat(user.getId()).isEqualTo(api_user.getId());
                     assertThat(user.getGroups().size()).isEqualTo(0);
-                    assertThat(user.getRoles().size()).isEqualTo(2);
+                    assertThat(user.getRoles().size()).isEqualTo(1);
 
                     boolean adminRole = user.getRoles().stream()
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
@@ -173,10 +172,10 @@ public class UserAndAccessManagementServiceTest {
 
         User createdUser = userService.create(newUser).block();
 
-        Set<Policy> userPolicies = createdUser.getPolicies();
-        Policy policy = userPolicies.stream().findFirst().get();
-        String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
-        PermissionGroup existingPermissionGroup = permissionGroupService.findById(permissionGroupId).block();
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName("deleteUserTest_valid permission group");
+        permissionGroup.setAssignedToUserIds(Set.of(createdUser.getId()));
+        PermissionGroup existingPermissionGroup = permissionGroupService.create(permissionGroup).block();
 
         UserGroup ug = new UserGroup();
         ug.setName("deleteUserTest_valid User Group");
@@ -190,10 +189,10 @@ public class UserAndAccessManagementServiceTest {
 
         StepVerifier.create(Mono.zip(existingPermissionGroupPostDeleteMono, existingGroupAfterDeleteMono))
                 .assertNext(tuple -> {
-                    PermissionGroup permissionGroup = tuple.getT1();
+                    PermissionGroup pgPostDelete = tuple.getT1();
                     UserGroup userGroup = tuple.getT2();
 
-                    assertThat(permissionGroup.getAssignedToUserIds()).doesNotContain(createdUser.getId());
+                    assertThat(pgPostDelete.getAssignedToUserIds()).doesNotContain(createdUser.getId());
                     assertThat(userGroup.getUsers()).doesNotContain(createdUserGroup.getId());
                 })
                 .verifyComplete();
