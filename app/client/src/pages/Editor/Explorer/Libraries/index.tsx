@@ -111,18 +111,32 @@ const Library = styled.li`
     width: 100%;
     overflow: hidden;
     .accessor {
-      padding: 2px 8px;
+      padding-left: 8px;
       flex-grow: 1;
-      border: 1px solid #b3b3b3;
+      outline: 1px solid #b3b3b3 !important;
       font-size: 12px;
       font-family: monospace;
       background: white;
       display: flex;
-      height: 26px;
+      height: 25px;
       width: calc(100% - 80px);
       justify-content: space-between;
       align-items: center;
       color: ${Colors.ENTERPRISE_DARK};
+      > div {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        width: 25px;
+        &: hover {
+          background: ${Colors.SHARK2};
+          > svg > path {
+            fill: ${Colors.WHITE};
+          }
+        }
+      }
     }
   }
 `;
@@ -213,7 +227,9 @@ function LibraryEntity({ lib }: any) {
           Available as{" "}
           <div className="accessor">
             {lib.accessor[lib.accessor.length - 1]}{" "}
-            <CopyIcon onClick={copyToClipboard} />
+            <div>
+              <CopyIcon onClick={copyToClipboard} />
+            </div>
           </div>
         </div>
       </Collapse>
