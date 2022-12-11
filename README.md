@@ -236,7 +236,6 @@ Lets build great software together.
 [![appsmithguru](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/116803038?v=4&w=50&h=50&mask=circle)](https://github.com/appsmithguru)
 [![hiteshjoshi](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/217911?v=4&w=50&h=50&mask=circle)](https://github.com/hiteshjoshi)
 [![rlnorthcutt](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/673633?v=4&w=50&h=50&mask=circle)](https://github.com/rlnorthcutt)
-[![vuiets](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1571370?v=4&w=50&h=50&mask=circle)](https://github.com/vuiets)
 [![tomjose92](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5265702?v=4&w=50&h=50&mask=circle)](https://github.com/tomjose92)
 [![ginilpg](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/8299030?v=4&w=50&h=50&mask=circle)](https://github.com/ginilpg)
 [![sribalajig](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/15727421?v=4&w=50&h=50&mask=circle)](https://github.com/sribalajig)
