@@ -1109,6 +1109,8 @@ export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No Properties found based on your search";
+export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
+  "Search for controls, labels etc";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
