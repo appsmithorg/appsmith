@@ -32,8 +32,19 @@ export const getSelectedPropertyPanel = (state: AppState) =>
   state.ui.propertyPane.selectedPropertyPanel;
 
 export const getCurrentWidgetId = createSelector(
-  getPropertyPaneState,
-  (propertyPane: PropertyPaneReduxState) => propertyPane.widgetId,
+  getSelectedWidgets,
+  (widgetIds: string[]) => widgetIds[0],
+);
+
+const getRecentlyAddedWidgets = (state: AppState) =>
+  state.ui.canvasSelection.recentlyAddedWidget;
+
+export const getIsCurrentWidgetRecentlyAdded = createSelector(
+  getCurrentWidgetId,
+  getRecentlyAddedWidgets,
+  (currentWidgetId, recentlyAddedWidgets) => {
+    return currentWidgetId in recentlyAddedWidgets;
+  },
 );
 
 export const getCurrentWidgetProperties = createSelector(
@@ -44,6 +55,13 @@ export const getCurrentWidgetProperties = createSelector(
     selectedWidgetIds: string[],
   ): WidgetProps | undefined => {
     return get(widgets, `${selectedWidgetIds[0]}`);
+  },
+);
+
+const getCurrentWidgetName = createSelector(
+  getCurrentWidgetProperties,
+  (widget) => {
+    return get(widget, "widgetName");
   },
 );
 
@@ -273,5 +291,27 @@ export const getSelectedPropertyPanelIndex = createSelector(
     if (!path || selectedPropertyPanel[path] === undefined) return;
 
     return selectedPropertyPanel[path];
+  },
+);
+
+export const getShouldFocusPropertySearch = createSelector(
+  getIsCurrentWidgetRecentlyAdded,
+  getFocusablePropertyPaneField,
+  (
+    isCurrentWidgetRecentlyAdded: boolean,
+    focusableField: string | undefined,
+  ) => {
+    return !isCurrentWidgetRecentlyAdded && !focusableField;
+  },
+);
+
+export const getShouldFocusPanelPropertySearch = createSelector(
+  getSelectedPropertyPanel,
+  getCurrentWidgetName,
+  (propertyPanel, widgetName) => {
+    if (!widgetName) return false;
+    return Object.keys(propertyPanel)
+      .map((x) => x.split(".")[0])
+      .includes(widgetName);
   },
 );
