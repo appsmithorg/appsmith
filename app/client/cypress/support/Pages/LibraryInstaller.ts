@@ -21,13 +21,14 @@ export class LibraryInstaller {
     this._aggregateHelper.GetNClick(this._installer_close_locator);
   }
 
-  public installLibrary(libraryName: string) {
+  public installLibrary(libraryName: string, accessor: string) {
     cy.get(this.getLibraryCardLocator(libraryName))
       .find(".t--download")
       .click();
+    this.assertInstall(libraryName, accessor);
   }
 
-  public assertInstall(libraryName: string, accessor: string) {
+  private assertInstall(libraryName: string, accessor: string) {
     this._aggregateHelper.AssertContains(
       `Installation Successful. You can access the library via ${accessor}`,
     );

@@ -4,6 +4,7 @@ const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
   EntityExplorer: ee,
+  LibraryInstaller: installer,
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
@@ -70,5 +71,21 @@ describe("Autocomplete bug fixes", function() {
 
     propPane.TypeTextIntoField("Text", "{{new xmlParser.j2xParser().p");
     agHelper.GetNAssertElementText(locator._hints, "parse()");
+  });
+
+  it("5. Installed library should show up in autocomplete", function() {
+    ee.ExpandCollapseEntity("Libraries");
+    installer.openInstaller();
+    installer.installLibrary("uuidjs", "UUID");
+    installer.closeInstaller();
+    ee.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{UUI");
+    agHelper.GetNAssertElementText(locator._hints, "UUID()");
+  });
+
+  it("6. No autocomplete for Removed libraries", function() {
+    installer.uninstallLibrary("uuidjs");
+    propPane.TypeTextIntoField("Text", "{{UUID");
+    agHelper.GetNAssertContains(locator._hints, "UUID()", "not.exist");
   });
 });

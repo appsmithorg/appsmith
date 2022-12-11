@@ -51,7 +51,13 @@ const initialState: EditorContextState = {
   explorerSwitchIndex: 0,
 };
 
-const entitySections = ["Pages", "Widgets", "Queries/JS", "Datasources"];
+const entitySections = [
+  "Pages",
+  "Widgets",
+  "Queries/JS",
+  "Datasources",
+  "Libraries",
+];
 
 export const isSubEntities = (name: string): boolean => {
   return entitySections.indexOf(name) < 0;

@@ -246,7 +246,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
     }
 
     try {
-      CodemirrorTernService.removeDef(`LIB/${name}`);
+      CodemirrorTernService.removeDef(`LIB/${accessor[accessor.length - 1]}`);
     } catch (e) {
       log.debug(`Failed to remove definitions for ${name}`, e);
     }

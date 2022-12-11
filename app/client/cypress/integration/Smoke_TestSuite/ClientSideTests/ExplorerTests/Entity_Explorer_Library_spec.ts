@@ -7,8 +7,7 @@ describe("Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
     explorer.ExpandCollapseEntity("Libraries");
     installer.openInstaller();
-    installer.installLibrary("uuidjs");
-    installer.assertInstall("uuidjs", "UUID");
+    installer.installLibrary("uuidjs", "UUID");
     installer.uninstallLibrary("uuidjs");
     installer.assertUnInstall("uuidjs");
   });

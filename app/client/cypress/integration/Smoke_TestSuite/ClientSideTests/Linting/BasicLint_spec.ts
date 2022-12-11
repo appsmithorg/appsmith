@@ -7,7 +7,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
   propPane = ObjectsRegistry.PropertyPane,
-  installer = ObjectsRegistry.LibraryInstaller;
+  installer = ObjectsRegistry.LibraryInstaller,
+  home = ObjectsRegistry.HomePage;
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
@@ -50,12 +51,12 @@ const createMySQLDatasourceQuery = () => {
 
 describe("Linting", () => {
   before(() => {
-    ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
-    dataSources.CreateDataSource("MySql");
-    cy.get("@dsName").then(($dsName) => {
-      dsName = ($dsName as unknown) as string;
-    });
+    // ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
+    // ee.NavigateToSwitcher("explorer");
+    // dataSources.CreateDataSource("MySql");
+    // cy.get("@dsName").then(($dsName) => {
+    //   dsName = ($dsName as unknown) as string;
+    // });
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
@@ -293,7 +294,7 @@ describe("Linting", () => {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 
-  it.skip("9. Shows lint errors for usage of library that are not installed yet", () => {
+  it.only("9. Shows lint errors for usage of library that are not installed yet", () => {
     const JS_OBJECT_WITH_LIB_API = `export default {
       myFun1: () => {
         return UUID.generate();
@@ -307,15 +308,32 @@ describe("Linting", () => {
     });
 
     agHelper.AssertElementExist(locator._lintErrorElement);
-
+    ee.ExpandCollapseEntity("Libraries");
     // install the library
     installer.openInstaller();
-    installer.installLibrary("uuidjs");
+    installer.installLibrary("uuidjs", "UUID");
     installer.closeInstaller();
 
     agHelper.AssertElementAbsence(locator._lintErrorElement);
 
     installer.uninstallLibrary("uuidjs");
+
+    agHelper.AssertElementExist(locator._lintErrorElement);
+    agHelper.Sleep(2000);
+    installer.openInstaller();
+    installer.installLibrary("uuidjs", "UUID");
+    installer.closeInstaller();
+
+    home.NavigateToHome();
+
+    home.CreateNewApplication();
+
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_LIB_API, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
 
     agHelper.AssertElementExist(locator._lintErrorElement);
   });
