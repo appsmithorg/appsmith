@@ -62,3 +62,8 @@ export const USER_LABEL = () => "User";
 export const DATE_LABEL = () => "Date";
 export const REFRESH = () => "REFRESH";
 // Audit logs end
+
+// Branding
+export const ADMIN_BRANDING_SETTINGS_TITLE = () => "Branding";
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+  "Set your organization's logo and brand colors.";

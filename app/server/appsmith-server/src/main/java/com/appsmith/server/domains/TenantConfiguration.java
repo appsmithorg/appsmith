@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ce.TenantConfigurationCE;
+import com.appsmith.server.services.UserServiceImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
     BrandColors brandColors;
 
     public String getBrandLogoUrl() {
-        return assetToUrl(whiteLabelLogo, "https://assets.appsmith.com/appsmith-logo-full.png");
+        return assetToUrl(whiteLabelLogo, UserServiceImpl.DEFAULT_APPSMITH_LOGO);
     }
 
     public String getBrandFaviconUrl() {
@@ -46,7 +47,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
     }
 
     public void copyNonSensitiveValues(TenantConfiguration tenantConfiguration) {
-        if (isWhitelabelEnabled()) {
+        if (tenantConfiguration.isWhitelabelEnabled()) {
             this.whiteLabelLogo = tenantConfiguration.getWhiteLabelLogo();
             this.whiteLabelFavicon = tenantConfiguration.getWhiteLabelFavicon();
             this.brandColors = tenantConfiguration.getBrandColors();
