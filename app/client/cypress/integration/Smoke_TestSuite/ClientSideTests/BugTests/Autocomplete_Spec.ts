@@ -84,6 +84,7 @@ describe("Autocomplete bug fixes", function() {
   });
 
   it("6. No autocomplete for Removed libraries", function() {
+    ee.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
     installer.uninstallLibrary("uuidjs");
     propPane.TypeTextIntoField("Text", "{{UUID");
     agHelper.GetNAssertContains(locator._hints, "UUID()", "not.exist");
