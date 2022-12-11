@@ -261,8 +261,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
           handleReorderColumn([
             ...leftOrder,
             ...newColumnOrder,
-            ...rightOrder,
             ...hiddenColumns,
+            ...rightOrder,
           ]);
         } else {
           dragged = -1;

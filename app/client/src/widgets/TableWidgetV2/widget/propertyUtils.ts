@@ -188,7 +188,26 @@ export const updateColumnOrderHook = (
   }> = [];
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
     const oldColumnOrder = props.columnOrder || [];
-    const newColumnOrder = [...oldColumnOrder, propertyValue.id];
+    let newColumnOrder;
+    // get index of first right frozen column:
+    let rightColumnIndex = -1;
+
+    oldColumnOrder.forEach((colName: string, idx: number) => {
+      const column = props.primaryColumns[colName];
+      if (column.sticky === "right") {
+        rightColumnIndex = idx;
+      }
+    });
+    if (rightColumnIndex !== -1) {
+      newColumnOrder = [
+        ...oldColumnOrder.slice(0, rightColumnIndex),
+        propertyValue.id,
+        ...oldColumnOrder.slice(rightColumnIndex),
+      ];
+    } else {
+      newColumnOrder = [...oldColumnOrder, propertyValue.id];
+    }
+
     propertiesToUpdate.push({
       propertyPath: "columnOrder",
       propertyValue: newColumnOrder,

@@ -14,6 +14,7 @@ import _, {
   union,
   isObject,
   get,
+  findLastIndex,
 } from "lodash";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
@@ -323,7 +324,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
-      columns = columns.concat(hiddenColumns);
+      // Get the index of the first column that is frozen to right
+      const rightFrozenColumnIdx = findLastIndex(
+        columns,
+        (col) => col.sticky === "right",
+      );
+      if (rightFrozenColumnIdx !== -1) {
+        columns.splice(rightFrozenColumnIdx, 0, ...hiddenColumns);
+      } else {
+        columns = columns.concat(hiddenColumns);
+      }
     }
 
     return columns.filter((column: ReactTableColumnProps) => !!column.id);

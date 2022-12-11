@@ -54,6 +54,7 @@ export default [
           updateCustomColumnAliasOnLabelChange,
         ]),
         dependencies: [
+          "primaryColumns",
           "columnOrder",
           "childStylesheet",
           "inlineEditingSaveOption",

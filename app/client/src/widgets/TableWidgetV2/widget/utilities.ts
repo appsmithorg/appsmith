@@ -569,7 +569,22 @@ export const createColumn = (props: TableWidgetProps, baseName: string) => {
     .map((column) => column.index)
     .sort()
     .pop();
-  const nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
+
+  /**
+   * Check if any right column frozen are existing
+   * If yes place before them
+   * If no place normally.
+   */
+  let nextIndex;
+  if (
+    lastItemIndex &&
+    props.columnOrder &&
+    columns[props.columnOrder[lastItemIndex]].sticky === "right"
+  ) {
+    nextIndex = lastItemIndex;
+  } else {
+    nextIndex = lastItemIndex ? lastItemIndex + 1 : columnIds.length;
+  }
 
   return {
     ...getDefaultColumnProperties(
