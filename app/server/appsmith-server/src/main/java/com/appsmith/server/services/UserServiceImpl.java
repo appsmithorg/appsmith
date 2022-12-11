@@ -43,8 +43,11 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final TenantService tenantService;
     private final UserUtils userUtils;
     private final PermissionGroupService permissionGroupService;
-    private static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo.svg";
-    public static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
+    private final CommonConfig commonConfig;
+    public static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo.svg";
+    private static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
+    private static final String DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
+    private static final String DEFAULT_FONT_COLOR = "#000000";
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -77,6 +80,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         this.tenantService = tenantService;
         this.userUtils = userUtils;
         this.permissionGroupService = permissionGroupService;
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -134,14 +138,21 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                     final TenantConfiguration tenantConfiguration = tuple.getT2().getTenantConfiguration();
                     String logoUrl = null;
                     String primaryColor = null;
+                    String backgroundColor = null;
+                    String fontColor = null;
 
                     if (StringUtils.isNotEmpty(origin) && tenantConfiguration.isWhitelabelEnabled()) {
                         logoUrl = origin + tenantConfiguration.getBrandLogoUrl();
                         primaryColor = tenantConfiguration.getBrandColors().getPrimary();
+                        backgroundColor = tenantConfiguration.getBrandColors().getBackground();
+                        fontColor = tenantConfiguration.getBrandColors().getFont();
                     }
 
+                    params.put("instanceName", StringUtils.defaultIfEmpty(commonConfig.getInstanceName(), "Appsmith"));
                     params.put("logoUrl", StringUtils.defaultIfEmpty(logoUrl, DEFAULT_APPSMITH_LOGO));
-                    params.put("primaryColor", StringUtils.defaultIfEmpty(primaryColor, DEFAULT_PRIMARY_COLOR));
+                    params.put("brandPrimaryColor", StringUtils.defaultIfEmpty(primaryColor, DEFAULT_PRIMARY_COLOR));
+                    params.put("brandBackgroundColor", StringUtils.defaultIfEmpty(backgroundColor, DEFAULT_BACKGROUND_COLOR));
+                    params.put("brandFontColor", StringUtils.defaultIfEmpty(fontColor, DEFAULT_FONT_COLOR));
                     return params;
                 });
     }

@@ -39,13 +39,6 @@ describe("Branding", () => {
     cy.get(locators.LeftPaneBrandingLink).should("be.visible");
     cy.get(locators.LeftPaneBrandingLink).click();
     cy.wait(2000);
-
-    cy.get("h2").contains(
-      Cypress.env("MESSAGES").ADMIN_BRANDING_SETTINGS_TITLE(),
-    );
-    cy.get("h2 + div").contains(
-      Cypress.env("MESSAGES").ADMIN_BRANDING_SETTINGS_SUBTITLE(),
-    );
   });
 
   it("should test that changing logo,favicon and color changes the preview", () => {

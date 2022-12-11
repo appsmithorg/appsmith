@@ -98,10 +98,12 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
                 "        {\n" +
                 "            \"workspaceId\": {\n" +
                 "                \"$in\": [");
-        for (String workspaceId : workspaceIds) {
-            sb.append("\"").append(workspaceId).append("\",");
+        StringBuilder workspaceIdString = new StringBuilder();
+        workspaceIds.forEach(workspaceId -> workspaceIdString.append("\"").append(workspaceId).append("\","));
+        if (workspaceIdString.length() != 0) {
+            workspaceIdString.deleteCharAt(workspaceIdString.length() - 1);
         }
-        sb.deleteCharAt(sb.length() - 1);
+        sb.append(workspaceIdString);
         sb.append("]}},\n" +
                         "        {\n" +
                         "            \"$or\": [\n" +

@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
@@ -26,7 +27,10 @@ import {
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
-import { createJSCollectionRequest } from "actions/jsActionActions";
+import {
+  createJSCollectionRequest,
+  logActionExecutionForAudit,
+} from "actions/jsActionActions";
 import history from "utils/history";
 import { executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
@@ -385,6 +389,15 @@ export function* handleExecuteJSFunctionSaga(data: {
         isDirty,
       },
     });
+    yield put(
+      logActionExecutionForAudit({
+        actionName: action.name,
+        actionId: action.id,
+        collectionId: collectionId,
+        pageId: action.pageId,
+        pageName: yield select(getCurrentPageName),
+      }),
+    );
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
