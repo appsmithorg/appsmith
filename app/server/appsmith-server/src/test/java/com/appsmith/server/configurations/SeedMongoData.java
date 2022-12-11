@@ -232,7 +232,13 @@ public class SeedMongoData {
                             .flatMap(defaultRoleConfig -> {
                                 JSONObject config = defaultRoleConfig.getConfig();
                                 String defaultPermissionGroup = (String) config.getOrDefault(PERMISSION_GROUP_ID, "");
-                                return permissionGroupRepository.findById(defaultPermissionGroup);
+                                /*
+                                    We use retrieveById instead of findById because findById tries to get the logged in user's
+                                    principal object before querying the DB. Since we are running this code in SeedMongo, there
+                                    is no logged in user. Hence, we use retrieveById which simply queries the DB to fetch
+                                    non-deleted object with the given ID parameter.
+                                 */
+                                return permissionGroupRepository.retrieveById(defaultPermissionGroup);
                             })
                             .flatMap(defaultPermissionGroup -> {
                                 Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());

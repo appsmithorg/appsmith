@@ -21,6 +21,10 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 
+import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 @Slf4j
 @Service
 public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements WorkspaceService {
@@ -61,11 +65,12 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
         return repository.retrieveById(workspaceId);
     }
 
-//    @Override
-//    protected Mono<Boolean> isCreateWorkspaceAllowed() {
-//        return tenantService.getDefaultTenant(CREATE_WORKSPACES)
-//                .map(tenant -> TRUE)
-//                .switchIfEmpty(Mono.just(FALSE));
-//    }
+    @Override
+    protected Mono<Boolean> isCreateWorkspaceAllowed() {
+
+        return tenantService.getDefaultTenant(CREATE_WORKSPACES)
+                .map(tenant -> TRUE)
+                .switchIfEmpty(Mono.just(FALSE));
+    }
 
 }
