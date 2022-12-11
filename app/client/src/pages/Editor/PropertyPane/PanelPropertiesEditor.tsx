@@ -223,6 +223,7 @@ export function PanelPropertiesEditor(
                     <PropertyControlsGenerator
                       config={panelConfigsWithStyleAndContent.content}
                       id={widgetProperties.widgetId}
+                      isPanelProperty
                       panel={panel}
                       panelPropertyPath={panelPropertyPath}
                       theme={theme}
@@ -239,6 +240,7 @@ export function PanelPropertiesEditor(
                     <PropertyControlsGenerator
                       config={panelConfigsWithStyleAndContent.style}
                       id={widgetProperties.widgetId}
+                      isPanelProperty
                       panel={panel}
                       panelPropertyPath={panelPropertyPath}
                       theme={theme}
@@ -256,6 +258,7 @@ export function PanelPropertiesEditor(
             <PropertyControlsGenerator
               config={panelConfigs}
               id={widgetProperties.widgetId}
+              isPanelProperty
               panel={panel}
               panelPropertyPath={panelPropertyPath}
               theme={theme}

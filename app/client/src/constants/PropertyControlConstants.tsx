@@ -96,7 +96,7 @@ export type PropertyPaneControlConfig = {
   postUpdateAction?: ReduxActionType;
   onBlur?: () => void;
   onFocus?: () => void;
-
+  isPanelProperty?: boolean;
   // Numeric Input Control
   min?: number;
 };

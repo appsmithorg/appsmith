@@ -23,6 +23,7 @@ export type PropertyControlsGeneratorProps = {
   type: WidgetType;
   panel: IPanelProps;
   panelPropertyPath?: string;
+  isPanelProperty?: boolean;
   theme: EditorTheme;
   searchQuery?: string;
 };
@@ -72,6 +73,7 @@ const generatePropertyControl = (
           step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
           <PropertyControl
+            isPanelProperty={!!props.isPanelProperty}
             key={config.id + props.id}
             {...(config as PropertyPaneControlConfig)}
             isSearchResult={isSearchResult}
