@@ -344,63 +344,60 @@ function DatasourceCard(props: DatasourceCardProps) {
                 plugin={plugin}
               />
             )}
-            {canDeleteDatasource ||
-              (canEditDatasource && (
-                <MenuWrapper
-                  className="t--datasource-menu-option"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <MenuComponent
-                    menuItemWrapperWidth="160px"
-                    position={Position.BOTTOM_RIGHT}
-                    target={
-                      <MoreOptionsContainer>
-                        <Icon
-                          fillColor={
-                            datasource.isConfigured
-                              ? Colors.GREY_8
-                              : Colors.GRAY2
-                          }
-                          name="comment-context-menu"
-                          size={IconSize.XXXL}
-                        />
-                      </MoreOptionsContainer>
-                    }
-                  >
-                    {canEditDatasource && (
-                      <MenuItem
-                        className="t--datasource-option-edit"
-                        icon="edit"
-                        onSelect={editDatasource}
-                        text="Edit"
-                      />
-                    )}
-                    {canDeleteDatasource && (
-                      <RedMenuItem
-                        className="t--datasource-option-delete"
-                        icon="delete"
-                        isLoading={isDeletingDatasource}
-                        onSelect={() => {
-                          if (!isDeletingDatasource) {
-                            confirmDelete
-                              ? deleteAction()
-                              : setConfirmDelete(true);
-                          }
-                        }}
-                        text={
-                          isDeletingDatasource
-                            ? createMessage(CONFIRM_CONTEXT_DELETING)
-                            : confirmDelete
-                            ? createMessage(CONFIRM_CONTEXT_DELETE)
-                            : createMessage(CONTEXT_DELETE)
+            {(canDeleteDatasource || canEditDatasource) && (
+              <MenuWrapper
+                className="t--datasource-menu-option"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <MenuComponent
+                  menuItemWrapperWidth="160px"
+                  position={Position.BOTTOM_RIGHT}
+                  target={
+                    <MoreOptionsContainer>
+                      <Icon
+                        fillColor={
+                          datasource.isConfigured ? Colors.GREY_8 : Colors.GRAY2
                         }
+                        name="comment-context-menu"
+                        size={IconSize.XXXL}
                       />
-                    )}
-                  </MenuComponent>
-                </MenuWrapper>
-              ))}
+                    </MoreOptionsContainer>
+                  }
+                >
+                  {canEditDatasource && (
+                    <MenuItem
+                      className="t--datasource-option-edit"
+                      icon="edit"
+                      onSelect={editDatasource}
+                      text="Edit"
+                    />
+                  )}
+                  {canDeleteDatasource && (
+                    <RedMenuItem
+                      className="t--datasource-option-delete"
+                      icon="delete"
+                      isLoading={isDeletingDatasource}
+                      onSelect={() => {
+                        if (!isDeletingDatasource) {
+                          confirmDelete
+                            ? deleteAction()
+                            : setConfirmDelete(true);
+                        }
+                      }}
+                      text={
+                        isDeletingDatasource
+                          ? createMessage(CONFIRM_CONTEXT_DELETING)
+                          : confirmDelete
+                          ? createMessage(CONFIRM_CONTEXT_DELETE)
+                          : createMessage(CONTEXT_DELETE)
+                      }
+                    />
+                  )}
+                </MenuComponent>
+              </MenuWrapper>
+            )}
           </ButtonsWrapper>
         </DatasourceCardHeader>
       </DatasourceCardMainBody>
