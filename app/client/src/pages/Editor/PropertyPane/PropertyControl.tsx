@@ -110,9 +110,9 @@ const PropertyControl = memo((props: Props) => {
   );
 
   useEffect(() => {
+    // This is required because layered panels like Column Panel have Animation of 300ms
+    const focusTimeout = props.isPanelProperty ? 300 : 0;
     if (shouldFocusPropertyPath) {
-      // We can get a code editor element as well, which will take time to load
-      // for that we setTimeout to 200 ms
       setTimeout(() => {
         if (shouldFocusOnPropertyControl(controlRef.current)) {
           const focusableElement = getPropertyControlFocusElement(
@@ -124,7 +124,7 @@ const PropertyControl = memo((props: Props) => {
           });
           focusableElement?.focus();
         }
-      }, 0);
+      }, focusTimeout);
     }
   }, [shouldFocusPropertyPath]);
   /**

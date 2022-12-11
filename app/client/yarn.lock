@@ -6202,10 +6202,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.37":
-  version "1.0.37"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.37.tgz#1e38df952bc19b4542407b8b0666e62fd845ff04"
-  integrity sha512-1y424NBUHyRjSygjLvk9hTu2J+/WxzUFw9QeAjBxqfslvYEopZGCW8Y//nAG2jSKQ0Y1GnRmWmKfC8Px3ijgBA==
+"design-system@npm:@appsmithorg/design-system@1.0.38":
+  version "1.0.38"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.38.tgz#e35de07566fcd3897122a81c9f8fb6278481db66"
+  integrity sha512-LWZB3hb+K4XXtmizyDRnnyzEdZrlnWtWiv8MLRjz8Aij7GAVn47SA51FtMJojyBWdU2f4uARWxrqkxa6RlXcXQ==
   dependencies:
     emoji-mart "3.0.1"
 
@@ -13855,9 +13855,10 @@ slice-ansi@^5.0.0:
     ansi-styles "^6.0.0"
     is-fullwidth-code-point "^4.0.0"
 
-smartlook-client@^4.5.1:
-  version "4.6.1"
-  resolved "https://registry.npmjs.org/smartlook-client/-/smartlook-client-4.6.1.tgz"
+smartlook-client@^8.0.0:
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/smartlook-client/-/smartlook-client-8.0.0.tgz#71825b41bd467effe0091df40ec1e254bfccb202"
+  integrity sha512-gx0+mYv5hUKGE/ZcuPcft2OWR8BetnTw3QWZXX2QQjhJbgliKcioDC+NrczxZmnwUalpW4RjXb4iS8lQUAZkEQ==
 
 snake-case@^3.0.4:
   version "3.0.4"
