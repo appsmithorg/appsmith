@@ -73,25 +73,29 @@ type BodyPropsType = {
 const TableVirtualBodyComponent = React.forwardRef(
   (props: BodyPropsType, ref: Ref<HTMLDivElement>) => {
     return (
-      <div {...props.getTableBodyProps()} className="tbody no-scroll body">
-        <FixedSizeList
-          height={
-            props.height -
-            props.tableSizes.TABLE_HEADER_HEIGHT -
-            props.tableSizes.COLUMN_HEADER_HEIGHT -
-            2 * WIDGET_PADDING // Top and bottom padding
-          }
-          itemCount={Math.max(props.rows.length, props.pageSize)}
-          itemData={props.rows}
-          itemSize={
-            props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
-          }
-          outerRef={ref}
-          width={`calc(100% + ${2 * WIDGET_PADDING}px`}
-        >
-          {rowRenderer}
-        </FixedSizeList>
-      </div>
+      <FixedSizeList
+        className="tbody no-scroll body"
+        height={
+          props.height -
+          props.tableSizes.TABLE_HEADER_HEIGHT -
+          props.tableSizes.COLUMN_HEADER_HEIGHT -
+          2 * WIDGET_PADDING // Top and bottom padding
+        }
+        innerElementType={({ children, style, ...rest }: any) => (
+          <div {...props.getTableBodyProps()} style={style} {...rest}>
+            {children}
+          </div>
+        )}
+        itemCount={Math.max(props.rows.length, props.pageSize)}
+        itemData={props.rows}
+        itemSize={
+          props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
+        }
+        outerRef={ref}
+        width={`calc(100% + ${2 * WIDGET_PADDING}px`}
+      >
+        {rowRenderer}
+      </FixedSizeList>
     );
   },
 );

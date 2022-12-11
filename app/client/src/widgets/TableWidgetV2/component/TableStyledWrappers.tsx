@@ -77,10 +77,6 @@ export const TableWrapper = styled.div<{
     display: table;
     width: 100%;
     ${hideScrollbar};
-    .thead,
-    .tbody {
-      overflow: visible;
-    }
     .tbody {
       height: ${(props) =>
         props.isHeaderVisible
@@ -89,10 +85,9 @@ export const TableWrapper = styled.div<{
       width: 100%;
     }
     .tbody.no-scroll {
-      overflow: clip;
+      overflow: visible !important;
     }
     .tr {
-      overflow: clip;
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
@@ -196,10 +191,12 @@ export const TableWrapper = styled.div<{
     }
 
     [data-sticky-last-left-td] {
+      left: 0px;
       box-shadow: 2px 0px 3px #ccc;
     }
 
     [data-sticky-first-right-td] {
+      right: 0px;
       box-shadow: -2px 0px 3px #ccc;
     }
   }
