@@ -4,15 +4,11 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { flashElementsById, quickScrollToWidget } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
-import { showModal, closeAllModals } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
-import WidgetFactory from "utils/WidgetFactory";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import store from "store";
-
-const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
@@ -33,14 +29,7 @@ export const useNavigateToWidget = () => {
     widgetId: string,
     widgetType: WidgetType,
     pageId: string,
-    parentModalId?: string,
   ) => {
-    if (widgetType === WidgetTypes.MODAL_WIDGET) {
-      dispatch(showModal(widgetId));
-      return;
-    }
-    if (parentModalId) dispatch(showModal(parentModalId));
-    else dispatch(closeAllModals());
     selectWidget(widgetId, false);
     navigateToCanvas(pageId, widgetId);
     quickScrollToWidget(widgetId);
@@ -62,7 +51,6 @@ export const useNavigateToWidget = () => {
       widgetType: WidgetType,
       pageId: string,
       isWidgetSelected?: boolean,
-      parentModalId?: string,
       isMultiSelect?: boolean,
       isShiftSelect?: boolean,
       widgetsInStep?: string[],
@@ -77,7 +65,7 @@ export const useNavigateToWidget = () => {
       } else if (isMultiSelect) {
         multiSelectWidgets(widgetId, pageId);
       } else {
-        selectSingleWidget(widgetId, widgetType, pageId, parentModalId);
+        selectSingleWidget(widgetId, widgetType, pageId);
       }
     },
     [dispatch, params, selectWidget],

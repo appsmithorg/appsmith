@@ -27,6 +27,8 @@ export type PropertyControlsGeneratorProps = {
   config: readonly PropertyPaneConfig[];
   type: WidgetType;
   panel: IPanelProps;
+  panelPropertyPath?: string;
+  isPanelProperty?: boolean;
   theme: EditorTheme;
   searchQuery?: string;
 };
@@ -76,6 +78,7 @@ function Section(props: SectionProps) {
         isDefaultOpen={sectionConfig.isDefaultOpen}
         key={config.id + generatorProps.id + generatorProps.searchQuery}
         name={sectionName}
+        panelPropertyPath={generatorProps.panelPropertyPath}
         propertyPath={sectionConfig.propertySectionPath}
       >
         {config.children &&
@@ -112,6 +115,7 @@ const generatePropertyControl = (
           step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
           <PropertyControl
+            isPanelProperty={!!props.isPanelProperty}
             key={config.id + props.id}
             {...(config as PropertyPaneControlConfig)}
             panel={props.panel}

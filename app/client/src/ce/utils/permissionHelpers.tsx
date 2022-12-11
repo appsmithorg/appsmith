@@ -57,6 +57,18 @@ export const isPermitted = (
   return permissions.includes(type);
 };
 
+export const hasDeleteApplicationPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_APPLICATION);
+};
+
+export const hasCreateNewAppPermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.CREATE_APPLICATION);
+};
+
+export const hasDeleteWorkspacePermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.MANAGE_WORKSPACE);
+};
+
 export const hasCreateDatasourcePermission = (_permissions?: string[]) => true;
 
 export const hasManageDatasourcePermission = (_permissions?: string[]) => true;
