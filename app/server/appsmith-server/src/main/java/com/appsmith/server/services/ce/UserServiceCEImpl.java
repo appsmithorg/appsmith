@@ -559,8 +559,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
         Map<String, String> params = new HashMap<>();
         params.put("primaryLinkUrl", originHeader);
-        Mono<User> emailMono = emailSender
-                .sendMail(user.getEmail(), "Welcome to Appsmith", WELCOME_USER_EMAIL_TEMPLATE, params)
+
+        return updateTenantLogoInParams(params)
+                .flatMap(updatedParams -> emailSender.sendMail(
+                        user.getEmail(),
+                        "Welcome to Appsmith",
+                        WELCOME_USER_EMAIL_TEMPLATE,
+                        updatedParams))
                 .onErrorResume(error -> {
                     // Swallowing this exception because we don't want this to affect the rest of the flow.
                     log.error(
@@ -571,9 +576,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     return Mono.just(TRUE);
                 })
                 .thenReturn(user);
-
-        return updateTenantLogoInParams(params)
-                .then(Mono.defer(() -> emailMono));
     }
 
     @Override
