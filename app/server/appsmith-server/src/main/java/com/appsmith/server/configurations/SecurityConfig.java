@@ -44,7 +44,7 @@ import static com.appsmith.server.constants.Url.USER_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
+@EnableReactiveMethodSecurity(useAuthorizationManager=true)
 public class SecurityConfig {
 
     @Autowired

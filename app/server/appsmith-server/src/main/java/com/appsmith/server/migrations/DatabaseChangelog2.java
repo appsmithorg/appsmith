@@ -12,6 +12,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EncryptionConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
@@ -138,6 +139,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
+import static org.springframework.data.mongodb.core.query.Update.update;
 
 
 @Slf4j
@@ -152,17 +154,17 @@ public class DatabaseChangelog2 {
     public void fixPluginTitleCasing(MongockTemplate mongockTemplate) {
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
-                Update.update(fieldName(QPlugin.plugin.name), "MySQL"),
+                update(fieldName(QPlugin.plugin.name), "MySQL"),
                 Plugin.class);
 
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("mssql-plugin")),
-                Update.update(fieldName(QPlugin.plugin.name), "Microsoft SQL Server"),
+                update(fieldName(QPlugin.plugin.name), "Microsoft SQL Server"),
                 Plugin.class);
 
         mongockTemplate.updateFirst(
                 query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
-                Update.update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
+                update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
                 Plugin.class);
     }
 
@@ -767,7 +769,7 @@ public class DatabaseChangelog2 {
     public void setDefaultApplicationVersion(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
                 Query.query(where(fieldName(QApplication.application.deleted)).is(false)),
-                Update.update(fieldName(QApplication.application.applicationVersion),
+                update(fieldName(QApplication.application.applicationVersion),
                         ApplicationVersion.EARLIEST_VERSION),
                 Application.class);
     }
@@ -919,7 +921,7 @@ public class DatabaseChangelog2 {
             if (!newName.equals(oldName)) {
                 //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
                 mongockTemplate.updateFirst(query(where("name").is(oldName)),
-                        Update.update("name", newName),
+                        update("name", newName),
                         Sequence.class
                 );
             }
@@ -2791,8 +2793,23 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
 
-    @ChangeSet(order = "038", id = "deprecate-queryabletext-encryption", author = "")
-    public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate, EncryptionConfig encryptionConfig, EncryptionService encryptionService) {
+    @ChangeSet(order = "038", id = "introduce-encryption-versioning", author = "")
+    public void introduceEncryptionVersioningInConfig(MongockTemplate mongockTemplate, @NonLockGuarded CommonConfig commonConfig) {
+        // If the instance is not configured with an encryption version,
+        // it means this instance was set up before we started shipping with latest encryption version
+        // In that case, set up the current encryption version as 1 to start with
+        if (commonConfig.getEncryptionVersion() == null) {
+            mongockTemplate.insert(new Config(
+                    new JSONObject(Map.of("value", 1)),
+                    "encryptionVersion"
+            ));
+        }
+        // In all other cases, the DB will go through future migrations to upgrade and set the correct encryption version,
+        // we do not need to worry about that right now
+    }
+
+    @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
+    public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate, @NonLockGuarded EncryptionConfig encryptionConfig, EncryptionService encryptionService) {
 
         /**
          * - List of attributes in datasources that need to be encoded.
@@ -2831,6 +2848,11 @@ public class DatabaseChangelog2 {
         mongockTemplate.execute("datasource", getNewEncryptionCallback(encryptionConfig, encryptionService, datasourcePathListExists, datasourcePathList));
         mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(encryptionConfig, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList));
         mongockTemplate.execute("application", getNewEncryptionCallback(encryptionConfig, encryptionService, applicationPathListExists, applicationPathList));
+
+        mongockTemplate.upsert(
+                query(where(fieldName(QConfig.config1.name)).is("encryptionVersion")),
+                update("config.value", 2),
+                Config.class);
     }
 
     private CollectionCallback<String> getNewEncryptionCallback(
@@ -2888,8 +2910,11 @@ public class DatabaseChangelog2 {
                     (k, v) -> {
                         String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
                         TextEncryptor textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
-                        String decryptedValue = textEncryptor.decrypt(String.valueOf(v));
-                        return encryptionService.encryptString(decryptedValue);
+                        if (StringUtils.hasLength(String.valueOf(v))) {
+                            String decryptedValue = textEncryptor.decrypt(String.valueOf(v));
+                            return encryptionService.encryptString(decryptedValue);
+                        }
+                        return v;
                     }
             );
         }

@@ -67,6 +67,9 @@ public class CommonConfig {
 
     private List<String> allowedDomains;
 
+    @Value("${appsmith.encryption.version:}")
+    private Integer encryptionVersion;
+
 
     @Bean
     public Scheduler scheduler() {
