@@ -26,7 +26,7 @@ import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -109,7 +109,7 @@ interface ColorPickerPopupProps {
 
 function ColorPickerPopup(props: ColorPickerPopupProps) {
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
-  const brandColors = useSelector(getTenantConfig).brandColors;
+  const brandColors = useSelector(getBrandColors);
   const widgets = useSelector(getWidgets);
   const DSLStringified = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
