@@ -101,7 +101,7 @@ import {
 } from "./validationUtils";
 
 type SortedDependencies = Array<string>;
-export type EvalValuesAndErrors = {
+export type EvalProps = {
   [entityName: string]: DataTreeEvaluationProps;
 };
 
@@ -149,7 +149,7 @@ export default class DataTreeEvaluator {
   /**
    * Sanitized eval values and errors
    */
-  evalValuesAndErrors: EvalValuesAndErrors = {};
+  evalProps: EvalProps = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -302,7 +302,7 @@ export default class DataTreeEvaluator {
     // Validate Widgets
     this.setEvalTree(
       getValidatedTree(evaluatedTree, {
-        evalValuesAndErrors: this.evalValuesAndErrors,
+        evalProps: this.evalProps,
       }),
     );
     const validationEndTime = performance.now();
@@ -685,11 +685,7 @@ export default class DataTreeEvaluator {
             !isATriggerPath &&
             (isDynamicValue(unEvalPropertyValue) || isJSAction(entity));
           if (propertyPath) {
-            set(
-              this.evalValuesAndErrors,
-              getEvalErrorPath(fullPropertyPath),
-              [],
-            );
+            set(this.evalProps, getEvalErrorPath(fullPropertyPath), []);
           }
           if (requiresEval) {
             const evaluationSubstitutionType =
@@ -733,7 +729,7 @@ export default class DataTreeEvaluator {
                 currentTree,
                 evalPropertyValue,
                 unEvalPropertyValue,
-                evalValuesAndErrors: this.evalValuesAndErrors,
+                evalProps: this.evalProps,
               });
 
               this.setParsedValue({
@@ -782,7 +778,7 @@ export default class DataTreeEvaluator {
 
             if (!propertyPath) return currentTree;
             set(
-              this.evalValuesAndErrors,
+              this.evalProps,
               getEvalValuePath(fullPropertyPath),
               removeFunctions(evalPropertyValue),
             );
@@ -792,7 +788,7 @@ export default class DataTreeEvaluator {
             const variableList: Array<string> = get(entity, "variables") || [];
             if (variableList.indexOf(propertyPath) > -1) {
               const currentEvaluatedValue = get(
-                this.evalValuesAndErrors,
+                this.evalProps,
                 getEvalValuePath(fullPropertyPath, {
                   isPopulated: true,
                   fullPath: true,
@@ -800,7 +796,7 @@ export default class DataTreeEvaluator {
               );
               if (!currentEvaluatedValue) {
                 set(
-                  this.evalValuesAndErrors,
+                  this.evalProps,
                   getEvalValuePath(fullPropertyPath, {
                     isPopulated: true,
                     fullPath: true,
@@ -933,7 +929,7 @@ export default class DataTreeEvaluator {
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty({
               errors: result.errors,
-              evalValuesAndErrors: this.evalValuesAndErrors,
+              evalProps: this.evalProps,
               fullPropertyPath,
               dataTree: data,
             });
@@ -1004,7 +1000,7 @@ export default class DataTreeEvaluator {
                 severity: Severity.ERROR,
               },
             ],
-            evalValuesAndErrors: this.evalValuesAndErrors,
+            evalProps: this.evalProps,
             fullPropertyPath,
             dataTree: data,
           });
@@ -1128,7 +1124,7 @@ export default class DataTreeEvaluator {
             this.oldUnEvalTree,
             fullPath,
           ) as unknown) as string,
-          evalValuesAndErrors: this.evalValuesAndErrors,
+          evalProps: this.evalProps,
         });
       });
     }
@@ -1182,7 +1178,7 @@ export default class DataTreeEvaluator {
         // Later errors can consumed by the forms and debugger
         addErrorToEntityProperty({
           errors: evalErrors,
-          evalValuesAndErrors: this.evalValuesAndErrors,
+          evalProps: this.evalProps,
           fullPropertyPath,
           dataTree: currentTree,
         });
