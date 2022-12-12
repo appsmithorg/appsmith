@@ -24,7 +24,8 @@ export class DataSources {
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name='datasourceConfiguration.authentication.username']";
-  private _sectionAuthentication = "[data-cy=section-Authentication]";
+  private _sectionAuthentication =
+    "[data-cy=section-Authentication] .t--collapse-section-container";
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
@@ -740,7 +741,11 @@ export class DataSources {
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(dataSourceName : string, schema: string, isUpdate = false) {
+  public verifySchema(
+    dataSourceName: string,
+    schema: string,
+    isUpdate = false,
+  ) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.updateDatasource();
