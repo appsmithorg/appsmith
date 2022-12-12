@@ -257,12 +257,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     params.put("resetUrl", resetUrl);
 
                     return updateTenantLogoInParams(params)
-                            .then(emailSender.sendMail(
-                                    email,
-                                    "Appsmith Password Reset",
-                                    FORGOT_PASSWORD_EMAIL_TEMPLATE,
-                                    params
-                            ));
+                            .flatMap(updatedParams ->
+                                    emailSender.sendMail(email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams)
+                            );
                 })
                 .thenReturn(true);
     }
@@ -627,11 +624,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     // Email template parameters initialization below.
                     Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
 
-                    Mono<Boolean> emailMono = emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, params);
-
                     // We have sent out the emails. Just send back the saved user.
                     return updateTenantLogoInParams(params)
-                            .then(Mono.defer(() -> emailMono))
+                            .flatMap(updatedParams ->
+                                    emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, updatedParams)
+                            )
                             .thenReturn(createdUser);
                 });
     }
