@@ -24,6 +24,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -63,6 +64,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -70,6 +72,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 
 
 @Slf4j
@@ -315,6 +318,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         }
 
         application.setPublishedPages(new ArrayList<>());
+        application.setUnpublishedCustomJSLibs(new HashSet<>());
 
         // For all new applications being created, set it to use the latest evaluation version.
         application.setEvaluationVersion(EVALUATION_VERSION);
@@ -1027,29 +1031,40 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(actionCollectionService::save)
                 .collectList();
 
+        Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono = applicationMono
+                .map(application -> {
+                    application.setPublishedCustomJSLibs(application.getUnpublishedCustomJSLibs());
+                    return application;
+                })
+                .flatMap(application -> applicationService.update(applicationId, application))
+                .map(application -> application.getPublishedCustomJSLibs());
+
         return publishApplicationAndPages
-                .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono, publishThemeMono))
-                .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
+                .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono,
+                        publishThemeMono, publishedJSLibDTOsMono))
+                .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono,
+                        publishedActionCollectionsListMono, publishedJSLibDTOsMono, applicationId, isPublishedManually));
     }
 
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
                                                             Mono<List<NewAction>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
-                                                            String applicationId,
-                                                            boolean isPublishedManually) {
-        return Mono.zip(
+                                                            Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
+                                                            String applicationId, boolean isPublishedManually) {        return Mono.zip(
                         publishApplicationAndPages,
                         publishedActionsFlux,
                         publishedActionsCollectionFlux,
                         // not using existing applicationMono because we need the latest Application after published
-                        applicationService.findById(applicationId, applicationPermission.getEditPermission())
-                )
+                        applicationService.findById(applicationId, applicationPermission.getEditPermission()),
+                        publishedJSLibDTOsMono
+                    )
                 .flatMap(objects -> {
                     Application application = objects.getT4();
                     Map<String, Object> extraProperties = new HashMap<>();
                     extraProperties.put("pageCount", objects.getT1().size());
                     extraProperties.put("queryCount", objects.getT2().size());
                     extraProperties.put("actionCollectionCount", objects.getT3().size());
+                    extraProperties.put("jsLibsCount", objects.getT5().size());
                     extraProperties.put("appId", defaultIfNull(application.getId(), ""));
                     extraProperties.put("appName", defaultIfNull(application.getName(), ""));
                     extraProperties.put("orgId", defaultIfNull(application.getWorkspaceId(), ""));

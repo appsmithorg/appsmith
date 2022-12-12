@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
@@ -19,6 +20,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
@@ -76,6 +78,9 @@ public class Application extends BaseDomain {
 
     @JsonIgnore
     AppLayout publishedAppLayout;
+
+    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
     GitApplicationMetadata gitApplicationMetadata;
 
@@ -168,6 +173,7 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+        this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
     }
 
     public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
