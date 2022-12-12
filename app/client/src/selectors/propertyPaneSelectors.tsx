@@ -20,6 +20,7 @@ import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import { getFocusableControlField } from "./editorContextSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -284,7 +285,7 @@ export const getSelectedPropertyPanelIndex = createSelector(
 
 export const getShouldFocusPropertySearch = createSelector(
   getIsCurrentWidgetRecentlyAdded,
-  getFocusablePropertyPaneField,
+  getFocusableControlField,
   (
     isCurrentWidgetRecentlyAdded: boolean,
     focusableField: string | undefined,
