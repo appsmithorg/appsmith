@@ -1,9 +1,9 @@
 import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
-const pages = require("../../../../locators/Pages.json");
-const datasourcesEditor = require("../../../../locators/DatasourcesEditor.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Validate API Panel CSS Styles", function() {
   const backgroundColorGray200 = "rgb(231, 231, 231)";
@@ -83,6 +83,7 @@ describe("Validate API Panel CSS Styles", function() {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
+        ee.ExpandCollapseEntity("Queries/JS");
         cy.get(commonLocators.entityName)
           .contains("test_styles")
           .click();
@@ -108,6 +109,7 @@ describe("Validate API Panel CSS Styles", function() {
           .contains("test_styles")
           .should("not.exist");
         //Delete two datasources
+        ee.ExpandCollapseEntity("Datasources");
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);
       });

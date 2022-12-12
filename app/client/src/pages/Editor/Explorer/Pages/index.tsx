@@ -46,6 +46,7 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { AppState } from "@appsmith/reducers";
+import { pageChanged } from "actions/focusHistoryActions";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -123,6 +124,16 @@ function Pages() {
       });
       dispatch(toggleInOnboardingWidgetSelection(true));
       history.push(navigateToUrl);
+      const currentURL = navigateToUrl.split(/(?=\?)/g);
+      dispatch(
+        pageChanged(
+          page.pageId,
+          currentURL[0],
+          currentURL[1],
+          location.pathname,
+          location.search,
+        ),
+      );
     },
     [location.pathname],
   );
@@ -205,7 +216,7 @@ function Pages() {
           />
         );
       }),
-    [pages, currentPageId, applicationId],
+    [pages, currentPageId, applicationId, location.pathname],
   );
 
   return (
@@ -225,7 +236,9 @@ function Pages() {
         }
         entityId="Pages"
         icon={""}
-        isDefaultExpanded={isPagesOpen === null ? true : isPagesOpen}
+        isDefaultExpanded={
+          isPagesOpen === null || isPagesOpen === undefined ? true : isPagesOpen
+        }
         name="Pages"
         onClickPreRightIcon={onPin}
         onToggle={onPageToggle}

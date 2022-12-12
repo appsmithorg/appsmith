@@ -585,7 +585,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/server
         env:
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools?replicaSet=mobtools-test-cluster-shard-0"
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
@@ -602,20 +602,17 @@ jobs:
           # Run the server in the background and redirect logs to a log file
           ./scripts/start-dev-server.sh &> server-logs.log &
 
-      - name: Wait for 30 seconds for server to start
+      - name: Wait for 30s and check if server is running
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           sleep 30s
-
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
-             echo "Server Not Started";
-             exit 1;
-           else
-             echo "Server Found";
-           fi
+          if lsof -i :8080; then
+            echo "Server Found"
+          else
+            echo "Server Not Started. Printing logs from server process"
+            cat app/server/nohup.out
+            exit 1
+          fi
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'

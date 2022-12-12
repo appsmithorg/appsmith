@@ -59,7 +59,7 @@ export default function ConflictInfo({
       </InfoWrapper>
       <Row>
         <OpenRepoButton
-          category={Category.tertiary}
+          category={Category.secondary}
           className="t--commit-button"
           href={browserSupportedRemoteUrl}
           size={Size.large}

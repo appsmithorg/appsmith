@@ -153,7 +153,7 @@ function UpdatesModal({
         ))}
         <div className="flex justify-end gap-2 items-center">
           <Button
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={closeModal}
             size={Size.large}
             tag="button"
