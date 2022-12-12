@@ -1137,7 +1137,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
     currentDSL.version = 71;
   }
 
-  if ((currentDSL.version = 71)) {
+  if (currentDSL.version === 71) {
     currentDSL = migrateTableWidgetV2SelectOption(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
