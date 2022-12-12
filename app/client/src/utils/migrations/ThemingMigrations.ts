@@ -9,9 +9,11 @@ import {
 import { TextSizes } from "constants/WidgetConstants";
 import { clone, get, has, set } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BUTTON_GROUP_CHILD_STYLESHEET,
+  DSLWidget,
   JSON_FORM_WIDGET_CHILD_STYLESHEET,
   rgbaMigrationConstantV56,
   TABLE_WIDGET_CHILD_STYLESHEET,
@@ -611,4 +613,25 @@ export const addPropertyToDynamicPropertyPathList = (
       { key: propertyName },
     ];
   }
+};
+
+export const migrateChildStylesheetFromDynamicBindingPathList = (
+  currentDSL: DSLWidget,
+) => {
+  const widgetsWithChildStylesheet = [
+    "TABLE_WIDGET_V2",
+    "BUTTON_GROUP_WIDGET",
+    "JSON_FORM_WIDGET",
+  ];
+  return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
+    if (
+      widgetsWithChildStylesheet.includes(widget.type) &&
+      widget.childStylesheet
+    ) {
+      const newPaths = widget.dynamicBindingPathList?.filter(
+        ({ key }) => !key.startsWith("childStylesheet."),
+      );
+      widget.dynamicBindingPathList = newPaths;
+    }
+  });
 };

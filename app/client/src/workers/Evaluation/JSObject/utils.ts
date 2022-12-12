@@ -1,20 +1,22 @@
 import {
   DataTree,
+  DataTreeAppsmith,
   DataTreeJSAction,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get } from "lodash";
 import { isJSAction } from "workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "../../../entities/App";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
   NOTE: For other entity below logic is maintained in DataTreeFactory, for JSObject we handle it inside evaluations
- * 
- * @param parsedBody 
- * @param jsCollection 
- * @param unEvalTree 
- * @returns 
+ *
+ * @param parsedBody
+ * @param jsCollection
+ * @param unEvalTree
+ * @returns
  */
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
@@ -72,6 +74,7 @@ export const updateJSCollectionInUnEvalTree = (
           arguments: action.arguments,
           isAsync: false,
           confirmBeforeExecute: false,
+          body: action.body,
         };
 
         const data = get(
@@ -237,4 +240,9 @@ export function isJSObjectFunction(
     return entity.meta.hasOwnProperty(key);
   }
   return false;
+}
+
+export function getAppMode(dataTree: DataTree) {
+  const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
+  return appsmithObj.mode as APP_MODE;
 }

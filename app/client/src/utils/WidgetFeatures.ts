@@ -12,7 +12,6 @@ import {
 import { klona } from "klona/lite";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfiguration } from "widgets/constants";
-import WidgetFactory from "./WidgetFactory";
 
 export enum RegisteredWidgetFeatures {
   DYNAMIC_HEIGHT = "dynamicHeight",
@@ -344,13 +343,9 @@ export const PropertyPaneConfigTemplates: Record<
 
 //TODO make this logic a lot cleaner
 export function disableWidgetFeatures(
-  widgetType: WidgetType,
+  widgetConfig: readonly PropertyPaneConfig[],
   disabledWidgetFeatures?: string[],
-): PropertyPaneConfig[] {
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneContentConfig(
-    widgetType,
-  ) as PropertyPaneConfig[];
-
+) {
   if (!disabledWidgetFeatures || disabledWidgetFeatures.length <= 0)
     return widgetConfig;
 
