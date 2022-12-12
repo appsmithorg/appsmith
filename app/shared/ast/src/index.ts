@@ -41,6 +41,13 @@ interface IdentifierNode extends Node {
   name: string;
 }
 
+//Using this to handle the Variable property refactor
+interface RefactorIdentifierNode extends Node {
+  type: NodeTypes.Identifier;
+  name: string;
+  property?: IdentifierNode;
+}
+
 // doc: https://github.com/estree/estree/blob/master/es5.md#variabledeclarator
 interface VariableDeclaratorNode extends Node {
   type: NodeTypes.VariableDeclarator;
@@ -270,50 +277,81 @@ export const entityRefactorFromCode = (
   evaluationVersion: number,
   invalidIdentifiers?: Record<string, unknown>
 ): EntityRefactorResponse => {
+  //Sanitizing leads to removal of special charater.
+  //Hence we are not sanatizing the script. Fix(#18492)
   //If script is a JSObject then replace export default to decalartion.
   if (isJSObject) script = jsObjectToCode(script);
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
   let refactorScript = script;
   //Difference in length of oldName and newName
-  let nameLengthDiff: number = newName.length - oldName.length;
+  const nameLengthDiff: number = newName.length - oldName.length;
   //Offset index used for deciding location of oldName.
   let refactorOffset: number = 0;
   //Count of refactors on the script
   let refactorCount: number = 0;
   try {
-    const sanitizedScript = sanitizeScript(script, evaluationVersion);
-    ast = getAST(sanitizedScript);
+    ast = getAST(script);
     let {
       references,
       functionalParams,
       variableDeclarations,
       identifierList,
     }: NodeList = ancestorWalk(ast);
-    let identifierArray = Array.from(identifierList) as Array<IdentifierNode>;
-    Array.from(references).forEach((reference, index) => {
+    const identifierArray = Array.from(
+      identifierList
+    ) as Array<RefactorIdentifierNode>;
+    //To handle if oldName has property ("JSObject.myfunc")
+    const oldNameArr = oldName.split(".");
+    const referencesArr = Array.from(references).filter((reference) => {
+      // To remove references derived from declared variables and function params,
+      // We extract the topLevelIdentifier Eg. Api1.name => Api1
       const topLevelIdentifier = toPath(reference)[0];
-      let shouldUpdateNode = !(
+      return !(
         functionalParams.has(topLevelIdentifier) ||
         variableDeclarations.has(topLevelIdentifier) ||
         has(invalidIdentifiers, topLevelIdentifier)
       );
-      //check if node should be updated
-      if (shouldUpdateNode && identifierArray[index].name === oldName) {
-        //Replace the oldName by newName
-        //Get start index from node and get subarray from index 0 till start
-        //Append above with new name
-        //Append substring from end index from the node till end of string
-        //Offset variable is used to alter the position based on `refactorOffset`
-        refactorScript =
-          refactorScript.substring(
-            0,
-            identifierArray[index].start + refactorOffset
-          ) +
-          newName +
-          refactorScript.substring(identifierArray[index].end + refactorOffset);
-        refactorOffset += nameLengthDiff;
-        ++refactorCount;
+    });
+    //Traverse through all identifiers in the script
+    identifierArray.forEach((identifier) => {
+      if (identifier.name === oldNameArr[0]) {
+        let index = 0;
+        while (index < referencesArr.length) {
+          if (identifier.name === referencesArr[index].split(".")[0]) {
+            //Replace the oldName by newName
+            //Get start index from node and get subarray from index 0 till start
+            //Append above with new name
+            //Append substring from end index from the node till end of string
+            //Offset variable is used to alter the position based on `refactorOffset`
+            //In case of nested JS action get end postion fro the property.
+            ///Default end index
+            let endIndex = identifier.end;
+            const propertyNode = identifier.property;
+            //Flag variable : true if property should be updated
+            //false if property should not be updated
+            let propertyCondFlag =
+              oldNameArr.length > 1 &&
+              propertyNode &&
+              oldNameArr[1] === propertyNode.name;
+            //Condition to validate if Identifier || Property should be updated??
+            if (oldNameArr.length === 1 || propertyCondFlag) {
+              //Condition to extend end index in case of property match
+              if (propertyCondFlag && propertyNode) {
+                endIndex = propertyNode.end;
+              }
+              refactorScript =
+                refactorScript.substring(0, identifier.start + refactorOffset) +
+                newName +
+                refactorScript.substring(endIndex + refactorOffset);
+              refactorOffset += nameLengthDiff;
+              ++refactorCount;
+              //We are only looking for one match in refrence for the identifier name.
+              break;
+            }
+          }
+          index++;
+        }
       }
     });
     //If script is a JSObject then revert decalartion to export default.
@@ -507,8 +545,8 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
 };
 
 const ancestorWalk = (ast: Node): NodeList => {
-  //List of all Identifier nodes
-  const identifierList = new Array<IdentifierNode>();
+  //List of all Identifier nodes with their property(if exists).
+  const identifierList = new Array<RefactorIdentifierNode>();
   // List of all references found
   const references = new Set<string>();
   // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
@@ -554,7 +592,15 @@ const ancestorWalk = (ast: Node): NodeList => {
           break;
         }
       }
-      identifierList.push(node as IdentifierNode);
+      //If parent is a Member expression then attach property to the Node.
+      //else push Identifier Node.
+      const parentNode = ancestors[ancestors.length - 2];
+      if (isMemberExpressionNode(parentNode)) {
+        identifierList.push({
+          ...(node as IdentifierNode),
+          property: parentNode.property as IdentifierNode,
+        });
+      } else identifierList.push(node as RefactorIdentifierNode);
       if (isIdentifierNode(candidateTopLevelNode)) {
         // If the node is an Identifier, just save that
         references.add(candidateTopLevelNode.name);
