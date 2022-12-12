@@ -466,14 +466,27 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     const mixpanelIds = {
       distinct_id: windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
+      id: windowDoc.mixpanel && windowDoc.mixpanel.get_property("id"),
+
       user_id: windowDoc.mixpanel && windowDoc.mixpanel.get_property("user_id"),
+      userId: windowDoc.mixpanel && windowDoc.mixpanel.get_property("userId"),
+
       insert_id:
         windowDoc.mixpanel && windowDoc.mixpanel.get_property("insert_id"),
+      insertId:
+        windowDoc.mixpanel && windowDoc.mixpanel.get_property("insertId"),
+
       identified_id:
         windowDoc.mixpanel && windowDoc.mixpanel.get_property("identified_id"),
+      identifiedId:
+        windowDoc.mixpanel && windowDoc.mixpanel.get_property("identifiedId"),
+
       anonymous_id:
         windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymous_id"),
+      anonymousId:
+        windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymousId"),
     };
+
     console.log("mixpanel object", windowDoc.mixpanel);
     console.log("mixpanel id's", mixpanelIds);
     this.logEvent("MIXPANEL_IDS", mixpanelIds);
