@@ -526,10 +526,6 @@ export class AggregateHelper {
     this.GetElement(selector).clear();
   }
 
-  public InvokeVal(selector: string) {
-    return cy.get(selector).invoke("val");
-  }
-
   public TypeText(
     selector: string,
     value: string,
@@ -903,6 +899,11 @@ export class AggregateHelper {
       .eq(index)
       .invoke(textOrValue)
       .should("deep.equal", expectedData);
+  }
+
+  public AssertElementFocus(selector: ElementType, isFocused = true) {
+    if (isFocused) return this.GetElement(selector).should("be.focused");
+    return this.GetElement(selector).should("not.be.focused");
   }
 
   public AssertElementVisible(selector: ElementType, index = 0) {
