@@ -31,7 +31,7 @@ export type EnhancementFns = {
   parentIdWithEnhancementFn: any;
 };
 
-export const getWidgetEnhancementSelector = (widgetId: string) => {
+export const getWidgetEnhancementSelector = (widgetId: string | undefined) => {
   return createSelector(
     getWidgets,
     getEvaluationTree,

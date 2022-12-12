@@ -36,10 +36,10 @@ export enum WidgetEnhancementType {
 }
 
 export function getParentWithEnhancementFn(
-  widgetId: string,
+  widgetId: string | undefined,
   widgets: CanvasWidgetsReduxState,
 ) {
-  let widget = get(widgets, widgetId, undefined);
+  let widget = get(widgets, widgetId || "", undefined);
 
   // While this widget has a parent
   while (widget?.parentId) {
