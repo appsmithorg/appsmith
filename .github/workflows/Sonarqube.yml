@@ -1,4 +1,4 @@
-name: Appsmith Client Build Workflow
+name: Appsmith Client Build Workflow Sonarqube
 
 on:
   # This line enables manual triggering of this workflow.
