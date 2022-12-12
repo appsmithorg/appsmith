@@ -2,7 +2,7 @@ import equal from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { isEmpty, floor } from "lodash";
+import { isEmpty, floor, isEqual } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -93,6 +93,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   prevMetaContainerNames: string[];
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
+  prevOptions?: GeneratorOptions;
+  cachedData: Array<Record<string, unknown>>;
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -147,6 +149,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
+    this.cachedData = [];
   }
 
   componentDidMount() {
@@ -162,11 +165,17 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     if (this.props.infiniteScroll) {
       this.generateMetaWidgets();
     }
+    if (this.props.serverSidePagination) {
+      this.updateCachedData();
+    }
 
     this.setupMetaWidgets();
   }
 
   componentDidUpdate(prevProps: ListWidgetProps) {
+    if (this.shouldUpdateCachedData(prevProps)) {
+      this.updateCachedData();
+    }
     this.prevFlattenedChildCanvasWidgets =
       prevProps.flattenedChildCanvasWidgets;
 
@@ -174,29 +183,46 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
     if (this.shouldUpdatePageSize()) {
       this.updatePageSize();
-      if (this.shouldFireOnPageSizeChange()) {
-        // run onPageSizeChange if user resize widgets
-        this.triggerOnPageSizeChange();
+
+      if (this.isCurrPageNoGreaterThanMaxPageNo()) {
+        const maxPageNo = Math.max(
+          Math.ceil((this.props?.listData?.length || 0) / this.pageSize),
+          1,
+        );
+
+        this.onPageChange(maxPageNo);
+        // if (this.props.serverSidePagination) {
+        //   this.setWidgetCache({});
+        // }
       }
     }
-
-    if (this.isCurrPageNoGreaterThanMaxPageNo()) {
-      const maxPageNo = Math.ceil(
-        (this.props?.listData?.length || 0) / this.pageSize,
-      );
-
-      this.onPageChange(maxPageNo);
-    }
-
-    if (this.props.primaryKeys !== prevProps.primaryKeys) {
-      this.resetSelectedItemViewIndex();
-      this.resetSelectedItemView();
-      this.resetTriggeredItemViewIndex();
-      this.resetTriggeredItemView();
-    }
-
     this.setupMetaWidgets(prevProps);
   }
+
+  // Update only when it's toggled to serverSidePagination
+  // Or when the ListData changes in serverSidePagination
+  shouldUpdateCachedData = (prevProps: ListWidgetProps) => {
+    return (
+      (!isEqual(this.props.listData, prevProps.listData) &&
+        this.props.serverSidePagination) ||
+      (this.props.serverSidePagination && !prevProps.serverSidePagination)
+    );
+  };
+
+  updateCachedData = () => {
+    const { listData, pageNo } = this.props;
+
+    if (!listData) {
+      return;
+    }
+    const newCache = [...this.cachedData];
+
+    const startIndex = this.pageSize * (pageNo - 1);
+    newCache?.splice(startIndex, listData.length, ...listData);
+
+    this.cachedData = newCache;
+    super.updateWidgetProperty("cachedData", this.cachedData);
+  };
 
   componentWillUnmount() {
     this.metaWidgetGenerator.didUnmount();
@@ -234,6 +260,8 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     } = this.props;
     const pageSize = this.pageSize;
 
+    const data = serverSidePagination ? this.cachedData : listData;
+
     const cacheRowIndexes = this.getCachedRowIndexes();
 
     return {
@@ -241,7 +269,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       containerParentId: mainCanvasId,
       containerWidgetId: mainContainerId,
       currTemplateWidgets: flattenedChildCanvasWidgets,
-      data: listData,
+      data,
       itemGap: this.getItemGap(),
       infiniteScroll: this.props.infiniteScroll ?? false,
       levelData: this.props.levelData,
@@ -258,6 +286,12 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
 
   generateMetaWidgets = () => {
     const generatorOptions = this.metaWidgetGeneratorOptions();
+
+    if (this.props.isLoading || isEqual(this.prevOptions, generatorOptions)) {
+      return;
+    }
+
+    this.prevOptions = generatorOptions;
 
     const {
       metaWidgets,
@@ -422,11 +456,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
 
   isCurrPageNoGreaterThanMaxPageNo = () => {
-    if (
-      this.props.listData &&
-      !this.props.infiniteScroll &&
-      !this.props.serverSidePagination
-    ) {
+    if (this.props.listData && !this.props.infiniteScroll) {
       const maxPageNo = Math.ceil(this.props.listData?.length / this.pageSize);
 
       return maxPageNo < this.props.pageNo;
@@ -833,6 +863,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   level?: number;
   levelData?: LevelData;
   listData?: Array<Record<string, unknown>>;
+  cachedData?: Array<Record<string, unknown>>;
   mainCanvasId?: string;
   mainContainerId?: string;
   onRowClick?: string;

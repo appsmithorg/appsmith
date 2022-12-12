@@ -755,7 +755,9 @@ class MetaWidgetGenerator {
   ) => {
     if (metaWidget.currentItem) return;
 
-    metaWidget.currentItem = `{{${this.widgetName}.listData[${metaWidgetName}.currentIndex]}}`;
+    const dataType = this.serverSidePagination ? "cachedData" : "listData";
+
+    metaWidget.currentItem = `{{${this.widgetName}.${dataType}[${metaWidgetName}.currentIndex]}}`;
     metaWidget.dynamicBindingPathList = [
       ...(metaWidget.dynamicBindingPathList || []),
       { key: "currentItem" },
@@ -1059,10 +1061,6 @@ class MetaWidgetGenerator {
   };
 
   private getData = () => {
-    if (this.serverSidePagination) {
-      return this.data;
-    }
-
     const startIndex = this.getStartIndex();
 
     if (this.infiniteScroll) {
@@ -1090,7 +1088,6 @@ class MetaWidgetGenerator {
         return items[0]?.index ?? 0;
       }
     } else if (
-      !this.serverSidePagination &&
       typeof this.pageSize === "number" &&
       typeof this.pageNo === "number"
     ) {
@@ -1200,8 +1197,11 @@ class MetaWidgetGenerator {
     }
     const startIndex = this.getStartIndex();
     const viewIndex = rowIndex - startIndex;
-    const data = this.getData()[viewIndex];
+    let data = this.getData()[viewIndex];
 
+    if (!data) {
+      data = this.data[rowIndex];
+    }
     return hash(data, { algorithm: "md5" });
   };
 

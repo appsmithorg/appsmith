@@ -19,7 +19,13 @@ export const primaryColumnValidation = (
   props: ListWidgetProps,
   _: any,
 ) => {
-  const { listData = [], dynamicPropertyPathList = [] } = props;
+  const {
+    listData = [],
+    dynamicPropertyPathList = [],
+    cachedData = [],
+    serverSidePagination,
+  } = props;
+  const data = serverSidePagination ? cachedData : listData ?? listData;
   const isArray = Array.isArray(inputValue);
   const isJSModeEnabled = Boolean(
     dynamicPropertyPathList.find((d) => d.key === "primaryKeys"),
@@ -34,7 +40,7 @@ export const primaryColumnValidation = (
       };
     }
 
-    const areKeysUnique = _.uniq(inputValue).length === listData.length;
+    const areKeysUnique = _.uniq(inputValue).length === data.length;
 
     if (!areKeysUnique) {
       return {
@@ -54,7 +60,6 @@ export const primaryColumnValidation = (
       messages: [message],
     };
   }
-
   return {
     isValid: true,
     parsed: inputValue,
