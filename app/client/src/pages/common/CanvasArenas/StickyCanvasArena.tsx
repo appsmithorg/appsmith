@@ -123,7 +123,12 @@ export const StickyCanvasArena = forwardRef(
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <canvas data-testid={canvasId} id={canvasId} ref={stickyCanvasRef} />
+        <canvas
+          data-sl="canvas-mq" // attribute to enable canvas on smartlook
+          data-testid={canvasId}
+          id={canvasId}
+          ref={stickyCanvasRef}
+        />
         <StyledCanvasSlider
           data-testid={id}
           id={id}
