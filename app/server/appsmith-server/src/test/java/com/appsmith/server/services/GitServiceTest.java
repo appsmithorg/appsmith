@@ -1858,6 +1858,8 @@ public class GitServiceTest {
         // Mocking a git push failure
         Mockito.when(gitExecutor.pushApplication(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just("REJECTED_OTHERREASON, pre-receive hook declined"));
+        Mockito.when(gitExecutor.resetHard(Mockito.any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
 
         StepVerifier
                 .create(commitMono)
