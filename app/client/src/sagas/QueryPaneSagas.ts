@@ -83,6 +83,7 @@ import {
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { FormDataPaths } from "workers/Evaluation/formEval";
 import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
@@ -189,6 +190,15 @@ function* formValueChangeSaga(
       });
     }
 
+    // If there is a change in the command type of a form and the value is an empty string, we prevent the command action value from being updated and form evaluations from being performed on it.
+    // We do this because by default the command value of an action should always be set to a non empty string value (impossible case).
+    if (field === FormDataPaths.COMMAND && actionPayload.payload === "") {
+      return;
+    }
+
+    const plugins: Plugin[] = yield select(getPlugins);
+    const uiComponent = getUIComponent(values.pluginId, plugins);
+
     if (field === "datasource.id") {
       const datasource: Datasource | undefined = yield select(
         getDatasource,
@@ -209,8 +219,6 @@ function* formValueChangeSaga(
 
       AnalyticsUtil.logEvent("SWITCH_DATASOURCE");
 
-      const allPlugins: Plugin[] = yield select(getPlugins);
-      const uiComponent = getUIComponent(values?.pluginId, allPlugins);
       if (
         uiComponent === UIComponentTypes.UQIDbEditorForm &&
         !!values?.id &&
@@ -249,9 +257,6 @@ function* formValueChangeSaga(
 
       return;
     }
-
-    const plugins: Plugin[] = yield select(getPlugins);
-    const uiComponent = getUIComponent(values.pluginId, plugins);
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete

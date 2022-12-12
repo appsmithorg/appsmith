@@ -69,7 +69,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Go to dashboard",
+      text: "Home",
       onClick: () => history.replace(APPLICATIONS_URL),
       type: MenuTypes.MENU,
       isVisible: true,
