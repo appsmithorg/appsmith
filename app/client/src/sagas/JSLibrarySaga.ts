@@ -26,7 +26,7 @@ import { evaluateTreeSaga, EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
-import AnalyticsUtil, { LIBRARY_EVENTS } from "utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -64,7 +64,7 @@ function* handleInstallationFailure(
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
     payload: { url, show: false },
   });
-  AnalyticsUtil.logEvent(LIBRARY_EVENTS.INSTALL_FAILED, { url });
+  AnalyticsUtil.logEvent("INSTALL_FAILED", { url });
 }
 
 export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
@@ -155,7 +155,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     AppsmithConsole.warning({
       text: `Failed to generate code definitions for ${name}`,
     });
-    AnalyticsUtil.logEvent(LIBRARY_EVENTS.DEFINITIONS_FAILED, { url });
+    AnalyticsUtil.logEvent("DEFINITIONS_FAILED", { url });
     log.debug("Failed to update Tern defs", e);
   }
 
@@ -194,7 +194,7 @@ export function* installLibrarySaga(lib: Partial<TJSLibrary>) {
     ),
     variant: Variant.success,
   });
-  AnalyticsUtil.logEvent(LIBRARY_EVENTS.INSTALL_SUCCESS, { url });
+  AnalyticsUtil.logEvent("INSTALL_SUCCESS", { url });
 
   AppsmithConsole.info({
     text: `${name} installed successfully`,
@@ -219,7 +219,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
         payload: accessor,
       });
-      AnalyticsUtil.logEvent(LIBRARY_EVENTS.UNINSTALL_FAILED, {
+      AnalyticsUtil.logEvent("UNINSTALL_FAILED", {
         url: action.payload.url,
       });
       return;
@@ -262,7 +262,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       text: createMessage(customJSLibraryMessages.UNINSTALL_SUCCESS, name),
       variant: Variant.success,
     });
-    AnalyticsUtil.logEvent(LIBRARY_EVENTS.UNINSTALL_SUCCESS, {
+    AnalyticsUtil.logEvent("UNINSTALL_SUCCESS", {
       url: action.payload.url,
     });
   } catch (e) {
@@ -270,7 +270,7 @@ function* uninstallLibrarySaga(action: ReduxAction<TJSLibrary>) {
       text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
       variant: Variant.danger,
     });
-    AnalyticsUtil.logEvent(LIBRARY_EVENTS.UNINSTALL_FAILED, {
+    AnalyticsUtil.logEvent("UNINSTALL_FAILED", {
       url: action.payload.url,
     });
   }
