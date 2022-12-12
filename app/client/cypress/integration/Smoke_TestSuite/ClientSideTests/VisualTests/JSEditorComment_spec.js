@@ -4,7 +4,7 @@ let jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSEditor Comment - Visual tests", () => {
-  it("comments code on the editor", () => {
+  it("1. comments code on the editor", () => {
     jsEditor.CreateJSObject(
       `export default {
   myFun1: () => {
