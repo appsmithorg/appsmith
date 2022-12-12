@@ -246,7 +246,7 @@ function PropertyPaneView(
             <PropertyPaneSearchInput onTextChange={setSearchText} />
             {searchText.length > 0 ? (
               <PropertyControlsGenerator
-                config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                config={WidgetFactory.getWidgetPropertyPaneSearchConfig(
                   widgetProperties.type,
                 )}
                 id={widgetProperties.widgetId}
@@ -260,7 +260,7 @@ function PropertyPaneView(
                 contentComponent={
                   isContentConfigAvailable ? (
                     <PropertyControlsGenerator
-                      config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                      config={WidgetFactory.getWidgetPropertyPaneContentConfig(
                         widgetProperties.type,
                       )}
                       id={widgetProperties.widgetId}
