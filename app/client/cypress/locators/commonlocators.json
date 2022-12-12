@@ -197,5 +197,4 @@
   "listPaginateActivePage":".t--widget-listwidgetv2 .rc-pagination-item-active",
   "listPaginatePrevButton":".t--widget-listwidgetv2 .rc-pagination-prev .rc-pagination-item-link",
   "listPaginateNextButtonDisabled":".t--widget-listwidgetv2 .rc-pagination-disabled .rc-pagination-item-link"
-
 }

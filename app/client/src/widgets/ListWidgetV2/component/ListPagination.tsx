@@ -18,12 +18,14 @@ const locale = {
   next_3: "Next 3 Pages",
 };
 
-const paginatorCss = css<{
+interface StyledPaginationProps {
   borderRadius: string;
   boxShadow?: string;
   accentColor: string;
   disabled?: boolean;
-}>`
+}
+
+const paginatorCss = css<StyledPaginationProps>`
   margin: 0 auto;
   padding: 0;
   font-size: 14px;
@@ -369,12 +371,7 @@ const paginatorCss = css<{
     }
 `;
 
-const StyledPagination = styled(Pagination)<{
-  disabled?: boolean;
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor: string;
-}>`
+const StyledPagination = styled(Pagination)<StyledPaginationProps>`
   ${paginatorCss}
 `;
 
