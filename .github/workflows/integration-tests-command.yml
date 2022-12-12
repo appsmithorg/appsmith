@@ -602,20 +602,17 @@ jobs:
           # Run the server in the background and redirect logs to a log file
           ./scripts/start-dev-server.sh &> server-logs.log &
 
-      - name: Wait for 30 seconds for server to start
+      - name: Wait for 30s and check if server is running
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           sleep 30s
-
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if [[ `ps -ef | grep "server-.*-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
-             echo "Server Not Started";
-             exit 1;
-           else
-             echo "Server Found";
-           fi
+          if lsof -i :8080; then
+            echo "Server Found"
+          else
+            echo "Server Not Started. Printing logs from server process"
+            cat app/server/nohup.out
+            exit 1
+          fi
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'

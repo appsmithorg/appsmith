@@ -133,6 +133,9 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       widgetName,
       isCustomField: true,
       skipDefaultValueProcessing: true,
+      baseSchemaPath: null,
+      removedSchemaItems: [],
+      modifiedSchemaItems: {},
       identifier: nextFieldKey,
       fieldThemeStylesheets: childStylesheet,
     });
