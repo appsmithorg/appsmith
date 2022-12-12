@@ -153,15 +153,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("contain.text", "May 4, 2021 6:25 AM");
   });
 
-  it("8. Datepicker tooltip renders if tooltip prop is not empty", () => {
-    cy.openPropertyPane("datepickerwidget2");
-    // enter tooltip in property pan
-    cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
-    // tooltip help icon shows
-    cy.get(".datepicker-tooltip").should("be.visible");
-  });
-
-  it("9. Check isDirty meta property", function() {
+  it("8. Check isDirty meta property", function() {
     cy.addDsl(datedsl);
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{DatePicker1.isDirty}}`);
@@ -207,7 +199,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("contain", "false");
   });
 
-  it("10. Datepicker default date validation with js binding", function() {
+  it("9. Datepicker default date validation with js binding", function() {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(10000);
