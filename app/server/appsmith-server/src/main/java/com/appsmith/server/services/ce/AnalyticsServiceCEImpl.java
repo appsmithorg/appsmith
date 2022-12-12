@@ -225,7 +225,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     /**
      * Generates event name tag to analytic events
-     * @param event AnalyticsEvents
+     *
+     * @param event  AnalyticsEvents
      * @param object Analytic event resource object
      * @return String
      */
