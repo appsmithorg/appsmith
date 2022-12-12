@@ -19,6 +19,7 @@ import {
 import {
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
+  getPageListAsOptions,
 } from "selectors/entitiesSelector";
 import {
   getModalDropdownList,
@@ -58,7 +59,6 @@ import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
-import { connect } from "react-redux";
 import { isValidURL } from "utils/URLUtils";
 import { ACTION_ANONYMOUS_FUNC_REGEX, ACTION_TRIGGER_REGEX } from "./regex";
 import {
@@ -67,6 +67,7 @@ import {
   FieldType,
 } from "./constants";
 import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
+import equal from "fast-deep-equal";
 
 const baseOptions: { label: string; value: string }[] = [
   {
@@ -652,8 +653,9 @@ const ActionCreator = React.forwardRef(
     );
     const dataTree = useSelector(getDataTree);
     const integrationOptionTree = useIntegrationsOptionTree();
-    const widgetOptionTree = useSelector(getWidgetOptionsTree);
+    const widgetOptionTree = useSelector(getWidgetOptionsTree, equal);
     const modalDropdownList = useModalDropdownList();
+    const pageDropdownOptions = useSelector(getPageListAsOptions);
     const fields = getFieldFromValue(
       props.value,
       activeTabNavigateTo,
@@ -673,7 +675,7 @@ const ActionCreator = React.forwardRef(
           modalDropdownList={modalDropdownList}
           navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
           onValueChange={props.onValueChange}
-          pageDropdownOptions={props.pageDropdownOptions}
+          pageDropdownOptions={pageDropdownOptions}
           value={props.value}
           widgetOptionTree={widgetOptionTree}
         />
@@ -682,16 +684,4 @@ const ActionCreator = React.forwardRef(
   },
 );
 
-const getPageListAsOptions = (state: AppState) => {
-  return state.entities.pageList.pages.map((page) => ({
-    label: page.pageName,
-    id: page.pageId,
-    value: `'${page.pageName}'`,
-  }));
-};
-
-const mapStateToProps = (state: AppState) => ({
-  pageDropdownOptions: getPageListAsOptions(state),
-});
-
-export default connect(mapStateToProps)(ActionCreator);
+export default ActionCreator;
