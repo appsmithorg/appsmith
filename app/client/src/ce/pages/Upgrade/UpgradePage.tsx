@@ -12,7 +12,6 @@ export const Container = styled.div`
   min-height: 0;
   overflow: auto;
   height: calc(100vh - 50px - 112px);
-  width: 100%;
 `;
 
 export default function UpgradePage(props: UpgradePageProps) {
