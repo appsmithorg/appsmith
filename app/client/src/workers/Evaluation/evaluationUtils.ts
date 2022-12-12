@@ -18,7 +18,7 @@ import {
   DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 
-import _, { difference, get, set } from "lodash";
+import _, { get, set } from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
@@ -732,10 +732,8 @@ export const overrideWidgetProperties = (params: {
   const { currentTree, entity, evalMetaUpdates, propertyPath, value } = params;
   const clonedValue = klona(value);
   if (propertyPath in entity.overridingPropertyPaths) {
-    const overridingPropertyPaths = getValidOverridingPropertyPaths(
-      entity,
-      propertyPath,
-    );
+    const overridingPropertyPaths =
+      entity.overridingPropertyPaths[propertyPath];
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
@@ -797,28 +795,4 @@ export const isATriggerPath = (
   propertyPath: string,
 ) => {
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
-};
-
-export const getValidOverridingPropertyPaths = (
-  widget: DataTreeWidget,
-  propertyPath: string,
-) => {
-  let pathsNotToOverride: string[] = [];
-  const overridingPropertyPaths = widget.overridingPropertyPaths[propertyPath];
-  const { isMetaWidget, meta } = widget;
-  if (isMetaWidget && meta?.isDirty) {
-    const metaPaths = overridingPropertyPaths.filter(
-      (path) => path.split(".")[0] === "meta",
-    );
-    pathsNotToOverride = [...metaPaths];
-    metaPaths.forEach((path) => {
-      if (widget.overridingPropertyPaths.hasOwnProperty(path)) {
-        pathsNotToOverride = [
-          ...pathsNotToOverride,
-          ...widget.overridingPropertyPaths[path],
-        ];
-      }
-    });
-  }
-  return difference(overridingPropertyPaths, pathsNotToOverride);
 };
