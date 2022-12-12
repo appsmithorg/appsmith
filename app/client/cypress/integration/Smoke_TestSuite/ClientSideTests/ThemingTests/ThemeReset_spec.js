@@ -24,7 +24,7 @@ describe("Theme validation usecases", function() {
     // click on canvas to see the theming pane
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     // reset theme
     cy.contains("Theme Properties")

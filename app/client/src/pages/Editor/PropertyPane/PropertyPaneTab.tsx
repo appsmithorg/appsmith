@@ -24,7 +24,7 @@ const StyledTabComponent = styled(TabComponent)`
 
 const StyledTabs = styled(Tabs)`
   position: sticky;
-  top: 46px;
+  top: 78px;
   z-index: 3;
   background: ${Colors.WHITE};
   padding: 0px 12px;
