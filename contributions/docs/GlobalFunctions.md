@@ -1,3 +1,5 @@
+# Global Function docs
+
 Global functions in Appsmith are available through the right-hand pane and in the JS editor. They allow users to perform different tasks throughout the Appsmith application.
 
 #### Here are some pull requests you can use as an example:
