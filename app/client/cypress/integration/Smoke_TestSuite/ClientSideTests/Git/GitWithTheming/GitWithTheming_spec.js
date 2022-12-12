@@ -32,7 +32,7 @@ describe("Git with Theming:", function() {
     });
   });
   it("Bug #13860 Theming is not getting applied on view mode when the app is connected to Git", function() {
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     // apply theme on master branch and deploy
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
@@ -65,7 +65,7 @@ describe("Git with Theming:", function() {
     cy.wait(1000);
     cy.get("body").click(300, 300);
     // change theme on tempBranch
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
