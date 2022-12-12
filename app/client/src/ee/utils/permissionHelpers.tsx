@@ -61,6 +61,10 @@ export const hasDeleteWorkspacePermission = (permissions: string[] = []) => {
   return isPermitted(permissions, PERMISSION_TYPE.DELETE_WORKSPACE);
 };
 
+export const hasCreateWorkspacePermission = (permissions: string[] = []) => {
+  return isPermitted(permissions, PERMISSION_TYPE.CREATE_WORKSPACE);
+};
+
 export const hasCreateDatasourcePermission = (permissions: string[] = []) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_DATASOURCES);
 
