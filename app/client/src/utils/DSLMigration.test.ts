@@ -685,13 +685,20 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
-        moduleObj: tableMigrations,
-        functionName: "migrateTableWidgetV2SelectOption",
         moduleObj: themingMigration,
         functionName: "migrateChildStylesheetFromDynamicBindingPathList",
       },
     ],
     version: 70,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: tableMigrations,
+        functionName: "migrateTableWidgetV2SelectOption",
+      },
+    ],
+    version: 71,
   },
 ];
 

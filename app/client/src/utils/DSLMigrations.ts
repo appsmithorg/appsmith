@@ -1133,8 +1133,12 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 70) {
-    currentDSL = migrateTableWidgetV2SelectOption(currentDSL);
     currentDSL = migrateChildStylesheetFromDynamicBindingPathList(currentDSL);
+    currentDSL.version = 71;
+  }
+
+  if ((currentDSL.version = 71)) {
+    currentDSL = migrateTableWidgetV2SelectOption(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
