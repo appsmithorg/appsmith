@@ -1109,6 +1109,8 @@ export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No Properties found based on your search";
+export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
+  "Search for controls, labels etc";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1138,6 +1140,8 @@ export const APP_THEME_BETA_CARD_CONTENT = () =>
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
+export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
+  `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>

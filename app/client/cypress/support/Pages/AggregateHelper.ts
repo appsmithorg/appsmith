@@ -905,6 +905,11 @@ export class AggregateHelper {
       .should("deep.equal", expectedData);
   }
 
+  public AssertElementFocus(selector: ElementType, isFocused = true) {
+    if (isFocused) return this.GetElement(selector).should("be.focused");
+    return this.GetElement(selector).should("not.be.focused");
+  }
+
   public AssertElementVisible(selector: ElementType, index = 0) {
     return this.GetElement(selector)
       .eq(index)

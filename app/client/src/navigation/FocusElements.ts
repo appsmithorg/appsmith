@@ -265,6 +265,7 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.ControlField,
       selector: getFocusableControlField,
       setter: setFocusableControlField,
+      defaultValue: "",
     },
   ],
   [FocusEntity.API]: [
