@@ -1,6 +1,7 @@
 import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 import tinycolor from "tinycolor2";
+import fastdom from "fastdom";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
@@ -60,13 +61,16 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
         "scrollBehavior" in document.documentElement.style;
-      if (supportsNativeSmoothScroll) {
-        containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        if (containerRef.current) {
-          containerRef.current.scrollTop = 0;
+
+      fastdom.mutate(() => {
+        if (supportsNativeSmoothScroll) {
+          containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          if (containerRef.current) {
+            containerRef.current.scrollTop = 0;
+          }
         }
-      }
+      });
     }
   }, [props.shouldScrollContents]);
   return (
