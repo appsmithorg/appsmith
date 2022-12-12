@@ -234,6 +234,8 @@ public class DataTypeStringUtils {
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
                     updatedReplacement = String.valueOf(objectMapper.writeValueAsString(jsonArray));
+                    // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
+                    updatedReplacement = Matcher.quoteReplacement(updatedReplacement);
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(

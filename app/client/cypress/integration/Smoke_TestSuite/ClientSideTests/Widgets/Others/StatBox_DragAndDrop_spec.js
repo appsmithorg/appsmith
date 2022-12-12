@@ -22,7 +22,7 @@ describe("Statbox Widget Functionality", function() {
       x: 100,
       y: 100,
     });
-    cy.openPropertyPaneWithIndex("statboxwidget",1);
-    cy.openPropertyPaneWithIndex("statboxwidget",0);
+    cy.openPropertyPaneWithIndex("statboxwidget", 1);
+    cy.openPropertyPaneWithIndex("statboxwidget", 0);
   });
 });

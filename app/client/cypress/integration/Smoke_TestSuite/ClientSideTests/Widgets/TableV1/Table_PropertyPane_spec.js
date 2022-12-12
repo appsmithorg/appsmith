@@ -110,7 +110,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     // Changing Column data type from "Plain text" to "Number"
-    cy.changeColumnType("Number");
+    cy.changeColumnType("Number", false);
     cy.readTabledataPublish("1", "4").then((tabData) => {
       cy.log(tabData);
       expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
@@ -124,7 +124,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     // Changing Column data type from "Number" to "Date"
-    cy.changeColumnType("Date");
+    cy.changeColumnType("Date", false);
     // orderAmout to "Moment Date"
     cy.updateComputedValue(testdata.momentDate);
     cy.readTabledataPublish("1", "1").then((tabData) => {
@@ -134,7 +134,7 @@ describe("Table Widget property pane feature validation", function() {
 
     // Changing Column data type from "URL" to "Video"
     /* const videoVal = 'https://youtu.be/Sc-m3ceZyfk';
-    cy.changeColumnType("Video");
+    cy.changeColumnType("Video", false);
     // "Moement "date" to "Video"
     cy.updateComputedValue(videoVal);
     // cy.testJson  text("computedvalue", videoVal, )
@@ -147,7 +147,7 @@ describe("Table Widget property pane feature validation", function() {
     const imageVal =
       "https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
 
-    cy.changeColumnType("Image");
+    cy.changeColumnType("Image", false);
     // "Moement "date" to "Image"
     cy.updateComputedValue(imageVal);
     // Verifying the href of the image added.
@@ -156,7 +156,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     // change column data type to "icon button"
-    cy.changeColumnType("Icon Button");
+    cy.changeColumnType("Icon Button", false);
     cy.wait(400);
     cy.get(commonlocators.selectedIcon).should("have.text", "add");
 
@@ -166,7 +166,7 @@ describe("Table Widget property pane feature validation", function() {
 
     // Changing Column data type from "Date" to "URl"
     cy.readTabledataPublish("1", "1").then((actualEmail) => {
-      cy.changeColumnType("URL");
+      cy.changeColumnType("URL", false);
       // "Image" to "url"
       cy.updateComputedValue(testdata.currentRowEmail);
       cy.readTabledataPublish("1", "0").then((tabData2) => {
@@ -273,6 +273,7 @@ describe("Table Widget property pane feature validation", function() {
   it("12. Verify default search text", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
+    cy.backFromPropertyPanel();
     // Chage deat search text value to "data"
     cy.testJsontext("defaultsearchtext", "data");
     cy.PublishtheApp();
@@ -284,6 +285,7 @@ describe("Table Widget property pane feature validation", function() {
   it("13. Verify default selected row", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
+    cy.backFromPropertyPanel();
     cy.testJsontext("defaultsearchtext", "");
     // Change default selected row value to 1
     cy.get(widgetsPage.defaultSelectedRowField).type("1");
@@ -307,7 +309,7 @@ describe("Table Widget property pane feature validation", function() {
   //   cy.tableColumnDataValidation("customColumn2"); //To be updated later
 
   //   cy.editColumn("customColumn2");
-  //   cy.changeColumnType("Button");
+  //   cy.changeColumnType("Button", false);
   //   // default selected opts
   //   cy.get(commonlocators.tableButtonVariant + " span[type='p1']").should(
   //     "have.text",

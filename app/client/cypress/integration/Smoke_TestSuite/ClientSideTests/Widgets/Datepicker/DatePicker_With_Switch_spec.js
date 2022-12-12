@@ -29,7 +29,9 @@ describe("Switch Widget within Form widget Functionality", function() {
     cy.setDate(1, "ddd MMM DD YYYY");
     const nextDay = dayjs().format("DD/MM/YYYY");
     cy.log(nextDay);
-    cy.get(widgetsPage.actionSelect).click({ force: true });
+    cy.get(
+      commonlocators.onDateSelectedField + " " + widgetsPage.actionSelect,
+    ).click({ force: true });
     cy.get(commonlocators.chooseAction)
       .children()
       .contains("Reset widget")
