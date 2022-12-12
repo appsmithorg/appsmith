@@ -2,7 +2,7 @@ import React from "react";
 import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 
-import { BaseCellComponentProps, MenuItems } from "../Constants";
+import { BaseCellComponentProps, MenuItems, TableSizes } from "../Constants";
 import { ButtonVariant } from "components/constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -76,6 +76,7 @@ export interface RenderMenuButtonProps extends BaseCellComponentProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   rowIndex: number;
+  tableSizes: TableSizes;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {
@@ -91,6 +92,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
     textColor,
     textSize,
     verticalAlignment,
+    tableSizes,
   } = props;
 
   return (
@@ -106,6 +108,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
+      tableSizes={tableSizes}
     >
       <MenuButton {...props} iconName={props.iconName} />
     </CellWrapper>

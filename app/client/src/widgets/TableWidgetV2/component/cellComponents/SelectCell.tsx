@@ -4,6 +4,7 @@ import { DropdownOption } from "widgets/SelectWidget/constants";
 import {
   BaseCellComponentProps,
   EDITABLE_CELL_PADDING_OFFSET,
+  TableSizes,
   TABLE_SIZES,
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
@@ -103,6 +104,7 @@ type SelectProps = BaseCellComponentProps & {
   onFilterChangeActionString?: string;
   disabledEditIconMessage: string;
   isNewRow: boolean;
+  tableSizes: TableSizes;
 };
 
 /*
@@ -148,6 +150,7 @@ export const SelectCell = (props: SelectProps) => {
     value,
     verticalAlignment,
     width,
+    tableSizes,
   } = props;
   const onSelect = useCallback(
     (option: DropdownOption) => {
@@ -206,6 +209,7 @@ export const SelectCell = (props: SelectProps) => {
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
+        tableSizes={tableSizes}
       >
         <StyledSelectComponent
           accentColor={accentColor}
@@ -261,6 +265,7 @@ export const SelectCell = (props: SelectProps) => {
         textSize={textSize}
         value={value}
         verticalAlignment={verticalAlignment}
+        tableSizes={tableSizes}
       />
     );
   }

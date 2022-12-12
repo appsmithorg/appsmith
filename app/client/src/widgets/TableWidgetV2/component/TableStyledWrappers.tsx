@@ -188,7 +188,7 @@ export const TableWrapper = styled.div<{
         props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
       background: var(--wds-color-bg);
       font-weight: 500;
-      padding: 16px;
+      padding: ${(props) => props.tableSizes.CELL_PADDING}px;
     }
     .td {
       min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
@@ -406,6 +406,7 @@ export const CellWrapper = styled.div<{
   disablePadding?: boolean;
   imageSize?: ImageSize;
   isCellDisabled?: boolean;
+  tableSizes?: TableSizes;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -447,7 +448,8 @@ export const CellWrapper = styled.div<{
   }
   font-size: ${(props) => props.textSize};
 
-  padding: 16px;
+  padding: ${(props) =>
+    props.tableSizes ? props.tableSizes.CELL_PADDING : 16}px;
   line-height: ${CELL_WRAPPER_LINE_HEIGHT};
   .${Classes.POPOVER_WRAPPER} {
     width: 100%;

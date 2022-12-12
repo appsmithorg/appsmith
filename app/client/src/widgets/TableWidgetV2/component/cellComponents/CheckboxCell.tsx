@@ -4,6 +4,7 @@ import {
   BaseCellComponentProps,
   CellAlignment,
   JUSTIFY_CONTENT,
+  TableSizes,
 } from "../Constants";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import CheckboxComponent from "widgets/CheckboxWidget/component/index";
@@ -61,6 +62,7 @@ type CheckboxCellProps = BaseCellComponentProps & {
   disabledCheckbox: boolean;
   isCellEditable: boolean;
   disabledCheckboxMessage: string;
+  tableSizes: TableSizes;
 };
 
 export const CheckboxCell = (props: CheckboxCellProps) => {
@@ -80,6 +82,7 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
     onChange,
     value,
     verticalAlignment,
+    tableSizes,
   } = props;
 
   const checkbox = (
@@ -105,6 +108,7 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       verticalAlignment={verticalAlignment}
+      tableSizes={tableSizes}
     >
       {hasUnSavedChanges && <UnsavedChangesMarker accentColor={accentColor} />}
       {isCellEditable && !!disabledCheckbox ? (

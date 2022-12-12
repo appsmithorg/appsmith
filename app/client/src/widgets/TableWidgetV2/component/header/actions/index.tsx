@@ -128,12 +128,15 @@ export interface ActionsPropsType {
 
 function Actions(props: ActionsPropsType) {
   const isLastPage = props.currentPageIndex === props.pageCount - 1;
-  let startIndex: number, endIndex: number;
-  if (isLastPage) {
-    startIndex = props.currentPageIndex * props.pageSize + 1;
-    endIndex = props.totalRecordsCount || 0;
+  let endIndex: number;
+  const startIndex = props.currentPageIndex * props.pageSize + 1;
+
+  if (
+    isLastPage ||
+    (props.tableData.length < props.pageSize && props.currentPageIndex === 0)
+  ) {
+    endIndex = props.totalRecordsCount || props.tableData.length || 0;
   } else {
-    startIndex = props.currentPageIndex * props.pageSize + 1;
     endIndex = startIndex + props.pageSize - 1;
   }
 
@@ -190,7 +193,6 @@ function Actions(props: ActionsPropsType) {
           )}
         </CommonFunctionsMenuWrapper>
       )}
-
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           {props.totalRecordsCount ? (
@@ -226,9 +228,16 @@ function Actions(props: ActionsPropsType) {
       )}
       {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
-          <TableHeaderContentWrapper className="show-page-items">
+          {/* <TableHeaderContentWrapper className="show-page-items">
             {props.tableData?.length} Records
-          </TableHeaderContentWrapper>
+          </TableHeaderContentWrapper> */}
+          {console.log("props", props)}
+          {props.tableData.length ? (
+            <TableHeaderContentWrapper>
+              {startIndex}-{endIndex} of {props.tableData?.length}
+            </TableHeaderContentWrapper>
+          ) : null}
+
           <PaginationItemWrapper
             accentColor={props.accentColor}
             borderRadius={props.borderRadius}

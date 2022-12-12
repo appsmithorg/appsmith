@@ -5,6 +5,7 @@ import {
   ALIGN_ITEMS,
   BaseCellComponentProps,
   VerticalAlignment,
+  TableSizes,
 } from "../Constants";
 import {
   ColumnTypes,
@@ -57,6 +58,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   widgetId: string;
   disabledEditIconMessage: string;
   isNewRow: boolean;
+  tableSizes: TableSizes;
 };
 
 type editPropertyType = {
@@ -114,6 +116,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     validationErrorMessage,
     verticalAlignment,
     widgetId,
+    tableSizes,
   } = props;
 
   let value = props.value;
@@ -224,6 +227,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         url={columnType === ColumnTypes.URL ? props.value : null}
         value={value}
         verticalAlignment={verticalAlignment}
+        tableSizes={tableSizes}
       />
       {editor}
     </Container>

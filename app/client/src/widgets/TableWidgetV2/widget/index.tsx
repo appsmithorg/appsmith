@@ -28,6 +28,7 @@ import {
   ReactTableFilter,
   OperatorTypes,
   AddNewRowActions,
+  TABLE_SIZES,
 } from "../component/Constants";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
@@ -1337,7 +1338,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         props.cell.column.columnProperties.originalId,
       ) || props.cell.column.columnProperties;
     const rowIndex = props.cell.row.index;
-
+    const tableSizes =
+      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
     /*
      * We don't need to render cells that don't display data (button, iconButton, etc)
      */
@@ -1346,7 +1348,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       rowIndex === 0 &&
       ActionColumnTypes.includes(column.columnType)
     ) {
-      return <CellWrapper />;
+      return <CellWrapper tableSizes={tableSizes} />;
     }
 
     const isHidden = !column.isVisible;
@@ -1467,6 +1469,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1538,6 +1541,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1591,6 +1595,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             width={
               this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
             }
+            tableSizes={tableSizes}
           />
         );
 
@@ -1622,6 +1627,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1664,6 +1670,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1709,6 +1716,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1727,6 +1735,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1761,6 +1770,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1792,6 +1802,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1840,6 +1851,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
+            tableSizes={tableSizes}
           />
         );
     }

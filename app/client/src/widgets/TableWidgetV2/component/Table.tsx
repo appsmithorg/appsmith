@@ -227,12 +227,13 @@ export function Table(props: TableProps) {
     // loop over subPage rows and toggleRowSelected if required
     e.stopPropagation();
   };
-  const isHeaderVisible =
-    props.isVisibleSearch ||
-    props.isVisibleFilters ||
-    props.isVisibleDownload ||
-    props.isVisiblePagination;
+  // const isHeaderVisible =
+  //   props.isVisibleSearch ||
+  //   props.isVisibleFilters ||
+  //   props.isVisibleDownload ||
+  //   props.isVisiblePagination;
 
+  const isHeaderVisible = true;
   const style = useMemo(
     () => ({
       width: props.width,
