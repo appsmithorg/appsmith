@@ -29,6 +29,7 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
   createMessage,
+  LOGIN_PAGE_SUBTITLE,
 } from "@appsmith/constants/messages";
 import { Button, FormGroup, FormMessage, Size } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
@@ -42,9 +43,6 @@ import { Theme } from "constants/DefaultTheme";
 import {
   SpacedSubmitForm,
   FormActions,
-  AuthCardHeader,
-  AuthCardNavLink,
-  SignUpLinkSection,
   ForgotPasswordLink,
 } from "pages/UserAuth/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -55,6 +53,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
+import Container from "pages/UserAuth/Container";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -124,23 +123,24 @@ export function Login(props: LoginFormProps) {
     forgotPasswordURL += `?email=${props.emailValue}`;
   }
 
+  const footerSection = !disableLoginForm && (
+    <div className="px-2 py-4 text-base text-center border-b">
+      {createMessage(NEW_TO_APPSMITH)}
+      <Link
+        className="t--sign-up  ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)] t--signup-link"
+        to={signupURL}
+      >
+        {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
+      </Link>
+    </div>
+  );
+
   return (
-    <>
-      <AuthCardHeader>
-        <h1>{createMessage(LOGIN_PAGE_TITLE)}</h1>
-      </AuthCardHeader>
-      {!disableLoginForm && (
-        <SignUpLinkSection>
-          {createMessage(NEW_TO_APPSMITH)}
-          <AuthCardNavLink
-            className="t--sign-up"
-            style={{ marginLeft: props.theme.spaces[3] }}
-            to={signupURL}
-          >
-            {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
-          </AuthCardNavLink>
-        </SignUpLinkSection>
-      )}
+    <Container
+      footer={footerSection}
+      subtitle={createMessage(LOGIN_PAGE_SUBTITLE)}
+      title={createMessage(LOGIN_PAGE_TITLE)}
+    >
       {showError && (
         <FormMessage
           actions={
@@ -223,7 +223,7 @@ export function Login(props: LoginFormProps) {
           </ForgotPasswordLink>
         </>
       )}
-    </>
+    </Container>
   );
 }
 

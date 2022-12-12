@@ -65,7 +65,6 @@ describe("Export application as a JSON file", function() {
       cy.get(homePage.shareApp).click({ force: true });
       // cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.adminRole);
       HomePage.InviteUserToWorkspaceFromApp(
-        workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Administrator",
       );
@@ -118,7 +117,6 @@ describe("Export application as a JSON file", function() {
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
       HomePage.InviteUserToWorkspaceFromApp(
-        workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Developer",
       );
@@ -173,7 +171,6 @@ describe("Export application as a JSON file", function() {
       cy.get(homePage.shareApp).click({ force: true });
 
       HomePage.InviteUserToWorkspaceFromApp(
-        workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );

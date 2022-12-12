@@ -20,4 +20,19 @@ describe("Canvas context Property Pane", function() {
       2,
     );
   });
+
+  it("Bug Fix: widget explorer should automatically open on widget selection", () => {
+    cy.reload();
+    cy.CheckAndUnfoldEntityItem("Widgets");
+    //check it was originally not expanded
+    cy.get(`[data-guided-tour-id="explorer-entity-Image1"]`).should(
+      "not.exist",
+    );
+
+    cy.get(".t--widget-imagewidget")
+      .eq(0)
+      .click();
+    //check if the entities are not expanded
+    cy.get(`[data-guided-tour-id="explorer-entity-Image1"]`).should("exist");
+  });
 });
