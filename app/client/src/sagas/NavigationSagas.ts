@@ -28,6 +28,8 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -59,6 +61,11 @@ function* navigationListenerSaga() {
   }
 }
 
+function* appBackgroundHandler() {
+  const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
+  changeAppBackground(currentTheme);
+}
+
 function* handleRouteChange(payload: LocationChangePayload) {
   const { hash, pathname, state } = payload.location;
   try {
@@ -67,6 +74,7 @@ function* handleRouteChange(payload: LocationChangePayload) {
     if (featureFlags.CONTEXT_SWITCHING) {
       yield call(contextSwitchingSaga, pathname, state, hash);
     }
+    yield call(appBackgroundHandler);
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
