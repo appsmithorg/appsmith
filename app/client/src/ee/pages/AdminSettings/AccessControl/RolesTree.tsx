@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Column, useTable, useExpanded } from "react-table";
 import { Checkbox, Icon, IconSize, Spinner } from "design-system";
@@ -374,7 +374,11 @@ export function getSearchData(data: any, searchValue: string) {
   });
 }
 
-export function getEntireMap(hoverMap: any, key: string, includeSelf = true) {
+export function getEntireHoverMap(
+  hoverMap: any,
+  key: string,
+  includeSelf = true,
+) {
   const currentKeyMap = hoverMap?.[key] || [];
   let finalMap: any[] = includeSelf
     ? [
@@ -387,9 +391,25 @@ export function getEntireMap(hoverMap: any, key: string, includeSelf = true) {
   for (const map of currentKeyMap) {
     finalMap = _.unionWith(
       finalMap,
-      getEntireMap(hoverMap, `${map?.id}_${map?.p}`),
+      getEntireHoverMap(hoverMap, `${map?.id}_${map?.p}`),
       _.isEqual,
     );
+  }
+  return finalMap;
+}
+
+export function getEntireDisableMap(map: any, rowId: string, column: string) {
+  const currentKeyMap: any = Object.fromEntries(
+    Object.entries(map).filter(([key]) => key.includes(rowId)),
+  );
+  const key = `${rowId}_${column}`;
+  const finalMap: any[] = [];
+  for (const entry in currentKeyMap) {
+    for (const trav of currentKeyMap[entry]) {
+      if (`${trav.id}_${trav.p}` === key) {
+        finalMap.push(entry);
+      }
+    }
   }
   return finalMap;
 }
@@ -526,7 +546,7 @@ export function updateData(
       updatedData[parseInt(rowIdArray[0])] = updateCheckbox(
         rowDataToUpdate,
         newValue,
-        getEntireMap(hoverMap, cellId),
+        getEntireHoverMap(hoverMap, cellId),
         permissions,
       );
     } else if (updatedData[parseInt(rowIdArray[0])]?.subRows) {
@@ -649,9 +669,20 @@ export default function RolesTree(props: RoleTreeProps) {
         const [isChecked, setIsChecked] = React.useState(
           value === 1 ? true : false,
         );
+        const disableMap = useMemo(
+          () =>
+            isChecked && canEditRole && tabData.disableHelperMap
+              ? getEntireDisableMap(
+                  tabData.disableHelperMap,
+                  rowData.id,
+                  column,
+                )
+              : [],
+          [isChecked],
+        );
 
         const removeHoverClass = (id: string, rIndex: number) => {
-          const values = getEntireMap(tabData.hoverMap, id);
+          const values = getEntireHoverMap(tabData.hoverMap, id);
           for (const val of values) {
             const allEl = document.querySelectorAll(
               `[data-cellId="${val.id}_${val.p}"]`,
@@ -667,7 +698,7 @@ export default function RolesTree(props: RoleTreeProps) {
         };
 
         const addHoverClass = (id: string, rIndex: number) => {
-          const values = getEntireMap(tabData.hoverMap, id);
+          const values = getEntireHoverMap(tabData.hoverMap, id);
           for (const val of values) {
             const allEl = document.querySelectorAll(
               `[data-cellId="${val.id}_${val.p}"]`,
@@ -685,6 +716,18 @@ export default function RolesTree(props: RoleTreeProps) {
         const onChangeHandler = (e: any, cellId: string) => {
           setIsChecked(e);
           updateMyData(e, cellId, rowId);
+        };
+
+        const getDisabledState = () => {
+          let isDisabled = false;
+          for (const i of disableMap) {
+            const el = document.querySelector(`[data-cellId="${i}"]`);
+            const input = el?.getElementsByTagName("input")[0];
+            if (input?.checked) {
+              isDisabled = true;
+            }
+          }
+          return isDisabled;
         };
 
         return rowData.permissions && rowData.permissions[i] !== -1 ? (
@@ -707,7 +750,10 @@ export default function RolesTree(props: RoleTreeProps) {
           >
             <Checkbox
               className="design-system-checkbox"
-              disabled={!canEditRole}
+              disabled={
+                !canEditRole ||
+                (disableMap.length > 0 ? getDisabledState() : false)
+              }
               /* indeterminate={row.permissions[i] === 3 ? true : false} */
               isDefaultChecked={isChecked}
               onCheckChange={(value: boolean) =>

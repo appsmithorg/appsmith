@@ -72,16 +72,16 @@ const StyledSettingsHeader = styled(SettingsHeader)`
   }
 
   &.settings-header {
-    span.bp3-popover-target.t--editname {
-      width: 100%;
+    span.bp3-popover-target {
+      width: auto;
 
       > * {
         max-width: 100%;
         flex-grow: unset;
+        width: auto;
 
         > * {
           width: 100%;
-
           .bp3-editable-text-content {
             display: block;
           }
