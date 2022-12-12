@@ -685,11 +685,20 @@ const migrations: Migration[] = [
   {
     functionLookup: [
       {
+        moduleObj: themingMigration,
+        functionName: "migrateChildStylesheetFromDynamicBindingPathList",
+      },
+    ],
+    version: 70,
+  },
+  {
+    functionLookup: [
+      {
         moduleObj: migrateAutoHeight,
         functionName: "migrateListWidgetChildrenForAutoHeight",
       },
     ],
-    version: 70,
+    version: 71,
   },
 ];
 

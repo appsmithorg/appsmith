@@ -383,6 +383,24 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: true,
           },
+          {
+            helpText: "Triggers an action when the dropdown opens",
+            propertyName: "onDropdownOpen",
+            label: "onDropdownOpen",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the dropdown closes",
+            propertyName: "onDropdownClose",
+            label: "onDropdownClose",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
         ],
       },
     ];
@@ -605,6 +623,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
         labelWidth={this.getLabelWidth()}
+        onDropdownClose={this.onDropdownClose}
+        onDropdownOpen={this.onDropdownOpen}
         onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
@@ -666,6 +686,30 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     }
   };
 
+  onDropdownOpen = () => {
+    if (this.props.onDropdownOpen) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownOpen",
+        dynamicString: this.props.onDropdownOpen,
+        event: {
+          type: EventType.ON_DROPDOWN_OPEN,
+        },
+      });
+    }
+  };
+
+  onDropdownClose = () => {
+    if (this.props.onDropdownClose) {
+      super.executeAction({
+        triggerPropertyName: "onDropdownClose",
+        dynamicString: this.props.onDropdownClose,
+        event: {
+          type: EventType.ON_DROPDOWN_CLOSE,
+        },
+      });
+    }
+  };
+
   static getWidgetType(): WidgetType {
     return "SELECT_WIDGET";
   }
@@ -680,6 +724,8 @@ export interface SelectWidgetProps extends WidgetProps {
   selectedIndex?: number;
   options?: DropdownOption[];
   onOptionChange?: string;
+  onDropdownOpen?: string;
+  onDropdownClose?: string;
   defaultOptionValue?: any;
   value?: any;
   label?: any;
