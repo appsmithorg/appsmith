@@ -1,8 +1,11 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export const saveSettings = (settings: Record<string, string>) => ({
+export const saveSettings = (settings: any, needsRestart = true) => ({
   type: ReduxActionTypes.SAVE_ADMIN_SETTINGS,
-  payload: settings,
+  payload: {
+    settings,
+    needsRestart,
+  },
 });
 
 export const retryServerRestart = () => ({
