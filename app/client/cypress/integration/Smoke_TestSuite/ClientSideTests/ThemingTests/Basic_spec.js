@@ -26,7 +26,7 @@ describe("App Theming funtionality", function() {
     themesSection(sectionName, themeName) + "/following-sibling::button";
 
   it("1. Checks if theme can be changed to one of the existing themes", function() {
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
@@ -70,7 +70,7 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
 
     //Click the back button //Commenting below since expanded by default
@@ -219,7 +219,7 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //#region Change Font & verify widgets:
     // cy.contains("Font")
@@ -1009,7 +1009,7 @@ describe("App Theming funtionality", function() {
       .first(0)
       .trigger("click", { force: true });
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
 
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
