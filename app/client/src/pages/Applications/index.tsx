@@ -107,6 +107,7 @@ import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErro
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
+  hasCreateWorkspacePermission,
   hasDeleteWorkspacePermission,
   isPermitted,
   PERMISSION_TYPE,
@@ -408,10 +409,7 @@ function LeftPane() {
   }
 
   const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = isPermitted(
-    tenantPermissions,
-    PERMISSION_TYPE.CREATE_WORKSPACE,
-  );
+  const canCreateWorkspace = hasCreateWorkspacePermission(tenantPermissions);
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);

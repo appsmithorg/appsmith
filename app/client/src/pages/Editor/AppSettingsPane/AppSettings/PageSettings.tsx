@@ -34,7 +34,7 @@ import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
 import { getUrlPreview } from "../Utils";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
 
