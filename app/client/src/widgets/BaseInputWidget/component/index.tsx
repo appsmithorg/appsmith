@@ -566,7 +566,6 @@ class BaseInputComponent extends React.Component<
       onKeyDown={this.onKeyDownTextArea}
       onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
-      style={{ resize: "none" }}
       value={this.props.value}
     />
   );
@@ -709,10 +708,7 @@ class BaseInputComponent extends React.Component<
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.renderInputComponent(
-              inputHTMLType,
-              isDynamicHeightEnabled ? false : !!multiline,
-            )}
+            {this.renderInputComponent(inputHTMLType, !!multiline)}
           </ErrorTooltip>
         </TextInputWrapper>
       </InputComponentWrapper>

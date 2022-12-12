@@ -188,8 +188,12 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               controlType: "DROP_DOWN",
               options: [
                 {
-                  label: "Text",
+                  label: "Single-line text",
                   value: "TEXT",
+                },
+                {
+                  label: "Multi-line text",
+                  value: "MULTI_LINE_TEXT",
                 },
                 {
                   label: "Number",
@@ -572,11 +576,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
-        multiline={
-          (this.props.bottomRow - this.props.topRow) /
-            minInputSingleLineHeight >
-            1 && this.props.inputType === InputTypes.TEXT
-        }
+        multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
