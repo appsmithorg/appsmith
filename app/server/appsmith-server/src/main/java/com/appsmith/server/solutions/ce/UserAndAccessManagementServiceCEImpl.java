@@ -135,7 +135,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                                         existingUser.getEmail(),
                                                         "Appsmith: You have been added to a new workspace",
                                                         INVITE_USER_EMAIL_TEMPLATE,
-                                                        params
+                                                        updatedParams
                                                 )
                                         )
                                         .thenReturn(existingUser);

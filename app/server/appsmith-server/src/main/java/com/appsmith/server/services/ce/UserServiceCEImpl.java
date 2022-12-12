@@ -257,12 +257,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     params.put("resetUrl", resetUrl);
 
                     return updateTenantLogoInParams(params)
-                            .map(updatedParams -> emailSender.sendMail(
-                                    email,
-                                    "Appsmith Password Reset",
-                                    FORGOT_PASSWORD_EMAIL_TEMPLATE,
-                                    updatedParams
-                            ));
+                            .flatMap(updatedParams ->
+                                    emailSender.sendMail(email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams)
+                            );
                 })
                 .thenReturn(true);
     }
@@ -629,11 +626,9 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     // We have sent out the emails. Just send back the saved user.
                     return updateTenantLogoInParams(params)
-                            .map(updatedParams -> emailSender.sendMail(
-                                    createdUser.getEmail(),
-                                    "Invite for Appsmith",
-                                    INVITE_USER_EMAIL_TEMPLATE,
-                                    updatedParams))
+                            .flatMap(updatedParams ->
+                                    emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, updatedParams)
+                            )
                             .thenReturn(createdUser);
                 });
     }
