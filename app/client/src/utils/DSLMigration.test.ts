@@ -687,6 +687,8 @@ const migrations: Migration[] = [
       {
         moduleObj: tableMigrations,
         functionName: "migrateTableWidgetV2SelectOption",
+        moduleObj: themingMigration,
+        functionName: "migrateChildStylesheetFromDynamicBindingPathList",
       },
     ],
     version: 70,

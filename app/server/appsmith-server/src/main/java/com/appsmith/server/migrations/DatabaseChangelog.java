@@ -233,9 +233,9 @@ public class DatabaseChangelog {
 
         /* Add plugin to the workspace */
         Update update = new Update();
-        update.addToSet("plugins",new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
+        update.addToSet("plugins", new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
 
-        mongockTemplate.updateMulti(queryToFetchWorkspacesWOPlugin,update,Workspace.class);
+        mongockTemplate.updateMulti(queryToFetchWorkspacesWOPlugin, update, Workspace.class);
     }
 
     @ChangeSet(order = "001", id = "initial-plugins", author = "")
@@ -755,7 +755,7 @@ public class DatabaseChangelog {
         }
     }
 
-        // Examples organization is no longer getting used. Commenting out the migrations which add/update the same.
+    // Examples organization is no longer getting used. Commenting out the migrations which add/update the same.
     // @SuppressWarnings({"unchecked", "rawtypes"})
 //    @ChangeSet(order = "022", id = "examples-organization", author = "")
 //    public void examplesOrganization(MongockTemplate mongoTemplate, EncryptionService encryptionService) throws IOException {
@@ -1886,7 +1886,7 @@ public class DatabaseChangelog {
                 }
                 // Only extract mustache keys from leaf nodes
                 if (parent != null && isLeafNode) {
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
 
                     // We found the path. But if the path does not have any mustache bindings, remove it from the path list
                     if (mustacheKeysFromFields.isEmpty()) {
@@ -3481,9 +3481,9 @@ public class DatabaseChangelog {
          * This method holds the steps to transform data before it is migrated to UQI schema.
          * Each transformation is uniquely identified by the combination of plugin name and the transformation name.
          *
-         * @param pluginName - name of the plugin for which the transformation is intended
+         * @param pluginName         - name of the plugin for which the transformation is intended
          * @param transformationName - name of the transformation relative to the plugin
-         * @param value - value that needs to be transformed
+         * @param value              - value that needs to be transformed
          * @return - transformed value
          */
         public Object transformData(String pluginName, String transformationName, Object value) {
@@ -3664,13 +3664,13 @@ public class DatabaseChangelog {
      * @param dynamicBindingPathList : old dynamicBindingPathList
      * @param objectMapper
      * @param action
-     * @param migrationMap : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
-     *                     reference, please check out the `s3MigrationMap` defined above.
+     * @param migrationMap           : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
+     *                               reference, please check out the `s3MigrationMap` defined above.
      * @return : updated dynamicBindingPathList - ported to UQI model.
      */
     static List<Property> getUpdatedDynamicBindingPathList(List<Property> dynamicBindingPathList,
-                                                            ObjectMapper objectMapper, NewAction action,
-                                                            Map<Integer, List<String>> migrationMap) {
+                                                           ObjectMapper objectMapper, NewAction action,
+                                                           Map<Integer, List<String>> migrationMap) {
         // Return if empty.
         if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
             return dynamicBindingPathList;
@@ -4101,7 +4101,7 @@ public class DatabaseChangelog {
                 .include(fieldName(QDatasource.datasource.organizationId));
 
         List<Datasource> datasources = mongockTemplate.find(datasourceQuery, Datasource.class);
-        for(Datasource datasource: datasources) {
+        for (Datasource datasource : datasources) {
             final Update update = new Update();
             final String gitSyncId = datasource.getOrganizationId() + "_" + new ObjectId();
             update.set(fieldName(QDatasource.datasource.gitSyncId), gitSyncId);
@@ -4117,7 +4117,7 @@ public class DatabaseChangelog {
                 .addCriteria(where(fieldName(QApplication.application.pages)).exists(true));
         List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
 
-        for(Application application: applications) {
+        for (Application application : applications) {
             application.getPages().forEach(page -> {
                 page.setDefaultPageId(page.getId());
             });
@@ -4179,7 +4179,7 @@ public class DatabaseChangelog {
                 defaultResourceUpdates.set(fieldName(QNewPage.newPage.publishedPage) + "." + "layouts", page.getPublishedPage().getLayouts());
             }
 
-            if (!StringUtils.isEmpty(applicationId) ) {
+            if (!StringUtils.isEmpty(applicationId)) {
                 mongockTemplate.updateFirst(
                         query(where(fieldName(QNewPage.newPage.id)).is(page.getId())),
                         defaultResourceUpdates,
@@ -4622,7 +4622,7 @@ public class DatabaseChangelog {
         );
 
         // Query to get action id from all Firestore actions
-        Query queryToGetActionIds =query(
+        Query queryToGetActionIds = query(
                 where(fieldName(QNewAction.newAction.pluginId)).is(firestorePlugin.getId())
                         .and(fieldName(QNewAction.newAction.deleted)).ne(true)
         );
@@ -4647,7 +4647,7 @@ public class DatabaseChangelog {
             ActionDTO unpublishedAction = firestoreAction.getUnpublishedAction();
 
             // No migrations required if action configuration does not exist.
-            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null ) {
+            if (unpublishedAction == null || unpublishedAction.getActionConfiguration() == null) {
                 continue;
             }
 
@@ -4733,6 +4733,7 @@ public class DatabaseChangelog {
     /**
      * This method sets the key formData.aggregate.limit to 101 for all Mongo plugin actions.
      * It iterates over each action id one by one to avoid out of memory error.
+     *
      * @param mongoActions
      * @param mongockTemplate
      */
@@ -4760,6 +4761,7 @@ public class DatabaseChangelog {
 
     /**
      * Returns true only if the action has non-null published actionConfiguration.
+     *
      * @param action
      * @return true / false
      */
@@ -4783,6 +4785,7 @@ public class DatabaseChangelog {
      * Mongo database - this is the same value that would have been applied to the aggregate cmd so far by the
      * database. However, for any new action, this field's initial value is 10.
      * Ref: https://docs.mongodb.com/manual/tutorial/iterate-a-cursor/
+     *
      * @param mongockTemplate
      */
     @ChangeSet(order = "109", id = "add-limit-field-data-to-mongo-aggregate-cmd", author = "")
@@ -4804,6 +4807,7 @@ public class DatabaseChangelog {
 
     /**
      * Returns true only if the action has non-null un-published actionConfiguration.
+     *
      * @param action
      * @return true / false
      */
@@ -4818,6 +4822,7 @@ public class DatabaseChangelog {
 
     /**
      * Fetch an action using id.
+     *
      * @param actionId
      * @param mongockTemplate
      * @return action
@@ -4830,6 +4835,7 @@ public class DatabaseChangelog {
 
     /**
      * Generate query to fetch all non-deleted actions defined for a given plugin.
+     *
      * @param plugin
      * @return query
      */
@@ -4884,7 +4890,7 @@ public class DatabaseChangelog {
         query.addCriteria(Criteria.where("deleted").is(FALSE));
 
         for (Application application : mongockTemplate.find(query, Application.class)) {
-            if(!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
+            if (!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()) {
                 GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(null);
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                 gitApplicationMetadata.setGitAuth(gitAuth);
@@ -4988,6 +4994,7 @@ public class DatabaseChangelog {
     /**
      * Adding this migration again because we've added permission to themes.
      * Also there are couple of changes in the system theme properties.
+     *
      * @param mongockTemplate
      * @throws IOException
      */

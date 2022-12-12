@@ -53,7 +53,10 @@ import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget"
 import { DSLWidget } from "widgets/constants";
 import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
 import { PrivateWidgets } from "entities/DataTree/types";
-import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
+import {
+  migrateChildStylesheetFromDynamicBindingPathList,
+  migrateStylingPropertiesForTheming,
+} from "./migrations/ThemingMigrations";
 
 import {
   migratePhoneInputWidgetAllowFormatting,
@@ -1131,6 +1134,7 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 70) {
     currentDSL = migrateTableWidgetV2SelectOption(currentDSL);
+    currentDSL = migrateChildStylesheetFromDynamicBindingPathList(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
