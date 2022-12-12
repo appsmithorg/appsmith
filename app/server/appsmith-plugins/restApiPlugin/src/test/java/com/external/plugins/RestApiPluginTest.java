@@ -219,19 +219,7 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testHttpGetRequestUsingMockWebServerWithRawBody1() throws IOException {
-
-        MockWebServer mockWebServer = new MockWebServer();
-
-        MockResponse mockResponse = new MockResponse()
-                .addHeader("content-type",MediaType.APPLICATION_JSON_VALUE)
-                .setBody("{\"status\": \"success\" , \"path\": \"raw path 1\"}");
-
-        mockWebServer.enqueue(mockResponse);
-
-        mockWebServer.start();
-
-        HttpUrl baseUrl = mockWebServer.url("/test/v1");
+    public void testHttpGetRequestRawBody() {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
 
@@ -247,7 +235,7 @@ public class RestApiPluginTest {
         executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl(String.format("http://%s:%s", baseUrl.host(),baseUrl.port()));
+        datasourceConfiguration.setUrl("https://postman-echo.com/get");
 
         final List<Property> headers = List.of(
                 new Property("content-type",MediaType.TEXT_PLAIN_VALUE));
@@ -259,11 +247,7 @@ public class RestApiPluginTest {
         actionConfiguration.setQueryParameters(queryParameters);
         actionConfiguration.setHttpMethod(HttpMethod.GET);
 
-        actionConfiguration.setBody("abc is equals to {{Input1.text}}");
-
         actionConfiguration.setTimeoutInMillisecond("10000");
-
-        actionConfiguration.setPath("/test/v1");
 
         actionConfiguration.setPaginationType(PaginationType.URL);
 
@@ -273,143 +257,26 @@ public class RestApiPluginTest {
 
         actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
 
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
+        String[] requestBodyList = {"abc is equals to {{Input1.text}}","{ \"abc\": {{Input1.text}} }",""};
 
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    log.info("modi ji : {}",result);
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(2,body.size());
-                    assertEquals("success",body.get("status").asText());
-                    assertEquals("raw path 1",body.get("path").asText());
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals(HttpMethod.GET, request.getHttpMethod());
-                })
-                .verifyComplete();
+        String[] finalRequestBodyList = {"abc is equals to \"123\"","{ \"abc\": \"123\" }",""};
 
-        mockWebServer.shutdown();
-    }
+        for (int i = 0; i < requestBodyList.length; i++) {
 
-    @Test
-    public void testHttpGetRequestRawBody1() {
+            actionConfiguration.setBody(requestBodyList[i]);
+            Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
 
-        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-
-        Param param = new Param();
-        param.setKey("Input1.text");
-        param.setValue("123");
-        param.setClientDataType(ClientDataType.STRING);
-        param.setPseudoBindingName("k0");
-
-        executeActionDTO.setParams(Collections.singletonList(param));
-        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
-        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
-        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
-
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("https://1306e7ae-332b-4e2e-a7c0-0fb7bef1a7c5.mock.pstmn.io");
-
-        final List<Property> headers = List.of(
-                new Property("content-type",MediaType.TEXT_PLAIN_VALUE),
-                new Property("x-mock-match-request-body","true"));
-
-        final List<Property> queryParameters = List.of();
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHeaders(headers);
-        actionConfiguration.setQueryParameters(queryParameters);
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-
-        actionConfiguration.setBody("abc is equals to {{Input1.text}}");
-
-        actionConfiguration.setTimeoutInMillisecond("10000");
-
-        actionConfiguration.setPath("/test/v1");
-
-        actionConfiguration.setPaginationType(PaginationType.URL);
-
-        actionConfiguration.setEncodeParamsToggle(true);
-
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
-
-        actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(2,body.size());
-                    assertEquals("success",body.get("status").asText());
-                    assertEquals("raw path 1",body.get("path").asText());
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals(HttpMethod.GET, request.getHttpMethod());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testHttpGetRequestRawBody2() {
-
-        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-
-        Param param = new Param();
-        param.setKey("Input1.text");
-        param.setValue("123");
-        param.setClientDataType(ClientDataType.STRING);
-        param.setPseudoBindingName("k0");
-
-        executeActionDTO.setParams(Collections.singletonList(param));
-        executeActionDTO.setParamProperties(Collections.singletonMap("k0","string"));
-        executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text","k0"));
-        executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0","Input1.text"));
-
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("https://1306e7ae-332b-4e2e-a7c0-0fb7bef1a7c5.mock.pstmn.io");
-
-        final List<Property> headers = List.of(
-                new Property("content-type",MediaType.TEXT_PLAIN_VALUE),
-                new Property("x-mock-match-request-body","true"));
-
-        final List<Property> queryParameters = List.of();
-
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHeaders(headers);
-        actionConfiguration.setQueryParameters(queryParameters);
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-
-        actionConfiguration.setBody("{ \"abc\": {{Input1.text}} }");
-
-        actionConfiguration.setTimeoutInMillisecond("10000");
-
-        actionConfiguration.setPath("/test/v1");
-
-        actionConfiguration.setPaginationType(PaginationType.URL);
-
-        actionConfiguration.setEncodeParamsToggle(true);
-
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
-
-        actionConfiguration.setFormData(Collections.singletonMap("apiContentType", MediaType.TEXT_PLAIN_VALUE));
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(2,body.size());
-                    assertEquals("success",body.get("status").asText());
-                    assertEquals("raw path 2",body.get("path").asText());
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals(HttpMethod.GET, request.getHttpMethod());
-                })
-                .verifyComplete();
+            int currentIndex = i;
+            StepVerifier.create(resultMono)
+                    .assertNext(result -> {
+                        assertTrue(result.getIsExecutionSuccess());
+                        assertNotNull(result.getBody());
+                        final ActionExecutionRequest request = result.getRequest();
+                        assertEquals(finalRequestBodyList[currentIndex],request.getBody());
+                        assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    })
+                    .verifyComplete();
+        }
     }
 
     @Test
