@@ -19,6 +19,7 @@ export const Wrapper = styled.div`
   padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
   overflow-y: auto;
   border-right: 1px solid #e4e4e7;
+  flex-shrink: 0;
 
   &::-webkit-scrollbar {
     display: none;
