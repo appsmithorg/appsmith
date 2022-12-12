@@ -5,6 +5,13 @@ import {
   AuthType,
   Datasource,
 } from "entities/Datasource";
+export function isCurrentFocusOnInput() {
+  return (
+    ["input", "textarea"].indexOf(
+      document.activeElement?.tagName?.toLowerCase() || "",
+    ) >= 0
+  );
+}
 
 /**
  * This method returns boolean if the propertyControl is focused.
@@ -14,18 +21,13 @@ import {
 export function shouldFocusOnPropertyControl(
   domElement?: HTMLDivElement | null,
 ) {
-  const isCurrentFocusOnInput =
-    ["input", "textarea"].indexOf(
-      document.activeElement?.tagName?.toLowerCase() || "",
-    ) >= 0;
-
   let isCurrentFocusOnProperty = false;
 
   if (domElement) {
     isCurrentFocusOnProperty = domElement.contains(document.activeElement);
   }
 
-  return !(isCurrentFocusOnInput || isCurrentFocusOnProperty);
+  return !(isCurrentFocusOnInput() || isCurrentFocusOnProperty);
 }
 
 /**

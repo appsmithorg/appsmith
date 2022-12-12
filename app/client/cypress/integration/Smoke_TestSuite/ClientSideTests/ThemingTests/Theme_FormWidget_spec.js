@@ -30,7 +30,7 @@ describe("Theme validation usecases", function() {
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
@@ -185,7 +185,7 @@ describe("Theme validation usecases", function() {
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
@@ -247,7 +247,7 @@ describe("Theme validation usecases", function() {
 
     cy.get("#canvas-selection-0").click({ force: true });
 
-    appSettings.OpenPaneFromCta();
+    appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
