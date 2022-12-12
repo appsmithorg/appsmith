@@ -10,12 +10,16 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Provider;
@@ -444,7 +448,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param actionDTO
      * @return
      */
-    private Set<String> extractKeysFromAction(ActionDTO actionDTO) {
+    private Set<MustacheBindingToken> extractKeysFromAction(ActionDTO actionDTO) {
         if (actionDTO == null) {
             return new HashSet<>();
         }
@@ -454,11 +458,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return new HashSet<>();
         }
 
-        Set<String> keys = MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
+        Set<MustacheBindingToken> keys = MustacheHelper.extractMustacheKeysFromFields(actionConfiguration);
 
         // Add JS function body to jsonPathKeys field.
         if (PluginType.JS.equals(actionDTO.getPluginType()) && actionConfiguration.getBody() != null) {
-            keys.add(actionConfiguration.getBody());
+            keys.add(new MustacheBindingToken(actionConfiguration.getBody(), 0, false));
 
             // Since this is a JS function, we should also set the dynamic binding path list if absent
             List<Property> dynamicBindingPathList = actionDTO.getDynamicBindingPathList();
@@ -482,8 +486,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public NewAction extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
-        Set<String> actionKeys = extractKeysFromAction(action);
-        Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource());
+        Set<String> actionKeys = extractKeysFromAction(action).stream().map(token -> token.getValue()).collect(Collectors.toSet());
+        Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource()).stream().map(token -> token.getValue()).collect(Collectors.toSet());
         Set<String> keys = new HashSet<>() {{
             addAll(actionKeys);
             addAll(datasourceKeys);
@@ -1241,6 +1245,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     /**
      * Since we're loading the application and other details from DB *only* for analytics, we check if analytics is
      * active before making the call to DB.
+     *
      * @return
      */
     public Boolean isSendExecuteAnalyticsEvent() {
@@ -1354,7 +1359,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (paramsList == null) {
                         paramsList = new ArrayList<>();
                     }
-                    List<String> executionParams =  paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
+                    List<String> executionParams = paramsList.stream().map(param -> param.getValue()).collect(Collectors.toList());
 
                     data.putAll(Map.of(
                             "request", request,
@@ -2100,7 +2105,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .collectList();
     }
 
-    public List<String> extractMustacheKeysInOrder(String query) {
+    public List<MustacheBindingToken> extractMustacheKeysInOrder(String query) {
         return MustacheHelper.extractMustacheKeysInOrder(query);
     }
 

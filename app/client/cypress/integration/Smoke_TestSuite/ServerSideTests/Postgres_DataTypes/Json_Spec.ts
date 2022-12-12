@@ -32,7 +32,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    appSettings.openPaneAndChangeThemeColors(33, 39);
+    appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
   it("1. Creating table query - jsonbooks", () => {
@@ -356,7 +356,7 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    appSettings.openPaneAndChangeThemeColors(12, 23);
+    appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 
   it("15. Creating enum & table queries - jsonBbooks", () => {

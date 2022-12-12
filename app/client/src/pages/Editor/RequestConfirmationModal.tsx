@@ -101,7 +101,7 @@ class RequestConfirmationModal extends React.Component<Props> {
             </ModalBody>
             <ModalFooter>
               <Button
-                category={Category.tertiary}
+                category={Category.secondary}
                 cypressSelector="t--cancel-modal-btn"
                 onClick={() => {
                   dispatch(cancelActionConfirmationModal(modalInfo.name));
