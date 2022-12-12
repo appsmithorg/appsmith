@@ -133,6 +133,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { getPageList } from "selectors/entitiesSelector";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -153,9 +154,7 @@ export function* fetchPageListSaga(
         : PageApi.fetchPageListViewMode;
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
-    const prevPagesState: Page[] = yield select(
-      (state: AppState) => state.entities.pageList.pages,
-    );
+    const prevPagesState: Page[] = yield select(getPageList);
     const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
       acc[page.pageId] = page.userPermissions ?? [];
       return acc;

@@ -94,7 +94,7 @@ import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
-import { getPluginForm } from "selectors/entitiesSelector";
+import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
@@ -228,9 +228,7 @@ export function* fetchAppAndPagesSaga(
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
-      const prevPagesState: Page[] = yield select(
-        (state: AppState) => state.entities.pageList.pages,
-      );
+      const prevPagesState: Page[] = yield select(getPageList);
       const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
         acc[page.pageId] = page.userPermissions ?? [];
         return acc;
