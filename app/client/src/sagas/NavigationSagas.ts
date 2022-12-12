@@ -197,7 +197,10 @@ function* setStateOfPage(
       focusHistory.state._routingURL !== currPath &&
       isSameBranch(focusHistory.state._paramString, paramString)
     ) {
-      history.push(`${focusHistory.state._routingURL}${paramString || ""}`);
+      history.push(
+        `${focusHistory.state._routingURL}${focusHistory.state._paramString ||
+          ""}`,
+      );
     }
   } else {
     for (const selectorInfo of selectors) {

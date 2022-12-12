@@ -273,8 +273,8 @@ function DatasourceAuth({
           category={Category.primary}
           className="t--delete-datasource"
           disabled={createMode || !canDeleteDatasource}
+          isLoading={isDeleting}
           key={buttonType}
-          loading={isDeleting}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
           }}
@@ -309,8 +309,8 @@ function DatasourceAuth({
             isInvalid || !isFormDirty || (!createMode && !canManageDatasource)
           }
           filled
+          isLoading={isSaving}
           key={buttonType}
-          loading={isSaving}
           onClick={handleDefaultAuthDatasourceSave}
           size="medium"
           tag="button"

@@ -28,6 +28,8 @@ public interface EnvManagerCE {
 
     Mono<Map<String, String>> getAll();
 
+    Mono<Map<String, String>> getAllNonEmpty();
+
     Mono<User> verifyCurrentUserIsSuper();
 
     Mono<Void> restart();

@@ -39,7 +39,7 @@ export function CanvasPropertyPane() {
             position={PopoverPosition.BOTTOM}
           >
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               fill
               id="t--app-settings-cta"
               onClick={openAppSettingsPane}
