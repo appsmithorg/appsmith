@@ -1,7 +1,7 @@
 ## Redis parameters
 redis:
   enabled: true
-  images: alpine
+  initImages: alpine
   auth:
     enabled: false
   replica:
@@ -9,7 +9,7 @@ redis:
 
 mongodb:
   enabled: true
-  images: docker.io/bitnami/mongodb:4.4.11-debian-10-r12
+  initImages: docker.io/bitnami/mongodb:4.4.11-debian-10-r12
   service:
     nameOverride: appsmith-mongodb
   auth:
