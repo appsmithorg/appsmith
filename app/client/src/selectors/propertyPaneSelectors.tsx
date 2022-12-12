@@ -130,7 +130,8 @@ const populateWidgetProperties = (
   widgetProperties.widgetName = widget.widgetName;
   widgetProperties.widgetId = widget.widgetId;
   widgetProperties.dynamicTriggerPathList = widget.dynamicTriggerPathList;
-  widgetProperties.dynamicPropertyPathList = widget.dynamicPropertyPathList;
+  widgetProperties.isJSEnabled =
+    find(widget.dynamicPropertyPathList, { key: propertyPath }) !== undefined;
 
   getAndSetPath(widget, widgetProperties, propertyPath);
 

@@ -29,7 +29,6 @@ import {
   DynamicPath,
   getEvalValuePath,
   isDynamicValue,
-  isPathADynamicProperty,
   isPathADynamicTrigger,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
@@ -528,10 +527,7 @@ const PropertyControl = memo((props: Props) => {
       delete config.evaluatedValue;
     }
 
-    const isDynamic: boolean = isPathADynamicProperty(
-      widgetProperties,
-      propertyName,
-    );
+    const isDynamic: boolean = widgetProperties.isJSEnabled;
     const isConvertible = !!props.isJSConvertible;
     const className = label
       .split(" ")
