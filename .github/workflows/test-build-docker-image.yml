@@ -5,13 +5,13 @@ on:
   workflow_dispatch:
 
   # trigger for pushes to release and master
-  push:
-    branches: [release, master]
-    paths:
-      - "app/client/**"
-      - "app/server/**"
-      - "app/rts/**"
-      - "!app/client/cypress/manual_TestSuite/**"
+  #push:
+  #  branches: [release, master]
+  #  paths:
+  #    - "app/client/**"
+  #    - "app/server/**"
+  #    - "app/rts/**"
+  #    - "!app/client/cypress/manual_TestSuite/**"
 
 jobs:
   buildClient:
