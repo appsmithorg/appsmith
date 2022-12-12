@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -38,7 +39,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionExecutionResult> executeAction(ExecuteActionDTO executeActionDTO);
 
     Mono<ActionExecutionResult> executeAction(Flux<Part> partsFlux, String branchName);
-    
+
     Mono<ActionDTO> getValidActionForExecution(ExecuteActionDTO executeActionDTO, String actionId, NewAction newAction);
 
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
@@ -85,7 +86,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
 
-    List<String> extractMustacheKeysInOrder(String query);
+    List<MustacheBindingToken> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
 

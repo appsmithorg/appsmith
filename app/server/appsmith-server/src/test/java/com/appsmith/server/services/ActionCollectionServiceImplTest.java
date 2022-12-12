@@ -280,7 +280,7 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
-                            return Mono.just(actionCollectionDTO.getPageId());
+                    return Mono.just(actionCollectionDTO.getPageId());
                 });
 
         Mockito
@@ -525,7 +525,7 @@ public class ActionCollectionServiceImplTest {
         Mockito
                 .when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
-                            return Mono.just(actionCollection.getUnpublishedCollection().getPageId());
+                    return Mono.just(actionCollection.getUnpublishedCollection().getPageId());
                 });
 
 
@@ -799,7 +799,7 @@ public class ActionCollectionServiceImplTest {
         jsonObject.put("key", "value");
         layout.setDsl(jsonObject);
         Mockito
-                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(refactoringSolution.refactorActionCollectionName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
                 .thenReturn(Mono.just(layout));
 
         Mockito
@@ -877,7 +877,7 @@ public class ActionCollectionServiceImplTest {
         layout.setActionUpdates(new ArrayList<>());
         layout.setLayoutOnLoadActions(new ArrayList<>());
         Mockito
-                .when(refactoringSolution.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .when(refactoringSolution.refactorActionCollectionName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyString()))
                 .thenReturn(Mono.just(layout));
 
         Mockito
