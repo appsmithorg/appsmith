@@ -157,7 +157,10 @@ class ComputeTablePropertyControlV2 extends BaseControl<
   };
 
   getComputedValue = (value: string, tableName: string) => {
-    if (!isDynamicValue(value)) {
+    if (
+      !isDynamicValue(value) &&
+      !this.props.additionalControlData?.isArrayValue
+    ) {
       return value;
     }
 

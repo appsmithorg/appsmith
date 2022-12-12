@@ -651,7 +651,9 @@ export function selectColumnOptionsValidation(
     _parsed,
     _message = "";
   let uniqueValues: Set<unknown>;
-  const invalidMessage = `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`;
+  const invalidMessage = `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`;
+  const allowedValueTypes = ["string", "number", "boolean"];
+  const allowedLabelTypes = ["string", "number"];
 
   const validateOption = (
     option: any,
@@ -661,7 +663,7 @@ export function selectColumnOptionsValidation(
     if (!_.isObject(option)) {
       _message = `Invalid entry at${
         rowIndex !== null ? ` Row: ${rowIndex}` : ""
-      } index: ${optionIndex}. This value does not evaluate to type: { "label": "string", "value": "string" }`;
+      } index: ${optionIndex}. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
       return false;
     }
 
@@ -672,10 +674,28 @@ export function selectColumnOptionsValidation(
       return false;
     }
 
+    if (!allowedLabelTypes.includes(typeof option.label)) {
+      _message = `Invalid entry at${
+        rowIndex !== null ? ` Row: ${rowIndex}` : ""
+      } index: ${optionIndex}. label does not evaluate to type ${allowedLabelTypes.join(
+        " | ",
+      )}`;
+      return false;
+    }
+
     if (!option.hasOwnProperty("value")) {
       _message = `Invalid entry at${
         rowIndex !== null ? ` Row: ${rowIndex}` : ""
       } index: ${optionIndex}. Missing required key: value`;
+      return false;
+    }
+
+    if (!allowedValueTypes.includes(typeof option.value)) {
+      _message = `Invalid entry at${
+        rowIndex !== null ? ` Row: ${rowIndex}` : ""
+      } index: ${optionIndex}. value does not evaluate to type ${allowedValueTypes.join(
+        " | ",
+      )}`;
       return false;
     }
 
@@ -689,14 +709,14 @@ export function selectColumnOptionsValidation(
     return true;
   };
 
-  if (value === "" || _.isNil(value)) {
-    return {
-      isValid: true,
-      parsed: [],
-      messages: [""],
-    };
-  } else if (typeof value === "string") {
-    try {
+  try {
+    if (value === "" || _.isNil(value)) {
+      return {
+        isValid: true,
+        parsed: [],
+        messages: [""],
+      };
+    } else if (typeof value === "string") {
       const _value = JSON.parse(value);
       if (Array.isArray(_value)) {
         value = _value;
@@ -704,54 +724,59 @@ export function selectColumnOptionsValidation(
         _isValid = false;
         _message = invalidMessage;
       }
-    } catch (e) {
-      _isValid = false;
-      _message = invalidMessage;
     }
-  }
 
-  if (Array.isArray(value)) {
-    if (value.length) {
-      if (Array.isArray(value[0])) {
-        if (!value.every((d) => Array.isArray(d))) {
-          _parsed = [];
-          _isValid = false;
-          _message = invalidMessage;
-        } else {
-          _parsed = value;
-          _isValid = true;
+    if (Array.isArray(value)) {
+      if (value.length) {
+        if (value.every((d) => _.isString(d))) {
+          value = value.map((d) => JSON.parse(d));
+        }
 
-          for (let i = 0; i < value.length; i++) {
-            uniqueValues = new Set();
+        if (Array.isArray(value) && Array.isArray(value[0])) {
+          if (!value.every((d) => Array.isArray(d))) {
+            _parsed = [];
+            _isValid = false;
+            _message = invalidMessage;
+          } else {
+            _parsed = value;
+            _isValid = true;
 
-            for (let j = 0; j < value[i].length; j++) {
-              if (!validateOption(value[i][j], i, j)) {
-                _isValid = false;
+            for (let i = 0; i < value.length; i++) {
+              uniqueValues = new Set();
+
+              for (let j = 0; j < value[i].length; j++) {
+                if (!validateOption(value[i][j], i, j)) {
+                  _isValid = false;
+                  break;
+                }
+              }
+
+              if (!_isValid) {
                 break;
               }
             }
-
-            if (!_isValid) {
+          }
+        } else {
+          uniqueValues = new Set();
+          _parsed = value;
+          _isValid = true;
+          for (let i = 0; i < (value as Array<unknown>).length; i++) {
+            if (!validateOption((value as Array<unknown>)[i], null, i)) {
+              _isValid = false;
               break;
             }
           }
         }
       } else {
-        uniqueValues = new Set();
-        _parsed = value;
         _isValid = true;
-        for (let i = 0; i < value.length; i++) {
-          if (!validateOption(value[i], null, i)) {
-            _isValid = false;
-            break;
-          }
-        }
+        _parsed = [];
       }
     } else {
-      _isValid = true;
       _parsed = [];
+      _isValid = false;
+      _message = invalidMessage;
     }
-  } else {
+  } catch (e) {
     _parsed = [];
     _isValid = false;
     _message = invalidMessage;

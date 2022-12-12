@@ -478,7 +478,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [],
         messages: [
-          `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`,
+          `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`,
         ],
       });
 
@@ -488,7 +488,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [],
         messages: [
-          `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`,
+          `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`,
         ],
       });
 
@@ -508,7 +508,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [1, 2],
         messages: [
-          `Invalid entry at index: 0. This value does not evaluate to type: { "label": "string", "value": "string" }`,
+          `Invalid entry at index: 0. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`,
         ],
       });
     });
@@ -563,6 +563,36 @@ describe("selectColumnOptionsValidation", () => {
       });
     });
 
+    it("should check that array of label, value witn invalid values", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [{ label: "1", value: [] }],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [{ label: "1", value: [] }],
+        messages: [
+          "Invalid entry at index: 0. value does not evaluate to type string | number | boolean",
+        ],
+      });
+
+      expect(
+        selectColumnOptionsValidation(
+          [{ label: true, value: "1" }],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: false,
+        parsed: [{ label: true, value: "1" }],
+        messages: [
+          "Invalid entry at index: 0. label does not evaluate to type string | number",
+        ],
+      });
+    });
+
     it("should check that array of label, value is valid", () => {
       expect(
         selectColumnOptionsValidation(
@@ -581,6 +611,60 @@ describe("selectColumnOptionsValidation", () => {
         ],
         messages: [""],
       });
+
+      expect(
+        selectColumnOptionsValidation(
+          [
+            { label: "1", value: 1 },
+            { label: "2", value: "2" },
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: true,
+        parsed: [
+          { label: "1", value: 1 },
+          { label: "2", value: "2" },
+        ],
+        messages: [""],
+      });
+
+      expect(
+        selectColumnOptionsValidation(
+          [
+            { label: "1", value: true },
+            { label: "2", value: "2" },
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: true,
+        parsed: [
+          { label: "1", value: true },
+          { label: "2", value: "2" },
+        ],
+        messages: [""],
+      });
+
+      expect(
+        selectColumnOptionsValidation(
+          [
+            { label: 1, value: true },
+            { label: "2", value: "2" },
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: true,
+        parsed: [
+          { label: 1, value: true },
+          { label: "2", value: "2" },
+        ],
+        messages: [""],
+      });
     });
   });
 
@@ -592,7 +676,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [],
         messages: [
-          `This value does not evaluate to type Array<{ "label": "string", "value": "string" }>`,
+          `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`,
         ],
       });
     });
@@ -604,7 +688,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [[1, 2]],
         messages: [
-          `Invalid entry at Row: 0 index: 0. This value does not evaluate to type: { "label": "string", "value": "string" }`,
+          `Invalid entry at Row: 0 index: 0. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`,
         ],
       });
     });
@@ -761,6 +845,38 @@ describe("selectColumnOptionsValidation", () => {
               { label: "1", value: "1" },
               { label: "2", value: "2" },
             ],
+          ],
+          {} as TableWidgetProps,
+          _,
+        ),
+      ).toEqual({
+        isValid: true,
+        parsed: [
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+          [
+            { label: "1", value: "1" },
+            { label: "2", value: "2" },
+          ],
+        ],
+        messages: [""],
+      });
+    });
+
+    it("should check that array of JSON is valid", () => {
+      expect(
+        selectColumnOptionsValidation(
+          [
+            JSON.stringify([
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ]),
+            JSON.stringify([
+              { label: "1", value: "1" },
+              { label: "2", value: "2" },
+            ]),
           ],
           {} as TableWidgetProps,
           _,

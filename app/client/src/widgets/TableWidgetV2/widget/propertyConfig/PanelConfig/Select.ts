@@ -21,6 +21,11 @@ export default {
       validation: {
         type: ValidationTypes.FUNCTION,
         params: {
+          expected: {
+            type:
+              'Array<{ "label": string | number, "value": string | number}>',
+            example: '[{"label": "abc", "value": "abc"}]',
+          },
           fnString: selectColumnOptionsValidation.toString(),
         },
       },
