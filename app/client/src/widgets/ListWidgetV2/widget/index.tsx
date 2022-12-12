@@ -1,7 +1,8 @@
 import equal from "fast-deep-equal/es6";
 import log from "loglevel";
+import memoize from "micro-memoize";
 import React, { createRef, RefObject } from "react";
-import { get, isEmpty, floor } from "lodash";
+import { isEmpty, floor } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
@@ -17,7 +18,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { CanvasWidgetStructure, FlattenedWidgetProps } from "widgets/constants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
@@ -85,12 +85,6 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 };
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
-
-/* in the List Widget, "children.0.children.0.children.0.children" is the path to the list of all
-  widgets present in the List Widget
-*/
-const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
-  "children.0.children.0.children.0.children";
 
 class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   componentRef: RefObject<HTMLDivElement>;
@@ -385,7 +379,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
   };
 
   getPageSize = () => {
-    // TODO: FInd const for this
     const { infiniteScroll, listData, serverSidePagination } = this.props;
     const spaceTakenByOneContainer = this.getContainerRowHeight();
 
@@ -640,39 +633,45 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return startIndex + viewIndex;
   };
 
-  renderChildren = () => {
-    const { componentWidth } = this.getComponentDimensions();
-    const { selectedItemIndex } = this.props;
+  renderChildren = memoize(
+    (
+      metaWidgetChildrenStructure: ListWidgetProps["metaWidgetChildrenStructure"],
+    ) => {
+      const { componentWidth } = this.getComponentDimensions();
+      const { selectedItemIndex } = this.props;
 
-    return (this.props.metaWidgetChildrenStructure || []).map(
-      (childWidgetStructure) => {
-        const child: ExtendedCanvasWidgetStructure = {
-          ...childWidgetStructure,
-        };
-        child.parentColumnSpace = this.props.parentColumnSpace;
-        child.rightColumn = componentWidth;
-        child.canExtend = true;
-        child.children = child.children?.map((container, viewIndex) => {
-          const rowIndex = this.getRowIndex(viewIndex);
-          const focused =
-            this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
-          return {
-            ...container,
-            focused,
-            selected: selectedItemIndex === rowIndex,
-            onClick: (e: React.MouseEvent<HTMLElement>) => {
-              e.stopPropagation();
-              this.onRowClick(rowIndex);
-            },
-            onClickCapture: () => {
-              this.onRowClickCapture(rowIndex);
-            },
+      const childWidgets = (metaWidgetChildrenStructure || []).map(
+        (childWidgetStructure) => {
+          const child: ExtendedCanvasWidgetStructure = {
+            ...childWidgetStructure,
           };
-        });
-        return WidgetFactory.createWidget(child, this.props.renderMode);
-      },
-    );
-  };
+          child.parentColumnSpace = this.props.parentColumnSpace;
+          child.rightColumn = componentWidth;
+          child.canExtend = true;
+          child.children = child.children?.map((container, viewIndex) => {
+            const rowIndex = this.getRowIndex(viewIndex);
+            const focused =
+              this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
+            return {
+              ...container,
+              focused,
+              selected: selectedItemIndex === rowIndex,
+              onClick: (e: React.MouseEvent<HTMLElement>) => {
+                e.stopPropagation();
+                this.onRowClick(rowIndex);
+              },
+              onClickCapture: () => {
+                this.onRowClickCapture(rowIndex);
+              },
+            };
+          });
+          return WidgetFactory.createWidget(child, this.props.renderMode);
+        },
+      );
+
+      return childWidgets;
+    },
+  );
 
   overrideBatchUpdateWidgetProperty = (
     metaWidgetId: string,
@@ -783,7 +782,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
           updateWidget={this.overrideUpdateWidget}
           updateWidgetProperty={this.overrideUpdateWidgetProperty}
         >
-          {this.renderChildren()}
+          {this.renderChildren(this.props.metaWidgetChildrenStructure)}
         </MetaWidgetContextProvider>
         {this.shouldPaginate() &&
           (serverSidePagination ? (
