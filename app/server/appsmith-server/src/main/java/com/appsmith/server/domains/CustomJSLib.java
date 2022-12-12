@@ -81,10 +81,8 @@ public class CustomJSLib extends BaseDomain {
             return false;
         }
 
-        /** TODO: update comment
-         * We check the equality using the accessor set since this is supposed to be unique for a given library. The
-         * accessors in the accessor set are defined by the installed library i.e. client or the server does not have
-         * any logic defined to generate accessor values.
+        /**
+         * We check the equality using the uidString since this is supposed to be unique for a given library.
          */
         return ((CustomJSLib) o).getUidString().equals(this.uidString);
     }

@@ -20,7 +20,7 @@ public class CustomJSLibApplicationDTO {
         }
 
         /**
-         * TODO: add comment
+         * We check the equality using the uidString since this is supposed to be unique for a given library.
          */
         return ((CustomJSLibApplicationDTO) o).getUidString().equals(this.uidString);
     }

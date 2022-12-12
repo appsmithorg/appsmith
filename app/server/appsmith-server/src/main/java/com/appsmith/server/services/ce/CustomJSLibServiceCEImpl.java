@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,8 +72,10 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
                                 return jsLibDTOsInApplication;
                             })
-                            .flatMap(updatedJSLibDTOList -> applicationService.update(applicationId,
-                                    FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList, branchName))
+                            .flatMap(updatedJSLibDTOList -> {
+                                Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
+                                return applicationService.update(applicationId, fieldNameValueMap, branchName);
+                            })
                             .map(updateResult -> updateResult.getModifiedCount() > 0);
                 });
     }
@@ -82,7 +85,11 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                                                                                               Boolean isForceInstall) {
         return repository.findByUidString(jsLib.getUidString())
                 .flatMap(foundJSLib -> {
-                    // TODO: add comment
+                    /*
+                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
+                        The second check provides us with a backdoor to overwrite any faulty data that would have come in any time earlier.
+                        Currently, once a custom JS lib data gets persisted there is no way to update it - the isForceInstall flag will allow a way to update this data.
+                     */
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
                         return repository.save(jsLib)
@@ -116,8 +123,10 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
                                 return jsLibDTOSet;
                             })
-                            .flatMap(updatedJSLibDTOList -> applicationService.update(applicationId,
-                                    FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList, branchName))
+                            .flatMap(updatedJSLibDTOList -> {
+                                Map<String, Object> fieldNameValueMap = Map.of(FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS, updatedJSLibDTOList);
+                                return applicationService.update(applicationId, fieldNameValueMap, branchName);
+                            })
                             .map(updateResult -> updateResult.getModifiedCount() > 0);
                 });
     }

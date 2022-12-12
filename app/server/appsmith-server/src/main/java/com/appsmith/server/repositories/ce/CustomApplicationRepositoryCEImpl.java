@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -257,10 +258,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, String fieldName,
-                                                                  Object value, String branchName,
+    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String, Object> fieldValueMap, String branchName,
                                                                   String branchNamePath, AclPermission permission) {
-        return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldName, value, branchName,
+        return super.updateFieldByDefaultIdAndBranchName(defaultId, defaultIdPath, fieldValueMap, branchName,
                 branchNamePath, permission);
     }
 }

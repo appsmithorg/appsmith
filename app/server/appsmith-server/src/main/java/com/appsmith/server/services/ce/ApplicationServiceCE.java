@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
 
@@ -32,7 +33,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> update(String defaultApplicationId, Application application, String branchName);
 
-    public Mono<UpdateResult> update(String defaultApplicationId, String fieldName, Object value, String branchName);
+    Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName);
 
     Mono<Application> createDefault(Application object);
 

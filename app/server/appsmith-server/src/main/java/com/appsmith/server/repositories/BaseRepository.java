@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @NoRepositoryBean
 public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
@@ -37,15 +38,15 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
     Mono<Boolean> archiveAllById(List<ID> ids);
 
     /**
-     * When `fieldName` is blank, this method will return the entire object. Otherwise, it will return only the value
-     * against the `fieldName` property in the matching object.
+     * When `fieldNames` is blank, this method will return the entire object. Otherwise, it will return only the values
+     * against the `fieldNames` property in the matching object.
      */
-    Mono<T> findByIdAndFieldName(ID id, String fieldName);
+    Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
 
     Mono<T> findByIdAndBranchName(ID id, String branchName);
 
     /**
-     * This method is supposed to update a single field in an object as opposed to replacing the entire object.
+     * This method is supposed to update the given list of fields in an object as opposed to replacing the entire object.
      */
-    Mono<UpdateResult> updateByIdAndFieldName(ID id, String fieldName, Object value);
+    Mono<UpdateResult> updateByIdAndFieldNames(ID id, Map<String, Object> fieldNameValueMap);
 }

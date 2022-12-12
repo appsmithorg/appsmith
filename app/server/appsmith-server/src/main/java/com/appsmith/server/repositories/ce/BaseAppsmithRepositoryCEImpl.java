@@ -200,8 +200,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 });
     }
 
-    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, String fieldName,
-                                                                  Object value, String branchName,
+    public Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(String defaultId, String defaultIdPath, Map<String, Object> fieldNameValueMap, String branchName,
                                                                   String branchNamePath, AclPermission permission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -217,7 +216,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                     }
 
                     Update update = new Update();
-                    update.set(fieldName, value);
+                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
+                        update.set(fieldName, fieldValue);
+                    });
 
                     return mongoOperations.updateFirst(query, update, this.genericDomain);
                 });

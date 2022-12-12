@@ -294,12 +294,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
 
-    public Mono<UpdateResult> update(String defaultApplicationId, String fieldName, Object value, String branchName) {
+    public Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
         String defaultIdPath = "id";
         if (!isBlank(branchName)) {
             defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
         }
-        return repository.updateFieldByDefaultIdAndBranchName(defaultApplicationId, defaultIdPath, fieldName, value,
+        return repository.updateFieldByDefaultIdAndBranchName(defaultApplicationId, defaultIdPath, fieldNameValueMap,
                 branchName, "gitApplicationMetadata.branchName", MANAGE_APPLICATIONS);
     }
 
@@ -637,8 +637,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                                                      List<String> projectionFieldNames,
                                                                      AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission) // TODO: remove next
-                    .map(res -> res)
+            return repository.findById(defaultApplicationId, projectionFieldNames, aclPermission)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))
                     );

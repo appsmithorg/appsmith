@@ -24,6 +24,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -78,7 +79,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
      * against the `fieldName` property in the matching object.
      */
     @Override
-    public Mono<T> findByIdAndFieldName(ID id, String fieldName) {
+    public Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames) {
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -87,9 +88,14 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(notDeleted());
 
-                    if (!isBlank(fieldName)) {
-                        query.fields().include(fieldName);
+                    if (fieldNames != null && fieldNames.size() > 0) {
+                        fieldNames.forEach(fieldName -> {
+                            if (!isBlank(fieldName)) {
+                                query.fields().include(fieldName);
+                            }
+                        });
                     }
+
 
                     return mongoOperations.query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
@@ -100,7 +106,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     @Override
     public Mono<T> findById(ID id) {
-        return this.findByIdAndFieldName(id, null);
+        return this.findByIdAndFieldNames(id, null);
     }
 
     @Override
@@ -110,10 +116,10 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     /**
-     * This method is supposed to update a single field in an object as opposed to replacing the entire object.
+     * This method is supposed to update the given list of field names with the associated values in an object as opposed to replacing the entire object.
      */
     @Override
-    public Mono<UpdateResult> updateByIdAndFieldName(@NotNull ID id, @NotNull String fieldName, Object value) {
+    public Mono<UpdateResult> updateByIdAndFieldNames(@NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
@@ -122,7 +128,9 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                     query.addCriteria(notDeleted());
 
                     Update update = new Update();
-                    update.set(fieldName, value);
+                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
+                        update.set(fieldName, fieldValue);
+                    });
 
                     return mongoOperations.updateFirst(query, update, entityInformation.getJavaType());
                 });
