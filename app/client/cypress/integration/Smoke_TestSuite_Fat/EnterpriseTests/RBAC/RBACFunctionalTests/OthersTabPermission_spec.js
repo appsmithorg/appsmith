@@ -37,7 +37,29 @@ describe("Others tab permission Tests", function() {
       cy.CreateWorkspaceRole(CreateWorkspaceRole);
       cy.EditWorkspaceRole(EditWorkspaceRole, workspaceName);
       cy.DeleteWorkspaceRole(DeleteWorkspaceRole, workspaceName);
-
+      // add delete app permission
+      cy.get(RBAC.roleRow)
+        .first()
+        .click();
+      cy.wait("@fetchRoles").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.contains("td", `${workspaceName}`)
+        .next()
+        .next()
+        .next()
+        .click();
+      cy.get(RBAC.saveButton).click();
+      // save api call
+      cy.wait(2000);
+      cy.wait("@saveRole").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.get(RBAC.backButton).click();
       cy.AssignRoleToUser(ViewAuditlogsRole, Cypress.env("TESTUSERNAME1"));
       cy.AssignRoleToUser(CreateWorkspaceRole, Cypress.env("TESTUSERNAME1"));
       cy.AssignRoleToUser(EditWorkspaceRole, Cypress.env("TESTUSERNAME2"));
@@ -99,7 +121,7 @@ describe("Others tab permission Tests", function() {
     cy.openWorkspaceOptionsPopup(workspaceName);
     cy.get(homePage.workspaceNamePopoverContent)
       .find("a")
-      .should("have.length", 5);
+      .should("have.length", 1);
     /* checking negative scenario for audit logs access */
     cy.wait(2000);
     cy.visit("/applications");
@@ -109,7 +131,17 @@ describe("Others tab permission Tests", function() {
   });
 
   it("5. Verify user with EditWorkspaceRole is able to edit workspace name ", function() {
-    cy.navigateToWorkspaceSettings(workspaceName);
+    cy.visit("/applications");
+    cy.wait(2000);
+    cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
+      .scrollIntoView()
+      .should("be.visible");
+    cy.get(homePage.workspaceList.concat(workspaceName).concat(")"))
+      .closest(homePage.workspaceCompleteSection)
+      .find(homePage.workspaceNamePopover)
+      .find(homePage.optionsIcon)
+      .click({ force: true });
+    cy.get("[data-cy='t--workspace-setting']").click({ force: true });
     cy.get(RBAC.generalTab).click();
     cy.get(homePage.workspaceNameInput).click({ force: true });
     cy.get(homePage.workspaceNameInput).clear();
@@ -170,17 +202,38 @@ describe("Others tab permission Tests", function() {
       "have.value",
       "demowebsite.com",
     );
+    cy.LogOut();
+    cy.wait(5000);
   });
 
   it("7. Verify user with DeleteWorkspaceRole is able to delete workspace ", function() {
-    cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME3"),
       Cypress.env("TESTPASSWORD3"),
     );
     cy.wait(2000);
     cy.visit("/applications");
-    cy.leaveWorkspace(workspaceName);
+    // delete app
+    cy.get(homePage.searchInput)
+      .clear()
+      .type(appName);
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.wait(2000);
+    cy.get(homePage.appMoreIcon)
+      .should("have.length", 1)
+      .first()
+      .click({ force: true });
+    cy.get(homePage.deleteAppConfirm)
+      .should("be.visible")
+      .click({ force: true });
+    cy.get(homePage.deleteApp)
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait("@deleteApplication");
+    cy.get("@deleteApplication").should("have.property", "status", 200);
+    // delete workspace
     cy.openWorkspaceOptionsPopup(workspaceName);
     cy.contains("Delete Workspace").click();
     cy.contains("Are you sure").click();
@@ -190,7 +243,7 @@ describe("Others tab permission Tests", function() {
     cy.get(workspaceName).should("not.exist");
   });
 
-  after(() => {
+  /*after(() => {
     cy.LogOut();
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/settings/roles");
@@ -198,5 +251,5 @@ describe("Others tab permission Tests", function() {
     cy.DeleteRole(CreateWorkspaceRole);
     cy.DeleteRole(EditWorkspaceRole);
     cy.DeleteRole(DeleteWorkspaceRole);
-  });
+  }) */
 });

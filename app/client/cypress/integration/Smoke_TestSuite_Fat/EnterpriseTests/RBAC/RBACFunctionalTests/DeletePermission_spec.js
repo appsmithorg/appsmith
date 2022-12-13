@@ -4,7 +4,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 import homePage from "../../../../../locators/HomePage";
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
+const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
@@ -13,7 +13,7 @@ describe("Delete Permission flow ", function() {
   let workspaceName;
   let newWorkspaceName;
   let appName2;
-  const dsName = "users";
+  let datasourceName;
   const page2 = "page2";
   const PermissionWorkspaceLevel =
     "DeletePermissionWorkspaceLevel" + `${Math.floor(Math.random() * 1000)}`;
@@ -44,89 +44,100 @@ describe("Delete Permission flow ", function() {
       });
       cy.CreateAppForWorkspace(workspaceName, appName);
 
-      cy.get(generatePage.generateCRUDPageActionCard).click();
+      // create new datasource
+      cy.NavigateToDatasourceEditor();
+      cy.get(datasources.PostgreSQL).click();
+      cy.fillPostgresDatasourceForm();
 
-      cy.get(generatePage.selectDatasourceDropdown).click();
-
-      cy.contains("Connect New Datasource").click();
-
-      cy.createMockDatasource("users");
-      cy.get(generatePage.selectTableDropdown).click();
-
-      cy.get(generatePage.dropdownOption)
-        .contains("public.users")
-        .click();
-      cy.get(generatePage.generatePageFormSubmitBtn).click();
-
-      cy.wait("@replaceLayoutWithCRUDPage").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
-      cy.wait("@getActions");
-      cy.wait("@postExecute").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-
-      cy.ClickGotIt();
-      cy.createJSObject('return "Success";');
-      cy.createJSObject('return "Yo";');
-      // create new page and add JSObject
-      cy.CheckAndUnfoldEntityItem("Pages");
-      cy.Createpage("page2");
-      cy.wait(2000);
-      cy.visit("settings/general");
-      cy.DeletePermissionWorkspaceLevel(
-        PermissionWorkspaceLevel,
-        workspaceName,
-      );
-      cy.get(RBAC.roleRow)
-        .first()
-        .click();
-      cy.wait("@fetchRoles").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      // check the delete datasource role
-      cy.get(RBAC.dataSourcesandQueriesTab).click();
-      cy.contains("td", `${workspaceName}`)
-        .next()
-        .next()
-        .next()
-        .next()
-        .click();
-      // save role
-      cy.get(RBAC.saveButton).click();
-      cy.wait("@saveRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.wait(4000);
-      cy.DeletePermissionAppLevel(PermissionAppLevel, workspaceName, appName);
-      cy.wait(2000);
-      cy.DeletePermissionPageLevel(
-        PermissionPageLevel,
-        workspaceName,
-        appName,
-        "Page1",
-      );
-      cy.wait(200);
-      cy.AssignRoleToUser(
-        PermissionWorkspaceLevel,
-        Cypress.env("TESTUSERNAME1"),
-      );
-      cy.AssignRoleToUser(PermissionAppLevel, Cypress.env("TESTUSERNAME2"));
-      cy.AssignRoleToUser(PermissionPageLevel, Cypress.env("TESTUSERNAME3"));
-      // create another app in same workspace
-      cy.NavigateToHome();
       cy.generateUUID().then((uid) => {
-        appName2 = uid;
-        cy.CreateAppForWorkspace(workspaceName, appName2);
-        cy.wait(3000);
+        datasourceName = `Postgres CRUD ds ${uid}`;
+        cy.renameDatasource(datasourceName);
+
+        cy.testSaveDatasource();
+
+        cy.NavigateToDSGeneratePage(datasourceName);
+        cy.get(generatePage.selectTableDropdown).click();
+        cy.get(generatePage.dropdownOption)
+          .contains("public.users")
+          .scrollIntoView()
+          .should("be.visible")
+          .click();
+        // generate crud page
+        cy.get(generatePage.generatePageFormSubmitBtn).click();
+
+        cy.wait("@replaceLayoutWithCRUDPage").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          201,
+        );
+
+        cy.wait("@getActions");
+
+        cy.wait("@postExecute").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+
+        cy.ClickGotIt();
+
+        cy.createJSObject('return "Success";');
+        cy.createJSObject('return "Yo";');
+        // create new page and add JSObject
+        cy.CheckAndUnfoldEntityItem("Pages");
+        cy.Createpage("page2");
+        cy.wait(2000);
+        cy.visit("settings/general");
+        cy.DeletePermissionWorkspaceLevel(
+          PermissionWorkspaceLevel,
+          workspaceName,
+        );
+        cy.get(RBAC.roleRow)
+          .first()
+          .click();
+        cy.wait("@fetchRoles").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        // check the delete datasource role
+        cy.get(RBAC.dataSourcesandQueriesTab).click();
+        cy.contains("td", `${workspaceName}`)
+          .next()
+          .next()
+          .next()
+          .next()
+          .click();
+        // save role
+        cy.get(RBAC.saveButton).click();
+        cy.wait("@saveRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        cy.wait(4000);
+        cy.DeletePermissionAppLevel(PermissionAppLevel, workspaceName, appName);
+        cy.wait(2000);
+        cy.DeletePermissionPageLevel(
+          PermissionPageLevel,
+          workspaceName,
+          appName,
+          "Public.users",
+        );
+        cy.wait(200);
+        cy.AssignRoleToUser(
+          PermissionWorkspaceLevel,
+          Cypress.env("TESTUSERNAME1"),
+        );
+        cy.AssignRoleToUser(PermissionAppLevel, Cypress.env("TESTUSERNAME2"));
+        cy.AssignRoleToUser(PermissionPageLevel, Cypress.env("TESTUSERNAME3"));
+        // create another app in same workspace
+        cy.NavigateToHome();
+        cy.generateUUID().then((uid) => {
+          appName2 = uid;
+          cy.CreateAppForWorkspace(workspaceName, appName2);
+          cy.wait(3000);
+        });
       });
     });
   });
@@ -145,6 +156,9 @@ describe("Delete Permission flow ", function() {
       .trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    cy.wait(4000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify deletion of query
     ee.ActionContextMenuByEntityName("DeleteQuery", "Delete", "Are you sure?");
@@ -169,7 +183,7 @@ describe("Delete Permission flow ", function() {
     cy.get(homePage.createNewAppButton).should("not.exist");
   });
 
-  it("3. Delete permission : Page level (Delete jsObject in same page)", function() {
+  it("3. Delete permission : Page level (Delete query in same page)", function() {
     // page level
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME3"),
@@ -184,6 +198,9 @@ describe("Delete Permission flow ", function() {
       .trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    cy.wait(4000);
     // verify query deletion
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     ee.ActionContextMenuByEntityName("UpdateQuery", "Delete", "Are you sure?");
@@ -220,12 +237,15 @@ describe("Delete Permission flow ", function() {
       .trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    cy.wait(4000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     ee.ActionContextMenuByEntityName("InsertQuery", "Delete", "Are you sure?");
     cy.CheckAndUnfoldEntityItem("Datasources");
-    cy.get(RBAC.usersDatasource).trigger("mouseover");
-    ee.SelectEntityByName(dsName, "Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
+    cy.get(`.t--entity-name:contains(${datasourceName})`).trigger("mouseover");
+    ee.SelectEntityByName(datasourceName, "Datasources");
+    ee.ActionContextMenuByEntityName(datasourceName, "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deleteDatasource", 200);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
