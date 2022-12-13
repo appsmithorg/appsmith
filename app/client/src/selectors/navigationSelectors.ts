@@ -9,11 +9,18 @@ import { getWidgets } from "sagas/selectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
+import { JSAction } from "entities/JSCollection";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { keyBy } from "lodash";
 
-export type EntityNavigationData = Record<
-  string,
-  { name: string; id: string; type: ENTITY_TYPE; url: string | undefined }
->;
+export type NavigationData = {
+  name: string;
+  id: string;
+  type: ENTITY_TYPE;
+  url: string | undefined;
+  children: Record<string, NavigationData>;
+};
+export type EntityNavigationData = Record<string, NavigationData>;
 
 export const getEntitiesForNavigation = createSelector(
   getActionsForCurrentPage,
@@ -21,7 +28,8 @@ export const getEntitiesForNavigation = createSelector(
   getJSCollectionsForCurrentPage,
   getWidgets,
   getCurrentPageId,
-  (actions, plugins, jsActions, widgets, pageId) => {
+  getDataTree,
+  (actions, plugins, jsActions, widgets, pageId, dataTree) => {
     const navigationData: EntityNavigationData = {};
 
     actions.forEach((action) => {
@@ -39,6 +47,7 @@ export const getEntitiesForNavigation = createSelector(
           action.config.pluginType,
           plugin,
         ),
+        children: {},
       };
     });
 
@@ -48,6 +57,19 @@ export const getEntitiesForNavigation = createSelector(
         id: jsAction.config.id,
         type: ENTITY_TYPE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
+        children: keyBy(
+          jsAction.config.actions.map((func: JSAction) => ({
+            name: func.name,
+            id: func.name,
+            type: ENTITY_TYPE.JSACTION,
+            url: jsCollectionIdURL({
+              pageId,
+              collectionId: jsAction.config.id,
+            }),
+            children: {},
+          })),
+          "name",
+        ),
       };
     });
 
@@ -57,6 +79,7 @@ export const getEntitiesForNavigation = createSelector(
         id: widget.widgetId,
         type: ENTITY_TYPE.WIDGET,
         url: builderURL({ pageId, hash: widget.widgetId }),
+        children: {},
       };
     });
 

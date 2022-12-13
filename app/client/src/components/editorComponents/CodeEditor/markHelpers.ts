@@ -74,8 +74,32 @@ export const entityMarker: MarkHelper = (
             atomic: false,
           },
         );
+        const childNodes = entityNavigationData[tokenString].children;
+        if (Object.keys(childNodes).length) {
+          const tokenAtEnd = editor.getTokenAt({
+            ch: token.end + 2,
+            line: lineNo,
+          });
+          if (tokenAtEnd.string in childNodes) {
+            const childLink = childNodes[tokenAtEnd.string];
+            editor.markText(
+              { ch: tokenAtEnd.start, line: lineNo },
+              { ch: tokenAtEnd.end, line: lineNo },
+              {
+                className: NAVIGATION_CLASSNAME,
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                attributes: {
+                  [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
+                },
+                atomic: false,
+              },
+            );
+          }
+        }
       } else if (existingMarking.length) {
-        existingMarking.forEach((mark) => mark.clear());
+        // debugger;
+        // existingMarking.forEach((mark) => mark.clear());
       }
     });
   });
