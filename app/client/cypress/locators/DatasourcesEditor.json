@@ -15,7 +15,7 @@
   "SMTP": ".t--plugin-name:contains('SMTP')",
   "MySQL": ".t--plugin-name:contains('MySQL')",
   "GoogleSheets": ".t--plugin-name:contains('Google Sheets')",
-  "sectionAuthentication": "[data-cy=section-Authentication]",
+  "sectionAuthentication": "[data-cy=section-Authentication] .t--collapse-section-container",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
   "MySQLEntity": ".t--entity-name:contains(Mysql)",
   "createQuery": ".t--create-query",
