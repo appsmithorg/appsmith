@@ -11,7 +11,10 @@ import {
 import React, { useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { getWidgetOptionsTree } from "sagas/selectors";
+import {
+  getDataTreeForActionCreator,
+  getWidgetOptionsTree,
+} from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -26,8 +29,7 @@ import {
   getNextModalName,
 } from "selectors/widgetSelectors";
 import Fields from "./Fields";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSCollection } from "actions/jsPaneActions";
@@ -66,8 +68,12 @@ import {
   AppsmithFunction,
   FieldType,
 } from "./constants";
-import { SwitchType, ActionCreatorProps, GenericFunction } from "./types";
-import equal from "fast-deep-equal";
+import {
+  SwitchType,
+  ActionCreatorProps,
+  GenericFunction,
+  DataTreeForActionCreator,
+} from "./types";
 
 const baseOptions: { label: string; value: string }[] = [
   {
@@ -164,7 +170,7 @@ function getFieldFromValue(
   value: string | undefined,
   activeTabNavigateTo: SwitchType,
   getParentValue?: (changeValue: string) => string,
-  dataTree?: DataTree,
+  dataTree?: DataTreeForActionCreator,
 ): any[] {
   const fields: any[] = [];
   if (!value) {
@@ -651,9 +657,9 @@ const ActionCreator = React.forwardRef(
     const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
       NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
-    const dataTree = useSelector(getDataTree);
+    const dataTree = useSelector(getDataTreeForActionCreator);
     const integrationOptionTree = useIntegrationsOptionTree();
-    const widgetOptionTree = useSelector(getWidgetOptionsTree, equal);
+    const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
     const pageDropdownOptions = useSelector(getPageListAsOptions);
     const fields = getFieldFromValue(
@@ -683,5 +689,7 @@ const ActionCreator = React.forwardRef(
     );
   },
 );
+
+ActionCreator.displayName = "ActionCreator";
 
 export default ActionCreator;
