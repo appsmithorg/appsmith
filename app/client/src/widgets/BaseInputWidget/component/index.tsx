@@ -564,7 +564,7 @@ class BaseInputComponent extends React.Component<
       autoFocus={this.props.autoFocus}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
-      growVertically={false}
+      growVertically
       inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
       intent={this.props.intent}
       maxLength={this.props.maxChars}
