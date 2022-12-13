@@ -72,6 +72,7 @@ import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigration
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
 import { migratePropertiesForDynamicHeight } from "./migrations/autoHeightMigrations";
+import { migrateInputWidgetShowStepArrows } from "./migrations/InputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -1133,6 +1134,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 70) {
     currentDSL = migrateChildStylesheetFromDynamicBindingPathList(currentDSL);
+    currentDSL.version = 71;
+  }
+
+  if (currentDSL.version === 71) {
+    currentDSL = migrateInputWidgetShowStepArrows(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

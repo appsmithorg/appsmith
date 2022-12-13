@@ -272,9 +272,3 @@ export const dateFormatOptions = [
 export type ThemeProp = {
   theme: Theme;
 };
-
-export enum ButtonPosition {
-  LEFT = "left",
-  RIGHT = "right",
-  NONE = "none",
-}

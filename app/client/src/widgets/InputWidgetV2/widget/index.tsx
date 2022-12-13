@@ -16,18 +16,14 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import {
-  ButtonPosition,
-  GRID_DENSITY_MIGRATION_V1,
-  ICON_NAMES,
-} from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { ButtonPosition, InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -432,11 +428,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super.handleKeyDown(e);
   };
 
-  componentDidMount() {
-    //conditionally update the value of showStepArrows and store it
-    this.updateShowStepArrows();
-  }
-
   componentDidUpdate = (prevProps: InputWidgetProps) => {
     if (
       prevProps.inputText !== this.props.inputText &&
@@ -494,14 +485,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       getParsedText("", this.props.inputType),
     );
   };
-
-  updateShowStepArrows() {
-    const { showStepArrows } = this.props;
-    this.updateWidgetProperty(
-      "showStepArrows",
-      showStepArrows === undefined ? true : showStepArrows,
-    );
-  }
 
   getPageView() {
     const value = this.props.inputText ?? "";
@@ -573,11 +556,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
     if (
       this.props.inputType === InputTypes.NUMBER &&
-      this.props.showStepArrows === false
+      Boolean(this.props.showStepArrows)
     ) {
-      conditionalProps.buttonPosition = ButtonPosition.NONE;
-    } else {
       conditionalProps.buttonPosition = ButtonPosition.RIGHT;
+    } else {
+      conditionalProps.buttonPosition = ButtonPosition.NONE;
     }
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip

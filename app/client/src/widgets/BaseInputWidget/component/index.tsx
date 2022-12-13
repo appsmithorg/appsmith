@@ -20,7 +20,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes } from "../constants";
+import { ButtonPosition, InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -34,7 +34,6 @@ import LabelWithTooltip, {
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
 import { getLocale } from "utils/helpers";
-import { ButtonPosition } from "widgets/constants";
 
 /**
  * All design system component specific logic goes here.

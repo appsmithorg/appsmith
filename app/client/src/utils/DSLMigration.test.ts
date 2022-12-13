@@ -23,6 +23,7 @@ import * as rateWidgetMigrations from "./migrations/RateWidgetMigrations";
 import * as codeScannerWidgetMigrations from "./migrations/CodeScannerWidgetMigrations";
 import * as migrateLabelPosition from "./migrations/MigrateLabelPosition";
 import * as migrateAutoHeight from "./migrations/autoHeightMigrations";
+import * as InputWidgetMigration from "./migrations/InputWidgetMigrations";
 
 type Migration = {
   functionLookup: {
@@ -690,6 +691,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 70,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: InputWidgetMigration,
+        functionName: "migrateInputWidgetShowStepArrows",
+      },
+    ],
+    version: 71,
   },
 ];
 
