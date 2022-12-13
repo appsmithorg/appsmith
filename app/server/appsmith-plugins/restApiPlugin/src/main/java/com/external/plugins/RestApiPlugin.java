@@ -11,6 +11,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
@@ -79,7 +80,7 @@ public class RestApiPlugin extends BasePlugin {
                 if (actionConfiguration.getBody() != null) {
 
                     // First extract all the bindings in order
-                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
+                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
 

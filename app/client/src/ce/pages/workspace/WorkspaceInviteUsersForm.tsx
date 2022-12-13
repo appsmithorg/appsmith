@@ -376,7 +376,7 @@ function WorkspaceInviteUsersForm(props: any) {
       : props.roles.map((role: any) => {
           return {
             id: role.id,
-            value: role.name,
+            value: role.name?.split(" - ")[0],
             label: role.description,
           };
         });
@@ -565,7 +565,7 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>
-                              {user.permissionGroupName}
+                              {user.permissionGroupName?.split(" - ")[0]}
                             </Text>
                           </UserRole>
                         </User>
