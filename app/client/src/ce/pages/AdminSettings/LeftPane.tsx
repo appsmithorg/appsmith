@@ -18,7 +18,7 @@ export const Wrapper = styled.div`
     props.theme.homePage.leftPane.leftPadding}px;
   padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
   overflow-y: auto;
-  border-right: 1px solid #e4e4e7;
+  border-right: 1px solid var(--appsmith-color-black-200);
   flex-shrink: 0;
 
   &::-webkit-scrollbar {
@@ -27,7 +27,7 @@ export const Wrapper = styled.div`
 `;
 
 export const HeaderContainer = styled.div`
-  border-top: 1px solid #e4e4e7;
+  border-top: 1px solid var(--appsmith-color-black-200);
   padding: 20px 0;
   margin: 0 12px;
 `;
