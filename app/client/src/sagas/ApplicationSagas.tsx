@@ -1,5 +1,6 @@
 import {
   ApplicationPayload,
+  Page,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -93,7 +94,7 @@ import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
-import { getPluginForm } from "selectors/entitiesSelector";
+import { getPageList, getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
@@ -227,6 +228,11 @@ export function* fetchAppAndPagesSaga(
     );
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
+      const prevPagesState: Page[] = yield select(getPageList);
+      const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
+        acc[page.pageId] = page.userPermissions ?? [];
+        return acc;
+      }, {} as Record<string, string[]>);
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         payload: { ...response.data.application, pages: response.data.pages },
@@ -242,7 +248,9 @@ export function* fetchAppAndPagesSaga(
             isHidden: !!page.isHidden,
             slug: page.slug,
             customSlug: page.customSlug,
-            userPermissions: page.userPermissions,
+            userPermissions: page.userPermissions
+              ? page.userPermissions
+              : pagePermissionsMap[page.id],
           })),
           applicationId: response.data.application?.id,
         },

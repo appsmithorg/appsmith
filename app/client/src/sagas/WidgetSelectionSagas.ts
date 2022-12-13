@@ -419,7 +419,7 @@ function* openOrCloseModalSaga(
 
   const widget = widgetMap[action.payload.widgetId];
 
-  if (widget.parentId) {
+  if (widget && widget.parentId) {
     const widgetInModal = modalWidgetIds.includes(widget.parentModalId);
     if (widgetInModal) {
       yield put(showModal(widget.parentModalId));
