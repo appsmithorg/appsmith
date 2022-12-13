@@ -1,11 +1,14 @@
 import { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
-import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
+import {
+  createMessage,
+  customJSLibraryMessages,
+} from "@appsmith/constants/messages";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Toaster, Variant } from "design-system";
 import {
   actionChannel,

@@ -1,13 +1,3 @@
-export type TRecommendedLibrary = {
-  name: string;
-  url: string;
-  description: string;
-  author: string;
-  docsURL: string;
-  version: string;
-  icon: string;
-};
-
 export default [
   {
     name: "uuidjs",

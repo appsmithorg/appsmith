@@ -20,7 +20,10 @@ import {
   Toaster,
   Variant,
 } from "design-system";
-import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
+import {
+  createMessage,
+  customJSLibraryMessages,
+} from "@appsmith/constants/messages";
 import ProfileImage from "pages/common/ProfileImage";
 import { Colors } from "constants/Colors";
 import { isValidURL } from "utils/URLUtils";
@@ -35,10 +38,8 @@ import {
 } from "selectors/entitiesSelector";
 import SaveSuccessIcon from "remixicon-react/CheckboxCircleFillIcon";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
-import recommendedLibraries, {
-  TRecommendedLibrary,
-} from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import { AppState } from "ce/reducers";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
+import { AppState } from "@appsmith/reducers";
 import {
   clearInstalls,
   installLibraryInit,
@@ -296,10 +297,11 @@ function InstallationProgress() {
   );
 }
 
-enum Repo {
-  Unpkg,
-  JsDelivr,
-}
+const Links = {
+  learnMore:
+    "https://docs.appsmith.com/core-concepts/writing-code/ext-libraries",
+  jsDelivr: "https://www.jsdelivr.com/",
+};
 
 export function Installer(props: { left: number }) {
   const { left } = props;
@@ -337,10 +339,10 @@ export function Installer(props: { left: number }) {
     setURL(value);
   }, []);
 
-  const openDoc = useCallback((e, repo: Repo) => {
+  const openDoc = useCallback((e, url: string) => {
     e.preventDefault();
-    if (repo === Repo.Unpkg) return window.open("https://unpkg.com");
-    window.open("https://www.jsdelivr.com/");
+    e.stopPropagation();
+    window.open(url, "_blank");
   }, []);
 
   const validate = useCallback((text) => {
@@ -428,7 +430,7 @@ export function Installer(props: { left: number }) {
             Explore libraries on{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, Repo.JsDelivr)}
+              onClick={(e) => openDoc(e, Links.jsDelivr)}
             >
               jsDelivr
             </a>
@@ -436,14 +438,7 @@ export function Installer(props: { left: number }) {
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                window.open(
-                  "https://appsmith-docs-git-feat-custom-js-libs-get-appsmith.vercel.app/core-concepts/writing-code/ext-libraries",
-                  "_blank",
-                );
-              }}
+              onClick={(e) => openDoc(e, Links.learnMore)}
             >
               here
             </a>
@@ -476,7 +471,7 @@ function LibraryCard({
   lib,
   onClick,
 }: {
-  lib: TRecommendedLibrary;
+  lib: typeof recommendedLibraries[0];
   onClick: (url: string) => void;
   isLastCard: boolean;
 }) {

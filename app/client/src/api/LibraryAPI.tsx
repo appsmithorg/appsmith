@@ -1,4 +1,5 @@
 import { APP_MODE } from "entities/App";
+import { TJSLibrary } from "workers/common/JSLibrary";
 import Api from "./Api";
 
 export default class LibraryApi extends Api {
@@ -7,12 +8,15 @@ export default class LibraryApi extends Api {
   static getUpdateLibraryBaseURL = (applicationId: string) =>
     `${LibraryApi.base_url}/${applicationId}`;
 
-  static addLibrary(applicationId: string, library: any) {
+  static addLibrary(
+    applicationId: string,
+    library: Partial<TJSLibrary> & { defs: string },
+  ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/add";
     return Api.patch(url, library);
   }
 
-  static removeLibrary(applicationId: string, library: any) {
+  static removeLibrary(applicationId: string, library: Partial<TJSLibrary>) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/remove";
     return Api.patch(url, library);
   }

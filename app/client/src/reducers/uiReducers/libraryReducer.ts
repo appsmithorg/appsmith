@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import { defaultLibraries, TJSLibrary } from "workers/common/JSLibrary";
 

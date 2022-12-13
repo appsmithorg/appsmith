@@ -1,4 +1,7 @@
-import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
+import {
+  createMessage,
+  customJSLibraryMessages,
+} from "@appsmith/constants/messages";
 import difference from "lodash/difference";
 import { JSLibraries, libraryReservedNames } from "../../common/JSLibrary";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";

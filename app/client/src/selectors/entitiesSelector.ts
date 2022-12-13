@@ -31,6 +31,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
+import { TJSLibrary } from "workers/common/JSLibrary";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -889,8 +890,8 @@ export const selectLibrariesForExplorer = createSelector(
           docsURL: recommendedLibrary?.url || url,
           version: recommendedLibrary?.version || "",
           url: recommendedLibrary?.url || url,
-          accessor: "",
-        };
+          accessor: [],
+        } as TJSLibrary;
       });
     return [...queuedInstalls, ...libs];
   },

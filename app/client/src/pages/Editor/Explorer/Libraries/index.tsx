@@ -10,7 +10,10 @@ import {
 } from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
-import { createMessage, customJSLibraryMessages } from "ce/constants/messages";
+import {
+  createMessage,
+  customJSLibraryMessages,
+} from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -29,7 +32,7 @@ import EntityAddButton from "../Entity/AddButton";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { hasCreateActionPermission } from "ce/utils/permissionHelpers";
+import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const Library = styled.li`
@@ -189,13 +192,13 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
   return null;
 };
 
-function LibraryEntity({ lib }: any) {
+function LibraryEntity({ lib }: { lib: TJSLibrary }) {
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
 
   const copyToClipboard = useCallback(() => {
-    write(lib.accessor);
+    write(lib.accessor[lib.accessor.length - 1]);
     Toaster.show({
       text: "Copied to clipboard",
       variant: Variant.success,

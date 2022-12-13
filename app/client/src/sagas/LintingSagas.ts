@@ -2,7 +2,7 @@ import { setLintingErrors } from "actions/lintingActions";
 import {
   ReduxAction,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "selectors/entitiesSelector";
