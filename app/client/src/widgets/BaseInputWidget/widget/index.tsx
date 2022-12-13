@@ -449,6 +449,18 @@ class BaseInputWidget<
   ) {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+
+    if (
+      this.props.inputType === InputTypes.TEXT &&
+      isEnterKey &&
+      (e.metaKey || e.ctrlKey)
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "inputType",
+        InputTypes.MULTI_LINE_TEXT,
+      );
+    }
+
     if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
       /**
        * Originally super.executeAction was used to trigger the ON_SUBMIT action and

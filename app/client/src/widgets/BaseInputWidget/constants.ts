@@ -7,3 +7,11 @@ export enum InputTypes {
   PASSWORD = "PASSWORD",
   CURRENCY = "CURRENCY",
 }
+
+// mapping of Multi Line Input height
+// with respect to number of rows
+export enum MultiLineHeightTypes {
+  SHORT = 4,
+  MEDIUM = 8,
+  LONG = 16,
+}

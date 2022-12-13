@@ -1,5 +1,5 @@
 import React from "react";
-import { WidgetState } from "widgets/BaseWidget";
+import { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import InputComponent, { InputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -23,7 +23,10 @@ import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import {
+  InputTypes,
+  MultiLineHeightTypes,
+} from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -210,6 +213,24 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               ],
               isBindProperty: false,
               isTriggerProperty: false,
+            },
+            {
+              helpText: "Sets the label position of the widget",
+              propertyName: "multiLineTextHeight",
+              label: "Default Height",
+              controlType: "ICON_TABS",
+              fullWidth: true,
+              options: [
+                { label: "Short", value: MultiLineHeightTypes.SHORT },
+                { label: "Medium", value: MultiLineHeightTypes.MEDIUM },
+                { label: "Tall", value: MultiLineHeightTypes.LONG },
+              ],
+              defaultValue: "SHORT",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              dependencies: ["inputType"],
+              hidden: (props: WidgetProps) =>
+                props.inputType !== InputTypes.MULTI_LINE_TEXT,
             },
             {
               helpText:
@@ -577,6 +598,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
         multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
+        multilineInputHeight={this.props.multiLineTextHeight}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}

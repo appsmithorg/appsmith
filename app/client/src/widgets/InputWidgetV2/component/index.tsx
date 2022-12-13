@@ -2,7 +2,10 @@ import React from "react";
 import BaseInputComponent, {
   BaseInputComponentProps,
 } from "widgets/BaseInputWidget/component";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import {
+  InputTypes,
+  MultiLineHeightTypes,
+} from "widgets/BaseInputWidget/constants";
 
 const getInputHTMLType = (inputType: InputTypes) => {
   switch (inputType) {
@@ -71,6 +74,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         maxNum={this.props.maxNum}
         minNum={this.props.minNum}
         multiline={this.props.multiline}
+        multilineInputHeight={this.props.multilineInputHeight}
         onFocusChange={this.props.onFocusChange}
         onKeyDown={this.props.onKeyDown}
         onValueChange={this.props.onValueChange}

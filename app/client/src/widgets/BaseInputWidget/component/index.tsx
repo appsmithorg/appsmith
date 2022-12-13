@@ -20,7 +20,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes } from "../constants";
+import { InputTypes, MultiLineHeightTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -34,6 +34,7 @@ import LabelWithTooltip, {
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
 import { getLocale } from "utils/helpers";
+import { GridDefaults } from "constants/WidgetConstants";
 
 /**
  * All design system component specific logic goes here.
@@ -566,6 +567,9 @@ class BaseInputComponent extends React.Component<
       onKeyDown={this.onKeyDownTextArea}
       onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
+      style={{
+        resize: "none",
+      }}
       value={this.props.value}
     />
   );
@@ -655,6 +659,8 @@ class BaseInputComponent extends React.Component<
     } = this.props;
     const showLabelHeader = label || tooltip;
 
+    console.log(this.props.multilineInputHeight, "multilineInputHeight");
+
     return (
       <InputComponentWrapper
         compactMode={compactMode}
@@ -699,6 +705,15 @@ class BaseInputComponent extends React.Component<
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
           labelPosition={labelPosition}
+          style={
+            this.props.multilineInputHeight
+              ? {
+                  height:
+                    this.props.multilineInputHeight *
+                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+                }
+              : undefined
+          }
         >
           <ErrorTooltip
             boundary={this.props.errorTooltipBoundary}
@@ -777,6 +792,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   accentColor?: string;
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
+  multilineInputHeight?: MultiLineHeightTypes;
 }
 
 export default BaseInputComponent;
