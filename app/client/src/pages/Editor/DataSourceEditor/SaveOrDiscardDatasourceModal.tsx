@@ -54,12 +54,14 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
         <div className="flex items-center justify-end space-x-3">
           <Button
             category={Category.tertiary}
+            className="t--datasource-modal-do-not-save"
             onClick={onDiscard}
             size={Size.medium}
             text="DON'T SAVE"
           />
           <Button
             category={Category.primary}
+            className="t--datasource-modal-save"
             disabled={disableSaveButton}
             onClick={!disableSaveButton && onSave}
             size={Size.medium}
