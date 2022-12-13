@@ -28,7 +28,7 @@ describe("Property Pane Search", function() {
     propPane.OpenTableColumnSettings("name");
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
 
-    // Opening some other widget and then going back to the initial widget should soft focus the search input
+    // Opening some other widget and then going back to the initial widget should soft focus the search input that is inside a panel
     ee.SelectEntityByName("Switch1", "Widgets");
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
@@ -36,10 +36,15 @@ describe("Property Pane Search", function() {
     // Going out of the panel should soft focus the search input
     propPane.NavigateBackToPropertyPane();
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+
+    // Focusing on a property in main property pane and then opening a panel should focus on search
+    propPane.UpdatePropertyFieldValue("Default Selected Rows", "[1]");
+    propPane.OpenTableColumnSettings("name");
+    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
+    propPane.NavigateBackToPropertyPane();
   });
 
   it("2. Search for Properties", function() {
-    ee.SelectEntityByName("Table1", "Widgets");
     // Search for a property inside content tab
     propPane.Search("visible");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT", "visible");
