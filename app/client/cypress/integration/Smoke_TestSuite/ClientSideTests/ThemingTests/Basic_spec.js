@@ -1030,7 +1030,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
-      .eq(15)
+      .eq(13)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)
