@@ -218,6 +218,7 @@ export type EventName =
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
   | "GS_SWITCH_BRANCH"
+  | "ADMIN_SETTINGS_CLICK"
   | "ADMIN_SETTINGS_RESET"
   | "ADMIN_SETTINGS_SAVE"
   | "ADMIN_SETTINGS_ERROR"
@@ -267,9 +268,15 @@ export type EventName =
   | "SHOW_BINDINGS_TRIGGERED"
   | "BINDING_COPIED"
   | "AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE"
+  | "ENTITY_EXPLORER_ADD_PAGE_CLICK"
+  | "CANVAS_BLANK_PAGE_CTA_CLICK"
+  | "MIXPANEL_IDS"
   | AUDIT_LOGS_EVENT_NAMES
+  | "BRANDING_UPGRADE_CLICK"
+  | "BRANDING_PROPERTY_UPDATE"
+  | "BRANDING_SUBMIT_CLICK"
   | "Cmd+Click Navigation"
-  | "MIXPANEL_IDS";
+  | "WIDGET_PROPERTY_SEARCH";
 
 export type AUDIT_LOGS_EVENT_NAMES =
   | "AUDIT_LOGS_CLEAR_FILTERS"
@@ -459,14 +466,27 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     const mixpanelIds = {
       distinct_id: windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id(),
+      id: windowDoc.mixpanel && windowDoc.mixpanel.get_property("id"),
+
       user_id: windowDoc.mixpanel && windowDoc.mixpanel.get_property("user_id"),
+      userId: windowDoc.mixpanel && windowDoc.mixpanel.get_property("userId"),
+
       insert_id:
         windowDoc.mixpanel && windowDoc.mixpanel.get_property("insert_id"),
+      insertId:
+        windowDoc.mixpanel && windowDoc.mixpanel.get_property("insertId"),
+
       identified_id:
         windowDoc.mixpanel && windowDoc.mixpanel.get_property("identified_id"),
+      identifiedId:
+        windowDoc.mixpanel && windowDoc.mixpanel.get_property("identifiedId"),
+
       anonymous_id:
         windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymous_id"),
+      anonymousId:
+        windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymousId"),
     };
+
     console.log("mixpanel object", windowDoc.mixpanel);
     console.log("mixpanel id's", mixpanelIds);
     this.logEvent("MIXPANEL_IDS", mixpanelIds);

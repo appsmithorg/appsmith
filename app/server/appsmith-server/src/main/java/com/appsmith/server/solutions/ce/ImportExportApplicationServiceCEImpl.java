@@ -1302,6 +1302,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         newPage.getUnpublishedPage().setDeletedAt(branchedPage.getUnpublishedPage().getDeletedAt());
                                         newPage.setDeletedAt(branchedPage.getDeletedAt());
                                         newPage.setDeleted(branchedPage.getDeleted());
+                                        // Set policies from existing branch object
+                                        newPage.setPolicies(branchedPage.getPolicies());
                                         return newPageService.save(newPage);
                                     });
                         }
@@ -1433,6 +1435,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     newAction.getUnpublishedAction().setDeletedAt(branchedAction.getUnpublishedAction().getDeletedAt());
                                     newAction.setDeletedAt(branchedAction.getDeletedAt());
                                     newAction.setDeleted(branchedAction.getDeleted());
+                                    // Set policies from existing branch object
+                                    newAction.setPolicies(branchedAction.getPolicies());
                                     return newActionService.save(newAction);
                                 });
                     }
@@ -1587,6 +1591,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                             .setDeletedAt(branchedActionCollection.getUnpublishedCollection().getDeletedAt());
                                     actionCollection.setDeletedAt(branchedActionCollection.getDeletedAt());
                                     actionCollection.setDeleted(branchedActionCollection.getDeleted());
+                                    // Set policies from existing branch object
+                                    actionCollection.setPolicies(branchedActionCollection.getPolicies());
                                     return Mono.zip(
                                             Mono.just(importedActionCollectionId),
                                             actionCollectionService.save(actionCollection)

@@ -30,7 +30,7 @@ public class InstanceAdminControllerCE {
     @GetMapping("/env")
     public Mono<ResponseDTO<Map<String, String>>> getAll() {
         log.debug("Getting all env configuration");
-        return envManager.getAll()
+        return envManager.getAllNonEmpty()
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
