@@ -3,7 +3,6 @@ import {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import { useCallback, useState } from "react";
 
@@ -26,29 +25,44 @@ export function useSearchText(initialVal: string) {
   return { searchText, setSearchText: debouncedSetSearchText };
 }
 
-export function searchProperty(
+export function evaluateHiddenProperty(
   config: readonly PropertyPaneConfig[],
-  searchQuery?: string,
+  widgetProps: any,
 ) {
-  if (!searchQuery) return config;
-
-  const fuseConfig = {
-    threshold: 0.2,
-    distance: 100,
-    keys: ["children.label", "label", "children.children.label"],
-  };
-  const fuse = new Fuse(config, fuseConfig);
-  const searchResults = fuse.search(searchQuery).map((result) => {
-    const res = { ...result };
-    if (result.children)
-      res.children = searchProperty(
-        result.children,
-        searchQuery,
-      ) as PropertyPaneConfig[];
-
-    return res;
-  });
-  return searchResults;
+  const finalConfig: PropertyPaneConfig[] = [];
+  for (const conf of config) {
+    const sectionConfig = conf as PropertyPaneSectionConfig;
+    const controlConfig = conf as PropertyPaneControlConfig;
+    if (sectionConfig.sectionName) {
+      const isSectionHidden =
+        sectionConfig.hidden &&
+        sectionConfig.hidden(
+          widgetProps,
+          sectionConfig.propertySectionPath || "",
+        );
+      if (!isSectionHidden) {
+        const children = evaluateHiddenProperty(
+          sectionConfig.children,
+          widgetProps,
+        );
+        if (children.length > 0) {
+          finalConfig.push({
+            ...sectionConfig,
+            childrenId: children.map((configItem) => configItem.id).join(""),
+            children,
+          });
+        }
+      }
+    } else if (controlConfig.controlType) {
+      const isControlHidden =
+        controlConfig.hidden &&
+        controlConfig.hidden(widgetProps, controlConfig.propertyName);
+      if (!isControlHidden) {
+        finalConfig.push(conf);
+      }
+    }
+  }
+  return finalConfig;
 }
 
 export function updateConfigPaths(

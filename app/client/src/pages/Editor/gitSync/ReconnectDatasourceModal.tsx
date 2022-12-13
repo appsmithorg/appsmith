@@ -578,7 +578,7 @@ function ReconnectDatasourceModal() {
             position="bottom-right"
           >
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className="t--skip-to-application-btn"
               href={appURL}
               onClick={() => {

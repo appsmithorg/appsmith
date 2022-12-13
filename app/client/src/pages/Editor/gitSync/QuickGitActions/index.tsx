@@ -263,7 +263,7 @@ function ConnectGitPlaceholder() {
           <StyledIcon />
           {isGitConnectionEnabled ? (
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className="t--connect-git-bottom-bar"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {

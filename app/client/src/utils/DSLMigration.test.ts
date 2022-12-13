@@ -682,6 +682,15 @@ const migrations: Migration[] = [
     ],
     version: 69,
   },
+  {
+    functionLookup: [
+      {
+        moduleObj: themingMigration,
+        functionName: "migrateChildStylesheetFromDynamicBindingPathList",
+      },
+    ],
+    version: 70,
+  },
 ];
 
 const mockFnObj: Record<number, any> = {};

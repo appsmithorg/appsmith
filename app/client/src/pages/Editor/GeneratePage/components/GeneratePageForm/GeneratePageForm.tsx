@@ -158,7 +158,7 @@ function GeneratePageSubmitBtn({
 }) {
   return showSubmitButton ? (
     <FormSubmitButton
-      category={Category.tertiary}
+      category={Category.secondary}
       data-cy="t--generate-page-form-submit"
       disabled={disabled}
       isLoading={isLoading}
@@ -672,7 +672,7 @@ function GeneratePageForm() {
         ) : null}
         {showEditDatasourceBtn && (
           <EditDatasourceButton
-            category={Category.tertiary}
+            category={Category.secondary}
             onClick={goToEditDatasource}
             size={Size.medium}
             text="Edit Datasource"

@@ -17,7 +17,6 @@ import {
   FormGroup,
   FormMessage,
   FormMessageProps,
-  Link,
   MessageAction,
   Size,
 } from "design-system";
@@ -26,7 +25,7 @@ import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
-import { AuthCardHeader, FormActions } from "./StyledComponents";
+import { BlackAuthCardNavLink, FormActions } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -46,6 +45,7 @@ import {
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
   createMessage,
 } from "@appsmith/constants/messages";
+import Container from "./Container";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -175,19 +175,18 @@ export function ResetPassword(props: ResetPasswordProps) {
     return <Spinner />;
   }
   return (
-    <>
-      <AuthCardHeader>
-        <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
-      </AuthCardHeader>
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <Link to={AUTH_LOGIN_URL}>
+    <Container
+      subtitle={
+        <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
           <Icon
             icon="arrow-left"
             style={{ marginRight: props.theme.spaces[3] }}
           />
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
-        </Link>
-      </div>
+        </BlackAuthCardNavLink>
+      }
+      title={createMessage(RESET_PASSWORD_PAGE_TITLE)}
+    >
       {(showSuccessMessage || showFailureMessage) && (
         <FormMessage {...messageTagProps} />
       )}
@@ -219,7 +218,7 @@ export function ResetPassword(props: ResetPasswordProps) {
           />
         </FormActions>
       </StyledForm>
-    </>
+    </Container>
   );
 }
 

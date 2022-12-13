@@ -30,10 +30,10 @@ describe("Table Widget property pane feature validation", function() {
     cy.editColumn("id");
     cy.get(widgetsPage.tableBtn).should("not.exist");
     // Changing column data type to "Button"
-    cy.changeColumnType("Button");
+    cy.changeColumnType("Button", false);
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
-    cy.changeColumnType("Button");
+    cy.changeColumnType("Button", false);
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()
@@ -51,7 +51,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.editColumn("id");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon Button");
+    cy.changeColumnType("Icon Button", false);
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,

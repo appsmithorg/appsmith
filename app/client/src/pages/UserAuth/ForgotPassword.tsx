@@ -9,7 +9,7 @@ import {
 } from "redux-form";
 import StyledForm from "components/editorComponents/Form";
 import {
-  AuthCardHeader,
+  BlackAuthCardNavLink,
   FormActions,
   FormMessagesContainer,
 } from "./StyledComponents";
@@ -29,7 +29,7 @@ import {
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, FormGroup, FormMessage, Link, Size } from "design-system";
+import { Button, FormGroup, FormMessage, Size } from "design-system";
 import { Icon } from "@blueprintjs/core";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import {
@@ -37,6 +37,7 @@ import {
   forgotPasswordSubmitHandler,
 } from "./helpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import Container from "./Container";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -75,19 +76,18 @@ export const ForgotPassword = withTheme(
     }, [props.emailValue]);
 
     return (
-      <>
-        <AuthCardHeader>
-          <h1>{createMessage(FORGOT_PASSWORD_PAGE_TITLE)}</h1>
-        </AuthCardHeader>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Link to={AUTH_LOGIN_URL}>
+      <Container
+        subtitle={
+          <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
             <Icon
               icon="arrow-left"
               style={{ marginRight: props.theme.spaces[3] }}
             />
             {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
-          </Link>
-        </div>
+          </BlackAuthCardNavLink>
+        }
+        title={createMessage(FORGOT_PASSWORD_PAGE_TITLE)}
+      >
         <FormMessagesContainer>
           {submitSucceeded && (
             <FormMessage
@@ -150,7 +150,7 @@ export const ForgotPassword = withTheme(
             />
           </FormActions>
         </StyledForm>
-      </>
+      </Container>
     );
   },
 );

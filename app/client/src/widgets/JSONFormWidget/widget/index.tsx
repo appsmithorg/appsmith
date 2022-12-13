@@ -1,13 +1,11 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import { connect } from "react-redux";
 import { debounce, difference, isEmpty, noop, merge } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import { contentConfig, styleConfig } from "./propertyConfig";
-import { AppState } from "@appsmith/reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   EventType,
@@ -30,6 +28,7 @@ import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
 import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -281,24 +280,27 @@ class JSONFormWidget extends BaseWidget<
     if (!this.props.autoGenerateForm)
       return {
         status: ComputedSchemaStatus.UNCHANGED,
-        schema: prevProps?.schema || {},
+        schema: this.props?.schema || {},
       };
 
-    const widget = this.props.canvasWidgets[
-      this.props.widgetId
-    ] as JSONFormWidgetProps;
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
       currSourceData,
-      prevSchema: widget.schema,
+      prevSchema: this.props?.schema,
       prevSourceData,
-      widgetName: widget.widgetName,
-      fieldThemeStylesheets: widget.childStylesheet,
+      widgetName: this.props.widgetName,
+      fieldThemeStylesheets: this.props.childStylesheet,
     });
-    const { dynamicPropertyPathList, schema, status } = computedSchema;
+    const {
+      dynamicPropertyPathList,
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+      status,
+    } = computedSchema;
 
     if (
       status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
@@ -306,9 +308,32 @@ class JSONFormWidget extends BaseWidget<
     ) {
       this.updateWidgetProperty("fieldLimitExceeded", true);
     } else if (status === ComputedSchemaStatus.UPDATED) {
-      this.batchUpdateWidgetProperty({
-        modify: { schema, dynamicPropertyPathList, fieldLimitExceeded: false },
-      });
+      const payload: BatchPropertyUpdatePayload = {
+        modify: {
+          dynamicPropertyPathList,
+          fieldLimitExceeded: false,
+        },
+      };
+
+      /**
+       * This means there was no schema before and the computeSchema returns a
+       * fresh schema than can be directly updated.
+       */
+      if (isEmpty(this.props?.schema)) {
+        payload.modify = {
+          ...payload.modify,
+          schema,
+        };
+      } else {
+        payload.modify = {
+          ...payload.modify,
+          ...modifiedSchemaItems,
+        };
+
+        payload.remove = removedSchemaItems;
+      }
+
+      this.batchUpdateWidgetProperty(payload);
     }
 
     return computedSchema;
@@ -514,10 +539,4 @@ class JSONFormWidget extends BaseWidget<
   }
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    canvasWidgets: state.entities.canvasWidgets,
-  };
-};
-
-export default connect(mapStateToProps, null)(JSONFormWidget);
+export default JSONFormWidget;

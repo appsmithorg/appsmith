@@ -21,6 +21,9 @@ export function* logLatestLintPropertyErrors({
   errors: LintErrors;
   dataTree: DataTree;
 }) {
+  const errorsToAdd = [];
+  const errorsToRemove = [];
+
   for (const path of Object.keys(errors)) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];
@@ -37,20 +40,24 @@ export function* logLatestLintPropertyErrors({
     const debuggerKey = entity.actionId + propertyPath + "-lint";
 
     if (isEmpty(lintErrorsInPath)) {
-      AppsmithConsole.deleteError(debuggerKey);
+      errorsToRemove.push({ id: debuggerKey });
       continue;
     }
-    AppsmithConsole.addError({
-      id: debuggerKey,
-      logType: LOG_TYPE.LINT_ERROR,
-      text: createMessage(JS_OBJECT_BODY_INVALID),
-      messages: lintErrorMessagesInPath,
-      source: {
-        id: path,
-        name: entityName,
-        type: ENTITY_TYPE.JSACTION,
-        propertyPath,
+    errorsToAdd.push({
+      payload: {
+        id: debuggerKey,
+        logType: LOG_TYPE.LINT_ERROR,
+        text: createMessage(JS_OBJECT_BODY_INVALID),
+        messages: lintErrorMessagesInPath,
+        source: {
+          id: path,
+          name: entityName,
+          type: ENTITY_TYPE.JSACTION,
+          propertyPath,
+        },
       },
     });
   }
+  AppsmithConsole.addErrors(errorsToAdd);
+  AppsmithConsole.deleteErrors(errorsToRemove);
 }
