@@ -107,7 +107,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -3795,9 +3794,9 @@ public class AuditLogServiceTest {
                     AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
                     assertThat(permissionGroupMetadata.getAssignedGroups()).hasSize(1);
                     assertThat(permissionGroupMetadata.getAssignedGroups().get(0)).isEqualTo(createdUserGroup.getName());
-                    assertThat(permissionGroupMetadata.getUnAssignedGroups()).isNull();
+                    assertThat(permissionGroupMetadata.getUnassignedGroups()).isNull();
                     assertThat(permissionGroupMetadata.getAssignedUsers()).isEmpty();
-                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).isNull();
+                    assertThat(permissionGroupMetadata.getUnassignedUsers()).isNull();
                 }).verifyComplete();
 
         UpdateRoleAssociationDTO unassignUserGroups = new UpdateRoleAssociationDTO();
@@ -3839,11 +3838,11 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
 
                     AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
-                    assertThat(permissionGroupMetadata.getUnAssignedGroups()).hasSize(1);
-                    assertThat(permissionGroupMetadata.getUnAssignedGroups().get(0)).isEqualTo(createdUserGroup.getName());
+                    assertThat(permissionGroupMetadata.getUnassignedGroups()).hasSize(1);
+                    assertThat(permissionGroupMetadata.getUnassignedGroups().get(0)).isEqualTo(createdUserGroup.getName());
                     assertThat(permissionGroupMetadata.getAssignedGroups()).isNull();
                     assertThat(permissionGroupMetadata.getAssignedUsers()).isNull();
-                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).isEmpty();
+                    assertThat(permissionGroupMetadata.getUnassignedUsers()).isEmpty();
                 }).verifyComplete();
 
         UpdateRoleAssociationDTO assignUser = new UpdateRoleAssociationDTO();
@@ -3887,9 +3886,9 @@ public class AuditLogServiceTest {
                     AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
                     assertThat(permissionGroupMetadata.getAssignedUsers()).hasSize(1);
                     assertThat(permissionGroupMetadata.getAssignedUsers().get(0)).isEqualTo(createdUser.getEmail());
-                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).isNull();
+                    assertThat(permissionGroupMetadata.getUnassignedUsers()).isNull();
                     assertThat(permissionGroupMetadata.getAssignedGroups()).isEmpty();
-                    assertThat(permissionGroupMetadata.getUnAssignedGroups()).isNull();
+                    assertThat(permissionGroupMetadata.getUnassignedGroups()).isNull();
                 }).verifyComplete();
 
         UpdateRoleAssociationDTO unassignUser = new UpdateRoleAssociationDTO();
@@ -3931,11 +3930,11 @@ public class AuditLogServiceTest {
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
 
                     AuditLogPermissionGroupMetadata permissionGroupMetadata = auditLog.getPermissionGroup();
-                    assertThat(permissionGroupMetadata.getUnAssignedUsers()).hasSize(1);
-                    assertThat(permissionGroupMetadata.getUnAssignedUsers().get(0)).isEqualTo(createdUser.getEmail());
+                    assertThat(permissionGroupMetadata.getUnassignedUsers()).hasSize(1);
+                    assertThat(permissionGroupMetadata.getUnassignedUsers().get(0)).isEqualTo(createdUser.getEmail());
                     assertThat(permissionGroupMetadata.getAssignedUsers()).isNull();
                     assertThat(permissionGroupMetadata.getAssignedGroups()).isNull();
-                    assertThat(permissionGroupMetadata.getUnAssignedGroups()).isEmpty();
+                    assertThat(permissionGroupMetadata.getUnassignedGroups()).isEmpty();
                 }).verifyComplete();
 
         PermissionGroup deletedPermissionGroup = permissionGroupService.archiveById(dbPermissionGroup.getId()).block();

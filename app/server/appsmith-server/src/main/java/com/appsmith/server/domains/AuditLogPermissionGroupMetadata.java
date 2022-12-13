@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class AuditLogPermissionGroupMetadata {
     List<String> assignedUsers;
-    List<String> unAssignedUsers;
+    List<String> unassignedUsers;
     List<String> assignedGroups;
-    List<String> unAssignedGroups;
+    List<String> unassignedGroups;
 }
