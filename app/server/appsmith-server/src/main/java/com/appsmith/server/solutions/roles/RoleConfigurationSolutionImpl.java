@@ -1,10 +1,7 @@
 package com.appsmith.server.solutions.roles;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -21,6 +18,7 @@ import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,6 +33,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -123,8 +122,12 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         List<String> applicationsRevokedInApplicationResourcesTab = new ArrayList<>();
         Set<String> workspaceReadGivenAsSideEffect = new HashSet<>();
 
+        ConcurrentHashMap<String, List<AclPermission>> entityPermissionsAddedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> entityPermissionsRemovedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Class> entityClassMap = new ConcurrentHashMap<>();
+
         Flux<Long> updateEntityPoliciesFlux = Flux.fromIterable(entitiesChanged)
-                .flatMap(entity -> {
+                .map(entity -> {
                     String id = entity.getId();
                     String type = entity.getType();
                     String name = entity.getName();
@@ -207,8 +210,21 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                         }
                     }
 
-                    return genericDatabaseOperation.updatePolicies(id, permissionGroupId, added, removed, aClass);
+                    // Add the entity to the map of entities to be updated
+                    entityPermissionsAddedMap.merge(id, added, ListUtils::union);
+                    entityPermissionsRemovedMap.merge(id, removed, ListUtils::union);
+                    entityClassMap.put(id, aClass);
+
+                    return true;
                 })
+                .collectList()
+                .flatMapMany(bool -> Flux.fromIterable(entityPermissionsAddedMap.keySet())
+                        .flatMap(id -> {
+                            List<AclPermission> added = entityPermissionsAddedMap.get(id);
+                            List<AclPermission> removed = entityPermissionsRemovedMap.get(id);
+                            Class aClass = entityClassMap.get(id);
+                            return genericDatabaseOperation.updatePolicies(id, permissionGroupId, added, removed, aClass);
+                        }))
                 .cache();
 
 
