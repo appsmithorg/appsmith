@@ -13,7 +13,6 @@ import {
   fetchActionsForView,
 } from "actions/pluginActionActions";
 import {
-  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
