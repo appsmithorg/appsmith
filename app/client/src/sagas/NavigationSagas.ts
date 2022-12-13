@@ -30,6 +30,7 @@ import {
 } from "ce/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { BackgroundTheme, changeAppBackground } from "sagas/ThemeSaga";
+import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 
 let previousPath: string;
 let previousHash: string | undefined;
@@ -75,6 +76,8 @@ function* handleRouteChange(payload: LocationChangePayload) {
       yield call(contextSwitchingSaga, pathname, state, hash);
     }
     yield call(appBackgroundHandler);
+    const entityInfo = identifyEntityFromPath(pathname, hash);
+    yield call(updateRecentEntitySaga, entityInfo);
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
