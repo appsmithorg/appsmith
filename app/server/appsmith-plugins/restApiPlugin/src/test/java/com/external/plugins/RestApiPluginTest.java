@@ -249,7 +249,7 @@ public class RestApiPluginTest {
 
         actionConfiguration.setTimeoutInMillisecond("10000");
 
-        actionConfiguration.setPaginationType(PaginationType.URL);
+        actionConfiguration.setPaginationType(PaginationType.NONE);
 
         actionConfiguration.setEncodeParamsToggle(true);
 
@@ -261,12 +261,12 @@ public class RestApiPluginTest {
 
         String[] finalRequestBodyList = {"abc is equals to \"123\"","{ \"abc\": \"123\" }",""};
 
-        for (int i = 0; i < requestBodyList.length; i++) {
+        for (int requestBodyIndex = 0; requestBodyIndex < requestBodyList.length; requestBodyIndex++) {
 
-            actionConfiguration.setBody(requestBodyList[i]);
+            actionConfiguration.setBody(requestBodyList[requestBodyIndex]);
             Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, datasourceConfiguration, actionConfiguration);
 
-            int currentIndex = i;
+            int currentIndex = requestBodyIndex;
             StepVerifier.create(resultMono)
                     .assertNext(result -> {
                         assertTrue(result.getIsExecutionSuccess());
