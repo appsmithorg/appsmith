@@ -229,8 +229,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isBindProperty: false,
               isTriggerProperty: false,
               dependencies: ["inputType"],
-              hidden: (props: WidgetProps) =>
-                props.inputType !== InputTypes.MULTI_LINE_TEXT,
+              hidden: () => true,
             },
             {
               helpText:

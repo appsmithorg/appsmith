@@ -567,9 +567,6 @@ class BaseInputComponent extends React.Component<
       onKeyDown={this.onKeyDownTextArea}
       onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
-      style={{
-        resize: "none",
-      }}
       value={this.props.value}
     />
   );

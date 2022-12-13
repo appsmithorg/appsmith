@@ -39,6 +39,7 @@ export default function AutoHeightContainer({
   const observer = React.useRef(
     new ResizeObserver((entries) => {
       const height = entries[0].contentRect.height;
+      console.log("ResizeObserver", height);
       setExpectedHeight(height);
       onHeightUpdate(height);
     }),
