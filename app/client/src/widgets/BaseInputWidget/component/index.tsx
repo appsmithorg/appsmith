@@ -34,7 +34,11 @@ import LabelWithTooltip, {
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
 import { getLocale } from "utils/helpers";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  RenderMode,
+  RenderModes,
+} from "constants/WidgetConstants";
 
 /**
  * All design system component specific logic goes here.
@@ -552,7 +556,10 @@ class BaseInputComponent extends React.Component<
     );
   };
 
-  private textAreaInputComponent = () => (
+  private textAreaInputComponent = (
+    isResizeAllowed: boolean,
+    multilineInputHeight?: MultiLineHeightTypes,
+  ) => (
     <TextArea
       autoFocus={this.props.autoFocus}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
@@ -568,15 +575,22 @@ class BaseInputComponent extends React.Component<
       onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
       style={{
-        resize: "none",
+        resize: isResizeAllowed ? "vertical" : "none",
+        height: multilineInputHeight
+          ? multilineInputHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+          : "auto",
       }}
       value={this.props.value}
     />
   );
 
-  private textInputComponent = (isTextArea: boolean) =>
+  private textInputComponent = (
+    isTextArea: boolean,
+    isResizeAllowed: boolean,
+    multilineInputHeight?: MultiLineHeightTypes,
+  ) =>
     isTextArea ? (
-      this.textAreaInputComponent()
+      this.textAreaInputComponent(isResizeAllowed, multilineInputHeight)
     ) : (
       <InputGroup
         autoFocus={this.props.autoFocus}
@@ -619,10 +633,16 @@ class BaseInputComponent extends React.Component<
   private renderInputComponent = (
     inputHTMLType: InputHTMLType = "TEXT",
     isTextArea: boolean,
+    isResizeAllowed: boolean,
+    multilineInputHeight?: MultiLineHeightTypes,
   ) =>
     isNumberInputType(inputHTMLType)
       ? this.numericInputComponent()
-      : this.textInputComponent(isTextArea);
+      : this.textInputComponent(
+          isTextArea,
+          isResizeAllowed,
+          multilineInputHeight,
+        );
 
   onStepIncrement = (e: Event) => {
     e.preventDefault();
@@ -659,7 +679,7 @@ class BaseInputComponent extends React.Component<
     } = this.props;
     const showLabelHeader = label || tooltip;
 
-    console.log(this.props.multilineInputHeight, "multilineInputHeight");
+    console.log(this.props.isResizeAllowed, "isResizeAllowed");
 
     return (
       <InputComponentWrapper
@@ -705,15 +725,6 @@ class BaseInputComponent extends React.Component<
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
           labelPosition={labelPosition}
-          style={
-            this.props.multilineInputHeight
-              ? {
-                  height:
-                    this.props.multilineInputHeight *
-                    GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-                }
-              : undefined
-          }
         >
           <ErrorTooltip
             boundary={this.props.errorTooltipBoundary}
@@ -723,7 +734,12 @@ class BaseInputComponent extends React.Component<
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.renderInputComponent(inputHTMLType, !!multiline)}
+            {this.renderInputComponent(
+              inputHTMLType,
+              !!multiline,
+              !!this.props.isResizeAllowed,
+              this.props.multilineInputHeight,
+            )}
           </ErrorTooltip>
         </TextInputWrapper>
       </InputComponentWrapper>
@@ -793,6 +809,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
   multilineInputHeight?: MultiLineHeightTypes;
+  isResizeAllowed?: boolean;
 }
 
 export default BaseInputComponent;

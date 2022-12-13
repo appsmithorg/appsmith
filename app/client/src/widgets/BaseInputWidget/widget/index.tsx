@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { WidgetType } from "constants/WidgetConstants";
+import { RenderMode, RenderModes, WidgetType } from "constants/WidgetConstants";
 import {
   EventType,
   ExecutionResult,
@@ -449,17 +449,6 @@ class BaseInputWidget<
   ) {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
-
-    if (
-      this.props.inputType === InputTypes.TEXT &&
-      isEnterKey &&
-      (e.metaKey || e.ctrlKey)
-    ) {
-      this.props.updateWidgetMetaProperty(
-        "inputType",
-        InputTypes.MULTI_LINE_TEXT,
-      );
-    }
 
     if (isEnterKey && typeof onSubmit === "string" && onSubmit && isValid) {
       /**

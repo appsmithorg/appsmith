@@ -1,3 +1,4 @@
+import { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import BaseInputComponent, {
   BaseInputComponentProps,
@@ -63,6 +64,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         isDynamicHeightEnabled={this.props.isDynamicHeightEnabled}
         isInvalid={this.props.isInvalid}
         isLoading={this.props.isLoading}
+        isResizeAllowed={this.props.isResizeAllowed}
         label={this.props.label}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}

@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import InputComponent, { InputComponentProps } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
@@ -590,6 +590,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isInvalid={isInvalid}
         isLoading={this.props.isLoading}
+        isResizeAllowed={this.props.renderMode === RenderModes.PAGE}
         label={this.props.label}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
