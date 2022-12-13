@@ -899,6 +899,10 @@ class CodeEditor extends Component<Props, State> {
   handleAutocompleteKeydown = (cm: CodeMirror.Editor, event: KeyboardEvent) => {
     const key = event.key;
 
+    // Since selection from AutoComplete list is also done using the Enter keydown event
+    // we need to return from here so that autocomplete selection works fine
+    if (key === "Enter") return;
+
     // Check if the user is trying to comment out the line, in that case we should not show autocomplete
     const isCtrlOrCmdPressed = event.metaKey || event.ctrlKey;
 
