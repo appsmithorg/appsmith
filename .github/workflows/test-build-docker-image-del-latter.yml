@@ -53,10 +53,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
- ~/run_result
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}-
+            ${{ github.run_id }}-${{ github.job }}-
 
       # Fetch prior run result
       - name: Get the previous run result
