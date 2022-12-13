@@ -17,7 +17,7 @@ function Container(props: ContainerProps) {
   const tenantConfig = useSelector(getTenantConfig);
 
   return (
-    <>
+    <div className="flex flex-col items-center gap-4 my-auto min-w-min">
       <div className="bg-white border border-t-4 border-t-[color:var(--ads-color-brand)] py-8 px-6 w-[min(400px,80%)] flex flex-col gap-8 t--login-container">
         <img className="h-8 mx-auto" src={tenantConfig.brandLogoUrl} />
         <div className="flex flex-col gap-2 text-center">
@@ -31,7 +31,7 @@ function Container(props: ContainerProps) {
         {footer}
         <FooterLinks />
       </div>
-    </>
+    </div>
   );
 }
 
