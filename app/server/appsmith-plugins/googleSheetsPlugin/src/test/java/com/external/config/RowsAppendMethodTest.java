@@ -9,21 +9,17 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PaginationType;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.GoogleSheetsPlugin;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import reactor.test.StepVerifier;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-@Slf4j
 public class RowsAppendMethodTest {
 
     GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
@@ -67,7 +63,7 @@ public class RowsAppendMethodTest {
 
             String actualMessage = appsmithPluginException.getMessage();
 
-            assertTrue(actualMessage.contains(ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE));
+            assertEquals(actualMessage,ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
         }
     }
 
