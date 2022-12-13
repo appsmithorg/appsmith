@@ -3,7 +3,7 @@ import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const RBAC = require("../../../../../locators/RBAClocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Create Permission flow ", function() {
+describe("RBAC for git connected apps tests", function() {
   let workspaceName;
   let appName;
   let newWorkspaceName;
