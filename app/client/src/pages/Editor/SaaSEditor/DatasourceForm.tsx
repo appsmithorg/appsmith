@@ -4,7 +4,7 @@ import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import { Button as AdsButton, Category } from "design-system";
-import { Datasource } from "entities/Datasource";
+import { AuthenticationStatus, Datasource } from "entities/Datasource";
 import {
   getFormValues,
   InjectedFormProps,
@@ -252,12 +252,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       hiddenHeader,
       pageId,
       pluginPackageName,
+      viewMode,
     } = this.props;
-    const params: string = location.search;
-    const viewMode =
-      !hiddenHeader && new URLSearchParams(params).get("viewMode");
-
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
+
+    const isAuthorized =
+      datasource?.datasourceConfiguration?.authentication
+        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
 
     return (
       <>
@@ -329,7 +330,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           onClose={this.closeDialog}
           onDiscard={this.onDiscard}
           onSave={this.onSave}
-          saveButtonText="SAVE AND AUTHORIZE"
+          saveButtonText={
+            isAuthorized ? "Save and Re-authorize" : "Save and Authorize"
+          }
         />
       </>
     );
