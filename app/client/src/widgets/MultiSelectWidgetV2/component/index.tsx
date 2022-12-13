@@ -310,6 +310,7 @@ function MultiSelectComponent({
           className={`multiselect-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="multiselect-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}

@@ -517,7 +517,10 @@ class DatasourceRestAPIEditor extends React.Component<
             this.urlValidator,
           )}
         </FormInputContainer>
-        <FormInputContainer data-replay-id={btoa("headers")}>
+        <FormInputContainer
+          className="t--headers-array"
+          data-replay-id={btoa("headers")}
+        >
           {this.renderKeyValueControlViaFormControl(
             "headers",
             "Headers",
