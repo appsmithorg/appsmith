@@ -126,17 +126,7 @@ jobs:
           name: build
           path: app/server/dist
 
-      - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: rts-dist
-          path: app/rts/dist
 
-      - name: Untar the rts folder
-        run: |
-          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
-          echo "Cleaning up the tar files"
-          rm app/rts/dist/rts-dist.tar
       # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
       # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build  docker image
@@ -144,6 +134,7 @@ jobs:
         working-directory: "."
         run: |
           docker build -t fatcontainer .
+
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
         env:
@@ -152,6 +143,7 @@ jobs:
         run: |
           mkdir -p fatcontainerlocal/stacks/configuration/
           mkdir -p fatcontainerlocal/oldstack
+
       - name: Download S3 image
         uses: keithweaver/aws-s3-github-action@v1.0.0
         with:
@@ -210,6 +202,14 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             fatcontainer
 
+      # Start rts
+      - name: Start RTS Server
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: ./app/rts
+        run: |
+          cp .env.example .env        
+          ./start-server.sh &
+          
       - name: Setting up the perf tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
