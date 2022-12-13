@@ -261,7 +261,7 @@ function ProgressTracker({
               </div>
               <div className="footer text-xs font-medium gap-2 flex flex-row">
                 <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
-                <a onClick={(e) => openDoc(e, Links.learnMore)}>
+                <a onClick={(e) => openDoc(e, EXT_LINK.learnMore)}>
                   {createMessage(customJSLibraryMessages.LEARN_MORE)}
                 </a>
               </div>
@@ -294,7 +294,7 @@ function InstallationProgress() {
   );
 }
 
-const Links = {
+const EXT_LINK = {
   learnMore:
     "https://docs.appsmith.com/core-concepts/writing-code/ext-libraries",
   jsDelivr: "https://www.jsdelivr.com/",
@@ -421,7 +421,7 @@ export function Installer(props: { left: number }) {
             Explore libraries on{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, Links.jsDelivr)}
+              onClick={(e) => openDoc(e, EXT_LINK.jsDelivr)}
             >
               jsDelivr
             </a>
@@ -429,7 +429,7 @@ export function Installer(props: { left: number }) {
             {createMessage(customJSLibraryMessages.LEARN_MORE_DESC)}{" "}
             <a
               className="text-primary-500"
-              onClick={(e) => openDoc(e, Links.learnMore)}
+              onClick={(e) => openDoc(e, EXT_LINK.learnMore)}
             >
               here
             </a>
