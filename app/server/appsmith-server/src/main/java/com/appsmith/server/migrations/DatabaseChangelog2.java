@@ -14,6 +14,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EncryptionConfig;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -2801,58 +2802,69 @@ public class DatabaseChangelog2 {
         if (commonConfig.getEncryptionVersion() == null) {
             mongockTemplate.insert(new Config(
                     new JSONObject(Map.of("value", 1)),
-                    "encryptionVersion"
+                    Appsmith.INSTANCE_SCHEMA_VERSION
+            ));
+        } else {
+            mongockTemplate.insert(new Config(
+                    new JSONObject(Map.of("value", commonConfig.getEncryptionVersion())),
+                    Appsmith.INSTANCE_SCHEMA_VERSION
             ));
         }
-        // In all other cases, the DB will go through future migrations to upgrade and set the correct encryption version,
-        // we do not need to worry about that right now
     }
 
+    // TODO We'll be deleting this migration after upgrade to Spring 6.0
     @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
     public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate, @NonLockGuarded EncryptionConfig encryptionConfig, EncryptionService encryptionService) {
 
-        /**
-         * - List of attributes in datasources that need to be encoded.
-         * - Each path represents where the attribute exists in mongo db document.
-         */
-        List<String> datasourcePathList = new ArrayList<>();
-        datasourcePathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
-        datasourcePathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
-        datasourcePathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
-        datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
-        datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
-        datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
-        datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.password");
-        datasourcePathList.add("datasourceConfiguration.authentication.value");
-        datasourcePathList.add("datasourceConfiguration.authentication.password");
-        datasourcePathList.add("datasourceConfiguration.authentication.bearerToken");
-        datasourcePathList.add("datasourceConfiguration.authentication.clientSecret");
-        datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.token");
-        datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.refreshToken");
-        datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.tokenResponse");
-        List<Bson> datasourcePathListExists = datasourcePathList
-                .stream()
-                .map(Filters::exists)
-                .collect(Collectors.toList());
-
-        List<Bson> gitDeployKeysPathListExists = new ArrayList<>();
-        ArrayList<String> gitDeployKeysPathList = new ArrayList<>();
-        gitDeployKeysPathList.add("gitAuth.privateKey");
-        gitDeployKeysPathListExists.add(Filters.exists("gitAuth.privateKey"));
-
-        List<Bson> applicationPathListExists = new ArrayList<>();
-        ArrayList<String> applicationPathList = new ArrayList<>();
-        applicationPathList.add("gitApplicationMetadata.gitAuth.privateKey");
-        applicationPathListExists.add(Filters.exists("gitApplicationMetadata.gitAuth.privateKey"));
-
-        mongockTemplate.execute("datasource", getNewEncryptionCallback(encryptionConfig, encryptionService, datasourcePathListExists, datasourcePathList));
-        mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(encryptionConfig, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList));
-        mongockTemplate.execute("application", getNewEncryptionCallback(encryptionConfig, encryptionService, applicationPathListExists, applicationPathList));
-
-        mongockTemplate.upsert(
-                query(where(fieldName(QConfig.config1.name)).is("encryptionVersion")),
-                update("config.value", 2),
+        Config encryptionVersion = mongockTemplate.findOne(
+                query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
                 Config.class);
+
+        if (encryptionVersion != null && (Integer) encryptionVersion.getConfig().get("value") < 2) {
+
+            /**
+             * - List of attributes in datasources that need to be encoded.
+             * - Each path represents where the attribute exists in mongo db document.
+             */
+            List<String> datasourcePathList = new ArrayList<>();
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.keyFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.certificateFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.caCertificateFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.file.base64Content");
+            datasourcePathList.add("datasourceConfiguration.connection.ssl.pemCertificate.password");
+            datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.keyFile.base64Content");
+            datasourcePathList.add("datasourceConfiguration.sshProxy.privateKey.password");
+            datasourcePathList.add("datasourceConfiguration.authentication.value");
+            datasourcePathList.add("datasourceConfiguration.authentication.password");
+            datasourcePathList.add("datasourceConfiguration.authentication.bearerToken");
+            datasourcePathList.add("datasourceConfiguration.authentication.clientSecret");
+            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.token");
+            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.refreshToken");
+            datasourcePathList.add("datasourceConfiguration.authentication.authenticationResponse.tokenResponse");
+            List<Bson> datasourcePathListExists = datasourcePathList
+                    .stream()
+                    .map(Filters::exists)
+                    .collect(Collectors.toList());
+
+            List<Bson> gitDeployKeysPathListExists = new ArrayList<>();
+            ArrayList<String> gitDeployKeysPathList = new ArrayList<>();
+            gitDeployKeysPathList.add("gitAuth.privateKey");
+            gitDeployKeysPathListExists.add(Filters.exists("gitAuth.privateKey"));
+
+            List<Bson> applicationPathListExists = new ArrayList<>();
+            ArrayList<String> applicationPathList = new ArrayList<>();
+            applicationPathList.add("gitApplicationMetadata.gitAuth.privateKey");
+            applicationPathListExists.add(Filters.exists("gitApplicationMetadata.gitAuth.privateKey"));
+
+            mongockTemplate.execute("datasource", getNewEncryptionCallback(encryptionConfig, encryptionService, datasourcePathListExists, datasourcePathList));
+            mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(encryptionConfig, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList));
+            mongockTemplate.execute("application", getNewEncryptionCallback(encryptionConfig, encryptionService, applicationPathListExists, applicationPathList));
+
+            mongockTemplate.upsert(
+                    query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
+                    update("config.value", 2),
+                    Config.class);
+        }
     }
 
     private CollectionCallback<String> getNewEncryptionCallback(
