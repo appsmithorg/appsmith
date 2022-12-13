@@ -67,7 +67,7 @@ const StyledContainer = styled(WidgetStyleContainer)<StyledContainerProps>`
 const MessageStateWrapper = styled.div`
   align-items: center;
   display: flex;
-  height: 100%;
+  height: 303px;
   justify-content: center;
 `;
 
