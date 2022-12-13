@@ -80,7 +80,7 @@ export interface ControlData
   parentPropertyValue: unknown;
   additionalDynamicData: Record<string, Record<string, unknown>>;
   label: string;
-  additionalControlData: Record<string, unknown>;
+  additionalControlData?: Record<string, unknown>;
 }
 export interface ControlFunctions {
   onPropertyChange?: (
