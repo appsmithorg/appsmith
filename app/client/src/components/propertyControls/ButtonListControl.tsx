@@ -3,13 +3,13 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "./DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import { Category, Size } from "design-system";
 import { ButtonPlacementTypes } from "components/constants";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
@@ -93,14 +93,15 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
   render() {
     return (
       <ButtonListWrapper>
-        <DroppableComponent
+        <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={this.getMenuItems()}
           onEdit={this.onEdit}
-          renderComponent={(props) =>
+          propertyPath={this.props.dataTreePath}
+          renderComponent={(props: any) =>
             DraggableListCard({
               ...props,
               isDelete: true,
@@ -114,7 +115,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         />
         <StyledPropertyPaneButtonWrapper>
           <AddNewButton
-            category={Category.tertiary}
+            category={Category.secondary}
             icon="plus"
             onClick={this.addOption}
             size={Size.medium}

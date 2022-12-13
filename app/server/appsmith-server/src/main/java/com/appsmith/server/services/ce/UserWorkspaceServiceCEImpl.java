@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -54,8 +53,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final TenantService tenantService;
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
-
-    private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
     @Autowired
     public UserWorkspaceServiceCEImpl(SessionUserService sessionUserService,
