@@ -24,6 +24,12 @@ export class AuditLogsApi extends Api {
   static fetchAuditLogsMetadataFromDB() {
     return Api.get(AuditLogsApi.fetchAuditLogsMetadataURL);
   }
+  static fetchAuditLogsForDownload(payload: AuditLogsFiltersReduxState) {
+    return Api.get(
+      AuditLogsApi.fetchAuditLogsLogsURL,
+      payloadToQueryParams({ ...payload, cursor: "" }),
+    );
+  }
 }
 
 export default AuditLogsApi;
