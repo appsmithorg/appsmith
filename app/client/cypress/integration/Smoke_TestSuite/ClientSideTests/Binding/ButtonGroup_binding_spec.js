@@ -12,16 +12,11 @@ describe("Widget Grouping", function () {
     cy.get(".t--buttongroup-widget button")
       .contains("More")
       .click({ force: true });
-    cy.get(commonlocators.toastmsg).should(
-        "have.css",
-        "font-family",
-        "14px",).contains("test alert");
-    /*  
-    cy.get(commonlocators.toastmsg).should(
-      "have.css",
-      "font-size",
-      "14px",).contains("test alert");
-      */
+    cy.get(commonlocators.toastmsg).contains("test alert");
+    cy.get(commonlocators.toastmsg).invoke("css", "font-family")
+    .then((dropdownFont) => {
+      expect(dropdownFont).to.equal('-apple-system, "system-ui", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue"');
+    });
     cy.PublishtheApp();
     cy.get(".t--buttongroup-widget button")
       .contains("Add")
