@@ -37,6 +37,17 @@ export class PropertyPane {
     "']//ancestor::div[@class= 'space-y-1 group']";
   private _jsonFieldConfigList =
     "//div[contains(@class, 't--property-control-fieldconfiguration group')]//div[contains(@class, 'content')]/div//input";
+  private _tableEditColumnButton = ".t--edit-column-btn";
+  private _tableColumnSettings = (column: string) =>
+    `[data-rbd-draggable-id='${column}'] ${this._tableEditColumnButton}`;
+  private _sectionCollapse = (section: string) =>
+    `.t--property-pane-section-collapse-${section}`;
+  private _sectionCollapseWithTag = (section: string, tab: string) =>
+    `.t--property-pane-section-collapse-${section} .t--property-section-tag-${tab}`;
+  private _propertyControl = (property: string) =>
+    `.t--property-control-${property}`;
+  _propertyPaneSearchInput = ".t--property-pane-search-input-wrapper input";
+  _propertyPaneEmptySearchResult = ".t--property-pane-no-search-results";
   _propertyToggle = (controlToToggle: string) =>
     ".t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
@@ -276,5 +287,39 @@ export class PropertyPane {
     else this.TypeTextIntoField(endp, value);
 
     this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
+  }
+
+  public OpenTableColumnSettings(column: string) {
+    this.agHelper.GetNClick(this._tableColumnSettings(column));
+  }
+
+  public Search(query: string) {
+    cy.get(this._propertyPaneSearchInput)
+      .first()
+      .then((el: any) => {
+        cy.get(el).clear();
+        if (query) cy.get(el).type(query, { force: true });
+      });
+  }
+
+  public ToggleSection(section: string) {
+    this.agHelper.GetNClick(this._sectionCollapse(section));
+  }
+
+  public AssertSearchInputValue(value: string) {
+    this.agHelper.AssertText(this._propertyPaneSearchInput, "val", value);
+  }
+
+  // Checks if the property exists in search results
+  public AssertIfPropertyOrSectionExists(
+    section: string,
+    tab: "CONTENT" | "STYLE",
+    property?: string,
+  ) {
+    this.agHelper.AssertElementExist(
+      this._sectionCollapseWithTag(section, tab),
+    );
+    if (property)
+      this.agHelper.AssertElementExist(this._propertyControl(property));
   }
 }
