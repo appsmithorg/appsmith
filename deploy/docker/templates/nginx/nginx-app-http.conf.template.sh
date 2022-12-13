@@ -40,6 +40,8 @@ server {
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
   add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
 
+  limit_req_zone $binary_remote_addr zone=ratelimit:10m rate=10r/s;
+
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
   }
@@ -79,6 +81,8 @@ server {
   }
 
   location /api {
+    limit_req zone=ratelimit burst=20 nodelay;
+    limit_req_status 429;
     proxy_pass http://localhost:8080;
   }
 
