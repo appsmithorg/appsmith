@@ -28,12 +28,8 @@ public class RowsAppendMethodTest {
 
     GoogleSheetsPlugin.GoogleSheetsPluginExecutor pluginExecutor = new GoogleSheetsPlugin.GoogleSheetsPluginExecutor();
 
-    /**
-     * To Test if it passes the expected exception criteria,
-     * else it should fail
-     */
     @Test
-    public void testRowAppendMethodTestExecutePrerequisites() {
+    public void testRowAppendMethodWithEmptyBody() {
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(getOAuthObject());
