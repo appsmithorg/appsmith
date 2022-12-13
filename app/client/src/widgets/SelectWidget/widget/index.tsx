@@ -319,11 +319,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
-            helpText: "Show help text or details about current input",
+            helpText: "Show help text or details about current selection",
             propertyName: "labelTooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
-            placeholderText: "Value must be atleast 6 chars",
+            placeholderText: "Add tooltip text here",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

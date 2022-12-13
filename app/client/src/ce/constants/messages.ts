@@ -50,7 +50,7 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 6 and 42 characters`;
+  `Please provide a password between 6 and 256 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
