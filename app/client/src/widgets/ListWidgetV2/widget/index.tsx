@@ -730,16 +730,43 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     return Boolean(serverSidePagination && !listData?.length);
   };
 
+  renderPaginationUI = () => {
+    const { isLoading, pageNo, serverSidePagination } = this.props;
+    const disableNextPage = this.shouldDisableNextPage();
+    return (
+      this.shouldPaginate() &&
+      (serverSidePagination ? (
+        <ServerSideListPagination
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          disableNextPage={disableNextPage}
+          disabled={false && this.props.renderMode === RenderModes.CANVAS}
+          isLoading={isLoading}
+          nextPageClick={() => this.onPageChange(pageNo + 1)}
+          pageNo={this.props.pageNo}
+          prevPageClick={() => this.onPageChange(pageNo - 1)}
+        />
+      ) : (
+        <ListPagination
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          disabled={false && this.props.renderMode === RenderModes.CANVAS}
+          isLoading={isLoading}
+          onChange={this.onPageChange}
+          pageNo={this.props.pageNo}
+          pageSize={this.pageSize}
+          total={(this.props.listData || []).length}
+        />
+      ))
+    );
+  };
+
   getPageView() {
     const { componentHeight } = this.getComponentDimensions();
-    const {
-      isLoading,
-      pageNo,
-      parentRowSpace,
-      serverSidePagination,
-    } = this.props;
+    const { isLoading, parentRowSpace } = this.props;
     const templateHeight = this.getTemplateBottomRow() * parentRowSpace;
-    const disableNextPage = this.shouldDisableNextPage();
 
     if (isLoading) {
       return (
@@ -756,7 +783,12 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
-      return <ListComponentEmpty>No data to display</ListComponentEmpty>;
+      return (
+        <>
+          <ListComponentEmpty>No data to display</ListComponentEmpty>
+          {this.renderPaginationUI()}
+        </>
+      );
     }
 
     if (isNaN(templateHeight) || templateHeight > componentHeight - 45) {
@@ -784,32 +816,7 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
         >
           {this.renderChildren(this.props.metaWidgetChildrenStructure)}
         </MetaWidgetContextProvider>
-        {this.shouldPaginate() &&
-          (serverSidePagination ? (
-            <ServerSideListPagination
-              accentColor={this.props.accentColor}
-              borderRadius={this.props.borderRadius}
-              boxShadow={this.props.boxShadow}
-              disableNextPage={disableNextPage}
-              disabled={false && this.props.renderMode === RenderModes.CANVAS}
-              isLoading={isLoading}
-              nextPageClick={() => this.onPageChange(pageNo + 1)}
-              pageNo={this.props.pageNo}
-              prevPageClick={() => this.onPageChange(pageNo - 1)}
-            />
-          ) : (
-            <ListPagination
-              accentColor={this.props.accentColor}
-              borderRadius={this.props.borderRadius}
-              boxShadow={this.props.boxShadow}
-              disabled={false && this.props.renderMode === RenderModes.CANVAS}
-              isLoading={isLoading}
-              onChange={this.onPageChange}
-              pageNo={this.props.pageNo}
-              pageSize={this.pageSize}
-              total={(this.props.listData || []).length}
-            />
-          ))}
+        {this.renderPaginationUI()}
       </ListComponent>
     );
   }
