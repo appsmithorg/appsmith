@@ -1,14 +1,14 @@
-const testdata = require("../../../../fixtures/testdata.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 
+const appSettings = ObjectsRegistry.AppSettings;
+
 let themeBackgroudColor;
-let themeFont;
 
 describe("Theme validation for default data", function() {
   it("Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function() {
@@ -28,6 +28,9 @@ describe("Theme validation for default data", function() {
     cy.wait(3000);
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
+
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Border validation
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
@@ -52,7 +55,7 @@ describe("Theme validation for default data", function() {
       cy.wait(250);
 
       cy.get(themelocator.fontsSelected)
-        .eq(0)
+        .eq(10)
         .should("have.text", "Nunito Sans");
     });
     cy.contains("Font").click({ force: true });
@@ -64,6 +67,7 @@ describe("Theme validation for default data", function() {
     cy.validateColor(0, "#553DE9");
     cy.colorMouseover(1, "Background Color");
     cy.validateColor(1, "#F8FAFC");
+    appSettings.ClosePane();
   });
 
   it("Validate Default Theme change across application", function() {
@@ -85,6 +89,8 @@ describe("Theme validation for default data", function() {
       .should("have.css", "background-color")
       .and("eq", "rgb(21, 128, 61)");
     cy.get("#canvas-selection-0").click({ force: true });
+    appSettings.OpenAppSettings();
+    appSettings.GoToThemeSettings();
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.get(".cursor-pointer:contains('Applied Theme')").click({ force: true });

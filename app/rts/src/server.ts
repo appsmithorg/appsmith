@@ -1,7 +1,6 @@
 import http from "http";
 import path from "path";
 import express from "express";
-import morgan from "morgan";
 import { Server } from "socket.io";
 import log, { LogLevelDesc } from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
@@ -49,8 +48,6 @@ const io = new Server(server, {
 // Initializing Sockets
 initializeSockets(io);
 
-//Track perf metrics for each call
-app.use(morgan('tiny'));
 // parse incoming json requests
 app.use(express.json({ limit: "5mb" }));
 // Initializing Routes
@@ -62,6 +59,8 @@ app.get("/", (_, res) => {
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
 
+server.headersTimeout = 61000;
+server.keepAliveTimeout = 60000;
 // Run the server
 server.listen(PORT, () => {
   log.info(`RTS version ${buildVersion} running at http://localhost:${PORT}`);

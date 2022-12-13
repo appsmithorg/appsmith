@@ -5,6 +5,7 @@ import {
   DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
+  DataTreeAppsmith,
 } from "entities/DataTree/dataTreeFactory";
 
 export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
@@ -210,6 +211,53 @@ export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
       privateWidgets: {},
       meta: {},
     } as unknown) as DataTreeWidget,
+    appsmith: ({
+      user: {
+        email: "rathod@appsmith.com",
+        workspaceIds: [
+          "6218a61972ccd9145ec78c57",
+          "621913df0276eb01d22fec44",
+          "60caf8edb1e47a1315f0c48f",
+          "609114fe05c4d35a9f6cbbf2",
+        ],
+        username: "rathod@appsmith.com",
+        name: "Rishabh",
+        commentOnboardingState: "RESOLVED",
+        role: "engineer",
+        useCase: "personal project",
+        enableTelemetry: false,
+        emptyInstance: false,
+        accountNonExpired: true,
+        accountNonLocked: true,
+        credentialsNonExpired: true,
+        isAnonymous: false,
+        isEnabled: true,
+        isSuperUser: false,
+        isConfigurable: true,
+      },
+      URL: {
+        fullPath:
+          "https://dev.appsmith.com/applications/6200d1a2b5bfc0392b959cab/pages/6220c268c48234070f8ac65a/edit?a=b",
+        host: "dev.appsmith.com",
+        hostname: "dev.appsmith.com",
+        queryParams: {
+          a: "b",
+        },
+        protocol: "https:",
+        pathname:
+          "/applications/6200d1a2b5bfc0392b959cab/pages/6220c268c48234070f8ac65a/edit",
+        port: "",
+        hash: "",
+      },
+      store: {
+        textColor: "#DF7E65",
+      },
+      geolocation: {
+        canBeRequested: true,
+      },
+      mode: "EDIT",
+      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
+    } as unknown) as DataTreeAppsmith,
   },
   apiSuccessUnEvalTree: {
     // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]

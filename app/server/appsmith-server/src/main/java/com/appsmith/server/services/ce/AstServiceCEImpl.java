@@ -1,8 +1,11 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,18 +13,22 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,66 +41,82 @@ public class AstServiceCEImpl implements AstServiceCE {
     private final InstanceConfig instanceConfig;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
-            .maxConnections(500)
-            .maxIdleTime(Duration.ofSeconds(5))
-            .maxLifeTime(Duration.ofSeconds(10))
-            .pendingAcquireTimeout(Duration.ofSeconds(5))
+            .maxConnections(100)
+            .maxIdleTime(Duration.ofSeconds(30))
+            .maxLifeTime(Duration.ofSeconds(40))
+            .pendingAcquireTimeout(Duration.ofSeconds(10))
             .pendingAcquireMaxCount(-1)
-            .evictInBackground(Duration.ofSeconds(60))
             .build());
 
-    private final static long MAX_API_RESPONSE_TIME = 50;
+    private final static long MAX_API_RESPONSE_TIME_IN_MS = 50;
 
     @Override
-    public Mono<Set<String>> getPossibleReferencesFromDynamicBinding(String bindingValue, int evalVersion) {
-        if (!StringUtils.hasLength(bindingValue)) {
-            return Mono.empty();
+    public Flux<Tuple2<String, Set<String>>> getPossibleReferencesFromDynamicBinding(List<String> bindingValues, int evalVersion) {
+        if (bindingValues == null || bindingValues.size() == 0) {
+            return Flux.empty();
+        }
+        /*
+            For the binding value which starts with "appsmith.theme" can be directly served
+            without calling the AST API or the calling the method for non-AST implementation
+         */
+        if (bindingValues.size() == 1 && bindingValues.get(0).startsWith("appsmith.theme.")) {
+            return Flux.just(Tuples.of(bindingValues.get(0), new HashSet<>(bindingValues)));
         }
 
         // If RTS server is not accessible for this instance, it means that this is a slim container set up
         // Proceed with assuming that all words need to be processed as possible entity references
         if (Boolean.FALSE.equals(instanceConfig.getIsRtsAccessible())) {
-            return Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue)));
+            return Flux.fromIterable(bindingValues)
+                    .flatMap(
+                            bindingValue -> {
+                                return Mono.zip(Mono.just(bindingValue), Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue))));
+                            }
+                    );
         }
-
         return webClient
                 .post()
-                .uri(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/single-script-data")
+                .uri(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/multiple-script-data")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(new GetIdentifiersRequest(bindingValue, evalVersion)))
+                .body(BodyInserters.fromValue(new GetIdentifiersRequestBulk(bindingValues, evalVersion)))
                 .retrieve()
-                .bodyToMono(GetIdentifiersResponse.class)
-                .elapsed()
-                .map(tuple -> {
-                    log.debug("Time elapsed since AST get identifiers call: {} ms", tuple.getT1());
-                    if (tuple.getT1() > MAX_API_RESPONSE_TIME) {
-                        log.debug("This call took longer than expected. The binding was: {}", bindingValue);
-                    }
-                    return tuple.getT2();
-                })
-                .map(response -> response.data.references);
+                .bodyToMono(GetIdentifiersResponseBulk.class)
+                .retryWhen(Retry.max(3))
+                .flatMapIterable(getIdentifiersResponse -> getIdentifiersResponse.data)
+                .index()
+                .flatMap(tuple2 -> {
+                    long currentIndex = tuple2.getT1();
+                    Set<String> references = tuple2.getT2().getReferences();
+                    return Mono.zip(Mono.just(bindingValues.get((int) currentIndex)), Mono.just(references));
+                });
         // TODO: add error handling scenario for when RTS is not accessible in fat container
     }
 
     @Override
-    public Mono<Map<String, String>> refactorNameInDynamicBindings(Set<String> bindingValues, String oldName, String newName, int evalVersion) {
+    public Mono<Map<MustacheBindingToken, String>> refactorNameInDynamicBindings(Set<MustacheBindingToken> bindingValues, String oldName, String newName, int evalVersion, boolean isJSObject) {
         if (bindingValues == null || bindingValues.isEmpty()) {
             return Mono.empty();
         }
 
         return Flux.fromIterable(bindingValues)
                 .flatMap(bindingValue -> {
+                    EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
                     return webClient
                             .post()
                             .uri(commonConfig.getRtsBaseDomain() + "/rts-api/v1/ast/entity-refactor")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(BodyInserters.fromValue(new EntityRefactorRequest(bindingValue, oldName, newName, evalVersion)))
+                            .body(BodyInserters.fromValue(entityRefactorRequest))
                             .retrieve()
-                            .bodyToMono(EntityRefactorResponse.class)
+                            .toEntity(EntityRefactorResponse.class)
+                            .flatMap(entityRefactorResponseResponseEntity -> {
+                                if (HttpStatus.OK.equals(entityRefactorResponseResponseEntity.getStatusCode())) {
+                                    return Mono.just(Objects.requireNonNull(entityRefactorResponseResponseEntity.getBody()));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.RTS_SERVER_ERROR, entityRefactorResponseResponseEntity.getStatusCodeValue()));
+                            })
                             .elapsed()
                             .map(tuple -> {
                                 log.debug("Time elapsed since AST refactor call: {} ms", tuple.getT1());
-                                if (tuple.getT1() > MAX_API_RESPONSE_TIME) {
+                                if (tuple.getT1() > MAX_API_RESPONSE_TIME_IN_MS) {
                                     log.debug("This call took longer than expected. The binding was: {}", bindingValue);
                                 }
                                 return tuple.getT2();
@@ -122,9 +145,25 @@ public class AstServiceCEImpl implements AstServiceCE {
     @NoArgsConstructor
     @AllArgsConstructor
     @Getter
+    static class GetIdentifiersRequestBulk {
+        List<String> scripts;
+        int evalVersion;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
     @Setter
     static class GetIdentifiersResponse {
         GetIdentifiersResponseDetails data;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    static class GetIdentifiersResponseBulk {
+        List<GetIdentifiersResponseDetails> data;
     }
 
     /**
@@ -162,6 +201,7 @@ public class AstServiceCEImpl implements AstServiceCE {
         String oldName;
         String newName;
         int evalVersion;
+        Boolean isJSObject;
     }
 
     @NoArgsConstructor

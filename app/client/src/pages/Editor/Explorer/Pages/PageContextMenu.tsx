@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TreeDropdown, {
   TreeDropdownOption,
 } from "pages/Editor/Explorer/TreeDropdown";
@@ -23,7 +23,18 @@ import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
+  CONTEXT_SETTINGS,
 } from "@appsmith/constants/messages";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import {
+  hasCreatePagePermission,
+  hasDeletePagePermission,
+  hasManagePagePermission,
+} from "@appsmith/utils/permissionHelpers";
+import { getPageById } from "selectors/editorSelectors";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { AppState } from "@appsmith/reducers";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -89,22 +100,51 @@ export function PageContextMenu(props: {
    * @return void
    */
   const setHiddenField = useCallback(
-    () => dispatch(updatePage(props.pageId, props.name, !props.isHidden)),
+    () =>
+      dispatch(
+        updatePage({
+          id: props.pageId,
+          name: props.name,
+          isHidden: !props.isHidden,
+        }),
+      ),
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
-  const optionTree: TreeDropdownOption[] = [
-    {
+  const openAppSettingsPane = () =>
+    dispatch(
+      openAppSettingsPaneAction({
+        type: AppSettingsTabs.Page,
+        pageId: props.pageId,
+      }),
+    );
+
+  const pagePermissions =
+    useSelector(getPageById(props.pageId))?.userPermissions || [];
+
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+
+  const canCreatePages = hasCreatePagePermission(userAppPermissions);
+
+  const canManagePages = hasManagePagePermission(pagePermissions);
+
+  const canDeletePages = hasDeletePagePermission(pagePermissions);
+
+  const optionsTree = [
+    canManagePages && {
       value: "rename",
       onSelect: editPageName,
       label: createMessage(CONTEXT_EDIT_NAME),
     },
-    {
-      value: "clone",
-      onSelect: clonePage,
-      label: createMessage(CONTEXT_CLONE),
-    },
-    {
+    canCreatePages &&
+      canManagePages && {
+        value: "clone",
+        onSelect: clonePage,
+        label: createMessage(CONTEXT_CLONE),
+      },
+    canManagePages && {
       value: "visibility",
       onSelect: setHiddenField,
       // Possibly support ReactNode in TreeOption
@@ -115,41 +155,51 @@ export function PageContextMenu(props: {
         </CustomLabel>
       ) as ReactNode) as string,
     },
-  ];
-  if (!props.isDefaultPage) {
-    optionTree.push({
-      value: "setdefault",
-      onSelect: setPageAsDefaultCallback,
-      label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
-    });
-  }
-
-  if (!props.isDefaultPage) {
-    optionTree.push({
-      className: "t--apiFormDeleteBtn single-select",
-      confirmDelete: confirmDelete,
-      value: "delete",
-      onSelect: () => {
-        confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+    !props.isDefaultPage &&
+      canManagePages && {
+        value: "setdefault",
+        onSelect: setPageAsDefaultCallback,
+        label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
-      label: confirmDelete
-        ? createMessage(CONFIRM_CONTEXT_DELETE)
-        : createMessage(CONTEXT_DELETE),
-      intent: "danger",
-    });
-  }
-  return (
+    props.isDefaultPage &&
+      canManagePages && {
+        className: "!text-[color:var(--appsmith-color-black-500)]",
+        disabled: true,
+        value: "setdefault",
+        label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
+      },
+    {
+      value: "settings",
+      onSelect: openAppSettingsPane,
+      label: createMessage(CONTEXT_SETTINGS),
+    },
+    !props.isDefaultPage &&
+      canDeletePages && {
+        className: "t--apiFormDeleteBtn single-select",
+        confirmDelete: confirmDelete,
+        value: "delete",
+        onSelect: () => {
+          confirmDelete ? deletePageCallback() : setConfirmDelete(true);
+        },
+        label: confirmDelete
+          ? createMessage(CONFIRM_CONTEXT_DELETE)
+          : createMessage(CONTEXT_DELETE),
+        intent: "danger",
+      },
+  ].filter(Boolean);
+
+  return optionsTree?.length > 0 ? (
     <TreeDropdown
       className={props.className}
       defaultText=""
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
-      optionTree={optionTree}
+      optionTree={optionsTree as TreeDropdownOption[]}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
-  );
+  ) : null;
 }
 
 export default PageContextMenu;

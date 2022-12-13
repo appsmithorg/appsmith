@@ -13,6 +13,8 @@ import WidgetIcon from "./WidgetIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { builderURL } from "RouteBuilder";
 import { useLocation } from "react-router";
+import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
@@ -23,7 +25,6 @@ const useWidget = (
   widgetType: WidgetType,
   pageId: string,
   widgetsInStep: string[],
-  parentModalId?: string,
 ) => {
   const selectedWidgets = useSelector(getSelectedWidgets);
   const lastSelectedWidget = useSelector(getLastSelectedWidget);
@@ -41,7 +42,6 @@ const useWidget = (
         widgetType,
         pageId,
         isWidgetSelected,
-        parentModalId,
         isMultiSelect,
         isShiftSelect,
         widgetsInStep,
@@ -52,7 +52,6 @@ const useWidget = (
       widgetType,
       pageId,
       isWidgetSelected,
-      parentModalId,
       widgetsInStep,
       navigateToWidget,
     ],
@@ -86,7 +85,11 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const icon = <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 
-  const shouldExpand = widgetsToExpand.includes(props.widgetId);
+  const forceExpand = widgetsToExpand.includes(props.widgetId);
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const canManagePages = hasManagePagePermission(pagePermissions);
 
   const {
     isWidgetSelected,
@@ -98,7 +101,6 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     props.widgetType,
     props.pageId,
     props.widgetsInStep,
-    props.parentModalId,
   );
 
   const { parentModalId, widgetId, widgetType } = props;
@@ -131,6 +133,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
 
   const contextMenu = (
     <WidgetContextMenu
+      canManagePages={canManagePages}
       className={EntityClassNames.CONTEXT_MENU}
       pageId={props.pageId}
       widgetId={props.widgetId}
@@ -146,18 +149,20 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
     <Entity
       action={switchWidget}
       active={isWidgetSelected}
+      canEditEntityName={canManagePages}
       className="widget"
       contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
+      forceExpand={forceExpand}
       highlight={lastSelectedWidget === props.widgetId}
       icon={icon}
       isDefaultExpanded={
-        shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
       name={props.widgetName}
       searchKeyword={props.searchKeyword}
+      showAddButton={canManagePages}
       step={props.step}
       updateEntityName={updateWidgetName}
     >

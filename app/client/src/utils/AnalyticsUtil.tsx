@@ -218,6 +218,7 @@ export type EventName =
   | "GS_REGENERATE_SSH_KEY_CONFIRM_CLICK"
   | "GS_REGENERATE_SSH_KEY_MORE_CLICK"
   | "GS_SWITCH_BRANCH"
+  | "ADMIN_SETTINGS_CLICK"
   | "ADMIN_SETTINGS_RESET"
   | "ADMIN_SETTINGS_SAVE"
   | "ADMIN_SETTINGS_ERROR"
@@ -263,9 +264,18 @@ export type EventName =
   | "JS_OBJECT_CREATED"
   | "JS_OBJECT_FUNCTION_ADDED"
   | "JS_OBJECT_FUNCTION_RUN"
+  | "JS_OBJECT_SETTINGS_CHANGED"
   | "SHOW_BINDINGS_TRIGGERED"
   | "BINDING_COPIED"
-  | AUDIT_LOGS_EVENT_NAMES;
+  | "AUTO_HEIGHT_OVERLAY_HANDLES_UPDATE"
+  | "ENTITY_EXPLORER_ADD_PAGE_CLICK"
+  | "CANVAS_BLANK_PAGE_CTA_CLICK"
+  | AUDIT_LOGS_EVENT_NAMES
+  | "BRANDING_UPGRADE_CLICK"
+  | "BRANDING_PROPERTY_UPDATE"
+  | "BRANDING_SUBMIT_CLICK"
+  | "Cmd+Click Navigation"
+  | "WIDGET_PROPERTY_SEARCH";
 
 export type AUDIT_LOGS_EVENT_NAMES =
   | "AUDIT_LOGS_CLEAR_FILTERS"
@@ -338,8 +348,8 @@ class AnalyticsUtil {
           const n = document.createElement("script");
           n.type = "text/javascript";
           n.async = !0;
-          n.src =
-            "https://a.appsmith.com/analytics.js/v1/" + t + "/analytics.min.js";
+          // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
+          n.src = "https://a.appsmith.com/reroute/" + t + "/main.js";
           const a: any = document.getElementsByTagName("script")[0];
           a.parentNode.insertBefore(n, a);
           analytics._loadOptions = e;

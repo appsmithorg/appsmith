@@ -2,14 +2,14 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsName: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   deployMode = ObjectsRegistry.DeployMode,
   table = ObjectsRegistry.Table,
-  propPane = ObjectsRegistry.PropertyPane;
+  appSettings = ObjectsRegistry.AppSettings;
 
 describe("Validate Mongo Query Pane Validations", () => {
   before(() => {
@@ -49,11 +49,11 @@ describe("Validate Mongo Query Pane Validations", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Modern");
+    appSettings.OpenPaneAndChangeTheme("Sunrise");
   });
 
   it("2. Create new CRUD collection 'AuthorNAwards' & refresh Entity Explorer to find the new collection", () => {
-    let authorNAwardsArray = `[{
+    const authorNAwardsArray = `[{
       "_id" : 1,
       "name" : {
           "first" : "John",
@@ -331,7 +331,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("5. Validate 'Insert' record from new collection & verify query response", () => {
-    let insertauthorNAwards = `[{
+    const insertauthorNAwards = `[{
   "_id" : 8,
   "name" : {
       "first" : "Yukihiro",
@@ -632,7 +632,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
-    let dropCollection = `{ "drop": "AuthorNAwards" }`;
+    const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
 
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
@@ -651,7 +651,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function() {
-    let dropCollection = `{ "drop": "AuthorNAwards" }`;
+    const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
@@ -668,7 +668,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("19. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
-    let birthNDeathArray = `[{
+    const birthNDeathArray = `[{
       "name": {
         "first": "John",
         "last": "Backus"
@@ -751,7 +751,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
 
     //Drop the collection `BirthNDeath`
-    let dropCollection = `{ "drop": "BirthNDeath" }`;
+    const dropCollection = `{ "drop": "BirthNDeath" }`;
 
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");

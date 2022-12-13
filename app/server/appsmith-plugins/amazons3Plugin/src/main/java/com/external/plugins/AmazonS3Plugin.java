@@ -31,6 +31,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.RequestParamDTO;
@@ -419,7 +420,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 if (TRUE.equals(smartJsonSubstitution)) {
                     final String body = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, "");
                     // First extract all the bindings in order
-                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(body);
+                    List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(body);
                     // Replace all the bindings with a placeholder
                     String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(body, mustacheKeysInOrder);
 

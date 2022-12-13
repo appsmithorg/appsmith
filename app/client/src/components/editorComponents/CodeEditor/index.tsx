@@ -52,11 +52,15 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
-import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
+import {
+  bindingMarker,
+  entityMarker,
+  NAVIGATE_TO_ATTRIBUTE,
+} from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { ScrollIndicator } from "design-system";
+import { Button, ScrollIndicator } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -67,20 +71,19 @@ import {
   getEvalValuePath,
 } from "utils/DynamicBindingUtils";
 import {
+  addEventToHighlightedElement,
   getInputValue,
   isActionEntity,
   isWidgetEntity,
-  removeNewLineChars,
-  addEventToHighlightedElement,
   removeEventFromHighlightedElement,
+  removeNewLineChars,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/Evaluation/evaluationUtils";
-import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -89,13 +92,13 @@ import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
-  LintTooltipDirection,
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
+  LintTooltipDirection,
 } from "./constants";
 import {
-  getAutoIndentShortcutKey,
   autoIndentCode,
+  getAutoIndentShortcutKey,
 } from "./utils/autoIndentUtils";
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
@@ -106,11 +109,17 @@ import {
 } from "selectors/editorContextSelectors";
 import {
   CodeEditorFocusState,
-  generateKeyAndSetCodeEditorLastFocus,
+  setEditorFieldFocusAction,
 } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
+import {
+  EntityNavigationData,
+  getEntitiesForNavigation,
+} from "selectors/navigationSelectors";
+import history from "utils/history";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -208,6 +217,7 @@ type State = {
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
+  ctrlPressed: boolean;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -216,7 +226,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
-    marking: [bindingMarker],
+    marking: [bindingMarker, entityMarker],
     hinting: [bindingHint, commandsHelper],
   };
   // this is the higlighted element for any highlighted text in the codemirror
@@ -235,6 +245,7 @@ class CodeEditor extends Component<Props, State> {
       autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
+      ctrlPressed: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -263,6 +274,15 @@ class CodeEditor extends Component<Props, State> {
           lintOnChange: false,
         },
         tabindex: -1,
+        // Used to disable multiple cursors on the editor
+        // when command/ctrl click is done
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        configureMouse: () => {
+          return {
+            addNew: false,
+          };
+        },
       };
 
       const gutters = new Set<string>();
@@ -334,6 +354,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("cursorActivity", this.handleCursorMovement);
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
+        editor.on("mousedown", this.handleClick);
 
         if (this.props.height) {
           editor.setSize("100%", this.props.height);
@@ -341,7 +362,11 @@ class CodeEditor extends Component<Props, State> {
           editor.setSize("100%", "100%");
         }
 
-        CodeEditor.updateMarkings(editor, this.props.marking);
+        CodeEditor.updateMarkings(
+          editor,
+          this.props.marking,
+          this.props.entitiesForNavigation,
+        );
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
@@ -364,11 +389,14 @@ class CodeEditor extends Component<Props, State> {
       // put that code into `options.finishInit()`.
     }
     window.addEventListener("keydown", this.handleKeydown);
+    window.addEventListener("keyup", this.handleKeyUp);
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData) {
-      // check if isFocused or isJSObject or areErrors changed then re-render
+      // check if isFocused as the other components that are not focused don't need a rerender (perf)
+      // check if errors have changed as they will come from outside and we want to update if they have changed
+      // check if isJSObject.. TODO answer why?
       let areErrorsEqual = true;
       if (this.props.dataTreePath) {
         const errors = this.getErrors(
@@ -385,6 +413,7 @@ class CodeEditor extends Component<Props, State> {
       }
       return nextState.isFocused || !!nextProps.isJSObject || !areErrorsEqual;
     }
+
     return true;
   }
 
@@ -394,6 +423,8 @@ class CodeEditor extends Component<Props, State> {
   }, 100);
 
   componentDidUpdate(prevProps: Props): void {
+    const identifierHasChanged =
+      getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
     if (
       prevProps.containerHeight &&
       this.props.containerHeight &&
@@ -402,10 +433,7 @@ class CodeEditor extends Component<Props, State> {
       //Refresh editor when the container height is increased.
       this.debounceEditorRefresh();
     }
-    if (
-      getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps) &&
-      shouldFocusOnPropertyControl()
-    ) {
+    if (identifierHasChanged && shouldFocusOnPropertyControl()) {
       setTimeout(() => {
         if (this.props.editorIsFocused) {
           this.editor.focus();
@@ -413,17 +441,34 @@ class CodeEditor extends Component<Props, State> {
       }, 200);
     }
     this.editor.operation(() => {
-      if (this.state.isFocused) return;
-      // const currentMode = this.editor.getOption("mode");
+      if (prevProps.lintErrors !== this.props.lintErrors) {
+        this.lintCode(this.editor);
+      }
+
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
       const inputValue = getInputValue(this.props.input.value);
       const previousInputValue = getInputValue(prevProps.input.value);
 
-      if (!!inputValue || inputValue === "") {
-        if (inputValue !== editorValue && _.isString(inputValue)) {
-          this.editor.setValue(inputValue);
-          this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
+      if (_.isString(inputValue)) {
+        /* We want to check if the input value and the editor value is out of sync.
+         * We always want to make sure editor is the correct value since the source if the input value
+         * But the editor updates the input value on change.
+         * To solve this:
+         * We check if the values are different,
+         * and we check if they are different because the input value has changed
+         * and not because the editor value has changed
+         * */
+        if (inputValue !== editorValue && inputValue !== previousInputValue) {
+          // If it is focused update it only if the identifier has changed
+          // if not focused, can be updated
+          if (this.state.isFocused) {
+            if (identifierHasChanged) {
+              this.setEditorInput(inputValue);
+            }
+          } else {
+            this.setEditorInput(inputValue);
+          }
         } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
           // Even if Editor is updated with new value, it cannot update without layour calcs.
           //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
@@ -431,10 +476,21 @@ class CodeEditor extends Component<Props, State> {
         }
       } else if (previousInputValue !== inputValue) {
         // handles case when inputValue changes from a truthy to a falsy value
-        this.editor.setValue("");
+        this.setEditorInput("");
       }
-      CodeEditor.updateMarkings(this.editor, this.props.marking);
+
+      CodeEditor.updateMarkings(
+        this.editor,
+        this.props.marking,
+        this.props.entitiesForNavigation,
+      );
     });
+  }
+
+  setEditorInput(value: string) {
+    this.editor.setValue(value);
+    // when input gets updated on focus out clear undo/redo from codeMirror History
+    this.editor.clearHistory();
   }
 
   handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -477,6 +533,7 @@ class CodeEditor extends Component<Props, State> {
     }
 
     window.removeEventListener("keydown", this.handleKeydown);
+    window.removeEventListener("keyup", this.handleKeyUp);
 
     // return if component unmounts before editor is created
     if (!this.editor) return;
@@ -523,6 +580,21 @@ class CodeEditor extends Component<Props, State> {
           );
         }
         break;
+      case "Control":
+      case "Meta":
+        this.setState({
+          ctrlPressed: true,
+        });
+    }
+  };
+
+  private handleKeyUp = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Control":
+      case "Meta":
+        this.setState({
+          ctrlPressed: false,
+        });
     }
   };
 
@@ -535,6 +607,46 @@ class CodeEditor extends Component<Props, State> {
       return helper(editor, dynamicData);
     });
   }
+
+  handleClick = (cm: CodeMirror.Editor, event: MouseEvent) => {
+    const entityInfo = this.getEntityInformation();
+    if (
+      event.target instanceof Element &&
+      event.target.hasAttribute(NAVIGATE_TO_ATTRIBUTE)
+    ) {
+      if (event.ctrlKey || event.metaKey) {
+        const navigationAttribute = event.target.attributes.getNamedItem(
+          NAVIGATE_TO_ATTRIBUTE,
+        );
+        if (!navigationAttribute) return;
+        const entityToNavigate = navigationAttribute.value;
+
+        // focus out of the input
+        document.body.focus();
+        this.setState(
+          {
+            isFocused: false,
+          },
+          () => {
+            const navigationData = this.props.entitiesForNavigation[
+              entityToNavigate
+            ];
+            history.push(navigationData.url, { directNavigation: true });
+
+            // TODO fix the widget navigation issue to remove this
+            if (navigationData.type === ENTITY_TYPE.WIDGET) {
+              this.props.selectWidget(navigationData.id);
+            }
+
+            AnalyticsUtil.logEvent("Cmd+Click Navigation", {
+              toType: navigationData.type,
+              fromType: entityInfo.entityType,
+            });
+          },
+        );
+      }
+    }
+  };
 
   handleCustomGutter = (lineNumber: number | null, isFocused = false) => {
     const { customGutter } = this.props;
@@ -684,7 +796,11 @@ class CodeEditor extends Component<Props, State> {
       this.props.input.onChange(value);
     }
     if (this.editor) {
-      CodeEditor.updateMarkings(this.editor, this.props.marking);
+      CodeEditor.updateMarkings(
+        this.editor,
+        this.props.marking,
+        this.props.entitiesForNavigation,
+      );
     }
   };
 
@@ -829,8 +945,9 @@ class CodeEditor extends Component<Props, State> {
   static updateMarkings = (
     editor: CodeMirror.Editor,
     marking: Array<MarkHelper>,
+    entityNavigationData: EntityNavigationData,
   ) => {
-    marking.forEach((helper) => helper(editor));
+    marking.forEach((helper) => helper(editor, entityNavigationData));
   };
 
   updatePropertyValue(value: string, cursor?: number) {
@@ -906,6 +1023,7 @@ class CodeEditor extends Component<Props, State> {
     const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
       dataTreePath,
     );
+
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
       evaluated = evaluatedValue;
@@ -921,9 +1039,6 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
-    /*  Evaluation results for snippet snippets */
-    this.lintCode(this.editor);
-
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
@@ -975,9 +1090,10 @@ class CodeEditor extends Component<Props, State> {
               isInvalid ? "t--codemirror-has-error" : ""
             }`}
             codeEditorVisibleOverflow={codeEditorVisibleOverflow}
+            ctrlPressed={this.state.ctrlPressed}
             disabled={disabled}
             editorTheme={this.props.theme}
-            fill={fill}
+            fillUp={fill}
             hasError={isInvalid}
             height={height}
             hoverInteraction={hoverInteraction}
@@ -1046,14 +1162,13 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
-  lintErrors: props.dataTreePath
-    ? getEntityLintErrors(state, props.dataTreePath)
-    : [],
+  lintErrors: getEntityLintErrors(state, props.dataTreePath),
   editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
     getEditorIdentifier(props),
   ),
+  entitiesForNavigation: getEntitiesForNavigation(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1061,7 +1176,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(executeCommandAction(payload)),
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
-    dispatch(generateKeyAndSetCodeEditorLastFocus(payload)),
+    dispatch(setEditorFieldFocusAction(payload)),
+  selectWidget: (widgetId: string) =>
+    dispatch(selectWidgetInitAction(widgetId, false)),
 });
 
 export default Sentry.withProfiler(

@@ -16,6 +16,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
@@ -40,7 +41,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -51,6 +51,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final UserDataService userDataService;
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
+    private final ApplicationPermission applicationPermission;
 
     public ApplicationTemplateServiceCEImpl(CloudServicesConfig cloudServicesConfig,
                                             ReleaseNotesService releaseNotesService,
@@ -58,7 +59,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                                             AnalyticsService analyticsService,
                                             UserDataService userDataService,
                                             ApplicationService applicationService,
-                                            ResponseUtils responseUtils) {
+                                            ResponseUtils responseUtils,
+                                            ApplicationPermission applicationPermission) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importExportApplicationService = importExportApplicationService;
@@ -66,6 +68,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.userDataService = userDataService;
         this.applicationService = applicationService;
         this.responseUtils = responseUtils;
+        this.applicationPermission = applicationPermission;
     }
 
     @Override
@@ -273,7 +276,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson ->{
                     if (branchName != null) {
-                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
+                        return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                                 .flatMap(application -> importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, application.getId(), branchName, applicationJson, pagesToImport));
                     }
                     return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);
@@ -281,9 +284,25 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application)
                 )
-                .map(applicationImportDTO -> {
+                .flatMap(applicationImportDTO -> {
                     responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());
-                    return applicationImportDTO;
+                    Application application = applicationImportDTO.getApplication();
+                    ApplicationTemplate applicationTemplate = new ApplicationTemplate();
+                    applicationTemplate.setId(templateId);
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
+                            FieldName.APPLICATION, application
+                    );
+
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, application.getWorkspaceId(),
+                            FieldName.TEMPLATE_APPLICATION_NAME, application.getName(),
+                            FieldName.EVENT_DATA, eventData
+                    );
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, data)
+                            .thenReturn(applicationImportDTO);
                 });
 
         return Mono.create(sink -> importedApplicationMono

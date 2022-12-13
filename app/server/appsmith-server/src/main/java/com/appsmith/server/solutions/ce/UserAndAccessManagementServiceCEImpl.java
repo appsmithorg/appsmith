@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
@@ -16,6 +15,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.services.ce.UserServiceCEImpl.USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE;
+import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_USER_EMAIL_TEMPLATE;
 
 @Slf4j
 public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementServiceCE {
@@ -40,6 +40,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final AnalyticsService analyticsService;
     private final UserService userService;
     private final EmailSender emailSender;
+    private final PermissionGroupPermission permissionGroupPermission;
 
     public UserAndAccessManagementServiceCEImpl(SessionUserService sessionUserService,
                                                 PermissionGroupService permissionGroupService,
@@ -47,7 +48,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                                 UserRepository userRepository,
                                                 AnalyticsService analyticsService,
                                                 UserService userService,
-                                                EmailSender emailSender) {
+                                                EmailSender emailSender,
+                                                PermissionGroupPermission permissionGroupPermission) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -56,6 +58,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.analyticsService = analyticsService;
         this.userService = userService;
         this.emailSender = emailSender;
+        this.permissionGroupPermission = permissionGroupPermission;
     }
 
     /**
@@ -97,7 +100,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
         // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
-        Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
+        Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), permissionGroupPermission.getAssignPermission())
                 .filter(permissionGroup -> StringUtils.hasText(permissionGroup.getDefaultWorkspaceId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ROLE)))
                 .cache();
@@ -126,12 +129,15 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 // Email template parameters initialization below.
                                 Map<String, String> params = userService.getEmailParams(workspace, currentUser, originHeader, false);
 
-                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
-                                        "Appsmith: You have been added to a new workspace",
-                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
-
                                 return userService.updateTenantLogoInParams(params)
-                                        .then(Mono.defer(() -> emailMono))
+                                        .flatMap(updatedParams ->
+                                                emailSender.sendMail(
+                                                        existingUser.getEmail(),
+                                                        "Appsmith: You have been added to a new workspace",
+                                                        INVITE_USER_EMAIL_TEMPLATE,
+                                                        updatedParams
+                                                )
+                                        )
                                         .thenReturn(existingUser);
                             })
                             .switchIfEmpty(userService.createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));

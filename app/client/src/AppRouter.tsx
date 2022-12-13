@@ -3,7 +3,6 @@ import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
-  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
   ADMIN_SETTINGS_CATEGORY_PATH,
   ADMIN_SETTINGS_PATH,
   APPLICATIONS_URL,
@@ -36,13 +35,14 @@ import LandingScreen from "./LandingScreen";
 import UserAuth from "pages/UserAuth";
 import Users from "pages/users";
 import ErrorPage from "pages/common/ErrorPage";
-import PageNotFound from "pages/common/PageNotFound";
+import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
+import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -61,6 +61,16 @@ import { fetchFeatureFlagsInit } from "actions/userActions";
 import FeatureFlags from "entities/FeatureFlags";
 import WDSPage from "components/wds/Showcase";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
+import { getDefaultAdminSettingsPath } from "@appsmith/utils/adminSettingsHelpers";
+import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import useBrandingTheme from "utils/hooks/useBrandingTheme";
+
+/*
+    We use this polyfill to show emoji flags
+    on windows devices, this polyfill loads a font family
+  */
+polyfillCountryFlagEmojis();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -107,6 +117,11 @@ function AppRouter(props: {
     changeAppBackground(props.currentTheme);
   }, [props.currentTheme]);
 
+  useBrandingTheme();
+
+  const user = useSelector(getCurrentUserSelector);
+  const tenantPermissions = useSelector(getTenantPermissions);
+
   return (
     <Router history={history}>
       <Suspense fallback={loadingIndicator}>
@@ -146,7 +161,10 @@ function AppRouter(props: {
               <Redirect
                 exact
                 from={ADMIN_SETTINGS_PATH}
-                to={ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH}
+                to={getDefaultAdminSettingsPath({
+                  isSuperUser: user?.isSuperUser || false,
+                  tenantPermissions,
+                })}
               />
               <SentryRoute
                 component={Settings}
