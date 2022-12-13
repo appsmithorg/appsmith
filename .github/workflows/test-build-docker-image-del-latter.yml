@@ -1,9 +1,17 @@
-name: Test, build and push Docker Image Fat migration
+name: Test, build and push Docker Image
 
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
+  # trigger for pushes to release and master
+  push:
+    branches: [release, master]
+    paths:
+      - "app/client/**"
+      - "app/server/**"
+      - "app/rts/**"
+      - "!app/client/cypress/manual_TestSuite/**"
 
 jobs:
   buildClient:
@@ -106,10 +114,10 @@ jobs:
         run: |
           echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
-                 echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
           fi
           if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
-                 echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
@@ -125,19 +133,19 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           if [[ $GITHUB_REF == "refs/heads/release" ]]; then
-               REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           else
-               REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
-               REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
-               REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
-               SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-               REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
-               REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
-               REACT_APP_VERSION_EDITION="Community" \
-               REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
-               yarn build
+            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_VERSION_EDITION="Community" \
+            REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
+            yarn build
           ls -l build
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
@@ -145,10 +153,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-               app/client/build/
+            app/client/build/
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
-               ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
@@ -202,10 +210,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
- ~/run_result
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}-
+            ${{ github.run_id }}-${{ github.job }}-
 
       # Fetch prior run result
       - name: Get the previous run result
@@ -265,9 +273,9 @@ jobs:
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
- -DnewVersion=${{ steps.vars.outputs.version }} \
- -DgenerateBackupPoms=false \
- -DprocessAllModules=true
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
           ./build.sh -DskipTests
           ls -l dist
 
@@ -276,10 +284,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
- app/server/dist/
+            app/server/dist/
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
@@ -318,10 +326,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
- ~/run_result
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}-
+            ${{ github.run_id }}-${{ github.job }}-
 
       # Fetch prior run result
       - name: Get the previous run result
@@ -366,10 +374,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
- app/rts/dist/
+            app/rts/dist/
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}
 
       # Tar the bundles to speed up the upload & download process
       - name: Tar the rts bundles
@@ -385,6 +393,7 @@ jobs:
 
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
+
 
   fat-container-test:
     needs: [buildClient, buildServer, buildRts]
@@ -442,10 +451,10 @@ jobs:
         uses: martijnhols/actions-cache@v3.0.2
         with:
           path: |
- ~/run_result
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Fetch prior run result
       - name: Get the previous run result
@@ -458,10 +467,10 @@ jobs:
         uses: martijnhols/actions-cache/restore@v3
         with:
           path: |
- ~/combined_failed_spec_fat
+            ~/combined_failed_spec_fat
           key: ${{ github.run_id }}-"ui-test-result"
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}
 
       # failed_spec_env will contain list of all failed specs
       # We are using evnironment variable instead of regular to support multiline
@@ -554,10 +563,10 @@ jobs:
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
- -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
- -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
- -e APPSMITH_AUDITLOG_ENABLED=true \
- fatcontainer
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_AUDITLOG_ENABLED=true \
+            fatcontainer
 
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
@@ -730,10 +739,10 @@ jobs:
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
- ~/run_result
+            ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Force store previous failed test list to cache
       - name: Store the previous failed test result
@@ -741,10 +750,10 @@ jobs:
         uses: martijnhols/actions-cache/save@v3
         with:
           path: |
- ~/failed_spec_fat
+            ~/failed_spec_fat
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the screenshots as artifacts if there's a failure
       - uses: actions/upload-artifact@v1
@@ -757,10 +766,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
- app/client/cypress/snapshots/
+            app/client/cypress/snapshots/
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
           restore-keys: |
- ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the snapshots as artifacts for layout validation
       - uses: actions/upload-artifact@v1
@@ -778,4 +787,3 @@ jobs:
 
       # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
-
