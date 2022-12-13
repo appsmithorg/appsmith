@@ -1,4 +1,4 @@
-import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
+import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
@@ -21,7 +21,6 @@ import history, {
   AppsmithLocationState,
   NavigationMethod,
 } from "utils/history";
-import { EventChannel, eventChannel } from "redux-saga";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import {
@@ -35,49 +34,21 @@ import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 let previousPath: string;
 let previousHash: string | undefined;
 
-type LocationChangePayload = {
-  location: Location<AppsmithLocationState>;
-  action: string;
-};
-
-const listenToUrlChanges = () => {
-  return eventChannel((emitter) => {
-    return history.listen(
-      (location: Location<AppsmithLocationState>, action: string) => {
-        emitter({ location, action });
-      },
-    );
-  });
-};
-
-function* navigationListenerSaga() {
-  const eventChan: EventChannel<{
-    location: string;
-    action: string;
-  }> = yield call(listenToUrlChanges);
-
-  while (true) {
-    const payload: LocationChangePayload = yield take(eventChan);
-    yield call(handleRouteChange, payload);
-  }
-}
-
 function* appBackgroundHandler() {
   const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
   changeAppBackground(currentTheme);
 }
 
-function* handleRouteChange(payload: LocationChangePayload) {
-  const { hash, pathname, state } = payload.location;
+function* handleRouteChange(
+  action: ReduxAction<{ location: Location<AppsmithLocationState> }>,
+) {
+  const { hash, pathname, state } = action.payload.location;
   try {
-    yield call(logNavigationAnalytics, payload);
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-    if (featureFlags.CONTEXT_SWITCHING) {
-      yield call(contextSwitchingSaga, pathname, state, hash);
-    }
-    yield call(appBackgroundHandler);
+    yield fork(logNavigationAnalytics, action.payload);
+    yield fork(contextSwitchingSaga, pathname, state, hash);
+    yield fork(appBackgroundHandler);
     const entityInfo = identifyEntityFromPath(pathname, hash);
-    yield call(updateRecentEntitySaga, entityInfo);
+    yield fork(updateRecentEntitySaga, entityInfo);
   } catch (e) {
     log.error("Error in focus change", e);
   } finally {
@@ -86,7 +57,9 @@ function* handleRouteChange(payload: LocationChangePayload) {
   }
 }
 
-function* logNavigationAnalytics(payload: LocationChangePayload) {
+function* logNavigationAnalytics(payload: {
+  location: Location<AppsmithLocationState>;
+}) {
   const {
     location: { hash, pathname, state },
   } = payload;
@@ -344,7 +317,7 @@ function shouldStoreStateForCanvas(
 }
 export default function* rootSaga() {
   yield all([
-    call(navigationListenerSaga),
+    takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange),
     takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange),
   ]);
 }
