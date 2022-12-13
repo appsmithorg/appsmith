@@ -36,7 +36,6 @@ import {
   isDynamicLeaf,
   isJSAction,
   isWidget,
-  removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   overrideWidgetProperties,
@@ -791,7 +790,7 @@ export default class DataTreeEvaluator {
             set(
               this.evalProps,
               getEvalValuePath(fullPropertyPath),
-              removeFunctions(evalPropertyValue),
+              evalPropertyValue,
             );
             set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
@@ -812,7 +811,7 @@ export default class DataTreeEvaluator {
                     isPopulated: true,
                     fullPath: true,
                   }),
-                  removeFunctions(evalPropertyValue),
+                  evalPropertyValue,
                 );
                 set(currentTree, fullPropertyPath, evalPropertyValue);
               } else {

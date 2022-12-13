@@ -6,6 +6,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { set } from "lodash";
 import { EvalProps } from "workers/common/DataTreeEvaluator";
+import { removeFunctions } from "./evaluationUtils";
 
 /**
  * This method accept an entity object as input and if it has __config__ property than it moves the __config__ to object's prototype
@@ -59,7 +60,10 @@ export function makeEntityConfigsAsObjProperties(
 
   if (!evalProps) return dataTreeToReturn;
 
-  for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
+  const sanitizedEvalProps = removeFunctions(evalProps) as EvalProps;
+  for (const [entityName, entityEvalProps] of Object.entries(
+    sanitizedEvalProps,
+  )) {
     if (!entityEvalProps.__evaluation__) continue;
     set(
       dataTreeToReturn[entityName],

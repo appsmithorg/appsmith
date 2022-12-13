@@ -13,7 +13,6 @@ import {
   addErrorToEntityProperty,
   getEntityNameAndPropertyPath,
   isWidget,
-  removeFunctions,
   resetValidationErrorsForEntityProperty,
 } from "workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
@@ -82,7 +81,7 @@ export function validateAndParseWidgetProperty({
       isPopulated: false,
       fullPath: true,
     }),
-    removeFunctions(evaluatedValue),
+    evaluatedValue,
   );
 
   return parsed;
@@ -149,7 +148,7 @@ export function getValidatedTree(
             isPopulated: false,
             fullPath: true,
           }),
-          removeFunctions(evaluatedValue),
+          evaluatedValue,
         );
         if (!isValid) {
           const evalErrors: EvaluationError[] =
@@ -157,7 +156,7 @@ export function getValidatedTree(
               errorType: PropertyEvaluationErrorType.VALIDATION,
               errorMessage: message,
               severity: Severity.ERROR,
-              raw: removeFunctions(value),
+              raw: value,
             })) ?? [];
           addErrorToEntityProperty({
             errors: evalErrors,
