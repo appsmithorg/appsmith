@@ -222,7 +222,7 @@ export const getAST = memoize(
     }
 );
 
-export const getAstWithCommentsAttached = (ast: Node, commentArray: Array<Comment>) => {
+export const attachCommentsToAst = (ast: Node, commentArray: Array<Comment>) => {
   return attachComments(ast, commentArray);
 }
 /**

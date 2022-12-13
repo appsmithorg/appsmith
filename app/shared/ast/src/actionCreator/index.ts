@@ -1,6 +1,6 @@
 import {
     ArrowFunctionExpressionNode, getAST,
-    getAstWithCommentsAttached,
+    attachCommentsToAst,
     isArrowFunctionExpression,
     isCallExpressionNode,
     LiteralNode,
@@ -31,7 +31,7 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     } catch (error) {
         return requiredArgument;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -66,7 +66,7 @@ export const setTextArgumentAtPosition = (currentValue: string, changeValue: str
     } catch (error) {
         return changedValue;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -120,8 +120,8 @@ export const setCallbackFunctionField = (currentValue: string, changeValue: stri
     } catch (error) {
         return changedValue;
     }
-    const changeValueAstWithComments = klona(getAstWithCommentsAttached(changeValueAst, changedValueCommentArray));
-    const currentValueAstWithComments = klona(getAstWithCommentsAttached(ast, currentValueCommentArray));
+    const changeValueAstWithComments = klona(attachCommentsToAst(changeValueAst, changedValueCommentArray));
+    const currentValueAstWithComments = klona(attachCommentsToAst(ast, currentValueCommentArray));
 
     simple(changeValueAstWithComments, {
         ArrowFunctionExpression(node) {
@@ -160,7 +160,7 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     } catch (error) {
         return defaultValue;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -194,7 +194,7 @@ export const setEnumArgumentAtPosition = (currentValue: string, changeValue: str
     } catch (error) {
         return changedValue;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -233,7 +233,7 @@ export const getModalName = (value: string, evaluationVersion: number): string =
     } catch (error) {
         return modalName;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -265,7 +265,7 @@ export const setModalName = (currentValue: string, changeValue: string, evaluati
     } catch (error) {
         return changedValue;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -305,7 +305,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     } catch (error) {
         return requiredArgument;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -335,7 +335,7 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
     } catch (error) {
         return requiredFunction;
     }
-    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
+    const astWithComments = attachCommentsToAst(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -379,8 +379,8 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
     } catch (error) {
         return requiredQuery;
     }
-    const astWithComments = klona(getAstWithCommentsAttached(ast, commentArray));
-    const changeActionAstWithComments = klona(getAstWithCommentsAttached(changeActionAst, changeActionCommentArray));
+    const astWithComments = klona(attachCommentsToAst(ast, commentArray));
+    const changeActionAstWithComments = klona(attachCommentsToAst(changeActionAst, changeActionCommentArray));
 
 
     simple(changeActionAstWithComments, {
