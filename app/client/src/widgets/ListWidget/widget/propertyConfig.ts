@@ -7,10 +7,11 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import {
+  generatePositioningConfig,
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
-import { ResponsiveBehavior } from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 
 export const PropertyPaneContentConfig = [
   {
@@ -151,6 +152,7 @@ export const PropertyPaneStyleConfig = [
   {
     sectionName: "Responsive Layout",
     children: [
+      generatePositioningConfig(Positioning.Fixed),
       generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill),
       generateVerticalAlignmentConfig(),
     ],

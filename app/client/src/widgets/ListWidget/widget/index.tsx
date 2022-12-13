@@ -42,6 +42,7 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
+import { Positioning } from "components/constants";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -361,6 +362,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     childWidgetData.bottomRow = shouldPaginate
       ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
       : componentHeight;
+    const positioning: Positioning =
+      this.props.positioning || childWidgetData.positioning;
+    childWidgetData.positioning = positioning;
+    childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };

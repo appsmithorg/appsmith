@@ -1,9 +1,10 @@
 import { WidgetType } from "constants/WidgetConstants";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 
-import { ResponsiveBehavior } from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
+  generatePositioningConfig,
   generateResponsiveBehaviorConfig,
   generateVerticalAlignmentConfig,
 } from "utils/layoutPropertiesUtils";
@@ -53,6 +54,7 @@ class StatboxWidget extends ContainerWidget {
       {
         sectionName: "Responsive Layout",
         children: [
+          generatePositioningConfig(Positioning.Fixed),
           generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug),
           generateVerticalAlignmentConfig(),
         ],

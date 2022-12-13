@@ -1,4 +1,4 @@
-import { ButtonVariantTypes } from "components/constants";
+import { ButtonVariantTypes, Positioning } from "components/constants";
 import { Colors } from "constants/Colors";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import IconSVG from "./icon.svg";
@@ -19,6 +19,7 @@ export const CONFIG = {
     borderWidth: "1",
     borderColor: Colors.GREY_5,
     children: [],
+    positioning: Positioning.Fixed,
     blueprint: {
       view: [
         {

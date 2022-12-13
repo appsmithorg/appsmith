@@ -10,7 +10,7 @@ import {
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { ResponsiveBehavior } from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 export const CONFIG = {
@@ -29,6 +29,7 @@ export const CONFIG = {
     template: {},
     responsiveBehavior: ResponsiveBehavior.Fill,
     minWidth: FILL_WIDGET_MIN_WIDTH,
+    positioning: Positioning.Fixed,
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {
@@ -128,6 +129,7 @@ export const CONFIG = {
                     disablePropertyPane: true,
                     openParentPropertyPane: true,
                     children: [],
+                    positioning: Positioning.Fixed,
                     blueprint: {
                       view: [
                         {
