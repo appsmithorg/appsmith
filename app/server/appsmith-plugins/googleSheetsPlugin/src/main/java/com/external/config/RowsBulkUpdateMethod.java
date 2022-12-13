@@ -68,7 +68,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
         } catch (IllegalArgumentException e) {
             if (!StringUtils.hasLength(methodConfig.getRowObjects())) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
+                        ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE);
             }
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
@@ -79,7 +79,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
         if (!bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
+                    AppsmithPluginError.PLUGIN_ERROR, ErrorMessages.REQUEST_BODY_NOT_ARRAY);
         }
         return true;
     }
@@ -254,7 +254,7 @@ public class RowsBulkUpdateMethod implements ExecutionMethod {
 
         if (body.isEmpty()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE);
+                    ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE);
         }
 
         return StreamSupport

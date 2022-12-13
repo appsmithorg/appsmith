@@ -80,7 +80,7 @@ public class RowsBulkAppendMethod implements ExecutionMethod {
 
         if (!bodyNode.isArray()) {
             throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR, "Request body was not an array.");
+                    AppsmithPluginError.PLUGIN_ERROR, ErrorMessages.REQUEST_BODY_NOT_ARRAY);
         }
         return true;
     }

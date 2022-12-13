@@ -70,7 +70,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
         } catch (IllegalArgumentException e) {
             if (!StringUtils.hasLength(body)) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                        ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
+                        ErrorMessages.EMPTY_UPDATE_ROW_OBJECT_MESSAGE);
             }
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,e.getMessage());
         } catch (JsonProcessingException e) {
@@ -232,7 +232,7 @@ public class RowsUpdateMethod implements ExecutionMethod, TemplateMethod {
 
         if (body.isEmpty()) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
-                    ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
+                    ErrorMessages.EMPTY_UPDATE_ROW_OBJECT_MESSAGE);
         }
 
         return new RowObject(

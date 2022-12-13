@@ -52,7 +52,7 @@ public class RowsBulkUpdateMethodTest {
 
         String[] testDataArray = {null,"","{}"};
 
-        String[] expectedErrorMessageArray = {ErrorMessages.EMPTY_ROW_ARRAY_OBJECT_MESSAGE,ErrorMessages.REQUEST_BODY_NOT_ARRAY,ErrorMessages.REQUEST_BODY_NOT_ARRAY};
+        String[] expectedErrorMessageArray = {ErrorMessages.EMPTY_UPDATE_ROW_OBJECTS_MESSAGE,ErrorMessages.REQUEST_BODY_NOT_ARRAY,ErrorMessages.REQUEST_BODY_NOT_ARRAY};
 
         for(int i=0; i<testDataArray.length; i++) {
 

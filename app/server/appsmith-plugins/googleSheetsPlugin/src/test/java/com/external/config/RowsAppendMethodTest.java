@@ -9,7 +9,6 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.PaginationType;
 import com.external.constants.ErrorMessages;
 import com.external.plugins.GoogleSheetsPlugin;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

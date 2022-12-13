@@ -62,7 +62,7 @@ public class RowsUpdateMethodTest {
 
             String actualMessage = appsmithPluginException.getMessage();
 
-            assertEquals(actualMessage,ErrorMessages.EMPTY_ROW_OBJECT_MESSAGE);
+            assertEquals(actualMessage,ErrorMessages.EMPTY_UPDATE_ROW_OBJECT_MESSAGE);
         }
     }
 
