@@ -30,6 +30,7 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "ce/utils/permissionHelpers";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const Library = styled.li`
   list-style: none;
@@ -253,6 +254,8 @@ function JSDependencies() {
     dispatch(toggleInstaller(true));
   }, []);
 
+  const featureFlags = useSelector(selectFeatureFlags);
+
   return (
     <Entity
       className={"libraries"}
@@ -278,7 +281,7 @@ function JSDependencies() {
       isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
-      showAddButton={canCreateActions}
+      showAddButton={canCreateActions && featureFlags?.CUSTOM_JS_LIBRARY}
       step={0}
     >
       {dependencyList}

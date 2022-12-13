@@ -49,6 +49,8 @@ import AppEngine, {
 } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -94,7 +96,6 @@ export default class AppEditorEngine extends AppEngine {
   ) {
     const initActionsCalls = [
       fetchPage(toLoadPageId, true),
-      fetchJSLibraries(applicationId),
       fetchActions({ applicationId }, []),
       fetchJSCollections({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
@@ -107,7 +108,6 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_SUCCESS,
-      ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
     ];
 
     const failureActionEffects = [
@@ -117,6 +117,12 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
       ReduxActionErrorTypes.FETCH_PAGE_ERROR,
     ];
+
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    if (featureFlags.CUSTOM_JS_LIBRARY) {
+      initActionsCalls.push(fetchJSLibraries(applicationId));
+      successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
+    }
 
     const allActionCalls: boolean = yield call(
       failFastApiCalls,
