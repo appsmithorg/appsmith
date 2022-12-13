@@ -55,7 +55,6 @@ export type ActionCreatorProps = {
   value: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
-  pageDropdownOptions: TreeDropdownOption[];
 };
 
 export type Field = {
