@@ -124,16 +124,12 @@ function getFieldFromValue(
 }
 
 function replaceAction(value: string, changeValue: string, argNum: number) {
-  // requiredValue is value minus the surrounding {{ }}
-  // eg: if value is {{download()}}, requiredValue = download()
-  const requiredValue = getDynamicBindings(value).jsSnippets[0];
-
   // if no action("") then send empty arrow expression
   // else replace with arrow expression and action selected
   const reqChangeValue =
     changeValue === "" ? `() => {}` : `() => ${changeValue}`;
   return `{{${replaceActionInQuery(
-    requiredValue,
+    value,
     reqChangeValue,
     argNum,
     self.evaluationVersion,
@@ -166,7 +162,7 @@ function getActionEntityFields(
   const successFields = getFieldFromValue(
     successValue,
     activeTabNavigateTo,
-    (changeValue: string) => replaceAction(value, changeValue, 0),
+    (changeValue: string) => replaceAction(requiredValue, changeValue, 0),
     dataTree,
   );
   successFields[0].label = "onSuccess";
@@ -182,7 +178,7 @@ function getActionEntityFields(
   const errorFields = getFieldFromValue(
     errorValue,
     activeTabNavigateTo,
-    (changeValue: string) => replaceAction(value, changeValue, 1),
+    (changeValue: string) => replaceAction(requiredValue, changeValue, 1),
     dataTree,
   );
   errorFields[0].label = "onError";
