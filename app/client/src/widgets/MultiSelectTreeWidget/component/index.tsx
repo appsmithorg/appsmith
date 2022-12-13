@@ -38,6 +38,8 @@ export interface TreeSelectProps
   > {
   value?: DefaultValueType;
   onChange: (value?: DefaultValueType, labelList?: ReactNode[]) => void;
+  onDropdownOpen?: () => void;
+  onDropdownClose?: () => void;
   expandAll: boolean;
   mode: CheckedStrategy;
   labelText: string;
@@ -127,6 +129,8 @@ function MultiTreeSelectComponent({
   loading,
   mode,
   onChange,
+  onDropdownClose,
+  onDropdownOpen,
   options,
   placeholder,
   renderMode,
@@ -153,6 +157,8 @@ function MultiTreeSelectComponent({
   } = useDropdown({
     inputRef,
     renderMode,
+    onDropdownClose,
+    onDropdownOpen,
   });
 
   // treeDefaultExpandAll is uncontrolled after first render,

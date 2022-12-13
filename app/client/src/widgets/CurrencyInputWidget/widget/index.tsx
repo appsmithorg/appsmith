@@ -365,6 +365,13 @@ class CurrencyInputWidget extends BaseInputWidget<
           "",
         );
         this.props.updateWidgetMetaProperty("text", deFormattedValue);
+        this.props.updateWidgetMetaProperty("isFocused", isFocused, {
+          triggerPropertyName: "onFocus",
+          dynamicString: this.props.onFocus,
+          event: {
+            type: EventType.ON_FOCUS,
+          },
+        });
       } else {
         if (this.props.text) {
           const formattedValue = formatCurrencyNumber(
@@ -373,6 +380,13 @@ class CurrencyInputWidget extends BaseInputWidget<
           );
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
+        this.props.updateWidgetMetaProperty("isFocused", isFocused, {
+          triggerPropertyName: "onBlur",
+          dynamicString: this.props.onBlur,
+          event: {
+            type: EventType.ON_BLUR,
+          },
+        });
       }
     } catch (e) {
       log.error(e);

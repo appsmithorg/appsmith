@@ -1,16 +1,9 @@
-/**
- * Append PageId to path and return the key
- * @param path
- * @param currentPageId
- * @returns
- */
-export function generatePropertyKey(
-  path: string | undefined,
-  currentPageId: string,
-) {
-  if (!path) return;
-
-  return `Page[${currentPageId}].${path}`;
+export function isCurrentFocusOnInput() {
+  return (
+    ["input", "textarea"].indexOf(
+      document.activeElement?.tagName?.toLowerCase() || "",
+    ) >= 0
+  );
 }
 
 /**
@@ -21,18 +14,13 @@ export function generatePropertyKey(
 export function shouldFocusOnPropertyControl(
   domElement?: HTMLDivElement | null,
 ) {
-  const isCurrentFocusOnInput =
-    ["input", "textarea"].indexOf(
-      document.activeElement?.tagName?.toLowerCase() || "",
-    ) >= 0;
-
   let isCurrentFocusOnProperty = false;
 
   if (domElement) {
     isCurrentFocusOnProperty = domElement.contains(document.activeElement);
   }
 
-  return !(isCurrentFocusOnInput || isCurrentFocusOnProperty);
+  return !(isCurrentFocusOnInput() || isCurrentFocusOnProperty);
 }
 
 /**

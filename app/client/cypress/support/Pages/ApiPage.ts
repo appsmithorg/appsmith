@@ -196,25 +196,14 @@ export class ApiPage {
   ToggleOnPageLoadRun(enable = true || false) {
     this.SelectPaneTab("Settings");
     if (enable)
-      cy.get(this._onPageLoad).check({
-        force: true,
-      });
-    else
-      cy.get(this._onPageLoad).uncheck({
-        force: true,
-      });
+      this.agHelper.CheckUncheck(this._onPageLoad, true);
+      else this.agHelper.CheckUncheck(this._onPageLoad, false);
   }
 
   ToggleConfirmBeforeRunningApi(enable = true || false) {
     this.SelectPaneTab("Settings");
-    if (enable)
-      cy.get(this._confirmBeforeRunningAPI).check({
-        force: true,
-      });
-    else
-      cy.get(this._confirmBeforeRunningAPI).uncheck({
-        force: true,
-      });
+    if (enable) this.agHelper.CheckUncheck(this._confirmBeforeRunningAPI, true);
+    else this.agHelper.CheckUncheck(this._confirmBeforeRunningAPI, false);
   }
 
   SelectPaneTab(
