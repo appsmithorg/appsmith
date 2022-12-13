@@ -7,7 +7,7 @@ import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
-import { renderDatasourceSection } from "./DatasourceSection";
+import RenderDatasourceInformation from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
 
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
@@ -91,9 +91,14 @@ function Connected({
       )}
       {errorComponent}
       <div style={{ marginTop: showDatasourceSavedText ? "30px" : "" }}>
-        {!isNil(currentFormConfig) && !isNil(datasource)
-          ? renderDatasourceSection(currentFormConfig[0], datasource)
-          : undefined}
+        {!isNil(currentFormConfig) && !isNil(datasource) ? (
+          <RenderDatasourceInformation
+            config={currentFormConfig[0]}
+            datasource={datasource}
+          />
+        ) : (
+          undefined
+        )}
       </div>
     </Wrapper>
   );

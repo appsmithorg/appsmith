@@ -5,7 +5,7 @@ import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
 import { ControlProps } from "components/formControls/BaseControl";
 import { Datasource } from "entities/Datasource";
-import { isHidden } from "components/formControls/utils";
+import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
@@ -151,17 +151,6 @@ export class JSONtoForm<
         if (keyValueArrayErrors.length) {
           _.set(errors, configProperty[0], keyValueArrayErrors);
         }
-      } else if (fieldConfig.controlType === "KEY_VAL_INPUT") {
-        const value = _.get(values, fieldConfigProperty, []);
-
-        if (value.length) {
-          const values = Object.values(value[0]);
-          const isNotBlank = values.every((value) => value);
-
-          if (!isNotBlank) {
-            _.set(errors, fieldConfigProperty, "This field is required");
-          }
-        }
       } else {
         const value = _.get(values, fieldConfigProperty);
 
@@ -206,27 +195,6 @@ export class JSONtoForm<
           formData = _.set(formData, properties[0], newValues);
         } else {
           formData = _.set(formData, properties[0], []);
-        }
-      } else if (controlType === "KEY_VAL_INPUT") {
-        if (checked[configProperty]) continue;
-
-        const values = _.get(formData, configProperty);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, configProperty, newValues);
-        } else {
-          formData = _.set(formData, configProperty, []);
         }
       }
     }
@@ -307,13 +275,6 @@ export class JSONtoForm<
     }
   };
 
-  isKVArray = (children: Array<ControlProps>) => {
-    if (!Array.isArray(children) || children.length < 2) return false;
-    return (
-      children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
-    );
-  };
-
   renderKVArray = (children: Array<ControlProps>) => {
     try {
       // setup config for each child
@@ -333,7 +294,7 @@ export class JSONtoForm<
           if (isHidden(this.props.formData, section.hidden)) return null;
           if ("children" in propertyControlOrSection) {
             const { children } = propertyControlOrSection as any;
-            if (this.isKVArray(children)) {
+            if (isKVArray(children)) {
               return this.renderKVArray(children);
             }
             return this.renderEachConfig(propertyControlOrSection);
