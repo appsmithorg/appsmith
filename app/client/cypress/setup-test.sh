@@ -18,7 +18,7 @@ touch ./docker/dev.appsmith.com.pem ./docker/dev.appsmith.com-key.pem
 echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/dev.appsmith.com.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
 
-echo "Going to run the nginx server"
+echo "Download & Start TED server"
 sudo docker pull nginx:latest
 sudo docker pull appsmith/test-event-driver:latest
 
