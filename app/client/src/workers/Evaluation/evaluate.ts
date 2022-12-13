@@ -74,13 +74,7 @@ function resetWorkerGlobalScope() {
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
-    if (
-      key === "evaluationVersion" ||
-      key === "window" ||
-      key === "document" ||
-      key === "location" ||
-      key === "localStorage"
-    )
+    if (["evaluationVersion", "window", "document", "location"].includes(key))
       continue;
     if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
     if (libraryReservedNames.has(key)) continue;

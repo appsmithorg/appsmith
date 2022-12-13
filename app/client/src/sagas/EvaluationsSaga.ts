@@ -624,7 +624,6 @@ export function* evaluateSnippetSaga(action: any) {
     } = yield call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
       expression,
       dataType,
-      isTrigger,
     });
     const { errors, result, triggers } = workerResponse;
     if (triggers && triggers.length > 0) {

@@ -1,7 +1,7 @@
 import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
 import interceptAndOverrideHttpRequest from "../HTTPRequestOverride";
 import { resetJSLibraries } from "../../common/JSLibrary";
-import SetupDOM from "../SetupDOM";
+import setupDOM from "../SetupDOM";
 import overrideTimeout from "../TimeoutOverride";
 import { EvalWorkerSyncRequest } from "../types";
 import userLogs from "../UserLog";
@@ -23,7 +23,7 @@ export default function() {
   userLogs.overrideConsoleAPI();
   overrideTimeout();
   interceptAndOverrideHttpRequest();
-  SetupDOM();
+  setupDOM();
   return true;
 }
 
