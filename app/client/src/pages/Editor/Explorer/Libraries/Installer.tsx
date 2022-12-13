@@ -261,16 +261,7 @@ function ProgressTracker({
               </div>
               <div className="footer text-xs font-medium gap-2 flex flex-row">
                 <a>{createMessage(customJSLibraryMessages.REPORT_ISSUE)}</a>
-                <a
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    window.open(
-                      "https://appsmith-docs-git-feat-custom-js-libs-get-appsmith.vercel.app/core-concepts/writing-code/ext-libraries",
-                      "_blank",
-                    );
-                  }}
-                >
+                <a onClick={(e) => openDoc(e, Links.learnMore)}>
                   {createMessage(customJSLibraryMessages.LEARN_MORE)}
                 </a>
               </div>
