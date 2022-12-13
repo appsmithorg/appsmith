@@ -222,6 +222,7 @@ export const CONFIG = {
     isVisibleSearch: true,
     isVisibleFilters: true,
     isVisibleDownload: true,
+    loadingTable: false,
     isVisiblePagination: true,
     isSortable: true,
     delimiter: ",",

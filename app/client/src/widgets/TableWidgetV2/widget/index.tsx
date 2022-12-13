@@ -28,6 +28,7 @@ import {
   ReactTableFilter,
   OperatorTypes,
   AddNewRowActions,
+  TABLE_SIZES,
 } from "../component/Constants";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
@@ -90,6 +91,7 @@ import { Stylesheet } from "entities/AppTheming";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import store from "store";
 import { getAppStoreName } from "constants/AppConstants";
+import { DEFAULT_ROWS_PER_PAGE } from "./derived";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -876,20 +878,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      loadingTable,
     } = this.props;
+
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
-    const isVisibleHeaderOptions =
-      isVisibleDownload ||
-      isVisibleFilters ||
-      isVisiblePagination ||
-      isVisibleSearch;
+    // const isVisibleHeaderOptions =
+    //   isVisibleDownload ||
+    //   isVisibleFilters ||
+    //   isVisiblePagination ||
+    //   isVisibleSearch;
 
     const {
       componentHeight,
@@ -931,6 +934,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}
           isVisibleSearch={isVisibleSearch}
+          loadingTable={loadingTable}
           multiRowSelection={
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
@@ -941,9 +945,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
-          pageSize={
-            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
-          }
+          pageSize={DEFAULT_ROWS_PER_PAGE}
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           searchKey={this.props.searchText}
@@ -1336,7 +1338,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         props.cell.column.columnProperties.originalId,
       ) || props.cell.column.columnProperties;
     const rowIndex = props.cell.row.index;
-
+    const tableSizes =
+      TABLE_SIZES[this.props.compactMode || CompactModeTypes.DEFAULT];
     /*
      * We don't need to render cells that don't display data (button, iconButton, etc)
      */
@@ -1345,7 +1348,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       rowIndex === 0 &&
       ActionColumnTypes.includes(column.columnType)
     ) {
-      return <CellWrapper />;
+      return <CellWrapper tableSizes={tableSizes} />;
     }
 
     const isHidden = !column.isVisible;
@@ -1466,6 +1469,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1537,6 +1541,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1590,6 +1595,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             width={
               this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
             }
+            tableSizes={tableSizes}
           />
         );
 
@@ -1621,6 +1627,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1663,6 +1670,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1708,6 +1716,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1726,6 +1735,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1760,6 +1770,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1791,6 +1802,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            tableSizes={tableSizes}
           />
         );
 
@@ -1839,6 +1851,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
+            tableSizes={tableSizes}
           />
         );
     }

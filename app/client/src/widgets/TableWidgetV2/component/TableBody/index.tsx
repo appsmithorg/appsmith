@@ -25,6 +25,7 @@ type BodyContextType = {
   rows: ReactTableRowType<Record<string, unknown>>[];
   primaryColumnId?: string;
   isAddRowInProgress: boolean;
+  loadingTable?: boolean;
 };
 
 export const BodyContext = React.createContext<BodyContextType>({
@@ -38,6 +39,7 @@ export const BodyContext = React.createContext<BodyContextType>({
   rows: [],
   primaryColumnId: "",
   isAddRowInProgress: false,
+  loadingTable: false,
 });
 
 const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
@@ -130,6 +132,7 @@ export const TableBody = React.forwardRef(
       selectTableRow,
       useVirtual,
       width,
+      loadingTable,
       ...restOfProps
     } = props;
 
@@ -148,6 +151,7 @@ export const TableBody = React.forwardRef(
           columns,
           width,
           rows,
+          loadingTable,
         }}
       >
         {useVirtual ? (
