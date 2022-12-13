@@ -29,7 +29,6 @@ import {
   DynamicPath,
   getEvalValuePath,
   isDynamicValue,
-  isPathADynamicTrigger,
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
@@ -517,7 +516,7 @@ const PropertyControl = memo((props: Props) => {
       label,
     };
     config.expected = getExpectedValue(props.validation);
-    if (isPathADynamicTrigger(widgetProperties, propertyName)) {
+    if (widgetProperties.isPropertyDynamicTrigger) {
       config.validationMessage = "";
       config.expected = {
         example: 'showAlert("There was an error!", "error")',

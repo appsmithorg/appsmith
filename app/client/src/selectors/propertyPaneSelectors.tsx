@@ -16,7 +16,10 @@ import {
 } from "reducers/uiReducers/propertyPaneReducer";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import {
+  EVALUATION_PATH,
+  isPathADynamicTrigger,
+} from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
@@ -129,7 +132,10 @@ const populateWidgetProperties = (
   widgetProperties.type = widget.type;
   widgetProperties.widgetName = widget.widgetName;
   widgetProperties.widgetId = widget.widgetId;
-  widgetProperties.dynamicTriggerPathList = widget.dynamicTriggerPathList;
+  widgetProperties.isPropertyDynamicTrigger = isPathADynamicTrigger(
+    widget,
+    propertyPath,
+  );
   widgetProperties.isJSEnabled =
     find(widget.dynamicPropertyPathList, { key: propertyPath }) !== undefined;
 
