@@ -232,7 +232,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
 
       <section className="space-y-2">
         <h3 className="text-xs">All Colors</h3>
-        <div className="grid grid-cols-10 gap-2">
+        <div className="grid grid-cols-10 gap-2 t--tailwind-colors">
           {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
             Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
               (singleColorKey, colIndex) => (
