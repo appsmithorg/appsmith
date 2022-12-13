@@ -5,7 +5,7 @@
 $ cd app/client
 $ yarn install myLibrary
 ```
-2. In the file `app/client/src/utils/DynamicBindingUtils.ts` find the const `defaultLibraries` and add details about your library in the codebase
+2. In the file `app/client/src/worker/common/JSLibrary/index.ts` find the const `defaultLibraries` and add details about your library in the codebase
 ```
 import myLibrary from "myLibrary";
 
