@@ -18,6 +18,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/lint/json-lint.js";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -250,10 +251,11 @@ class CodeEditor extends Component<Props, State> {
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
   componentDidMount(): void {
+    (window as any).jsonlint = require("jsonlint");
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
         autoRefresh: true,
-        mode: this.props.mode,
+        mode: "application/json" || this.props.mode,
         theme: EditorThemes[this.props.theme],
         viewportMargin: 10,
         tabSize: 2,
@@ -266,7 +268,7 @@ class CodeEditor extends Component<Props, State> {
         scrollbarStyle:
           this.props.size !== EditorSize.COMPACT ? "native" : "null",
         placeholder: this.props.placeholder,
-        lint: {
+        lint: true || {
           getAnnotations: (_: string, callback: UpdateLintingCallback) => {
             this.updateLintingCallback = callback;
           },
@@ -724,6 +726,9 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorBlur = () => {
+    // const obj = require("jsonlint");
+    // const jsonlint = (window as any).jsonlint;
+    // console.log("jsonlint object: ", jsonlint, obj);
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
