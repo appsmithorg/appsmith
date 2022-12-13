@@ -48,6 +48,12 @@ import {
 import classNames from "classnames";
 import { TJSLibrary } from "workers/common/JSLibrary";
 
+const openDoc = (e: React.MouseEvent, url: string) => {
+  e.preventDefault();
+  e.stopPropagation();
+  window.open(url, "_blank");
+};
+
 const Wrapper = styled.div<{ left: number }>`
   display: flex;
   height: auto;
@@ -339,12 +345,6 @@ export function Installer(props: { left: number }) {
     setURL(value);
   }, []);
 
-  const openDoc = useCallback((e, url: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    window.open(url, "_blank");
-  }, []);
-
   const validate = useCallback((text) => {
     const isValid = !text || isValidURL(text);
     setIsValid(isValid);
@@ -479,7 +479,6 @@ function LibraryCard({
   const isInstalled = useSelector((state: AppState) =>
     selectIsLibraryInstalled(state, lib.url),
   );
-  const openDocs = useCallback((url: string) => window.open(url), []);
   return (
     <div
       className={classNames({
@@ -494,7 +493,7 @@ function LibraryCard({
           </Text>
           <StatusIconWrapper
             addHoverState
-            onClick={() => openDocs(lib.docsURL)}
+            onClick={(e) => openDoc(e, lib.docsURL)}
           >
             <Icon
               fillColor={Colors.GRAY}
