@@ -107,6 +107,7 @@ export function AuditLogTable() {
             name="down-arrow-2"
             size={IconSize.LARGE}
             style={{
+              color: `#b3b3b3`,
               transform: `rotateZ(${
                 dateSortOrder === DATE_SORT_ORDER.DESC ? "0deg" : "180deg"
               })`,

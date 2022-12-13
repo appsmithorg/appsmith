@@ -16,13 +16,13 @@ describe("audit-logs/utils/invited", function() {
   it("returns proper description when length is 1", () => {
     const input: string[] = ["user@example.com"];
     const actual = invited(input);
-    const expected = "user@example.com invited";
+    const expected = "user@example.com";
     expect(actual).toEqual(expected);
   });
   it("returns proper description when length is 2 (a sub case)", () => {
     const input: string[] = ["user@example.com", "other_user@example.com"];
     const actual = invited(input);
-    const expected = "user@example.com and 1 more user invited";
+    const expected = "user@example.com and 1 more user";
     expect(actual).toEqual(expected);
   });
   it("returns proper description when length is more than 2 (a sub case)", () => {
@@ -32,7 +32,7 @@ describe("audit-logs/utils/invited", function() {
       "yet_another@example.com",
     ];
     const actual = invited(input);
-    const expected = "user@example.com and 2 more users invited";
+    const expected = "user@example.com and 2 more users";
     expect(actual).toEqual(expected);
   });
 });

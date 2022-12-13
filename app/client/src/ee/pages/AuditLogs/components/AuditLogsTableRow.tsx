@@ -12,14 +12,22 @@ import { Icon, IconSize } from "design-system";
 import { iconisedDescription } from "../utils/description";
 import {
   StyledDateColumnContainer as Date,
-  StyledEventDescriptionColumnContainer as Description,
+  StyledDateInfoContainer as DateInfoContainer,
+  StyledEventDescriptionColumnContainer as DescriptionContainer,
+  StyledDescriptionRow as DescriptionRow,
+  StyledDescriptionContainer as Description,
+  StyledMainDescription as MainDescription,
+  StyledSubDescription as SubDescription,
   StyledUserColumnContainer as User,
+  StyledProfileData as ProfileData,
 } from "../styled-components/table";
 import { selectAuditLogsSearchFilters as getFilters } from "@appsmith/selectors/auditLogsSelectors";
 import { reduxToUI } from "../utils/reduxToUI";
 import { StyledAuditLogsTableRowContainer as Row } from "../styled-components/container";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { toUserEmail } from "../utils/toDropdownOption";
+import ProfileImage from "../../../../pages/common/ProfileImage";
+import { ellipsis } from "../utils/ellipsis";
 
 interface AuditLogsTableRow {
   className: string;
@@ -37,6 +45,7 @@ export default function AuditLogsTableRow({
   const { description, hasDescriptiveIcon, icon } = iconisedDescription(log);
   const [iconName, iconFillColor] = icon;
   const searchFilters = useSelector(getFilters);
+  const [logDate, logTime] = log?.timestamp.split(", ") || ["", ""];
 
   /**
    * Fetches the logs for selectedEmails including
@@ -83,43 +92,67 @@ export default function AuditLogsTableRow({
         data-testid="t--audit-logs-table-row"
         isOpen={isOpen}
       >
-        <Description
+        <DescriptionContainer
           data-testid="t--audit-logs-table-row-description"
           onClick={handleExpansion}
         >
-          <Icon
-            keepColors
-            name={"right-arrow-2"}
-            size={IconSize.XL}
-            style={{
-              display: "inline-block",
-              marginRight: "12px",
-              transform: isOpen ? "rotate(90deg)" : "",
-              position: "relative",
-              top: "3px",
-              zIndex: -1,
-            }}
-          />
-
-          {hasDescriptiveIcon ? (
+          <DescriptionRow>
             <Icon
-              fillColor={iconFillColor}
-              name={iconName}
+              keepColors
+              name={"right-arrow-2"}
               size={IconSize.XL}
               style={{
                 display: "inline-block",
                 marginRight: "12px",
+                transform: isOpen ? "rotate(90deg)" : "",
                 position: "relative",
                 top: "3px",
+                zIndex: -1,
               }}
             />
-          ) : null}
-          {description}
-        </Description>
+
+            {hasDescriptiveIcon ? (
+              <Icon
+                fillColor={iconFillColor}
+                name={iconName}
+                size={IconSize.XL}
+                style={{
+                  display: "inline-block",
+                  marginRight: "12px",
+                  position: "relative",
+                  top: "3px",
+                }}
+              />
+            ) : null}
+            <Description>
+              <MainDescription>
+                {description.mainDescription.resourceType}{" "}
+                <span>{description.mainDescription.actionType}</span>
+              </MainDescription>
+              <SubDescription>
+                <div>{description.subDescription}</div>
+              </SubDescription>
+            </Description>
+          </DescriptionRow>
+        </DescriptionContainer>
         <User onClick={handleEmailClick}>
-          <span className="event-user">{log?.user?.email}</span>
+          <ProfileImage
+            size={34}
+            userName={log?.user?.name || log?.user?.email || "No Name"}
+          />
+          <ProfileData>
+            {log?.user?.id && log?.user?.name && (
+              <div className="event-user name">{ellipsis(log?.user?.name)}</div>
+            )}
+            <div className="event-user">{ellipsis(log?.user?.email)}</div>
+          </ProfileData>
         </User>
-        <Date>{log?.timestamp}</Date>
+        <Date>
+          <DateInfoContainer>
+            <div>{logDate || ""}</div>
+            <div className="time">{logTime || ""}</div>
+          </DateInfoContainer>
+        </Date>
       </Row>
       <Collapsible
         isOpen={isOpen}
