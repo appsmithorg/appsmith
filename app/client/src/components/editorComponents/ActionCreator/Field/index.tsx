@@ -70,14 +70,7 @@ export function Field(props: FieldProps) {
           option: TreeDropdownOption,
           displayValue?: string,
         ) => {
-          if (option.type === AppsmithFunction.integration) {
-            return (
-              <HightlightedCode
-                codeText={`{{${option.label}.run()}}`}
-                skin={Skin.LIGHT}
-              />
-            );
-          } else if (displayValue) {
+          if (displayValue) {
             return (
               <HightlightedCode codeText={displayValue} skin={Skin.LIGHT} />
             );

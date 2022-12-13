@@ -54,7 +54,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       let defaultArgs: Array<any> = [];
       switch (type) {
         case AppsmithFunction.integration:
-          value = `${value}.run(() => {}, () => {})`;
+          value = `${value}.run(() => {}, () => {}, {})`;
           break;
         case AppsmithFunction.jsFunction:
           defaultArgs = dropdownOption.args ? dropdownOption.args : [];
