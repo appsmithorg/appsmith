@@ -36,7 +36,7 @@ export const handlers = {
     action: ReduxAction<TenantReduxState>,
   ) => ({
     ...state,
-    userPermissions: action.payload.userPermissions,
+    userPermissions: action.payload.userPermissions || [],
     tenantConfiguration: {
       ...defaultBrandingConfig,
       ...action.payload.tenantConfiguration,
