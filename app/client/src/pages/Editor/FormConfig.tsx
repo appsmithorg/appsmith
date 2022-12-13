@@ -25,8 +25,8 @@ import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
-import { getIsControlFieldFocused } from "selectors/editorContextSelectors";
-import { setFocusableControlField } from "actions/editorContextActions";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
+import { setFocusableInputField } from "actions/editorContextActions";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -80,7 +80,7 @@ export default function FormConfig(props: FormConfigProps) {
       // Need an additional identifier to trigger another render when configProperty
       // are same for two different entitites
       dispatch(
-        setFocusableControlField(
+        setFocusableInputField(
           `${entityInfo.id}.${props.config.configProperty}`,
         ),
       );
@@ -88,7 +88,7 @@ export default function FormConfig(props: FormConfigProps) {
   };
 
   const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
-    getIsControlFieldFocused(
+    getIsInputFieldFocused(
       state,
       `${entityInfo.id}.${props.config.configProperty}`,
     ),

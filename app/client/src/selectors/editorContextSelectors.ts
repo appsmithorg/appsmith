@@ -11,8 +11,8 @@ import { createSelector } from "reselect";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 
-export const getFocusableControlField = (state: AppState) =>
-  state.ui.editorContext.focusedControlField;
+export const getFocusableInputField = (state: AppState) =>
+  state.ui.editorContext.focusedInputField;
 
 export const getCodeEditorHistory = (state: AppState) =>
   state.ui.editorContext.codeEditorHistory;
@@ -67,9 +67,9 @@ export const getSelectedPropertyTabIndex = createSelector(
   },
 );
 
-export const getIsControlFieldFocused = createSelector(
+export const getIsInputFieldFocused = createSelector(
   [
-    getFocusableControlField,
+    getFocusableInputField,
     selectFeatureFlags,
     (_state: AppState, key: string | undefined) => key,
   ],

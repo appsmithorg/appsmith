@@ -13,7 +13,7 @@ import { all, put, takeLatest } from "redux-saga/effects";
 import {
   CodeEditorFocusState,
   setCodeEditorCursorAction,
-  setFocusableControlField,
+  setFocusableInputField,
 } from "actions/editorContextActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 
@@ -32,7 +32,7 @@ function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
 
   if (key) {
     if (!ignoredEntities.includes(entityInfo.entity)) {
-      yield put(setFocusableControlField(key));
+      yield put(setFocusableInputField(key));
     }
     yield put(setCodeEditorCursorAction(key, cursorPosition));
   }

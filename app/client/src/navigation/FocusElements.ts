@@ -19,7 +19,7 @@ import {
   getCodeEditorHistory,
   getExplorerSwitchIndex,
   getPropertyPanelState,
-  getFocusableControlField,
+  getFocusableInputField,
   getSelectedCanvasDebuggerTab,
   getWidgetSelectedPropertyTabIndex,
 } from "selectors/editorContextSelectors";
@@ -31,7 +31,7 @@ import {
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-import { setFocusableControlField } from "actions/editorContextActions";
+import { setFocusableInputField } from "actions/editorContextActions";
 import {
   getAllDatasourceCollapsibleState,
   getSelectedWidgets,
@@ -108,7 +108,7 @@ export enum FocusElement {
   SelectedPropertyPanel = "SelectedPropertyPanel",
   SelectedWidgets = "SelectedWidgets",
   SubEntityCollapsibleState = "SubEntityCollapsibleState",
-  ControlField = "ControlField",
+  InputField = "InputField",
 }
 
 type Config = {
@@ -206,9 +206,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.JS_OBJECT]: [
     {
-      name: FocusElement.ControlField,
-      selector: getFocusableControlField,
-      setter: setFocusableControlField,
+      name: FocusElement.InputField,
+      selector: getFocusableInputField,
+      setter: setFocusableInputField,
     },
     {
       name: FocusElement.JSPaneConfigTabs,
@@ -231,9 +231,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.QUERY]: [
     {
-      name: FocusElement.ControlField,
-      selector: getFocusableControlField,
-      setter: setFocusableControlField,
+      name: FocusElement.InputField,
+      selector: getFocusableInputField,
+      setter: setFocusableInputField,
     },
     {
       name: FocusElement.QueryPaneConfigTabs,
@@ -262,9 +262,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: 0,
     },
     {
-      name: FocusElement.ControlField,
-      selector: getFocusableControlField,
-      setter: setFocusableControlField,
+      name: FocusElement.InputField,
+      selector: getFocusableInputField,
+      setter: setFocusableInputField,
       defaultValue: "",
     },
   ],
@@ -293,9 +293,9 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: ActionExecutionResizerHeight,
     },
     {
-      name: FocusElement.ControlField,
-      selector: getFocusableControlField,
-      setter: setFocusableControlField,
+      name: FocusElement.InputField,
+      selector: getFocusableInputField,
+      setter: setFocusableInputField,
     },
     {
       name: FocusElement.ApiRightPaneTabs,
