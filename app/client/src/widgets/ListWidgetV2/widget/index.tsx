@@ -185,13 +185,6 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
       this.onPageChange(maxPageNo);
     }
 
-    if (this.props.primaryKeys !== prevProps.primaryKeys) {
-      this.resetSelectedItemViewIndex();
-      this.resetSelectedItemView();
-      this.resetTriggeredItemViewIndex();
-      this.resetTriggeredItemView();
-    }
-
     this.setupMetaWidgets(prevProps);
   }
 
@@ -589,24 +582,12 @@ class ListWidget extends BaseWidget<ListWidgetProps, WidgetState> {
     );
   };
 
-  resetTriggeredItemView = () => {
-    this.context?.syncUpdateWidgetMetaProperty?.(
-      this.props.widgetId,
-      "triggeredItemView",
-      "{{{}}}",
-    );
-  };
-
   updateTriggeredItemViewIndex = (rowIndex: number) => {
     this.props.updateWidgetMetaProperty("triggeredItemIndex", rowIndex);
   };
 
   resetSelectedItemViewIndex = () => {
     this.props.updateWidgetMetaProperty("selectedItemIndex", -1);
-  };
-
-  resetTriggeredItemViewIndex = () => {
-    this.props.updateWidgetMetaProperty("triggeredItemIndex", -1);
   };
 
   getItemGap = () =>
