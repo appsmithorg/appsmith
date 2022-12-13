@@ -487,13 +487,18 @@ class AnalyticsUtil {
         windowDoc.mixpanel && windowDoc.mixpanel.get_property("anonymousId"),
     };
 
-    console.log("mixpanel object", windowDoc.mixpanel);
+    const { segment } = getAppsmithConfigs();
+    console.log("------------------mix------------------");
+    console.log("mix - segment keys", segment);
+    console.log("mix - window.analytics", windowDoc.analytics);
+    console.log("window.mixpanel", windowDoc.mixpanel);
     console.log("mixpanel id's", mixpanelIds);
     this.logEvent("MIXPANEL_IDS", mixpanelIds);
   }
 
   static getMixPanelId() {
     const windowDoc: any = window;
+    this.logMixPanelIds();
     return windowDoc.mixpanel && windowDoc.mixpanel.get_distinct_id();
   }
 
