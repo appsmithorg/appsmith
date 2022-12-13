@@ -23,12 +23,11 @@ export const getTextArgumentAtPosition = (value: string, argNum: number, evaluat
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        const __ast = getAST(wrappedCode, {
+        ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
             onComment: commentArray,
         });
-        ast = klona(__ast);
     } catch (error) {
         return requiredArgument;
     }
@@ -153,12 +152,11 @@ export const getEnumArgumentAtPosition = (value: string, argNum: number, default
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        const __ast = getAST(wrappedCode, {
+        ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
             onComment: commentArray,
         });
-        ast = klona(__ast);
     } catch (error) {
         return defaultValue;
     }
@@ -227,12 +225,11 @@ export const getModalName = (value: string, evaluationVersion: number): string =
     try {
         const sanitizedScript = sanitizeScript(value, evaluationVersion);
         const wrappedCode = wrapCode(sanitizedScript);
-        const __ast = getAST(wrappedCode, {
+        ast = getAST(wrappedCode, {
             locations: true,
             ranges: true,
             onComment: commentArray,
         });
-        ast = klona(__ast);
     } catch (error) {
         return modalName;
     }
@@ -308,7 +305,7 @@ export const getFuncExpressionAtPosition = (value: string, argNum: number, evalu
     } catch (error) {
         return requiredArgument;
     }
-    const astWithComments = klona(getAstWithCommentsAttached(ast, commentArray));
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
@@ -338,7 +335,7 @@ export const getFunction = (value: string, evaluationVersion: number): string =>
     } catch (error) {
         return requiredFunction;
     }
-    const astWithComments = klona(getAstWithCommentsAttached(ast, commentArray));
+    const astWithComments = getAstWithCommentsAttached(ast, commentArray);
 
     simple(astWithComments, {
         CallExpression(node) {
