@@ -20,7 +20,7 @@
     "link-package": "yarn install && rollup -c && cd build && cp -R ../node_modules ./node_modules && yarn link"
   },
   "dependencies": {
-    "acorn": "^8.8.0",
+    "acorn": "^8.8.1",
     "acorn-walk": "^8.2.0",
     "astring": "^1.7.5",
     "lodash": "^4.17.21",
