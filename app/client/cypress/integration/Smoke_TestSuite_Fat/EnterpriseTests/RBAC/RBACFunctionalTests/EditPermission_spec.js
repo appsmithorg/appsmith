@@ -262,9 +262,6 @@ describe("Edit Permission flow ", function() {
       .trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
     cy.wait(2000);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
-    cy.wait(4000);
     // verify user is able edit page name
     // rename page to crud_page
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -276,6 +273,9 @@ describe("Edit Permission flow ", function() {
       .first()
       .click();
     cy.wait("@getPage");
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    cy.wait(4000);
     cy.openPropertyPane("tablewidget");
     cy.widgetText(
       "data_table_edited2",
