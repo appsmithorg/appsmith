@@ -9,9 +9,10 @@ import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
 function syncRequestMessageListener(
   e: MessageEvent<TMessage<EvalWorkerSyncRequest>>,
 ) {
+  const { messageType } = e.data;
+  if (messageType !== MessageType.REQUEST) return;
   const startTime = performance.now();
-  const { body, messageId, messageType } = e.data;
-  if (messageType === MessageType.RESPONSE) return;
+  const { body, messageId } = e.data;
   const { method } = body;
   if (!method) return;
   const messageHandler = syncHandlerMap[method];
@@ -25,9 +26,10 @@ function syncRequestMessageListener(
 async function asyncRequestMessageListener(
   e: MessageEvent<TMessage<EvalWorkerASyncRequest>>,
 ) {
+  const { messageType } = e.data;
+  if (messageType !== MessageType.REQUEST) return;
   const start = performance.now();
-  const { body, messageId, messageType } = e.data;
-  if (messageType === MessageType.RESPONSE) return;
+  const { body, messageId } = e.data;
   const { method } = body;
   if (!method) return;
   const messageHandler = asyncHandlerMap[method];

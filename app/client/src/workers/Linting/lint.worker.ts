@@ -12,8 +12,9 @@ import { TMessage, MessageType, sendMessage } from "utils/MessageUtil";
 
 function messageEventListener(fn: typeof eventRequestHandler) {
   return (event: MessageEvent<TMessage<LintWorkerRequest>>) => {
-    const { body, messageId, messageType } = event.data;
-    if (messageType !== "REQUEST") return;
+    const { messageType } = event.data;
+    if (messageType !== MessageType.REQUEST) return;
+    const { body, messageId } = event.data;
     const { data, method } = body;
     if (!method) return;
 

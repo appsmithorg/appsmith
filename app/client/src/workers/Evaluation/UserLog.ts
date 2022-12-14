@@ -29,8 +29,7 @@ class UserLog {
     this.flushLogTimerId = _internalSetTimeout(() => {
       const logs = this.flushLogs();
       sendMessage.call(self, {
-        messageId: "",
-        messageType: MessageType.REQUEST,
+        messageType: MessageType.DEFAULT,
         body: {
           data: {
             logs,

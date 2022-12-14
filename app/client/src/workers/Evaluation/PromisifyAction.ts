@@ -45,7 +45,9 @@ export const promisifyAction = (
       },
     });
     const processResponse = function(event: MessageEvent<TMessage<any>>) {
-      const { body, messageId: resMessageId, messageType } = event.data;
+      const { messageType } = event.data;
+      if (messageType !== MessageType.RESPONSE) return;
+      const { body, messageId: resMessageId } = event.data;
       const { data: messageData } = body;
       const { data, eventType, success } = messageData;
       // This listener will get all the messages that come to the worker

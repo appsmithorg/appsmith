@@ -189,16 +189,17 @@ export class GracefulWorkerService {
 
   private _broker(event: MessageEvent<TMessage<any>>) {
     if (!event || !event.data) return;
-    const { body, messageId, messageType } = event.data;
-    if (messageType === MessageType.REQUEST) {
-      this.listenerChannel.put(event.data);
-    } else {
+    const { body, messageType } = event.data;
+    if (messageType === MessageType.RESPONSE) {
+      const { messageId } = event.data;
       if (!messageId) return;
       const ch = this._channels.get(messageId);
       if (ch) {
         ch.put(body);
         this._channels.delete(messageId);
       }
+    } else {
+      this.listenerChannel.put(event.data);
     }
   }
 }
