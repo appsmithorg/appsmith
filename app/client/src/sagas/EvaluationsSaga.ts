@@ -111,7 +111,7 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { TMessage } from "utils/MessageUtil";
+import { MessageType, TMessage } from "utils/MessageUtil";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -334,12 +334,12 @@ export function* evaluateAndExecuteDynamicTrigger(
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {
     const request: TMessage<any> = yield take(listenerChannel);
-    yield spawn(handleEvalWorkerRequest, request);
+    yield spawn(handleEvalWorkerMessage, request);
   }
 }
 
-export function* handleEvalWorkerRequest(request: TMessage<any>) {
-  const { body, messageId } = request;
+export function* handleEvalWorkerMessage(message: TMessage<any>) {
+  const { body, messageType } = message;
   const { data, method } = body;
   switch (method) {
     case MAIN_THREAD_ACTION.LINT_TREE: {
@@ -374,7 +374,8 @@ export function* handleEvalWorkerRequest(request: TMessage<any>) {
         eventType,
         triggerMeta,
       );
-      yield call(evalWorker.respond, messageId, result);
+      if (messageType === MessageType.REQUEST)
+        yield call(evalWorker.respond, message.messageId, result);
       break;
     }
   }

@@ -244,7 +244,10 @@ class CodeMirrorTernService {
       const dataType = getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
-      if (dataType === "FUNCTION") {
+      if (
+        dataType === "FUNCTION" &&
+        completion.origin?.startsWith("DATA_TREE")
+      ) {
         completionText = completionText + "()";
       }
       const codeMirrorCompletion: Completion = {
