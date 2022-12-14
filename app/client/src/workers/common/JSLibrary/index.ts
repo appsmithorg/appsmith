@@ -45,20 +45,12 @@ export const defaultLibraries: TJSLibrary[] = [
 ];
 
 export const JSLibraries = [...defaultLibraries];
-export const libraryReservedNames = new Set(
-  ...defaultLibraries.map((lib) => lib.accessor[0]),
-);
-/**
- * creates dynamic list of constants based on
- * current list of extra libraries i.e lodash("_"), moment etc
- * to be used in widget and entity name validations
- */
-export const defaultLibraryNames = defaultLibraries.reduce(
-  (prev: Record<string, string>, curr) => {
-    prev[curr.accessor[0]] = curr.accessor[0];
-    return prev;
+export const libraryReservedIdentifiers = defaultLibraries.reduce(
+  (acc, lib) => {
+    lib.accessor.forEach((a) => (acc[a] = true));
+    return acc;
   },
-  {},
+  {} as Record<string, boolean>,
 );
 
 export function resetJSLibraries() {
@@ -67,17 +59,16 @@ export function resetJSLibraries() {
   const defaultLibraryAccessors = defaultLibraries.map(
     (lib) => lib.accessor[0],
   );
-  for (const key of libraryReservedNames) {
-    if (!defaultLibraryAccessors.includes(key)) {
-      try {
-        // @ts-expect-error: Types are not available
-        delete self[key];
-      } catch (e) {
-        // @ts-expect-error: Types are not available
-        self[key] = undefined;
-      }
-      libraryReservedNames.delete(key);
+  for (const key of Object.keys(libraryReservedIdentifiers)) {
+    if (defaultLibraryAccessors.includes(key)) continue;
+    try {
+      // @ts-expect-error: Types are not available
+      delete self[key];
+    } catch (e) {
+      // @ts-expect-error: Types are not available
+      self[key] = undefined;
     }
+    delete libraryReservedIdentifiers[key];
   }
   return JSLibraries;
 }

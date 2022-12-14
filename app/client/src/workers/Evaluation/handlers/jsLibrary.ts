@@ -3,7 +3,10 @@ import {
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
 import difference from "lodash/difference";
-import { JSLibraries, libraryReservedNames } from "../../common/JSLibrary";
+import {
+  JSLibraries,
+  libraryReservedIdentifiers,
+} from "../../common/JSLibrary";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import { EvalWorkerSyncRequest } from "../types";
 
@@ -106,7 +109,7 @@ export function installLibrary(request: EvalWorkerSyncRequest) {
 
     //Reserve accessor names.
     for (const acc of accessor) {
-      libraryReservedNames.add(acc);
+      libraryReservedIdentifiers[acc] = true;
     }
 
     return { success: true, defs, accessor };
@@ -126,7 +129,7 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
         //@ts-expect-error ignore
         self[key] = undefined;
       }
-      libraryReservedNames.delete(key);
+      delete libraryReservedIdentifiers[key];
     }
     return { success: true };
   } catch (e) {
@@ -149,7 +152,7 @@ export function loadLibraries(request: EvalWorkerSyncRequest) {
   const keysAfter = Object.keys(self);
   const newKeys = difference(keysAfter, keysBefore);
   for (const key of newKeys) {
-    libraryReservedNames.add(key);
+    libraryReservedIdentifiers[key] = true;
   }
   JSLibraries.push(...data);
   return { success: !message, message };

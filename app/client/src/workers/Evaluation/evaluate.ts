@@ -14,7 +14,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import { DOM_APIS } from "./SetupDOM";
-import { JSLibraries, libraryReservedNames } from "../common/JSLibrary";
+import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 
 export type EvalResult = {
   result: any;
@@ -77,7 +77,7 @@ function resetWorkerGlobalScope() {
     if (["evaluationVersion", "window", "document", "location"].includes(key))
       continue;
     if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
-    if (libraryReservedNames.has(key)) continue;
+    if (libraryReservedIdentifiers[key]) continue;
     try {
       // @ts-expect-error: Types are not available
       delete self[key];
