@@ -127,6 +127,7 @@ import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
+import { getPageList } from "selectors/entitiesSelector";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -147,6 +148,11 @@ export function* fetchPageListSaga(
         : PageApi.fetchPageListViewMode;
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
     const isValidResponse: boolean = yield validateResponse(response);
+    const prevPagesState: Page[] = yield select(getPageList);
+    const pagePermissionsMap = prevPagesState.reduce((acc, page) => {
+      acc[page.pageId] = page.userPermissions ?? [];
+      return acc;
+    }, {} as Record<string, string[]>);
     if (isValidResponse) {
       const workspaceId = response.data.workspaceId;
       const pages: Page[] = response.data.pages.map((page) => ({
@@ -155,7 +161,9 @@ export function* fetchPageListSaga(
         isDefault: page.isDefault,
         isHidden: !!page.isHidden,
         slug: page.slug,
-        userPermissions: page.userPermissions,
+        userPermissions: page.userPermissions
+          ? page.userPermissions
+          : pagePermissionsMap[page.id],
       }));
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
