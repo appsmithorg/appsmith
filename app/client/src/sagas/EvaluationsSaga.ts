@@ -10,7 +10,6 @@ import {
   spawn,
   take,
 } from "redux-saga/effects";
-import { POST_MESSAGE_TYPE } from "@appsmith/constants/ApiConstants";
 
 import {
   EvaluationReduxAction,
@@ -56,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isUndefined, uniqueId } from "lodash";
+import { get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -88,10 +87,7 @@ import {
   logActionExecutionError,
   UncaughtPromiseError,
 } from "sagas/ActionExecution/errorUtils";
-import {
-  ActionDescription,
-  ActionTriggerType,
-} from "entities/DataTree/actionTriggers";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -107,7 +103,7 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { channel, Channel } from "redux-saga";
+import { Channel } from "redux-saga";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -261,50 +257,6 @@ export function* evaluateActionBindings(
  * execution is returned to the worker where it can resolve/reject the current promise.
  */
 
-interface MessageChannelPayload {
-  callbackData: any;
-  eventType: EventType;
-  triggerMeta: TriggerMeta;
-}
-
-function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
-  try {
-    while (true) {
-      const payload: MessageChannelPayload = yield take(channel);
-      const { callbackData, eventType, triggerMeta } = payload;
-      const data = JSON.parse(callbackData);
-      for (const key in data) {
-        if (key == "callbackId" && data[key]) {
-          window.parent.postMessage(
-            JSON.stringify({
-              callbackId: data[key],
-              type: POST_MESSAGE_TYPE.TOKEN,
-            }),
-            "*",
-          );
-        } else {
-          yield call(
-            executeActionTriggers,
-            {
-              type: ActionTriggerType.STORE_VALUE,
-              payload: {
-                key: key,
-                persist: true,
-                uniqueActionRequestId: uniqueId("store_value_id_"),
-                value: data[key],
-              },
-            } as ActionDescription,
-            eventType,
-            triggerMeta,
-          );
-        }
-      }
-    }
-  } finally {
-    channel.close();
-  }
-}
-
 export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
@@ -312,32 +264,6 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
-  const messageChannel = channel<MessageChannelPayload>();
-  yield spawn(messageChannelHandler, messageChannel);
-  const isJsonString = function(str: string) {
-    try {
-      JSON.parse(str);
-    } catch (e) {
-      return false;
-    }
-    return true;
-  };
-  const messageHandler = (event: MessageEvent) => {
-    if (event.currentTarget !== window) return;
-    if (event.type !== "message") return;
-    if (!isValidDomain(event.origin)) return;
-    if (!isJsonString(event.data)) return;
-    messageChannel.put({
-      callbackData: event.data,
-      eventType: EventType.ON_STORE_VALUE,
-      triggerMeta: {
-        source: undefined,
-        triggerPropertyName: "triggerPropertyName",
-      } as TriggerMeta,
-    });
-  };
-
-  window.addEventListener("message", messageHandler);
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
   const { isFinishedChannel } = yield call(
@@ -901,30 +827,4 @@ export default function* evaluationSagaListeners() {
       Sentry.captureException(e);
     }
   }
-}
-
-function isValidDomain(domain: string): boolean {
-  const regex1 = new RegExp("/(.+?)[.]manabie.com$");
-  const regex2 = new RegExp("/(.+?)[.]web.app$");
-  const regex3 = new RegExp("/(.+?)[.]manabie.io$");
-  const regex4 = new RegExp("/(.+?)[.]manabie.net$");
-  if (
-    (window.location.origin == "http://localhost" ||
-      window.location.origin ==
-        "https://appsmith.local-green.manabie.io:31600" ||
-      regex3.test(window.location.origin)) &&
-    domain.indexOf("localhost") > -1
-  ) {
-    return true;
-  }
-
-  if (
-    regex1.test(domain) ||
-    regex2.test(domain) ||
-    regex3.test(domain) ||
-    regex4.test(domain)
-  ) {
-    return true;
-  }
-  return false;
 }
