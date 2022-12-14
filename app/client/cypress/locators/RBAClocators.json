@@ -36,9 +36,10 @@
     "applicationResourceTab": "[data-cy='t--tab-Application Resources']",
     "inviteModal":"[data-testid='t--dialog-component']",
     "rolesTabInviteModal":"[data-cy='t--tab-via-roles']",
+    "groupsTabInviteModal":"[data-cy='t--tab-via-groups']",
     "EmailInputInviteModal":"//input[@placeholder='Enter email address']",
     "inviteButton" : ".t--invite-user-btn",
-    "selectRoleInviteModal" :"//span[@name='expand-more']",
+    "selectFromDropdownInviteModal" :"//span[@name='expand-more']",
     "roleRow":"[data-testid='t--roles-cell']",
     "rolesTabinGroup":"[data-cy='t--tab-permissions']",
     "rolesinGroups":"[data-testid='t--all-group-row']",
@@ -47,5 +48,5 @@
     "JsObject1": ".t--entity-name:contains(JSObject1)",
     "groupsRow": "[data-testid='t--usergroup-cell']",
     "generalTab":"[data-cy='t--tab-general']",
-    "renameRole":"//span[text()='Rename']"
+    "rename":"//span[text()='Rename']"
 }
