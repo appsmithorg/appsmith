@@ -113,6 +113,9 @@ export class DataSources {
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _entityCollapseButton = ".t--entity-collapse-toggle"
+  
+  public _datasourceModalSave = ".t--datasource-modal-save";
+  public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
 
   public AssertViewMode() {
     this.agHelper.AssertElementExist(this._editButton);
@@ -741,7 +744,11 @@ export class DataSources {
   }
 
   //Fetch schema from server and validate UI for the updates
-  public verifySchema(dataSourceName : string, schema: string, isUpdate = false) {
+  public verifySchema(
+    dataSourceName: string,
+    schema: string,
+    isUpdate = false,
+  ) {
     cy.intercept("GET", this._getStructureReq).as("getDSStructure");
     if (isUpdate) {
       this.updateDatasource();
