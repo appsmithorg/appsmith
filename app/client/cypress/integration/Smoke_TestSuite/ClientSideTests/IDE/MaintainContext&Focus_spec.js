@@ -4,6 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
 const apiPage = ObjectsRegistry.ApiPage;
 
@@ -139,10 +140,59 @@ describe("MaintainContext&Focus", function() {
   });
 
   it("7. Check if selected tab on right tab persists", () => {
-    ee.SelectEntityByName("Rest_Api_1");
+    ee.SelectEntityByName("Rest_Api_1", "Queries/JS");
     apiPage.SelectRightPaneTab("connections");
     ee.SelectEntityByName("SQL_Query");
     ee.SelectEntityByName("Rest_Api_1");
     apiPage.AssertRightPaneSelectedTab("connections");
+  });
+
+  it("8. Check if the URL is persisted while switching pages", () => {
+    cy.Createpage("Page2");
+
+    ee.SelectEntityByName("Page1", "Pages");
+    ee.SelectEntityByName("Rest_Api_1", "Queries/JS");
+
+    ee.SelectEntityByName("Page2", "Pages");
+    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
+
+    ee.SelectEntityByName("Page1", "Pages");
+    cy.get(".t--nameOfApi .bp3-editable-text-content").should(
+      "contain",
+      "Rest_Api_1",
+    );
+  });
+  it("9. Datasource edit mode has to be maintained", () => {
+    ee.SelectEntityByName("Appsmith", "Datasources");
+    dataSources.EditDatasource();
+    dataSources.SaveDSFromDialog(false);
+    ee.SelectEntityByName("Github", "Datasources");
+    dataSources.AssertViewMode();
+    ee.SelectEntityByName("Appsmith", "Datasources");
+    dataSources.AssertEditMode();
+  });
+
+  it("10. Datasource collapse state has to be maintained", () => {
+    // Create datasource 1
+    dataSources.SaveDSFromDialog(false);
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    agHelper.RenameWithInPane("Postgres1", false);
+    // Expand section with index 1
+    dataSources.ExpandSection(1);
+    // Create and switch to datasource 2
+    dataSources.SaveDSFromDialog(true);
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("MongoDB");
+    agHelper.RenameWithInPane("Mongo1", false);
+    // Validate if section with index 1 is collapsed
+    dataSources.AssertSectionCollapseState(1, false);
+    // Switch back to datasource 1
+    dataSources.SaveDSFromDialog(false);
+    dataSources.CreateNewQueryInDS("Postgres1");
+    ee.SelectEntityByName("Postgres1");
+    dataSources.EditDatasource();
+    // Validate if section with index 1 is expanded
+    dataSources.AssertSectionCollapseState(1, false);
   });
 });

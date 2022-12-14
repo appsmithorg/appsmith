@@ -1,26 +1,33 @@
 import React, { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { WidgetProps } from "widgets/BaseWidget";
 import { PanelConfig } from "constants/PropertyControlConstants";
-import PropertyControlsGenerator from "./Generator";
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import PropertyPaneTitle from "../PropertyPaneTitle";
-import { SearchVariant } from "design-system";
-import { StyledSearchInput } from "./PropertyPaneView";
+import PropertyPaneTitle from "./PropertyPaneTitle";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
+import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import { unsetSelectedPropertyPanel } from "actions/propertyPaneActions";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;
-  padding-bottom: 18px; // space for the BindingPrompt in case it shows at the last property
+  display: flex;
+  flex-flow: column;
 `;
 
 function PanelHeader(props: PanelHeaderProps) {
+  const dispatch = useDispatch();
+  const onBackClick = () => {
+    dispatch(unsetSelectedPropertyPanel(props.parentPropertyPath));
+    props.closePanel();
+  };
   return (
     <div
       onClick={(e: any) => {
@@ -30,7 +37,7 @@ function PanelHeader(props: PanelHeaderProps) {
       <PropertyPaneTitle
         actions={[]}
         isPanelTitle
-        onBackClick={props.closePanel}
+        onBackClick={onBackClick}
         title={props.title}
         updatePropertyTitle={props.updatePropertyTitle}
       />
@@ -101,11 +108,15 @@ export function PanelPropertiesEditor(
       }
       const contentChildren = [...panelConfig.contentChildren];
       const styleChildren = [...panelConfig.styleChildren];
+      const searchConfig = [...(panelConfig.searchConfig || [])];
       return {
         content: path
           ? updateConfigPaths(contentChildren, path)
           : contentChildren,
         style: path ? updateConfigPaths(styleChildren, path) : styleChildren,
+        searchConfig: path
+          ? updateConfigPaths(searchConfig, path)
+          : searchConfig,
       };
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
@@ -119,12 +130,27 @@ export function PanelPropertiesEditor(
   );
 
   useEffect(() => {
-    if (panelProps.propPaneId !== widgetProperties.widgetId) {
+    if (panelProps.propPaneId !== widgetProperties?.widgetId) {
       props.closePanel();
     }
-  }, [widgetProperties.widgetId]);
+  }, [widgetProperties?.widgetId]);
 
   const { searchText, setSearchText } = useSearchText("");
+
+  /**
+   * Analytics for property pane Search
+   */
+  useEffect(() => {
+    const searchPath = `${panelParentPropertyPath}.${
+      panelProps[panelConfig.panelIdPropertyName]
+    }`;
+    sendPropertyPaneSearchAnalytics({
+      widgetType: widgetProperties?.type,
+      searchText,
+      widgetName: widgetProperties?.widgetName,
+      searchPath,
+    });
+  }, [searchText]);
 
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {
@@ -155,11 +181,20 @@ export function PanelPropertiesEditor(
     }
   };
 
+  const parentPropertyPath = `${
+    widgetProperties ? `${widgetProperties.widgetName}.` : ""
+  }${panelParentPropertyPath}`;
+
+  const panelPropertyPath = `${parentPropertyPath}.${
+    panelProps[panelConfig.titlePropertyName]
+  }`;
+
   return (
-    <div className="w-full overflow-y-auto">
+    <div className="w-full overflow-y-scroll h-full">
       <PanelHeader
         closePanel={closePanel}
         isEditable={panelConfig.editableTitle}
+        parentPropertyPath={parentPropertyPath}
         propertyName={panelConfig.titlePropertyName}
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
@@ -167,46 +202,55 @@ export function PanelPropertiesEditor(
       {panelConfigsWithStyleAndContent?.content ||
       panelConfigsWithStyleAndContent?.style ? (
         <>
-          {// TODO(aswathkk): Fix #15970 and show search bar
-          false && (
-            <StyledSearchInput
-              fill
-              onChange={setSearchText}
-              placeholder="Search for controls, labels etc"
-              variant={SearchVariant.BACKGROUND}
+          <PropertyPaneSearchInput isPanel onTextChange={setSearchText} />
+          {searchText.length > 0 ? (
+            <PanelWrapper>
+              <PropertyControlsGenerator
+                config={panelConfigsWithStyleAndContent.searchConfig}
+                id={widgetProperties.widgetId}
+                panel={panel}
+                panelPropertyPath={panelPropertyPath}
+                searchQuery={searchText}
+                theme={theme}
+                type={widgetProperties.type}
+              />
+            </PanelWrapper>
+          ) : (
+            <PropertyPaneTab
+              contentComponent={
+                panelConfigsWithStyleAndContent?.content.length > 0 ? (
+                  <PanelWrapper>
+                    <PropertyControlsGenerator
+                      config={panelConfigsWithStyleAndContent.content}
+                      id={widgetProperties.widgetId}
+                      isPanelProperty
+                      panel={panel}
+                      panelPropertyPath={panelPropertyPath}
+                      theme={theme}
+                      type={widgetProperties.type}
+                    />
+                  </PanelWrapper>
+                ) : null
+              }
+              isPanelProperty
+              panelPropertyPath={panelPropertyPath}
+              styleComponent={
+                panelConfigsWithStyleAndContent.style.length > 0 ? (
+                  <PanelWrapper>
+                    <PropertyControlsGenerator
+                      config={panelConfigsWithStyleAndContent.style}
+                      id={widgetProperties.widgetId}
+                      isPanelProperty
+                      panel={panel}
+                      panelPropertyPath={panelPropertyPath}
+                      theme={theme}
+                      type={widgetProperties.type}
+                    />
+                  </PanelWrapper>
+                ) : null
+              }
             />
           )}
-          <PropertyPaneTab
-            contentComponent={
-              panelConfigsWithStyleAndContent?.content ? (
-                <PanelWrapper>
-                  <PropertyControlsGenerator
-                    config={panelConfigsWithStyleAndContent.content}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={theme}
-                    type={widgetProperties.type}
-                  />
-                </PanelWrapper>
-              ) : null
-            }
-            isPanelProperty
-            styleComponent={
-              panelConfigsWithStyleAndContent.style ? (
-                <PanelWrapper>
-                  <PropertyControlsGenerator
-                    config={panelConfigsWithStyleAndContent.style}
-                    id={widgetProperties.widgetId}
-                    panel={panel}
-                    searchQuery={searchText}
-                    theme={theme}
-                    type={widgetProperties.type}
-                  />
-                </PanelWrapper>
-              ) : null
-            }
-          />
         </>
       ) : (
         panelConfigs && (
@@ -214,8 +258,9 @@ export function PanelPropertiesEditor(
             <PropertyControlsGenerator
               config={panelConfigs}
               id={widgetProperties.widgetId}
+              isPanelProperty
               panel={panel}
-              searchQuery={searchText}
+              panelPropertyPath={panelPropertyPath}
               theme={theme}
               type={widgetProperties.type}
             />
@@ -240,6 +285,7 @@ interface PanelPropertiesEditorPanelProps {
 interface PanelHeaderProps {
   isEditable: boolean;
   widgetProperties?: WidgetProps;
+  parentPropertyPath: string;
   title: string;
   closePanel: () => void;
   propertyName: string;

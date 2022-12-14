@@ -129,6 +129,21 @@ export const getPageById = (pageId: string) =>
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
+export const getCurrentPagePermissions = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) => {
+    pages.find((page) => page.pageId === pageId);
+  },
+);
+
+export const getPagePermissions = (state: AppState) => {
+  const pageId = getCurrentPageId(state);
+  const page = find(state.entities.pageList.pages, { pageId });
+
+  return page?.userPermissions || [];
+};
+
 export const selectCurrentPageSlug = createSelector(
   getCurrentPageId,
   getPageList,

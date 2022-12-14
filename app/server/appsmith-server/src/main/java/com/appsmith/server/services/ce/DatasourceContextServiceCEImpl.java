@@ -12,6 +12,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -35,12 +36,14 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final ConfigService configService;
+    private final DatasourcePermission datasourcePermission;
 
     @Autowired
     public DatasourceContextServiceCEImpl(@Lazy DatasourceService datasourceService,
                                           PluginService pluginService,
                                           PluginExecutorHelper pluginExecutorHelper,
-                                          ConfigService configService) {
+                                          ConfigService configService,
+                                          DatasourcePermission datasourcePermission) {
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
@@ -48,6 +51,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         this.datasourceContextMonoMap = new ConcurrentHashMap<>();
         this.datasourceContextSynchronizationMonitorMap = new ConcurrentHashMap<>();
         this.configService = configService;
+        this.datasourcePermission = datasourcePermission;
     }
 
     /**
@@ -146,7 +150,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         String datasourceId = datasource.getId();
         Mono<Datasource> datasourceMono;
         if (datasource.getId() != null) {
-            datasourceMono = datasourceService.findById(datasourceId, EXECUTE_DATASOURCES);
+            datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getExecutePermission());
         } else {
             datasourceMono = Mono.just(datasource);
         }
@@ -248,7 +252,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         }
 
         return datasourceService
-                .findById(datasourceId, EXECUTE_DATASOURCES)
+                .findById(datasourceId, datasourcePermission.getExecutePermission())
                 .zipWhen(datasource1 ->
                         pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId()))
                 )

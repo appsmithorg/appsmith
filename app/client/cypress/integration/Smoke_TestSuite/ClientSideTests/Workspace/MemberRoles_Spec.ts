@@ -1,7 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import HomePage from "../../../../locators/HomePage";
 let workspaceId: any, appid: any;
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage;
 
 describe("Create new workspace and invite user & validate all roles", () => {
@@ -48,8 +48,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
+      // .should("have.length", Cypress.env("Edition") === 1 ? 1 : 2)
       .should("have.length", 1)
-      .and("contain.text", `App Viewer - ${workspaceId}`);
+      .and("contain.text", `App Viewer`);
     cy.get(HomePage.closeBtn).click();
     homePage.LaunchAppFromAppHover();
     homePage.LogOutviaAPI();
@@ -86,12 +87,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
+      // .should("have.length", Cypress.env("Edition") === 0 ? 2 : 3)
       .should("have.length", 2)
-      .and(
-        "contain.text",
-        `App Viewer - ${workspaceId}`,
-        `Developer - ${workspaceId}`,
-      );
+      .and("contain.text", `App Viewer`, `Developer`);
     cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });
@@ -134,16 +132,10 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
+      // .should("have.length", Cypress.env("Edition") === 0 ? 3 : 4)
       .should("have.length", 3)
-      .should(
-        "contain.text",
-        `App Viewer - ${workspaceId}`,
-        `Developer - ${workspaceId}`,
-      );
-    cy.get(".t--dropdown-option").should(
-      "contain.text",
-      `Administrator - ${workspaceId}`,
-    );
+      .should("contain.text", `App Viewer`, `Developer`);
+    cy.get(".t--dropdown-option").should("contain.text", `Administrator`);
     cy.get(HomePage.closeBtn).click();
     homePage.LogOutviaAPI();
   });

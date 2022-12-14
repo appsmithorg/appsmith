@@ -17,6 +17,7 @@ export interface JSCollection {
   actions: Array<JSAction>;
   body: string;
   variables: Array<Variable>;
+  userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
 }
 

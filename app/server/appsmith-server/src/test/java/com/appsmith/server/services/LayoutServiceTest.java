@@ -20,9 +20,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -934,7 +937,7 @@ public class LayoutServiceTest {
 
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("\"anIgnoredAction.data:\" + aGetAction.data"), EVALUATION_VERSION))
                 .thenReturn(Flux.just(Tuples.of("\"anIgnoredAction.data:\" + aGetAction.data", new HashSet<>(Set.of("aGetAction.data")))));
-        String bindingValue = "(function(ignoredAction1){\n" +
+        String bindingValue = "\n(function(ignoredAction1){\n" +
                 "\tlet a = ignoredAction1.data\n" +
                 "\tlet ignoredAction2 = { data: \"nothing\" }\n" +
                 "\tlet b = ignoredAction2.data\n" +
@@ -949,8 +952,8 @@ public class LayoutServiceTest {
                 .thenReturn(Flux.just(Tuples.of("aPostActionWithAutoExec.data", new HashSet<>(Set.of("aPostActionWithAutoExec.data")))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("aDBAction.data[0].irrelevant"), EVALUATION_VERSION))
                 .thenReturn(Flux.just(Tuples.of("aDBAction.data[0].irrelevant", new HashSet<>(Set.of("aDBAction.data[0].irrelevant")))));
-        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("anotherDBAction.data.optional"), EVALUATION_VERSION))
-                .thenReturn(Flux.just(Tuples.of("anotherDBAction.data.optional", new HashSet<>(Set.of("anotherDBAction.data.optional")))));
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of(" anotherDBAction.data.optional "), EVALUATION_VERSION))
+                .thenReturn(Flux.just(Tuples.of(" anotherDBAction.data.optional ", new HashSet<>(Set.of("anotherDBAction.data.optional")))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("aTableAction.data.child"), EVALUATION_VERSION))
                 .thenReturn(Flux.just(Tuples.of("aTableAction.data.child", new HashSet<>(Set.of("aTableAction.data.child")))));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of("Collection.anAsyncCollectionActionWithoutCall.data"), EVALUATION_VERSION))
@@ -1202,8 +1205,15 @@ public class LayoutServiceTest {
                 .create(testMono)
                 .expectErrorMatches(throwable -> {
                     assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Object oldParent = null;
+                    try {
+                        oldParent = objectMapper.readTree("{\"widgetName\":\"testWidget\",\"dynamicBindingPathList\":[{\"key\":\"dynamicGet_IncorrectKey\"}],\"widgetId\":\"id\",\"another\":\"Hello people of the {{input1.text}} planet!\",\"dynamicGet\":\"some dynamic {{aGetAction.data}}\",\"type\":\"test_type\",\"key\":\"value-updated\"}");
+                    } catch (JsonProcessingException e) {
+                        Assertions.fail("Incorrect initialization of expected DSL");
+                    }
                     assertThat(throwable.getMessage()).isEqualTo(
-                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), null)
+                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), oldParent,  "dynamicGet_IncorrectKey", "New element is null")
                     );
                     return true;
                 })
