@@ -11,6 +11,7 @@ import { useCallback } from "react";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
+  hasDeleteApplicationPermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -68,7 +69,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Go to dashboard",
+      text: "Home",
       onClick: () => history.replace(APPLICATIONS_URL),
       type: MenuTypes.MENU,
       isVisible: true,
@@ -154,7 +155,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },
-    {
+    hasDeleteApplicationPermission(currentApplication?.userPermissions) && {
       text: "Delete Application",
       confirmText: "Are you sure?",
       onClick: deleteApplication,
@@ -162,5 +163,5 @@ export const GetNavigationMenuData = ({
       isVisible: isApplicationIdPresent,
       style: { color: Colors.ERROR_RED },
     },
-  ];
+  ].filter(Boolean) as MenuItemData[];
 };

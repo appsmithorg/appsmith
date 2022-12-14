@@ -8,6 +8,7 @@ import com.appsmith.server.solutions.EnvManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,7 +30,7 @@ public class InstanceAdminControllerCE {
     @GetMapping("/env")
     public Mono<ResponseDTO<Map<String, String>>> getAll() {
         log.debug("Getting all env configuration");
-        return envManager.getAll()
+        return envManager.getAllNonEmpty()
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
@@ -39,12 +40,23 @@ public class InstanceAdminControllerCE {
         return envManager.download(exchange);
     }
 
-    @PutMapping("/env")
-    public Mono<ResponseDTO<EnvChangesResponseDTO>> saveEnvChanges(
+    @Deprecated
+    @PutMapping(value = "/env", consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public Mono<ResponseDTO<EnvChangesResponseDTO>> saveEnvChangesJSON(
             @Valid @RequestBody Map<String, String> changes
     ) {
-        log.debug("Applying env updates {}", changes);
+        log.debug("Applying env updates {}", changes.keySet());
         return envManager.applyChanges(changes)
+                .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
+    }
+
+    @PutMapping(value = "/env", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public Mono<ResponseDTO<EnvChangesResponseDTO>> saveEnvChangesMultipartFormData(
+            ServerWebExchange exchange
+    ) {
+        log.debug("Applying env updates from form data");
+        return exchange.getMultipartData()
+                .flatMap(envManager::applyChangesFromMultipartFormData)
                 .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
     }
 

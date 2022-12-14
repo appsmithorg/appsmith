@@ -124,7 +124,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
                   svg {
                     path {
-                      fill: ${Colors.BLACK};
+                      fill: currentColor;
                     }
                   }
                 }
@@ -137,7 +137,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                       width: 16px;
                       height: 16px;
                       path {
-                        fill: ${Colors.WHITE};
+                        fill: currentColor;
                       }
                     }
                   }
@@ -862,7 +862,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                   )}
                   {!isMenuOpen && (
                     <Button
-                      category={Category.tertiary}
+                      category={Category.secondary}
                       className="t--application-view-link"
                       fill
                       href={viewModeURL}

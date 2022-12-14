@@ -76,6 +76,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Update table json data and check the column names updated", function() {
     // Open table propert pane
     cy.SearchEntityandOpen("Table1");
+    cy.backFromPropertyPanel();
     // Change the table data
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
     cy.wait("@updateLayout");

@@ -225,7 +225,7 @@ function RepoLimitExceededErrorModal() {
           </InfoWrapper>
           <ButtonContainer>
             <Button
-              category={Category.tertiary}
+              category={Category.secondary}
               className="t--contact-sales-button"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
