@@ -1,6 +1,6 @@
 import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import memoize from "proxy-memoize";
+import memoize from "proxy-memoize/dist/wrapper.cjs";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
