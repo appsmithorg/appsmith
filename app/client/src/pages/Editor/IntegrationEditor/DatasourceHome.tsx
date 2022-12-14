@@ -5,7 +5,10 @@ import { initialize } from "redux-form";
 import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
-import { createDatasourceFromForm } from "actions/datasourceActions";
+import {
+  createDatasourceFromForm,
+  createTempDatasourceFromForm,
+} from "actions/datasourceActions";
 import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -119,6 +122,7 @@ interface DatasourceHomeScreenProps {
 interface ReduxDispatchProps {
   initializeForm: (data: Record<string, any>) => void;
   createDatasource: (data: any) => void;
+  createTempDatasource: (data: any) => void;
 }
 
 interface ReduxStateProps {
@@ -176,7 +180,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
       }
     }
 
-    this.props.createDatasource({
+    this.props.createTempDatasource({
       pluginId,
     });
   };
@@ -239,6 +243,8 @@ const mapDispatchToProps = (dispatch: any) => {
     initializeForm: (data: Record<string, any>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
+    createTempDatasource: (data: any) =>
+      dispatch(createTempDatasourceFromForm(data)),
   };
 };
 

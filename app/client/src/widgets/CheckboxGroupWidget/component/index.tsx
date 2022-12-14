@@ -16,11 +16,10 @@ import {
   StyledCheckbox,
 } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import {
-  LabelWithTooltip,
+import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system";
+} from "widgets/components/LabelWithTooltip";
 import { ThemeProp, AlignWidgetTypes } from "widgets/constants";
 
 export interface InputContainerProps {
@@ -28,6 +27,7 @@ export interface InputContainerProps {
   optionCount: number;
   valid?: boolean;
   optionAlignment?: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const InputContainer = styled.div<ThemeProp & InputContainerProps>`
@@ -46,9 +46,9 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
       ? `flex-start`
       : `center`};
   width: 100%;
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
   flex-grow: 1;
   height: 100%;
+  
   border: 1px solid transparent;
 
   .${Classes.CONTROL} {
@@ -71,6 +71,7 @@ export interface CheckboxGroupContainerProps {
 export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   ${labelLayoutStyles}
   & .${LABEL_CONTAINER_CLASS} {
+    align-self: center;
     ${({ labelPosition }) =>
       labelPosition === LabelPosition.Left && "min-height: 30px"};
   }
@@ -127,6 +128,7 @@ function SelectAll(props: SelectAllProps) {
 
 export interface CheckboxGroupComponentProps extends ComponentProps {
   isDisabled: boolean;
+  isDynamicHeightEnabled?: boolean;
   isInline: boolean;
   isSelectAll?: boolean;
   isRequired?: boolean;
@@ -147,6 +149,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   labelTextSize?: TextSize;
   labelStyle?: string;
   labelWidth?: number;
+  labelTooltip?: string;
   accentColor: string;
   borderRadius: string;
 }
@@ -156,6 +159,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     borderRadius,
     compactMode,
     isDisabled,
+    isDynamicHeightEnabled,
     isInline,
     isSelectAll,
     isValid,
@@ -165,6 +169,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
     labelText,
     labelTextColor,
     labelTextSize,
+    labelTooltip,
     labelWidth,
     onChange,
     onSelectAllChange,
@@ -202,7 +207,9 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
           disabled={isDisabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
+          helpText={labelTooltip}
           inline={isInline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}
@@ -212,6 +219,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       <InputContainer
         data-cy="checkbox-group-container"
         inline={isInline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         optionAlignment={optionAlignment}
         optionCount={options.length}
       >

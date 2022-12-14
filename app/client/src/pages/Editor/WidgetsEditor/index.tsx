@@ -29,6 +29,7 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 import Guide from "../GuidedTour/Guide";
 import PropertyPaneContainer from "./PropertyPaneContainer";
 import CanvasTopSection from "./EmptyCanvasSection";
+import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
@@ -71,16 +72,24 @@ function WidgetsEditor() {
   }, [isFetchingPage, selectWidget, guidedTourEnabled]);
 
   const allowDragToSelect = useAllowEditorDragToSelect();
+  const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
 
   const handleWrapperClick = useCallback(() => {
-    if (allowDragToSelect) {
+    // Making sure that we don't deselect the widget
+    // after we are done dragging the limits in auto height with limits
+    if (allowDragToSelect && !isAutoHeightWithLimitsChanging) {
       focusWidget && focusWidget();
       deselectAll && deselectAll();
       dispatch(closePropertyPane());
       dispatch(closeTableFilterPane());
       dispatch(setCanvasSelectionFromEditor(false));
     }
-  }, [allowDragToSelect, focusWidget, deselectAll]);
+  }, [
+    allowDragToSelect,
+    focusWidget,
+    deselectAll,
+    isAutoHeightWithLimitsChanging,
+  ]);
 
   /**
    *  drag event handler for selection drawing

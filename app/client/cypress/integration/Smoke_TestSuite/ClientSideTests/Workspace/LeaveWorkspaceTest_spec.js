@@ -1,11 +1,8 @@
 /// <reference types="Cypress" />
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import homePage from "../../../../locators/HomePage";
-let HomePage = ObjectsRegistry.HomePage,
-  agHelper = ObjectsRegistry.AggregateHelper;
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Leave workspace test spec", function() {
-  let newWorkspaceId;
   let newWorkspaceName;
 
   it("leave workspace menu is visible validation", function() {
@@ -13,7 +10,6 @@ describe("Leave workspace test spec", function() {
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
-      newWorkspaceId = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       cy.contains("Leave Workspace");
@@ -25,7 +21,6 @@ describe("Leave workspace test spec", function() {
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
-      newWorkspaceId = interception.response.body.data.name;
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       cy.contains("Leave Workspace").click();
@@ -37,12 +32,11 @@ describe("Leave workspace test spec", function() {
     });
   });
 
-  it("Non admin users can only access leave workspace popup menu validation", function() {
+  it("Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function() {
     cy.visit("/applications");
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
-      newWorkspaceId = interception.response.body.data.name;
       cy.visit("/applications");
       HomePage.InviteUserToWorkspace(
         newWorkspaceName,

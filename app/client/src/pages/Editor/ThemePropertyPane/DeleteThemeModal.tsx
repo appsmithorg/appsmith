@@ -37,25 +37,26 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
       onClose={onClose}
       title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
     >
-      <div className="pb-8 space-y-3 ">
-        <p>{createMessage(DELETE_APP_THEME_WARNING)}</p>
-      </div>
-
-      <div className="">
-        <div className="flex items-center justify-end space-x-3">
-          <Button
-            category={Category.tertiary}
-            onClick={onClose}
-            size={Size.medium}
-            text="Cancel"
-          />
-          <Button
-            category={Category.primary}
-            onClick={onDelete}
-            size={Size.medium}
-            text="Delete"
-            variant={Variant.danger}
-          />
+      <div id="delete-theme-modal">
+        <div className="pb-8 space-y-3 ">
+          <p>{createMessage(DELETE_APP_THEME_WARNING)}</p>
+        </div>
+        <div className="">
+          <div className="flex items-center justify-end space-x-3">
+            <Button
+              category={Category.secondary}
+              onClick={onClose}
+              size={Size.medium}
+              text="Cancel"
+            />
+            <Button
+              category={Category.primary}
+              onClick={onDelete}
+              size={Size.medium}
+              text="Delete"
+              variant={Variant.danger}
+            />
+          </div>
         </div>
       </div>
     </Dialog>
