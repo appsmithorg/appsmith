@@ -67,6 +67,7 @@ export const getEntitiesForNavigation = createSelector(
             url: jsCollectionIdURL({
               pageId,
               collectionId: jsAction.config.id,
+              functionName: func.name,
             }),
             navigable: true,
             children: {},

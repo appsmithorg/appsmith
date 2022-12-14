@@ -629,9 +629,15 @@ class CodeEditor extends Component<Props, State> {
           },
           () => {
             if (entityToNavigate[0] in this.props.entitiesForNavigation) {
-              const navigationData = this.props.entitiesForNavigation[
+              let navigationData = this.props.entitiesForNavigation[
                 entityToNavigate[0]
               ];
+              for (let i = 1; i < entityToNavigate.length; i += 1) {
+                if (entityToNavigate[i] in navigationData.children) {
+                  navigationData = navigationData.children[entityToNavigate[i]];
+                }
+              }
+
               history.push(navigationData.url, { directNavigation: true });
 
               // TODO fix the widget navigation issue to remove this
