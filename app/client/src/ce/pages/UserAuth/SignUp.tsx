@@ -150,8 +150,11 @@ export function SignUp(props: SignUpFormProps) {
   const footerSection = (
     <div className="px-2 py-4 text-base text-center border-b">
       {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
+      {/* TODO: The font-size of this element is different from production because text-base is set at
+      font-size/line-height of 16/24 which is a combination that does not exist in TextType in the design-system. */}
       <Link
         className="t--sign-up ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)]"
+        isPrimary
         to={AUTH_LOGIN_URL}
       >
         {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}

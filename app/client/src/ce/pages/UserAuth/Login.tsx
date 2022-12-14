@@ -132,8 +132,11 @@ export function Login(props: LoginFormProps) {
   const footerSection = !disableLoginForm && (
     <div className="px-2 py-4 text-base text-center border-b">
       {createMessage(NEW_TO_APPSMITH)}
+      {/* TODO: The font-size of this element is different from production because text-base is set at
+      font-size/line-height of 16/24 which is a combination that does not exist in TextType in the design-system. */}
       <Link
         className="t--sign-up  ml-2 text-[color:var(--ads-color-brand)] hover:text-[color:var(--ads-color-brand)] t--signup-link"
+        isPrimary
         to={signupURL}
       >
         {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
