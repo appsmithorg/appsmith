@@ -4,9 +4,9 @@ import InputTextControl, {
 import DropDownControl, {
   DropDownControlProps,
 } from "components/propertyControls/DropDownControl";
-import SwitchControl, {
-  SwitchControlProps,
-} from "components/propertyControls/SwitchControl";
+import ToggleControl, {
+  ToggleControlProps,
+} from "components/propertyControls/ToggleControl";
 import OptionControl from "components/propertyControls/OptionControl";
 import BaseControl, {
   ControlProps,
@@ -80,7 +80,7 @@ import MenuButtonDynamicItemsControl, {
 export const PropertyControls = {
   InputTextControl,
   DropDownControl,
-  SwitchControl,
+  ToggleControl,
   OptionControl,
   CodeEditorControl,
   DatePickerControl,
@@ -123,7 +123,7 @@ export type PropertyControlPropsType =
   | ControlProps
   | InputControlProps
   | DropDownControlProps
-  | SwitchControlProps
+  | ToggleControlProps
   | DatePickerControlProps
   | MultiSwitchControlProps
   | IconTabControlProps

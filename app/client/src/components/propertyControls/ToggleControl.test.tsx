@@ -1,4 +1,4 @@
-import SwitchControl from "./SwitchControl";
+import ToggleControl from "./ToggleControl";
 
 const requiredParams = {
   evaluatedValue: undefined,
@@ -15,14 +15,14 @@ const requiredParams = {
 
 const config = { ...requiredParams };
 
-describe("SwitchControl.canDisplayValue", () => {
+describe("ToggleControl.canDisplayValue", () => {
   it("Should return true when 'true' or 'false' is passed", () => {
-    expect(SwitchControl.canDisplayValueInUI(config, "true")).toEqual(true);
-    expect(SwitchControl.canDisplayValueInUI(config, "false")).toEqual(true);
+    expect(ToggleControl.canDisplayValueInUI(config, "true")).toEqual(true);
+    expect(ToggleControl.canDisplayValueInUI(config, "false")).toEqual(true);
   });
 
   it("Should return false when a value other than 'true' or 'false' is passed", () => {
-    expect(SwitchControl.canDisplayValueInUI(config, "{{true}}")).toEqual(
+    expect(ToggleControl.canDisplayValueInUI(config, "{{true}}")).toEqual(
       false,
     );
   });

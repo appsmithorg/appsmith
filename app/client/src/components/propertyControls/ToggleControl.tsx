@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import { Switch } from "design-system";
+import { Toggle } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -9,18 +9,14 @@ import {
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-const StyledSwitch = styled(Switch)`
+const StyledToggle = styled(Toggle)`
   &&&& {
     padding: 0;
     margin-bottom: 4px;
   }
-
-  &&&& .bp3-control-indicator {
-    margin: 0;
-  }
 `;
 
-class SwitchControl extends BaseControl<ControlProps> {
+class ToggleControl extends BaseControl<ControlProps> {
   isUpdatedViaKeyboard = false;
   containerRef = React.createRef<HTMLDivElement>();
 
@@ -40,7 +36,7 @@ class SwitchControl extends BaseControl<ControlProps> {
 
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
-      e.detail.component === "AdsSwitch" &&
+      e.detail.component === "Toggle" &&
       e.detail.event === DSEventTypes.KEYPRESS
     ) {
       this.isUpdatedViaKeyboard = true;
@@ -54,12 +50,10 @@ class SwitchControl extends BaseControl<ControlProps> {
   render() {
     return (
       <div ref={this.containerRef}>
-        <StyledSwitch
-          checked={this.props.propertyValue}
+        <StyledToggle
           className={this.props.propertyValue ? "checked" : "unchecked"}
-          defaultChecked={this.props.propertyValue}
-          large
-          onChange={this.onToggle}
+          onToggle={this.onToggle}
+          value={this.props.propertyValue}
         />
       </div>
     );
@@ -83,6 +77,6 @@ class SwitchControl extends BaseControl<ControlProps> {
   }
 }
 
-export type SwitchControlProps = ControlProps;
+export type ToggleControlProps = ControlProps;
 
-export default SwitchControl;
+export default ToggleControl;
