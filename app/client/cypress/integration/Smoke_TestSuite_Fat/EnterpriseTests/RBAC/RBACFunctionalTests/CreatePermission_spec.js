@@ -258,7 +258,38 @@ describe("Create Permission flow ", function() {
     homePage1.DuplicateApplication(appName);
     agHelper.WaitUntilAllToastsDisappear();
   });
-  it("3. Export permission- Verify user is able to export app", function() {
+  it("3. Create Permission : Workspace level, verify user can import an application", function() {
+    // verify user should be able to import an app
+    // import application
+    cy.get(homePage.homeIcon).click();
+    cy.get(homePage.searchInput)
+      .clear()
+      .type(appName);
+    cy.get(homePage.optionsIcon)
+      .first()
+      .click();
+    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePage.workspaceImportAppModal).should("be.visible");
+    cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
+    cy.get(homePage.importAppProgressWrapper).should("be.visible");
+    cy.wait("@importNewApplication").then((interception) => {
+      cy.wait(100);
+      // should check reconnect modal opening
+      const { isPartialImport } = interception.response.body.data;
+      if (isPartialImport) {
+        // should reconnect button
+        cy.get(reconnectDatasourceModal.Modal).should("be.visible");
+        cy.get(reconnectDatasourceModal.SkipToAppBtn).click({ force: true });
+        cy.wait(2000);
+      } else {
+        cy.get(homePage.toastMessage).should(
+          "contain",
+          "Application imported successfully",
+        );
+      }
+    });
+  });
+  it("4. Export permission- Verify user is able to export app", function() {
     // verify user is able to export the app
     cy.NavigateToHome();
     cy.get(homePage.searchInput)
@@ -275,7 +306,7 @@ describe("Create Permission flow ", function() {
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.toastMessage).should("contain", "Successfully exported");
   });
-  it("4. Create permission- application resources & datasource and queries: App level", function() {
+  it("5. Create permission- application resources & datasource and queries: App level", function() {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
@@ -310,7 +341,7 @@ describe("Create Permission flow ", function() {
     cy.get(queryLocators.templateMenu).click();
     cy.WaitAutoSave();
   });
-  it("5. Create permission : Page level Create new query/jsObject in same page) ", function() {
+  it("6. Create permission : Page level Create new query/jsObject in same page) ", function() {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME3"),
@@ -343,7 +374,7 @@ describe("Create Permission flow ", function() {
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
   });
-  it("6. Delete App for user which has create access", function() {
+  it("7. Delete App for user which has create access", function() {
     // verify user is able to delete application
     cy.LogOut();
     cy.LogintoAppTestUser(
