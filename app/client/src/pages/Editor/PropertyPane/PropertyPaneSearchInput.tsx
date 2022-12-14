@@ -9,7 +9,7 @@ import { Colors } from "constants/Colors";
 //   getShouldFocusPropertySearch,
 // } from "selectors/propertyPaneSelectors";
 // import { isCurrentFocusOnInput } from "utils/editorContextUtils";
-import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "ce/constants/messages";
+import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "@appsmith/constants/messages";
 
 const SearchInputWrapper = styled.div`
   position: sticky;

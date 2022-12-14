@@ -365,7 +365,13 @@ export function* fetchPublishedPageSaga(
       // Update the canvas
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
-      yield put(updateCurrentPage(pageId, response.data.slug));
+      yield put(
+        updateCurrentPage(
+          pageId,
+          response.data.slug,
+          response.data.userPermissions,
+        ),
+      );
 
       // dispatch fetch page success
       yield put(fetchPublishedPageSuccess());
