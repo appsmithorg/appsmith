@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -50,4 +51,6 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
     Flux<PermissionGroup> findAllByAssignedToUserId(String userId);
 
     Flux<PermissionGroup> findAllByAssignedToGroupId(String userGroupId);
+
+    Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users);
 }

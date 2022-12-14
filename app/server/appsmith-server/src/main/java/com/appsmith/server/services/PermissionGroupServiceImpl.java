@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -13,7 +12,6 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -23,12 +21,13 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.PermissionGroupServiceCEImpl;
+import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
+import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.modelmapper.ModelMapper;
-import com.appsmith.server.solutions.PermissionGroupPermission;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
@@ -42,7 +41,6 @@ import javax.validation.Validator;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -396,6 +394,26 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
                 .map(tuple -> tuple.getT1());
+    }
+
+    @Override
+    public Mono<Boolean> bulkAssignToUsersWithoutPermission(PermissionGroup pg, List<User> users) {
+        ensureAssignedToUserIds(pg);
+        List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
+        Set<String> assignedToUserIds = new HashSet<>(pg.getAssignedToUserIds());
+        assignedToUserIds.addAll(userIds);
+
+        Update updateObj = new Update();
+        String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+
+        updateObj.set(path, assignedToUserIds);
+        Mono<UpdateResult> permissionGroupUpdateMono = repository.updateById(pg.getId(), updateObj);
+
+        return Mono.zip(
+                        permissionGroupUpdateMono,
+                        cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
+                )
+                .thenReturn(TRUE);
     }
 
 }

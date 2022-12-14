@@ -16,7 +16,6 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
 import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -32,8 +31,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Slf4j
@@ -162,7 +161,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         return super.userCreate(user, isAdminUser)
                 // After creating the user, assign the default role to the newly created user.
                 .flatMap(createdUser -> userUtils.getDefaultUserPermissionGroup()
-                        .flatMap(permissionGroup -> permissionGroupService.assignToUser(permissionGroup, createdUser))
+                        .flatMap(permissionGroup -> permissionGroupService.bulkAssignToUsersWithoutPermission(permissionGroup, List.of(createdUser)))
                         .then(Mono.just(createdUser))
                 );
     }
