@@ -718,7 +718,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
-        List<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibList();
+        List<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibList() == null ? new ArrayList<>() :
+                importedDoc.getCustomJSLibList();
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
@@ -890,15 +891,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
-                    Mono<List<CustomJSLibApplicationDTO>> installedJSLibMono = Flux.fromIterable(customJSLibs)
-                            .flatMap(customJSLib -> {
-                                customJSLib.setId(null);
-                                customJSLib.setCreatedAt(null);
-                                customJSLib.setUpdatedAt(null);
-                                return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false)
-                                        .map(installedLib -> installedLib);
-                            }).collectList();
-
                     importedApplication.setId(savedApp.getId());
                     if (savedApp.getGitApplicationMetadata() != null) {
                         importedApplication.setGitApplicationMetadata(savedApp.getGitApplicationMetadata());
@@ -961,6 +953,19 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                                 }
                                 return newPage;
+                            });
+
+                    Mono<List<CustomJSLibApplicationDTO>> installedJSLibMono = Flux.fromIterable(customJSLibs)
+                            .flatMap(customJSLib -> {
+                                customJSLib.setId(null);
+                                customJSLib.setCreatedAt(null);
+                                customJSLib.setUpdatedAt(null);
+                                return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
+                            })
+                            .collectList()
+                            .map(jsLibDTOList -> {
+                                importedApplication.setUnpublishedCustomJSLibs(new HashSet<>(jsLibDTOList));
+                                return jsLibDTOList;
                             });
 
                     return importedNewPagesMono
