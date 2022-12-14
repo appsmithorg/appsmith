@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
-import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 
 @Component
 public class UserUtils extends UserUtilsCE {
@@ -90,7 +90,7 @@ public class UserUtils extends UserUtilsCE {
         return configRepository.findByName(DEFAULT_USER_PERMISSION_GROUP)
                 .flatMap(defaultRoleConfig -> {
                     JSONObject config = defaultRoleConfig.getConfig();
-                    String defaultPermissionGroup = (String) config.getOrDefault(PERMISSION_GROUP_ID, "");
+                    String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
                     return permissionGroupRepository.retrieveById(defaultPermissionGroup);
                 });
     }

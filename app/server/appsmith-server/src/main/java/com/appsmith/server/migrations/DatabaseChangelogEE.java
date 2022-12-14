@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
@@ -212,9 +213,31 @@ public class DatabaseChangelogEE {
         ensureIndexes(mongoTemplate, Environment.class, createdAt, environmentUniqueness);
         ensureIndexes(mongoTemplate, EnvironmentVariable.class, createdAt);
     }
+    
+    @ChangeSet(order = "009", id = "remove-default-logo-urls", author = "")
+    public void removeDefaultLogoURLs(MongockTemplate mongockTemplate) {
+        mongockTemplate.updateMulti(
+                new Query(where("tenantConfiguration.whiteLabelLogo").is("https://assets.appsmith.com/appsmith-logo-full.png")),
+                new Update().unset("tenantConfiguration.whiteLabelLogo"),
+                Tenant.class
+        );
 
-    @ChangeSet(order = "009", id = "create-default-role-for-all-users", author = "")
+        mongockTemplate.updateMulti(
+                new Query(where("tenantConfiguration.whiteLabelFavicon").is("https://assets.appsmith.com/appsmith-favicon-orange.ico")),
+                new Update().unset("tenantConfiguration.whiteLabelFavicon"),
+                Tenant.class
+        );
+    }
+
+    @ChangeSet(order = "010", id = "create-default-role-for-all-users", author = "")
     public void createDefaultRoleForAllUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        Query instanceConfigurationQuery = new Query();
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+
+        // Get the default Instance Admin permission group Id from the DB
+        String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
+
         Query defaultRoleForUserConfig = new Query();
         defaultRoleForUserConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.DEFAULT_USER_PERMISSION_GROUP));
 
@@ -232,6 +255,16 @@ public class DatabaseChangelogEE {
         defaultRoleForUser.setName(FieldName.DEFAULT_USER_PERMISSION_GROUP);
         defaultRoleForUser.setDescription("Role for giving access to all the users by default");
         defaultRoleForUser.setTenantId(tenant.getId());
+        defaultRoleForUser.setPolicies(Set.of(
+                Policy.builder()
+                        .permission(READ_PERMISSION_GROUPS.getValue())
+                        .permissionGroups(Set.of(instanceAdminPermissionGroupId))
+                        .build(),
+                Policy.builder()
+                        .permission(MANAGE_PERMISSION_GROUPS.getValue())
+                        .permissionGroups(Set.of(instanceAdminPermissionGroupId))
+                        .build()
+        ));
 
         Query userQuery = new Query();
         userQuery.addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()))
@@ -259,27 +292,12 @@ public class DatabaseChangelogEE {
         defaultRoleConfig = new Config();
         defaultRoleConfig.setName(FieldName.DEFAULT_USER_PERMISSION_GROUP);
 
-        defaultRoleConfig.setConfig(new JSONObject(Map.of(PERMISSION_GROUP_ID, savedPermissionGroupId)));
+        defaultRoleConfig.setConfig(new JSONObject(Map.of(DEFAULT_PERMISSION_GROUP, savedPermissionGroupId)));
 
         mongockTemplate.save(defaultRoleConfig);
 
         // evict the cache entry for all the impacted users
         evictPermissionCacheForUsers(userIds, mongockTemplate, cacheableRepositoryHelper);
-    }
-    
-    @ChangeSet(order = "009", id = "remove-default-logo-urls", author = "")
-    public void removeDefaultLogoURLs(MongockTemplate mongockTemplate) {
-        mongockTemplate.updateMulti(
-                new Query(where("tenantConfiguration.whiteLabelLogo").is("https://assets.appsmith.com/appsmith-logo-full.png")),
-                new Update().unset("tenantConfiguration.whiteLabelLogo"),
-                Tenant.class
-        );
-
-        mongockTemplate.updateMulti(
-                new Query(where("tenantConfiguration.whiteLabelFavicon").is("https://assets.appsmith.com/appsmith-favicon-orange.ico")),
-                new Update().unset("tenantConfiguration.whiteLabelFavicon"),
-                Tenant.class
-        );
     }
 
 }
