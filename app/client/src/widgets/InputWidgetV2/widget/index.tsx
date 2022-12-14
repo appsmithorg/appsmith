@@ -215,24 +215,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               isTriggerProperty: false,
             },
             {
-              helpText: "Sets the label position of the widget",
-              propertyName: "multiLineTextHeight",
-              label: "Default Height",
-              controlType: "ICON_TABS",
-              fullWidth: true,
-              options: [
-                { label: "Short", value: MultiLineHeightTypes.SHORT },
-                { label: "Medium", value: MultiLineHeightTypes.MEDIUM },
-                { label: "Tall", value: MultiLineHeightTypes.LONG },
-              ],
-              defaultValue: "SHORT",
-              isBindProperty: false,
-              isTriggerProperty: false,
-              dependencies: ["inputType"],
-              hidden: (props: WidgetProps) =>
-                props.inputType !== InputTypes.MULTI_LINE_TEXT,
-            },
-            {
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",

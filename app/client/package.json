@@ -130,6 +130,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-table": "^7.0.0",
     "react-tabs": "^3.0.0",
+    "react-textarea-autosize": "^8.4.0",
     "react-timer-hook": "^3.0.4",
     "react-toastify": "^5.5.0",
     "react-use-gesture": "^7.0.4",

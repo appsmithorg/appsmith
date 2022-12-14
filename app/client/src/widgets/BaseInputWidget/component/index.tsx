@@ -8,10 +8,10 @@ import {
   InputGroup,
   Classes,
   ControlGroup,
-  TextArea,
   Tag,
   IRef,
 } from "@blueprintjs/core";
+import TextArea from "react-textarea-autosize";
 import _, { isNil } from "lodash";
 
 import { ComponentProps } from "widgets/BaseComponent";
@@ -564,21 +564,18 @@ class BaseInputComponent extends React.Component<
       autoFocus={this.props.autoFocus}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
-      growVertically
-      inputRef={this.props.inputRef as IRef<HTMLTextAreaElement>}
-      intent={this.props.intent}
       maxLength={this.props.maxChars}
+      minRows={2}
       onBlur={() => this.setFocusState(false)}
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
       onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
+      ref={this.props.inputRef as IRef<HTMLTextAreaElement>}
       style={{
         resize: isResizeAllowed ? "vertical" : "none",
-        height: multilineInputHeight
-          ? multilineInputHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-          : "auto",
+        padding: 10,
       }}
       value={this.props.value}
     />
