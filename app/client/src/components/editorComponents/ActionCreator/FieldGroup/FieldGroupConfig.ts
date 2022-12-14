@@ -65,12 +65,12 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.showModal]: {
     label: createMessage(OPEN_MODAL),
     fields: [FieldType.SHOW_MODAL_FIELD],
-    defaultParams: "",
+    defaultParams: `''`,
   },
   [AppsmithFunction.closeModal]: {
     label: createMessage(CLOSE_MODAL),
     fields: [FieldType.CLOSE_MODAL_FIELD],
-    defaultParams: "",
+    defaultParams: `''`,
   },
   [AppsmithFunction.storeValue]: {
     label: createMessage(STORE_VALUE),
