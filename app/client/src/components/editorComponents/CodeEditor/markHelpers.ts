@@ -1,6 +1,7 @@
-import CodeMirror from "codemirror";
+import CodeMirror, { Token } from "codemirror";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
 import { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import { NavigationData } from "selectors/navigationSelectors";
 
 export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
   editor.eachLine((line: CodeMirror.LineHandle) => {
@@ -74,33 +75,51 @@ export const entityMarker: MarkHelper = (
             atomic: false,
           },
         );
-        const childNodes = entityNavigationData[tokenString].children;
-        if (Object.keys(childNodes).length) {
-          const tokenAtEnd = editor.getTokenAt({
-            ch: token.end + 2,
-            line: lineNo,
-          });
-          if (tokenAtEnd.string in childNodes) {
-            const childLink = childNodes[tokenAtEnd.string];
-            editor.markText(
-              { ch: tokenAtEnd.start, line: lineNo },
-              { ch: tokenAtEnd.end, line: lineNo },
-              {
-                className: NAVIGATION_CLASSNAME,
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                attributes: {
-                  [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
-                },
-                atomic: false,
-              },
-            );
-          }
-        }
+        addMarksForChildren(
+          entityNavigationData[tokenString],
+          lineNo,
+          token,
+          editor,
+        );
       } else if (existingMarking.length) {
         // debugger;
         // existingMarking.forEach((mark) => mark.clear());
       }
     });
   });
+};
+
+const addMarksForChildren = (
+  navigationData: NavigationData,
+  lineNo: number,
+  token: Token,
+  editor: CodeMirror.Editor,
+) => {
+  const childNodes = navigationData.children;
+  if (Object.keys(childNodes).length) {
+    const tokenAtEnd = editor.getTokenAt(
+      {
+        ch: token.end + 2,
+        line: lineNo,
+      },
+      true,
+    );
+    debugger;
+    if (tokenAtEnd.string in childNodes) {
+      const childLink = childNodes[tokenAtEnd.string];
+      editor.markText(
+        { ch: tokenAtEnd.start, line: lineNo },
+        { ch: tokenAtEnd.end, line: lineNo },
+        {
+          className: NAVIGATION_CLASSNAME,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          attributes: {
+            [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
+          },
+          atomic: false,
+        },
+      );
+    }
+  }
 };
