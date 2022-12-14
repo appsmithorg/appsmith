@@ -1,0 +1,42 @@
+name: Appsmith Client Build Workflow Sonarqube Mini
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/client
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # Github Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
+
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Checkout the merged commit from PR and base branch
+        if: inputs.pr != 0
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0
+
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
