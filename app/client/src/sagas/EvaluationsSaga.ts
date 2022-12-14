@@ -55,7 +55,7 @@ import {
 import { JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isUndefined } from "lodash";
+import { get, isEmpty, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -93,7 +93,10 @@ import { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationR
 import { FormEvalActionPayload } from "./FormEvaluationSaga";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { updateMetaState } from "actions/metaActions";
-import { getAllActionValidationConfig } from "selectors/entitiesSelector";
+import {
+  getAllActionValidationConfig,
+  getJSFunctionFromName,
+} from "selectors/entitiesSelector";
 import {
   DataTree,
   UnEvalTree,
@@ -108,6 +111,8 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
+import { JSFunctionData } from "workers/Evaluation/JSObject/utils";
+import { AppState } from "ce/reducers";
 
 const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -294,6 +299,29 @@ export function* evaluateAndExecuteDynamicTrigger(
 
       const { result } = requestData;
       yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
+
+      if (!isEmpty(result.JSData)) {
+        const dataStore = result.JSData as Record<string, JSFunctionData>;
+
+        for (const key of Object.keys(dataStore)) {
+          const jsAction:
+            | JSAction
+            | undefined = yield select((state: AppState) =>
+            getJSFunctionFromName(state, key),
+          );
+          if (jsAction) {
+            yield put({
+              type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+              payload: {
+                results: dataStore[key].data,
+                collectionId: jsAction.collectionId,
+                actionId: jsAction.id,
+                isDirty: false,
+              },
+            });
+          }
+        }
+      }
 
       // Check for any logs in the response and store them in the redux store
       if (

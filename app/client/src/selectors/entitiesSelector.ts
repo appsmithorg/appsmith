@@ -412,6 +412,19 @@ export const getJSCollection = (
   return jsaction ? jsaction.config : undefined;
 };
 
+export const getJSFunctionFromName = (state: AppState, name: string) => {
+  const collectionName = name.split(".")[0];
+  const functionName = name.split(".")[1];
+  const jsCollection = find(
+    state.entities.jsActions,
+    (a) => a.config.name === collectionName,
+  );
+  if (jsCollection) {
+    return find(jsCollection.config.actions, (a) => a.name === functionName);
+  }
+  return undefined;
+};
+
 export function getCurrentPageNameByActionId(
   state: AppState,
   actionId: string,

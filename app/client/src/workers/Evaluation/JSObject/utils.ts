@@ -246,3 +246,31 @@ export function getAppMode(dataTree: DataTree) {
   const appsmithObj = dataTree.appsmith as DataTreeAppsmith;
   return appsmithObj.mode as APP_MODE;
 }
+function isPromise(value: any): value is Promise<unknown> {
+  return Boolean(value && typeof value.then === "function");
+}
+export interface JSFunctionData {
+  data: any;
+}
+export function JSFunctionProxy(
+  JSFunction: (...args: unknown[]) => unknown,
+  store: Record<string, JSFunctionData>,
+  jsFunctionFullName: string,
+) {
+  const JSFunctionProxyHandler = {
+    apply: function(target: any, thisArg: any, argumentsList: any) {
+      const returnValue = Reflect.apply(target, thisArg, argumentsList);
+      if (isPromise(returnValue)) {
+        return Promise.resolve(returnValue).then(function(result) {
+          store[jsFunctionFullName] = { data: result };
+          return new Promise((resolve) => {
+            resolve(result);
+          });
+        });
+      }
+      store[jsFunctionFullName] = { data: returnValue };
+      return returnValue;
+    },
+  };
+  return new Proxy(JSFunction, JSFunctionProxyHandler);
+}
