@@ -32,12 +32,12 @@ export default function LeftPane() {
     <Wrapper>
       <HeaderContainer>
         <StyledHeader>Admin Settings</StyledHeader>
+        <Categories
+          categories={categories}
+          currentCategory={category}
+          currentSubCategory={subCategory}
+        />
       </HeaderContainer>
-      <Categories
-        categories={categories}
-        currentCategory={category}
-        currentSubCategory={subCategory}
-      />
       {featureFlags.RBAC && (
         <HeaderContainer>
           <StyledHeader>Access Control</StyledHeader>
