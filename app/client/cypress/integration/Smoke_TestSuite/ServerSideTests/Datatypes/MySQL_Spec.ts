@@ -15,7 +15,7 @@ describe("MySQL Datatype tests", function() {
     cy.fixture("Datatypes/mySQLdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    appSettings.openPaneAndChangeTheme("Moon");
+    appSettings.OpenPaneAndChangeTheme("Moon");
   });
 
   it("1. Create Mysql DS", function() {
@@ -35,6 +35,7 @@ describe("MySQL Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
+    ee.ExpandCollapseEntity("Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer(inputData.tableName),

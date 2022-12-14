@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import { getJSCollection, getJSCollections } from "selectors/entitiesSelector";
@@ -26,7 +27,10 @@ import {
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
-import { createJSCollectionRequest } from "actions/jsActionActions";
+import {
+  createJSCollectionRequest,
+  logActionExecutionForAudit,
+} from "actions/jsActionActions";
 import history from "utils/history";
 import { executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
@@ -286,7 +290,9 @@ function* updateJSCollection(data: {
           );
           // delete all execution error logs for deletedActions if present
           deletedActions.forEach((action) =>
-            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
+            AppsmithConsole.deleteErrors([
+              { id: `${jsCollection.id}-${action.id}` },
+            ]),
           );
         }
 
@@ -383,6 +389,15 @@ export function* handleExecuteJSFunctionSaga(data: {
         isDirty,
       },
     });
+    yield put(
+      logActionExecutionForAudit({
+        actionName: action.name,
+        actionId: action.id,
+        collectionId: collectionId,
+        pageId: action.pageId,
+        pageName: yield select(getCurrentPageName),
+      }),
+    );
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
@@ -399,22 +414,26 @@ export function* handleExecuteJSFunctionSaga(data: {
         variant: Variant.success,
       });
   } catch (error) {
-    AppsmithConsole.addError({
-      id: actionId,
-      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: createMessage(JS_EXECUTION_FAILURE),
-      source: {
-        type: ENTITY_TYPE.JSACTION,
-        name: collectionName + "." + action.name,
-        id: collectionId,
-      },
-      messages: [
-        {
-          message: (error as Error).message,
-          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: createMessage(JS_EXECUTION_FAILURE),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collectionName + "." + action.name,
+            id: collectionId,
+          },
+          messages: [
+            {
+              message: (error as Error).message,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            },
+          ],
         },
-      ],
-    });
+      },
+    ]);
     Toaster.show({
       text:
         (error as Error).message || createMessage(JS_EXECUTION_FAILURE_TOASTER),

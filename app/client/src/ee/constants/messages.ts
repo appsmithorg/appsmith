@@ -39,7 +39,7 @@ export const BOTTOM_BAR_CLEAR_BTN = () => `Clear`;
 export const ACL_INVITE_MODAL_TITLE = () => `Add Users`;
 export const ACL_INVITE_MODAL_MESSAGE = () =>
   `Add email id(s) and select group(s)`;
-/*export const INVITE_USERS_MESSAGE = () => `Invite users or user groups`;
+/*export const INVITE_USERS_MESSAGE = () => `Invite users or groups`;
 export const INVITE_USERS_PLACEHOLDER = () => `Enter email address or group`;
 export const INVITE_USERS_VALIDATION_EMAIL_LIST = () =>
   `Invalid Email address(es) or user group(s) found`;*/
@@ -62,3 +62,8 @@ export const USER_LABEL = () => "User";
 export const DATE_LABEL = () => "Date";
 export const REFRESH = () => "REFRESH";
 // Audit logs end
+
+// Branding
+export const ADMIN_BRANDING_SETTINGS_TITLE = () => "Branding";
+export const ADMIN_BRANDING_SETTINGS_SUBTITLE = () =>
+  "Set your organization's logo and brand colors.";

@@ -10,6 +10,7 @@ export const StyledAuditLogsRightPaneContainer = styled.div`
 export const StyledAuditLogsContainer = styled.div`
   max-width: 1132px;
   margin: auto;
+  min-width: 1000px;
 `;
 
 export const StyledAuditLogsTableContainer = styled.div`
@@ -68,7 +69,8 @@ export const StyledAuditLogsTableRowContainer = styled.div<{ isOpen: boolean }>`
   display: flex;
   gap: 5px;
   margin: 0 16px;
-  height: 40px;
+  min-height: 40px;
+  padding: 8px 0;
   align-items: center;
   /* Show shadow it if this is not open */
   box-shadow: ${(props) =>

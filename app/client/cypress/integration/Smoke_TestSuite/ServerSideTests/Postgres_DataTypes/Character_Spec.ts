@@ -14,7 +14,7 @@ describe("Character Datatype tests", function() {
     cy.fixture("Datatypes/CharacterDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    appSettings.openPaneAndChangeTheme("Pacific");
+    appSettings.OpenPaneAndChangeTheme("Pacific");
   });
 
   it("1. Create Postgress DS", function() {

@@ -5,6 +5,8 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.ApplicationMode;
@@ -49,7 +51,19 @@ public class AuditLogEvents {
         USER_LOGGED_OUT,
         USER_SIGNED_UP,
         USER_INVITED,
-        INSTANCE_SETTING_UPDATED
+        INSTANCE_SETTING_UPDATED,
+        GROUP_CREATED,
+        GROUP_UPDATED,
+        GROUP_DELETED,
+        GROUP_INVITE_USERS,
+        GROUP_REMOVE_USERS,
+        ROLE_CREATED,
+        ROLE_UPDATED,
+        ROLE_DELETED,
+        ROLE_ASSIGNED_GROUPS,
+        ROLE_ASSIGNED_USERS,
+        ROLE_UNASSIGNED_GROUPS,
+        ROLE_UNASSIGNED_USERS
     }
 
     // Map of AnalyticEvent name with their corresponding Audit Log Action name
@@ -69,7 +83,15 @@ public class AuditLogEvents {
             entry(AnalyticsEvents.FIRST_LOGIN.getEventName(), FieldName.SIGNED_UP),
             entry(AnalyticsEvents.EXECUTE_INVITE_USERS.getEventName(), FieldName.INVITED),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.UPDATED),
-            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.UPDATED)
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.UPDATED),
+            entry(AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS.getEventName(), FieldName.INVITE_USERS_TO_USER_GROUPS),
+            entry(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS.getEventName(), FieldName.REMOVE_USERS_FROM_USER_GROUPS),
+            entry(AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP.getEventName(), FieldName.ASSIGNED_TO_PERMISSION_GROUPS),
+            entry(AnalyticsEvents.UNASSIGNED_FROM_PERMISSION_GROUP.getEventName(), FieldName.UNASSIGNED_FROM_PERMISSION_GROUPS),
+            entry(AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP.getEventName(), FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS),
+            entry(AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP.getEventName(), FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS),
+            entry(AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP.getEventName(), FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS),
+            entry(AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP.getEventName(), FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS)
     );
 
     // Map of Appsmith resource name with their corresponding Audit Log resource name
@@ -80,6 +102,8 @@ public class AuditLogEvents {
             entry(NewPage.class.getSimpleName(), FieldName.PAGE),
             entry(NewAction.class.getSimpleName(), FieldName.QUERY),
             entry(User.class.getSimpleName(), FieldName.USER),
+            entry(UserGroup.class.getSimpleName(), FieldName.GROUP),
+            entry(PermissionGroup.class.getSimpleName(), FieldName.ROLE),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.INSTANCE_SETTING),
             entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING)
     );

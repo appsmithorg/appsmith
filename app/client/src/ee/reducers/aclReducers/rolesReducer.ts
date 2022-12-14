@@ -2,7 +2,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { RoleProps } from "@appsmith/pages/AdminSettings/acl/types";
+import { RoleProps } from "@appsmith/pages/AdminSettings/AccessControl/types";
 
 export const rolesReducers = {
   [ReduxActionTypes.FETCH_ACL_ROLES]: (state: any) => ({
@@ -129,5 +129,10 @@ export const rolesReducers = {
     ...state,
     iconLocations: [],
     isLoading: false,
+  }),
+  [ReduxActionTypes.RESET_ROLES_DATA]: (state: any) => ({
+    ...state,
+    selectedRole: null,
+    roles: [],
   }),
 };

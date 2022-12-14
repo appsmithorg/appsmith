@@ -80,12 +80,3 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com
-
-    - uid: AUDIT_LOGS
-      enable: true
-      description: Enable Audit Logs
-      flipstrategy:
-        class: org.ff4j.strategy.PonderationStrategy
-        param:
-          - name: weight
-            value: 1

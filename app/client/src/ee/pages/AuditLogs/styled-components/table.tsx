@@ -24,23 +24,56 @@ export const StyledAuditLogsTableHead = styled.div`
 export const StyledEventDescriptionColumnContainer = styled.div`
   width: 55%;
   min-width: 550px;
+  height: 40px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  color: #393939;
+`;
+export const StyledDescriptionRow = styled(
+  StyledEventDescriptionColumnContainer,
+)`
+  align-items: flex-start;
+`;
+export const StyledDescriptionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+export const StyledMainDescription = styled.div`
+  span {
+    font-weight: 600;
+  }
+`;
+export const StyledSubDescription = styled.div`
+  color: #939393;
 `;
 
 export const StyledUserColumnContainer = styled.div`
   width: 25%;
-  min-width: 250px;
   cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  & .event-user:hover {
-    border-bottom: 1px dotted rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+  min-width: 250px;
+  .event-user {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 200px;
+    color: #575757;
+    font-size: 13px;
+    &.name {
+      font-weight: 500;
+      font-size: 14px;
+    }
   }
+`;
+export const StyledProfileData = styled.div`
+  min-width: 200px;
 `;
 
 export const StyledDateColumnContainer = styled.div`
@@ -52,5 +85,13 @@ export const StyledDateColumnContainer = styled.div`
   & .column-header,
   .audit-logs-table-head & {
     cursor: pointer;
+  }
+`;
+export const StyledDateInfoContainer = styled.div`
+  width: 20%;
+  min-width: 200px;
+  color: #393939;
+  .time {
+    color: #939393;
   }
 `;

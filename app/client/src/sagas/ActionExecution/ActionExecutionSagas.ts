@@ -193,7 +193,9 @@ function* initiateActionTriggerExecution(
   const { event, source, triggerPropertyName } = action.payload;
   // Clear all error for this action trigger. In case the error still exists,
   // it will be created again while execution
-  AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
+  AppsmithConsole.deleteErrors([
+    { id: `${source?.id}-${triggerPropertyName}` },
+  ]);
   try {
     yield call(executeAppAction, action.payload);
     if (event.callback) {

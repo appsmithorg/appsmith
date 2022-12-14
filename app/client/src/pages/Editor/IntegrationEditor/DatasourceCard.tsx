@@ -310,7 +310,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           <ButtonsWrapper className="action-wrapper">
             {(!datasource.isConfigured || supportTemplateGeneration) && (
               <GenerateTemplateOrReconnect
-                category={Category.tertiary}
+                category={Category.secondary}
                 className={
                   datasource.isConfigured
                     ? "t--generate-template"

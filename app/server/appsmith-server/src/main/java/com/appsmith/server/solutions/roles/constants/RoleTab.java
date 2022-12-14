@@ -243,12 +243,12 @@ public enum RoleTab {
 
     // Add a representation of duplicate entities in a given tab and the entity type to differentiate the acl permissions
     // represented by simpler viewable names
-    private List<Tuple3<String, Class, List<AclPermission>>> duplicateEntities;
+    private List<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntities;
 
     RoleTab(String name,
             Set<AclPermission> permissions,
             List<PermissionViewableName> viewablePermissions,
-            List<Tuple3<String, Class, List<AclPermission>>> duplicateEntities) {
+            List<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntities) {
 
         this.name = name;
         this.permissions = permissions;

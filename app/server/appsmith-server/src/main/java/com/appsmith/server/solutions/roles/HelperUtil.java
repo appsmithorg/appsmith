@@ -154,4 +154,16 @@ public class HelperUtil {
         return hierarchicalLateralMap;
     }
 
+    public static Map<AclPermission, Set<AclPermission>> getLateralPermMap(Set<AclPermission> permissions,
+                                                                           PolicyGenerator policyGenerator, RoleTab roleTab) {
+        Set<AclPermission> tabPermissions = roleTab.getPermissions();
+
+        return permissions.stream()
+                .map(permission -> {
+                    Set<AclPermission> lateralPermissions = policyGenerator.getLateralPermissions(permission, tabPermissions);
+                    return Tuples.of(permission, lateralPermissions);
+                })
+                .collect(Collectors.toMap(t -> t.getT1(), t -> t.getT2()));
+    }
+
 }

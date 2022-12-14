@@ -1,7 +1,9 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
@@ -63,6 +65,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final UserService userService;
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserGroupRepository userGroupRepository;
+    private final AnalyticsService analyticsService;
     private final UserDataRepository userDataRepository;
 
     public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
@@ -88,6 +91,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.tenantService = tenantService;
         this.permissionGroupRepository = permissionGroupRepository;
         this.userGroupRepository = userGroupRepository;
+        this.analyticsService = analyticsService;
         this.userDataRepository = userDataRepository;
     }
 
@@ -281,8 +285,23 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         List<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toList());
         permissionGroup.getAssignedToUserIds().addAll(userIds);
         permissionGroup.getAssignedToGroupIds().addAll(groupIds);
+        List<String> usernames = users.stream().map(User::getUsername).collect(Collectors.toList());
+        List<String> userGroupNames = groups.stream().map(UserGroup::getName).collect(Collectors.toList());
         return permissionGroupRepository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.ASSIGN_PERMISSION_GROUPS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)))
+                .flatMap(permissionGroup1 -> {
+                    Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
+                            FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
+                    AnalyticsEvents assignedEvent;
+                    if (! usernames.isEmpty() && ! userGroupNames.isEmpty()) {
+                        assignedEvent = AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP;
+                    } else if (! usernames.isEmpty()) {
+                        assignedEvent = AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP;
+                    } else {
+                        assignedEvent = AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP;
+                    }
+                    return analyticsService.sendObjectEvent(assignedEvent, permissionGroup1, eventData);
+                });
 
     }
 
@@ -294,8 +313,23 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         List<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toList());
         userIds.forEach(permissionGroup.getAssignedToUserIds()::remove);
         groupIds.forEach(permissionGroup.getAssignedToGroupIds()::remove);
+        List<String> usernames = users.stream().map(User::getUsername).collect(Collectors.toList());
+        List<String> userGroupNames = groups.stream().map(UserGroup::getName).collect(Collectors.toList());
         return permissionGroupRepository.updateById(permissionGroup.getId(), permissionGroup, UNASSIGN_PERMISSION_GROUPS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)))
+                .flatMap(pg -> {
+                    Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames,
+                            FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, userGroupNames);
+                    AnalyticsEvents unassignedEvent;
+                    if (! usernames.isEmpty() && ! userGroupNames.isEmpty())
+                        unassignedEvent = AnalyticsEvents.UNASSIGNED_FROM_PERMISSION_GROUP;
+                    else if (! usernames.isEmpty())
+                        unassignedEvent = AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP;
+                    else
+                        unassignedEvent = AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP;
+                    return analyticsService.sendObjectEvent(unassignedEvent,
+                            pg, eventData);
+                });
     }
 
     protected void ensureAssignedToUserIds(PermissionGroup permissionGroup) {

@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -41,6 +42,7 @@ import javax.validation.Validator;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -237,7 +239,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                             )
                             .then(repository.archiveById(id));
                 })
-                .then(permissionGroupMono);
+                .then(permissionGroupMono.flatMap(analyticsService::sendDeleteEvent));
     }
 
     @Override
@@ -318,6 +320,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     @Override
     public Mono<RoleViewDTO> createCustomPermissionGroup(PermissionGroup permissionGroup) {
         return this.create(permissionGroup)
+                .flatMap(analyticsService::sendCreateEvent)
                 .flatMap(createdPermissionGroup -> this.findConfigurableRoleById(createdPermissionGroup.getId()));
     }
 

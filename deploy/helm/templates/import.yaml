@@ -1,0 +1,8 @@
+{{- /* Fail helm chart if autoscaling is enabled and mongo is disabled */ -}}
+{{- if and ( .Values.autoscaling.enabled ) ( not .Values.mongodb.enabled ) ( not .Values.applicationConfig.APPSMITH_MONGODB_URI ) }}
+{{- fail "We Recommend enabling mongo if autoscaling is enabled" }}
+{{- end }}
+{{- /* Fail helm chart if autoscaling is enabled and postgresql is disabled */ -}}
+{{- if and ( .Values.autoscaling.enabled ) ( not .Values.postgresql.enabled ) ( not .Values.applicationConfig.APPSMITH_KEYCLOAK_DB_URL ) }}
+{{- fail "We Recommend enabling postgresql to have HA for keycloak or an external postgres" }}
+{{- end }}

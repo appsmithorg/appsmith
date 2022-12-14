@@ -1,7 +1,10 @@
 package com.appsmith.server.solutions.roles;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -111,7 +114,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         String tabName = updateRoleConfigDTO.getTabName();
         RoleTab tab = RoleTab.getTabByValue(tabName);
         List<PermissionViewableName> viewablePermissions = tab.getViewablePermissions();
-        List<Tuple3<String, Class, List<AclPermission>>> duplicateEntities = tab.getDuplicateEntities();
+        List<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntities = tab.getDuplicateEntities();
         List<Mono<Long>> sideEffects = new ArrayList<>();
         List<Mono<Boolean>> postAllUpdatesSideEffects = new ArrayList<>();
 
@@ -134,12 +137,12 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     } catch (ClassNotFoundException e) {
                         log.debug("DEBUG : Class not found for entity : {}", entity);
                         // This must be a custom header (aka same entity type but different name)
-                        Optional<Tuple3<String, Class, List<AclPermission>>> duplicateEntityClassOptional = duplicateEntities.stream()
+                        Optional<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntityClassOptional = duplicateEntities.stream()
                                 .filter(entityTuple -> entityTuple.getT1().equals(name))
                                 .findFirst();
 
                         if (duplicateEntityClassOptional.isPresent()) {
-                            Tuple3<String, Class, List<AclPermission>> entityTuple = duplicateEntityClassOptional.get();
+                            Tuple3<String, Class<?>, List<AclPermission>> entityTuple = duplicateEntityClassOptional.get();
                             aClass = (Class<?>) entityTuple.getT2();
                             permissionsOfInterestIfDuplicate = entityTuple.getT3();
                         }
@@ -151,9 +154,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     }
 
                     if (!CollectionUtils.isEmpty(duplicateEntities)) {
-                        for (Tuple3<String, Class, List<AclPermission>> duplicateEntity : duplicateEntities) {
+                        for (Tuple3<String, Class<?>, List<AclPermission>> duplicateEntity : duplicateEntities) {
                             String entityName = duplicateEntity.getT1();
-                            Class entityClass = duplicateEntity.getT2();
+                            Class<?> entityClass = duplicateEntity.getT2();
                             if (entityName.equals(name) && entityClass.equals(aClass)) {
                                 permissionsOfInterestIfDuplicate = duplicateEntity.getT3();
                             }
@@ -262,7 +265,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
     private void computeSideEffectOfPermissionChange(List<Mono<Long>> sideEffects,
                                                      RoleTab tab,
-                                                     Class aClazz,
+                                                     Class<?> aClazz,
                                                      String id,
                                                      List<Integer> permissions,
                                                      String permissionGroupId,
@@ -291,7 +294,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         }
     }
 
-    private Class getClass(String name) throws ClassNotFoundException {
+    private Class<?> getClass(String name) throws ClassNotFoundException {
         String completeClassName = "com.appsmith.server.domains." + name;
         try {
             return Class.forName(completeClassName);

@@ -3,7 +3,7 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { UserListing } from "../acl/UserListing";
+import { UserListing } from "../AccessControl/UserListing";
 
 export const config: AdminConfigType = {
   icon: "user-3-line",

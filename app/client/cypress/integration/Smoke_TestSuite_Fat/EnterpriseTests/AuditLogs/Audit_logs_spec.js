@@ -120,10 +120,9 @@ describe("Audit logs", () => {
             cy.wrap(optionsContainer)
               .children(/* All "user" related options */)
               .should("have.length", userEvents.length)
-              .first(/* User invited option */)
+              .eq(4)
               .should("have.text", userEvents[0].label)
-              .siblings()
-              .first(/* User logged in option */)
+              .next()
               .should("have.text", userEvents[1].label)
               .click(/* Clicking user logged in */)
               .find(".t--dropdown-option.selected")
@@ -155,7 +154,7 @@ describe("Audit logs", () => {
                   .eq(1)
                   .then((email) => {
                     cy.wrap(email)
-                      .contains(Cypress.env("USERNAME"), {
+                      .contains(Cypress.env("USERNAME").substr(0, 10), {
                         matchCase: false,
                       })
                       .click()
@@ -244,7 +243,7 @@ describe("Audit logs", () => {
       cy.openWorkspaceOptionsPopup(defaultWorkspaceName);
       cy.get(homePage.workspaceNamePopoverContent)
         .find("a")
-        .eq(5)
+        .last()
         .contains("Delete Workspace")
         .click();
       cy.contains("Are you sure").click();
@@ -351,7 +350,7 @@ describe("Audit logs", () => {
             .text()
             .should(
               "contain.text",
-              `${applicationName} updated in ${defaultWorkspaceName}`,
+              `${applicationName} updatedin ${defaultWorkspaceName}`,
             );
 
           cy.get(locators.RowsContainer)
@@ -361,7 +360,7 @@ describe("Audit logs", () => {
             .eq(0)
             .children()
             .eq(0)
-            .should("contain.text", `Page1 updated in Untitled application...`);
+            .should("contain.text", `Page1 updatedin Untitled application 1`);
 
           cy.get(locators.RowsContainer)
             .children()
@@ -370,7 +369,7 @@ describe("Audit logs", () => {
             .eq(0)
             .children()
             .eq(0)
-            .should("contain.text", `Page1 viewed in Untitled application...`);
+            .should("contain.text", `Page1 viewedin Untitled application 1`);
 
           cy.get(locators.RowsContainer)
             .children()
@@ -379,7 +378,7 @@ describe("Audit logs", () => {
             .eq(0)
             .children()
             .eq(0)
-            .should("contain.text", `Page1 viewed in Untitled application...`);
+            .should("contain.text", `Page1 viewedin Untitled application 1`);
 
           cy.get(locators.RowsContainer)
             .children()
@@ -390,7 +389,7 @@ describe("Audit logs", () => {
             .eq(0)
             .should(
               "contain.text",
-              `Untitled application... deployed in ${defaultWorkspaceName}`,
+              `Untitled application 1 deployedin ${defaultWorkspaceName}`,
             );
 
           cy.get(locators.RowsContainer)
@@ -400,7 +399,7 @@ describe("Audit logs", () => {
             .eq(0)
             .children()
             .eq(0)
-            .should("contain.text", `Page1 created in Untitled application...`);
+            .should("contain.text", `Page1 createdin Untitled application 1`);
 
           cy.get(locators.RowsContainer)
             .children()
@@ -411,7 +410,7 @@ describe("Audit logs", () => {
             .eq(0)
             .should(
               "contain.text",
-              `Untitled application... created in ${defaultWorkspaceName}`,
+              `Untitled application 1 createdin ${defaultWorkspaceName}`,
             );
 
           cy.get(locators.RowsContainer)
@@ -427,7 +426,7 @@ describe("Audit logs", () => {
             .children()
             .eq(1)
             .then((email) => {
-              cy.wrap(email).contains(Cypress.env("USERNAME"), {
+              cy.wrap(email).contains(Cypress.env("USERNAME").substr(0, 10), {
                 matchCase: false,
               });
             });

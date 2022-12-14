@@ -2,9 +2,6 @@ import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { splitPathPreview } from "utils/helpers";
 
-export const specialCharacterCheckRegex = /^[A-Za-z0-9\s\-]+$/;
-export const appNameRegex = /^[A-Za-z0-9\s\-()]+$/;
-
 export const getUrlPreview = (
   pageId: string,
   newPageName: string,
@@ -13,6 +10,13 @@ export const getUrlPreview = (
   currentCustomSlug?: string,
 ) => {
   let relativePath: string;
+
+  newPageName = filterAccentedAndSpecialCharacters(newPageName);
+  currentPageName = filterAccentedAndSpecialCharacters(currentPageName);
+  newCustomSlug &&
+    (newCustomSlug = filterAccentedAndSpecialCharacters(newCustomSlug));
+  currentCustomSlug &&
+    (currentCustomSlug = filterAccentedAndSpecialCharacters(currentCustomSlug));
 
   // when page name is changed
   // and when custom slug doesn't exist
@@ -40,4 +44,10 @@ export const getUrlPreview = (
     relativePath,
     splitRelativePath: splitPathPreview(relativePath, newCustomSlug),
   };
+};
+
+const filterAccentedAndSpecialCharacters = (value: string) => {
+  return decodeURI(value)
+    .replaceAll(" ", "-")
+    .replaceAll(/[^A-Za-z0-9-]/g, "");
 };

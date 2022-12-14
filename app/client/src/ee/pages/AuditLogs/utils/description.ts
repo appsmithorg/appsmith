@@ -9,38 +9,84 @@ import { titleCase } from "./titleCase";
 import { ellipsis } from "./ellipsis";
 import { invited } from "./invited";
 
-const ACTION_MAP: Record<string, string> = {
-  cloned: "cloned in",
-  created: "created in",
-  executed: "executed in",
-  deleted: "deleted in",
-  deployed: "deployed in",
-  exported: "exported from",
-  forked: "forked to",
-  imported: "imported to",
-  logged_in: "logged in",
-  logged_out: "logged out",
-  signed_up: "signed up",
-  updated: "updated in",
-  viewed: "viewed in",
+export type MainDescriptionType = {
+  resourceType: string;
+  actionType: string;
 };
 
-const RESOURCE_DESCRIPTION_MAP: Record<
-  string,
-  (data: DescriptionDataType) => string
-> = {
-  application: (data: DescriptionDataType) =>
-    `${data.resource} ${ACTION_MAP[data.action]} ${data.workspace}`,
-  datasource: (data: DescriptionDataType) =>
-    `${data.resource} ${ACTION_MAP[data.action]} ${data.workspace}`,
-  page: (data: DescriptionDataType) =>
-    `${data.resource} ${ACTION_MAP[data.action]} ${data.application}`,
-  query: (data: DescriptionDataType) =>
-    `${data.resource} ${ACTION_MAP[data.action]} ${data.page}`,
-  workspace: (data: DescriptionDataType) => `${data.resource} ${data.action}`,
-  user: (data: DescriptionDataType) =>
-    `${data.userName || data.userEmail} ${ACTION_MAP[data.action]}`,
+export type MultilineDescription = {
+  mainDescription: MainDescriptionType;
+  subDescription: string;
 };
+
+export type IconisedDescription = {
+  hasDescriptiveIcon: boolean;
+  icon: IconInfo;
+  description: MultilineDescription;
+};
+
+export type ActionMapType = {
+  action: string;
+  preposition: string;
+};
+
+const ACTION_MAP: Record<string, ActionMapType> = {
+  cloned: { action: "cloned", preposition: "in" },
+  created: { action: "created", preposition: "in" },
+  executed: { action: "executed", preposition: "in" },
+  deleted: { action: "deleted", preposition: "in" },
+  deployed: { action: "deployed", preposition: "in" },
+  exported: { action: "exported", preposition: "from" },
+  forked: { action: "forked", preposition: "to" },
+  imported: { action: "imported", preposition: "to" },
+  logged_in: { action: "logged in", preposition: "" },
+  logged_out: { action: "logged out", preposition: "" },
+  signed_up: { action: "signed up", preposition: "" },
+  updated: { action: "updated", preposition: "in" },
+  viewed: { action: "viewed", preposition: "in" },
+};
+
+function createResourceDescription(
+  resourceType: string,
+  data: DescriptionDataType,
+  description: MultilineDescription,
+): MultilineDescription {
+  description.mainDescription.resourceType = data.resource;
+  description.mainDescription.actionType =
+    ACTION_MAP[data.action]["action"] || "";
+
+  switch (resourceType) {
+    case "application":
+      description.subDescription = `${ACTION_MAP[data.action]["preposition"]} ${
+        data.workspace
+      }`;
+      break;
+    case "datasource":
+      description.subDescription = `${ACTION_MAP[data.action]["preposition"]} ${
+        data.workspace
+      }`;
+      break;
+    case "page":
+      description.subDescription = `${ACTION_MAP[data.action]["preposition"]} ${
+        data.application
+      }`;
+      break;
+    case "query":
+      description.subDescription = `${ACTION_MAP[data.action]["preposition"]} ${
+        data.page
+      }`;
+      break;
+    case "workspace":
+      description.subDescription = "";
+      break;
+    case "user":
+      description.mainDescription.resourceType =
+        data.userName || data.userEmail;
+      description.subDescription = "";
+      break;
+  }
+  return description;
+}
 
 /**
  * generateDescription generates event description
@@ -49,35 +95,50 @@ const RESOURCE_DESCRIPTION_MAP: Record<
  * @returns {string} the description string that is shown
  * in the description column of the audit logs table
  */
-export function generateDescription(log: AuditLogType) {
+export function generateDescription(log: AuditLogType): MultilineDescription {
   const noUser = { name: "(No name)", email: "(No email)" };
   const { event = ".", user = noUser } = log;
   const [resourceType, action] = event.split(".");
+  const description: MultilineDescription = {
+    mainDescription: {
+      actionType: "",
+      resourceType: "",
+    },
+    subDescription: "",
+  };
   const data: DescriptionDataType = {
     action,
-    application: ellipsis(log.application?.name || "(No application)"),
-    resource: ellipsis(log.resource?.name || "(No resource)"),
-    workspace: ellipsis(log.workspace?.name || "(No workspace)"),
-    page: ellipsis(log.page?.name || "(No page)"),
-    userName: user.name,
-    userEmail: user.email,
+    application: ellipsis(log.application?.name || "(No application)", 65),
+    resource: ellipsis(log.resource?.name || "(No resource)", 60),
+    workspace: ellipsis(log.workspace?.name || "(No workspace)", 65),
+    page: ellipsis(log.page?.name || "(No page)", 65),
+    userName: ellipsis(user?.name || user?.email || "(No Name)", 60),
+    userEmail: ellipsis(user?.email || "(No email)", 60),
   };
 
   if (event === "application.forked") {
     /* Special case: forked has "... from ... to ..." structure.
      * It's unique. Thus this early return.
      */
-    return `${data.resource} forked from ${data.workspace} to ${ellipsis(
-      log.workspace?.destination?.name || "",
-    )}`;
+    description.mainDescription.resourceType = `${data.resource}`;
+    description.mainDescription.actionType = `forked`;
+    description.subDescription = `from ${ellipsis(
+      data.workspace,
+      30,
+    )} to ${ellipsis(log.workspace?.destination?.name || "", 30)}`;
+    return description;
   }
   if (event === "user.invited") {
     /* Special case: invited has "x user(s) invited" structure
      * It is unique, Thus this early return.
      */
-    const invitees = log?.invitedUsers?.map((user) => ellipsis(user)) || [];
-    return invited(invitees);
+    const invitees = log?.invitedUsers?.map((user) => ellipsis(user, 60)) || [];
+    description.mainDescription.resourceType = invited(invitees);
+    description.mainDescription.actionType = `invited`;
+    description.subDescription = "to " + ellipsis(data.workspace, 65);
+    return description;
   }
+
   const authUpdated =
     event === "instance_setting.updated" &&
     log?.authentication?.action &&
@@ -87,7 +148,9 @@ export function generateDescription(log: AuditLogType) {
      * {mode} authentication {action}
      */
     const { action, mode } = log.authentication as AuthenticationType;
-    return `${mode} authentication ${action.toLowerCase()}`;
+    description.mainDescription.resourceType = `${mode} authentication`;
+    description.mainDescription.actionType = action.toLowerCase();
+    return description;
   }
 
   const knownResourceType = [
@@ -99,16 +162,17 @@ export function generateDescription(log: AuditLogType) {
     "user",
   ].includes(resourceType);
 
-  return knownResourceType
-    ? RESOURCE_DESCRIPTION_MAP[resourceType](data)
-    : `${ellipsis(titleCase(splitJoin(resourceType)))} ${splitJoin(action)}`;
+  if (knownResourceType) {
+    return createResourceDescription(resourceType, data, description);
+  } else {
+    description.mainDescription.resourceType = ellipsis(
+      titleCase(splitJoin(resourceType)),
+      60,
+    );
+    description.mainDescription.actionType = splitJoin(action);
+  }
+  return description;
 }
-
-export type IconisedDescription = {
-  hasDescriptiveIcon: boolean;
-  icon: IconInfo;
-  description: string;
-};
 
 /**
  * iconisedDescription is responsible for generating

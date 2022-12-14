@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "appsmith.fullname" . }}
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: 1
+  {{- end }}
+  strategy:
+    type: {{ .Values.strategyType }}
+  selector:
+    matchLabels:
+      {{- include "appsmith.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "appsmith.selectorLabels" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName | quote }}
+      {{- end }}
+      serviceAccountName: {{ template "appsmith.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+      {{- if .Values.redis.enabled }}
+      - name: redis-init-container
+        image: alpine
+        command: ['sh', '-c', "apk add redis; until redis-cli -h {{ include "appsmith.fullname" . }}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping; do echo waiting for redis; sleep 2; done"]
+      {{- end }}
+      {{- if .Values.mongodb.enabled }}
+      - name: mongo-init-container
+        image: docker.io/bitnami/mongodb:4.4.11-debian-10-r12
+        command: ['sh', '-c', "until mongo --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
+      {{- end }}
+      {{- if .Values.postgresql.enabled }}
+      - name: psql-init-container
+        image: alpine:latest
+        command: ['sh', '-c', "apk add postgresql-client; until pg_isready -h {{ include "appsmith.fullname" . }}-postgresql.{{.Release.Namespace}}.svc.cluster.local; do echo waiting for postgresql; sleep 2; done"]
+      {{- end }}
+      containers:
+        - name: {{ .Values.containerName }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+            - name: supervisord
+              containerPort: 9001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/v1/users/me
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/users/me
+              port: http
+          startupProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/v1/users/me
+              port: http
+              scheme: HTTP
+            periodSeconds: 60
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /appsmith-stacks
+          envFrom:
+            - configMapRef:
+                name: {{ include "appsmith.fullname" . }}
+            {{- if .Values.secretName }}
+            - secretRef:
+                name: {{ .Values.secretName }}
+            {{- end }}
+      {{- if .Values.image.pullSecrets}}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecrets }}
+      {{- end }}
+      volumes:
+  {{- if not .Values.persistence.enabled }}
+      - name: data
+        emptyDir: {}
+  {{- else }}
+      - name: data
+        persistentVolumeClaim:
+          {{- if .Values.persistence.existingClaim.enabled }}
+          claimName: {{ .Values.persistence.existingClaim.claimName }}
+          {{- else }}
+          claimName: {{ include "appsmith.fullname" . }}
+          {{- end }}
+  {{- end }}

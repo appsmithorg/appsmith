@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.constants.EnvVariables;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
@@ -22,27 +23,36 @@ import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.bson.types.Binary;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -51,7 +61,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -115,6 +127,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     private final ObjectMapper objectMapper;
 
+    private final AssetService assetService;
+
+    private static final Set<String> ASSET_VALUE_KEYS = Set.of(
+            "APPSMITH_BRAND_LOGO",
+            "APPSMITH_BRAND_FAVICON"
+    );
+
+    private static final int MAX_LOGO_SIZE_KB = 1024;
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -143,7 +164,8 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                             ConfigService configService,
                             UserUtils userUtils,
                             TenantService tenantService,
-                            ObjectMapper objectMapper) {
+                            ObjectMapper objectMapper,
+                            AssetService assetService) {
         this.sessionUserService = sessionUserService;
         this.userService = userService;
         this.analyticsService = analyticsService;
@@ -160,6 +182,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         this.userUtils = userUtils;
         this.tenantService = tenantService;
         this.objectMapper = objectMapper;
+        this.assetService = assetService;
     }
 
     /**
@@ -182,7 +205,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         variablesNotInWhitelist.removeAll(tenantConfigWhitelist);
 
         if (!variablesNotInWhitelist.isEmpty()) {
-            throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
+            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST);
         }
 
         if (changes.containsKey(APPSMITH_MAIL_HOST.name())) {
@@ -273,7 +296,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
             // validate input is in the format email,email,email and is not empty
             if (!ValidationUtils.validateEmailCsv(emailCsv)) {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Admin Email"));
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Admin Emails"));
             } else { // make sure user is not removing own email
                 Set<String> adminEmails = TextUtils.csvToSet(emailCsv);
                 if (!adminEmails.contains(user.getEmail())) { // user can not remove own email address
@@ -296,7 +319,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         return Arrays.stream(fields)
                 .map(field -> {
                     JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
-                    return jsonProperty.value();
+                    return jsonProperty == null ? field.getName() : jsonProperty.value();
                 }).collect(Collectors.toSet());
     }
 
@@ -324,11 +347,25 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         }
     }
 
-
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {
+        // Create a new mutable map, so we don't modify the original map, or end up in an error if the map is immutable.
+        changes = new HashMap<>(changes);
+
         TenantConfiguration tenantConfiguration = new TenantConfiguration();
+
+        final String brandColorsChanges = changes.remove("brandColors");
+        if (StringUtils.hasText(brandColorsChanges)) {
+            try {
+                tenantConfiguration.setBrandColors(objectMapper.readValue(brandColorsChanges, TenantConfiguration.BrandColors.class));
+            } catch (JsonProcessingException e) {
+                // Just printing the message, since we don't need the full stack trace here. But don't share details to the client.
+                log.error("Error parsing brandColors JSON: " + e.getMessage());
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "brandColors"));
+            }
+        }
+
         // Write the changes to the tenant collection in configuration field
-        return Flux.fromStream(changes.entrySet().stream())
+        return Flux.fromIterable(changes.entrySet())
                 .map(map -> {
                     String key = map.getKey();
                     String value = map.getValue();
@@ -356,7 +393,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         return Mono.error(e);
                     }
                     Map<String, String> originalVariables = parseToMap(originalContent);
-                    final List<String> changedContent = transformEnvContent(originalContent, changes);
+
+                    final Map<String, String> envFileChanges = new HashMap<>(changes);
+                    final Set<String> tenantConfigurationKeys = allowedTenantConfiguration();
+                    for (final String key : changes.keySet()) {
+                        if (tenantConfigurationKeys.contains(key)) {
+                            envFileChanges.remove(key);
+                        }
+                    }
+                    final List<String> changedContent = transformEnvContent(originalContent, envFileChanges);
 
                     try {
                         Files.write(envFilePath, changedContent);
@@ -444,6 +489,46 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 });
     }
 
+    @Override
+    public Mono<EnvChangesResponseDTO> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData) {
+        return Flux.fromIterable(formData.entrySet())
+                .flatMap(entry -> {
+                    final String key = entry.getKey();
+                    final List<Part> parts = entry.getValue();
+                    final boolean isFile = parts.size() > 0 && parts.get(0) instanceof FilePart;
+
+                    if (isFile) {
+                        return handleFileUpload(key, parts);
+                    }
+
+                    return DataBufferUtils
+                            .join(Flux.fromIterable(parts).flatMapSequential(Part::content))
+                            .flatMap(dataBuffer -> {
+                                final byte[] content;
+                                try (InputStream inputStream = dataBuffer.asInputStream(true)) {
+                                    content = inputStream.readAllBytes();
+                                } catch (IOException e) {
+                                    log.error("Unable to read multipart form data, in env change API", e);
+                                    return Mono.error(new AppsmithException(AppsmithError.IO_ERROR, "unable to read data"));
+                                }
+                                return Mono.just(Map.entry(key, new String(content, StandardCharsets.UTF_8)));
+                            });
+                })
+                .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                .flatMap(this::applyChanges);
+    }
+
+    @Override
+    @NotNull
+    public Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts) {
+        if (!ASSET_VALUE_KEYS.contains(key)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, key));
+        }
+        // TODO: Delete existing/previous logo, if present.
+        return assetService.upload(parts, MAX_LOGO_SIZE_KB, false)
+                .map(asset -> Map.entry(key, "asset:" + asset.getId()));
+    }
+
     /**
      * Sends analytics events after an admin setting update.
      *
@@ -505,6 +590,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param originalVariable Already existing env variable value
      * @param authEnv          Env variable name
      */
+    @Override
     public void setAnalyticsEventAction(Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
         // Authentication configuration added
         if (!newVariable.isEmpty() && (originalVariable == null || originalVariable.isEmpty())) {
@@ -585,23 +671,24 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         envKeyValueMap.put(APPSMITH_INSTANCE_NAME.name(), commonConfig.getInstanceName());
                     }
 
-                    // Add the variables from the tenant configuration to be returned to the client
-                    Mono<Tenant> tenantMono = tenantService.findById(user.getTenantId(), MANAGE_TENANT);
-
-                    return Mono.zip(Mono.justOrEmpty(envKeyValueMap), tenantMono)
-                            .map(tuple -> {
-                                Map<String, String> envFileMap = tuple.getT1();
-                                Tenant tenant = tuple.getT2();
-                                Map<String, String> configMap = objectMapper.convertValue(tenant.getTenantConfiguration(), new TypeReference<>() {
-                                });
-                                Map<String, String> envMap = new HashMap<>();
-                                envMap.putAll(envFileMap);
-                                if (!CollectionUtils.isNullOrEmpty(configMap)) {
-                                    envMap.putAll(configMap);
-                                }
-                                return envMap;
-                            });
+                    return Mono.justOrEmpty(envKeyValueMap);
                 });
+    }
+
+  /**
+   * A filter function on getAll that returns env variables which are having non-empty values
+   */
+    @Override
+    public Mono<Map<String, String>> getAllNonEmpty() {
+        return getAll().flatMap(map -> {
+              Map<String, String> nonEmptyValuesMap = new HashMap<>();
+              for (Map.Entry<String, String> entry: map.entrySet()) {
+                  if (StringUtils.hasText(entry.getValue())) {
+                      nonEmptyValuesMap.put(entry.getKey(), entry.getValue());
+                  }
+              }
+              return Mono.just(nonEmptyValuesMap);
+        });
     }
 
     @Override

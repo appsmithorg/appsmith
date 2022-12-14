@@ -9,108 +9,233 @@ describe("audit-logs/utils/description", function() {
       const actual = logs.map((log) => iconisedDescription(log));
       const expected: IconisedDescription[] = [
         {
-          description: " ",
+          description: {
+            mainDescription: {
+              resourceType: "",
+              actionType: "",
+            },
+            subDescription: "",
+          },
           hasDescriptiveIcon: false,
           icon: ["", ""],
         },
         {
-          description: "Plain wrong",
+          description: {
+            mainDescription: {
+              resourceType: "Plain",
+              actionType: "wrong",
+            },
+            subDescription: "",
+          },
           hasDescriptiveIcon: false,
           icon: ["", ""],
         },
         {
-          description: "🤓🤓🤓 updated in 🤓🤓",
+          description: {
+            mainDescription: {
+              resourceType: "🤓🤓🤓",
+              actionType: "updated",
+            },
+            subDescription: "in 🤓🤓",
+          },
           hasDescriptiveIcon: true,
           icon: ["edit-box-line", ""],
         },
         {
-          description: "myFun1 updated in some page",
+          description: {
+            mainDescription: {
+              resourceType: "myFun1",
+              actionType: "updated",
+            },
+            subDescription: "in some page",
+          },
           hasDescriptiveIcon: true,
           icon: ["edit-box-line", ""],
         },
         {
-          description: "myFun2 deleted in (No page)",
+          description: {
+            mainDescription: {
+              resourceType: "myFun2",
+              actionType: "deleted",
+            },
+            subDescription: "in (No page)",
+          },
           hasDescriptiveIcon: true,
           icon: ["delete", "#E32525"],
         },
         {
-          description: "myFun1 created in (No page)",
+          description: {
+            mainDescription: {
+              resourceType: "myFun1",
+              actionType: "created",
+            },
+            subDescription: "in (No page)",
+          },
           hasDescriptiveIcon: true,
           icon: ["add-box-line", ""],
         },
         {
-          description: "Duplicated (1) Copy cloned in Untitled workspace 5",
+          description: {
+            mainDescription: {
+              resourceType: "Duplicated (1) Copy",
+              actionType: "cloned",
+            },
+            subDescription: "in Untitled workspace 5",
+          },
           hasDescriptiveIcon: true,
           icon: ["duplicate", ""],
         },
         {
-          description: "Page4 updated in Duplicated (1) Copy",
+          description: {
+            mainDescription: {
+              resourceType: "Page4",
+              actionType: "updated",
+            },
+            subDescription: "in Duplicated (1) Copy",
+          },
           hasDescriptiveIcon: true,
           icon: ["edit-box-line", ""],
         },
         {
-          description: "Page8 created in Duplicated (1) Copy",
+          description: {
+            mainDescription: {
+              resourceType: "Page8",
+              actionType: "created",
+            },
+            subDescription: "in Duplicated (1) Copy",
+          },
           hasDescriptiveIcon: true,
           icon: ["add-box-line", ""],
         },
         {
-          description: "Duplicated (1) Copy created in Untitled workspace 5",
+          description: {
+            mainDescription: {
+              resourceType: "Duplicated (1) Copy",
+              actionType: "created",
+            },
+            subDescription: "in Untitled workspace 5",
+          },
           hasDescriptiveIcon: true,
           icon: ["add-box-line", ""],
         },
         {
-          description:
-            "Duplicated (1) forked from Untitled workspace 5 to DestinationWorkspace",
+          description: {
+            mainDescription: {
+              resourceType: "Duplicated (1)",
+              actionType: "forked",
+            },
+            subDescription: "from Untitled workspace 5 to DestinationWorkspace",
+          },
           hasDescriptiveIcon: true,
           icon: ["fork-2", ""],
         },
         {
-          description: "Duplicated updated in Untitled workspace 5",
+          description: {
+            mainDescription: {
+              resourceType: "Duplicated",
+              actionType: "updated",
+            },
+            subDescription: "in Untitled workspace 5",
+          },
           hasDescriptiveIcon: true,
           icon: ["edit-box-line", ""],
         },
         {
-          description: "Hacks (1) deleted in Untitled workspace 3",
+          description: {
+            mainDescription: {
+              resourceType: "Hacks (1)",
+              actionType: "deleted",
+            },
+            subDescription: "in Untitled workspace 3",
+          },
           hasDescriptiveIcon: true,
           icon: ["delete", "#E32525"],
         },
         {
-          description: "Page7 deleted in RenamedApplication",
+          description: {
+            mainDescription: {
+              resourceType: "Page7",
+              actionType: "deleted",
+            },
+            subDescription: "in RenamedApplication",
+          },
           hasDescriptiveIcon: true,
           icon: ["delete", "#E32525"],
         },
         {
-          description: "Untitled workspace 6 created",
+          description: {
+            mainDescription: {
+              resourceType: "Untitled workspace 6",
+              actionType: "created",
+            },
+            subDescription: "",
+          },
           hasDescriptiveIcon: true,
           icon: ["add-box-line", ""],
         },
         {
-          description: "a8@appsmith.com logged in",
+          description: {
+            mainDescription: {
+              resourceType: "a8@appsmith.com",
+              actionType: "logged in",
+            },
+            subDescription: "",
+          },
           hasDescriptiveIcon: true,
           icon: ["login", ""],
         },
         {
-          description: "tester@appsmith.com logged out",
+          description: {
+            mainDescription: {
+              resourceType: "tester@appsmith.com",
+              actionType: "logged out",
+            },
+            subDescription: "",
+          },
           hasDescriptiveIcon: true,
           icon: ["logout", ""],
         },
         {
-          description: "A Named App? imported to Untitled workspace 1",
+          description: {
+            mainDescription: {
+              resourceType: "A Named App?",
+              actionType: "imported",
+            },
+            subDescription: "to Untitled workspace 1",
+          },
           hasDescriptiveIcon: true,
           icon: ["upload-line", ""],
         },
         {
-          description: "Users created in Untitled workspace 2",
+          description: {
+            mainDescription: {
+              resourceType: "Users",
+              actionType: "created",
+            },
+            subDescription: "in Untitled workspace 2",
+          },
           hasDescriptiveIcon: true,
           icon: ["add-box-line", ""],
         },
         {
-          description: "(No resource) created in Untitled workspace 2",
+          description: {
+            mainDescription: {
+              resourceType: "(No resource)",
+              actionType: "created",
+            },
+            subDescription: "in Untitled workspace 2",
+          },
           hasDescriptiveIcon: true,
           icon: ["add-box-line", ""],
         },
         {
-          description: "Google authentication added",
+          description: {
+            mainDescription: {
+              resourceType: "Google authentication",
+              actionType: "added",
+            },
+            subDescription: "",
+          },
           hasDescriptiveIcon: true,
           icon: ["edit-box-line", ""],
         },

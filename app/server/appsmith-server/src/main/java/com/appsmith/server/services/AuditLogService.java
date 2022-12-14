@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.AuditLogEvents;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.dtos.AuditLogFilterDTO;
+import com.appsmith.server.dtos.ExportFileDTO;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
@@ -16,7 +17,7 @@ public interface AuditLogService {
      * To return all the Audit Logs
      * @return List of Audit Logs
      */
-    Mono<List<AuditLog>> get(MultiValueMap<String, String> params);
+    Mono<List<AuditLog>> getAuditLogs(MultiValueMap<String, String> params);
 
     /**
      * To log the Analytic Event as an Audit Log
@@ -33,6 +34,11 @@ public interface AuditLogService {
      */
     Mono<AuditLogFilterDTO> getAuditLogFilterData();
 
+    /**
+     * Get Audit Logs exported in a Json File
+     * @return ExportFileDTO that contains JSON File as response
+     */
+    Mono<ExportFileDTO> exportAuditLogs(MultiValueMap<String, String> params);
     /**
      * To generate Audit Log supported resourceType
      * @param resource

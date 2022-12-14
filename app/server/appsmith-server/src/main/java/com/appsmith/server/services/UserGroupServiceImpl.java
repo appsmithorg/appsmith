@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -235,7 +236,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 UserGroup userGroup = tuple.getT1();
                                 Set<String> userIds = tuple.getT2();
                                 userGroup.getUsers().addAll(userIds);
-                                return super.update(userGroup.getId(), userGroup);
+                                return repository.save(userGroup);
+                            })
+                            .flatMap(userGroup -> {
+                                Map<String, Object> eventData = Map.of(FieldName.INVITED_USERS_TO_USER_GROUPS, usernames);
+                                return analyticsService.sendObjectEvent(AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS, userGroup, eventData);
                             })
                             .cache();
 
@@ -313,7 +318,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 UserGroup userGroup = tuple.getT1();
                                 Set<String> userIds = tuple.getT2();
                                 userGroup.getUsers().removeAll(userIds);
-                                return super.update(userGroup.getId(), userGroup);
+                                return repository.save(userGroup);
+                            })
+                            .flatMap(userGroup -> {
+                                Map<String, Object> eventData = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, usernames);
+                                return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, eventData);
                             })
                             .cache();
 
@@ -377,7 +386,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     return permissionGroupService.update(permissionGroup.getId(), updates);
                 });
 
-        Mono<Boolean> archiveGroupAndClearCacheMono = userGroupMono
+        Mono<UserGroup> archiveGroupAndClearCacheMono = userGroupMono
                 .flatMap(userGroup -> {
                     List<String> allUsersAffected = userGroup.getUsers()
                             .stream()
@@ -385,7 +394,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
                     // Evict the cache entries for all affected users before archiving
                     return permissionGroupService.cleanPermissionGroupCacheForUsers(allUsersAffected)
-                            .then(repository.archiveById(id));
+                            .then(repository.archiveById(id))
+                            .then(userGroupMono.flatMap(analyticsService::sendDeleteEvent));
                 });
 
         // First update all the permission groups that have this user group assigned to it

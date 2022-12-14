@@ -59,6 +59,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -477,6 +478,92 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(createdActionCollection.getId(), PermissionViewableName.VIEW)
         )));
 
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDatasourceResourcesTab_testHoverMap() {
+        Workspace workspace = new Workspace();
+        workspace.setName("testApplicationResourcesTab_testHoverMap workspace");
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Datasource createdDatasource1 = datasourceService.create(datasource).block();
+
+        CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
+
+        Set<String> defaultPermissionGroupIds = createdWorkspace1.getDefaultPermissionGroups();
+        PermissionGroup adminPermissionGroup = permissionGroupRepository.findAllById(defaultPermissionGroupIds)
+                .collect(Collectors.toSet()).block()
+                .stream().filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        RoleTabDTO roleTabDTO = workspaceResources
+                .createDatasourceResourcesTabView(adminPermissionGroup.getId(), dataFromRepositoryForAllTabs)
+                .block();
+
+        assertThat(roleTabDTO).isNotNull();
+        assertThat(roleTabDTO.getHoverMap()).isNotNull();
+
+        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
+        String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete";
+        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
+        String createdWorkspaceExecute = createdWorkspace1.getId() + "_Execute";
+        String createdWorkspaceView = createdWorkspace1.getId() + "_View";
+
+        String createdDatasourceCreate = createdDatasource1.getId() + "_Create";
+        String createdDatasourceDelete = createdDatasource1.getId() + "_Delete";
+        String createdDatasourceEdit = createdDatasource1.getId() + "_Edit";
+        String createdDatasourceView = createdDatasource1.getId() + "_View";
+
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceCreate, Set.of(
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE),
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EDIT),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.CREATE)
+        )));
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceDelete, Set.of(
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.DELETE)
+        )));
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceEdit, Set.of(
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EDIT)
+        )));
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceExecute, Set.of(
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE)
+        )));
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceView, Set.of(
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.VIEW)
+        )));
+
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdDatasourceCreate, Set.of(
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.DELETE),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EDIT),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.VIEW)
+        )));
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdDatasourceDelete, Set.of(
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.VIEW)
+        )));
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdDatasourceEdit, Set.of(
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.VIEW)
+        )));
+        assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdDatasourceView, Set.of(
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE)
+        )));
     }
 
     @Test
@@ -909,7 +996,7 @@ public class WorkspaceResourcesTest {
         updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());
 
         Mono<RoleViewDTO> roleConfigChangeMono = roleConfigurationSolution.updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
-                        .cache();
+                .cache();
 
         // fetch the workspace post the role change with read permissions
         Mono<Workspace> workspaceWithReadMono = roleConfigChangeMono.then(Mono.defer(() -> {
@@ -1074,6 +1161,123 @@ public class WorkspaceResourcesTest {
                     assertThat(readWorkspacePolicy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testApplicationResourcesTab_testDisableHelperMap() {
+        Workspace workspace = new Workspace();
+        workspace.setName("testApplicationResourcesTab_testDisableHelperMap workspace");
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+
+        Application application = new Application();
+        application.setName("testApplicationResourcesTab_testDisableHelperMap application");
+        Application createdApplication1 = applicationPageService.createApplication(application, createdWorkspace1.getId()).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        ActionDTO action = new ActionDTO();
+        action.setName("validAction");
+        action.setPageId(createdApplication1.getPages().get(0).getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
+
+        Set<String> defaultPermissionGroupIds = createdWorkspace1.getDefaultPermissionGroups();
+        PermissionGroup adminPermissionGroup = permissionGroupRepository.findAllById(defaultPermissionGroupIds)
+                .collect(Collectors.toSet()).block()
+                .stream().filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        RoleTabDTO roleTabDTO = workspaceResources
+                .createApplicationResourcesTabView(adminPermissionGroup.getId(), dataFromRepositoryForAllTabs)
+                .block();
+
+        assertThat(roleTabDTO).isNotNull();
+        Map<String, Set<IdPermissionDTO>> disableHelperMao = roleTabDTO.getDisableHelperMap();
+        assertThat(disableHelperMao).isNotNull();
+
+        String createdPageId = createdApplication1.getPages().get(0).getId();
+        String createdActionId = createdAction.getId();
+        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
+        String createdApplicationEdit = createdApplication1.getId() + "_Edit";
+        String createdPageEdit = createdPageId + "_Edit";
+        String createdActionEdit = createdActionId + "_Edit";
+
+        // asserting a few relationships to exist in the map
+        assertThat(disableHelperMao).contains(Map.entry(createdWorkspaceEdit, Set.of(
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW))));
+        assertThat(disableHelperMao).contains(Map.entry(createdApplicationEdit, Set.of(
+                new IdPermissionDTO(createdApplication1.getId(), PermissionViewableName.VIEW))));
+        assertThat(disableHelperMao).contains(Map.entry(createdPageEdit, Set.of(
+                new IdPermissionDTO(createdPageId, PermissionViewableName.VIEW)
+        )));
+        assertThat(disableHelperMao.get(createdActionEdit)).containsAll(Set.of(
+                new IdPermissionDTO(createdActionId, PermissionViewableName.VIEW)
+        ));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDatasourceResourcesTab_testDisableHelperMap() {
+        Workspace workspace = new Workspace();
+        workspace.setName("testDatasourceResourcesTab_testDisableHelperMap workspace");
+        Workspace createdWorkspace1 = workspaceService.create(workspace).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(createdWorkspace1.getId());
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        Datasource createdDatasource = datasourceService.create(datasource).block();
+
+
+        CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
+
+        Set<String> defaultPermissionGroupIds = createdWorkspace1.getDefaultPermissionGroups();
+        PermissionGroup adminPermissionGroup = permissionGroupRepository.findAllById(defaultPermissionGroupIds)
+                .collect(Collectors.toSet()).block()
+                .stream().filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        RoleTabDTO roleTabDTO = workspaceResources
+                .createDatasourceResourcesTabView(adminPermissionGroup.getId(), dataFromRepositoryForAllTabs)
+                .block();
+
+        assertThat(roleTabDTO).isNotNull();
+        Map<String, Set<IdPermissionDTO>> disableHelperMao = roleTabDTO.getDisableHelperMap();
+        assertThat(disableHelperMao).isNotNull();
+
+
+        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
+        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
+        String createdDatasourceEdit = createdDatasource.getId() + "_Edit";
+        String createdDatasourceCreate = createdDatasource.getId() + "_Create";
+
+        // asserting a few relationships to exist in the map
+        assertThat(disableHelperMao.get(createdWorkspaceEdit)).containsAll(Set.of(
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE)
+        ));
+        assertThat(disableHelperMao.get(createdWorkspaceCreate)).containsAll(Set.of(
+                new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE)
+        ));
+        assertThat(disableHelperMao.get(createdDatasourceEdit)).containsAll(Set.of(
+                new IdPermissionDTO(createdDatasource.getId(), PermissionViewableName.VIEW),
+                new IdPermissionDTO(createdDatasource.getId(), PermissionViewableName.EXECUTE)
+        ));
+
     }
 
     // TODO : Add tests for action & datasource execute on enabling edit/view for workspace & applications in Applicaiton Resources tab

@@ -5,7 +5,7 @@ import {
   GroupProps,
   RoleProps,
   UpdateRoleData,
-} from "@appsmith/pages/AdminSettings/acl/types";
+} from "@appsmith/pages/AdminSettings/AccessControl/types";
 
 export const getUserById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
