@@ -252,9 +252,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       hiddenHeader,
       pageId,
       pluginPackageName,
-      viewMode,
     } = this.props;
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
+
+    const params: string = location.search;
+    const viewMode =
+      !hiddenHeader && new URLSearchParams(params).get("viewMode");
 
     const isAuthorized =
       datasource?.datasourceConfiguration?.authentication
