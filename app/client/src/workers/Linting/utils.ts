@@ -7,7 +7,7 @@ import {
   LintError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "workers/Evaluation/evalWorkerActions";
 import {
   JSHINT as jshint,
   LintError as JSHintError,
@@ -477,7 +477,7 @@ export function initiateLinting(
         lintOrder,
         unevalTree,
       },
-      method: EVAL_WORKER_ACTIONS.LINT_TREE,
+      method: MAIN_THREAD_ACTION.LINT_TREE,
     },
   });
 }

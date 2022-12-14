@@ -83,6 +83,9 @@ const Wrapper = styled.div<{ left: number }>`
     }
     .bp3-form-group {
       margin: 0;
+      .remixicon-icon {
+        cursor: initial;
+      }
     }
     .bp3-label {
       font-size: 12px;
@@ -164,13 +167,21 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
   }
 `;
 
-const StatusIconWrapper = styled.div<{ addHoverState: boolean }>`
+const StatusIconWrapper = styled.div<{
+  addHoverState: boolean;
+  className: string;
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
   cursor: initial;
+  .failed {
+    svg {
+      cursor: initial;
+    }
+  }}
   ${(props) =>
     props.addHoverState
       ? `
@@ -184,7 +195,7 @@ const StatusIconWrapper = styled.div<{ addHoverState: boolean }>`
       }
     }
   `
-      : ""}
+      : "svg { cursor: initial }"}
 `;
 
 function StatusIcon(props: {

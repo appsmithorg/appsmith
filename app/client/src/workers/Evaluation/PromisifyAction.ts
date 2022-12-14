@@ -13,6 +13,7 @@ import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { TMessage, sendMessage, MessageType } from "utils/MessageUtil";
+import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
 
 export const promisifyAction = (
   actionDescription: ActionDescription,
@@ -39,7 +40,7 @@ export const promisifyAction = (
       messageId,
       messageType: MessageType.REQUEST,
       body: {
-        method: "PROCESS_TRIGGER",
+        method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
         data,
       },
     });

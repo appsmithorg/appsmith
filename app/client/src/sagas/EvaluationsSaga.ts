@@ -29,7 +29,10 @@ import {
   EvalError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { EVAL_WORKER_ACTIONS } from "workers/Evaluation/evalWorkerActions";
+import {
+  EVAL_WORKER_ACTIONS,
+  MAIN_THREAD_ACTION,
+} from "workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -339,7 +342,7 @@ export function* handleEvalWorkerRequest(request: TMessage<any>) {
   const { body, messageId } = request;
   const { data, method } = body;
   switch (method) {
-    case "LINT_TREE": {
+    case MAIN_THREAD_ACTION.LINT_TREE: {
       yield put({
         type: ReduxActionTypes.LINT_TREE,
         payload: {
@@ -349,7 +352,7 @@ export function* handleEvalWorkerRequest(request: TMessage<any>) {
       });
       break;
     }
-    case "PROCESS_LOGS": {
+    case MAIN_THREAD_ACTION.PROCESS_LOGS: {
       const { logs = [], triggerMeta, eventType } = data;
       yield call(
         storeLogs,
@@ -362,7 +365,7 @@ export function* handleEvalWorkerRequest(request: TMessage<any>) {
       );
       break;
     }
-    case "PROCESS_TRIGGER": {
+    case MAIN_THREAD_ACTION.PROCESS_TRIGGER: {
       const { eventType, trigger, triggerMeta } = data;
       log.debug({ trigger: data.trigger });
       const result: ResponsePayload = yield call(

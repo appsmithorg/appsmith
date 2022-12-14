@@ -5,6 +5,7 @@ import { klona } from "klona/lite";
 import moment from "moment";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import { sendMessage, MessageType } from "utils/MessageUtil";
+import { MAIN_THREAD_ACTION } from "./evalWorkerActions";
 import { _internalClearTimeout, _internalSetTimeout } from "./TimeoutOverride";
 
 class UserLog {
@@ -36,7 +37,7 @@ class UserLog {
             eventType: this.requestInfo?.eventType,
             triggerMeta: this.requestInfo?.triggerMeta,
           },
-          method: "PROCESS_LOGS",
+          method: MAIN_THREAD_ACTION.PROCESS_LOGS,
         },
       });
     }, this.flushLogsTimerDelay);
