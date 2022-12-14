@@ -126,35 +126,6 @@ jobs:
           name: build
           path: app/server/dist
 
-
-      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
-      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
-      - name: Build  docker image
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: "."
-        run: |
-          docker build -t fatcontainer .
-
-      - name: Create folder
-        if: steps.run_result.outputs.run_result != 'success'
-        env:
-          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
-        working-directory: "."
-        run: |
-          mkdir -p fatcontainerlocal/stacks/configuration/
-          mkdir -p fatcontainerlocal/oldstack
-
-      - name: Download S3 image
-        uses: keithweaver/aws-s3-github-action@v1.0.0
-        with:
-          command: cp
-          source: s3://ci-assets--appsmith/
-          destination: /home/runner/work/appsmith/appsmith/fatcontainerlocal/oldstack
-          aws_access_key_id: ${{ secrets.S3_CI_ASSETS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.S3_CI_ASSETS_SECRET_ACCESS_KEY }}
-          aws_region: ap-south-1
-          flags: --recursive
-
       # Start server
       - name: start server
         if: steps.run_result.outputs.run_result != 'success'
@@ -195,12 +166,7 @@ jobs:
           docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
           -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
-          cd fatcontainerlocal
-          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
-            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
-            -e APPSMITH_AUDITLOG_ENABLED=true \
-            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            fatcontainer
+          
 
       # Start rts
       - name: Start RTS Server
