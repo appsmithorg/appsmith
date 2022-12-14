@@ -239,11 +239,24 @@ Cypress.Commands.add(
 );
 Cypress.Commands.add("RenameRole", (Role) => {
   cy.get(RBAC.contextMenu).click();
-  cy.xpath(RBAC.renameRole).click();
+  cy.xpath(RBAC.rename).click();
   cy.get(RBAC.editName).type(Role);
   cy.get("body").click();
   cy.wait(2000);
   cy.wait("@renameRole").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("RenameGroup", (Role) => {
+  cy.get(RBAC.contextMenu).click();
+  cy.xpath(RBAC.rename).click();
+  cy.get(RBAC.editName).type(Role);
+  cy.get("body").click();
+  cy.wait(2000);
+  cy.wait("@renameGroup").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -262,13 +275,39 @@ Cypress.Commands.add("AssignRoleToUser", (Role, userEmail) => {
   cy.get(RBAC.rolesTabInviteModal).click();
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
-  cy.xpath(RBAC.selectRoleInviteModal).click();
+  cy.xpath(RBAC.selectFromDropdownInviteModal).click();
   cy.get(`[data-cy="t--dropdown-option-${Role}"]`)
     .first()
     .click();
-  cy.get(RBAC.rolesTabInviteModal).click();
+  cy.get(".bp3-heading").click();
   cy.get(RBAC.inviteButton).click();
   cy.wait("@associateRoles").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("AssignGroupToUser", (Group, userEmail) => {
+  cy.get(RBAC.usersTab).click();
+  cy.wait("@fetchUsers").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(RBAC.addButton).click();
+  cy.get(RBAC.inviteModal).should("be.visible");
+  cy.get(RBAC.groupsTabInviteModal).click();
+  cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
+  // select role
+  cy.xpath(RBAC.selectFromDropdownInviteModal).click();
+  cy.get(`[data-cy="t--dropdown-option-${Group}"]`)
+    .first()
+    .click();
+  cy.get(".bp3-heading").click();
+  cy.get(RBAC.inviteButton).click();
+  cy.wait("@mockPostInvite").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
@@ -799,7 +838,7 @@ Cypress.Commands.add("DeleteWorkspaceRole", (Role, WorkspaceName) => {
     .should("have.text", Role);
 });
 
-Cypress.Commands.add("CreateRole", () => {
+Cypress.Commands.add("CreateRole", (name = "") => {
   cy.get(RBAC.rolesTab).click();
   cy.get(RBAC.addButton).click();
   cy.wait("@createRole").should(
@@ -808,6 +847,23 @@ Cypress.Commands.add("CreateRole", () => {
     201,
   );
   cy.wait(2000);
+  if (name) {
+    cy.RenameRole(name);
+  }
+});
+
+Cypress.Commands.add("CreateGroup", (name = "") => {
+  cy.get(RBAC.groupsTab).click();
+  cy.get(RBAC.addButton).click();
+  cy.wait("@createGroup").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  cy.wait(2000);
+  if (name) {
+    cy.RenameGroup(name);
+  }
 });
 
 Cypress.Commands.add("DeleteRole", (Role) => {
@@ -841,6 +897,7 @@ Cypress.Commands.add("AddIntercepts", () => {
   cy.intercept("POST", "/api/v1/roles").as("createRole");
   cy.intercept("GET", "/api/v1/user-groups").as("fetchGroups");
   cy.intercept("POST", "/api/v1/user-groups").as("createGroup");
+  cy.intercept("PUT", "/api/v1/user-groups/*").as("renameGroup");
   cy.intercept("DELETE", "/api/v1/user-groups/*").as("deleteGroup");
   cy.intercept("POST", "api/v1/user-groups/invite").as("inviteUser");
   cy.intercept("PUT", "/api/v1/user-groups/*").as("updateGroup");

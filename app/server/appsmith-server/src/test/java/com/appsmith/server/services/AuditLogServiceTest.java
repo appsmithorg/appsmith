@@ -2329,7 +2329,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO).block();
+        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO, null).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
@@ -2451,7 +2451,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(true);
 
-        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO).block();
+        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO, null).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 

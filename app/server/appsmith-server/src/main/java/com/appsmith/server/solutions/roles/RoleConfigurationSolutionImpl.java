@@ -3,9 +3,11 @@ package com.appsmith.server.solutions.roles;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -31,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +42,8 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.exceptions.AppsmithError.ACTION_IS_NOT_AUTHORIZED;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getAclPermissionsFromViewableName;
 
 @Component
@@ -51,13 +56,15 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final ApplicationRepository applicationRepository;
     private final WorkspaceRepository workspaceRepository;
     private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupUtils permissionGroupUtils;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
                                          GenericDatabaseOperation genericDatabaseOperation,
                                          ApplicationRepository applicationRepository,
                                          WorkspaceRepository workspaceRepository,
-                                         PermissionGroupRepository permissionGroupRepository) {
+                                         PermissionGroupRepository permissionGroupRepository,
+                                         PermissionGroupUtils permissionGroupUtils) {
 
 
         this.workspaceResources = workspaceResources;
@@ -66,6 +73,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.applicationRepository = applicationRepository;
         this.workspaceRepository = workspaceRepository;
         this.permissionGroupRepository = permissionGroupRepository;
+        this.permissionGroupUtils = permissionGroupUtils;
     }
 
     @Override
@@ -126,7 +134,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         ConcurrentHashMap<String, List<AclPermission>> entityPermissionsRemovedMap = new ConcurrentHashMap<>();
         ConcurrentHashMap<String, Class> entityClassMap = new ConcurrentHashMap<>();
 
-        Flux<Long> updateEntityPoliciesFlux = Flux.fromIterable(entitiesChanged)
+        Mono<Map<Class, Set<String>>> preComputeMono = Flux.fromIterable(entitiesChanged)
                 .map(entity -> {
                     String id = entity.getId();
                     String type = entity.getType();
@@ -218,6 +226,19 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     return true;
                 })
                 .collectList()
+                .then(Mono.defer(() -> Mono.just(entityClassMap.entrySet().stream().collect(
+                        Collectors.groupingBy(Entry::getValue, Collectors.mapping(Entry::getKey, Collectors.toSet()))))));
+
+        Mono<List<Boolean>> validatedEntities = preComputeMono
+                .flatMapMany(entityObjectListMap -> Flux.fromIterable(entityObjectListMap.entrySet()))
+                .flatMap(entry -> validatePermissionsChanged(entry.getKey(), entry.getValue(), entityPermissionsAddedMap, entityPermissionsRemovedMap))
+                .collectList();
+
+        /*
+         * Before updating any of the entities, we are validating if the Entities have Correct Permissions changed or not.
+         * If not, then we are fast failing, so that there is no partial update on any of the Entity.
+         */
+        Flux<Long> updateEntityPoliciesFlux = validatedEntities
                 .flatMapMany(bool -> Flux.fromIterable(entityPermissionsAddedMap.keySet())
                         .flatMap(id -> {
                             List<AclPermission> added = entityPermissionsAddedMap.get(id);
@@ -380,6 +401,44 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                     return removeReadPermissionFromWorkspace(workspace.getId(), permissionGroupId);
                 })
                 .then(Mono.just(Boolean.TRUE));
+    }
+
+    private Flux<Boolean> validatePermissionsChanged(Class entityClass,
+                                                     Set<String> objectIds,
+                                                     Map<String, List<AclPermission>> addedPermissions,
+                                                     Map<String, List<AclPermission>> removedPermissions) {
+        /*
+         * Permission Group validation for permission groups checks if any PermissionGroup has been given the
+         * Permissions to Edit or Delete the AutoCreated Permission Groups and invalidates them.
+         */
+        if (entityClass.equals(PermissionGroup.class)) {
+            return findPermissionGroupsByIds(objectIds)
+                    .flatMap(permissionGroup -> Mono.zip(permissionGroupUtils.isAutoCreated(permissionGroup), Mono.just(permissionGroup)))
+                    .map(tuple -> {
+                        boolean autoCreated = tuple.getT1();
+                        PermissionGroup permissionGroup = tuple.getT2();
+                        List<AclPermission> added = addedPermissions.get(permissionGroup.getId());
+                        List<AclPermission> removed = removedPermissions.get(permissionGroup.getId());
+                        boolean areInvalidPermissionChanged = autoCreated && (added.contains(AclPermission.MANAGE_PERMISSION_GROUPS)
+                                || added.contains(AclPermission.DELETE_PERMISSION_GROUPS));
+                        if (areInvalidPermissionChanged) {
+                            throw new AppsmithException(ACTION_IS_NOT_AUTHORIZED, "Update restricted permissions");
+                        }
+                        return Boolean.TRUE;
+                    });
+        }
+        return Flux.just(Boolean.TRUE);
+
+    }
+
+    private Flux<PermissionGroup> findPermissionGroupsByIds(Set<String> ids) {
+        List<String> includeFields = new ArrayList<>(
+                List.of(
+                        fieldName(QPermissionGroup.permissionGroup.id),
+                        fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)
+                )
+        );
+        return permissionGroupRepository.findAllByIdsWithoutPermission(ids, includeFields);
     }
 
 }

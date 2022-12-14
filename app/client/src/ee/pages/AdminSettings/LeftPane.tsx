@@ -53,16 +53,14 @@ export default function LeftPane() {
   return (
     <Wrapper>
       {isSuperUser && (
-        <>
-          <HeaderContainer>
-            <StyledHeader>Admin Settings</StyledHeader>
-          </HeaderContainer>
+        <HeaderContainer>
+          <StyledHeader>Admin Settings</StyledHeader>
           <Categories
             categories={categories}
             currentCategory={category}
             currentSubCategory={subCategory}
           />
-        </>
+        </HeaderContainer>
       )}
       {/* {featureFlags.RBAC && ( */}
       <HeaderContainer>

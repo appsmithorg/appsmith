@@ -19,7 +19,7 @@ export enum INVITE_USERS_TAB_ID {
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   margin: 32px 0 0 0;
-  padding: 0 30px 0 0;
+  padding: 0 30px 0 24px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
 
   .scrollable-wrapper {

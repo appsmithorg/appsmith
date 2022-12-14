@@ -9,14 +9,17 @@ import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
+import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.BaseView;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
 import com.appsmith.server.solutions.roles.dtos.IdPermissionDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
+import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -57,6 +60,7 @@ public class TenantResources {
     private final UserGroupRepository userGroupRepository;
     private final PermissionGroupRepository permissionGroupRepository;
     private final PolicyGenerator policyGenerator;
+    private final PermissionGroupUtils permissionGroupUtils;
 
     Set<AclPermission> tenantGroupPermissions = Set.of(
             CREATE_USER_GROUPS,
@@ -82,12 +86,14 @@ public class TenantResources {
     public TenantResources(TenantRepository tenantRepository,
                            UserGroupRepository userGroupRepository,
                            PermissionGroupRepository permissionGroupRepository,
-                           PolicyGenerator policyGenerator) {
+                           PolicyGenerator policyGenerator,
+                           PermissionGroupUtils permissionGroupUtils) {
 
         this.tenantRepository = tenantRepository;
         this.userGroupRepository = userGroupRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.policyGenerator = policyGenerator;
+        this.permissionGroupUtils = permissionGroupUtils;
     }
 
     public Mono<RoleTabDTO> createOthersTab(String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
@@ -255,7 +261,7 @@ public class TenantResources {
 
         // Add the roles to the base view as children
         return permissionGroupFlux
-                .map(permissionGroup -> {
+                .flatMap(permissionGroup -> {
                     BaseView permissionGroupDto = new BaseView();
                     permissionGroupDto.setId(permissionGroup.getId());
                     permissionGroupDto.setName(permissionGroup.getName());
@@ -263,8 +269,12 @@ public class TenantResources {
                             getRoleViewPermissionDTO(RoleTab.GROUPS_ROLES, permissionGroupId, permissionGroup.getPolicies(),
                                     PermissionGroup.class, policyGenerator);
                     permissionGroupDto.setEnabled(permissionsTuple.getT1());
-
-                    return permissionGroupDto;
+                    return Mono.zip(Mono.just(permissionGroupDto), Mono.just(permissionGroup));
+                })
+                .flatMap(tuple -> {
+                    BaseView permissionGroupDto = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
+                    return updateEnabledForPermissionGroup(permissionGroupDto, permissionGroup);
                 })
                 .collectList()
                 .map(permissionGroupDTOs -> {
@@ -292,7 +302,8 @@ public class TenantResources {
         List<String> includeFields = new ArrayList<>(
                 List.of(
                         fieldName(QPermissionGroup.permissionGroup.policies),
-                        fieldName(QPermissionGroup.permissionGroup.name)
+                        fieldName(QPermissionGroup.permissionGroup.name),
+                        fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)
                 )
         );
         return permissionGroupRepository.findAllByTenantIdWithoutPermission(tenantId, includeFields);
@@ -388,6 +399,8 @@ public class TenantResources {
                     generateLateralPermissionDTOsAndUpdateMap(permissionGroupHierarchicalLateralMap, hoverMap, permissionGroupId, permissionGroupId, PermissionGroup.class);
                     return permissionGroup;
                 })
+                .flatMap(permissionGroup -> updateHoverMapPermissionsForPermissionGroup(hoverMap, permissionGroup))
+                .collectList()
                 .then(Mono.just(TRUE));
 
         // Trim the hover map before returning
@@ -431,5 +444,58 @@ public class TenantResources {
 
         return workspaceHoverMapMono
                 .then(trimmedHoverMapMono);
+    }
+
+    /*
+     * Checks if the Permission Group is auto-created or not and disables the Delete and Edit permissions.
+     */
+    private Mono<BaseView> updateEnabledForPermissionGroup(BaseView permissionGroupDto,
+                                                         PermissionGroup permissionGroup) {
+        return permissionGroupUtils.isAutoCreated(permissionGroup).map(autoCreated -> {
+            if (autoCreated) {
+                List<PermissionViewableName> viewablePermissions = RoleTab.GROUPS_ROLES.getViewablePermissions();
+                int indexOfEditPermission = viewablePermissions.indexOf(PermissionViewableName.EDIT);
+                int indexOfDeletePermission = viewablePermissions.indexOf(PermissionViewableName.DELETE);
+                permissionGroupDto.getEnabled().set(indexOfDeletePermission, -1);
+                permissionGroupDto.getEnabled().set(indexOfEditPermission, -1);
+            }
+            return permissionGroupDto;
+        });
+    }
+
+    /*
+     * Checks if the Role is auto-created or not and
+     * replace Edit and Delete from Parent Permissions for them with the respective permissions.
+     * Example:
+     * If the parent role has DELETE permission for auto-created role and
+     * auto-created role's DELETE permission has VIEW permission, then
+     * we replace DELETE permission for auto-created role in parent role with VIEW permission for auto-created role.
+     */
+    private Mono<Boolean> updateHoverMapPermissionsForPermissionGroup(Map<String, Set<IdPermissionDTO>> hoverMap,
+                                                                      PermissionGroup permissionGroup) {
+        return permissionGroupUtils.isAutoCreated(permissionGroup).map(autoCreated -> {
+            if (autoCreated) {
+                String deletePermissionKey = permissionGroup.getId() + "_" + PermissionViewableName.DELETE.getName();
+                String editPermissionKey = permissionGroup.getId() + "_" + PermissionViewableName.EDIT.getName();
+
+                hoverMap.forEach((key, value) -> {
+                    if (value.contains(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.EDIT))) {
+                        hoverMap.merge(key, hoverMap.get(editPermissionKey), Sets::union);
+                        hoverMap.put(key, hoverMap.get(key).stream()
+                                .filter(setValue -> !setValue.equals(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.EDIT)))
+                                .collect(Collectors.toSet()));
+                    }
+                    if (value.contains(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.DELETE))) {
+                        hoverMap.merge(key, hoverMap.get(deletePermissionKey), Sets::union);
+                        hoverMap.put(key, hoverMap.get(key).stream()
+                                .filter(setValue -> !setValue.equals(new IdPermissionDTO(permissionGroup.getId(), PermissionViewableName.DELETE)))
+                                .collect(Collectors.toSet()));
+                    }
+                });
+                hoverMap.remove(editPermissionKey);
+                hoverMap.remove(deletePermissionKey);
+            }
+            return TRUE;
+        });
     }
 }

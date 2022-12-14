@@ -1,8 +1,10 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -12,6 +14,8 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
 import com.appsmith.server.solutions.UserChangedHandler;
@@ -43,6 +47,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final UserUtils userUtils;
     private final PermissionGroupService permissionGroupService;
     private final CommonConfig commonConfig;
+    private final PermissionGroupRepository permissionGroupRepository;
+    private final UserGroupRepository userGroupRepository;
     public static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo.svg";
     private static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
     private static final String DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
@@ -68,7 +74,9 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            UserDataService userDataService,
                            TenantService tenantService,
                            PermissionGroupService permissionGroupService,
-                           UserUtils userUtils) {
+                           UserUtils userUtils,
+                           PermissionGroupRepository permissionGroupRepository,
+                           UserGroupRepository userGroupRepository) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService, analyticsService,
                 sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender, applicationRepository,
@@ -80,6 +88,8 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         this.userUtils = userUtils;
         this.permissionGroupService = permissionGroupService;
         this.commonConfig = commonConfig;
+        this.permissionGroupRepository = permissionGroupRepository;
+        this.userGroupRepository = userGroupRepository;
     }
 
     @Override
@@ -90,7 +100,7 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                         ReactiveSecurityContextHolder.getContext()
                 )
                 // Add EE specific metadata to the user profile.
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final UserProfileDTO profile = tuple.getT1();
                     final UserData userData = tuple.getT2();
                     SecurityContext context = tuple.getT3();
@@ -105,7 +115,30 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                         profile.setIdToken(null);
                     }
 
-                    return profile;
+                    // Add checks to turn on super user mode if required
+
+                    // If the user is already super user, no need to check.
+                    if (profile.isSuperUser()) {
+                        profile.setAdminSettingsVisible(true);
+                        return Mono.just(profile);
+                    }
+
+                    // If the user has access to >0 permission groups or >0 user groups, or can read audit logs, then
+                    // show them the admin settings page by turning on super admin mode
+                    return Mono.zip(
+                            permissionGroupRepository.countAllReadablePermissionGroups(),
+                            userGroupRepository.countAllReadableUserGroups(),
+                            tenantService.getDefaultTenant(AclPermission.READ_TENANT_AUDIT_LOGS)
+                                    .switchIfEmpty(Mono.just(new Tenant()))
+                    ).map(tuple2 -> {
+                        boolean isAnyPermissionGroupReadable = tuple2.getT1() > 0;
+                        boolean isAnyUserGroupReadable = tuple2.getT2() > 0;
+                        boolean isAuditLogsReadable = tuple2.getT3().getId() != null;
+                        if (isAnyPermissionGroupReadable || isAnyUserGroupReadable || isAuditLogsReadable) {
+                            profile.setAdminSettingsVisible(true);
+                        }
+                        return profile;
+                    });
                 });
     }
 

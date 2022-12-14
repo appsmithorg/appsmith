@@ -3,9 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Tenant;
@@ -15,6 +13,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -26,13 +25,11 @@ import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -49,7 +46,6 @@ import static com.appsmith.server.acl.AclPermission.CREATE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
-import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -57,8 +53,6 @@ import static java.lang.Boolean.TRUE;
 @Service
 @Slf4j
 public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl implements PermissionGroupService {
-
-    private Set<String> autoCreatedPermissionGroupIds = null;
 
     private final ModelMapper modelMapper;
     private final SessionUserService sessionUserService;
@@ -72,6 +66,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     private final RoleConfigurationSolution roleConfigurationSolution;
 
     private final ConfigRepository configRepository;
+    private final PermissionGroupUtils permissionGroupUtils;
 
     public PermissionGroupServiceImpl(Scheduler scheduler,
                                       Validator validator,
@@ -88,7 +83,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       PolicyGenerator policyGenerator,
                                       UserGroupRepository userGroupRepository,
                                       RoleConfigurationSolution roleConfigurationSolution,
-                                      PermissionGroupPermission permissionGroupPermission) {
+                                      PermissionGroupPermission permissionGroupPermission,
+                                      PermissionGroupUtils permissionGroupUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 sessionUserService, tenantService, userRepository, policyUtils, configRepository,
@@ -101,19 +97,18 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         this.roleConfigurationSolution = roleConfigurationSolution;
         this.userRepository = userRepository;
         this.configRepository = configRepository;
+        this.permissionGroupUtils = permissionGroupUtils;
     }
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getAll() {
         return repository.findAll(READ_PERMISSION_GROUPS)
-                .zipWith(getAutoCreatedPermissionGroupIds().repeat())
+                .flatMap(permissionGroup -> Mono.zip(Mono.just(permissionGroup), permissionGroupUtils.isAutoCreated(permissionGroup)))
                 .map(tuple -> {
-                    PermissionGroup permissionGroup1 = tuple.getT1();
-                    Set<String> autoCreatedPermissionGroupIds = tuple.getT2();
-                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup1, PermissionGroupInfoDTO.class);
-                    permissionGroupInfoDTO.setAutoCreated(
-                            StringUtils.hasLength(permissionGroup1.getDefaultWorkspaceId()) ||
-                                    autoCreatedPermissionGroupIds.contains(permissionGroupInfoDTO.getId()));
+                    PermissionGroup permissionGroup = tuple.getT1();
+                    boolean isAutoCreated = tuple.getT2();
+                    PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
+                    permissionGroupInfoDTO.setAutoCreated(isAutoCreated);
                     return permissionGroupInfoDTO;
                 })
                 .collectList();
@@ -336,30 +331,6 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                     return repository.updateById(pg.getId(), updateObj);
                 })
                 .then(Mono.just(TRUE));
-    }
-
-    private Flux<Config> getAllConfigsWithAutoCreatedPermissionGroups() {
-        return this.configRepository.findAllByNameIn(Appsmith.AUTO_CREATED_PERMISSION_GROUP);
-    }
-
-    private Mono<Set<String>> getAutoCreatedPermissionGroupIds() {
-        if (this.autoCreatedPermissionGroupIds != null)
-            return Mono.just(this.autoCreatedPermissionGroupIds);
-
-        Set<String> tempSet = new HashSet<>();
-
-        return this.getAllConfigsWithAutoCreatedPermissionGroups()
-                .collectList()
-                .flatMap(configs -> {
-                    configs.forEach(config -> {
-                        JSONObject jsonObject = config.getConfig();
-                        if (jsonObject.containsKey(DEFAULT_PERMISSION_GROUP)
-                                && StringUtils.hasLength(jsonObject.getAsString(DEFAULT_PERMISSION_GROUP)))
-                            tempSet.add(jsonObject.getAsString(DEFAULT_PERMISSION_GROUP));
-                    });
-                    return Mono.just(tempSet);
-                })
-                .doOnNext(permissionGroupIdsSet -> autoCreatedPermissionGroupIds = permissionGroupIdsSet);
     }
 
     @Override
