@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -66,6 +67,7 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
@@ -2814,13 +2816,18 @@ public class DatabaseChangelog2 {
 
     // TODO We'll be deleting this migration after upgrade to Spring 6.0
     @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
-    public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate, @NonLockGuarded EncryptionConfig encryptionConfig, EncryptionService encryptionService) {
+    public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate,
+                                                 @NonLockGuarded EncryptionConfig encryptionConfig,
+                                                 EncryptionService encryptionService) {
+        Stopwatch stopwatch = new Stopwatch("Instance Schema migration to v2");
 
         Config encryptionVersion = mongockTemplate.findOne(
                 query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
                 Config.class);
 
         if (encryptionVersion != null && (Integer) encryptionVersion.getConfig().get("value") < 2) {
+            String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
+            TextEncryptor textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
 
             /**
              * - List of attributes in datasources that need to be encoded.
@@ -2856,52 +2863,66 @@ public class DatabaseChangelog2 {
             applicationPathList.add("gitApplicationMetadata.gitAuth.privateKey");
             applicationPathListExists.add(Filters.exists("gitApplicationMetadata.gitAuth.privateKey"));
 
-            mongockTemplate.execute("datasource", getNewEncryptionCallback(encryptionConfig, encryptionService, datasourcePathListExists, datasourcePathList));
-            mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(encryptionConfig, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList));
-            mongockTemplate.execute("application", getNewEncryptionCallback(encryptionConfig, encryptionService, applicationPathListExists, applicationPathList));
+            mongockTemplate.execute("datasource", getNewEncryptionCallback(textEncryptor, encryptionService, datasourcePathListExists, datasourcePathList, stopwatch));
+            mongockTemplate.execute("gitDeployKeys", getNewEncryptionCallback(textEncryptor, encryptionService, gitDeployKeysPathListExists, gitDeployKeysPathList, stopwatch));
+            mongockTemplate.execute("application", getNewEncryptionCallback(textEncryptor, encryptionService, applicationPathListExists, applicationPathList, stopwatch));
 
             mongockTemplate.upsert(
                     query(where(fieldName(QConfig.config1.name)).is(Appsmith.INSTANCE_SCHEMA_VERSION)),
                     update("config.value", 2),
                     Config.class);
         }
+        stopwatch.stopAndLogTimeInMillis();
     }
 
     private CollectionCallback<String> getNewEncryptionCallback(
-            EncryptionConfig encryptionConfig,
+            TextEncryptor textEncryptor,
             EncryptionService encryptionService,
             Iterable<Bson> collectionFilterIterable,
-            List<String> pathList) {
+            List<String> pathList,
+            Stopwatch stopwatch) {
         return new CollectionCallback<String>() {
             @Override
             public String doInCollection(MongoCollection<Document> collection) {
                 MongoCursor<Document> cursor = collection.find(Filters.or(collectionFilterIterable)).cursor();
 
-                List<List<Document>> documentPairList = new ArrayList<>();
+                log.debug("collection callback start: {}ms", stopwatch.getExecutionTime());
+
+                List<List<Bson>> documentPairList = new ArrayList<>();
                 while (cursor.hasNext()) {
                     Document old = cursor.next();
+                    BasicDBObject query = new BasicDBObject();
+                    query.put("_id", old.getObjectId("_id"));
                     // This document will have the encrypted values.
-                    Document updated = Document.parse(old.toJson());
+                    BasicDBObject updated = new BasicDBObject();
+                    updated.put("$set", new BasicDBObject());
+                    updated.put("$unset", new BasicDBObject());
                     // Encrypt attributes
                     pathList.stream()
-                            .forEach(path -> reapplyNewEncryptionToPathValueIfExists(updated, path, encryptionConfig, encryptionService));
-                    documentPairList.add(List.of(old, updated));
+                            .forEach(path -> reapplyNewEncryptionToPathValueIfExists(old, updated, path, encryptionService, textEncryptor));
+                    documentPairList.add(List.of(query, updated));
                 }
+
+                log.debug("collection callback processing end: {}ms", stopwatch.getExecutionTime());
 
                 /**
                  * - Replace old document with the updated document that has encrypted values.
                  * - Replacing here instead of the while loop above makes sure that we attempt replacement only if
                  * the encryption step succeeded without error for each selected document.
                  */
-                documentPairList.stream()
-                        .forEach(docPair -> collection.findOneAndReplace(docPair.get(0), docPair.get(1)));
+                documentPairList.stream().parallel()
+                        .forEach(docPair -> collection.findOneAndUpdate(docPair.get(0), docPair.get(1)));
+
+                log.debug("collection callback update end: {}ms", stopwatch.getExecutionTime());
 
                 return null;
             }
         };
     }
 
-    private void reapplyNewEncryptionToPathValueIfExists(Document document, String path, EncryptionConfig encryptionConfig, EncryptionService encryptionService) {
+    private void reapplyNewEncryptionToPathValueIfExists(Document document, BasicDBObject update, String path,
+                                                         EncryptionService encryptionService,
+                                                         TextEncryptor textEncryptor) {
         String[] pathKeys = path.split("\\.");
         /**
          * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content", first get the parent
@@ -2912,23 +2933,25 @@ public class DatabaseChangelog2 {
         Document parentDocument = DatabaseChangelog.getDocumentFromPath(document, parentDocumentPath);
 
         if (parentDocument != null) {
-            /**
-             * - Replace old value with new encrypted value if the key exists and is non-null.
-             * - Use the last element in pathKeys since it the key that names the attribute that needs to be encrypted
-             * e.g. 'base64Content' in "datasourceConfiguration.connection.ssl.keyFile.base64Content"
-             */
-            parentDocument.computeIfPresent(
-                    pathKeys[pathKeys.length - 1],
-                    (k, v) -> {
-                        String saltInHex = Hex.encodeHexString(encryptionConfig.getSalt().getBytes());
-                        TextEncryptor textEncryptor = Encryptors.queryableText(encryptionConfig.getPassword(), saltInHex);
-                        if (StringUtils.hasLength(String.valueOf(v))) {
-                            String decryptedValue = textEncryptor.decrypt(String.valueOf(v));
-                            return encryptionService.encryptString(decryptedValue);
+            if (parentDocument.containsKey(pathKeys[pathKeys.length - 1])) {
+                String oldEncryptedValue = parentDocument.getString(pathKeys[pathKeys.length - 1]);
+                if (StringUtils.hasLength(String.valueOf(oldEncryptedValue))) {
+                    String decryptedValue = null;
+                    try {
+                        decryptedValue = textEncryptor.decrypt(String.valueOf(oldEncryptedValue));
+                    } catch (IllegalArgumentException e) {
+                        // This happens on release DB for some creds that are malformed
+                        if ("Hex-encoded string must have an even number of characters".equals(e.getMessage())) {
+                            decryptedValue = String.valueOf(oldEncryptedValue);
                         }
-                        return v;
                     }
-            );
+                    String newEncryptedValue = encryptionService.encryptString(decryptedValue);
+                    ((BasicDBObject) update.get("$set")).put(path, newEncryptedValue);
+                    if (path.startsWith("datasourceConfiguration.authentication")) {
+                        ((BasicDBObject) update.get("$unset")).put("datasourceConfiguration.authentication.isEncrypted", 1);
+                    }
+                }
+            }
         }
     }
 }

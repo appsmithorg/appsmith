@@ -69,7 +69,13 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                     return Mono.error(populateSchemaMismatchError((Integer) config.getConfig().get("value")));
                 })
                 .doOnError(errorSignal -> {
-                    log.error("Error while trying to start up Appsmith instance: {}", errorSignal.getMessage());
+                    log.error("\n" +
+                                    "################################################\n" +
+                                    "Error while trying to start up Appsmith instance: \n" +
+                                    "{}\n" +
+                                    "################################################\n",
+                            errorSignal.getMessage());
+
                     SpringApplication.exit(applicationContext, () -> 1);
                     System.exit(1);
                 })
