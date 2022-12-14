@@ -6,7 +6,7 @@ const queryLocators = require("../../../../../locators/QueryEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const locators = require("../../../../../locators/commonlocators.json");
 const testUrl1 =
-  "http://localhost:5001/v1/dynamicrecords/generaterecords?records=10";
+  "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   homePage1 = ObjectsRegistry.HomePage;
@@ -50,7 +50,7 @@ describe("Create Permission flow ", function() {
       // create new datasource
       cy.NavigateToDatasourceEditor();
       cy.get(datasources.PostgreSQL).click();
-      cy.fillPostgresDatasourceForm();
+      cy.fillPostgresDatasourceFormFat();
 
       cy.generateUUID().then((uid) => {
         datasourceName = `Postgres CRUD ds ${uid}`;
@@ -212,7 +212,7 @@ describe("Create Permission flow ", function() {
     // verify user is  able to create new datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasources.MySQL).click();
-    cy.fillMySQLDatasourceForm(true);
+    cy.fillMySQLDatasourceFormFat();
     cy.generateUUID().then((UUID) => {
       datasourceName2 = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName2);
