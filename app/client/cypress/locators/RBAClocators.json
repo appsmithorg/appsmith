@@ -26,7 +26,6 @@
     "editGroups":".edit-menu-item",
     "editRole": "[data-testid='t--roles-cell']",
     "cloneRole":".clone-menu-item",
-
     "othersTab": "[data-cy='t--tab-Others']",
     "usersTabinGroup":"[data-cy='t--tab-users']",
     "backButton":".t--admin-settings-back-button",
