@@ -129,12 +129,15 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 // Email template parameters initialization below.
                                 Map<String, String> params = userService.getEmailParams(workspace, currentUser, originHeader, false);
 
-                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
-                                        "Appsmith: You have been added to a new workspace",
-                                        INVITE_USER_EMAIL_TEMPLATE, params);
-
                                 return userService.updateTenantLogoInParams(params)
-                                        .then(Mono.defer(() -> emailMono))
+                                        .flatMap(updatedParams ->
+                                                emailSender.sendMail(
+                                                        existingUser.getEmail(),
+                                                        "Appsmith: You have been added to a new workspace",
+                                                        INVITE_USER_EMAIL_TEMPLATE,
+                                                        updatedParams
+                                                )
+                                        )
                                         .thenReturn(existingUser);
                             })
                             .switchIfEmpty(userService.createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));

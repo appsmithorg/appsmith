@@ -32,6 +32,7 @@ import {
 } from "@appsmith/constants/messages";
 import HotKeys from "../Files/SubmenuHotkeys";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const MenuItem = styled.div<{ active: boolean }>`
   display: flex;
@@ -91,12 +92,14 @@ function AddPageContextMenu({
         icon: FileAddIcon,
         onClick: createPageCallback,
         "data-cy": "add-page",
+        key: "CREATE_PAGE",
       },
       {
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: Database2LineIcon,
         onClick: () => history.push(generateTemplateFormURL({ pageId })),
         "data-cy": "generate-page",
+        key: "GENERATE_PAGE",
       },
     ];
 
@@ -106,6 +109,7 @@ function AddPageContextMenu({
         icon: Layout2LineIcon,
         onClick: () => dispatch(showTemplatesModal(true)),
         "data-cy": "add-page-from-template",
+        key: "ADD_PAGE_FROM_TEMPLATE",
       });
     }
 
@@ -134,6 +138,9 @@ function AddPageContextMenu({
   const onMenuItemClick = (item: typeof ContextMenuItems[number]) => {
     setShow(false);
     item.onClick();
+    AnalyticsUtil.logEvent("ENTITY_EXPLORER_ADD_PAGE_CLICK", {
+      item: item.key,
+    });
   };
 
   return (

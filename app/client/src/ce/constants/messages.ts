@@ -50,7 +50,7 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 6 and 42 characters`;
+  `Please provide a password between 6 and 256 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
@@ -1109,6 +1109,8 @@ export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No Properties found based on your search";
+export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
+  "Search for controls, labels etc";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1389,12 +1391,14 @@ export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
   "your app URL to new readable format to change this";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
-  "Hide or show the appsmith navbar containing the app name and page switcher";
+  "Show or hide the page in the appsmith navbar in view mode";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE = () => "Set as home page";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP = () =>
   "This is the current home page, you can change this by setting another page as the home page";
 export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
+export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
+  `${name} is already being used.`;
 
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [

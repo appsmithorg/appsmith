@@ -515,3 +515,11 @@ export function fixActionPayloadForMongoQuery(
     return action;
   }
 }
+
+// Function to check if the config has KEYVALUE_ARRAY controlType with more than 1 dependent children
+export function isKVArray(children: Array<any>) {
+  if (!Array.isArray(children) || children.length < 2) return false;
+  return (
+    children[0].controlType && children[0].controlType === "KEYVALUE_ARRAY"
+  );
+}
