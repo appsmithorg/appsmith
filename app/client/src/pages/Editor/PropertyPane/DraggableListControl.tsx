@@ -45,8 +45,7 @@ export const DraggableListControl = <TItem extends BaseItemProps>(
   );
 
   useEffect(() => {
-    featureFlags.CONTEXT_SWITCHING &&
-      onEdit &&
+    onEdit &&
       defaultPanelIndex !== undefined &&
       debouncedEditLeading(defaultPanelIndex);
   }, [defaultPanelIndex]);
