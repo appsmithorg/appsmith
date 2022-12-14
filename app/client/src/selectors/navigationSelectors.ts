@@ -60,8 +60,9 @@ export const getEntitiesForNavigation = createSelector(
         navigable: true,
         children: keyBy(
           jsAction.config.actions.map((func: JSAction) => ({
-            name: func.name,
-            id: func.name,
+            name: `${jsAction.config.name}.${func.name}`,
+            key: func.name,
+            id: `${jsAction.config.name}.${func.name}`,
             type: ENTITY_TYPE.JSACTION,
             url: jsCollectionIdURL({
               pageId,
@@ -70,7 +71,7 @@ export const getEntitiesForNavigation = createSelector(
             navigable: true,
             children: {},
           })),
-          "name",
+          (data) => data.key,
         ),
       };
     });

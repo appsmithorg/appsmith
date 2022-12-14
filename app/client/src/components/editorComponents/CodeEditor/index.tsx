@@ -619,7 +619,7 @@ class CodeEditor extends Component<Props, State> {
           NAVIGATE_TO_ATTRIBUTE,
         );
         if (!navigationAttribute) return;
-        const entityToNavigate = navigationAttribute.value;
+        const entityToNavigate = navigationAttribute.value.split(".");
 
         // focus out of the input
         document.body.focus();
@@ -628,20 +628,22 @@ class CodeEditor extends Component<Props, State> {
             isFocused: false,
           },
           () => {
-            const navigationData = this.props.entitiesForNavigation[
-              entityToNavigate
-            ];
-            history.push(navigationData.url, { directNavigation: true });
+            if (entityToNavigate[0] in this.props.entitiesForNavigation) {
+              const navigationData = this.props.entitiesForNavigation[
+                entityToNavigate[0]
+              ];
+              history.push(navigationData.url, { directNavigation: true });
 
-            // TODO fix the widget navigation issue to remove this
-            if (navigationData.type === ENTITY_TYPE.WIDGET) {
-              this.props.selectWidget(navigationData.id);
+              // TODO fix the widget navigation issue to remove this
+              if (navigationData.type === ENTITY_TYPE.WIDGET) {
+                this.props.selectWidget(navigationData.id);
+              }
+
+              AnalyticsUtil.logEvent("Cmd+Click Navigation", {
+                toType: navigationData.type,
+                fromType: entityInfo.entityType,
+              });
             }
-
-            AnalyticsUtil.logEvent("Cmd+Click Navigation", {
-              toType: navigationData.type,
-              fromType: entityInfo.entityType,
-            });
           },
         );
       }
