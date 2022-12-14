@@ -13,6 +13,10 @@ import { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import {
+  hasDeleteActionPermission,
+  hasManageActionPermission,
+} from "@appsmith/utils/permissionHelpers";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
@@ -49,8 +53,17 @@ export const ExplorerJSCollectionEntity = memo(
         history.push(navigateToUrl);
       }
     }, [pageId, jsAction.id, jsAction.name, location.pathname]);
+
+    const jsActionPermissions = jsAction.userPermissions || [];
+
+    const canDeleteJSAction = hasDeleteActionPermission(jsActionPermissions);
+
+    const canManageJSAction = hasManageActionPermission(jsActionPermissions);
+
     const contextMenu = (
       <JSCollectionEntityContextMenu
+        canDelete={canDeleteJSAction}
+        canManage={canManageJSAction}
         className={EntityClassNames.CONTEXT_MENU}
         id={jsAction.id}
         name={jsAction.name}
@@ -61,6 +74,7 @@ export const ExplorerJSCollectionEntity = memo(
       <Entity
         action={navigateToJSCollection}
         active={props.isActive}
+        canEditEntityName={canManageJSAction}
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}

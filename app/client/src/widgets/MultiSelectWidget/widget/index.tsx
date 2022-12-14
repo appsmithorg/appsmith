@@ -11,11 +11,12 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "../component";
 import { Layers } from "constants/Layers";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { DraftValueType } from "rc-select/lib/Select";
+import { Stylesheet } from "entities/AppTheming";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -210,6 +211,7 @@ class MultiSelectWidget extends BaseWidget<
               { label: "Top", value: LabelPosition.Top },
               { label: "Auto", value: LabelPosition.Auto },
             ],
+            defaultValue: LabelPosition.Top,
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -406,6 +408,14 @@ class MultiSelectWidget extends BaseWidget<
     return {
       selectedOptionValueArr: undefined,
       filterText: "",
+    };
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "none",
     };
   }
 

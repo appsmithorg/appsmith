@@ -1,12 +1,13 @@
 import { TooltipComponent as Tooltip } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Text, TextType } from "design-system";
 import React from "react";
 
 type Props = {
   tooltip?: string;
   label: string;
   theme?: EditorTheme;
+  maxWidth?: string;
+  lineHeight?: string;
 };
 
 function PropertyHelpLabel(props: Props) {
@@ -17,16 +18,15 @@ function PropertyHelpLabel(props: Props) {
   return (
     <Tooltip
       content={
-        <Text
+        <div
           style={{
             color: "#FAFAFA",
-            maxWidth: "320px",
-            textAlign: "center",
+            maxWidth: props.maxWidth ? props.maxWidth : "320px",
+            lineHeight: props.lineHeight,
           }}
-          type={TextType.P1}
         >
           {props.tooltip || ""}
-        </Text>
+        </div>
       }
       disabled={!toolTipDefined}
       hoverOpenDelay={200}

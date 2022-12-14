@@ -1,13 +1,11 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
-import { connect } from "react-redux";
 import { debounce, difference, isEmpty, noop, merge } from "lodash";
 import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import { contentConfig, styleConfig } from "./propertyConfig";
-import { AppState } from "@appsmith/reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   EventType,
@@ -29,6 +27,8 @@ import {
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { convertSchemaItemToFormData } from "../helper";
+import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -92,6 +92,7 @@ class JSONFormWidget extends BaseWidget<
     this.isWidgetMounting = true;
     this.actionQueue = [];
   }
+  formRef = React.createRef<HTMLDivElement>();
 
   state = {
     resetObserverCallback: noop,
@@ -122,6 +123,103 @@ class JSONFormWidget extends BaseWidget<
     };
   }
 
+  static getStylesheetConfig(): Stylesheet<ChildStylesheet & ButtonStyles> {
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+
+      submitButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      resetButtonStyles: {
+        buttonColor: "{{appsmith.theme.colors.primaryColor}}",
+        borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        boxShadow: "none",
+      },
+
+      childStylesheet: {
+        ARRAY: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        OBJECT: {
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+          cellBorderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          cellBoxShadow: "none",
+        },
+        CHECKBOX: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+        CURRENCY_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        DATEPICKER: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        EMAIL_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTISELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        MULTILINE_TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PASSWORD_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        PHONE_NUMBER_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        RADIO_GROUP: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        SELECT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+        SWITCH: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          boxShadow: "none",
+        },
+        TEXT_INPUT: {
+          accentColor: "{{appsmith.theme.colors.primaryColor}}",
+          borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+          boxShadow: "none",
+        },
+      },
+    };
+  }
+
   static defaultProps = {};
 
   componentDidMount() {
@@ -130,6 +228,7 @@ class JSONFormWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
+    super.componentDidUpdate(prevProps);
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -181,24 +280,27 @@ class JSONFormWidget extends BaseWidget<
     if (!this.props.autoGenerateForm)
       return {
         status: ComputedSchemaStatus.UNCHANGED,
-        schema: prevProps?.schema || {},
+        schema: this.props?.schema || {},
       };
 
-    const widget = this.props.canvasWidgets[
-      this.props.widgetId
-    ] as JSONFormWidgetProps;
     const prevSourceData = this.getPreviousSourceData(prevProps);
     const currSourceData = this.props?.sourceData;
 
     const computedSchema = computeSchema({
       currentDynamicPropertyPathList: this.props.dynamicPropertyPathList,
       currSourceData,
-      prevSchema: widget.schema,
+      prevSchema: this.props?.schema,
       prevSourceData,
-      widgetName: widget.widgetName,
-      fieldThemeStylesheets: widget.childStylesheet,
+      widgetName: this.props.widgetName,
+      fieldThemeStylesheets: this.props.childStylesheet,
     });
-    const { dynamicPropertyPathList, schema, status } = computedSchema;
+    const {
+      dynamicPropertyPathList,
+      modifiedSchemaItems,
+      removedSchemaItems,
+      schema,
+      status,
+    } = computedSchema;
 
     if (
       status === ComputedSchemaStatus.LIMIT_EXCEEDED &&
@@ -206,9 +308,32 @@ class JSONFormWidget extends BaseWidget<
     ) {
       this.updateWidgetProperty("fieldLimitExceeded", true);
     } else if (status === ComputedSchemaStatus.UPDATED) {
-      this.batchUpdateWidgetProperty({
-        modify: { schema, dynamicPropertyPathList, fieldLimitExceeded: false },
-      });
+      const payload: BatchPropertyUpdatePayload = {
+        modify: {
+          dynamicPropertyPathList,
+          fieldLimitExceeded: false,
+        },
+      };
+
+      /**
+       * This means there was no schema before and the computeSchema returns a
+       * fresh schema than can be directly updated.
+       */
+      if (isEmpty(this.props?.schema)) {
+        payload.modify = {
+          ...payload.modify,
+          schema,
+        };
+      } else {
+        payload.modify = {
+          ...payload.modify,
+          ...modifiedSchemaItems,
+        };
+
+        payload.remove = removedSchemaItems;
+      }
+
+      this.batchUpdateWidgetProperty(payload);
     }
 
     return computedSchema;
@@ -388,6 +513,7 @@ class JSONFormWidget extends BaseWidget<
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
+        ref={this.formRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}
@@ -413,10 +539,4 @@ class JSONFormWidget extends BaseWidget<
   }
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    canvasWidgets: state.entities.canvasWidgets,
-  };
-};
-
-export default connect(mapStateToProps, null)(JSONFormWidget);
+export default JSONFormWidget;

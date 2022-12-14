@@ -1,12 +1,12 @@
 import { get, isPlainObject } from "lodash";
 
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 import { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 const isValidListData = (
   value: unknown,

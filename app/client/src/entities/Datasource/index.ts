@@ -62,6 +62,7 @@ interface BaseDatasource {
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;
+  userPermissions?: string[];
   isDeleting?: boolean;
 }
 

@@ -5,8 +5,11 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
-import _ from "lodash";
-import { WidgetType } from "constants/WidgetConstants";
+import _, { omit } from "lodash";
+import {
+  WidgetType,
+  WIDGET_PROPS_TO_SKIP_FROM_EVAL,
+} from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
@@ -16,6 +19,17 @@ import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReduce
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
+
+export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
+  const widgetForEval: CanvasWidgetsReduxState = {};
+  for (const key of Object.keys(widgets)) {
+    widgetForEval[key] = omit(
+      widgets[key],
+      Object.keys(WIDGET_PROPS_TO_SKIP_FROM_EVAL),
+    ) as FlattenedWidgetProps;
+  }
+  return widgetForEval;
+});
 
 export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
   return state.entities.metaWidgets;

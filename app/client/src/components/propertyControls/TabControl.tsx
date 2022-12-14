@@ -2,11 +2,7 @@ import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import {
-  BaseItemProps,
-  DroppableComponent,
-  RenderComponentProps,
-} from "./DraggableListComponent";
+import { BaseItemProps, RenderComponentProps } from "./DraggableListComponent";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
@@ -16,6 +12,7 @@ import * as Sentry from "@sentry/react";
 import { Category, Size } from "design-system";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
@@ -50,7 +47,7 @@ function AddTabButtonComponent({ widgetId }: any) {
   return (
     <StyledPropertyPaneButtonWrapper>
       <StyledPropertyPaneButton
-        category={Category.tertiary}
+        category={Category.secondary}
         className="t--add-tab-btn"
         icon="plus"
         onClick={addOption}
@@ -203,13 +200,14 @@ class TabControl extends BaseControl<ControlProps, State> {
         <NumberOfTabs className="t--number-of-tabs">
           {tabs.length} tabs
         </NumberOfTabs>
-        <DroppableComponent
+        <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={tabs}
           onEdit={this.onEdit}
+          propertyPath={this.props.dataTreePath}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
           updateFocus={this.updateFocus}

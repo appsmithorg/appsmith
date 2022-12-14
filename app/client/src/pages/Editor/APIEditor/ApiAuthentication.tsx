@@ -2,7 +2,7 @@ import React from "react";
 import { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Text, TextType } from "design-system";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
@@ -17,6 +17,11 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import {
+  hasCreateDatasourcePermission,
+  hasManageDatasourcePermission,
+} from "@appsmith/utils/permissionHelpers";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -77,6 +82,23 @@ function ApiAuthentication(props: Props): JSX.Element {
 
   const datasourceId = get(datasource, "id");
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state)?.userPermissions ?? [],
+  );
+
+  const canCreateDatasource = hasCreateDatasourcePermission(
+    userWorkspacePermissions,
+  );
+
+  const datasourcePermissions = datasource?.userPermissions || [];
+
+  const canManageDatasource = hasManageDatasourcePermission(
+    datasourcePermissions,
+  );
+
+  const isEnabled =
+    (shouldSave && canCreateDatasource) || (!shouldSave && canManageDatasource);
+
   return (
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
@@ -87,7 +109,7 @@ function ApiAuthentication(props: Props): JSX.Element {
       </DescriptionText>
       <StoreAsDatasource
         datasourceId={datasourceId}
-        enable
+        enable={isEnabled}
         shouldSave={shouldSave}
       />
     </AuthContainer>

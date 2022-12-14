@@ -41,6 +41,7 @@ import {
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { getMainCanvasProps } from "selectors/editorSelectors";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { deleteMetaWidgets } from "actions/metaWidgetActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -238,6 +239,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           );
         }
         yield put(updateAndSaveLayout(finalWidgets));
+        yield put(generateAutoHeightLayoutTreeAction(true, true));
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";
@@ -333,6 +335,8 @@ function* deleteAllSelectedWidgetsSaga(
       );
     }
     yield put(updateAndSaveLayout(finalWidgets));
+    yield put(generateAutoHeightLayoutTreeAction(true, true));
+
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
     if (!disallowUndo) {

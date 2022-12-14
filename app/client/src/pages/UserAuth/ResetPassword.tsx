@@ -1,6 +1,6 @@
 import React, { useLayoutEffect } from "react";
 import { AppState } from "@appsmith/reducers";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { Link, withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
 import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
@@ -21,11 +21,7 @@ import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
 import { ResetPasswordFormValues, resetPasswordSubmitHandler } from "./helpers";
-import {
-  AuthCardHeader,
-  BlackAuthCardNavLink,
-  FormActions,
-} from "./StyledComponents";
+import { BlackAuthCardNavLink, FormActions } from "./StyledComponents";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -45,6 +41,7 @@ import {
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
   createMessage,
 } from "@appsmith/constants/messages";
+import Container from "./Container";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -96,10 +93,13 @@ export function ResetPassword(props: ResetPasswordProps) {
   let message = "";
   let messageActions: MessageAction[] | undefined = undefined;
   if (showExpiredMessage || showInvalidMessage) {
+    const messageActionText = createMessage(
+      RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+    );
     messageActions = [
       {
-        url: FORGOT_PASSWORD_URL,
-        text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
+        linkElement: <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>,
+        text: messageActionText,
         intent: "primary",
       },
     ];
@@ -112,11 +112,14 @@ export function ResetPassword(props: ResetPasswordProps) {
   }
 
   if (showSuccessMessage) {
+    const messageActionText = createMessage(
+      RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+    );
     message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
-        url: AUTH_LOGIN_URL,
-        text: createMessage(RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK),
+        linkElement: <Link to={AUTH_LOGIN_URL}>{messageActionText}</Link>,
+        text: messageActionText,
         intent: "success",
       },
     ];
@@ -130,10 +133,15 @@ export function ResetPassword(props: ResetPasswordProps) {
           createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK).toLowerCase(),
         )
     ) {
+      const messageActionText = createMessage(
+        RESET_PASSWORD_FORGOT_PASSWORD_LINK,
+      );
       messageActions = [
         {
-          url: FORGOT_PASSWORD_URL,
-          text: createMessage(RESET_PASSWORD_FORGOT_PASSWORD_LINK),
+          linkElement: (
+            <Link to={FORGOT_PASSWORD_URL}>{messageActionText}</Link>
+          ),
+          text: messageActionText,
           intent: "primary",
         },
       ];
@@ -157,19 +165,18 @@ export function ResetPassword(props: ResetPasswordProps) {
     return <Spinner />;
   }
   return (
-    <>
-      <AuthCardHeader>
-        <h1>{createMessage(RESET_PASSWORD_PAGE_TITLE)}</h1>
-      </AuthCardHeader>
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <BlackAuthCardNavLink to={AUTH_LOGIN_URL}>
+    <Container
+      subtitle={
+        <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
           <Icon
             icon="arrow-left"
             style={{ marginRight: props.theme.spaces[3] }}
           />
           {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
         </BlackAuthCardNavLink>
-      </div>
+      }
+      title={createMessage(RESET_PASSWORD_PAGE_TITLE)}
+    >
       {(showSuccessMessage || showFailureMessage) && (
         <FormMessage {...messageTagProps} />
       )}
@@ -201,7 +208,7 @@ export function ResetPassword(props: ResetPasswordProps) {
           />
         </FormActions>
       </StyledForm>
-    </>
+    </Container>
   );
 }
 
