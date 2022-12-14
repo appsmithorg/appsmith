@@ -24,10 +24,10 @@ import {
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
+import { useLocation, useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
-import { isEmpty } from "lodash";
+import { find, isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
@@ -65,8 +65,8 @@ import {
   hasExecuteActionPermission,
   hasManageActionPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { executeCommandAction } from "../../../actions/apiPaneActions";
-import { SlashCommand } from "../../../entities/Action";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommand } from "entities/Action";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -78,6 +78,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
+  const { hash } = useLocation();
+
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
   // Currently active response (only changes upon execution)
@@ -111,6 +113,15 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
       selectedJSActionOption.data?.id || "",
     ),
   );
+
+  useEffect(() => {
+    if (hash) {
+      const jsAction = find(jsActions, ["name", hash.substring(1)]);
+      if (jsAction) {
+        handleActiveActionChange(jsAction);
+      }
+    }
+  }, [hash]);
 
   // Triggered when there is a change in the code editor
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
