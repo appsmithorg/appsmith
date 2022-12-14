@@ -37,7 +37,7 @@ export type AutoLayoutProps = {
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
 };
-
+// TODO: create a memoized style object for the div instead.
 const FlexWidget = styled.div<{
   componentHeight: number;
   componentWidth: number;
