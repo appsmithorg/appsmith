@@ -2,9 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.QUserGroup;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -75,5 +73,10 @@ public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<Us
         }
         Query query = new Query(Criteria.where("id").is(id));
         return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
+    }
+
+    @Override
+    public Mono<Long> countAllReadableUserGroups() {
+        return count(List.of(), AclPermission.READ_USER_GROUPS);
     }
 }
