@@ -21,4 +21,6 @@ public interface CustomUserGroupRepository extends AppsmithRepository<UserGroup>
     Mono<UpdateResult> updateById(String id, Update updateObj);
 
     Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId);
+
+    Mono<Long> countAllReadableUserGroups();
 }

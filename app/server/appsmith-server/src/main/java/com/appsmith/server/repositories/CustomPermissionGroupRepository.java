@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.repositories.ce.CustomPermissionGroupRepositoryCE;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
@@ -21,4 +22,6 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
     Flux<PermissionGroup> findAllByAssignedToUserGroupIdAndDefaultWorkspaceId(String userGroupId, String workspaceId, AclPermission permission);
 
     Flux<PermissionGroup> findAllByAssignedToUserIds(Set<String> userIds, AclPermission aclPermission);
+
+    Mono<Long> countAllReadablePermissionGroups();
 }

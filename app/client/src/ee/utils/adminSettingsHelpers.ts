@@ -80,4 +80,4 @@ export const getDefaultAdminSettingsPath = ({
 };
 
 export const showAdminSettings = (user?: User): boolean =>
-  (user && true) || false;
+  user?.adminSettingsVisible || false;
