@@ -27,8 +27,6 @@ function* updateLintGlobals(action: ReduxAction<TJSLibrary>) {
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
   if (!isEditorMode) return;
-  yield put(setLintingErrors({}));
-
   yield call(
     lintWorker.request,
     LINT_WORKER_ACTIONS.UPDATE_LINT_GLOBALS,

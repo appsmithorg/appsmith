@@ -51,7 +51,6 @@ class MockWorkerClass implements WorkerClass {
   }
 
   postMessage(message: any) {
-    console.log({ message });
     expect(this.running).toEqual(true);
     expect(this.callback).not.toEqual(this.noop);
     this.messages.push(message);
