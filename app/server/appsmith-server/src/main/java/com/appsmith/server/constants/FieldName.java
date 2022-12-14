@@ -206,5 +206,6 @@ public class FieldName {
     public static final String AUDIT_LOGS_ORIGIN = "origin";
     public static final String AUDIT_LOGS_ORIGIN_CLIENT = "client";
     public static final String AUDIT_LOGS_ORIGIN_SERVER = "server";
+    public static final String ENVIRONMENT_NAME ="environmentName";
 
 }
