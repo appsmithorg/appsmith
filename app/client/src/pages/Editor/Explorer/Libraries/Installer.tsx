@@ -122,6 +122,9 @@ const Wrapper = styled.div<{ left: number }>`
           font-weight: 400;
           -webkit-box-orient: vertical;
         }
+        img {
+          cursor: initial;
+        }
       }
       .library-card.no-border {
         border-bottom: none;
