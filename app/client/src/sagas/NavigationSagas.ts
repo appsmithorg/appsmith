@@ -44,9 +44,9 @@ function* handleRouteChange(
 ) {
   const { hash, pathname, state } = action.payload.location;
   try {
-    yield fork(logNavigationAnalytics, action.payload);
-    yield fork(contextSwitchingSaga, pathname, state, hash);
-    yield fork(appBackgroundHandler);
+    yield call(logNavigationAnalytics, action.payload);
+    yield call(contextSwitchingSaga, pathname, state, hash);
+    yield call(appBackgroundHandler);
     const entityInfo = identifyEntityFromPath(pathname, hash);
     yield fork(updateRecentEntitySaga, entityInfo);
   } catch (e) {
@@ -97,9 +97,8 @@ function* handlePageChange(
     pageId,
   } = action.payload;
   try {
-    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
     const fromPageId = identifyEntityFromPath(fromPath)?.pageId;
-    if (featureFlags.CONTEXT_SWITCHING && fromPageId && fromPageId !== pageId) {
+    if (fromPageId && fromPageId !== pageId) {
       yield call(storeStateOfPage, fromPageId, fromPath, fromParamString);
 
       yield call(setStateOfPage, pageId, currPath, currParamString);
@@ -316,8 +315,6 @@ function shouldStoreStateForCanvas(
   );
 }
 export default function* rootSaga() {
-  yield all([
-    takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange),
-    takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange),
-  ]);
+  yield all([takeEvery(ReduxActionTypes.ROUTE_CHANGED, handleRouteChange)]);
+  yield all([takeEvery(ReduxActionTypes.PAGE_CHANGED, handlePageChange)]);
 }
