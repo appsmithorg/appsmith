@@ -262,6 +262,7 @@ function SingleSelectTreeComponent({
           className={`tree-select-label`}
           color={labelTextColor}
           compact={compactMode}
+          cyHelpTextClassName="tree-select-tooltip"
           disabled={disabled}
           fontSize={labelTextSize}
           fontStyle={labelStyle}
