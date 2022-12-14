@@ -14,8 +14,6 @@ import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action } from "entities/Action";
 import { Plugin } from "api/PluginApi";
 import log from "loglevel";
-import FeatureFlags from "entities/FeatureFlags";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Location } from "history";
 import history, {
   AppsmithLocationState,
