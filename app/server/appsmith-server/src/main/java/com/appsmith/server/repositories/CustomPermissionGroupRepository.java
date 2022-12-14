@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ce.CustomPermissionGroupRepositoryCE;
 import reactor.core.publisher.Flux;
 
@@ -14,6 +13,8 @@ public interface CustomPermissionGroupRepository extends CustomPermissionGroupRe
     Flux<PermissionGroup> findAll(AclPermission aclPermission);
 
     Flux<PermissionGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields);
+
+    Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
 
     Flux<PermissionGroup> findAllById(Set<String> ids, AclPermission permission);
 

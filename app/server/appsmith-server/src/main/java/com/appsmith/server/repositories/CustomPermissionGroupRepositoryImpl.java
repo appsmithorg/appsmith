@@ -72,4 +72,16 @@ public class CustomPermissionGroupRepositoryImpl extends CustomPermissionGroupRe
                 null,
                 NO_RECORD_LIMIT);
     }
+
+    @Override
+    public Flux<PermissionGroup> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
+        Criteria criteria = where(fieldName(QPermissionGroup.permissionGroup.id)).in(ids);
+        return queryAll(
+                List.of(criteria),
+                includeFields,
+                null,
+                null,
+                NO_RECORD_LIMIT
+        );
+    }
 }

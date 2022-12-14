@@ -7,5 +7,5 @@ public class Appsmith {
     // We default the origin header to the production deployment of the client's URL
     public static final String DEFAULT_ORIGIN_HEADER = "https://app.appsmith.com";
 
-    public static final List<String> AUTO_CREATED_PERMISSION_GROUP = List.of(FieldName.INSTANCE_CONFIG);
+    public static final List<String> AUTO_CREATED_PERMISSION_GROUP = List.of(FieldName.INSTANCE_CONFIG, FieldName.DEFAULT_USER_PERMISSION_GROUP);
 }
