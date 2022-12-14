@@ -169,7 +169,6 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
 
 const StatusIconWrapper = styled.div<{
   addHoverState: boolean;
-  className: string;
 }>`
   display: flex;
   align-items: center;
