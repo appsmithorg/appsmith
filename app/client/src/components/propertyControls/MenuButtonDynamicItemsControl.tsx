@@ -18,6 +18,7 @@ import {
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -94,12 +95,15 @@ class MenuButtonDynamicItemsControl extends BaseControl<
       propertyValue,
       theme,
     } = this.props;
-    const menuButtonId = this.props.widgetProperties.widgetName;
+    const widgetName = this.props.widgetProperties.widgetName;
+    const widgetType = this.props.widgetProperties.type;
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? MenuButtonDynamicItemsControl.getInputComputedValue(
             propertyValue,
-            menuButtonId,
+            widgetName,
+            widgetType,
+            this.props.widgetProperties.primaryColumns,
           )
         : propertyValue
         ? propertyValue
@@ -131,22 +135,38 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     );
   }
 
-  static getBindingPrefix = (menuButtonId: string) => {
-    return `{{${menuButtonId}.sourceData.map((currentItem, currentIndex) => ( `;
+  static getBindingPrefix = (
+    widgetName: string,
+    widgetType?: string,
+    primaryColumns?: Record<string, ColumnProperties>,
+  ) => {
+    if (widgetType === "TABLE_WIDGET_V2" && primaryColumns) {
+      const columnName = Object.keys(primaryColumns)?.[0];
+
+      return `{{${widgetName}.primaryColumns.${columnName}.sourceData.map((currentItem, currentIndex) => ( `;
+    }
+
+    return `{{${widgetName}.sourceData.map((currentItem, currentIndex) => ( `;
   };
 
   static bindingSuffix = `))}}`;
 
   static getInputComputedValue = (
     propertyValue: string,
-    menuButtonId: string,
+    widgetName: string,
+    widgetType?: string,
+    primaryColumns?: Record<string, ColumnProperties>,
   ) => {
-    if (!propertyValue.includes(this.getBindingPrefix(menuButtonId))) {
+    if (
+      !propertyValue.includes(
+        this.getBindingPrefix(widgetName, widgetType, primaryColumns),
+      )
+    ) {
       return propertyValue;
     }
 
     const value = `${propertyValue.substring(
-      this.getBindingPrefix(menuButtonId).length,
+      this.getBindingPrefix(widgetName, widgetType, primaryColumns).length,
       propertyValue.length - this.bindingSuffix.length,
     )}`;
     const stringValue = JSToString(value);
@@ -154,7 +174,12 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     return stringValue;
   };
 
-  getComputedValue = (value: string, menuButtonId: string) => {
+  getComputedValue = (
+    value: string,
+    widgetName: string,
+    widgetType?: string,
+    primaryColumns?: Record<string, ColumnProperties>,
+  ) => {
     if (!isDynamicValue(value)) {
       return value;
     }
@@ -166,7 +191,9 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     }
 
     return `${MenuButtonDynamicItemsControl.getBindingPrefix(
-      menuButtonId,
+      widgetName,
+      widgetType,
+      primaryColumns,
     )}${stringToEvaluate}${MenuButtonDynamicItemsControl.bindingSuffix}`;
   };
 
@@ -181,6 +208,8 @@ class MenuButtonDynamicItemsControl extends BaseControl<
       const output = this.getComputedValue(
         value,
         this.props.widgetProperties.widgetName,
+        this.props.widgetProperties.type,
+        this.props.widgetProperties.primaryColumns,
       );
 
       this.updateProperty(this.props.propertyName, output);
