@@ -10,7 +10,7 @@ import {
   RenderModes,
   WidgetType,
 } from "constants/WidgetConstants";
-import React, { Component, ReactNode } from "react";
+import React, { Component, Context, ReactNode } from "react";
 import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
@@ -19,7 +19,10 @@ import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionC
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import shallowequal from "shallowequal";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import {
+  EditorContext,
+  EditorContextType,
+} from "components/editorComponents/EditorContextProvider";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
@@ -54,10 +57,11 @@ import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsRedu
 
 abstract class BaseWidget<
   T extends WidgetProps,
-  K extends WidgetState
+  K extends WidgetState,
+  TCache = unknown
 > extends Component<T, K> {
   static contextType = EditorContext;
-  context!: React.ContextType<typeof EditorContext>;
+  context!: React.ContextType<Context<EditorContextType<TCache>>>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -202,7 +206,7 @@ abstract class BaseWidget<
     });
   };
 
-  setWidgetCache = (data: unknown) => {
+  setWidgetCache = (data: TCache) => {
     this.context?.setWidgetCache?.(this.props.widgetId, data);
   };
 
