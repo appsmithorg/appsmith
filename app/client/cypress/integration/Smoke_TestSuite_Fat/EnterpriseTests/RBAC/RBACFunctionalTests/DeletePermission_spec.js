@@ -141,6 +141,7 @@ describe("Delete Permission flow ", function() {
       });
     });
   });
+
   it("1. Delete permission : App level (Delete any page in same app, delete action)", function() {
     cy.LogOut();
     // login as exisiting user and verify user is able to delete page in same app
@@ -205,7 +206,7 @@ describe("Delete Permission flow ", function() {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     ee.ActionContextMenuByEntityName("UpdateQuery", "Delete", "Are you sure?");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(RBAC.JsObject1).should("not.exist");
   });
