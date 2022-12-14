@@ -19,7 +19,7 @@
     "@github/g-emoji-element": "^1.1.5",
     "@manaflair/redux-batch": "^1.0.0",
     "@sentry/react": "^6.2.4",
-    "@sentry/tracing": "^6.2.4",
+    "@sentry/tracing": "^6.19.7",
     "@tinymce/tinymce-react": "^3.13.0",
     "@types/react-page-visibility": "^6.4.1",
     "@uppy/core": "^1.16.0",
