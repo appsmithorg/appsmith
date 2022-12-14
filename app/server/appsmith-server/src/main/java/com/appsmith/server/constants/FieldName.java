@@ -207,4 +207,6 @@ public class FieldName {
     public static final String AUDIT_LOGS_ORIGIN_CLIENT = "client";
     public static final String AUDIT_LOGS_ORIGIN_SERVER = "server";
     public static final String DEFAULT_USER_PERMISSION_GROUP = "Default User Role";
+    public static final String ENVIRONMENT_NAME ="environmentName";
+
 }
