@@ -96,7 +96,9 @@ export function Field(props: FieldProps) {
     case FieldType.RESET_CHILDREN_FIELD:
     case FieldType.WIDGET_NAME_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: options as TreeDropdownOption[],
+        options: (options as TreeDropdownOption[]).sort((a, b) =>
+          a.label.localeCompare(b.label),
+        ),
         label: label,
         get: getterFunction,
         set: (
