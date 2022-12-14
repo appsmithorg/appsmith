@@ -135,7 +135,6 @@ public class RestApiPluginTest {
 
     @Test
     public void testExecuteApiWithPaginationForPreviousUrl() throws IOException {
-        // Generate a mock response which redirects to the invalid host
         MockWebServer mockWebServer = new MockWebServer();
         MockResponse mockRedirectResponse = new MockResponse()
                 .setResponseCode(200);
@@ -199,7 +198,6 @@ public class RestApiPluginTest {
 
     @Test
     public void testExecuteApiWithPaginationForPreviousEncodedUrl() throws IOException {
-        // Generate a mock response which redirects to the invalid host
         MockWebServer mockWebServer = new MockWebServer();
         MockResponse mockRedirectResponse = new MockResponse()
                 .setResponseCode(200);
@@ -264,7 +262,6 @@ public class RestApiPluginTest {
 
     @Test
     public void testExecuteApiWithPaginationForNextUrl() throws IOException {
-        // Generate a mock response which redirects to the invalid host
         MockWebServer mockWebServer = new MockWebServer();
         MockResponse mockRedirectResponse = new MockResponse()
                 .setResponseCode(200);
@@ -328,7 +325,6 @@ public class RestApiPluginTest {
 
     @Test
     public void testExecuteApiWithPaginationForNextEncodedUrl() throws IOException {
-        // Generate a mock response which redirects to the invalid host
         MockWebServer mockWebServer = new MockWebServer();
         MockResponse mockRedirectResponse = new MockResponse()
                 .setResponseCode(200);
