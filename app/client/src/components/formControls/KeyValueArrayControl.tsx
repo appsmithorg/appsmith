@@ -7,13 +7,20 @@ import {
   WrappedFieldInputProps,
 } from "redux-form";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
-import { FormIcons } from "icons/FormIcons";
 import BaseControl, { ControlProps, ControlData } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
-import { TextInput, TextInputProps } from "design-system";
+import {
+  Case,
+  Classes,
+  Icon,
+  IconSize,
+  Text,
+  TextInput,
+  TextInputProps,
+  TextType,
+} from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -42,6 +49,38 @@ const StyledTextInput = styled(TextInput)`
   }
 `;
 
+const CenteredIcon = styled(Icon)`
+  align-self: center;
+  margin-left: 15px;
+`;
+
+const AddMoreAction = styled.div`
+  width: fit-content;
+  cursor: pointer;
+  display: flex;
+  margin-top: 16px;
+  margin-left: 12px;
+  .${Classes.TEXT} {
+    margin-left: 8px;
+    color: ${Colors.GRAY};
+  }
+  svg {
+    fill: ${Colors.GRAY};
+    path {
+      fill: unset;
+    }
+  }
+
+  &:hover {
+    .${Classes.TEXT} {
+      color: ${Colors.CHARCOAL};
+    }
+    svg {
+      fill: ${Colors.CHARCOAL};
+    }
+  }
+`;
+
 function KeyValueRow(
   props: KeyValueArrayControlProps & WrappedFieldArrayProps,
 ) {
@@ -50,15 +89,19 @@ function KeyValueRow(
   const valueName = getFieldName(extraData[1]?.configProperty);
   const keyFieldProps = extraData[0];
 
+  const addRow = useCallback(() => {
+    if (keyName && valueName) {
+      props.fields.push({ [keyName[1]]: "", [valueName[1]]: "" });
+    } else {
+      props.fields.push({ key: "", value: "" });
+    }
+  }, [keyName, valueName]);
+
   useEffect(() => {
     // Always maintain 1 row
     if (props.fields.length < 1) {
       for (let i = props.fields.length; i < 1; i += 1) {
-        if (keyName && valueName) {
-          props.fields.push({ [keyName[1]]: "", [valueName[1]]: "" });
-        } else {
-          props.fields.push({ key: "", value: "" });
-        }
+        addRow();
       }
     }
   }, [props.fields, keyName, valueName]);
@@ -87,12 +130,6 @@ function KeyValueRow(
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
   );
-  const maxLen = props.maxLen;
-  //if maxLen exists apply a check on the length
-  const showAddIcon = (index: number): boolean =>
-    maxLen
-      ? index === props.fields.length - 1 && props.fields.length < maxLen
-      : index === props.fields.length - 1;
 
   return typeof props.fields.getAll() === "object" ? (
     <>
@@ -149,27 +186,12 @@ function KeyValueRow(
                       isRequired: extraData[1]?.isRequired,
                     }}
                   />
-                  {showAddIcon(index) ? (
-                    <Icon
-                      className="t--add-field"
-                      color={Colors["CADET_BLUE"]}
-                      icon="plus"
-                      iconSize={20}
-                      onClick={() => {
-                        props.fields.push({ key: "", value: "" });
-                      }}
-                      style={{ marginLeft: "16px", alignSelf: "center" }}
-                    />
-                  ) : (
-                    <FormIcons.DELETE_ICON
-                      className="t--delete-field"
-                      color={Colors["CADET_BLUE"]}
-                      height={20}
-                      onClick={() => props.fields.remove(index)}
-                      style={{ marginLeft: "16px", alignSelf: "center" }}
-                      width={20}
-                    />
-                  )}
+                  <CenteredIcon
+                    className="t--delete-field"
+                    name="delete"
+                    onClick={() => props.fields.remove(index)}
+                    size={IconSize.LARGE}
+                  />
                 </div>
               </div>
             )}
@@ -188,6 +210,12 @@ function KeyValueRow(
           </FormRowWithLabel>
         );
       })}
+      <AddMoreAction className="t--add-field" onClick={addRow}>
+        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
+        <Text case={Case.UPPERCASE} type={TextType.H5}>
+          Add more
+        </Text>
+      </AddMoreAction>
     </>
   ) : null;
 }

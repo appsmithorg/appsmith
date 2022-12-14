@@ -5,6 +5,7 @@ import {
   DataTreeAction,
   DataTreeWidget,
   ENTITY_TYPE,
+  DataTreeAppsmith,
 } from "entities/DataTree/dataTreeFactory";
 
 export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
@@ -210,6 +211,71 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       privateWidgets: {},
       meta: {},
     } as unknown) as DataTreeWidget,
+    appsmith: ({
+      user: {
+        email: "anand@appsmith.com",
+        workspaceIds: [
+          "61431979a67ce2289d3c7c6d",
+          "61431a95a67ce2289d3c7c74",
+          "5f7add8687af934ed846dd6a",
+          "5f9fd13993794869fdbb8dcb",
+          "618b5af5da7cd651ee273112",
+          "604ef1c5c046f668d7bcc051",
+          "61b3389cd3e4214454c26bd1",
+          "61b3389cd3e4214454c26bd2",
+          "620a0d896b4b1e154a3c057a",
+          "620b37296b4b1e154a3c1fd7",
+          "60c1a5273535574772b6377b",
+          "6066e71a034ece74b1481ad2",
+          "623b36e34d9aea1b062b15b3",
+          "623b37de4d9aea1b062b170f",
+          "624fe51b457aa64da9e02ed3",
+          "6176537b515e45415cc7fd15",
+          "6206486d6b4b1e154a3be208",
+        ],
+        username: "anand@appsmith.com",
+        name: "Anand Srinivasan",
+        enableTelemetry: true,
+        idToken: {
+          sub: "109879730040206968321",
+          email_verified: true,
+          name: "Anand Srinivasan",
+          given_name: "Anand",
+          locale: "en",
+          hd: "appsmith.com",
+          family_name: "Srinivasan",
+          picture:
+            "https://lh3.googleusercontent.com/a-/AOh14Gi4HfYY0sKhaG93YAHB_E5-dL4BkFxdf8ZfQ2w7=s96-c",
+          email: "anand@appsmith.com",
+        },
+        accountNonExpired: true,
+        accountNonLocked: true,
+        credentialsNonExpired: true,
+        emptyInstance: false,
+        isAnonymous: false,
+        isEnabled: true,
+        isSuperUser: false,
+        isConfigurable: true,
+      },
+      URL: {
+        fullPath:
+          "https://app.appsmith.com/app/untitled-application-25/page1-6272179d8a368d6f1efcd0d2/edit",
+        host: "app.appsmith.com",
+        hostname: "app.appsmith.com",
+        queryParams: {},
+        protocol: "https:",
+        pathname:
+          "/app/untitled-application-25/page1-6272179d8a368d6f1efcd0d2/edit",
+        port: "",
+        hash: "",
+      },
+      store: {},
+      geolocation: {
+        canBeRequested: true,
+      },
+      mode: "EDIT",
+      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
+    } as unknown) as DataTreeAppsmith,
   },
   apiSuccessUnEvalTree: {
     // success: response -> [{...}, {...}, {...}]
