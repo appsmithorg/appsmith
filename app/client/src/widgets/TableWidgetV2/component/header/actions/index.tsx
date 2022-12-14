@@ -231,7 +231,6 @@ function Actions(props: ActionsPropsType) {
           {/* <TableHeaderContentWrapper className="show-page-items">
             {props.tableData?.length} Records
           </TableHeaderContentWrapper> */}
-          {console.log("props", props)}
           {props.tableData.length ? (
             <TableHeaderContentWrapper>
               {startIndex}-{endIndex} of {props.tableData?.length}

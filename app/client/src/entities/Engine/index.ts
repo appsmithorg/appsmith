@@ -8,7 +8,7 @@ import {
 import { getPersistentAppStore } from "constants/AppConstants";
 import { APP_MODE } from "entities/App";
 import log from "loglevel";
-import { call, put, select } from "redux-saga/effects";
+import { call, put, select, take, spawn, all } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultPageId } from "sagas/selectors";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -16,6 +16,26 @@ import history from "utils/history";
 import URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
+import getQueryParamsObject from "utils/getQueryParamsObject";
+import {
+  executeActionTriggers,
+  TriggerMeta,
+} from "sagas/ActionExecution/ActionExecutionSagas";
+import {
+  ActionDescription,
+  ActionTriggerType,
+} from "entities/DataTree/actionTriggers";
+import uniqueId from "lodash/uniqueId";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Channel, channel } from "redux-saga";
+import {
+  PjOwner,
+  EnvKeys,
+  EndpointGroups,
+  branchList,
+  orgList,
+  initNewConfigWithOrganization,
+} from "ce/variants/config";
 
 export type AppEnginePayload = {
   applicationId?: string;
@@ -38,7 +58,11 @@ export class PageNotFoundError extends AppEngineApiError {}
 export class ActionsNotFoundError extends AppEngineApiError {}
 export class PluginsNotFoundError extends AppEngineApiError {}
 export class PluginFormConfigsNotFoundError extends AppEngineApiError {}
-
+interface ConfigChannelPayload {
+  config: EndpointGroups;
+  eventType: EventType;
+  triggerMeta: TriggerMeta;
+}
 export default abstract class AppEngine {
   private _mode: APP_MODE;
   constructor(mode: APP_MODE) {
@@ -55,6 +79,8 @@ export default abstract class AppEngine {
 
   *loadAppData(payload: AppEnginePayload) {
     const { applicationId, branch, pageId } = payload;
+    const organization = getQueryParamsObject().organization;
+    const branchName = getQueryParamsObject().branch;
     const apiCalls: boolean = yield failFastApiCalls(
       [fetchApplication({ applicationId, pageId, mode: this._mode })],
       [
@@ -77,6 +103,26 @@ export default abstract class AppEngine {
       application.applicationVersion,
       this._mode,
     );
+    const messageChannel = channel<ConfigChannelPayload>();
+    yield spawn(storeConfig, messageChannel);
+
+    const owner = orgList.includes(organization)
+      ? (organization as PjOwner)
+      : undefined;
+    const env = branchList.includes(branchName)
+      ? (branchName as EnvKeys)
+      : undefined;
+    initNewConfigWithOrganization(owner, env).then((config: EndpointGroups) => {
+      messageChannel.put({
+        config: config,
+        eventType: EventType.ON_STORE_VALUE,
+        triggerMeta: {
+          source: undefined,
+          triggerPropertyName: "triggerPropertyName",
+        } as TriggerMeta,
+      });
+    });
+
     return { toLoadPageId, applicationId: application.id };
   }
 
@@ -100,5 +146,34 @@ export default abstract class AppEngine {
     } catch (e) {
       log.error(e);
     }
+  }
+}
+
+function* storeConfig(channel: Channel<ConfigChannelPayload>) {
+  try {
+    while (true) {
+      const payload: ConfigChannelPayload = yield take(channel);
+      const { config, eventType, triggerMeta } = payload;
+      yield all(
+        Object.keys(config).map((x) =>
+          call(
+            executeActionTriggers,
+            {
+              type: ActionTriggerType.STORE_VALUE,
+              payload: {
+                key: x,
+                persist: true,
+                uniqueActionRequestId: uniqueId("store_value_id_"),
+                value: config[x as keyof EndpointGroups],
+              },
+            } as ActionDescription,
+            eventType,
+            triggerMeta,
+          ),
+        ),
+      );
+    }
+  } finally {
+    channel.close();
   }
 }
