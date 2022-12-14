@@ -133,7 +133,7 @@ export const isIdentifierNode = (node: Node): node is IdentifierNode => {
   return node.type === NodeTypes.Identifier;
 };
 
-const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
+export const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
 };
 

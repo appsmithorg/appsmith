@@ -3,6 +3,7 @@ import {
     attachCommentsToAst,
     isArrowFunctionExpression,
     isCallExpressionNode,
+    isMemberExpressionNode,
     LiteralNode,
     wrapCode,
 } from "../index";
@@ -391,16 +392,15 @@ export const replaceActionInQuery = (query: string, changeAction: string, argNum
         }
     });
 
-
     simple(astWithComments, {
         CallExpression(node) {
-            if (isCallExpressionNode(node) && isCallExpressionNode(node.callee) && node.callee.arguments[argNum]) {
+            if (isCallExpressionNode(node) && isMemberExpressionNode(node.callee) && node.arguments[argNum]) {
                 // add 1 to get the starting position of the next
                 // node to ending position of previous
-                const startPosition = node.callee.end + NEXT_POSITION;
+                const startPosition = node.arguments[argNum].start;
                 requiredNode.start = startPosition;
                 requiredNode.end = startPosition + changeAction.length;
-                node.callee.arguments[argNum] = requiredNode;
+                node.arguments[argNum] = requiredNode;
                 requiredQuery = `${generate(astWithComments, {comments: true}).trim()}`
             }
         },

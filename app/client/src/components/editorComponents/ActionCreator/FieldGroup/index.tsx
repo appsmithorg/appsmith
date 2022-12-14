@@ -80,9 +80,7 @@ function FieldGroup(props: FieldGroupProps) {
                     ) => {
                       const parentValue =
                         selectorField.getParentValue &&
-                        selectorField.getParentValue(
-                          value.substring(2, value.length - 2),
-                        );
+                        selectorField.getParentValue(value);
                       props.onValueChange(
                         parentValue || value,
                         isUpdatedViaKeyboard,
@@ -128,9 +126,7 @@ function FieldGroup(props: FieldGroupProps) {
             modalDropdownList={props.modalDropdownList}
             navigateToSwitches={props.navigateToSwitches}
             onValueChange={(value: any, isUpdatedViaKeyboard: boolean) => {
-              const parentValue = selectorField.getParentValue(
-                value.substring(2, value.length - 2),
-              );
+              const parentValue = selectorField.getParentValue(value);
               props.onValueChange(parentValue, isUpdatedViaKeyboard);
             }}
             pageDropdownOptions={props.pageDropdownOptions}

@@ -66,7 +66,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         ? ""
         : defaultArgs && defaultArgs.length
         ? `{{${value}(${defaultArgs})}}`
-        : `{{${value}(${defaultParams})}}`;
+        : defaultParams && defaultParams.length
+        ? `{{${value}(${defaultParams})}}`
+        : `{{${value}}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
