@@ -113,8 +113,7 @@ export const setPostWelcomeTourState = async (flag: boolean) => {
 
 export const getPostWelcomeTourState = async () => {
   try {
-    const onboardingState = await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
-    return onboardingState;
+    return await store.getItem(STORAGE_KEYS.POST_WELCOME_TOUR);
   } catch (error) {
     log.error("An error occurred when getting post welcome tour state", error);
   }

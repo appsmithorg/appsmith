@@ -162,5 +162,6 @@ public class FieldName {
     public static final String UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS = "unAssignedGroups";
     public static final String ASSIGNED_TO_PERMISSION_GROUPS = "assignedUserAndGroups";
     public static final String UNASSIGNED_FROM_PERMISSION_GROUPS = "unAssignedUsersAndGroups";
+    public static final String ENVIRONMENT_NAME ="environmentName";
 
 }

@@ -480,7 +480,10 @@ export const getCurrentPageWidgets = createSelector(
     currentPageId ? widgetsByPage[currentPageId] : {},
 );
 
-const getParentModalId = (widget: any, pageWidgets: Record<string, any>) => {
+export const getParentModalId = (
+  widget: any,
+  pageWidgets: Record<string, any>,
+) => {
   let parentModalId;
   let { parentId } = widget;
   let parentWidget = pageWidgets[parentId];

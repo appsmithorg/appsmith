@@ -28,7 +28,6 @@ import utilSagas from "sagas/UtilSagas";
 import saaSPaneSagas from "sagas/SaaSPaneSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
-import recentEntitiesSagas from "sagas/RecentEntitiesSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
 import replaySaga from "sagas/ReplaySaga";
@@ -75,7 +74,6 @@ export const sagas = [
   formEvaluationChangeListener,
   utilSagas,
   globalSearchSagas,
-  recentEntitiesSagas,
   websocketSagas,
   debuggerSagas,
   saaSPaneSagas,
