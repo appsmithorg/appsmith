@@ -23,7 +23,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest-8-cores
     defaults:
       run:
         working-directory: app/client
@@ -172,7 +172,7 @@ jobs:
     defaults:
       run:
         working-directory: app/server
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event_name == 'workflow_dispatch' ||
@@ -1483,7 +1483,7 @@ jobs:
         with:
           name: failed-spec
           path: ~/failed_spec
-      
+
       # Download failed_spec_fat list for all fat container jobs
       - uses: actions/download-artifact@v2
         if: needs.fat-container-test.result
@@ -1496,7 +1496,7 @@ jobs:
       - name: "combine all specs"
         if: needs.ui-test.result != 'success'
         run: cat ~/failed_spec/failed_spec* >> ~/combined_failed_spec
-      
+
       # Incase for any fat-container job failure, create combined failed spec
       - name: "combine all specs for fat"
         if: needs.fat-container-test.result != 'success'
@@ -1532,7 +1532,7 @@ jobs:
         with:
           name: combined_failed_spec
           path: ~/combined_failed_spec
-      
+
       # Upload combined failed fat spec list to a file
       # This is done for debugging.
       - name: upload combined failed spec
