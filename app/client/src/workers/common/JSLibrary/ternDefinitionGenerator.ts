@@ -1,4 +1,5 @@
 import log from "loglevel";
+import { Def } from "tern";
 
 function getTernDocType(obj: any) {
   const type = typeof obj;
@@ -30,7 +31,7 @@ const ignoredKeys = [
 ];
 
 export function makeTernDefs(obj: any) {
-  const defs: Record<string, unknown> = {};
+  const defs: Def = {};
   const cachedDefs: any = [];
   const visitedReferences: any = [];
   const MAX_ITERATIONS = 5000;

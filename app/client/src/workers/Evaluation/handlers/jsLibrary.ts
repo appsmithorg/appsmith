@@ -3,6 +3,7 @@ import {
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
 import difference from "lodash/difference";
+import { Def } from "tern";
 import {
   JSLibraries,
   libraryReservedIdentifiers,
@@ -56,7 +57,7 @@ class LibraryOverrideError extends Error {
 export function installLibrary(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { takenAccessors, takenNamesMap, url } = data;
-  const defs: any = {};
+  const defs: Def = {};
   try {
     const currentEnvKeys = Object.keys(self);
 
