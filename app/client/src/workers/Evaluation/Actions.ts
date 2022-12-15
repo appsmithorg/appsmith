@@ -421,7 +421,7 @@ export const removePlatformFunctions = (dataTree: DataTree) => {
   const newDataTree = { ...dataTree };
   const platformFunctionEntries = Object.keys(PLATFORM_FUNCTIONS);
   for (const name of platformFunctionEntries) {
-    delete dataTree[name];
+    delete newDataTree[name];
   }
   return newDataTree;
 };
