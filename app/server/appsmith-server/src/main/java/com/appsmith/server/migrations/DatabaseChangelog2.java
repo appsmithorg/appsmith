@@ -2865,7 +2865,12 @@ public class DatabaseChangelog2 {
         return new CollectionCallback<String>() {
             @Override
             public String doInCollection(MongoCollection<Document> collection) {
-                MongoCursor<Document> cursor = collection.find(Filters.or(collectionFilterIterable)).cursor();
+                MongoCursor<Document> cursor = collection
+                        .find(
+                                Filters.and(
+                                        Filters.or(collectionFilterIterable),
+                                        Filters.not(Filters.exists("encryptionVersion"))))
+                        .cursor();
 
                 log.debug("collection callback start: {}ms", stopwatch.getExecutionTime());
 
@@ -2876,7 +2881,7 @@ public class DatabaseChangelog2 {
                     query.put("_id", old.getObjectId("_id"));
                     // This document will have the encrypted values.
                     BasicDBObject updated = new BasicDBObject();
-                    updated.put("$set", new BasicDBObject());
+                    updated.put("$set", new BasicDBObject("encryptionVersion", 2));
                     updated.put("$unset", new BasicDBObject());
                     // Encrypt attributes
                     pathList.stream()
@@ -2885,6 +2890,7 @@ public class DatabaseChangelog2 {
                 }
 
                 log.debug("collection callback processing end: {}ms", stopwatch.getExecutionTime());
+                log.debug("update will be run for {} documents", documentPairList.size());
 
                 /**
                  * - Replace old document with the updated document that has encrypted values.

@@ -17,7 +17,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
-@ChangeLog(order = "001")
+@ChangeLog(order = "000")
 public class DatabaseChangelog0 {
 
     /**
