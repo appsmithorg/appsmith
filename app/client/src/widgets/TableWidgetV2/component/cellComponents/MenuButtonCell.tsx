@@ -44,9 +44,9 @@ function MenuButton({
       e.stopPropagation();
     }
   };
-  const onItemClicked = (onClick?: string) => {
+  const onItemClicked = (onClick?: string, index?: number) => {
     if (onClick) {
-      onCommandClick(onClick);
+      onCommandClick(onClick, index);
     }
   };
 
@@ -79,7 +79,11 @@ export interface RenderMenuButtonProps extends BaseCellComponentProps {
   isSelected: boolean;
   label: string;
   isDisabled: boolean;
-  onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
+  onCommandClick: (
+    dynamicTrigger: string,
+    index?: number,
+    onComplete?: () => void,
+  ) => void;
   isCompact?: boolean;
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
@@ -93,7 +97,6 @@ export interface RenderMenuButtonProps extends BaseCellComponentProps {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {

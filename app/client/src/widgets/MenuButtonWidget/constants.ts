@@ -51,7 +51,6 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 export interface MenuButtonComponentProps {
@@ -77,7 +76,6 @@ export interface MenuButtonComponentProps {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 export interface PopoverContentProps {
@@ -90,7 +88,6 @@ export interface PopoverContentProps {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 export const ICON_NAMES = Object.keys(IconNames).map(

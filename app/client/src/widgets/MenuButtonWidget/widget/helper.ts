@@ -1,34 +1,41 @@
 import { isArray } from "lodash";
-import { MenuButtonWidgetProps, MenuItemsSource } from "../constants";
+import { MenuButtonWidgetProps } from "../constants";
 
-export const getSourceDataKeysForEventAutocomplete = (
+export const getKeysFromSourceDataForEventAutocomplete = (
   props: MenuButtonWidgetProps,
 ) => {
-  if (
-    props.menuItemsSource === MenuItemsSource.STATIC ||
-    !props.sourceDataKeys?.length
-  ) {
-    return;
-  }
+  const { __evaluation__: evaluation } = props;
 
-  return {
-    currentItem: props.sourceDataKeys.reduce(
-      (prev, cur) => ({ ...prev, [cur]: "" }),
-      {},
-    ),
-  };
+  if (
+    isArray(evaluation?.evaluatedValues?.sourceData) &&
+    evaluation?.evaluatedValues?.sourceData?.length
+  ) {
+    const keys = getUniqueKeysFromSourceData(
+      evaluation.evaluatedValues.sourceData,
+    );
+
+    return {
+      currentItem: keys.reduce((prev, cur) => ({ ...prev, [cur]: "" }), {}),
+    };
+  } else {
+    return { currentItem: {} };
+  }
 };
 
-export const getSourceDataKeys = (props: MenuButtonWidgetProps) => {
-  if (!isArray(props.sourceData) || !props.sourceData?.length) {
+export const getUniqueKeysFromSourceData = (
+  sourceData?: Array<Record<string, unknown>>,
+) => {
+  if (!isArray(sourceData) || !sourceData?.length) {
     return [];
   }
 
   const allKeys: string[] = [];
 
   // get all keys
-  props.sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
+  sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
 
   // return unique keys
-  return [...new Set(allKeys)];
+  const uniqueKeys = [...new Set(allKeys)];
+
+  return uniqueKeys.length ? uniqueKeys : [];
 };

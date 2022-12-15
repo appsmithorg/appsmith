@@ -700,10 +700,6 @@ export const updateMenuItemsSource = (
           propertyPath: `${baseProperty}.sourceData`,
           propertyValue: [],
         });
-        propertiesToUpdate.push({
-          propertyPath: `${baseProperty}.sourceDataKeys`,
-          propertyValue: [],
-        });
       }
 
       if (!configureMenuItems) {

@@ -19,6 +19,7 @@ import {
 } from "components/editorComponents/ActionCreator/utils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import { isArray } from "lodash";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -86,6 +87,24 @@ function InputText(props: InputTextProp) {
 class MenuButtonDynamicItemsControl extends BaseControl<
   MenuButtonDynamicItemsControlProps
 > {
+  getUniqueKeysFromSourceData = (
+    sourceData: Array<Record<string, unknown>>,
+  ) => {
+    if (!isArray(sourceData) || !sourceData?.length) {
+      return [];
+    }
+
+    const allKeys: string[] = [];
+
+    // get all keys
+    sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
+
+    // return unique keys
+    const uniqueKeys = [...new Set(allKeys)];
+
+    return uniqueKeys.length ? uniqueKeys : [];
+  };
+
   render() {
     const {
       dataTreePath,
@@ -94,21 +113,34 @@ class MenuButtonDynamicItemsControl extends BaseControl<
       label,
       propertyValue,
       theme,
+      widgetProperties,
     } = this.props;
-    const widgetName = this.props.widgetProperties.widgetName;
-    const widgetType = this.props.widgetProperties.type;
+    const widgetName = widgetProperties.widgetName;
+    const widgetType = widgetProperties.type;
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? MenuButtonDynamicItemsControl.getInputComputedValue(
             propertyValue,
             widgetName,
             widgetType,
-            this.props.widgetProperties.primaryColumns,
+            widgetProperties.primaryColumns,
           )
         : propertyValue
         ? propertyValue
         : defaultValue;
-    const keys = this.props.widgetProperties.sourceDataKeys || [];
+    let sourceData;
+
+    if (widgetType === "TABLE_WIDGET_V2") {
+      sourceData =
+        widgetProperties?.__evaluation__?.evaluatedValues?.primaryColumns?.[
+          `${Object.keys(widgetProperties.primaryColumns)[0]}`
+        ]?.sourceData;
+    } else if (widgetType === "MENU_BUTTON_WIDGET") {
+      sourceData =
+        widgetProperties?.__evaluation__?.evaluatedValues?.sourceData;
+    }
+
+    const keys = this.getUniqueKeysFromSourceData(sourceData);
     const currentItem: { [key: string]: any } = {};
 
     Object.values(keys).forEach((key) => {
@@ -119,6 +151,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<
     if (value && !propertyValue) {
       this.onTextChange(value);
     }
+
     return (
       <InputText
         additionalDynamicData={{

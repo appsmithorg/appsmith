@@ -210,14 +210,17 @@ const StyledMenu = styled(Menu)`
 
 interface PopoverContentProps {
   menuItems: MenuItems;
-  onItemClicked: (onClick: string | undefined, index: number) => void;
+  onItemClicked: (
+    onClick: string | undefined,
+    index?: number,
+    onComplete?: () => void,
+  ) => void;
   getVisibleItems: (rowIndex: number) => Array<MenuItem>;
   isCompact?: boolean;
   rowIndex: number;
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 function PopoverContent(props: PopoverContentProps) {
@@ -331,13 +334,16 @@ export interface MenuButtonComponentProps {
   boxShadowColor?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
-  onItemClicked: (onClick: string | undefined, index: number) => void;
+  onItemClicked: (
+    onClick: string | undefined,
+    index?: number,
+    onComplete?: () => void,
+  ) => void;
   rowIndex: number;
   compactMode?: string;
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 function MenuButtonTableComponent(props: MenuButtonComponentProps) {

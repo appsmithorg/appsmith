@@ -1,13 +1,35 @@
-import { getSourceDataKeysForEventAutocomplete } from "./helper";
+import { getKeysFromSourceDataForEventAutocomplete } from "./helper";
 
-describe("getSourceDataKeysForEventAutocomplete", () => {
+describe("getKeysFromSourceDataForEventAutocomplete", () => {
   it("Should test with valid values", () => {
     const mockProps = {
-      sourceDataKeys: ["step", "task", "status", "action"],
-      menuItemsSource: "DYANMIC",
+      __evaluation__: {
+        evaluatedValues: {
+          sourceData: [
+            {
+              step: "#1",
+              task: "Drop a table",
+              status: "✅",
+              action: "",
+            },
+            {
+              step: "#2",
+              task: "Create a query fetch_users with the Mock DB",
+              status: "--",
+              action: "",
+            },
+            {
+              step: "#3",
+              task: "Bind the query using => fetch_users.data",
+              status: "--",
+              action: "",
+            },
+          ],
+        },
+      },
     };
 
-    const result = getSourceDataKeysForEventAutocomplete(mockProps as any);
+    const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = {
       currentItem: {
         step: "",
@@ -19,25 +41,25 @@ describe("getSourceDataKeysForEventAutocomplete", () => {
     expect(result).toStrictEqual(expected);
   });
 
-  it("Should test with Static menuItemSource", () => {
+  it("Should test with empty sourceData", () => {
     const mockProps = {
-      sourceDataKeys: [],
-      menuItemsSource: "STATIC",
+      __evaluation__: {
+        evaluatedValues: {
+          sourceData: [],
+        },
+      },
     };
 
-    const result = getSourceDataKeysForEventAutocomplete(mockProps as any);
-    const expected = undefined;
+    const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
+    const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);
   });
 
-  it("Should test with empty sourceDataKeys", () => {
-    const mockProps = {
-      sourceDataKeys: [],
-      menuItemsSource: "DYANMIC",
-    };
+  it("Should test without sourceData", () => {
+    const mockProps = {};
 
-    const result = getSourceDataKeysForEventAutocomplete(mockProps as any);
-    const expected = undefined;
+    const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
+    const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);
   });
 });

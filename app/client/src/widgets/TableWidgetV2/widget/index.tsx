@@ -1673,18 +1673,31 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             menuItems={cellProperties.menuItems}
             menuItemsSource={cellProperties.menuItemsSource}
             menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
-            onCommandClick={(action: string, onComplete?: () => void) =>
-              this.onColumnEvent({
+            onCommandClick={(
+              action: string,
+              index?: number,
+              onComplete?: () => void,
+            ) => {
+              const additionalData: {
+                [key: string]: string | number | Record<string, unknown>;
+              } = {};
+
+              if (cellProperties?.sourceData && index) {
+                additionalData.currentItem = cellProperties.sourceData[index];
+                additionalData.currentIndex = index;
+              }
+
+              return this.onColumnEvent({
                 rowIndex,
                 action,
                 onComplete,
                 triggerPropertyName: "onClick",
                 eventType: EventType.ON_CLICK,
-              })
-            }
+                additionalData,
+              });
+            }}
             rowIndex={originalIndex}
             sourceData={cellProperties.sourceData}
-            sourceDataKeys={cellProperties.sourceDataKeys}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}

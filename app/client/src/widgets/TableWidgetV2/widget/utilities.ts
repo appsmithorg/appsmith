@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import _, { isBoolean, isObject, uniq, without } from "lodash";
+import _, { isArray, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
 import {
   CellAlignmentTypes,
@@ -689,4 +689,50 @@ export const getColumnType = (
     default:
       return ColumnTypes.TEXT;
   }
+};
+
+export const getKeysFromSourceDataForEventAutocomplete = (
+  props: TableWidgetProps,
+) => {
+  const keysForAutocomplete = { currentItem: {} };
+  const { __evaluation__: evaluation, primaryColumns } = props;
+  const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
+  const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
+  const evaluatedColumns = evaluation?.evaluatedValues?.primaryColumns;
+
+  if (evaluation?.evaluatedValues?.primaryColumns && evaluatedColumns) {
+    const sourceData: Record<string, unknown>[] =
+      evaluatedColumns[
+        columnName as keyof typeof evaluation.evaluatedValues.primaryColumns
+      ]?.["sourceData"];
+
+    if (isArray(sourceData) && sourceData?.length) {
+      const keys = getUniqueKeysFromSourceData(sourceData);
+
+      keysForAutocomplete.currentItem = keys.reduce(
+        (prev, cur) => ({ ...prev, [cur]: "" }),
+        {},
+      );
+    }
+  }
+
+  return keysForAutocomplete;
+};
+
+export const getUniqueKeysFromSourceData = (
+  sourceData?: Array<Record<string, unknown>>,
+) => {
+  if (!isArray(sourceData) || !sourceData?.length) {
+    return [];
+  }
+
+  const allKeys: string[] = [];
+
+  // get all keys
+  sourceData?.forEach((item) => allKeys.push(...Object.keys(item)));
+
+  // return unique keys
+  const uniqueKeys = [...new Set(allKeys)];
+
+  return uniqueKeys.length ? uniqueKeys : [];
 };

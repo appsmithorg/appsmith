@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ICON_NAMES } from "../../../constants";
-import { getKeysFromSourceDataForEventAutocomplete } from "../../helper";
+import { ICON_NAMES } from "widgets/TableWidgetV2/constants";
+import { getKeysFromSourceDataForEventAutocomplete } from "widgets/TableWidgetV2/widget/utilities";
 
 export default {
   editableTitle: false,
@@ -33,7 +33,7 @@ export default {
               type: ValidationTypes.TEXT,
             },
           },
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
         },
         {
           propertyName: "isVisible",
@@ -51,7 +51,7 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
         },
         {
           propertyName: "isDisabled",
@@ -69,7 +69,7 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
         },
       ],
     },
@@ -86,7 +86,7 @@ export default {
           isBindProperty: true,
           isTriggerProperty: true,
           additionalAutoComplete: getKeysFromSourceDataForEventAutocomplete,
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
         },
       ],
     },
@@ -114,7 +114,7 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
         },
         {
           propertyName: "iconAlign",
@@ -145,7 +145,7 @@ export default {
             },
           },
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
         },
       ],
     },
@@ -162,7 +162,7 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
@@ -181,7 +181,7 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {
@@ -200,7 +200,7 @@ export default {
           isTriggerProperty: false,
           isJSConvertible: true,
           customJSControl: "MENU_BUTTON_DYNAMIC_ITEMS",
-          evaluatedDependencies: ["sourceData"],
+          evaluatedDependencies: ["primaryColumns"],
           validation: {
             type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
             params: {

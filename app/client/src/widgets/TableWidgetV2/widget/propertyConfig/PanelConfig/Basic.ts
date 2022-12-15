@@ -14,9 +14,9 @@ import {
 import { IconNames } from "@blueprintjs/icons";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import configureMenuItemsConfig from "widgets/MenuButtonWidget/widget/propertyConfig/childPanels/configureMenuItemsConfig";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { sourceDataArrayValidation } from "widgets/MenuButtonWidget/validations";
+import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 
 export default {
   sectionName: "Basic",

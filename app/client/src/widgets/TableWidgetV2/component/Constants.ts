@@ -165,7 +165,6 @@ export interface MenuButtonCellProperties {
   menuItemsSource: MenuItemsSource;
   configureMenuItems: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 export interface URLCellProperties {
@@ -335,7 +334,6 @@ export interface ColumnProperties
   menuItemsSource?: MenuItemsSource;
   configureMenuItems?: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
-  sourceDataKeys?: Array<string>;
 }
 
 export const ConditionFunctions: {
