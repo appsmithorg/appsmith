@@ -16,7 +16,12 @@ jobs:
       fail-fast: false
       matrix:
         job: [ 0 ]
-        - name: Load docker image
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
           APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
@@ -32,5 +37,5 @@ jobs:
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_AUDITLOG_ENABLED=true appsmith/appsmith-ce
             
-        - name: Setup tmate session
+      - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
