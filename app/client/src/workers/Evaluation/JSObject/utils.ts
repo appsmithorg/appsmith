@@ -249,9 +249,7 @@ export function getAppMode(dataTree: DataTree) {
 function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
 }
-export interface JSFunctionData {
-  data: any;
-}
+
 export function JSFunctionProxy(
   JSFunction: (...args: unknown[]) => unknown,
   jsFunctionFullName: string,

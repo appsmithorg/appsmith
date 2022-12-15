@@ -65,7 +65,6 @@ describe("evaluateSync", () => {
   it("Returns for syntax errors", () => {
     const response1 = evaluate("wrongJS", {}, {}, false);
     expect(response1).toStrictEqual({
-      JSData: {},
       result: undefined,
       logs: [],
       errors: [
@@ -88,7 +87,6 @@ describe("evaluateSync", () => {
     expect(response2).toStrictEqual({
       result: undefined,
       logs: [],
-      JSData: {},
       errors: [
         {
           errorMessage: "TypeError: {}.map is not a function",
@@ -132,7 +130,6 @@ describe("evaluateSync", () => {
           originalBinding: "setImmediate(() => {}, 100)",
         },
       ],
-      JSData: {},
     });
   });
   it("has access to extra library functions", () => {
@@ -201,7 +198,7 @@ describe("evaluateAsync", () => {
       promisified: true,
       responseData: {
         finished: true,
-        result: { errors: [], logs: [], result: 123, triggers: [], JSData: {} },
+        result: { errors: [], logs: [], result: 123, triggers: [] },
       },
       type: "PROCESS_TRIGGER",
     });
@@ -231,7 +228,6 @@ describe("evaluateAsync", () => {
           triggers: [],
           result: undefined,
           logs: [],
-          JSData: {},
         },
       },
       type: "PROCESS_TRIGGER",

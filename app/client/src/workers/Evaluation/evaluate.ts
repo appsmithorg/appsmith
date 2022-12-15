@@ -18,14 +18,13 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
-import { JSFunctionData, JSFunctionProxy } from "./JSObject/utils";
+import { JSFunctionProxy } from "./JSObject/utils";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
   triggers?: ActionDescription[];
   logs?: LogObject[];
-  JSData?: Record<string, JSFunctionData>;
 };
 
 export enum EvaluationScriptType {
@@ -260,7 +259,6 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     resetWorkerGlobalScope();
-    const JSDataStore: Record<string, JSFunctionData> = {};
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
@@ -289,7 +287,6 @@ export default function evaluateSync(
         errors: [],
         result: undefined,
         triggers: [],
-        JSData: JSDataStore,
       };
     }
 
@@ -321,7 +318,7 @@ export default function evaluateSync(
         delete self[entity];
       }
     }
-    return { result, errors, logs, JSData: JSDataStore };
+    return { result, errors, logs };
   })();
 }
 
@@ -335,7 +332,6 @@ export async function evaluateAsync(
 ) {
   return (async function() {
     resetWorkerGlobalScope();
-    const JSDataStore: Record<string, JSFunctionData> = {};
     const errors: EvaluationError[] = [];
     let result;
     let logs;
@@ -388,7 +384,6 @@ export async function evaluateAsync(
           errors,
           logs,
           triggers: Array.from(self.TRIGGER_COLLECTOR),
-          JSData: JSDataStore,
         });
       } catch (error) {
         completePromise(requestId, {
@@ -396,7 +391,6 @@ export async function evaluateAsync(
           errors,
           logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
           triggers: Array.from(self.TRIGGER_COLLECTOR),
-          JSData: JSDataStore,
         });
       }
     }

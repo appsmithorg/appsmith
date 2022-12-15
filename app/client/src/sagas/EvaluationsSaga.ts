@@ -111,7 +111,6 @@ import {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import { JSFunctionData } from "workers/Evaluation/JSObject/utils";
 import { AppState } from "ce/reducers";
 
 const evalWorker = new GracefulWorkerService(
@@ -367,7 +366,7 @@ export function* executeDynamicTriggerRequest(
     log.debug({ requestData });
     if (requestData.JSData) {
       if (!isEmpty(requestData.JSData)) {
-        const dataStore = requestData.JSData as Record<string, JSFunctionData>;
+        const dataStore = requestData.JSData;
 
         for (const key of Object.keys(dataStore)) {
           const jsAction:
