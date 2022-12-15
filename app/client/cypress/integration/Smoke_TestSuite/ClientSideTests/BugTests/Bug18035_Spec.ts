@@ -20,7 +20,7 @@ describe("Bug 18035: Updates save button text on datasource discard popup", func
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
     agHelper.GoBack();
-    agHelper.AssertContains("SAVE", "exist", dataSources._datasourceModalSave);
+    agHelper.AssertContains("Save", "exist", dataSources._datasourceModalSave);
     cy.get(dataSources._datasourceModalDoNotSave).click();
   });
 });

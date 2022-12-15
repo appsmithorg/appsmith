@@ -333,9 +333,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           onClose={this.closeDialog}
           onDiscard={this.onDiscard}
           onSave={this.onSave}
-          saveButtonText={
-            isAuthorized ? "Save and Re-authorize" : "Save and Authorize"
-          }
+          saveButtonText="Save and Authorize"
         />
       </>
     );
