@@ -55,6 +55,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -391,6 +392,11 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission) {
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
+    }
+
+    @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission);
     }
@@ -431,6 +437,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
+        return repository.findAllByWorkspaceId(workspaceId, permission)
+                .flatMap(this::populateHintMessages);
+    }
+
+    @Override
+    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         return repository.findAllByWorkspaceId(workspaceId, permission)
                 .flatMap(this::populateHintMessages);
     }

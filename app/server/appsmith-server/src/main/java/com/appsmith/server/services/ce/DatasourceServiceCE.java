@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface DatasourceServiceCE extends CrudService<Datasource, String> {
@@ -17,6 +18,8 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
     Mono<DatasourceTestResult> testDatasource(Datasource datasource);
 
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
+
+    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
@@ -29,6 +32,8 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
     Mono<Datasource> save(Datasource datasource);
 
     Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission readDatasources);
+
+    Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> readDatasources);
 
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 

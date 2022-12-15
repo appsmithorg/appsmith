@@ -1490,6 +1490,25 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
+    public Flux<NewAction> findAllByApplicationIdAndViewMode(String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort) {
+        return repository.findByApplicationId(applicationId, permission, sort)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(action -> {
+                    if (Boolean.TRUE.equals(viewMode)) {
+                        // In case we are trying to fetch published actions but this action has not been published, do not return
+                        if (action.getPublishedAction() == null) {
+                            return Mono.empty();
+                        }
+                    }
+                    // No need to handle the edge case of unpublished action not being present. This is not possible because
+                    // every created action starts from an unpublishedAction state.
+
+                    return Mono.just(action);
+                })
+                .flatMap(this::sanitizeAction);
+    }
+
+    @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMapMany(this::getActionsForViewMode)
