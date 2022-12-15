@@ -134,46 +134,46 @@ describe("evaluateSync", () => {
   });
   it("has access to extra library functions", () => {
     const js = "_.add(1,2)";
-    const response = evaluate(js, dataTree, {}, false);
+    const response = evaluate(js, dataTree, {});
     expect(response.result).toBe(3);
   });
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, {}, false, {}, callbackData);
+    const response = evaluate(js, dataTree, {}, {}, callbackData);
     expect(response.result).toBe("test1");
   });
   it("handles EXPRESSIONS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false);
+    let response = evaluate(js, dataTree, {});
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false);
+    response = evaluate(js, dataTree, {});
     expect(response.errors.length).toBe(0);
   });
   it("handles TRIGGERS with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("handles ANONYMOUS_FUNCTION with new lines", () => {
     let js = "\n";
-    let response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    let response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
-    response = evaluate(js, dataTree, {}, false, undefined, undefined);
+    response = evaluate(js, dataTree, {}, undefined, undefined);
     expect(response.errors.length).toBe(0);
   });
   it("has access to this context", () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, { thisContext });
+    const response = evaluate(js, dataTree, {}, { thisContext });
     expect(response.result).toBe("test");
     // there should not be any error when accessing "this" variables
     expect(response.errors).toHaveLength(0);
@@ -182,7 +182,7 @@ describe("evaluateSync", () => {
   it("has access to additional global context", () => {
     const js = "contextVariable";
     const globalContext = { contextVariable: "test" };
-    const response = evaluate(js, dataTree, {}, false, { globalContext });
+    const response = evaluate(js, dataTree, {}, { globalContext });
     expect(response.result).toBe("test");
     expect(response.errors).toHaveLength(0);
   });

@@ -916,7 +916,6 @@ export default class DataTreeEvaluator {
             toBeSentForEval,
             data,
             resolvedFunctions,
-            !!entity && isJSAction(entity),
             contextData,
             callBackData,
             fullPropertyPath?.includes("body") ||
@@ -1026,7 +1025,6 @@ export default class DataTreeEvaluator {
     js: string,
     data: DataTree,
     resolvedFunctions: Record<string, any>,
-    isJSAction: boolean,
     contextData?: EvaluateContext,
     callbackData?: Array<any>,
     skipUserLogsOperations = false,
@@ -1036,7 +1034,6 @@ export default class DataTreeEvaluator {
         js,
         data,
         resolvedFunctions,
-        isJSAction,
         contextData,
         callbackData,
         skipUserLogsOperations,

@@ -132,7 +132,6 @@ export interface createEvaluationContextArgs {
   resolvedFunctions: ResolvedFunctions;
   context?: EvaluateContext;
   evalArguments?: Array<unknown>;
-  isTriggerBased: boolean;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
 }
@@ -147,7 +146,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     context,
     dataTree,
     evalArguments,
-    isTriggerBased,
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -165,7 +163,6 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   addDataTreeToContext({
     EVAL_CONTEXT,
     dataTree,
-    isTriggerBased,
     skipEntityFunctions: !!skipEntityFunctions,
     requestId: context?.requestId,
     eventType: context?.eventType,
@@ -242,7 +239,6 @@ export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   resolvedFunctions: Record<string, any>,
-  isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
   skipLogsOperations = false,
@@ -261,7 +257,6 @@ export default function evaluateSync(
     const GLOBAL_DATA: Record<string, any> = createEvaluationContext({
       dataTree,
       resolvedFunctions,
-      isTriggerBased: isJSCollection,
       context,
       evalArguments,
     });
@@ -336,7 +331,6 @@ export async function evaluateAsync(
     const GLOBAL_DATA: Record<string, any> = createEvaluationContext({
       dataTree,
       resolvedFunctions,
-      isTriggerBased: true,
       context: { ...context, requestId },
       evalArguments,
     });
@@ -404,7 +398,6 @@ export function isFunctionAsync(
     addDataTreeToContext({
       EVAL_CONTEXT: GLOBAL_DATA,
       dataTree,
-      isTriggerBased: true,
     });
 
     assignJSFunctionsToContext(GLOBAL_DATA, resolvedFunctions);

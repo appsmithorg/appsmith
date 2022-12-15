@@ -72,7 +72,6 @@ export const promisifyAction = (
           const globalData = createEvaluationContext({
             dataTree: dataTreeEvaluator.evalTree,
             resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
-            isTriggerBased: true,
             context: {
               requestId: workerRequestId,
               eventType,

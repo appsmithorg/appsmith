@@ -16,7 +16,6 @@ export default function overrideTimeout() {
       const globalData = createEvaluationContext({
         dataTree: dataTreeEvaluator?.evalTree || {},
         resolvedFunctions: dataTreeEvaluator?.resolvedFunctions || {},
-        isTriggerBased: true,
       });
       return _internalSetTimeout(
         function(...args: any) {

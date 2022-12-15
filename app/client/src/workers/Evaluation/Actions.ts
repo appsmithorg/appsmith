@@ -315,7 +315,6 @@ const ENTITY_FUNCTIONS: Record<
 export const addDataTreeToContext = (args: {
   EVAL_CONTEXT: GlobalData;
   dataTree: Readonly<DataTree>;
-  isTriggerBased?: boolean;
   requestId?: string;
   skipEntityFunctions?: boolean;
   eventType?: EventType;
@@ -324,7 +323,6 @@ export const addDataTreeToContext = (args: {
     dataTree,
     EVAL_CONTEXT,
     eventType,
-    isTriggerBased = true,
     requestId = "",
     skipEntityFunctions = false,
   } = args;
@@ -369,8 +367,6 @@ export const addDataTreeToContext = (args: {
       func,
     );
   }
-
-  if (!isTriggerBased) return;
 
   for (const [name, fn] of platformFunctionEntries) {
     EVAL_CONTEXT[name] = pusher.bind(
@@ -419,4 +415,13 @@ export const pusher = function(
   } else {
     return promisifyAction(this.REQUEST_ID, actionPayload, this.EVENT_TYPE);
   }
+};
+
+export const removePlatformFunctions = (dataTree: DataTree) => {
+  const newDataTree = { ...dataTree };
+  const platformFunctionEntries = Object.keys(PLATFORM_FUNCTIONS);
+  for (const name of platformFunctionEntries) {
+    delete dataTree[name];
+  }
+  return newDataTree;
 };

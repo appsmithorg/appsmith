@@ -52,17 +52,22 @@ import {
 } from "workers/Evaluation/evaluationUtils";
 import { LintErrors } from "reducers/lintingReducers/lintErrorsReducers";
 import { Severity } from "entities/AppsmithConsole";
+import { removePlatformFunctions } from "workers/Evaluation/Actions";
 
 export function getlintErrorsFromTree(
   pathsToLint: string[],
   unEvalTree: DataTree,
 ): LintErrors {
   const lintTreeErrors: LintErrors = {};
-  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createEvaluationContext({
+  const GLOBAL_DATA_WITH_FUNCTIONS = createEvaluationContext({
     dataTree: unEvalTree,
     resolvedFunctions: {},
-    isTriggerBased: false,
+    skipEntityFunctions: true,
   });
+
+  const GLOBAL_DATA_WITHOUT_FUNCTIONS = removePlatformFunctions(
+    GLOBAL_DATA_WITH_FUNCTIONS,
+  );
   // trigger paths
   const triggerPaths = new Set<string>();
   // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
@@ -98,12 +103,6 @@ export function getlintErrorsFromTree(
   if (triggerPaths.size || bindingPathsRequiringFunctions.size) {
     // we only create GLOBAL_DATA_WITH_FUNCTIONS if there are paths requiring it
     // In trigger based fields, functions such as showAlert, storeValue, etc need to be added to the global data
-    const GLOBAL_DATA_WITH_FUNCTIONS = createEvaluationContext({
-      dataTree: unEvalTree,
-      resolvedFunctions: {},
-      isTriggerBased: true,
-      skipEntityFunctions: true,
-    });
 
     // lint binding paths that need GLOBAL_DATA_WITH_FUNCTIONS
     if (bindingPathsRequiringFunctions.size) {

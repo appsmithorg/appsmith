@@ -37,7 +37,6 @@ describe("Add functions", () => {
   const dataTreeWithFunctions = createEvaluationContext({
     dataTree,
     resolvedFunctions: {},
-    isTriggerBased: true,
     context: {
       requestId: "EVAL_TRIGGER",
     },

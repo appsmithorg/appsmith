@@ -15,7 +15,6 @@ describe("promise execution", () => {
   const dataTreeWithFunctions = createEvaluationContext({
     dataTree: {},
     resolvedFunctions: {},
-    isTriggerBased: true,
     context: { requestId },
   });
 
