@@ -42,6 +42,23 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * @param <T>  The domain class that extends {@link BaseDomain}. This is required because we use default fields in
  *             {@link BaseDomain} such as `deleted`
  * @param <ID> The ID field that extends Serializable interface
+ *
+ * In case you are wondering why we have two different repository implementation classes i.e.
+ * BaseRepositoryImpl.java and BaseAppsmithRepositoryCEImpl.java, Arpit's comments on this might be helpful:
+ * ```
+ * BaseRepository is required for running any JPA queries. This doesn’t invoke any ACL permissions. This is used when
+ * we wish to fetch data from the DB without ACL. For eg, Fetching a user by username during login
+ * Usage example:
+ * ActionCollectionRepositoryCE extends BaseRepository to power JPA queries using the ReactiveMongoRepository.
+ * AppsmithRepository is the one that we should use by default (unless the use case demands that we don’t need ACL).
+ * It is implemented by BaseAppsmithRepositoryCEImpl and BaseAppsmithRepositoryImpl. This interface allows us to
+ * define custom Mongo queries by including the delete functionality & ACL permissions.
+ * Usage example:
+ * CustomActionCollectionRepositoryCE extends AppsmithRepository and then implements the functions defined there.
+ * I agree that the naming is a little confusing. Open to hearing better naming suggestions so that we can improve
+ * the understanding of these interfaces.
+ * ```
+ * Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
  */
 @Slf4j
 public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> extends SimpleReactiveMongoRepository<T, ID>

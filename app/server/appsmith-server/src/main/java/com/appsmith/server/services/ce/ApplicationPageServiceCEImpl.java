@@ -946,7 +946,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(application -> {
                     // Update published custom JS lib objects.
                     application.setPublishedCustomJSLibs(application.getUnpublishedCustomJSLibs());
-                    updatedPublishedJSLibDTOs.addAll(application.getPublishedCustomJSLibs());
+                    if (application.getUnpublishedCustomJSLibs() != null) {
+                        updatedPublishedJSLibDTOs.addAll(application.getPublishedCustomJSLibs());
+                    }
 
                     List<ApplicationPage> pages = application.getPages();
                     if (pages == null) {
