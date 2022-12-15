@@ -38,15 +38,11 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "@appsmith/reducers";
-import { setThemeMode } from "actions/themeActions";
 import { connect, useSelector } from "react-redux";
 import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { trimTrailingSlash } from "utils/helpers";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
@@ -54,7 +50,6 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import Settings from "@appsmith/pages/AdminSettings";
 import SignupSuccess from "pages/setup/SignupSuccess";
-import { Theme } from "constants/DefaultTheme";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { fetchFeatureFlagsInit } from "actions/userActions";
@@ -76,46 +71,20 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 
 const loadingIndicator = <PageLoadingBar />;
 
-function changeAppBackground(currentTheme: any) {
-  if (
-    trimTrailingSlash(window.location.pathname) === "/applications" ||
-    window.location.pathname.indexOf("/settings/") !== -1 ||
-    trimTrailingSlash(window.location.pathname) === "/profile" ||
-    trimTrailingSlash(window.location.pathname) === "/signup-success"
-  ) {
-    document.body.style.backgroundColor =
-      currentTheme.colors.homepageBackground;
-  } else {
-    document.body.style.backgroundColor = currentTheme.colors.appBackground;
-  }
-}
-
 function AppRouter(props: {
   safeCrash: boolean;
   getCurrentUser: () => void;
   getFeatureFlags: () => void;
   getCurrentTenant: () => void;
-  currentTheme: Theme;
   safeCrashCode?: ERROR_CODES;
   featureFlags: FeatureFlags;
-  setTheme: (theme: ThemeMode) => void;
 }) {
   const { getCurrentTenant, getCurrentUser, getFeatureFlags } = props;
   useEffect(() => {
-    AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
-    const stopListener = history.listen((location: any) => {
-      AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: location.pathname });
-      changeAppBackground(props.currentTheme);
-    });
     getCurrentUser();
     getFeatureFlags();
     getCurrentTenant();
-    return stopListener;
   }, []);
-
-  useEffect(() => {
-    changeAppBackground(props.currentTheme);
-  }, [props.currentTheme]);
 
   useBrandingTheme();
 
@@ -201,16 +170,12 @@ function AppRouter(props: {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  currentTheme: getCurrentThemeDetails(state),
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
   featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  setTheme: (mode: ThemeMode) => {
-    dispatch(setThemeMode(mode));
-  },
   getCurrentUser: () => dispatch(getCurrentUser()),
   getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
   getCurrentTenant: () => dispatch(getCurrentTenant()),
