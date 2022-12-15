@@ -286,8 +286,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(28)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(23)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(commonlocators.canvas).should(
@@ -797,8 +797,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(40)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(33)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)
@@ -1029,8 +1029,8 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
       .click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(22)
+    cy.get(widgetsPage.colorPickerV2TailwindColor)
+      .eq(13)
       .then(($elem) => {
         cy.get($elem).click({ force: true });
         cy.get(widgetsPage.widgetBtn)
