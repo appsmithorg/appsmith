@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _, { set } from "lodash";
+import _ from "lodash";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -16,7 +16,8 @@ import {
   isTrueObject,
 } from "./evaluationUtils";
 import { GlobalData } from "./evaluate";
-import { cleanSet } from "./cleanSet";
+import cleanSet from "clean-set";
+
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -329,12 +330,11 @@ export const addDataTreeToContext = (args: {
   const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
   const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
   const dataTreeEntries = Object.entries(dataTree);
-  // const entityFunctionsToAdd = [] as Array<{
-  //   entityName: string;
-  //   func: Function;
-  //   propertyPath: string;
-  // }>;
-  const entityFunctionCollection = {};
+  const entityFunctionsToAdd = [] as Array<{
+    entityName: string;
+    func: Function;
+    propertyPath: string;
+  }>;
 
   self.TRIGGER_COLLECTOR = [];
 
@@ -345,10 +345,11 @@ export const addDataTreeToContext = (args: {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      set(
-        entityFunctionCollection,
-        fullPath,
-        pusher.bind(
+      const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
+      entityFunctionsToAdd.push({
+        entityName,
+        propertyPath,
+        func: pusher.bind(
           {
             TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
             REQUEST_ID: requestId,
@@ -356,17 +357,15 @@ export const addDataTreeToContext = (args: {
           },
           func,
         ),
-      );
+      });
     }
   }
 
-  for (const [entityName, funcObj] of Object.entries(
-    entityFunctionCollection,
-  )) {
-    EVAL_CONTEXT[entityName] = Object.assign(
-      {},
+  for (const { entityName, func, propertyPath } of entityFunctionsToAdd) {
+    EVAL_CONTEXT[entityName] = cleanSet(
       EVAL_CONTEXT[entityName],
-      funcObj,
+      propertyPath,
+      func,
     );
   }
 
