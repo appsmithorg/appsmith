@@ -126,18 +126,19 @@ export const PropertyPaneContentConfig = [
   {
     sectionName: "Pagination",
     children: [
-      {
-        propertyName: "infiniteScroll",
-        label: "Infinite scroll",
-        helpText: "Scrolls vertically, removes pagination",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
+      // Disabling till List V2.1
+      // {
+      //   propertyName: "infiniteScroll",
+      //   label: "Infinite scroll",
+      //   helpText: "Scrolls vertically, removes pagination",
+      //   controlType: "SWITCH",
+      //   isJSConvertible: true,
+      //   isBindProperty: true,
+      //   isTriggerProperty: false,
+      //   validation: {
+      //     type: ValidationTypes.BOOLEAN,
+      //   },
+      // },
       {
         propertyName: "serverSidePagination",
         helpText:
