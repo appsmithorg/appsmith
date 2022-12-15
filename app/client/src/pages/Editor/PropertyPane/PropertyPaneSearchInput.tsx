@@ -45,7 +45,7 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
     // Checks if the property pane opened not because of focusing an input inside a widget
     const isActiveFocusNotFromWidgetInput = !isCurrentFocusOnInput();
     if (
-      (shouldFocusSearch || shouldFocusPanelSearch) &&
+      shouldFocusSearch &&
       isActiveFocusNotFromWidgetInput &&
       // while the panel transition happens, focus will be happening twice. Once on the main pane and then on the panel
       // The following check will make sure that the focus is only done once and prevents the UI jittering

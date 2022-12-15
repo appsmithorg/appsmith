@@ -36,12 +36,6 @@ describe("Property Pane Search", function() {
     // Going out of the panel should soft focus the search input
     propPane.NavigateBackToPropertyPane();
     agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
-
-    // Focusing on a property in main property pane and then opening a panel should focus on search
-    propPane.UpdatePropertyFieldValue("Default Selected Rows", "[1]");
-    propPane.OpenTableColumnSettings("name");
-    agHelper.AssertElementFocus(propPane._propertyPaneSearchInputWrapper);
-    propPane.NavigateBackToPropertyPane();
   });
 
   it("2. Search for Properties", function() {
