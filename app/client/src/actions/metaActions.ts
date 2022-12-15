@@ -29,12 +29,12 @@ export const updateWidgetMetaPropAndEval = (
 
 export type ResetWidgetMetaPayload = {
   widgetId: string;
-  evaluatedWidget: DataTreeWidget;
+  evaluatedWidget: DataTreeWidget | undefined;
 };
 
 export const resetWidgetMetaProperty = (
   widgetId: string,
-  evaluatedWidget: DataTreeWidget,
+  evaluatedWidget: DataTreeWidget | undefined,
 ): BatchAction<ResetWidgetMetaPayload> => {
   return batchAction({
     type: ReduxActionTypes.RESET_WIDGET_META,
