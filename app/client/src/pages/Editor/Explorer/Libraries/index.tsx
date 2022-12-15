@@ -34,6 +34,12 @@ import { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import recommendedLibraries from "./recommendedLibraries";
+
+const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
+  acc[lib.url] = lib.docsURL;
+  return acc;
+}, {} as Record<string, string>);
 
 const Library = styled.li`
   list-style: none;
@@ -51,6 +57,15 @@ const Library = styled.li`
     height: 36px;
   }
 
+  .share {
+    display: none;
+    width: 30px;
+    height: 36px;
+    background: transparent;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
   &:hover {
     background: ${Colors.SEA_SHELL};
 
@@ -58,15 +73,20 @@ const Library = styled.li`
       display: block;
     }
 
-    & .delete {
+    & .delete,
+    .share {
       display: flex;
       align-items: center;
       justify-content: center;
       background: transparent;
       &:hover {
         background: black;
-        .uninstall-library {
+        .uninstall-library,
+        .open-link {
           color: white;
+          svg > path {
+            fill: white;
+          }
         }
       }
     }
@@ -94,11 +114,13 @@ const Library = styled.li`
     width: 30px;
     height: 36px;
     background: transparent;
+    flex-shrink: 0;
   }
 
   & .t--package-version {
     display: block;
     font-size: 12px;
+    height: 16px;
   }
   .open-collapse {
     transform: rotate(90deg);
@@ -145,18 +167,18 @@ const Library = styled.li`
   }
 `;
 const Name = styled.div`
-  flex: 1;
+  display: flex;
+  align-items: center;
+  line-height: 17px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  display: flex;
-  align-items: center;
   word-break: break-all;
-  line-height: 17px;
 `;
-const Version = styled.span<{ version?: string }>`
+const Version = styled.div<{ version?: string }>`
+  flex-shrink: 0;
   display: ${(props) => (props.version ? "block" : "none")};
-  margin-right: ${(props) => (props.version ? "8px" : "0")};
+  margin: ${(props) => (props.version ? "0 8px" : "0")};
 `;
 
 const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
@@ -193,7 +215,7 @@ const PrimaryCTA = function({ lib }: { lib: TJSLibrary }) {
 };
 
 function LibraryEntity({ lib }: { lib: TJSLibrary }) {
-  const openDocs = (name: string, url: string) => () => window.open(url, name);
+  const openDocs = (url?: string) => () => url && window.open(url, "_blank");
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
 
@@ -206,6 +228,7 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
   }, [lib.accessor]);
 
   const [isOpen, open] = React.useState(false);
+  const docsURL = lib.docsURL || docsURLMap[lib.url || ""];
   return (
     <Library className={`t--installed-library-${lib.name}`}>
       <div className="flex flex-row items-center h-full">
@@ -216,10 +239,22 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           onClick={() => open(!isOpen)}
           size={IconSize.XXXL}
         />
-        <Name>{lib.name}</Name>
+        <div className="flex items-center flex-start flex-1 overflow-hidden">
+          <Name>{lib.name}</Name>
+          {docsURL && (
+            <div className="share" onClick={openDocs(docsURL)}>
+              <Icon
+                className="open-link"
+                fillColor={Colors.GRAY_700}
+                name="share-2"
+                size={IconSize.SMALL}
+              />
+            </div>
+          )}
+        </div>
         <Version
           className="t--package-version"
-          onClick={openDocs(lib.name, lib.docsURL)}
+          onClick={openDocs(lib.url)}
           version={lib.version}
         >
           {lib.version}
