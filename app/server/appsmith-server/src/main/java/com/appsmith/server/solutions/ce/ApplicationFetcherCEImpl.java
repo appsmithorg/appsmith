@@ -7,7 +7,12 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.*;
+import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.ReleaseNode;
+import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
+import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -200,41 +205,41 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                 });
     }
 
-	public Mono<ReleaseItemsDTO> getReleaseItems() {
-		Mono<User> userMono = sessionUserService
-			                      .getCurrentUser()
-			                      .flatMap(user -> {
-				                      if (user.isAnonymous()) {
-					                      return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
-				                      }
-				                      return Mono.just(user.getUsername());
-			                      })
-			                      .flatMap(userService::findByEmail)
-			                      .cache();
+    public Mono<ReleaseItemsDTO> getReleaseItems() {
+        Mono<User> userMono = sessionUserService
+                                  .getCurrentUser()
+                                  .flatMap(user -> {
+                                      if (user.isAnonymous()) {
+                                          return Mono.error(new AppsmithException(AppsmithError.USER_NOT_SIGNED_IN));
+                                      }
+                                      return Mono.just(user.getUsername());
+                                  })
+                                  .flatMap(userService::findByEmail)
+                                  .cache();
 
-		Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData()).cache();
+        Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData()).cache();
 
-		return userMono.flatMap(user -> Mono.zip(
-				Mono.just(user),
-			    releaseNotesService.getReleaseNodes()
-				// In case of an error or empty response from CS Server, continue without this data.
-				.onErrorResume(error -> Mono.empty())
-				.defaultIfEmpty(Collections.emptyList()),
-				userDataMono)
-		).flatMap(tuple -> {
-			User user = tuple.getT1();
-			final List<ReleaseNode> releaseNodes = tuple.getT2();
-			final UserData userData = tuple.getT3();
-			ReleaseItemsDTO releaseItemsDTO = new ReleaseItemsDTO();
-			releaseItemsDTO.setReleaseItems(releaseNodes);
+        return userMono.flatMap(user -> Mono.zip(
+            Mono.just(user),
+            releaseNotesService.getReleaseNodes()
+                // In case of an error or empty response from CS Server, continue without this data.
+                .onErrorResume(error -> Mono.empty())
+                .defaultIfEmpty(Collections.emptyList()),
+            userDataMono)
+        ).flatMap(tuple -> {
+            User user = tuple.getT1();
+            final List<ReleaseNode> releaseNodes = tuple.getT2();
+            final UserData userData = tuple.getT3();
+            ReleaseItemsDTO releaseItemsDTO = new ReleaseItemsDTO();
+            releaseItemsDTO.setReleaseItems(releaseNodes);
 
-			final String count = releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion());
-			releaseItemsDTO.setNewReleasesCount("0".equals(count) ? "" : count);
+            final String count = releaseNotesService.computeNewFrom(userData.getReleaseNotesViewedVersion());
+            releaseItemsDTO.setNewReleasesCount("0".equals(count) ? "" : count);
 
-			return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
-				       .thenReturn(releaseItemsDTO);
-		});
-	}
+            return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
+                       .thenReturn(releaseItemsDTO);
+        });
+    }
 
     private void setDefaultPageSlug(
             Application application,

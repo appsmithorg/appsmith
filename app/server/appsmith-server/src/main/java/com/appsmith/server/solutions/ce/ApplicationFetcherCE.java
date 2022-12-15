@@ -8,5 +8,5 @@ public interface ApplicationFetcherCE {
 
     Mono<UserHomepageDTO> getAllApplications();
 
-	Mono<ReleaseItemsDTO> getReleaseItems();
+    Mono<ReleaseItemsDTO> getReleaseItems();
 }

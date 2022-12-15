@@ -6,7 +6,13 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.dtos.*;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.GitAuthDTO;
+import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ApplicationPageService;
@@ -120,12 +126,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
-	@GetMapping("/releaseItems")
-	public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
-		log.debug("Going to get all applications grouped by workspace");
-		return applicationFetcher.getReleaseItems()
-			       .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
-	}
+    @GetMapping("/releaseItems")
+    public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
+        log.debug("Going to get version release items");
+        return applicationFetcher.getReleaseItems()
+                   .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
+    }
 
     @PutMapping("/{defaultApplicationId}/changeAccess")
     public Mono<ResponseDTO<Application>> shareApplication(@PathVariable String defaultApplicationId,
