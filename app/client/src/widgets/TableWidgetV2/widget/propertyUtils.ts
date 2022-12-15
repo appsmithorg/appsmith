@@ -655,68 +655,89 @@ export function selectColumnOptionsValidation(
   const allowedValueTypes = ["string", "number", "boolean"];
   const allowedLabelTypes = ["string", "number"];
 
+  const generateErrorMessagePrefix = (
+    rowIndex: number | null,
+    optionIndex: number,
+  ) => {
+    return `Invalid entry at${
+      rowIndex !== null ? ` Row: ${rowIndex}` : ""
+    } index: ${optionIndex}.`;
+  };
+
   const validateOption = (
     option: any,
     rowIndex: number | null,
     optionIndex: number,
   ) => {
+    /*
+     *  Option should
+     *    1. be an object
+     *    2. have label property
+     *    3. label should be of type string | number
+     *    4. have value property
+     *    5. value should be of type string | number | boolean
+     *    6. value should be unique amoig the options array
+     */
     if (!_.isObject(option)) {
-      _message = `Invalid entry at${
-        rowIndex !== null ? ` Row: ${rowIndex}` : ""
-      } index: ${optionIndex}. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
-      return false;
+      // 1
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
     }
 
     if (!option.hasOwnProperty("label")) {
-      _message = `Invalid entry at${
-        rowIndex !== null ? ` Row: ${rowIndex}` : ""
-      } index: ${optionIndex}. Missing required key: label`;
-      return false;
+      // 2
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} Missing required key: label`;
     }
 
     if (!allowedLabelTypes.includes(typeof option.label)) {
-      _message = `Invalid entry at${
-        rowIndex !== null ? ` Row: ${rowIndex}` : ""
-      } index: ${optionIndex}. label does not evaluate to type ${allowedLabelTypes.join(
-        " | ",
-      )}`;
-      return false;
+      // 3
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} label does not evaluate to type ${allowedLabelTypes.join(" | ")}`;
     }
 
     if (!option.hasOwnProperty("value")) {
-      _message = `Invalid entry at${
-        rowIndex !== null ? ` Row: ${rowIndex}` : ""
-      } index: ${optionIndex}. Missing required key: value`;
-      return false;
+      // 4
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} Missing required key: value`;
     }
 
     if (!allowedValueTypes.includes(typeof option.value)) {
-      _message = `Invalid entry at${
-        rowIndex !== null ? ` Row: ${rowIndex}` : ""
-      } index: ${optionIndex}. value does not evaluate to type ${allowedValueTypes.join(
-        " | ",
-      )}`;
-      return false;
+      // 5
+      return `${generateErrorMessagePrefix(
+        rowIndex,
+        optionIndex,
+      )} value does not evaluate to type ${allowedValueTypes.join(" | ")}`;
     }
 
     if (uniqueValues.has(option.value)) {
-      _message = `Duplicate values found for the following properties, in the array entries, that must be unique -- value.`;
-      return false;
+      // 6
+      return `Duplicate values found for the following properties, in the array entries, that must be unique -- value.`;
     } else {
       uniqueValues.add(option.value);
     }
 
-    return true;
+    return "";
   };
 
   try {
     if (value === "" || _.isNil(value)) {
+      // empty values
       return {
         isValid: true,
         parsed: [],
         messages: [""],
       };
     } else if (typeof value === "string") {
+      // json string
       const _value = JSON.parse(value);
       if (Array.isArray(_value)) {
         value = _value;
@@ -728,11 +749,14 @@ export function selectColumnOptionsValidation(
 
     if (Array.isArray(value)) {
       if (value.length) {
+        //when value is array of option json string
         if (value.every((d) => _.isString(d))) {
           value = value.map((d) => JSON.parse(d));
         }
 
         if (Array.isArray(value) && Array.isArray(value[0])) {
+          // value is array of array of label, value
+          //Value should be an array of array
           if (!value.every((d) => Array.isArray(d))) {
             _parsed = [];
             _isValid = false;
@@ -745,7 +769,7 @@ export function selectColumnOptionsValidation(
               uniqueValues = new Set();
 
               for (let j = 0; j < value[i].length; j++) {
-                if (!validateOption(value[i][j], i, j)) {
+                if ((_message = validateOption(value[i][j], i, j))) {
                   _isValid = false;
                   break;
                 }
@@ -761,7 +785,9 @@ export function selectColumnOptionsValidation(
           _parsed = value;
           _isValid = true;
           for (let i = 0; i < (value as Array<unknown>).length; i++) {
-            if (!validateOption((value as Array<unknown>)[i], null, i)) {
+            if (
+              (_message = validateOption((value as Array<unknown>)[i], null, i))
+            ) {
               _isValid = false;
               break;
             }
