@@ -13,7 +13,7 @@
     "clearButton": ".t--admin-settings-reset-button",
     "menuIconUserGroupPage": "[data-testid=t--page-header-actions]",
     "userGrouplink": "[data-testid=t--usergroup-cell]",
-    "userGroupMenuIcon": "[data-testid=actions-cell-menu-icon]",
+    "userContextMenu": "[data-testid=actions-cell-menu-icon]",
     "addUserButtoninUserGroups": "[data-testid=t--add-users-button]",
     "permissionTabinUserGroup": "[data-cy=t--tab-permissions]",
     "addPermissionGroup": "[data-testid=t--active-group-row]",
@@ -47,5 +47,7 @@
     "JsObject1": ".t--entity-name:contains(JSObject1)",
     "groupsRow": "[data-testid='t--usergroup-cell']",
     "generalTab":"[data-cy='t--tab-general']",
-    "rename":"//span[text()='Rename']"
+    "rename":"//span[text()='Rename']",
+    "userRow": "[data-testid='acl-user-listing-link']"
+
 }

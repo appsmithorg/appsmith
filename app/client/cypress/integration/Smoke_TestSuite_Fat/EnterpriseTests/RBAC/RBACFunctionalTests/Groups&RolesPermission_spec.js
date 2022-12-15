@@ -6,6 +6,9 @@ describe("Groups&Roles tab Tests", function() {
   let workspaceName;
   let appName;
   let newWorkspaceName;
+  let testUser3;
+  let testUser4;
+  const password = "qwerty";
   const PermissionWorkspaceLevel =
     "CreatePermissionWorkspaceLevel" + `${Math.floor(Math.random() * 1000)}`;
   const PermissionAppLevel =
@@ -27,187 +30,185 @@ describe("Groups&Roles tab Tests", function() {
   });
 
   before(() => {
-    cy.AddIntercepts();
-    cy.LogOut();
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("settings/roles");
-    cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
-      workspaceName = uid;
-      appName = uid + "app";
-      localStorage.setItem("WorkspaceName", workspaceName);
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceName);
-      });
-      cy.CreateAppForWorkspace(workspaceName, appName);
-      cy.visit("settings/general");
-      cy.CreatePermissionWorkspaceLevel(
-        PermissionWorkspaceLevel,
-        workspaceName,
-      );
-      cy.EditPermissionWorkspaceLevel(
-        EditPermissionWorkspaceLevel,
-        workspaceName,
-      );
-      cy.CreatePermissionAppLevel(PermissionAppLevel, workspaceName, appName);
-
+      testUser3 = `${uid}@appsmith.com`;
+      testUser4 = `${uid}2@appsmith.com`;
+      cy.AddIntercepts();
+      cy.LogOut();
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.visit("settings/roles");
-      // create user group
-      cy.createGroupAndAddUser(
-        GroupName,
-        Cypress.env("TESTUSERNAME1"),
-        Cypress.env("TESTUSERNAME2"),
-      );
-      cy.get(RBAC.rolesTabinGroup).click();
-      cy.get(RBAC.rolesinGroups)
-        .contains(PermissionWorkspaceLevel)
-        .click();
-      cy.get(RBAC.saveButton).click();
-      cy.wait("@assignRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.CreatePermissionGroupsRoles(CreatePermissionGroupsandRoles);
-      // create role with edit groups and roles permission
-      cy.CreateRole();
-      cy.get(RBAC.groupsAndRolesTab).click();
-      cy.contains("td", "Groups")
-        .next()
-        .next()
-        .click();
-      cy.get(RBAC.saveButton).click();
-      // save api call
-      cy.wait("@saveRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.contains("td", "Roles")
-        .next()
-        .next()
-        .click();
-      cy.RenameRole(EditPermissionGroupsandRoles);
-      cy.get(RBAC.saveButton).click();
-      // save api call
-      cy.wait(2000);
-      cy.wait("@saveRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      // verify custom role is added to the list
-      cy.get(RBAC.backButton).click();
-      cy.wait(2000);
-      cy.get(RBAC.searchBar)
-        .clear()
-        .type(EditPermissionGroupsandRoles);
-      cy.wait(2000);
-      cy.get(RBAC.roleRow)
-        .first()
-        .should("have.text", EditPermissionGroupsandRoles);
-      // create role with delete groups and roles permission
-      cy.CreateRole();
-      cy.get(RBAC.groupsAndRolesTab).click();
-      cy.contains("td", "Groups")
-        .next()
-        .next()
-        .next()
-        .next()
-        .click();
-      cy.get(RBAC.saveButton).click();
-      // save api call
-      cy.wait("@saveRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.contains("td", "Roles")
-        .next()
-        .next()
-        .next()
-        .next()
-        .click();
-      cy.RenameRole(ViewPermissionGroupsandRoles);
-      cy.get(RBAC.saveButton).click();
-      // save api call
-      cy.wait(2000);
-      cy.wait("@saveRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      // verify custom role is added to the list
-      cy.get(RBAC.backButton).click();
-      cy.wait(2000);
-      cy.get(RBAC.searchBar)
-        .clear()
-        .type(ViewPermissionGroupsandRoles);
-      cy.wait(2000);
-      cy.get(RBAC.roleRow)
-        .first()
-        .should("have.text", ViewPermissionGroupsandRoles);
-      cy.CreateRole();
-      cy.get(RBAC.groupsAndRolesTab).click();
-      cy.contains("td", "Groups")
-        .next()
-        .next()
-        .next()
-        .click();
-      cy.get(RBAC.saveButton).click();
-      // save api call
-      cy.wait("@saveRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.contains("td", "Roles")
-        .next()
-        .next()
-        .next()
-        .click();
-      cy.RenameRole(DeletePermissionGroupsandRoles);
-      cy.get(RBAC.saveButton).click();
-      // save api call
-      cy.wait(2000);
-      cy.wait("@saveRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      // verify custom role is added to the list
-      cy.get(RBAC.backButton).click();
-      cy.wait(2000);
-      cy.get(RBAC.searchBar)
-        .clear()
-        .type(DeletePermissionGroupsandRoles);
-      cy.wait(2000);
-      cy.get(RBAC.roleRow)
-        .first()
-        .should("have.text", DeletePermissionGroupsandRoles);
-      cy.AssignRoleToUser(
-        CreatePermissionGroupsandRoles,
-        Cypress.env("TESTUSERNAME1"),
-      );
-      cy.AssignRoleToUser(
-        EditPermissionGroupsandRoles,
-        Cypress.env("TESTUSERNAME2"),
-      );
-      cy.AssignRoleToUser(
-        DeletePermissionGroupsandRoles,
-        Cypress.env("TESTUSERNAME3"),
-      );
-      cy.AssignRoleToUser(
-        ViewPermissionGroupsandRoles,
-        Cypress.env("TESTUSERNAME4"),
-      );
+      cy.NavigateToHome();
+      cy.generateUUID().then((uid) => {
+        workspaceName = uid;
+        appName = uid + "app";
+        localStorage.setItem("WorkspaceName", workspaceName);
+        cy.createWorkspace();
+        cy.wait("@createWorkspace").then((interception) => {
+          newWorkspaceName = interception.response.body.data.name;
+          cy.renameWorkspace(newWorkspaceName, workspaceName);
+        });
+        cy.CreateAppForWorkspace(workspaceName, appName);
+        cy.visit("settings/general");
+        cy.CreatePermissionWorkspaceLevel(
+          PermissionWorkspaceLevel,
+          workspaceName,
+        );
+        cy.EditPermissionWorkspaceLevel(
+          EditPermissionWorkspaceLevel,
+          workspaceName,
+        );
+        cy.CreatePermissionAppLevel(PermissionAppLevel, workspaceName, appName);
+
+        cy.visit("settings/roles");
+        // create user group
+        cy.createGroupAndAddUser(
+          GroupName,
+          Cypress.env("TESTUSERNAME1"),
+          Cypress.env("TESTUSERNAME2"),
+        );
+        cy.get(RBAC.rolesTabinGroup).click();
+        cy.get(RBAC.rolesinGroups)
+          .contains(PermissionWorkspaceLevel)
+          .click();
+        cy.get(RBAC.saveButton).click();
+        cy.wait("@assignRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        cy.CreatePermissionGroupsRoles(CreatePermissionGroupsandRoles);
+        // create role with edit groups and roles permission
+        cy.CreateRole();
+        cy.get(RBAC.groupsAndRolesTab).click();
+        cy.contains("td", "Groups")
+          .next()
+          .next()
+          .click();
+        cy.get(RBAC.saveButton).click();
+        // save api call
+        cy.wait("@saveRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        cy.contains("td", "Roles")
+          .next()
+          .next()
+          .click();
+        cy.RenameRole(EditPermissionGroupsandRoles);
+        cy.get(RBAC.saveButton).click();
+        // save api call
+        cy.wait(2000);
+        cy.wait("@saveRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        // verify custom role is added to the list
+        cy.get(RBAC.backButton).click();
+        cy.wait(2000);
+        cy.get(RBAC.searchBar)
+          .clear()
+          .type(EditPermissionGroupsandRoles);
+        cy.wait(2000);
+        cy.get(RBAC.roleRow)
+          .first()
+          .should("have.text", EditPermissionGroupsandRoles);
+        // create role with delete groups and roles permission
+        cy.CreateRole();
+        cy.get(RBAC.groupsAndRolesTab).click();
+        cy.contains("td", "Groups")
+          .next()
+          .next()
+          .next()
+          .next()
+          .click();
+        cy.get(RBAC.saveButton).click();
+        // save api call
+        cy.wait("@saveRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        cy.contains("td", "Roles")
+          .next()
+          .next()
+          .next()
+          .next()
+          .click();
+        cy.RenameRole(ViewPermissionGroupsandRoles);
+        cy.get(RBAC.saveButton).click();
+        // save api call
+        cy.wait(2000);
+        cy.wait("@saveRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        // verify custom role is added to the list
+        cy.get(RBAC.backButton).click();
+        cy.wait(2000);
+        cy.get(RBAC.searchBar)
+          .clear()
+          .type(ViewPermissionGroupsandRoles);
+        cy.wait(2000);
+        cy.get(RBAC.roleRow)
+          .first()
+          .should("have.text", ViewPermissionGroupsandRoles);
+        cy.CreateRole();
+        cy.get(RBAC.groupsAndRolesTab).click();
+        cy.contains("td", "Groups")
+          .next()
+          .next()
+          .next()
+          .click();
+        cy.get(RBAC.saveButton).click();
+        // save api call
+        cy.wait("@saveRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        cy.contains("td", "Roles")
+          .next()
+          .next()
+          .next()
+          .click();
+        cy.RenameRole(DeletePermissionGroupsandRoles);
+        cy.get(RBAC.saveButton).click();
+        // save api call
+        cy.wait(2000);
+        cy.wait("@saveRole").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        // verify custom role is added to the list
+        cy.get(RBAC.backButton).click();
+        cy.wait(2000);
+        cy.get(RBAC.searchBar)
+          .clear()
+          .type(DeletePermissionGroupsandRoles);
+        cy.wait(2000);
+        cy.get(RBAC.roleRow)
+          .first()
+          .should("have.text", DeletePermissionGroupsandRoles);
+        cy.AssignRoleToUser(
+          CreatePermissionGroupsandRoles,
+          Cypress.env("TESTUSERNAME1"),
+        );
+        cy.AssignRoleToUser(
+          EditPermissionGroupsandRoles,
+          Cypress.env("TESTUSERNAME2"),
+        );
+        cy.AssignRoleToUser(DeletePermissionGroupsandRoles, testUser3);
+        cy.AssignRoleToUser(ViewPermissionGroupsandRoles, testUser4);
+        cy.LogOut();
+      });
     });
   });
   it("1. Verify user has create groups and roles permission", function() {
     //login as user1 the user should have admin access and should see groups tab
-    cy.LogOut();
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
     cy.visit("/applications");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
@@ -218,7 +219,7 @@ describe("Groups&Roles tab Tests", function() {
     cy.createGroupAndAddUser(
       "testgroup1",
       Cypress.env("TESTUSERNAME2"),
-      Cypress.env("TESTUSERNAME3"),
+      testUser3,
     );
     // verify user is able to create new role
     cy.CreatePermissionWorkspaceLevel("testPermission", workspaceName);
@@ -247,15 +248,14 @@ describe("Groups&Roles tab Tests", function() {
     cy.wait(2000);
     cy.get(RBAC.inviteModal).should("be.visible");
     cy.wait(2000);
-    cy.xpath(RBAC.EmailInputInviteModal).type(
-      Cypress.env("TESTUSERNAME3") + "{enter}",
-    );
+    cy.xpath(RBAC.EmailInputInviteModal).type(testUser3 + "{enter}");
     cy.wait(2000);
     cy.get(RBAC.inviteButton).click();
     cy.wait("@mockPostInvite")
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
   });
+
   it("3. Verify user can remove user from group", function() {
     cy.get(RBAC.usersTabinGroup).click();
     cy.wait(2000);
@@ -274,10 +274,10 @@ describe("Groups&Roles tab Tests", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.LogOut();
   });
 
   it("5. Verify user has edit groups and roles permission", function() {
-    cy.LogOut();
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.get(homePage.profileMenu).should("be.visible");
     cy.visit("/applications");
@@ -300,9 +300,7 @@ describe("Groups&Roles tab Tests", function() {
     cy.wait(2000);
     cy.contains("td", `${workspaceName}`)
       .next()
-      .next()
       .click();
-
     cy.get(RBAC.saveButton).click();
     // save api call
     cy.wait("@saveRole").should(
@@ -354,15 +352,13 @@ describe("Groups&Roles tab Tests", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.LogOut();
   });
 
   it("6. Verify user has view groups and roles permissions", function() {
-    cy.LogOut();
-    cy.LogintoAppTestUser(
-      Cypress.env("TESTUSERNAME4"),
-      Cypress.env("TESTPASSWORD4"),
-    );
-    //the user  can only view the roles
+    cy.SignupFromAPI(testUser4, password);
+    cy.LogintoAppTestUser(testUser4, password);
+    //the user can only view the roles
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
     cy.get(RBAC.rolesTab).click();
@@ -391,15 +387,12 @@ describe("Groups&Roles tab Tests", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.LogOut();
   });
 
   it("7.Verify user has delete groups and roles permission", function() {
-    cy.LogOut();
-    cy.LogintoAppTestUser(
-      Cypress.env("TESTUSERNAME3"),
-      Cypress.env("TESTPASSWORD3"),
-    );
-
+    cy.SignupFromAPI(testUser3, password);
+    cy.LogintoAppTestUser(testUser3, password);
     cy.visit("/applications");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
@@ -441,5 +434,7 @@ describe("Groups&Roles tab Tests", function() {
     cy.DeleteRole(EditPermissionGroupsandRoles);
     cy.DeleteRole(ViewPermissionGroupsandRoles);
     cy.DeleteRole(DeletePermissionGroupsandRoles);
+    cy.DeleteUser(testUser3);
+    cy.DeleteUser(testUser4);
   });
 });
