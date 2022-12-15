@@ -32,8 +32,7 @@
 </h3>
 
 <br />
-
-<img alt="How Appsmith Works" src="static/images/how-it-works.svg" />
+<img alt="How Appsmith Works" src="static/images/how-it-works.svg" style="width: 100%; height: auto;" />
 
 ---
 
