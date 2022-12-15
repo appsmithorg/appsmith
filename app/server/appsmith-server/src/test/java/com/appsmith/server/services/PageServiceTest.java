@@ -564,7 +564,7 @@ public class PageServiceTest {
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 
-        layoutActionService.createSingleAction(action).block();
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         // Save actionCollection
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
@@ -747,7 +747,7 @@ public class PageServiceTest {
 
         action.setPageId(page.getId());
 
-        layoutActionService.createSingleAction(action).block();
+        layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout).block();
 

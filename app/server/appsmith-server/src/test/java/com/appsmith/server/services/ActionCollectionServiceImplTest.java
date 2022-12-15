@@ -347,7 +347,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Flux.empty());
 
         Mockito
-                .when(layoutActionService.createSingleAction(Mockito.any()))
+                .when(layoutActionService.createSingleAction(Mockito.any(), Boolean.FALSE))
                 .thenAnswer(invocation -> {
                     final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
                     argument.setId("testActionId");
