@@ -36,7 +36,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -69,7 +68,7 @@ import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.dao.DuplicateKeyException;
@@ -95,10 +94,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
@@ -618,7 +613,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
     @Override
     public Mono<Application> importApplicationInWorkspace(String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
-        return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, false);
+        return importApplicationInWorkspace(workspaceId, importedDoc, applicationId, branchName, false, !StringUtils.isEmpty(branchName));
     }
 
     /**
@@ -2117,7 +2112,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
 
-        return importApplicationInWorkspace(workspaceId, applicationJson, applicationId, branchName, true, true);
+        return importApplicationInWorkspace(workspaceId, applicationJson, applicationId, branchName, true, !StringUtils.isEmpty(branchName));
     }
 
     private Mono<Map<String, String>> updateNewPagesBeforeMerge(Mono<List<NewPage>> existingPagesMono, List<NewPage> newPagesList) {
