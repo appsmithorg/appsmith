@@ -78,10 +78,7 @@ export const getIsCodeEditorFocused = createSelector(
     featureFlags: FeatureFlags,
     key: string | undefined,
   ): boolean => {
-    if (featureFlags.CONTEXT_SWITCHING) {
-      return !!(key && focusableField === key);
-    }
-    return false;
+    return !!(key && focusableField === key);
   },
 );
 
