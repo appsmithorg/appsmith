@@ -16,8 +16,7 @@ import {
   isTrueObject,
 } from "./evaluationUtils";
 import { GlobalData } from "./evaluate";
-import cleanSet from "clean-set";
-
+import { cleanSet } from "./cleanSet";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
