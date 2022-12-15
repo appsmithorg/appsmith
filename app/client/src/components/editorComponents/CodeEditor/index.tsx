@@ -631,9 +631,11 @@ class CodeEditor extends Component<Props, State> {
                 }
               }
 
-              history.push(navigationData.url, {
-                invokedBy: NavigationMethod.CommandClick,
-              });
+              if (navigationData.url) {
+                history.push(navigationData.url, {
+                  invokedBy: NavigationMethod.CommandClick,
+                });
+              }
 
               // TODO fix the widget navigation issue to remove this
               if (navigationData.type === ENTITY_TYPE.WIDGET) {

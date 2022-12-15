@@ -75,6 +75,9 @@ export const entityMarker: MarkHelper = (
             atomic: false,
           },
         );
+        if (tokenString === "Form1") {
+          debugger;
+        }
         addMarksForChildren(
           entityNavigationData[tokenString],
           lineNo,

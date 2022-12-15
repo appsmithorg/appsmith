@@ -1,4 +1,8 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeWidget,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
 import {
   getActionsForCurrentPage,
@@ -11,6 +15,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 import { JSAction } from "entities/JSCollection";
 import { keyBy } from "lodash";
+import { getDataTree } from "selectors/dataTreeSelectors";
 
 export type NavigationData = {
   name: string;
@@ -28,7 +33,8 @@ export const getEntitiesForNavigation = createSelector(
   getJSCollectionsForCurrentPage,
   getWidgets,
   getCurrentPageId,
-  (actions, plugins, jsActions, widgets, pageId) => {
+  getDataTree,
+  (actions, plugins, jsActions, widgets, pageId, dataTree: DataTree) => {
     const navigationData: EntityNavigationData = {};
 
     actions.forEach((action) => {
@@ -87,6 +93,35 @@ export const getEntitiesForNavigation = createSelector(
         navigable: true,
         children: {},
       };
+      if (widget.type === "FORM_WIDGET") {
+        const children: EntityNavigationData = {};
+        const dataTreeWidget: DataTreeWidget = dataTree[
+          widget.widgetName
+        ] as DataTreeWidget;
+        const formChildren: EntityNavigationData = {};
+        Object.keys(dataTreeWidget.data).forEach((widgetName) => {
+          const childWidgetId = (dataTree[widgetName] as DataTreeWidget)
+            .widgetId;
+          formChildren[widgetName] = {
+            name: widgetName,
+            id: `${widget.widgetName}.data.${widgetName}`,
+            type: ENTITY_TYPE.WIDGET,
+            navigable: true,
+            children: {},
+            url: builderURL({ pageId, hash: childWidgetId }),
+          };
+        });
+        children.data = {
+          name: "data",
+          id: `${widget.widgetName}.data`,
+          type: ENTITY_TYPE.WIDGET,
+          navigable: false,
+          children: formChildren,
+          url: undefined,
+        };
+
+        navigationData[widget.widgetName].children = children;
+      }
     });
 
     return navigationData;
