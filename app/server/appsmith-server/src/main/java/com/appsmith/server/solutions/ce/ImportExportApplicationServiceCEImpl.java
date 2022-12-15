@@ -1170,10 +1170,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application ", throwable.getMessage());
-                    if (importedApplication.getId() != null) {
-                        return applicationPageService.deleteApplication(importedApplication.getId())
-                                .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
-                    }
+                    // if (importedApplication.getId() != null) {
+                    //     return applicationPageService.deleteApplication(importedApplication.getId())
+                    //             .then(Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage())));
+                    // }
                     return Mono.error(new AppsmithException(AppsmithError.UNKNOWN_PLUGIN_REFERENCE));
                 });
 
