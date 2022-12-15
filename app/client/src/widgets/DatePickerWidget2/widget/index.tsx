@@ -241,6 +241,16 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            helpText: "Sets a placeholder text for the input",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Placeholder",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -522,6 +532,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         onBlur={this.onBlur}
         onDateSelected={this.onDateSelected}
         onFocus={this.onFocus}
+        placeholder={this.props.placeholderText}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
         timePrecision={this.props.timePrecision}
@@ -598,6 +609,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   accentColor: string;
   firstDayOfWeek?: number;
   timePrecision: TimePrecision;
+  placeholderText?: string;
   onFocus?: string;
   onBlur?: string;
 }

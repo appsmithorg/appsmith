@@ -41,6 +41,7 @@ export const CONFIG = {
     firstDayOfWeek: 0,
     timePrecision: TimePrecision.MINUTE,
     animateLoading: true,
+    placeholderText: "Select Date",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

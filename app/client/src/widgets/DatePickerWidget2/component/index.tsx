@@ -180,6 +180,7 @@ class DatePickerComponent extends React.Component<
       labelTextSize,
       labelTooltip,
       labelWidth,
+      placeholder,
     } = this.props;
     const now = moment();
     const year = now.get("year");
@@ -350,7 +351,7 @@ class DatePickerComponent extends React.Component<
               minDate={minDate}
               onChange={this.onDateSelected}
               parseDate={this.parseDate}
-              placeholder={"Select Date"}
+              placeholder={placeholder}
               popoverProps={{
                 portalContainer:
                   document.getElementById("art-board") || undefined,
@@ -472,6 +473,7 @@ interface DatePickerComponentProps extends ComponentProps {
   boxShadow?: string;
   accentColor: string;
   labelTooltip?: string;
+  placeholder?: string;
   onFocus?: () => void;
   onBlur?: () => void;
 }
