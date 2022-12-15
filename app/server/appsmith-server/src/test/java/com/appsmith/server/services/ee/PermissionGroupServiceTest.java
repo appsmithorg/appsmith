@@ -331,8 +331,10 @@ public class PermissionGroupServiceTest {
     @WithUserDetails(value = "api_user")
     public void testFindConfigurableRoleById() {
         String mockName = "mock-name";
+        String mockDescription = "mock description";
         PermissionGroup mockPermissionGroup = new PermissionGroup();
         mockPermissionGroup.setName(mockName);
+        mockPermissionGroup.setDescription(mockDescription);
 
         PermissionGroup createdPermissionGroup = permissionGroupService.create(mockPermissionGroup)
                 .flatMap(permissionGroup -> permissionGroupService.findById(permissionGroup.getId(), READ_PERMISSION_GROUPS))
@@ -346,6 +348,7 @@ public class PermissionGroupServiceTest {
                     assertThat(roleViewDTO).isNotNull();
                     assertThat(roleViewDTO.getId()).isEqualTo(createdPermissionGroup.getId());
                     assertThat(roleViewDTO.getName()).isEqualTo(createdPermissionGroup.getName());
+                    assertThat(roleViewDTO.getDescription()).isEqualTo(createdPermissionGroup.getDescription());
                     assertThat(roleViewDTO.getUserPermissions()).isEqualTo(createdPermissionGroup.getUserPermissions());
                 })
                 .verifyComplete();

@@ -259,6 +259,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
                     roleViewDTO.setId(permissionGroup.getId());
                     roleViewDTO.setName(permissionGroup.getName());
+                    roleViewDTO.setDescription(permissionGroup.getDescription());
                     roleViewDTO.setUserPermissions(permissionGroup.getUserPermissions());
                     return roleViewDTO;
                 });

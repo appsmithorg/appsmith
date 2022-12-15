@@ -12,6 +12,7 @@ import java.util.Set;
 public class RoleViewDTO {
     String id;
     String name;
+    String description;
     LinkedHashMap<String, RoleTabDTO> tabs;
     public Set<String> userPermissions = new HashSet<>();
 }
