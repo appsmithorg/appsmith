@@ -26,7 +26,6 @@ import {
 } from "@appsmith/constants/messages";
 import ProfileImage from "pages/common/ProfileImage";
 import { Colors } from "constants/Colors";
-import { isValidURL } from "utils/URLUtils";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -200,6 +199,11 @@ const StatusIconWrapper = styled.div<{
       : "svg { cursor: initial }"}
 `;
 
+function isValidJSFileURL(url: string) {
+  const JS_FILE_REGEX = /^https?:\/\/.*\.js$/;
+  return JS_FILE_REGEX.test(url);
+}
+
 function StatusIcon(props: {
   status: InstallState;
   isInstalled?: boolean;
@@ -350,7 +354,7 @@ export function Installer(props: { left: number }) {
   }, []);
 
   const validate = useCallback((text) => {
-    const isValid = !text || isValidURL(text);
+    const isValid = !text || isValidJSFileURL(text);
     setIsValid(isValid);
     return {
       isValid,
