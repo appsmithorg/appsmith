@@ -2324,7 +2324,7 @@ public class AuditLogServiceTest {
         action.setPageId(createdPageDTO.getId());
         action.setName("testActionExecute");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setActionId(createdAction.getId());
@@ -2443,7 +2443,7 @@ public class AuditLogServiceTest {
         action.setPageId(createdPageDTO.getId());
         action.setName("testActionExecutev2");
         action.setDatasource(datasource);
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, FALSE).block();
 
         // Publish application for testing action execution in view mode
         applicationPageService.publish(createdApplication.getId(), true).block();

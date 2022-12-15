@@ -927,7 +927,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("validActionCollection");
@@ -1013,7 +1013,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing");
@@ -1112,7 +1112,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenViewOnApp_assertViewOnWorkspace");
@@ -1218,7 +1218,7 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing : testSaveRoleConfigurationChangesForApplicationResourcesTab_givenRemoveViewOnApp_assertNoViewOnWorkspace");

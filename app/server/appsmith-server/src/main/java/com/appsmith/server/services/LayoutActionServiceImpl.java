@@ -47,8 +47,8 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
     }
 
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext) {
-        Mono<ActionDTO> createActionMono = super.createAction(action, eventContext);
+    public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
+        Mono<ActionDTO> createActionMono = super.createAction(action, eventContext, isJsAction);
 
         // If it is an embedded datasource, continue.
         if (action.getDatasource() == null || !StringUtils.hasLength(action.getDatasource().getId())) {
