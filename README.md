@@ -29,7 +29,10 @@
   <b><a href="https://www.youtube.com/appsmith">YouTube</a></b>
   •
   <b><a href="https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=top">Templates</a></b> 
-  </h3>
+</h3>
+
+<br />
+<img alt="How Appsmith Works" src="static/images/how-it-works.svg" style="width: 100%; height: auto;" />
 
 ---
 
