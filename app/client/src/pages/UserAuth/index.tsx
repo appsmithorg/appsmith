@@ -23,7 +23,7 @@ export function UserAuth() {
 
   return (
     <ThemeProvider theme={lightTheme}>
-      <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center auth-container bg-[color:var(--ads-color-background-secondary)] p-4 t--auth-container">
+      <div className="absolute inset-0 flex flex-col overflow-y-auto auth-container bg-[color:var(--ads-color-background-secondary)] p-4 t--auth-container">
         <Switch location={location}>
           <SentryRoute component={Login} exact path={`${path}/login`} />
           <SentryRoute component={SignUp} exact path={`${path}/signup`} />
