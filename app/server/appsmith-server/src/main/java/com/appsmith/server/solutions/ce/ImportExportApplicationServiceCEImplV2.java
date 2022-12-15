@@ -713,7 +713,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(workspaceService.findById(workspaceId, isGitSync ? workspacePermission.getEditPermission() : workspacePermission.getApplicationCreatePermission()))
+                .then(workspaceService.findById(workspaceId, isGitSync ? Optional.empty() : Optional.of(workspacePermission.getApplicationCreatePermission())))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
