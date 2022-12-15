@@ -59,6 +59,7 @@ export const entityMarker: MarkHelper = (
           { ch: token.end, line: lineNo },
         )
         .filter((marker) => marker.className === NAVIGATION_CLASSNAME);
+
       if (token.type === "variable" && tokenString in entityNavigationData) {
         if (existingMarking.length) return;
         const data = entityNavigationData[tokenString];
@@ -75,18 +76,12 @@ export const entityMarker: MarkHelper = (
             atomic: false,
           },
         );
-        if (tokenString === "Form1") {
-          debugger;
-        }
         addMarksForChildren(
           entityNavigationData[tokenString],
           lineNo,
           token.end,
           editor,
         );
-      } else if (existingMarking.length) {
-        // debugger;
-        // existingMarking.forEach((mark) => mark.clear());
       }
     });
   });
@@ -109,19 +104,21 @@ const addMarksForChildren = (
     );
     if (token.string in childNodes) {
       const childLink = childNodes[token.string];
-      editor.markText(
-        { ch: token.start, line: lineNo },
-        { ch: token.end, line: lineNo },
-        {
-          className: NAVIGATION_CLASSNAME,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          attributes: {
-            [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
+      if (childLink.navigable) {
+        editor.markText(
+          { ch: token.start, line: lineNo },
+          { ch: token.end, line: lineNo },
+          {
+            className: NAVIGATION_CLASSNAME,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            attributes: {
+              [NAVIGATE_TO_ATTRIBUTE]: `${childLink.name}`,
+            },
+            atomic: false,
           },
-          atomic: false,
-        },
-      );
+        );
+      }
       addMarksForChildren(childNodes[token.string], lineNo, token.end, editor);
     }
   }

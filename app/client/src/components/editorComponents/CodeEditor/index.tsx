@@ -1171,7 +1171,12 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     getEditorIdentifier(props),
   ),
-  entitiesForNavigation: getEntitiesForNavigation(state),
+  entitiesForNavigation: props.isJSObject
+    ? addThisReference(
+        getEntitiesForNavigation(state),
+        props.dataTreePath?.split(".")[0],
+      )
+    : getEntitiesForNavigation(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1187,3 +1192,17 @@ const mapDispatchToProps = (dispatch: any) => ({
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
 );
+
+const addThisReference = (
+  navigationData: EntityNavigationData,
+  entityName?: string,
+) => {
+  debugger;
+  if (entityName && entityName in navigationData) {
+    return {
+      ...navigationData,
+      this: navigationData[entityName],
+    };
+  }
+  return navigationData;
+};

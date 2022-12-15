@@ -16,6 +16,8 @@ import { builderURL, jsCollectionIdURL } from "RouteBuilder";
 import { JSAction } from "entities/JSCollection";
 import { keyBy } from "lodash";
 import { getDataTree } from "selectors/dataTreeSelectors";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export type NavigationData = {
   name: string;
@@ -65,22 +67,7 @@ export const getEntitiesForNavigation = createSelector(
         type: ENTITY_TYPE.JSACTION,
         url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
         navigable: true,
-        children: keyBy(
-          jsAction.config.actions.map((func: JSAction) => ({
-            name: `${jsAction.config.name}.${func.name}`,
-            key: func.name,
-            id: `${jsAction.config.name}.${func.name}`,
-            type: ENTITY_TYPE.JSACTION,
-            url: jsCollectionIdURL({
-              pageId,
-              collectionId: jsAction.config.id,
-              functionName: func.name,
-            }),
-            navigable: true,
-            children: {},
-          })),
-          (data) => data.key,
-        ),
+        children: getJsObjectChildren(jsAction, pageId),
       };
     });
 
@@ -91,39 +78,65 @@ export const getEntitiesForNavigation = createSelector(
         type: ENTITY_TYPE.WIDGET,
         url: builderURL({ pageId, hash: widget.widgetId }),
         navigable: true,
-        children: {},
+        children: getWidgetChildren(widget, dataTree, pageId),
       };
-      if (widget.type === "FORM_WIDGET") {
-        const children: EntityNavigationData = {};
-        const dataTreeWidget: DataTreeWidget = dataTree[
-          widget.widgetName
-        ] as DataTreeWidget;
-        const formChildren: EntityNavigationData = {};
-        Object.keys(dataTreeWidget.data).forEach((widgetName) => {
-          const childWidgetId = (dataTree[widgetName] as DataTreeWidget)
-            .widgetId;
-          formChildren[widgetName] = {
-            name: widgetName,
-            id: `${widget.widgetName}.data.${widgetName}`,
-            type: ENTITY_TYPE.WIDGET,
-            navigable: true,
-            children: {},
-            url: builderURL({ pageId, hash: childWidgetId }),
-          };
-        });
-        children.data = {
-          name: "data",
-          id: `${widget.widgetName}.data`,
-          type: ENTITY_TYPE.WIDGET,
-          navigable: false,
-          children: formChildren,
-          url: undefined,
-        };
-
-        navigationData[widget.widgetName].children = children;
-      }
     });
 
     return navigationData;
   },
 );
+
+const getJsObjectChildren = (jsAction: JSCollectionData, pageId: string) => {
+  return keyBy(
+    jsAction.config.actions.map((func: JSAction) => ({
+      name: `${jsAction.config.name}.${func.name}`,
+      key: func.name,
+      id: `${jsAction.config.name}.${func.name}`,
+      type: ENTITY_TYPE.JSACTION,
+      url: jsCollectionIdURL({
+        pageId,
+        collectionId: jsAction.config.id,
+        functionName: func.name,
+      }),
+      navigable: true,
+      children: {},
+    })),
+    (data) => data.key,
+  );
+};
+
+const getWidgetChildren = (
+  widget: FlattenedWidgetProps,
+  dataTree: DataTree,
+  pageId: string,
+) => {
+  if (widget.type === "FORM_WIDGET") {
+    const children: EntityNavigationData = {};
+    const dataTreeWidget: DataTreeWidget = dataTree[
+      widget.widgetName
+    ] as DataTreeWidget;
+    const formChildren: EntityNavigationData = {};
+    Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
+      const childWidgetId = (dataTree[widgetName] as DataTreeWidget).widgetId;
+      formChildren[widgetName] = {
+        name: widgetName,
+        id: `${widget.widgetName}.data.${widgetName}`,
+        type: ENTITY_TYPE.WIDGET,
+        navigable: true,
+        children: {},
+        url: builderURL({ pageId, hash: childWidgetId }),
+      };
+    });
+    children.data = {
+      name: "data",
+      id: `${widget.widgetName}.data`,
+      type: ENTITY_TYPE.WIDGET,
+      navigable: false,
+      children: formChildren,
+      url: undefined,
+    };
+
+    return children;
+  }
+  return {};
+};
