@@ -1036,7 +1036,7 @@ public class GitServiceTest {
                     actionCollectionDTO.setDefaultToBranchedActionIdsMap(Map.of("branchedId", "collectionId"));
 
                     return Mono.zip(
-                                    layoutActionService.createSingleAction(action)
+                                    layoutActionService.createSingleAction(action, Boolean.FALSE)
                                             .then(layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)),
                                     layoutCollectionService.createCollection(actionCollectionDTO)
                             )

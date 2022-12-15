@@ -731,7 +731,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return layoutActionService.createSingleAction(action).thenReturn(datasource);
+                    return layoutActionService.createSingleAction(action, Boolean.FALSE).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.archiveById(datasource.getId()));
 
@@ -806,7 +806,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return layoutActionService.createSingleAction(action)
+                    return layoutActionService.createSingleAction(action, Boolean.FALSE)
                             .then(applicationPageService.deleteApplication(application.getId()))
                             .thenReturn(datasource);
                 })
