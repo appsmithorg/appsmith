@@ -55,8 +55,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      
-      # Create a run record exactly at the time of merge to release to  
+
+      # Create a run record exactly at the time of merge to release to
       # ensure we compare run details with code at this point
       - name: Create Perf Meta
         continue-on-error: true
@@ -65,7 +65,6 @@ jobs:
           -U aforce_admin -d perf-infra -c \
           "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active) 
           VALUES ('${{github.repository}}', '${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
-
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
