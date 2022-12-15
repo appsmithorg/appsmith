@@ -13,7 +13,6 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EncryptionConfig;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
@@ -132,11 +131,11 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
-import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
-import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
-import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
-import static com.appsmith.server.migrations.DatabaseChangelog.installPluginToAllWorkspaces;
-import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
+import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
+import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
+import static com.appsmith.server.migrations.DatabaseChangelog1.getUpdatedDynamicBindingPathList;
+import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
+import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
@@ -1438,7 +1437,7 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "021", id = "flush-spring-redis-keys-2a", author = "")
     public void clearRedisCache2(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
-        DatabaseChangelog.doClearRedisKeys(reactiveRedisOperations);
+        DatabaseChangelog1.doClearRedisKeys(reactiveRedisOperations);
     }
 
     private List<String> getCustomizedThemeIds(String fieldName, Function<Application, String> getThemeIdMethod, List<String> systemThemeIds, MongockTemplate mongockTemplate) {
@@ -2796,24 +2795,6 @@ public class DatabaseChangelog2 {
         ensureIndexes(mongockTemplate, Workspace.class, makeIndex("tenantId", "deleted").named("tenantId_deleted"));
     }
 
-    @ChangeSet(order = "038", id = "introduce-encryption-versioning", author = "")
-    public void introduceEncryptionVersioningInConfig(MongockTemplate mongockTemplate, @NonLockGuarded CommonConfig commonConfig) {
-        // If the instance is not configured with an encryption version,
-        // it means this instance was set up before we started shipping with latest encryption version
-        // In that case, set up the current encryption version as 1 to start with
-        if (commonConfig.getEncryptionVersion() == null) {
-            mongockTemplate.insert(new Config(
-                    new JSONObject(Map.of("value", 1)),
-                    Appsmith.INSTANCE_SCHEMA_VERSION
-            ));
-        } else {
-            mongockTemplate.insert(new Config(
-                    new JSONObject(Map.of("value", commonConfig.getEncryptionVersion())),
-                    Appsmith.INSTANCE_SCHEMA_VERSION
-            ));
-        }
-    }
-
     // TODO We'll be deleting this migration after upgrade to Spring 6.0
     @ChangeSet(order = "039", id = "deprecate-queryabletext-encryption", author = "")
     public void deprecateQueryableTextEncryption(MongockTemplate mongockTemplate,
@@ -2911,7 +2892,7 @@ public class DatabaseChangelog2 {
                  * the encryption step succeeded without error for each selected document.
                  */
                 documentPairList.stream().parallel()
-                        .forEach(docPair -> collection.findOneAndUpdate(docPair.get(0), docPair.get(1)));
+                        .forEach(docPair -> collection.updateOne(docPair.get(0), docPair.get(1)));
 
                 log.debug("collection callback update end: {}ms", stopwatch.getExecutionTime());
 
@@ -2930,7 +2911,7 @@ public class DatabaseChangelog2 {
          * "datasourceConfiguration.connection.ssl.keyFile"
          */
         String parentDocumentPath = org.apache.commons.lang.StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
-        Document parentDocument = DatabaseChangelog.getDocumentFromPath(document, parentDocumentPath);
+        Document parentDocument = DatabaseChangelog1.getDocumentFromPath(document, parentDocumentPath);
 
         if (parentDocument != null) {
             if (parentDocument.containsKey(pathKeys[pathKeys.length - 1])) {
