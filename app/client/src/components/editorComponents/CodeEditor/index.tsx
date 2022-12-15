@@ -924,13 +924,18 @@ class CodeEditor extends Component<Props, State> {
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      const prevChar = line[cursor.ch - 2];
+      const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
     }
-    showAutocomplete && this.handleAutocompleteVisibility(cm);
+
+    // Allow keydown event to enter the text to the editor before firing autocomplete
+    // otherwise it'll not work for the first character
+    setTimeout(() => {
+      showAutocomplete && this.handleAutocompleteVisibility(cm);
+    }, 10);
   };
 
   lintCode(editor: CodeMirror.Editor) {
