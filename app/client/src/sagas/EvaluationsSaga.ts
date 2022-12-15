@@ -300,29 +300,6 @@ export function* evaluateAndExecuteDynamicTrigger(
       const { result } = requestData;
       yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
 
-      if (!isEmpty(result.JSData)) {
-        const dataStore = result.JSData as Record<string, JSFunctionData>;
-
-        for (const key of Object.keys(dataStore)) {
-          const jsAction:
-            | JSAction
-            | undefined = yield select((state: AppState) =>
-            getJSFunctionFromName(state, key),
-          );
-          if (jsAction) {
-            yield put({
-              type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
-              payload: {
-                results: dataStore[key].data,
-                collectionId: jsAction.collectionId,
-                actionId: jsAction.id,
-                isDirty: false,
-              },
-            });
-          }
-        }
-      }
-
       // Check for any logs in the response and store them in the redux store
       if (
         !!result &&
@@ -388,6 +365,30 @@ export function* executeDynamicTriggerRequest(
       mainThreadRequestChannel,
     );
     log.debug({ requestData });
+    if (requestData.JSData) {
+      if (!isEmpty(requestData.JSData)) {
+        const dataStore = requestData.JSData as Record<string, JSFunctionData>;
+
+        for (const key of Object.keys(dataStore)) {
+          const jsAction:
+            | JSAction
+            | undefined = yield select((state: AppState) =>
+            getJSFunctionFromName(state, key),
+          );
+          if (jsAction) {
+            yield put({
+              type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+              payload: {
+                results: dataStore[key],
+                collectionId: jsAction.collectionId,
+                actionId: jsAction.id,
+                isDirty: false,
+              },
+            });
+          }
+        }
+      }
+    }
     if (requestData?.logs) {
       const { eventType, triggerMeta } = requestData;
       yield call(

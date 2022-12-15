@@ -136,7 +136,6 @@ export interface createGlobalDataArgs {
   isTriggerBased: boolean;
   // Whether not to add functions like "run", "clear" to entity in global data
   skipEntityFunctions?: boolean;
-  JSExecutionData?: Record<string, JSFunctionData>;
 }
 
 export const createGlobalData = (args: createGlobalDataArgs) => {
@@ -145,7 +144,6 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     dataTree,
     evalArguments,
     isTriggerBased,
-    JSExecutionData = {},
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
@@ -191,7 +189,6 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
           //const confirmBeforeExecute = dataTreeKey?.meta[key]?.confirmBeforeExecute || false;
           dataTreeKey[key] = JSFunctionProxy(
             resolvedObject[key],
-            JSExecutionData,
             datum + "." + key,
           );
           // if (isAsync && confirmBeforeExecute) {
@@ -279,7 +276,6 @@ export default function evaluateSync(
       isTriggerBased: isJSCollection,
       context,
       evalArguments,
-      JSExecutionData: JSDataStore,
     });
     GLOBAL_DATA.ALLOW_ASYNC = false;
     const { script } = getUserScriptToEvaluate(
@@ -356,7 +352,6 @@ export async function evaluateAsync(
       isTriggerBased: true,
       context: { ...context, requestId },
       evalArguments,
-      JSExecutionData: JSDataStore,
     });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     GLOBAL_DATA.ALLOW_ASYNC = true;

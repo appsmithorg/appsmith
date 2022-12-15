@@ -5,7 +5,7 @@ import {
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { unset, set, get } from "lodash";
+import { unset, set, get, uniqueId } from "lodash";
 import { isJSAction } from "workers/Evaluation/evaluationUtils";
 import { APP_MODE } from "../../../entities/App";
 
@@ -254,7 +254,6 @@ export interface JSFunctionData {
 }
 export function JSFunctionProxy(
   JSFunction: (...args: unknown[]) => unknown,
-  store: Record<string, JSFunctionData>,
   jsFunctionFullName: string,
 ) {
   const JSFunctionProxyHandler = {
@@ -262,13 +261,25 @@ export function JSFunctionProxy(
       const returnValue = Reflect.apply(target, thisArg, argumentsList);
       if (isPromise(returnValue)) {
         return Promise.resolve(returnValue).then(function(result) {
-          store[jsFunctionFullName] = { data: result };
+          self.postMessage({
+            promisified: true,
+            responseData: {
+              JSData: { [jsFunctionFullName]: result },
+            },
+            requestId: uniqueId(),
+          });
           return new Promise((resolve) => {
             resolve(result);
           });
         });
       }
-      store[jsFunctionFullName] = { data: returnValue };
+      self.postMessage({
+        promisified: true,
+        responseData: {
+          JSData: { [jsFunctionFullName]: returnValue },
+        },
+        requestId: uniqueId(),
+      });
       return returnValue;
     },
   };
