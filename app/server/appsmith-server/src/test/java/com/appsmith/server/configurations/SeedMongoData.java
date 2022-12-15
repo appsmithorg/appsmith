@@ -57,8 +57,8 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
-import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -231,7 +231,7 @@ public class SeedMongoData {
                     Mono<PermissionGroup> bulkAssignDefaultPermissionGroupMono = configRepository.findByName(DEFAULT_USER_PERMISSION_GROUP)
                             .flatMap(defaultRoleConfig -> {
                                 JSONObject config = defaultRoleConfig.getConfig();
-                                String defaultPermissionGroup = (String) config.getOrDefault(PERMISSION_GROUP_ID, "");
+                                String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
                                 /*
                                     We use retrieveById instead of findById because findById tries to get the logged in user's
                                     principal object before querying the DB. Since we are running this code in SeedMongo, there
