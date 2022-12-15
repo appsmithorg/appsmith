@@ -105,7 +105,7 @@ import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
   getCodeEditorLastCursorPosition,
-  getIsCodeEditorFocused,
+  getIsInputFieldFocused,
 } from "selectors/editorContextSelectors";
 import {
   CodeEditorFocusState,
@@ -1153,7 +1153,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
   lintErrors: getEntityLintErrors(state, props.dataTreePath),
-  editorIsFocused: getIsCodeEditorFocused(state, getEditorIdentifier(props)),
+  editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),
   editorLastCursorPosition: getCodeEditorLastCursorPosition(
     state,
     getEditorIdentifier(props),
