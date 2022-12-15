@@ -3,6 +3,7 @@ export const CONTAINER_SELECTOR =
   ":is(.t--widget-containerwidget, .t--widget-formwidget)";
 const NON_FOCUSABLE_WIDGET_CLASS = ".t--widget-textwidget";
 export const JSONFORM_WIDGET = ".t--widget-jsonformwidget";
+export const CHECKBOXGROUP_WIDGET = ".t--widget-checkboxgroupwidget";
 export const FOCUS_SELECTOR =
   "a, input, select, textarea, button, object, audio, video";
 export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}):not([disabled]))`;

@@ -22,7 +22,10 @@ import {
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
 
-const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
+const PositionedWidget = styled.div<{
+  zIndexOnHover: number;
+  disabled?: boolean;
+}>`
   &:hover {
     z-index: ${(props) => props.zIndexOnHover} !important;
   }
