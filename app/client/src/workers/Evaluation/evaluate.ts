@@ -17,6 +17,7 @@ import overrideTimeout from "./TimeoutOverride";
 import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
 import interceptAndOverrideHttpRequest from "./HTTPRequestOverride";
 import indirectEval from "./indirectEval";
+import cleanSet from "clean-set";
 
 export type EvalResult = {
   result: any;
@@ -174,13 +175,13 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
 };
 
 export const assignJSFunctionsToContext = (
-  GLOBAL_DATA: GlobalData,
+  EVAL_CONTEXT: GlobalData,
   resolvedFunctions: ResolvedFunctions,
 ) => {
   const jsObjectNames = Object.keys(resolvedFunctions || {});
   for (const jsObjectName of jsObjectNames) {
     const resolvedObject = resolvedFunctions[jsObjectName];
-    const jsObject = GLOBAL_DATA[jsObjectName];
+    const jsObject = EVAL_CONTEXT[jsObjectName];
     if (!jsObject) continue;
     for (const fnName of Object.keys(resolvedObject)) {
       const fn = resolvedObject[fnName];
@@ -189,10 +190,12 @@ export const assignJSFunctionsToContext = (
       // Task: https://github.com/appsmithorg/appsmith/issues/13289
       // Previous implementation commented code: https://github.com/appsmithorg/appsmith/pull/18471
       const data = jsObject[fnName]?.data;
-      jsObject[fnName] = fn;
+      const jsObjectFunction: Record<string, Record<"data", unknown>> = {};
+      jsObjectFunction[fnName] = fn;
       if (!!data) {
-        jsObject[fnName]["data"] = data;
+        jsObjectFunction[fnName]["data"] = data;
       }
+      EVAL_CONTEXT[jsObjectName] = cleanSet(jsObject, fnName, jsObjectFunction);
     }
   }
 };

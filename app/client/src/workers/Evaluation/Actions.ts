@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { set } from "lodash";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -329,11 +329,12 @@ export const addDataTreeToContext = (args: {
   const entityFunctionEntries = Object.entries(ENTITY_FUNCTIONS);
   const platformFunctionEntries = Object.entries(PLATFORM_FUNCTIONS);
   const dataTreeEntries = Object.entries(dataTree);
-  const entityFunctionsToAdd = [] as Array<{
-    entityName: string;
-    func: Function;
-    propertyPath: string;
-  }>;
+  // const entityFunctionsToAdd = [] as Array<{
+  //   entityName: string;
+  //   func: Function;
+  //   propertyPath: string;
+  // }>;
+  const entityFunctionCollection = {};
 
   self.TRIGGER_COLLECTOR = [];
 
@@ -344,11 +345,10 @@ export const addDataTreeToContext = (args: {
       if (!funcCreator.qualifier(entity)) continue;
       const func = funcCreator.func(entity);
       const fullPath = `${funcCreator.path || `${entityName}.${functionName}`}`;
-      const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
-      entityFunctionsToAdd.push({
-        entityName,
-        propertyPath,
-        func: pusher.bind(
+      set(
+        entityFunctionCollection,
+        fullPath,
+        pusher.bind(
           {
             TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
             REQUEST_ID: requestId,
@@ -356,15 +356,17 @@ export const addDataTreeToContext = (args: {
           },
           func,
         ),
-      });
+      );
     }
   }
 
-  for (const { entityName, func, propertyPath } of entityFunctionsToAdd) {
-    EVAL_CONTEXT[entityName] = cleanSet(
+  for (const [entityName, funcObj] of Object.entries(
+    entityFunctionCollection,
+  )) {
+    EVAL_CONTEXT[entityName] = Object.assign(
+      {},
       EVAL_CONTEXT[entityName],
-      propertyPath,
-      func,
+      funcObj,
     );
   }
 
