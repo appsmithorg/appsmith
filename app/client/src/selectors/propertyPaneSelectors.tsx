@@ -19,7 +19,7 @@ import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import {
   EVALUATION_PATH,
   isPathDynamicProperty,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
@@ -133,7 +133,7 @@ const populateWidgetProperties = (
   widgetProperties.type = widget.type;
   widgetProperties.widgetName = widget.widgetName;
   widgetProperties.widgetId = widget.widgetId;
-  widgetProperties.isPropertyDynamicTrigger = isPathADynamicTrigger(
+  widgetProperties.isPropertyDynamicTrigger = isPathDynamicTrigger(
     widget,
     propertyPath,
   );

@@ -9,7 +9,7 @@ import {
   getEvalValuePath,
   isChildPropertyPath,
   isPathADynamicBinding,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
@@ -676,7 +676,7 @@ export default class DataTreeEvaluator {
             (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
             isPathADynamicBinding(entity, propertyPath);
           const isATriggerPath =
-            isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
+            isWidget(entity) && isPathDynamicTrigger(entity, propertyPath);
           let evalPropertyValue;
           const requiresEval =
             isADynamicBindingPath &&
@@ -1128,7 +1128,7 @@ export default class DataTreeEvaluator {
         fullPropertyPath,
       );
       const entity = currentTree[entityName];
-      if (isWidget(entity) && !isPathADynamicTrigger(entity, propertyPath)) {
+      if (isWidget(entity) && !isPathDynamicTrigger(entity, propertyPath)) {
         this.reValidateWidgetDependentProperty({
           widget: entity,
           fullPropertyPath,

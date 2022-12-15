@@ -6,7 +6,7 @@ import {
   EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
-  isPathADynamicTrigger,
+  isPathDynamicTrigger,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
@@ -32,7 +32,7 @@ export function validateAndParseWidgetProperty({
   unEvalPropertyValue: string;
 }): unknown {
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-  if (isPathADynamicTrigger(widget, propertyPath)) {
+  if (isPathDynamicTrigger(widget, propertyPath)) {
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
   }

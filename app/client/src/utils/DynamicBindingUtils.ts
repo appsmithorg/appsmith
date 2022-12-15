@@ -264,7 +264,7 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
-export const isPathADynamicTrigger = (
+export const isPathDynamicTrigger = (
   widget: WidgetProps,
   path: string,
 ): boolean => {
