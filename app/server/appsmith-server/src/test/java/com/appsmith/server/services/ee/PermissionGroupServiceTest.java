@@ -780,4 +780,26 @@ public class PermissionGroupServiceTest {
         assertThat(userMgmtRolePresent).isTrue();
     }
 
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDefaultUserPermissionGroupAsSuperAdmin_shouldFail() {
+
+        PermissionGroup defaultUserRoleMono = userUtils.getDefaultUserPermissionGroup().block();
+
+        String updatedName = "mock-permission-group-name-2";
+        String updatedDescription = "mock-permission-group-description-2";
+        PermissionGroup permissionGroupUpdate = new PermissionGroup();
+        permissionGroupUpdate.setName(updatedName);
+        permissionGroupUpdate.setDescription(updatedDescription);
+
+        Mono<PermissionGroupInfoDTO> permissionGroupInfoDTOMono = permissionGroupService
+                .updatePermissionGroup(defaultUserRoleMono.getId(), permissionGroupUpdate);
+
+        StepVerifier.create(permissionGroupInfoDTOMono)
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException &&
+                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update role")))
+                .verify();
+    }
+
 }

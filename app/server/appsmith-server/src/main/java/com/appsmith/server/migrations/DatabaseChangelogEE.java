@@ -42,7 +42,6 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
-import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
@@ -253,7 +252,7 @@ public class DatabaseChangelogEE {
 
         PermissionGroup defaultRoleForUser = new PermissionGroup();
         defaultRoleForUser.setName(FieldName.DEFAULT_USER_PERMISSION_GROUP);
-        defaultRoleForUser.setDescription("Role for giving access to all the users by default");
+        defaultRoleForUser.setDescription("This is a role for giving access to all the users. Please exercise caution while editing this role.");
         defaultRoleForUser.setTenantId(tenant.getId());
         defaultRoleForUser.setPolicies(Set.of(
                 Policy.builder()

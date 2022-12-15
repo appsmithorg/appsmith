@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -58,15 +59,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
     private final PolicyGenerator policyGenerator;
-
-    private final UserRepository userRepository;
-
     private final UserGroupRepository userGroupRepository;
-
     private final RoleConfigurationSolution roleConfigurationSolution;
-
-    private final ConfigRepository configRepository;
     private final PermissionGroupUtils permissionGroupUtils;
+    private final UserUtils userUtils;
 
     public PermissionGroupServiceImpl(Scheduler scheduler,
                                       Validator validator,
@@ -84,7 +80,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       UserGroupRepository userGroupRepository,
                                       RoleConfigurationSolution roleConfigurationSolution,
                                       PermissionGroupPermission permissionGroupPermission,
-                                      PermissionGroupUtils permissionGroupUtils) {
+                                      PermissionGroupUtils permissionGroupUtils,
+                                      UserUtils userUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 sessionUserService, tenantService, userRepository, policyUtils, configRepository,
@@ -95,9 +92,8 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         this.tenantService = tenantService;
         this.userGroupRepository = userGroupRepository;
         this.roleConfigurationSolution = roleConfigurationSolution;
-        this.userRepository = userRepository;
-        this.configRepository = configRepository;
         this.permissionGroupUtils = permissionGroupUtils;
+        this.userUtils = userUtils;
     }
 
     @Override
@@ -299,8 +295,15 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
 
     public Mono<PermissionGroupInfoDTO> updatePermissionGroup(String id, PermissionGroup resource) {
         return repository.findById(id, MANAGE_PERMISSION_GROUPS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update permission group")))
-                .flatMap(permissionGroup -> {
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update role")))
+                .zipWith(userUtils.getDefaultUserPermissionGroup())
+                .flatMap(tuple -> {
+                    PermissionGroup permissionGroup = tuple.getT1();
+                    PermissionGroup defaultUserRole = tuple.getT2();
+
+                    if (id.equals(defaultUserRole.getId())) {
+                        return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "update role"));
+                    }
                     // The update API is only supposed to update the NAME and DESCRIPTION of the Permission Group.
                     // ANY OTHER FIELD SHOULD NOT BE UPDATED USING THIS FUNCTION.
                     permissionGroup.setName(resource.getName());
