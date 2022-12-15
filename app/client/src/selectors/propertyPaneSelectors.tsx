@@ -18,7 +18,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import {
   EVALUATION_PATH,
-  isPathADynamicProperty,
+  isPathDynamicProperty,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
@@ -137,7 +137,7 @@ const populateWidgetProperties = (
     widget,
     propertyPath,
   );
-  widgetProperties.isPropertyDynamicPath = isPathADynamicProperty(
+  widgetProperties.isPropertyDynamicPath = isPathDynamicProperty(
     widget,
     propertyPath,
   );
