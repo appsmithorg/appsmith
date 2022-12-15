@@ -173,6 +173,5 @@ describe("List v2 - Property autocomplete", () => {
     checkAutosuggestion("listData", "Array");
     checkAutosuggestion("pageNo", "Number");
     checkAutosuggestion("pageSize", "Number");
-    checkAutosuggestion("selectedItem", "Object");
   });
 });

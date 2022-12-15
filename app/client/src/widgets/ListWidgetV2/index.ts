@@ -1,10 +1,10 @@
-// TODO: Ashit - Add jest test for all the functions
 import { get } from "lodash";
 
-import { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { BlueprintOperationTypes } from "widgets/constants";
+import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -99,6 +99,10 @@ export const CONFIG = {
                     dragDisabled: true,
                     isDeletable: false,
                     disallowCopy: true,
+                    disabledWidgetFeatures: [
+                      RegisteredWidgetFeatures.DYNAMIC_HEIGHT,
+                    ],
+                    dynamicHeight: "FIXED",
                     children: [],
                     blueprint: {
                       view: [
