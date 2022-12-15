@@ -751,7 +751,7 @@ public class PermissionGroupServiceTest {
         StepVerifier.create(updatedPermissionGroupInfoDTOMono)
                 .expectErrorMatches(throwable ->
                         throwable instanceof AppsmithException &&
-                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update permission group")))
+                                throwable.getMessage().contains(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("update role")))
                 .verify();
     }
 

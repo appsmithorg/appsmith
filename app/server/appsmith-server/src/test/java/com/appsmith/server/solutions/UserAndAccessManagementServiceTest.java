@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
+import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -95,11 +96,15 @@ public class UserAndAccessManagementServiceTest {
                     UserForManagementDTO apiUserDto = users.stream().filter(user -> user.getUsername().equals("api_user")).findFirst().get();
                     assertThat(apiUserDto.getId()).isEqualTo(api_user.getId());
                     assertThat(apiUserDto.getGroups().size()).isEqualTo(0);
-                    assertThat(apiUserDto.getRoles().size()).isEqualTo(1);
+                    assertThat(apiUserDto.getRoles().size()).isEqualTo(2);
 
                     boolean adminRole = apiUserDto.getRoles().stream()
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
                     assertThat(adminRole).isTrue();
+
+                    boolean defaultUserRole = apiUserDto.getRoles().stream()
+                            .anyMatch(role -> DEFAULT_USER_PERMISSION_GROUP.equals(role.getName()));
+                    assertThat(defaultUserRole).isTrue();
 
                     // Also assert that anonymous user is not returned inside the list of users
                     Optional<UserForManagementDTO> anonymousUserOptional = users.stream().filter(user -> user.getUsername().equals(ANONYMOUS_USER)).findFirst();
@@ -135,11 +140,15 @@ public class UserAndAccessManagementServiceTest {
 
                     assertThat(user.getId()).isEqualTo(api_user.getId());
                     assertThat(user.getGroups().size()).isEqualTo(0);
-                    assertThat(user.getRoles().size()).isEqualTo(1);
+                    assertThat(user.getRoles().size()).isEqualTo(2);
 
                     boolean adminRole = user.getRoles().stream()
                             .anyMatch(role -> "Instance Administrator Role".equals(role.getName()));
                     assertThat(adminRole).isTrue();
+
+                    boolean defaultUserRole = user.getRoles().stream()
+                            .anyMatch(role -> DEFAULT_USER_PERMISSION_GROUP.equals(role.getName()));
+                    assertThat(defaultUserRole).isTrue();
 
                     // Assert that name is also returned.
                     assertThat(user.getName()).isEqualTo("api_user");
