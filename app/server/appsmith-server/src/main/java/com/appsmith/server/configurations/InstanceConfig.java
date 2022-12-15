@@ -52,7 +52,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(performRtsHealthCheck())
                 .doFinally(ignored -> this.printReady());
 
-        Mono.zip(checkInstanceSchemaVersion(), registrationAndRtsCheckMono)
+        Mono.when(checkInstanceSchemaVersion(), registrationAndRtsCheckMono)
                 .subscribe(null, e -> {
                     log.debug("Application start up encountered an error: {}", e.getMessage());
                     Sentry.captureException(e);
