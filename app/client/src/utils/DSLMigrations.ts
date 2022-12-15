@@ -23,6 +23,7 @@ import {
   migrateTableWidgetIconButtonVariant,
   migrateTableWidgetV2Validation,
   migrateTableWidgetV2ValidationBinding,
+  migrateMenuButtonDynamicItemsInsideTableWidget,
 } from "./migrations/TableWidget";
 import {
   migrateTextStyleFromTextWidget,
@@ -1133,6 +1134,11 @@ export const transformDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 70) {
     currentDSL = migrateChildStylesheetFromDynamicBindingPathList(currentDSL);
+    currentDSL.version = 71;
+  }
+
+  if (currentDSL.version === 71) {
+    currentDSL = migrateMenuButtonDynamicItemsInsideTableWidget(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
