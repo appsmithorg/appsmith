@@ -17,17 +17,19 @@ import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImpl;
+import com.appsmith.server.solutions.ce.ImportExportApplicationServiceCEImplV2;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@Primary
-public class ImportExportApplicationServiceImpl extends ImportExportApplicationServiceCEImpl implements ImportExportApplicationService {
+@Qualifier("importExportServiceCEImplV2")
+public class ImportExportApplicationServiceImplV2 extends ImportExportApplicationServiceCEImplV2 implements ImportExportApplicationService {
 
-    public ImportExportApplicationServiceImpl(DatasourceService datasourceService,
+    public ImportExportApplicationServiceImplV2(DatasourceService datasourceService,
                                               SessionUserService sessionUserService,
                                               NewActionRepository newActionRepository,
                                               DatasourceRepository datasourceRepository,
