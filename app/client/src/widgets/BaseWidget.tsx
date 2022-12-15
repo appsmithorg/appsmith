@@ -45,7 +45,7 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { Stylesheet } from "entities/AppTheming";
 import { CSSProperties } from "styled-components";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AutoHeightOverlayContainer from "components/autoHeightOverlay";
 import AutoHeightContainerWrapper from "components/autoHeight/AutoHeightContainerWrapper";
