@@ -10,7 +10,7 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidget, getWidgets } from "./selectors";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 import {
   actionChannel,
   all,
@@ -85,7 +85,7 @@ import {
   doesTriggerPathsContainPropertyPath,
   getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForPasting,
-  getWidgetChildren,
+  getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
   getSelectedWidgetWhenPasting,
@@ -145,6 +145,7 @@ import history from "utils/history";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { traverseTreeAndExecuteBlueprintChildOperations } from "./WidgetBlueprintSagas";
+import { MetaState } from "reducers/entityReducers/metaReducer";
 
 export function* updateAllChildCanvasHeights(
   currentContainerLikeWidgetId: string,
@@ -815,10 +816,12 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId: parentWidgetId } = action.payload;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const evaluatedDataTree: DataTree = yield select(getDataTree);
-  const childrenList = getWidgetChildren(
+  const widgetsMeta: MetaState = yield select(getWidgetsMeta);
+  const childrenList = getWidgetDescendantToReset(
     canvasWidgets,
     parentWidgetId,
     evaluatedDataTree,
+    widgetsMeta,
   );
 
   for (const childIndex in childrenList) {
