@@ -105,7 +105,7 @@ public class LayoutServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutServiceTest");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
 
         datasource = new Datasource();

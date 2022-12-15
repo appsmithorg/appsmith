@@ -223,7 +223,7 @@ public class ApplicationServiceTest {
         toCreate.setName("ApplicationServiceTest");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
 
             if (StringUtils.hasLength(gitConnectedApp.getId())) {

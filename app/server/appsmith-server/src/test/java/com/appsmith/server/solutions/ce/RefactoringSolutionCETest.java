@@ -144,7 +144,7 @@ class RefactoringSolutionCETest {
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
 
-        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
 
         if (testApp == null && testPage == null) {

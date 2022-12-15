@@ -179,7 +179,7 @@ public class GitServiceTest {
             toCreate.setName("Git Service Test");
 
             if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+                Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
                 workspaceId = workspace.getId();
             }
         }
