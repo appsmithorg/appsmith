@@ -138,7 +138,7 @@ public class PageServiceTest {
             Workspace toCreate = new Workspace();
             toCreate.setName("PageServiceTest");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
     }

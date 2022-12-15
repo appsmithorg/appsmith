@@ -196,7 +196,7 @@ public class ActionServiceCE_Test {
         toCreate.setName("ActionServiceCE_Test");
 
         if (workspaceId == null) {
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
             workspaceId = workspace.getId();
         }
 
