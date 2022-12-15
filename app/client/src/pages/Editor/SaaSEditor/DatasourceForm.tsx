@@ -59,6 +59,7 @@ import {
   toggleSaveActionFromPopupFlag,
 } from "actions/datasourceActions";
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
+import { GSHEET_AUTHORIZATION_ERROR } from "ce/constants/messages";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -331,6 +332,16 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           )}
           {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
             <>
+              {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+                <AuthMessage
+                  datasource={datasource}
+                  description={GSHEET_AUTHORIZATION_ERROR}
+                  pageId={pageId}
+                  style={{
+                    paddingTop: "24px",
+                  }}
+                />
+              ) : null}
               {!_.isNil(sections)
                 ? _.map(sections, this.renderMainSection)
                 : null}
@@ -344,6 +355,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   <AuthMessage
                     actionType="authorize"
                     datasource={datasource}
+                    description={GSHEET_AUTHORIZATION_ERROR}
                     pageId={pageId}
                   />
                 ) : null

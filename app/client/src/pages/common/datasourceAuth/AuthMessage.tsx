@@ -19,11 +19,13 @@ type AuthMessageProps = {
   // We can handle for other action types as well eg. save, delete etc.
   actionType?: "authorize";
   datasource: Datasource;
+  description: string;
   pageId?: string;
+  style?: any;
 };
 
 export default function AuthMessage(props: AuthMessageProps) {
-  const { actionType, datasource, pageId } = props;
+  const { actionType, datasource, description, pageId, style = {} } = props;
   const dispatch = useDispatch();
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasource.id),
@@ -41,12 +43,8 @@ export default function AuthMessage(props: AuthMessageProps) {
   }
 
   return (
-    <StyledAuthMessage>
-      <CalloutV2
-        desc="Data source is not authorized, please re-authorize to continue."
-        type="Warning"
-        {...extraInfo}
-      />
+    <StyledAuthMessage style={style}>
+      <CalloutV2 desc={description} type="Warning" {...extraInfo} />
     </StyledAuthMessage>
   );
 }
