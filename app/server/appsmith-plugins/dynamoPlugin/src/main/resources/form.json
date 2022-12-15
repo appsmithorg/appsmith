@@ -151,7 +151,8 @@
           "controlType": "INPUT_TEXT",
           "dataType": "PASSWORD",
           "initialValue": "",
-          "encrypted": true
+          "encrypted": true,
+          "valueExistPath": "datasourceConfiguration.authentication.secretExists.password"
         }
       ]
     }

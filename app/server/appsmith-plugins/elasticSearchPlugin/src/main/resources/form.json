@@ -38,7 +38,8 @@
           "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Password",
-          "encrypted": true
+          "encrypted": true,
+          "valueExistPath": "datasourceConfiguration.authentication.secretExists.password"
         },
         {
           "label": "Authorization Header (if username, password are not set)",
