@@ -2,6 +2,7 @@ export interface EndpointGroups {
   OCR: string;
   gRPC: string;
   bobGraphQL: string;
+  mastermgmtGraphQL: string;
   eurekaGraphQL: string;
   fatimaGraphQL: string;
   calendarGraphQL: string;
@@ -9,6 +10,7 @@ export interface EndpointGroups {
   invoicemgmtGraphQL: string;
   entryexitmgmtGraphQL: string;
   unleash: string;
+  unleashKey: string;
 }
 
 export enum EnvKeys {
