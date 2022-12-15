@@ -106,7 +106,7 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ImportExportApplicationServiceCEImpl implements ImportExportApplicationServiceCE {
+public class ImportExportApplicationServiceCEImplV2 implements ImportExportApplicationServiceCE {
 
     private final DatasourceService datasourceService;
     private final SessionUserService sessionUserService;
@@ -657,7 +657,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             6. Extract and save pages in the application
             7. Extract and save actions in the application
          */
-
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         // check for validation error and raise exception if error found
