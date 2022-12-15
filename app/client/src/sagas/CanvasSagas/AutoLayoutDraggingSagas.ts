@@ -521,8 +521,10 @@ function* updateColumnSplitProperty(
         topRow: 0,
         columns: baseCanvas.rightColumn - baseCanvas.leftColumn,
         rows: baseCanvas.bottomRow - baseCanvas.topRow,
+        canExtend: true,
         parentRowSpace: 1,
         parentColumnSpace: 1,
+        responsiveBehavior: "fill",
         newWidgetId: newCanvasId,
       };
       const updatedWidgets: {

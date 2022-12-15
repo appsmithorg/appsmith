@@ -7,14 +7,13 @@ import {
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   MovementLimitMap,
   ReflowDirection,
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { getZoomLevel } from "selectors/editorSelectors";
-import { useSelector } from "store";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";

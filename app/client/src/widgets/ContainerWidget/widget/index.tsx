@@ -198,14 +198,16 @@ export class ContainerWidget extends BaseWidget<
   renderChildWidget(childWidgetData: WidgetProps, i: number): React.ReactNode {
     const columnSplitRatio: number[] =
       ColumnSplitRatio[
-        (this.props.columnSplitType as ColumnSplitTypes) || "1-column"
+        !this.props.isMobile
+          ? (this.props.columnSplitType as ColumnSplitTypes) || "1-column"
+          : "1-column"
       ];
     const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-    childWidget.columnSplitRatio = columnSplitRatio[i];
+    childWidget.columnSplitRatio = columnSplitRatio[i] || 1;
     childWidget.columnSplitType = this.props.columnSplitType;
-    childWidget.rightColumn = componentWidth * columnSplitRatio[i];
+    childWidget.rightColumn = componentWidth;
     childWidget.bottomRow = this.props.shouldScrollContents
       ? childWidget.bottomRow
       : componentHeight;
@@ -234,10 +236,6 @@ export class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    // ToDo(Ashok) create a HOC instead of this
-
-    // const stretchFlexBox = !this.props.children || !this.props.children?.length;
-
     return (
       <ContainerComponent {...props}>
         <WidgetsMultiSelectBox
@@ -246,17 +244,7 @@ export class ContainerWidget extends BaseWidget<
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />
-        {/* <FlexBoxComponent
-          direction={LayoutDirection.Horizontal}
-          flexLayers={this.props.flexLayers || []}
-          overflow={Overflow.Wrap}
-          stretchHeight={stretchFlexBox}
-          useAutoLayout={this.props.useAutoLayout || false}
-          widgetId={this.props.widgetId}
-        > */}
-        {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
-        {/* </FlexBoxComponent> */}
       </ContainerComponent>
     );
   }
