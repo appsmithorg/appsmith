@@ -288,7 +288,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it does not re-generates meta widgets options don't change", () => {
+  it("it does not re-generates meta widgets when options don't change", () => {
     const { generator, options } = init();
 
     const result = generator.withOptions(options).generate();
@@ -375,7 +375,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it re-generates meta widgets when template widgets page no changes", () => {
+  it("it re-generates meta widgets when page no changes", () => {
     const { generator, options } = init();
 
     options.pageNo = 2;
@@ -410,7 +410,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it generates only extra meta widgets when template widgets page size increases", () => {
+  it("it generates only extra meta widgets when page size increases", () => {
     const { generator, options } = init();
 
     options.pageSize = 3;
@@ -445,7 +445,7 @@ describe("#generate", () => {
     ]);
   });
 
-  it("it removes meta widgets when template widgets page size decreases", () => {
+  it("it removes meta widgets when page size decreases", () => {
     const { generator, options } = init();
 
     options.pageSize = 3;
