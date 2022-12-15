@@ -928,6 +928,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
+        /**
+         * Please note that it is a cached Mono, hence please be careful with using this Mono to update / read data
+         * when latest updated application object is desired.
+         */
         Mono<Application> applicationMono = applicationService.findById(applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
@@ -936,9 +940,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 application -> themeService.publishTheme(application.getId())
         );
 
+        Set<CustomJSLibApplicationDTO> updatedPublishedJSLibDTOs = new HashSet<>();
         Mono<List<NewPage>> publishApplicationAndPages = applicationMono
                 //Return all the pages in the Application
                 .flatMap(application -> {
+                    // Update published custom JS lib objects.
+                    application.setPublishedCustomJSLibs(application.getUnpublishedCustomJSLibs());
+                    updatedPublishedJSLibDTOs.addAll(application.getPublishedCustomJSLibs());
+
                     List<ApplicationPage> pages = application.getPages();
                     if (pages == null) {
                         pages = new ArrayList<>();
@@ -1031,19 +1040,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(actionCollectionService::save)
                 .collectList();
 
-        Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono = applicationMono
-                .map(application -> {
-                    application.setPublishedCustomJSLibs(application.getUnpublishedCustomJSLibs());
-                    return application;
-                })
-                .flatMap(application -> applicationService.update(applicationId, application))
-                .map(application -> application.getPublishedCustomJSLibs());
-
         return publishApplicationAndPages
                 .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono,
-                        publishThemeMono, publishedJSLibDTOsMono))
+                        publishThemeMono))
                 .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono,
-                        publishedActionCollectionsListMono, publishedJSLibDTOsMono, applicationId, isPublishedManually));
+                        publishedActionCollectionsListMono, Mono.just(updatedPublishedJSLibDTOs), applicationId,
+                        isPublishedManually));
     }
 
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
