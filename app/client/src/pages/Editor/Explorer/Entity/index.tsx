@@ -219,6 +219,7 @@ export type EntityProps = {
   isSticky?: boolean;
   collapseRef?: RefObject<HTMLDivElement> | null;
   customAddButton?: ReactNode;
+  forceExpand?: boolean;
 };
 
 export const Entity = forwardRef(
@@ -246,6 +247,10 @@ export const Entity = forwardRef(
     useEffect(() => {
       if (isEntityOpen !== undefined) open(isOpen);
     }, [props.name]);
+
+    useEffect(() => {
+      if (!!props.forceExpand) open(true);
+    }, [props.forceExpand]);
 
     /* eslint-enable react-hooks/exhaustive-deps */
     const toggleChildren = (e: any) => {

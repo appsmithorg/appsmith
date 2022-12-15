@@ -211,7 +211,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> getPage(String pageId, boolean viewMode) {
-        AclPermission permission = viewMode ? pagePermission.getReadPermission() : pagePermission.getEditPermission();
+        AclPermission permission = pagePermission.getReadPermission();
         return newPageService.findPageById(pageId, permission, viewMode)
                 .map(newPage -> {
                     List<Layout> layouts = newPage.getLayouts();

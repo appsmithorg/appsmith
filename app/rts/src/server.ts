@@ -1,7 +1,6 @@
 import http from "http";
 import path from "path";
 import express from "express";
-import morgan from "morgan";
 import { Server } from "socket.io";
 import log, { LogLevelDesc } from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
@@ -49,8 +48,6 @@ const io = new Server(server, {
 // Initializing Sockets
 initializeSockets(io);
 
-//Track perf metrics for each call
-app.use(morgan('tiny'));
 // parse incoming json requests
 app.use(express.json({ limit: "5mb" }));
 // Initializing Routes

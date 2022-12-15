@@ -28,6 +28,7 @@ import {
   convertPathToString,
   CrashingError,
   DataTreeDiff,
+  getAllPaths,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   isAction,
@@ -38,7 +39,6 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   overrideWidgetProperties,
-  getAllPaths,
   isValidEntity,
 } from "workers/Evaluation/evaluationUtils";
 import {
@@ -63,14 +63,14 @@ import {
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
 import evaluateSync, {
   EvalResult,
-  EvaluateContext,
   evaluateAsync,
+  EvaluateContext,
 } from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
 import {
+  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
   Severity,
   SourceEntity,
-  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
   UserLogObject,
 } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
@@ -83,21 +83,27 @@ import {
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
 import {
-  updateDependencyMap,
   createDependencyMap,
+  updateDependencyMap,
 } from "workers/common/DependencyMap";
 import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
+  parseJSActionsForViewMode,
   parseJSActions,
+  parseJSActionsWithDifferences,
 } from "workers/Evaluation/JSObject";
 import { getFixedTimeDifference } from "./utils";
-import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
+import {
+  getAppMode,
+  isJSObjectFunction,
+} from "workers/Evaluation/JSObject/utils";
 import {
   getValidatedTree,
   validateActionProperty,
   validateAndParseWidgetProperty,
 } from "./validationUtils";
+import { APP_MODE } from "../../../entities/App";
 
 type SortedDependencies = Array<string>;
 
@@ -142,6 +148,10 @@ export default class DataTreeEvaluator {
   sortedValidationDependencies: SortedDependencies = [];
   inverseValidationDependencyMap: DependencyMap = {};
   public hasCyclicalDependency = false;
+  parseJsActionsConfig = {
+    [APP_MODE.EDIT]: parseJSActions,
+    [APP_MODE.PUBLISHED]: parseJSActionsForViewMode,
+  };
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
     allActionValidationConfig?: {
@@ -190,8 +200,9 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
-    jsUpdates = parsedCollections.jsUpdates;
+    const currentAppMode: APP_MODE = getAppMode(localUnEvalTree);
+    jsUpdates =
+      this.parseJsActionsConfig[currentAppMode](this, localUnEvalTree) || {};
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
       localUnEvalTree,
@@ -363,18 +374,18 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
-    //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActions(
-      this,
-      localUnEvalTree,
-      jsTranslatedDiffs,
-      this.oldUnEvalTree,
-    );
-
-    jsUpdates = parsedCollections.jsUpdates;
-    //update local data tree if js body has updated (remove/update/add js functions or variables)
+    // save parsed functions in resolveJSFunctions, update current state of js collection
+    jsUpdates =
+      (!!jsTranslatedDiffs && !!this.oldUnEvalTree
+        ? parseJSActionsWithDifferences(
+            this,
+            localUnEvalTree,
+            jsTranslatedDiffs,
+          )
+        : parseJSActions(this, localUnEvalTree)) || {};
+    // update local data tree if js body has updated (remove/update/add js functions or variables)
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
-      jsUpdates,
+      jsUpdates || {},
       localUnEvalTree,
     );
 

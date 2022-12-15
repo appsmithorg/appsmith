@@ -617,7 +617,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
-  "assertSoftFocusOnPropertyPane",
+  "assertSoftFocusOnCodeInput",
   ($selector, cursor = { ch: 0, line: 0 }) => {
     cy.EnableAllCodeEditors();
     cy.get($selector)
@@ -917,8 +917,8 @@ Cypress.Commands.add("addAction", (value, property) => {
   cy.enterActionValue(value, property);
 });
 
-Cypress.Commands.add("addEvent", (value) => {
-  cy.get(commonlocators.dropdownSelectButton)
+Cypress.Commands.add("addEvent", (value, selector) => {
+  cy.get(selector + " " + commonlocators.dropdownSelectButton)
     .last()
     .click();
   cy.get(commonlocators.chooseAction)

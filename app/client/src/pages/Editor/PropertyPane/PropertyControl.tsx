@@ -34,7 +34,6 @@ import {
   THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
-  getShouldFocusPropertyPath,
   getWidgetPropsForPropertyName,
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
@@ -55,12 +54,14 @@ import {
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import PropertyPaneHelperText from "./PropertyPaneHelperText";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
+import { setFocusableInputField } from "actions/editorContextActions";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
+  isSearchResult: boolean;
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
@@ -90,7 +91,7 @@ const PropertyControl = memo((props: Props) => {
   const hasDispatchedPropertyFocus = useRef<boolean>(false);
   const shouldFocusPropertyPath: boolean = useSelector(
     (state: AppState) =>
-      getShouldFocusPropertyPath(
+      getIsInputFieldFocused(
         state,
         dataTreePath,
         hasDispatchedPropertyFocus.current,
@@ -110,9 +111,9 @@ const PropertyControl = memo((props: Props) => {
   );
 
   useEffect(() => {
+    // This is required because layered panels like Column Panel have Animation of 300ms
+    const focusTimeout = props.isPanelProperty ? 300 : 0;
     if (shouldFocusPropertyPath) {
-      // We can get a code editor element as well, which will take time to load
-      // for that we setTimeout to 200 ms
       setTimeout(() => {
         if (shouldFocusOnPropertyControl(controlRef.current)) {
           const focusableElement = getPropertyControlFocusElement(
@@ -124,7 +125,7 @@ const PropertyControl = memo((props: Props) => {
           });
           focusableElement?.focus();
         }
-      }, 0);
+      }, focusTimeout);
     }
   }, [shouldFocusPropertyPath]);
   /**
@@ -415,6 +416,7 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
         isUpdatedViaKeyboard,
+        isUpdatedFromSearchResult: props.isSearchResult,
       });
 
       const selfUpdates:
@@ -574,7 +576,7 @@ const PropertyControl = memo((props: Props) => {
       if (!shouldFocusPropertyPath) {
         hasDispatchedPropertyFocus.current = true;
         setTimeout(() => {
-          dispatch(setFocusablePropertyPaneField(dataTreePath));
+          dispatch(setFocusableInputField(dataTreePath));
         }, 0);
       }
     };

@@ -1886,7 +1886,7 @@ public class DatabaseChangelog1 {
                 }
                 // Only extract mustache keys from leaf nodes
                 if (parent != null && isLeafNode) {
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent);
+                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream().map(token -> token.getValue()).collect(Collectors.toSet());
 
                     // We found the path. But if the path does not have any mustache bindings, remove it from the path list
                     if (mustacheKeysFromFields.isEmpty()) {

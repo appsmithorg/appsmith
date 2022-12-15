@@ -20,6 +20,7 @@ import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
 import { getWidgets } from "sagas/selectors";
 import { RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import { getFocusableInputField } from "./editorContextSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -32,8 +33,19 @@ export const getSelectedPropertyPanel = (state: AppState) =>
   state.ui.propertyPane.selectedPropertyPanel;
 
 export const getCurrentWidgetId = createSelector(
-  getPropertyPaneState,
-  (propertyPane: PropertyPaneReduxState) => propertyPane.widgetId,
+  getSelectedWidgets,
+  (widgetIds: string[]) => widgetIds[0],
+);
+
+const getRecentlyAddedWidgets = (state: AppState) =>
+  state.ui.canvasSelection.recentlyAddedWidget;
+
+export const getIsCurrentWidgetRecentlyAdded = createSelector(
+  getCurrentWidgetId,
+  getRecentlyAddedWidgets,
+  (currentWidgetId, recentlyAddedWidgets) => {
+    return currentWidgetId in recentlyAddedWidgets;
+  },
 );
 
 export const getCurrentWidgetProperties = createSelector(
@@ -44,6 +56,13 @@ export const getCurrentWidgetProperties = createSelector(
     selectedWidgetIds: string[],
   ): WidgetProps | undefined => {
     return get(widgets, `${selectedWidgetIds[0]}`);
+  },
+);
+
+const getCurrentWidgetName = createSelector(
+  getCurrentWidgetProperties,
+  (widget) => {
+    return get(widget, "widgetName");
   },
 );
 
@@ -248,18 +267,6 @@ export const getIsPropertyPaneVisible = createSelector(
 export const getPropertyPaneWidth = (state: AppState) => {
   return state.ui.propertyPane.width;
 };
-export const getFocusablePropertyPaneField = (state: AppState) =>
-  state.ui.propertyPane.focusedProperty;
-
-export const getShouldFocusPropertyPath = createSelector(
-  [
-    getFocusablePropertyPaneField,
-    (_state: AppState, key: string | undefined) => key,
-  ],
-  (focusableField: string | undefined, key: string | undefined): boolean => {
-    return !!(key && focusableField === key);
-  },
-);
 
 export const getSelectedPropertyPanelIndex = createSelector(
   [
@@ -273,5 +280,27 @@ export const getSelectedPropertyPanelIndex = createSelector(
     if (!path || selectedPropertyPanel[path] === undefined) return;
 
     return selectedPropertyPanel[path];
+  },
+);
+
+export const getShouldFocusPropertySearch = createSelector(
+  getIsCurrentWidgetRecentlyAdded,
+  getFocusableInputField,
+  (
+    isCurrentWidgetRecentlyAdded: boolean,
+    focusableField: string | undefined,
+  ) => {
+    return !isCurrentWidgetRecentlyAdded && !focusableField;
+  },
+);
+
+export const getShouldFocusPanelPropertySearch = createSelector(
+  getSelectedPropertyPanel,
+  getCurrentWidgetName,
+  (propertyPanel, widgetName) => {
+    if (!widgetName) return false;
+    return Object.keys(propertyPanel)
+      .map((x) => x.split(".")[0])
+      .includes(widgetName);
   },
 );
