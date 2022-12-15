@@ -1,0 +1,36 @@
+name: Fat migration Mini
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+
+
+jobs:
+  fat-container-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [ 0 ]
+        - name: Load docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p ~/git-server/keys
+          mkdir -p ~/git-server/repos
+          docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_AUDITLOG_ENABLED=true appsmith/appsmith-ce
+            
+        - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
