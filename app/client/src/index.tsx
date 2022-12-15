@@ -10,12 +10,10 @@ import store, { runSagaMiddleware } from "./store";
 import { LayersContext, Layers } from "constants/Layers";
 import AppRouter from "./AppRouter";
 import * as Sentry from "@sentry/react";
-import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "design-system";
-import localStorage from "utils/localStorage";
 import "./assets/styles/index.css";
 import "./polyfills/corejs-add-on";
 import GlobalStyles from "globalStyles";
@@ -43,13 +41,7 @@ function App() {
 
 class ThemedApp extends React.Component<{
   currentTheme: any;
-  setTheme: (themeMode: ThemeMode) => void;
 }> {
-  componentDidMount() {
-    if (localStorage.getItem("THEME") === "LIGHT") {
-      this.props.setTheme(ThemeMode.LIGHT);
-    }
-  }
   render() {
     return (
       <ThemeProvider theme={this.props.currentTheme}>
@@ -72,16 +64,8 @@ class ThemedApp extends React.Component<{
 const mapStateToProps = (state: AppState) => ({
   currentTheme: getCurrentThemeDetails(state),
 });
-const mapDispatchToProps = (dispatch: any) => ({
-  setTheme: (mode: ThemeMode) => {
-    dispatch(setThemeMode(mode));
-  },
-});
 
-const ThemedAppWithProps = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ThemedApp);
+const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 
 ReactDOM.render(<App />, document.getElementById("root"));
 

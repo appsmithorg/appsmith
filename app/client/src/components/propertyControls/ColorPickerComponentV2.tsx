@@ -26,7 +26,7 @@ import { extractColorsFromString } from "utils/helpers";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
 const FocusTrap = require("focus-trap-react");
 
 const MAX_COLS = 10;
@@ -109,7 +109,7 @@ interface ColorPickerPopupProps {
 
 function ColorPickerPopup(props: ColorPickerPopupProps) {
   const themeColors = useSelector(getSelectedAppThemeProperties).colors;
-  const brandColors = useSelector(getTenantConfig).brandColors;
+  const brandColors = useSelector(getBrandColors);
   const widgets = useSelector(getWidgets);
   const DSLStringified = JSON.stringify(widgets);
   const applicationColors = useMemo(() => {
@@ -232,7 +232,7 @@ function ColorPickerPopup(props: ColorPickerPopupProps) {
 
       <section className="space-y-2">
         <h3 className="text-xs">All Colors</h3>
-        <div className="grid grid-cols-10 gap-2">
+        <div className="grid grid-cols-10 gap-2 t--tailwind-colors">
           {Object.keys(TAILWIND_COLORS).map((colorKey, rowIndex) =>
             Object.keys(get(TAILWIND_COLORS, `${colorKey}`)).map(
               (singleColorKey, colIndex) => (
