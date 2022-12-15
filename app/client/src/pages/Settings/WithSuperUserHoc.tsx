@@ -1,5 +1,5 @@
 import { APPLICATIONS_URL } from "constants/routes";
-import { showAdminSettings } from "ce/utils/adminSettingsHelpers";
+import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import React from "react";
 import { useSelector } from "react-redux";
 import { Redirect, RouteComponentProps } from "react-router";
