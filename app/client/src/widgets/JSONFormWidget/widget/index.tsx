@@ -26,7 +26,7 @@ import {
 } from "./helper";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { convertSchemaItemToFormData, mergeSourceAndFormData } from "../helper";
+import { convertSchemaItemToFormData } from "../helper";
 import { ButtonStyles, ChildStylesheet, Stylesheet } from "entities/AppTheming";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
@@ -252,17 +252,15 @@ class JSONFormWidget extends BaseWidget<
 
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
     // If useSourceData is toggled off, remove hidden fields value if any.
-    let formValue =
-      !isEmpty(formData) && !useSourceData
-        ? convertSchemaItemToFormData(rootSchemaItem, formData, {
-            fromId: "identifier",
-            toId: "accessor",
-          })
-        : formData;
-
-    formValue = useSourceData
-      ? mergeSourceAndFormData(formValue, sourceData)
-      : formValue;
+    let formValue: any = formData;
+    if (!isEmpty(formData) || !isEmpty(sourceData)) {
+      formValue = convertSchemaItemToFormData(rootSchemaItem, formData, {
+        fromId: "identifier",
+        toId: "accessor",
+        useSourceData,
+        sourceValue: sourceData,
+      });
+    }
 
     this.props.updateWidgetMetaProperty("formData", formValue);
   }
@@ -371,12 +369,10 @@ class JSONFormWidget extends BaseWidget<
       formData = convertSchemaItemToFormData(rootSchemaItem, values, {
         fromId: "identifier",
         toId: "accessor",
+        useSourceData,
+        sourceValue: sourceData,
       });
     }
-
-    formData = useSourceData
-      ? mergeSourceAndFormData(formData, sourceData)
-      : formData;
 
     this.props.updateWidgetMetaProperty("formData", formData);
 

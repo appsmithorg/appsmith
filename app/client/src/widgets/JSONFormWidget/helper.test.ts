@@ -10,7 +10,6 @@ import {
   convertSchemaItemToFormData,
   countFields,
   mergeAllObjectsInAnArray,
-  mergeSourceAndFormData,
   schemaItemDefaultValue,
   validateOptions,
 } from "./helper";
@@ -825,15 +824,48 @@ describe(".convertSchemaItemToFormData", () => {
 
     expect(result).toEqual(expectedOutput);
   });
-});
 
-describe(".mergeSourceAndFormData", () => {
-  it("It should include existing field on source data to form data if missing", () => {
-    const name = "sample name";
-    const sourceDataInput = { name: "", age: 10 };
-    const formDataInput = { name };
-    const expectedOutput = JSON.stringify({ name, age: 10 });
-    const result = mergeSourceAndFormData(formDataInput, sourceDataInput);
-    expect(JSON.stringify(result)).toEqual(expectedOutput);
+  it("set hidden form field value to available source field value when useSourceData is set to true", () => {
+    const formData = {
+      customField1: "male",
+      customField2: "demo",
+      array: [{ name: "test1" }, { name: null }],
+      hiddenArray: [{ name: "test1" }, { name: "test2" }],
+      visibleObject: { name: "test1", date: "10/12/2010" },
+      hiddenObject: { name: "test1", date: "10/12/2010" },
+    };
+
+    const sourceData = {
+      customField1: "soruceMale",
+      customField2: "sourceDemo",
+      array: [{ name: "sourceTest1" }, { name: "sourceTest2" }],
+      hiddenArray: [{ name: "sourceTest1" }, { name: "sourceTest2" }],
+      hiddenObject: { name: "sourceTest1" },
+    };
+
+    const expectedOutput = {
+      gender: "male",
+      age: "sourceDemo",
+      students: [{ firstName: "test1" }, { firstName: null }],
+      testHiddenArray: [
+        { firstName: "sourceTest1" },
+        { firstName: "sourceTest2" },
+      ],
+      testVisibleObject: { firstName: "test1" },
+      testHiddenObject: { firstName: "sourceTest1" },
+    };
+
+    const result = convertSchemaItemToFormData(
+      schema[ROOT_SCHEMA_KEY],
+      formData,
+      {
+        fromId: "identifier",
+        toId: "accessor",
+        sourceValue: sourceData,
+        useSourceData: true,
+      },
+    );
+
+    expect(result).toEqual(expectedOutput);
   });
 });

@@ -19,6 +19,8 @@ import {
 type ConvertFormDataOptions = {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];
   toId: keyof SchemaItem;
+  useSourceData?: boolean;
+  sourceValue?: unknown;
 };
 
 /**
@@ -90,18 +92,34 @@ const convertObjectTypeToFormData = (
     const formData: Record<string, unknown> = {};
 
     Object.values(schema).forEach((schemaItem) => {
+      let sourceValue;
+      if (options.sourceValue) {
+        sourceValue = valueLookup(
+          options.sourceValue as Record<string, unknown>,
+          schemaItem,
+          options.fromId,
+        );
+      }
+      const toKey = schemaItem[options.toId];
       if (schemaItem.isVisible) {
         const value = valueLookup(
           formValue as Record<string, unknown>,
           schemaItem,
           options.fromId,
         );
-        const toKey = schemaItem[options.toId];
-        formData[toKey] = convertSchemaItemToFormData(
-          schemaItem,
-          value,
-          options,
-        );
+        formData[toKey] = convertSchemaItemToFormData(schemaItem, value, {
+          ...options,
+          sourceValue,
+        });
+      } else if (
+        !schemaItem.isVisible &&
+        options.useSourceData &&
+        sourceValue !== undefined
+      ) {
+        formData[toKey] = convertSchemaItemToFormData(schemaItem, sourceValue, {
+          ...options,
+          sourceValue,
+        });
       }
     });
 
@@ -121,10 +139,12 @@ const convertArrayTypeToFormData = (
     const arraySchemaItem = schema[ARRAY_ITEM_KEY];
 
     formValues.forEach((formValue, index) => {
+      const sourceValue = (options?.sourceValue as unknown[])?.[index];
+
       formData[index] = convertSchemaItemToFormData(
         arraySchemaItem,
         formValue,
-        options,
+        { ...options, sourceValue },
       );
     });
 
@@ -132,18 +152,6 @@ const convertArrayTypeToFormData = (
   }
 
   return;
-};
-
-/**
- * Functions merge hidden field values present in source data to form data values.
- */
-export const mergeSourceAndFormData = (formValue: any, sourceData: any) => {
-  const formData: Record<string, unknown> = {};
-  Object.keys({ ...formValue, ...sourceData }).forEach((key) => {
-    formData[key] = formValue[key] ?? sourceData[key];
-  });
-
-  return formData;
 };
 
 /**
