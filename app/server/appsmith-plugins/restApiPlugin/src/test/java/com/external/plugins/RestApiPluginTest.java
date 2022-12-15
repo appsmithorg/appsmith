@@ -29,6 +29,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -44,6 +45,7 @@ import reactor.util.function.Tuple2;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,6 +68,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 public class RestApiPluginTest {
 
@@ -131,74 +134,24 @@ public class RestApiPluginTest {
 
 
     @Test
-    public void testExecuteApiWithPaginationForPreviousUrl() {
+    public void testExecuteApiWithPaginationForPreviousUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
 
-        String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
-        String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
 
-        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        executeActionDTO.setPaginationField(PaginationField.PREV);
-        executeActionDTO.setViewMode(Boolean.FALSE);
-
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://mock-api.appsmith.com");
-
-        final List<Property> headers = List.of();
-
-        final List<Property> queryParameters = List.of(
-                new Property("mock_filter","abc 11"),
-                new Property("pageSize","1"),
-                new Property("page","3")
-        );
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(headers);
-        actionConfig.setQueryParameters(queryParameters);
-        actionConfig.setHttpMethod(HttpMethod.GET);
-
-        actionConfig.setTimeoutInMillisecond("10000");
-
-        actionConfig.setPath("/users");
-        actionConfig.setPrev(previousUrl);
-        actionConfig.setNext(nextUrl);
-
-        actionConfig.setPaginationType(PaginationType.URL);
-
-        actionConfig.setEncodeParamsToggle(true);
-
-        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
-
-        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(3,body.size());
-                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
-                    assertEquals(previousUrl,mainUrl);
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals(HttpMethod.GET, request.getHttpMethod());
-                })
-                .verifyComplete();
-
-    }
-
-    @Test
-    public void testExecuteApiWithPaginationForPreviousEncodedUrl() {
-
-        String previousUrl = "https%3A%2F%2Fmock-api.appsmith.com%2Fusers%3FpageSize%3D1%26page%3D2%26mock_filter%3Dabc%2011";
-        String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setPaginationField(PaginationField.PREV);
         executeActionDTO.setViewMode(Boolean.FALSE);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://mock-api.appsmith.com");
+        dsConfig.setUrl(mockHttpUrl.toString());
 
         final List<Property> headers = List.of();
 
@@ -231,31 +184,101 @@ public class RestApiPluginTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(3,body.size());
-                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
-                    assertEquals(URLDecoder.decode(previousUrl,StandardCharsets.UTF_8),mainUrl);
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedPreviousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc+11";
+                        assertEquals(encodedPreviousUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
                 })
                 .verifyComplete();
-
     }
 
     @Test
-    public void testExecuteApiWithPaginationForNextUrl() {
+    public void testExecuteApiWithPaginationForPreviousEncodedUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
 
-        String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
-        String nextUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=4&mock_filter=abc 11";
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11",
+                StandardCharsets.UTF_8);
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.PREV);
+        executeActionDTO.setViewMode(Boolean.FALSE);
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        final List<Property> headers = List.of();
+
+        final List<Property> queryParameters = List.of(
+                new Property("mock_filter","abc 11"),
+                new Property("pageSize","1"),
+                new Property("page","3")
+        );
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(headers);
+        actionConfig.setQueryParameters(queryParameters);
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        actionConfig.setTimeoutInMillisecond("10000");
+
+        actionConfig.setPath("/users");
+        actionConfig.setPrev(previousUrl);
+        actionConfig.setNext(nextUrl);
+
+        actionConfig.setPaginationType(PaginationType.URL);
+
+        actionConfig.setEncodeParamsToggle(true);
+
+        actionConfig.setPluginSpecifiedTemplates(List.of(new Property(null,true)));
+
+        actionConfig.setFormData(Collections.singletonMap("apiContentType","none"));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedPreviousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc+11";
+                        assertEquals(encodedPreviousUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteApiWithPaginationForNextUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11";
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setPaginationField(PaginationField.NEXT);
         executeActionDTO.setViewMode(Boolean.FALSE);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://mock-api.appsmith.com");
+        dsConfig.setUrl(mockHttpUrl.toString());
 
         final List<Property> headers = List.of();
 
@@ -288,31 +311,37 @@ public class RestApiPluginTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(3,body.size());
-                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
-                    assertEquals(nextUrl,mainUrl);
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedNextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc+11";
+                        assertEquals(encodedNextUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
                 })
                 .verifyComplete();
-
     }
 
     @Test
-    public void testExecuteApiWithPaginationForNextEncodedUrl() {
+    public void testExecuteApiWithPaginationForNextEncodedUrl() throws IOException {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(200);
+        mockWebServer.enqueue(mockRedirectResponse);
+        mockWebServer.start();
 
-        String previousUrl = "https://mock-api.appsmith.com/users?pageSize=1&page=2&mock_filter=abc 11";
-        String nextUrl = "https%3A%2F%2Fmock-api.appsmith.com%2Fusers%3FpageSize%3D1%26page%3D4%26mock_filter%3Dabc%2011";
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock");
+
+        String previousUrl = mockHttpUrl + "?pageSize=1&page=2&mock_filter=abc 11";
+        String nextUrl = URLEncoder.encode(mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc 11", StandardCharsets.UTF_8);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         executeActionDTO.setPaginationField(PaginationField.NEXT);
         executeActionDTO.setViewMode(Boolean.FALSE);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://mock-api.appsmith.com");
+        dsConfig.setUrl(mockHttpUrl.toString());
 
         final List<Property> headers = List.of();
 
@@ -345,17 +374,16 @@ public class RestApiPluginTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode body = (JsonNode) result.getBody();
-                    assertEquals(3,body.size());
-                    String mainUrl = URLDecoder.decode(result.getRequest().getUrl(),StandardCharsets.UTF_8);
-                    assertEquals(URLDecoder.decode(nextUrl,StandardCharsets.UTF_8),mainUrl);
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals(HttpMethod.GET, request.getHttpMethod());
+                    try {
+                        RecordedRequest recordedRequest = mockWebServer.takeRequest();
+                        HttpUrl requestUrl = recordedRequest.getRequestUrl();
+                        String encodedNextUrl = mockHttpUrl + "?pageSize=1&page=4&mock_filter=abc+11";
+                        assertEquals(encodedNextUrl, requestUrl.toString());
+                    } catch (InterruptedException e) {
+                        fail("Mock web server failed to capture request.");
+                    }
                 })
                 .verifyComplete();
-
     }
 
     @Test
