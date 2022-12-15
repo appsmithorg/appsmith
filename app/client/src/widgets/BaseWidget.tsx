@@ -342,6 +342,7 @@ abstract class BaseWidget<
       <PositionedContainer
         componentHeight={componentHeight}
         componentWidth={componentWidth}
+        disabled={this.props.isDisabled}
         focused={this.props.focused}
         leftColumn={this.props.leftColumn}
         noContainerOffset={this.props.noContainerOffset}

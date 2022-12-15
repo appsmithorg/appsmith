@@ -6,6 +6,7 @@ import {
   JSONFORM_WIDGET,
   WIDGET_SELECTOR,
   FOCUS_SELECTOR,
+  getNextTabbableDescendantForJSONForm,
 } from "./tabbable";
 
 export function scopeTab(event: KeyboardEvent) {
@@ -16,21 +17,10 @@ export function scopeTab(event: KeyboardEvent) {
   const currentWidget = currentNode.closest(WIDGET_SELECTOR) as HTMLElement;
 
   if (currentWidget.matches(JSONFORM_WIDGET)) {
-    const tabbable = Array.from(
-      currentWidget.querySelectorAll<HTMLElement>(FOCUS_SELECTOR),
+    nextTabbableDescendant = getNextTabbableDescendantForJSONForm(
+      currentWidget,
+      shiftKey,
     );
-
-    const currentIndex = tabbable.indexOf(
-      document.activeElement as HTMLElement,
-    );
-    const isTabbingOut = shiftKey
-      ? currentIndex === 0
-      : currentIndex === tabbable.length - 1;
-
-    if (isTabbingOut) {
-      const descendents = getTabbableDescendants(currentWidget, shiftKey);
-      nextTabbableDescendant = getNextTabbableDescendant(descendents, shiftKey);
-    }
   } else {
     const tabbable = getTabbableDescendants(currentNode, shiftKey);
 

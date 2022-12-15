@@ -3,8 +3,9 @@ export const CONTAINER_SELECTOR =
   ":is(.t--widget-containerwidget, .t--widget-formwidget)";
 const NON_FOCUSABLE_WIDGET_CLASS = ".t--widget-textwidget";
 export const JSONFORM_WIDGET = ".t--widget-jsonformwidget";
-export const FOCUS_SELECTOR = "a, input, select, textarea, button, object";
-export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}))`;
+export const FOCUS_SELECTOR =
+  "a, input, select, textarea, button, object, audio, video";
+export const WIDGET_SELECTOR = `.positioned-widget:is(:not(${NON_FOCUSABLE_WIDGET_CLASS}):not([disabled]))`;
 const TABBABLE_NODES = /input|select|textarea|button|object/;
 
 /**
@@ -33,7 +34,9 @@ export function getTabbableDescendants(
 }
 
 /**
- * returns the next tabbable descendant
+ * returns the next tabbable descendant from the list of descendants
+ * sorted by position and distance
+ * if the next tabbable descendant is JSONFORM, it returns the first tabbable
  *
  * @param descendants
  * @param shiftKey
@@ -242,4 +245,39 @@ function visible(element: HTMLElement) {
 
 export function focusable(element: HTMLElement) {
   return visible(element);
+}
+
+/**
+ * get next item to focus if the current widget is json form
+ *
+ * Note:
+ * if the user is tabbing out of the json form, we need to get the next tabbable descendant of the current widget
+ * if the user is not tabbing out of the json form, we need to get the next tabbable descendant of the json form
+ *
+ *
+ * @param currentWidget
+ * @param shiftKey
+ * @returns
+ */
+export function getNextTabbableDescendantForJSONForm(
+  currentWidget: HTMLElement,
+  shiftKey: boolean,
+) {
+  let nextTabbableDescendant;
+
+  const tabbable = Array.from(
+    currentWidget.querySelectorAll<HTMLElement>(FOCUS_SELECTOR),
+  );
+
+  const currentIndex = tabbable.indexOf(document.activeElement as HTMLElement);
+  const isTabbingOutOfJSONForm = shiftKey
+    ? currentIndex === 0
+    : currentIndex === tabbable.length - 1;
+
+  if (isTabbingOutOfJSONForm) {
+    const descendents = getTabbableDescendants(currentWidget, shiftKey);
+    nextTabbableDescendant = getNextTabbableDescendant(descendents, shiftKey);
+  }
+
+  return nextTabbableDescendant;
 }
