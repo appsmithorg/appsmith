@@ -1,0 +1,782 @@
+name: Test, build and push Docker Image Fat migration
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+
+
+jobs:
+  buildClient:
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Figure out the PR number
+        run: echo ${{ github.event.pull_request.number }}
+
+      # Timestamp will be used to create cache key
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # Incase of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.14.0"
+
+      - name: Get yarn cache directory path
+        if: steps.run_result.outputs.run_result != 'success'
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install --frozen-lockfile
+
+      - name: Set the build environment based on the branch
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          echo "::set-output name=REACT_APP_ENVIRONMENT::DEVELOPMENT"
+          if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::PRODUCTION"
+          fi
+          if [[ "${{github.ref}}" == "refs/heads/release" ]]; then
+              echo "::set-output name=REACT_APP_ENVIRONMENT::STAGING"
+          fi
+          # Since this is an unreleased build, we set the version to incremented version number with
+          # a `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+
+      # We burn React environment & the Segment analytics key into the build itself.
+      # This is to ensure that we don't need to configure it in each installation
+      - name: Create the bundle
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ $GITHUB_REF == "refs/heads/release" ]]; then
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          else
+            REACT_APP_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          fi
+          REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
+            REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
+            REACT_APP_SEGMENT_CE_KEY="$REACT_APP_SEGMENT_CE_KEY" \
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
+            REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
+            REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_VERSION_EDITION="Community" \
+            REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
+            yarn build
+          ls -l build
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/client/build/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload react build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build/
+
+      # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result
+
+  buildServer:
+    defaults:
+      run:
+        working-directory: app/server
+    runs-on: ubuntu-latest
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Timestamp will be used to create cache key
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # Incase of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache maven dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-maven-dependencies
+        with:
+          # maven dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Test and Build package
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_AUDITLOG_ENABLED: true
+        working-directory: app/server
+        run: |
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+          ./build.sh -DskipTests
+          ls -l dist
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/server/dist/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist/
+
+      - run: echo "::set-output name=run_result::success" > ~/run_result
+
+  buildRts:
+    defaults:
+      run:
+        working-directory: app/rts
+    runs-on: ubuntu-latest
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository)
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Timestamp will be used to create cache key
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # Incase of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.14.0"
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Build
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
+          yarn build
+
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/rts/dist/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      # Tar the bundles to speed up the upload & download process
+      - name: Tar the rts bundles
+        run: |
+          ls -al dist/node_modules/@shared/ast
+          tar -cvf rts-dist.tar dist
+      # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
+      - name: Upload rts build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-dist
+          path: app/rts/rts-dist.tar
+
+      # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result
+
+
+  fat-container-test:
+    needs: [buildClient, buildServer, buildRts]
+    # Only run if the build step is successful
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      success() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.head.repo.full_name == github.repository))
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [ 0, 1, 2, 3, 4, 5,  6, 7,  8, 9,  10, 11,  12, 13,  14, 15,  16, 17,  18, 19,  20,  21,  22,  23 ]
+
+    # Service containers to run with this job. Required for running tests
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image for Redis
+        image: redis
+        ports:
+          # Opens tcp port 6379 on the host and service container
+          - 6379:6379
+      mongo:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+      # Checkout the code
+      - name: Checkout the merged commit from PR and base branch
+        if: github.event_name == 'pull_request_review'
+        uses: actions/checkout@v2
+        with:
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout the head commit of the branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v2
+
+      # Timestamp will be used to create cache key
+      - id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: martijnhols/actions-cache@v3.0.2
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # In case this is second attempt try restoring failed tests
+      - name: Restore the previous failed combine result
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: martijnhols/actions-cache/restore@v3
+        with:
+          path: |
+            ~/combined_failed_spec_fat
+          key: ${{ github.run_id }}-"ui-test-result"
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
+      # failed_spec_env will contain list of all failed specs
+      # We are using evnironment variable instead of regular to support multiline
+      - name: Get failed_spec
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: |
+          failed_spec_env=$(cat ~/combined_failed_spec_fat)
+          echo "failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        run: echo "Starting full run" && exit 0
+
+      - if: steps.run_result.outputs.run_result == 'failedtest'
+        run: echo "Rerunning failed tests" && exit 0
+
+      - name: cat run_result
+        run: echo ${{ steps.run_result.outputs.run_result }}
+
+      # Setup Java
+      - name: Set up JDK 1.11
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.10"
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: client-build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
+
+      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
+      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
+      - name: Build  docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        working-directory: "."
+        run: |
+          docker build -t fatcontainer .
+
+      - name: Create folder
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p fatcontainerlocal/stacks/configuration/
+          mkdir -p fatcontainerlocal/oldstack
+
+      - name: Download S3 image
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        with:
+          command: cp
+          source: s3://ci-assets--appsmith/
+          destination: /home/runner/work/appsmith/appsmith/fatcontainerlocal/oldstack
+          aws_access_key_id: ${{ secrets.S3_CI_ASSETS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.S3_CI_ASSETS_SECRET_ACCESS_KEY }}
+          aws_region: ap-south-1
+          flags: --recursive
+
+      - name: Load docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
+        working-directory: "."
+        run: |
+          mkdir -p ~/git-server/keys
+          mkdir -p ~/git-server/repos
+          docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
+          -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
+          cd fatcontainerlocal
+          docker run -d --name appsmith -p 80:80 -p 9001:9001 \
+            -v "$PWD/stacks:/appsmith-stacks" -e APPSMITH_LICENSE_KEY=$APPSMITH_LICENSE_KEY \
+            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_AUDITLOG_ENABLED=true \
+            fatcontainer
+
+      - name: Use Node.js 16.14.0
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.14.0"
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          cd app/client
+          yarn install
+
+      - name: Setting up the cypress tests
+        if: steps.run_result.outputs.run_result != 'success'
+        shell: bash
+        env:
+          APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
+          APPSMITH_SSL_KEY: ${{ secrets.APPSMITH_SSL_KEY }}
+          CYPRESS_URL: ${{ secrets.CYPRESS_URL }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          POSTGRES_PASSWORD: postgres
+        run: |
+          cd app/client
+          chmod a+x ./cypress/setup-test-fat.sh
+          ./cypress/setup-test-fat.sh
+
+      - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+      - run: |
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+
+      - name: Run the cypress test
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        uses: cypress-io/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        with:
+          browser: ${{ env.BROWSER_PATH }}
+          headless: true
+          record: true
+          install: false
+          parallel: true
+          config-file: cypress_fat.json
+          group: "Electrons on Github Action Fat Container"
+          spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
+          working-directory: app/client
+          # tag will be either "push" or "pull_request"
+          tag: ${{ github.event_name }}
+          env: "NODE_ENV=development"
+
+      # Incase of second attemtp only run failed specs
+      - name: Run the cypress test with failed tests
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: cypress-io/github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+          CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
+          CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
+          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          APPSMITH_DISABLE_TELEMETRY: true
+          APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
+          COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
+        with:
+          browser: ${{ env.BROWSER_PATH }}
+          headless: true
+          record: true
+          install: false
+          parallel: true
+          config-file: cypress_fat.json
+          group: "Electrons on Github Action"
+          spec: "cypress/integration/Smoke_TestSuite_Fat/**/*"
+          working-directory: app/client
+          # tag will be either "push" or "pull_request"
+          tag: ${{ github.event_name }}
+          env: "NODE_ENV=development"
+
+      # Set status = failedtest
+      - name: Set fail if there are test failures
+        if: failure()
+        run: echo "::set-output name=run_result::failedtest" > ~/run_result
+
+      # Create a directory ~/failed_spec_fat and add a dummy file
+      # This will ensure upload and download steps are successfull
+      - name: Create directories for failed tests
+        if: always()
+        run: |
+          mkdir -p  ~/failed_spec_fat
+          echo  "empty" >> ~/failed_spec_fat/dummy-${{ matrix.job }}
+
+      # add list failed tests to a file
+      - name: Incase of test failures copy them to a file
+        if: failure()
+        run: |
+          cd ${{ github.workspace }}/app/client/cypress/
+          find screenshots -type d|grep -i spec |sed 's/screenshots/cypress\/integration/g' > ~/failed_spec_fat/failed_spec_fat-${{ matrix.job }}
+
+      # Upload failed test list using common path for all matrix job
+      - name: Upload failed test list artifact
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: failed-spec-fat
+          path: ~/failed_spec_fat
+
+      # Force store previous run result to cache
+      - name: Store the previous run result
+        if: failure()
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
+      # Force store previous failed test list to cache
+      - name: Store the previous failed test result
+        if: failure()
+        uses: martijnhols/actions-cache/save@v3
+        with:
+          path: |
+            ~/failed_spec_fat
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
+      # Upload the screenshots as artifacts if there's a failure
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.job }}
+          path: app/client/cypress/screenshots/
+
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/client/cypress/snapshots/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+
+      # Upload the snapshots as artifacts for layout validation
+      - uses: actions/upload-artifact@v1
+        with:
+          name: cypress-snapshots-visualRegression
+          path: app/client/cypress/snapshots/
+
+      # Upload the log artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server logs bundle on failure
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: server-logs-${{ matrix.job }}
+          path: app/server/server-logs.log
+
+      # Set status = success
+      - run: echo "::set-output name=run_result::success" > ~/run_result
