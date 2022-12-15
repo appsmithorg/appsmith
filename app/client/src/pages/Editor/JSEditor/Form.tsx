@@ -27,7 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
-import { find, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
@@ -43,6 +43,7 @@ import {
   convertJSActionToDropdownOption,
   getActionFromJsCollection,
   getJSActionOption,
+  getJSFunctionLineFromName,
   getJSFunctionLineGutter,
   JSActionDropdownOption,
 } from "./utils";
@@ -67,6 +68,10 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
+import {
+  setCodeEditorCursorAction,
+  setFocusableCodeEditorField,
+} from "actions/editorContextActions";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -116,9 +121,22 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   useEffect(() => {
     if (hash) {
-      const jsAction = find(jsActions, ["name", hash.substring(1)]);
-      if (jsAction) {
-        handleActiveActionChange(jsAction);
+      const actionName = hash.substring(1);
+      const position = getJSFunctionLineFromName(
+        currentJSCollection.body,
+        actionName,
+      );
+      if (position) {
+        console.log("cmd click", "setting focus and cursor");
+        dispatch(
+          setFocusableCodeEditorField(`${currentJSCollection.name}.body`),
+        );
+        dispatch(
+          setCodeEditorCursorAction(
+            `${currentJSCollection.name}.body`,
+            position,
+          ),
+        );
       }
     }
   }, [hash]);

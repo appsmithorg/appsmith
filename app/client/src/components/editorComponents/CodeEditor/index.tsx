@@ -678,6 +678,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
+    console.log("cmd click", "cursor movement", cm.getCursor());
     this.handleCustomGutter(cm.getCursor().line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
@@ -700,6 +701,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
+    console.log("cmd click", "editor is focused", cm.getCursor());
     this.setState({ isFocused: true });
     const { ch, line, sticky } = cm.getCursor();
     // Check if it is a user focus
@@ -709,6 +711,7 @@ class CodeEditor extends Component<Props, State> {
       sticky === null &&
       this.props.editorLastCursorPosition
     ) {
+      console.log("cmd click", "set the focus on last position");
       cm.setCursor(this.props.editorLastCursorPosition);
     }
 
