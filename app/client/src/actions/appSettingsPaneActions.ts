@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppSettingsPaneContext } from "reducers/uiReducers/appSettingsPaneReducer";
 import { Action } from "redux";
 

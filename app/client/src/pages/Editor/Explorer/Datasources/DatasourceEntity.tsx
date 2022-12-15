@@ -5,10 +5,10 @@ import DataSourceContextMenu from "./DataSourceContextMenu";
 import { getPluginIcon } from "../ExplorerIcons";
 import { getQueryIdFromURL } from "../helpers";
 import Entity, { EntityClassNames } from "../Entity";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import {
-  fetchDatasourceStructure,
   expandDatasourceEntity,
+  fetchDatasourceStructure,
   updateDatasourceName,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -66,7 +66,7 @@ const ExplorerDatasourceEntity = React.memo(
         toUrl: url,
         name: props.datasource.name,
       });
-      history.push(url);
+      history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
     }, [props.datasource.id, props.datasource.name, location.pathname]);
 
     const queryId = getQueryIdFromURL();
