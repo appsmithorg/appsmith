@@ -278,7 +278,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
               {viewMode && (
                 <EditDatasourceButton
-                  category={Category.tertiary}
+                  category={Category.secondary}
                   className="t--edit-datasource"
                   onClick={() => {
                     this.props.setDatasourceViewMode(false);
