@@ -193,6 +193,7 @@
     "selectedTextSize": ".t--property-control-textsize .bp3-popover-target .sub-text",
     "colorPickerV2Popover": ".t--colorpicker-v2-popover",
     "colorPickerV2Color": ".t--colorpicker-v2-color",
+    "colorPickerV2TailwindColor": ".t--tailwind-colors .t--colorpicker-v2-color",
     "modalCloseButton": ".t--draggable-iconbuttonwidget .bp3-button",
     "filepickerwidgetv2": ".t--widget-filepickerwidgetv2",
     "filepickerwidgetv2CancelBtn": "button.uppy-DashboardContent-back",
