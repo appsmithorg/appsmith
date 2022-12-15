@@ -44,18 +44,18 @@ describe("evaluateSync", () => {
   });
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
-    const response = evaluate(js, {}, {}, false);
+    const response = evaluate(js, {}, {});
     expect(response.result).toBe("Hello!");
   });
   it("evaluate string post unescape in v1", () => {
     const js = '[1, 2, 3].join("\\\\n")';
-    const response = evaluate(js, {}, {}, false);
+    const response = evaluate(js, {}, {});
     expect(response.result).toBe("1\n2\n3");
   });
   it("evaluate string without unescape in v2", () => {
     self.evaluationVersion = 2;
     const js = '[1, 2, 3].join("\\n")';
-    const response = evaluate(js, {}, {}, false);
+    const response = evaluate(js, {}, {});
     expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
@@ -63,7 +63,7 @@ describe("evaluateSync", () => {
     expect(() => evaluate(undefined, {})).toThrow(TypeError);
   });
   it("Returns for syntax errors", () => {
-    const response1 = evaluate("wrongJS", {}, {}, false);
+    const response1 = evaluate("wrongJS", {}, {});
     expect(response1).toStrictEqual({
       result: undefined,
       logs: [],
@@ -83,7 +83,7 @@ describe("evaluateSync", () => {
         },
       ],
     });
-    const response2 = evaluate("{}.map()", {}, {}, false);
+    const response2 = evaluate("{}.map()", {}, {});
     expect(response2).toStrictEqual({
       result: undefined,
       logs: [],
@@ -106,12 +106,12 @@ describe("evaluateSync", () => {
   });
   it("evaluates value from data tree", () => {
     const js = "Input1.text";
-    const response = evaluate(js, dataTree, {}, false);
+    const response = evaluate(js, dataTree, {});
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", () => {
     const js = "setImmediate(() => {}, 100)";
-    const response = evaluate(js, dataTree, {}, false);
+    const response = evaluate(js, dataTree, {});
     expect(response).toStrictEqual({
       result: undefined,
       logs: [],

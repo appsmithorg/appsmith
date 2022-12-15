@@ -196,7 +196,6 @@ function eventRequestHandler({
         functionCall,
         evalTree,
         resolvedFunctions,
-        false,
         undefined,
       );
       return { errors, logs, result };
@@ -208,7 +207,7 @@ function eventRequestHandler({
       // TODO find a way to do this for snippets
       return isTrigger
         ? evaluateAsync(expression, evalTree, "SNIPPET", {})
-        : evaluate(expression, evalTree, {}, false);
+        : evaluate(expression, evalTree, {});
     case EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT:
       const { entity, entityId, entityType } = requestData;
       const replayObject = replayMap[entityId];
