@@ -37,7 +37,7 @@ import {
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
 import { Stylesheet } from "entities/AppTheming";
-import { ButtonPosition } from "widgets/BaseInputWidget/constants";
+import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -431,10 +431,10 @@ class CurrencyInputWidget extends BaseInputWidget<
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
 
-    if (Boolean(this.props.showStepArrows)) {
-      conditionalProps.buttonPosition = ButtonPosition.RIGHT;
+    if (this.props.showStepArrows) {
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.RIGHT;
     } else {
-      conditionalProps.buttonPosition = ButtonPosition.NONE;
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
 
     return (

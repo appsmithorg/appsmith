@@ -61,7 +61,10 @@ import {
   migratePhoneInputWidgetAllowFormatting,
   migratePhoneInputWidgetDefaultDialCode,
 } from "./migrations/PhoneInputWidgetMigrations";
-import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
+import {
+  migrateCurrencyInputWidgetDefaultCurrencyCode,
+  migrateInputWidgetShowStepArrows,
+} from "./migrations/CurrencyInputWidgetMigrations";
 import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
 import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 import { migrateChartWidgetReskinningData } from "./migrations/ChartWidgetReskinningMigrations";
@@ -72,7 +75,6 @@ import { migrateRateWidgetDisabledState } from "./migrations/RateWidgetMigration
 import { migrateCodeScannerLayout } from "./migrations/CodeScannerWidgetMigrations";
 import { migrateLabelPosition } from "./migrations/MigrateLabelPosition";
 import { migratePropertiesForDynamicHeight } from "./migrations/autoHeightMigrations";
-import { migrateInputWidgetShowStepArrows } from "./migrations/InputWidgetMigrations";
 
 /**
  * adds logBlackList key for all list widget children

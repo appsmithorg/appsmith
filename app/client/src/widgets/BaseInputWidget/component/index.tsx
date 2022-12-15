@@ -20,7 +20,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
-import { ButtonPosition, InputTypes } from "../constants";
+import { InputTypes, NumberInputStepButtonPosition } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
@@ -784,7 +784,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   accentColor?: string;
   errorTooltipBoundary?: string;
   shouldUseLocale?: boolean;
-  buttonPosition?: ButtonPosition;
+  buttonPosition?: NumberInputStepButtonPosition;
 }
 
 export default BaseInputComponent;

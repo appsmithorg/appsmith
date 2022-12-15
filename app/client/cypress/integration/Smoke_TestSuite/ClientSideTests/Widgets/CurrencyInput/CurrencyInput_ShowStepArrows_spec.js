@@ -24,14 +24,14 @@ describe("Currency Widget showStepArrows Functionality - ", function() {
     cy.get(widgetsPage.toggleShowStepArrows).click({ force: true });
 
     // Add showStepArrows action and value as false
-    cy.testJsontext("showsteparrows", false);
+    cy.testJsontext("showsteparrows", `{{false}}`);
 
     cy.get(widgetsPage.inputStepArrows).should("not.exist"); // step arrows should not be visible
   });
 
   it("4. Toggle test case to validate that currency input widget, stepArrows should be visible when toggle value is true", () => {
     // Add showStepArrows action and value as true
-    cy.testJsontext("showsteparrows", true);
+    cy.testJsontext("showsteparrows", `{{true}}`);
 
     cy.get(widgetsPage.inputStepArrows).should("exist"); // step arrows should be visible
   });

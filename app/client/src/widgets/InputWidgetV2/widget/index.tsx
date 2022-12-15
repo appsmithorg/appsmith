@@ -23,7 +23,10 @@ import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
-import { ButtonPosition, InputTypes } from "widgets/BaseInputWidget/constants";
+import {
+  InputTypes,
+  NumberInputStepButtonPosition,
+} from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
 import { Stylesheet } from "entities/AppTheming";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
@@ -556,11 +559,11 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
     if (
       this.props.inputType === InputTypes.NUMBER &&
-      Boolean(this.props.showStepArrows)
+      this.props.showStepArrows
     ) {
-      conditionalProps.buttonPosition = ButtonPosition.RIGHT;
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.RIGHT;
     } else {
-      conditionalProps.buttonPosition = ButtonPosition.NONE;
+      conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip
