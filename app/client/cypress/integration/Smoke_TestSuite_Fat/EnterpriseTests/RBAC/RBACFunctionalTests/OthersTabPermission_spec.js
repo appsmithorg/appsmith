@@ -9,6 +9,8 @@ describe("Others tab permission Tests", function() {
   let workspaceName;
   let appName;
   let newWorkspaceName;
+  let testUser3;
+  const password = "qwerty";
   const ViewAuditlogsRole =
     "viewAuditLogs" + `${Math.floor(Math.random() * 1000)}`;
   const CreateWorkspaceRole =
@@ -16,6 +18,11 @@ describe("Others tab permission Tests", function() {
   const EditWorkspaceRole = "editRole" + `${Math.floor(Math.random() * 1000)}`;
   const DeleteWorkspaceRole =
     "deleteRole" + `${Math.floor(Math.random() * 1000)}`;
+
+  beforeEach(() => {
+    cy.AddIntercepts();
+    cy.startRoutesForDatasource();
+  });
 
   before(() => {
     cy.AddIntercepts();
@@ -63,7 +70,11 @@ describe("Others tab permission Tests", function() {
       cy.AssignRoleToUser(ViewAuditlogsRole, Cypress.env("TESTUSERNAME1"));
       cy.AssignRoleToUser(CreateWorkspaceRole, Cypress.env("TESTUSERNAME1"));
       cy.AssignRoleToUser(EditWorkspaceRole, Cypress.env("TESTUSERNAME2"));
-      cy.AssignRoleToUser(DeleteWorkspaceRole, Cypress.env("TESTUSERNAME3"));
+      // sign up as new user
+      cy.generateUUID().then((uid) => {
+        testUser3 = `${uid}@appsmith.com`;
+        cy.AssignRoleToUser(DeleteWorkspaceRole, testUser3);
+      });
     });
   });
 
@@ -108,10 +119,10 @@ describe("Others tab permission Tests", function() {
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
     });
+    cy.LogOut();
   });
 
   it("4. Verify user with EditWorkspaceRole is able to edit workspace ", function() {
-    cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
@@ -203,14 +214,11 @@ describe("Others tab permission Tests", function() {
       "demowebsite.com",
     );
     cy.LogOut();
-    cy.wait(5000);
   });
 
   it("7. Verify user with DeleteWorkspaceRole is able to delete workspace ", function() {
-    cy.LogintoAppTestUser(
-      Cypress.env("TESTUSERNAME3"),
-      Cypress.env("TESTPASSWORD3"),
-    );
+    cy.SignupFromAPI(testUser3, password);
+    cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
     cy.visit("/applications");
     // delete app
@@ -241,15 +249,16 @@ describe("Others tab permission Tests", function() {
       expect(httpResponse.status).to.equal(200);
     });
     cy.get(workspaceName).should("not.exist");
+    cy.LogOut();
   });
 
-  /*after(() => {
-    cy.LogOut();
+  after(() => {
     cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.visit("/settings/roles");
     cy.DeleteRole(ViewAuditlogsRole);
     cy.DeleteRole(CreateWorkspaceRole);
     cy.DeleteRole(EditWorkspaceRole);
     cy.DeleteRole(DeleteWorkspaceRole);
-  }) */
+    cy.DeleteUser(testUser3);
+  });
 });

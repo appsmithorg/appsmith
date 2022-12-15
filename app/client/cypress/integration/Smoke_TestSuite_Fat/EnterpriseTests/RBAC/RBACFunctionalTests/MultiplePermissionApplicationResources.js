@@ -1,207 +1,260 @@
 import homePage from "../../../../../locators/HomePage";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
+const datasources = require("../../../../../locators/DatasourcesEditor.json");
+const queryLocators = require("../../../../../locators/QueryEditor.json");
+const explorer = require("../../../../../locators/explorerlocators.json");
+const locators = require("../../../../../locators/commonlocators.json");
+const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
+const jsEditorLocators = require("../../../../../locators/JSEditor.json");
+const testUrl1 = "https://mock-api.appsmith.com/echo/get";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+let agHelper = ObjectsRegistry.AggregateHelper,
+  homePage1 = ObjectsRegistry.HomePage;
 
 describe("Multiple Permission flow ", function() {
-  let workspaceId;
-  let appid;
+  let datasourceName;
+  let datasourceName2;
+  let workspaceName;
+  let appName;
   let newWorkspaceName;
-  const appName2 = "testView";
-  const PermissionWorkspaceLevel = "CreatePermissionWorkspaceLevel";
-  const PermissionAppLevel = "CreatePermissionAppLevel";
-  const PermissionPageLevel = "CreatePermissionPageLevel";
-
+  let newWorkspaceName2;
+  let appName2;
+  let workspaceName2;
+  const APIName = "testAPI";
+  let CreatePermission =
+    "CreatePermission" + `${Math.floor(Math.random() * 1000)}`;
+  let EditPermission = "EditPermission" + `${Math.floor(Math.random() * 1000)}`;
   beforeEach(() => {
     cy.AddIntercepts();
+    cy.startRoutesForDatasource();
   });
-
   before(() => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.AddIntercepts();
     cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceName = uid;
-      appName = uid;
-      localStorage.setItem("WorkspaceName", workspaceId);
+      appName = uid + "app";
+      localStorage.setItem("WorkspaceName", workspaceName);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        cy.renameWorkspace(newWorkspaceName, workspaceName);
       });
-      cy.CreateAppForWorkspace(workspaceId, appid);
-      cy.get(generatePage.generateCRUDPageActionCard).click();
+      cy.CreateAppForWorkspace(workspaceName, appName);
 
-      cy.get(generatePage.selectDatasourceDropdown).click();
+      // create new datasource
+      cy.NavigateToDatasourceEditor();
+      cy.get(datasources.MySQL).click();
+      cy.fillMySQLDatasourceFormFat();
+      cy.generateUUID().then((uid) => {
+        datasourceName = `MySQL CRUD ds ${uid}`;
+        cy.renameDatasource(datasourceName);
+        cy.testSaveDatasource();
+        cy.NavigateToDSGeneratePage(datasourceName);
+        cy.get(generatePage.selectTableDropdown).click();
+        cy.get(generatePage.dropdownOption)
+          .contains("employees")
+          .scrollIntoView()
+          .should("be.visible")
+          .click();
+        // generate crud page
+        cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-      cy.contains("Connect New Datasource").click();
+        cy.wait("@replaceLayoutWithCRUDPage").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          201,
+        );
 
-      cy.createMockDatasource("users");
-      cy.get(generatePage.selectTableDropdown).click();
+        cy.wait("@getActions");
 
-      cy.get(generatePage.dropdownOption)
-        .contains("public.users")
-        .click();
-      cy.get(generatePage.generatePageFormSubmitBtn).click();
-
-      cy.wait("@replaceLayoutWithCRUDPage").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
-      cy.wait("@getActions");
-      cy.wait("@postExecute").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-
-      cy.ClickGotIt();
-      cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-      // verify app has execute query access
-      cy.get(".t--entity-item:contains(SelectQuery)").click();
-      cy.runQuery();
-      cy.NavigateToHome();
-      cy.CreateAppForWorkspace(newWorkspaceName, appName2);
-      cy.visit("settings/general");
-      // cy.CreatePermission(role, workspaceName, appName, "Page1");
-      cy.get(RBAC.rolesTab).click();
-      cy.wait("@fetchRoles").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.get(RBAC.addButton).click();
-      cy.wait("@createRole").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
-      // create workspace level role and verify all permissions are checked
-      cy.get(`#${newWorkspaceName}-create`).should("be.checked");
-      cy.get(`#${newWorkspaceName}-edit`).should("be.checked");
-      cy.get(`#${newWorkspaceName}-delete`).should("be.checked");
-      cy.get(`#${newWorkspaceName}-view`).should("be.checked");
-      // uncheck the create datasource permission
-      cy.get(RBAC.dataSourcesandQueriesTab).click();
-      // add locator once frontend is ready
-      cy.get(RBAC.backButton).click();
-      // assert new role is showing in roles table
-      // assign it to user1
-      cy.AddUsers(Cypress.env("TESTUSERNAME1"), Role);
-      // create new role; create app level
-      cy.CreatePermissionAppLevel(PermissionAppLevel, newWorkspaceName, appid);
-      // uncheck the execute query permission
-      cy.get(RBAC.dataSourcesandQueriesTab).click();
-      // add locator once frontend is ready
-      cy.get(RBAC.backButton).click();
-      // assign it to user2
-      cy.CreatePermissionPageLevel(
-        PermissionPageLevel,
-        newWorkspaceName,
-        "Page2",
-      );
-      // assign it to user3
-      cy.LogOut();
+        cy.wait("@postExecute").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        cy.ClickGotIt();
+        cy.NavigateToHome();
+        cy.generateUUID().then((uid) => {
+          workspaceName2 = uid;
+          appName2 = uid + "gac";
+          localStorage.setItem("WorkspaceName2", workspaceName2);
+          cy.createWorkspace();
+          cy.wait("@createWorkspace").then((interception) => {
+            newWorkspaceName2 = interception.response.body.data.name;
+            cy.renameWorkspace(newWorkspaceName2, workspaceName2);
+          });
+          cy.CreateAppForWorkspace(workspaceName2, appName2);
+          cy.NavigateToAPI_Panel();
+          cy.CreateAPI(APIName);
+          cy.enterDatasource(testUrl1);
+          cy.SaveAndRunAPI();
+          cy.ResponseStatusCheck("200");
+          cy.createJSObject('return "Success";');
+          cy.visit("settings/general");
+          cy.CreatePermissionWorkspaceLevel(CreatePermission, workspaceName);
+          // Add create datasource at workspace level role
+          cy.get(RBAC.roleRow)
+            .first()
+            .click();
+          cy.wait("@fetchRoles").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+          // check the create datasource role
+          cy.get(RBAC.dataSourcesandQueriesTab).click();
+          cy.contains("td", `${workspaceName}`)
+            .next()
+            .next()
+            .click();
+          // save role
+          cy.get(RBAC.saveButton).click();
+          cy.wait("@saveRole").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+          cy.EditPermissionWorkspaceLevel(EditPermission, workspaceName2);
+          cy.wait(2000);
+          cy.AssignRoleToUser(CreatePermission, Cypress.env("TESTUSERNAME1"));
+          cy.AssignRoleToUser(EditPermission, Cypress.env("TESTUSERNAME1"));
+          // give appsmith provided role to testuser
+          let AppsmithProvidedRole = "App Viewer - " + `${workspaceName2}`;
+          cy.AssignRoleToUser(
+            AppsmithProvidedRole,
+            Cypress.env("TESTUSERNAME2"),
+          );
+          cy.AssignRoleToUser(EditPermission, Cypress.env("TESTUSERNAME2"));
+        });
+      });
     });
   });
-  it("1. Multiple orgs and multiple permission(create new workspace: & edit exisitng apps )", () => {
-    // login as user1@appsmith.com now the user can create new workspaces
+
+  it("1. Verify user with edit permission is able to fork application in workspace for which they have create permission ", function() {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
     );
     cy.wait(2000);
-    cy.get(homePage.searchInput).type(appid);
-    // verify create new app button is not visible to user
-    cy.xpath(homePage.createNewAppButton).should("not.exist");
+    cy.get(homePage.searchInput).type(appName2);
+    cy.wait(2000);
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.get(homePage.appMoreIcon)
+      .first()
+      .click({ force: true });
+    cy.get(homePage.forkAppFromMenu).click({ force: true });
+    cy.xpath("//span[@name='expand-more']").click();
+    cy.get(`[data-cy='t--dropdown-option-${workspaceName}']`).click();
+    cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(4000);
+    cy.wait("@postForkAppWorkspace").then((httpResponse) => {
+      expect(httpResponse.status).to.equal(200);
+    });
+  });
+
+  it("2. Verify user with multiple permission(create for workspace1 and edit for workspace2) works as expected", function() {
+    // verify user has create permission for workspace1
+    cy.get(homePage.homeIcon).click({ force: true });
+    cy.get(homePage.searchInput)
+      .clear()
+      .type(appName);
     cy.wait(2000);
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
-    cy.wait(2000);
-    //user can edit app1 inside the org1
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.Createpage("page2");
+    cy.wait(1000);
     cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
+    cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
+    cy.get(".t--widget-tablewidgetv2").should("exist");
+    cy.NavigateToDatasourceEditor();
+    cy.get(datasources.MySQL).click();
+    cy.fillMySQLDatasourceFormFat();
+    cy.generateUUID().then((UUID) => {
+      datasourceName2 = `MySQL MOCKDS ${UUID}`;
+      cy.renameDatasource(datasourceName2);
+      cy.testSaveDatasource();
+    });
+    // verify user has edit permission for workspace 2
+    cy.get(homePage.homeIcon).click({ force: true });
+    cy.get(homePage.searchInput)
+      .clear()
+      .type(appName2);
+    cy.wait(2000);
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.get(homePage.appEditIcon).click();
   });
-  it("2. Multiple orgs and multiple permission(edit: workspace  & create new app and make app public )", () => {
-    /*Login as Admin@appsmith.com
-        Add edit access for workspace in others tab
-        add create access for workspaace in Application resource page
-        Add view access for aap1 in org 1
-        add public access for workspace
-        */
+
+  it.skip("3. Verify when user has edit role and delete role it works as expected", function() {
+    // verify user is able to export the app
+    cy.NavigateToHome();
+    cy.get(homePage.searchInput)
+      .clear()
+      .type(appName);
+    cy.wait(2000);
+    cy.get(homePage.applicationCard)
+      .first()
+      .trigger("mouseover");
+    cy.get(homePage.appMoreIcon)
+      .first()
+      .click({ force: true });
+    cy.get(homePage.exportAppFromMenu).should("be.visible");
+    cy.get(homePage.exportAppFromMenu).click({ force: true });
+    cy.get(homePage.toastMessage).should("contain", "Successfully exported");
+  });
+  it("4. Verify when user has appsmith provided role along with custom role it works as expected ", function() {
     cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
     );
     cy.wait(2000);
-    // verify user can edit workspace settings
-    cy.renameWorkspace(newWorkspaceName, workspaceId);
-    //user can create new apps
-    cy.xpath(homePage.createNewAppButton).should("be.visible");
-    //user can only have launch (view access for app1)
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appEditIcon).should("not.exist");
-    cy.xpath(homePage.launchBtn).click();
-    //By default the user can make any app public in org1
-    cy.get(homePage.shareApp).click();
-    cy.enablePublicAccess();
-  });
-
-  it("3. Multiple orgs and multiple permission(edit/view: application resources)", () => {
-    /* Login as Admin@appsmith.com
-            create access for org1 in application resource page
-            create access for app 1
-            no create access for app 2
-            edit access for org 1
-            edit access for app1
-            only view access for app2
-             */
-    //Login as user1@appsmith.com now the user can create a new app in org 1
-    cy.LogOut();
-    cy.LogintoAppTestUser(
-      Cypress.env("TESTUSERNAME3"),
-      Cypress.env("TESTPASSWORD3"),
-    );
+    cy.get(homePage.searchInput).type(appName2);
     cy.wait(2000);
-    // Can edit the app1 and add pages/query/js
-    cy.get(homePage.searchInput).type(appid);
-    cy.wait(2000);
+    // verify create new app button is not visible to user
+    cy.get(homePage.createNewAppButton).should("not.exist");
+    // verify user don't see create new CTAs
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");
     cy.get(homePage.appEditIcon).click();
-    // verify user should be able to edit the app
-    cy.get('.t--entity-name:contains("Page1")').click();
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
-    // verify user should be able to create new query/page in app
-    cy.createJSObject('return "Success";');
-    // can just view the app2 in the view mode
-    cy.NavigateToHome();
-    cy.get(homePage.searchInput).type(appName2);
     cy.wait(2000);
-    cy.get(homePage.appEditIcon).should("not.exist");
-    cy.launchApp(appName2);
+    // verify user is able to edit exisitng api
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    cy.get(`.t--entity-name:contains(${APIName})`).click();
+    cy.get(apiwidget.headerKey).type("info");
+    cy.SaveAndRunAPI();
+    cy.ResponseStatusCheck("200");
+    // verify user is able to edit jsObject
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    cy.get(RBAC.JsObject1).click();
+    cy.wait(1000);
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type("{downarrow}{downarrow}{downarrow}  ")
+      .type("testJSFunction:()=>{},");
+    cy.wait(1000);
+    cy.get(jsEditorLocators.runButton)
+      .first()
+      .click();
   });
-
-  it.skip("4. Multiple orgs and multiple permission(edit/public access: application resources)", () => {
-    /*Login as Admin@appsmith.com
-              Add edit access for workspace in others tab
-              add create access for workspace in Application resource page
-              Add view access for aap1 in org 1
-              add public access for app1 in org1 
-              Add edit acess for app 2 in org 1
-              Remove public access for app2 in org 1
-        */
-    // Login as user1@appsmith.com now the user can edit old workspaces detailes
-    //user can create new apps
-    //user can only have launch (view access for app1)
-    //The user can make app1 as public and share for the users
-    //The public toggle button should be hidden in the app2
+  after(() => {
+    cy.LogOut();
+    cy.LogintoAppTestUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.visit("/settings/roles");
+    cy.DeleteRole(CreatePermission);
+    cy.DeleteRole(EditPermission);
   });
 });

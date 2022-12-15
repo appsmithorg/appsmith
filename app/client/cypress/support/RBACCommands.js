@@ -886,6 +886,31 @@ Cypress.Commands.add("DeleteRole", (Role) => {
   cy.wait(2000);
 });
 
+Cypress.Commands.add("DeleteUser", (User) => {
+  cy.get(RBAC.usersTab).click();
+  cy.wait("@fetchUsers").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.get(RBAC.searchBar)
+    .clear()
+    .type(User);
+  cy.wait(2000);
+  cy.get(RBAC.userRow)
+    .first()
+    .click();
+  cy.get(RBAC.userContextMenu).click();
+  cy.xpath("//span[text()='Delete']").click();
+  cy.xpath(RBAC.deleteConfirmation).click();
+  cy.wait("@deleteUser").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+  cy.wait(2000);
+});
+
 Cypress.Commands.add("AddIntercepts", () => {
   cy.intercept("PUT", "/api/v1/roles/*").as("updateRoles");
   cy.intercept("GET", "/api/v1/roles").as("fetchRoles");
@@ -900,6 +925,7 @@ Cypress.Commands.add("AddIntercepts", () => {
   cy.intercept("PUT", "/api/v1/user-groups/*").as("renameGroup");
   cy.intercept("DELETE", "/api/v1/user-groups/*").as("deleteGroup");
   cy.intercept("POST", "api/v1/user-groups/invite").as("inviteUser");
+  cy.intercept("DELETE", "api/v1/users/id/*").as("deleteUser");
   cy.intercept("PUT", "/api/v1/user-groups/*").as("updateGroup");
   cy.intercept("GET", "/api/v1/users/manage/all").as("fetchUsers");
   cy.intercept("PUT", "/api/v1/roles/associate").as("associateRoles");

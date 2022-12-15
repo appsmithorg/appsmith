@@ -5,8 +5,7 @@ const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const locators = require("../../../../../locators/commonlocators.json");
-const testUrl1 =
-  "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
+const testUrl1 = "https://mock-api.appsmith.com/echo/get";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   homePage1 = ObjectsRegistry.HomePage;
@@ -18,7 +17,8 @@ describe("Create Permission flow ", function() {
   let appName;
   let newWorkspaceName;
   let APIName;
-  const pageName = "testPage";
+  let testUser3;
+  const password = "qwerty";
   const PermissionWorkspaceLevel =
     "CreatePermissionWorkspaceLevel" + `${Math.floor(Math.random() * 1000)}`;
   const PermissionAppLevel =
@@ -33,137 +33,145 @@ describe("Create Permission flow ", function() {
     cy.startRoutesForDatasource();
   });
   before(() => {
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.AddIntercepts();
-    cy.NavigateToHome();
+    // sign up as new user
     cy.generateUUID().then((uid) => {
-      workspaceName = uid;
-      appName = uid + "app";
-      localStorage.setItem("WorkspaceName", workspaceName);
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceName);
-      });
-      cy.CreateAppForWorkspace(workspaceName, appName);
-
-      // create new datasource
-      cy.NavigateToDatasourceEditor();
-      cy.get(datasources.PostgreSQL).click();
-      cy.fillPostgresDatasourceFormFat();
-
+      testUser3 = `${uid}@appsmith.com`;
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.AddIntercepts();
+      cy.NavigateToHome();
       cy.generateUUID().then((uid) => {
-        datasourceName = `Postgres CRUD ds ${uid}`;
-        cy.renameDatasource(datasourceName);
+        workspaceName = uid;
+        appName = uid + "app";
+        localStorage.setItem("WorkspaceName", workspaceName);
+        cy.createWorkspace();
+        cy.wait("@createWorkspace").then((interception) => {
+          newWorkspaceName = interception.response.body.data.name;
+          cy.renameWorkspace(newWorkspaceName, workspaceName);
+        });
+        cy.CreateAppForWorkspace(workspaceName, appName);
 
-        cy.testSaveDatasource();
+        // create new datasource
+        cy.NavigateToDatasourceEditor();
+        cy.get(datasources.PostgreSQL).click();
+        cy.fillPostgresDatasourceFormFat();
 
-        cy.NavigateToDSGeneratePage(datasourceName);
-        cy.get(generatePage.selectTableDropdown).click();
-        cy.get(generatePage.dropdownOption)
-          .contains("public.users")
-          .scrollIntoView()
-          .should("be.visible")
-          .click();
-        // generate crud page
-        cy.get(generatePage.generatePageFormSubmitBtn).click();
+        cy.generateUUID().then((uid) => {
+          datasourceName = `Postgres CRUD ds ${uid}`;
+          cy.renameDatasource(datasourceName);
 
-        cy.wait("@replaceLayoutWithCRUDPage").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          201,
-        );
+          cy.testSaveDatasource();
 
-        cy.wait("@getActions");
+          cy.NavigateToDSGeneratePage(datasourceName);
+          cy.get(generatePage.selectTableDropdown).click();
+          cy.get(generatePage.dropdownOption)
+            .contains("public.users")
+            .scrollIntoView()
+            .should("be.visible")
+            .click();
+          // generate crud page
+          cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-        cy.wait("@postExecute").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
+          cy.wait("@replaceLayoutWithCRUDPage").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            201,
+          );
 
-        cy.ClickGotIt();
-        cy.visit("settings/general");
-        cy.CreatePermissionWorkspaceLevel(
-          PermissionWorkspaceLevel,
-          workspaceName,
-        );
-        // Add create datasource at workspace level role
-        cy.get(RBAC.roleRow)
-          .first()
-          .click();
-        cy.wait("@fetchRoles").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-        // check the create datasource role
-        cy.get(RBAC.dataSourcesandQueriesTab).click();
-        cy.contains("td", `${workspaceName}`)
-          .next()
-          .next()
-          .click();
-        // save role
-        cy.get(RBAC.saveButton).click();
-        cy.wait("@saveRole").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-        cy.wait(2000);
-        // create custom roles
-        cy.CreatePermissionAppLevel(PermissionAppLevel, workspaceName, appName);
-        // Add create datasource at workspace level role
-        cy.get(RBAC.roleRow)
-          .first()
-          .click();
-        cy.wait("@fetchRoles").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-        cy.get(RBAC.dataSourcesandQueriesTab).click();
-        // check the create datasource role
-        cy.contains("td", `${workspaceName}`).click();
-        cy.contains("td", `${workspaceName}`)
-          .next()
-          .next()
-          .next()
-          .next()
-          .next();
-        cy.contains("td", "Datasources").click();
-        cy.contains("td", `${datasourceName}`)
-          .next()
-          .next()
-          .click();
-        // save role
-        cy.get(RBAC.saveButton).click();
-        cy.wait("@saveRole").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-        cy.wait(2000);
-        cy.CreatePermissionPageLevel(
-          PermissionPageLevel,
-          workspaceName,
-          appName,
-          "Page1",
-        );
-        cy.ExportPermissionWorkspaceLevel(ExportPermission, workspaceName);
-        cy.wait(200);
-        cy.AssignRoleToUser(
-          PermissionWorkspaceLevel,
-          Cypress.env("TESTUSERNAME1"),
-        );
-        cy.AssignRoleToUser(PermissionAppLevel, Cypress.env("TESTUSERNAME2"));
-        cy.AssignRoleToUser(ExportPermission, Cypress.env("TESTUSERNAME1"));
-        cy.AssignRoleToUser(PermissionPageLevel, Cypress.env("TESTUSERNAME3"));
+          cy.wait("@getActions");
+
+          cy.wait("@postExecute").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+
+          cy.ClickGotIt();
+          cy.visit("settings/general");
+          cy.CreatePermissionWorkspaceLevel(
+            PermissionWorkspaceLevel,
+            workspaceName,
+          );
+          // Add create datasource at workspace level role
+          cy.get(RBAC.roleRow)
+            .first()
+            .click();
+          cy.wait("@fetchRoles").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+          // check the create datasource role
+          cy.get(RBAC.dataSourcesandQueriesTab).click();
+          cy.contains("td", `${workspaceName}`)
+            .next()
+            .next()
+            .click();
+          // save role
+          cy.get(RBAC.saveButton).click();
+          cy.wait("@saveRole").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+          cy.wait(2000);
+          // create custom roles
+          cy.CreatePermissionAppLevel(
+            PermissionAppLevel,
+            workspaceName,
+            appName,
+          );
+          // Add create datasource at workspace level role
+          cy.get(RBAC.roleRow)
+            .first()
+            .click();
+          cy.wait("@fetchRoles").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+          cy.get(RBAC.dataSourcesandQueriesTab).click();
+          // check the create datasource role
+          cy.contains("td", `${workspaceName}`).click();
+          cy.contains("td", `${workspaceName}`)
+            .next()
+            .next()
+            .next()
+            .next()
+            .next();
+          cy.contains("td", "Datasources").click();
+          cy.contains("td", `${datasourceName}`)
+            .next()
+            .next()
+            .click();
+          // save role
+          cy.get(RBAC.saveButton).click();
+          cy.wait("@saveRole").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+          cy.wait(2000);
+          cy.CreatePermissionPageLevel(
+            PermissionPageLevel,
+            workspaceName,
+            appName,
+            "Page1",
+          );
+          cy.ExportPermissionWorkspaceLevel(ExportPermission, workspaceName);
+          cy.wait(200);
+          cy.AssignRoleToUser(
+            PermissionWorkspaceLevel,
+            Cypress.env("TESTUSERNAME1"),
+          );
+          cy.AssignRoleToUser(PermissionAppLevel, Cypress.env("TESTUSERNAME2"));
+          cy.AssignRoleToUser(ExportPermission, Cypress.env("TESTUSERNAME1"));
+          cy.AssignRoleToUser(PermissionPageLevel, testUser3);
+          cy.LogOut();
+        });
       });
     });
   });
   it("1. Create permission - application resources , datasource & queries : Workspace level", function() {
-    cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),
@@ -305,9 +313,9 @@ describe("Create Permission flow ", function() {
     cy.get(homePage.exportAppFromMenu).should("be.visible");
     cy.get(homePage.exportAppFromMenu).click({ force: true });
     cy.get(homePage.toastMessage).should("contain", "Successfully exported");
+    cy.LogOut();
   });
   it("5. Create permission- application resources & datasource and queries: App level", function() {
-    cy.LogOut();
     cy.LogintoAppTestUser(
       Cypress.env("TESTUSERNAME2"),
       Cypress.env("TESTPASSWORD2"),
@@ -340,13 +348,11 @@ describe("Create Permission flow ", function() {
     cy.get(queryLocators.queryNameField).type("get_columns");
     cy.get(queryLocators.templateMenu).click();
     cy.WaitAutoSave();
+    cy.LogOut();
   });
   it("6. Create permission : Page level Create new query/jsObject in same page) ", function() {
-    cy.LogOut();
-    cy.LogintoAppTestUser(
-      Cypress.env("TESTUSERNAME3"),
-      Cypress.env("TESTPASSWORD3"),
-    );
+    cy.SignupFromAPI(testUser3, password);
+    cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
     cy.get(homePage.searchInput)
       .clear()
@@ -408,5 +414,6 @@ describe("Create Permission flow ", function() {
     cy.DeleteRole(PermissionAppLevel);
     cy.DeleteRole(PermissionPageLevel);
     cy.DeleteRole(ExportPermission);
+    cy.DeleteUser(testUser3);
   });
 });
