@@ -466,7 +466,7 @@ export default [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {
-        propertyName: "canUserFreezeColumn",
+        propertyName: "canFreezeColumn",
         helpText: "Controls whether the user can freeze columns",
         label: "Allow Column Freeze",
         controlType: "SWITCH",

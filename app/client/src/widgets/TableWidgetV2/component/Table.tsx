@@ -98,7 +98,7 @@ interface TableProps {
   ) => void;
   disabledAddNewRowSave: boolean;
   handleColumnFreeze?: (columnName: string, sticky?: string) => void;
-  canUserFreezeColumn?: boolean;
+  canFreezeColumn?: boolean;
 }
 
 const defaultColumn = {
@@ -352,7 +352,7 @@ export function Table(props: TableProps) {
             height: isHeaderVisible ? props.height - 48 : props.height,
           }}
         >
-          <div {...getTableProps()} className="table sticky">
+          <div {...getTableProps()} className="table column-freeze">
             <div
               className="thead"
               onMouseLeave={props.enableDrag}
@@ -376,7 +376,7 @@ export function Table(props: TableProps) {
                       (column: any, columnIndex: number) => {
                         return (
                           <HeaderCell
-                            canUserFreezeColumn={props.canUserFreezeColumn}
+                            canFreezeColumn={props.canFreezeColumn}
                             column={column}
                             columnIndex={columnIndex}
                             columnName={column.Header}

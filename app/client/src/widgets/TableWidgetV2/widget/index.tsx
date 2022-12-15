@@ -217,24 +217,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       orderedTableColumns.forEach((column: any) => {
         const isHidden = !column.isVisible;
         let stickyValue;
-        if (
-          this.props.renderMode === RenderModes.PAGE &&
-          this.props.canUserFreezeColumn
+
+        /**
+         * Set the sticky value for the columns that are frozen by the users.
+         * We refer to the leftOrder and rightOrder meta property for user frozen columns.
+         */
+        if (_.find(this.props.leftOrder, (col) => col === column.alias)) {
+          stickyValue = "left";
+        } else if (
+          _.find(this.props.rightOrder, (col) => col === column.alias)
         ) {
-          // Update sticky value if its present in the local storage
-          if (
-            _.find(this.props.leftOrder, (col) => col === column.alias) &&
-            column.sticky === undefined
-          ) {
-            stickyValue = "left";
-          } else if (
-            _.find(this.props.rightOrder, (col) => col === column.alias) &&
-            column.sticky === undefined
-          ) {
-            stickyValue = "right";
-          } else {
-            stickyValue = column.sticky;
-          }
+          stickyValue = "right";
         } else {
           stickyValue = column.sticky;
         }
@@ -603,9 +596,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    const { canUserFreezeColumn, renderMode, tableData } = this.props;
+    const { canFreezeColumn, renderMode, tableData } = this.props;
 
-    if (canUserFreezeColumn && renderMode === RenderModes.PAGE) {
+    if (canFreezeColumn && renderMode === RenderModes.PAGE) {
       /**
        * When in PAGE view mode:
        * 1. If columnOrder not in local storage add it.
@@ -931,7 +924,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           borderRadius={this.props.borderRadius}
           borderWidth={this.props.borderWidth}
           boxShadow={this.props.boxShadow}
-          canUserFreezeColumn={this.props.canUserFreezeColumn}
+          canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
@@ -1024,25 +1017,29 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   /**
-   * Function to update the columnOrder of the widget.
+   * Function to update or add the tableWidgetColumnOrder key in the local storage
+   * tableWidgetColumnOrder = {
+   *  <widget-id>: {
+   *    columnOrder: [],
+   *    left: [],
+   *    right: []
+   *  }
+   * }
    */
   persistColumnOrder = (
     newColumnOrder?: string[],
-    newLeftOrder?: string[],
-    newRightOrder?: string[],
+    left?: string[],
+    right?: string[],
   ) => {
-    // If any of the parameters are undefined then we will fetch it from the meta properties.
     const widgetId = this.props.widgetId;
     const localTableWidgetColumnOrder = localStorage.getItem(
       "tableWidgetColumnOrder",
     );
     if (localTableWidgetColumnOrder) {
-      // get the existing attributes.
       let parsedTableWidgetColumnOrder = JSON.parse(
         localTableWidgetColumnOrder,
       );
 
-      const localColumnProps = parsedTableWidgetColumnOrder[widgetId];
       let columnOrder = parsedTableWidgetColumnOrder[widgetId];
 
       // Update the existing attributes:
@@ -1056,8 +1053,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...parsedTableWidgetColumnOrder,
         [widgetId]: {
           columnOrder,
-          left: newLeftOrder ?? localColumnProps?.left,
-          right: newRightOrder ?? localColumnProps?.right,
+          left,
+          right,
         },
       };
 
@@ -1069,8 +1066,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       const tableWidgetColumnOrder = {
         [widgetId]: {
           columnOrder: newColumnOrder,
-          left: newLeftOrder,
-          right: newRightOrder,
+          left,
+          right,
         },
       };
 
@@ -1082,75 +1079,103 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   handleColumnFreeze = (columnName: string, sticky?: string) => {
-    if (this.props.renderMode === RenderModes.PAGE && this.props.columnOrder) {
-      /**
-       * Get the columns that are frozen by developers
-       * Columns that are frozen by developers will have sticky value in its primary column
-       * We need to reset it to undefined.
-       */
-      let leftOrder = this.props.leftOrder
-        ? [...this.props.leftOrder]
-        : undefined;
-      let rightOrder = this.props.rightOrder
-        ? [...this.props.rightOrder]
-        : undefined;
-
-      if (get(this.props.primaryColumns, `${columnName}.sticky`)) {
+    if (this.props.columnOrder) {
+      if (this.props.renderMode === RenderModes.CANVAS) {
+        /**
+         * Handles the freezing of the columns from the dropdown in Edit mode
+         */
+        const newColumnOrder = handleColumnSticky(
+          this.props.primaryColumns,
+          this.props.columnOrder,
+          columnName,
+          sticky,
+        );
         super.updateWidgetProperty(
           `primaryColumns.${columnName}.sticky`,
-          undefined,
+          sticky,
         );
-      }
-      if (sticky === "left") {
-        if (rightOrder) {
-          rightOrder = without(rightOrder, columnName);
-          if (rightOrder.length === 0) {
-            rightOrder = undefined;
-          }
-        }
-        if (this.props.leftOrder) {
-          leftOrder = without(leftOrder, columnName);
-          leftOrder = [...leftOrder, columnName];
-        } else {
-          leftOrder = [columnName];
-        }
-      } else if (sticky === "right") {
-        if (leftOrder) {
-          leftOrder = without(leftOrder, columnName);
-          if (leftOrder.length === 0) {
-            leftOrder = undefined;
-          }
-        }
-        if (this.props.rightOrder) {
-          rightOrder = without(rightOrder, columnName);
-          rightOrder = [...rightOrder, columnName];
-        } else {
-          rightOrder = [columnName];
-        }
-      } else {
-        if (leftOrder && leftOrder.includes(columnName)) {
-          leftOrder = without(leftOrder, columnName);
-          leftOrder = leftOrder.length === 0 ? undefined : leftOrder;
-        } else if (rightOrder && rightOrder.includes(columnName)) {
-          rightOrder = without(rightOrder, columnName);
-          rightOrder = rightOrder.length === 0 ? undefined : rightOrder;
-        }
-      }
-      const newColumnOrder = handleColumnSticky(
-        this.props.primaryColumns,
-        this.props.columnOrder,
-        columnName,
-        sticky,
-        leftOrder,
-        rightOrder,
-        RenderModes.PAGE,
-        this.props.canUserFreezeColumn,
-      );
+        super.updateWidgetProperty("columnOrder", newColumnOrder);
+      } else if (this.props.renderMode === RenderModes.PAGE) {
+        let leftOrder = this.props.leftOrder
+          ? [...this.props.leftOrder]
+          : undefined;
+        let rightOrder = this.props.rightOrder
+          ? [...this.props.rightOrder]
+          : undefined;
 
-      this.persistColumnOrder(newColumnOrder, leftOrder, rightOrder);
-      this.props.updateWidgetMetaProperty("leftOrder", leftOrder);
-      this.props.updateWidgetMetaProperty("rightOrder", rightOrder);
-      this.props.updateWidgetMetaProperty("columnOrder", newColumnOrder);
+        /**
+         * Columns that will be frozen by the users will not have values set in its primary columns sticky property.
+         * They are updated in the respective meta properties leftOrder or rightOrder.
+         *
+         * Get the columns that are frozen by developers. Columns that are frozen by developers will have sticky value in its primary column
+         * We need to reset it to ""
+         */
+        if (get(this.props.primaryColumns, `${columnName}.sticky`)) {
+          super.updateWidgetProperty(`primaryColumns.${columnName}.sticky`, "");
+        }
+        if (sticky === "left") {
+          /**
+           * leftOrder and rightOrder are mutually exclusive i.e. a column cannot appear in both of these order at the same time.
+           * Whenever user moves a column from right to left, we make sure to remove the column from rightOrder and add it
+           * to the leftOrder.
+           */
+          if (rightOrder) {
+            rightOrder = without(rightOrder, columnName);
+            if (rightOrder.length === 0) {
+              rightOrder = undefined;
+            }
+          }
+          if (this.props.leftOrder) {
+            leftOrder = without(leftOrder, columnName);
+            leftOrder = [...leftOrder, columnName];
+          } else {
+            leftOrder = [columnName];
+          }
+        } else if (sticky === "right") {
+          if (leftOrder) {
+            /**
+             * leftOrder and rightOrder are mutually exclusive i.e. a column cannot appear in both of these order at the same time.
+             * Whenever user moves a column from left to right, we make sure to remove the column from rightOrder and add it
+             * to the leftOrder.
+             */
+            leftOrder = without(leftOrder, columnName);
+            if (leftOrder.length === 0) {
+              leftOrder = undefined;
+            }
+          }
+          if (this.props.rightOrder) {
+            rightOrder = without(rightOrder, columnName);
+            rightOrder = [...rightOrder, columnName];
+          } else {
+            rightOrder = [columnName];
+          }
+        } else {
+          // Remove the column from the order if no order is provided.
+          if (leftOrder && leftOrder.includes(columnName)) {
+            leftOrder = without(leftOrder, columnName);
+            leftOrder = leftOrder.length === 0 ? undefined : leftOrder;
+          } else if (rightOrder && rightOrder.includes(columnName)) {
+            rightOrder = without(rightOrder, columnName);
+            rightOrder = rightOrder.length === 0 ? undefined : rightOrder;
+          }
+        }
+
+        const newColumnOrder = handleColumnSticky(
+          this.props.primaryColumns,
+          this.props.columnOrder,
+          columnName,
+          sticky,
+          leftOrder,
+          rightOrder,
+          RenderModes.PAGE,
+          this.props.canFreezeColumn,
+        );
+
+        this.persistColumnOrder(newColumnOrder, leftOrder, rightOrder);
+        this.props.updateWidgetMetaProperty("leftOrder", leftOrder);
+        this.props.updateWidgetMetaProperty("rightOrder", rightOrder);
+        this.props.updateWidgetMetaProperty("columnOrder", newColumnOrder);
+      }
     }
   };
 
@@ -1160,7 +1185,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("columnOrder", columnOrder);
     } else {
-      if (this.props.canUserFreezeColumn) {
+      if (this.props.canFreezeColumn) {
         this.persistColumnOrder(columnOrder);
       }
       this.props.updateWidgetMetaProperty("columnOrder", columnOrder);

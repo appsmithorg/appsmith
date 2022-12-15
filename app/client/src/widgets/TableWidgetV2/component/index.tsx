@@ -99,7 +99,7 @@ interface ReactTableComponentProps {
   allowSorting: boolean;
   disabledAddNewRowSave: boolean;
   handleColumnFreeze?: (columnName: string, sticky?: string) => void;
-  canUserFreezeColumn?: boolean;
+  canFreezeColumn?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -110,7 +110,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     applyFilter,
     borderColor,
     borderWidth,
-    canUserFreezeColumn,
+    canFreezeColumn,
     columns,
     columnWidthMap,
     compactMode,
@@ -160,34 +160,32 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
-  const { hiddenColumns, leftOrder, middleOrder, rightOrder } = useMemo(() => {
-    const leftOrder: string[] = [];
-    const rightOrder: string[] = [];
-    const middleOrder: string[] = [];
+  const { hiddenColumns } = useMemo(() => {
     const hidden: string[] = [];
     columns.forEach((item) => {
       if (item.isHidden) {
         hidden.push(item.alias);
-      } else {
-        if (item.sticky === "left") {
-          leftOrder.push(item.alias);
-        } else if (item.sticky === "right") {
-          rightOrder.push(item.alias);
-        } else {
-          middleOrder.push(item.alias);
-        }
       }
     });
     return {
-      leftOrder: leftOrder,
-      rightOrder: rightOrder,
-      middleOrder,
       hiddenColumns: hidden,
     };
   }, [columns]);
 
   useEffect(() => {
     let dragged = -1;
+    const leftOrder: string[] = [];
+    const rightOrder: string[] = [];
+    const middleOrder: string[] = [];
+    columns.forEach((item) => {
+      if (item.sticky === "left") {
+        leftOrder.push(item.alias);
+      } else if (item.sticky === "right") {
+        rightOrder.push(item.alias);
+      } else {
+        middleOrder.push(item.alias);
+      }
+    });
     const headers = Array.prototype.slice
       .call(document.querySelectorAll(`#table${widgetId} .draggable-header`))
       .filter((header) => {
@@ -326,7 +324,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
-      canUserFreezeColumn={canUserFreezeColumn}
+      canFreezeColumn={canFreezeColumn}
       columnWidthMap={columnWidthMap}
       columns={columns}
       compactMode={compactMode}
@@ -430,6 +428,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowRowSelection === next.allowRowSelection &&
     prev.allowSorting === next.allowSorting &&
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
-    prev.canUserFreezeColumn === next.canUserFreezeColumn
+    prev.canFreezeColumn === next.canFreezeColumn
   );
 });

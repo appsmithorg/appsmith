@@ -141,7 +141,7 @@ export default {
     {
       propertyName: "sticky",
       helpText:
-        "Choose is the column needs to be frozen left or right of the table",
+        "Choose column that needs to be frozen left or right of the table",
       controlType: "ICON_TABS",
       defaultValue: undefined,
       label: "Column Freeze",

@@ -106,7 +106,7 @@ function Title(props: TitleProps) {
 const ICON_SIZE = 16;
 
 export function HeaderCell(props: {
-  canUserFreezeColumn?: boolean;
+  canFreezeColumn?: boolean;
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
@@ -120,7 +120,7 @@ export function HeaderCell(props: {
   width?: number;
 }) {
   const { column, isSortable } = props;
-  const [isMenuClicked, setIsMenuClicked] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSortColumn = (sortOrder: boolean) => {
     if (props.isResizingColumn) return;
@@ -133,17 +133,11 @@ export function HeaderCell(props: {
     column.columnProperties.isEditable &&
     isColumnTypeEditable(column.columnProperties.columnType);
 
-  const toggleColumnFreeze = (
-    evt:
-      | React.MouseEvent<HTMLAnchorElement, MouseEvent>
-      | React.MouseEvent<HTMLElement, MouseEvent>,
-    value: string,
-  ) => {
-    const currentChildrenLen = evt.currentTarget.children.length;
+  const toggleColumnFreeze = (value: string) => {
     props.handleColumnFreeze &&
       props.handleColumnFreeze(
         props.column.id,
-        currentChildrenLen === 2 ? undefined : value,
+        props.column.sticky !== value ? value : "",
       );
   };
   return (
@@ -186,27 +180,27 @@ export function HeaderCell(props: {
               />
               <MenuDivider />
               <MenuItem
-                disabled={!props.canUserFreezeColumn}
+                disabled={!props.canFreezeColumn}
                 labelElement={column.sticky === "left" ? <Check /> : undefined}
-                onClick={(e) => {
-                  toggleColumnFreeze(e, "left");
+                onClick={() => {
+                  toggleColumnFreeze("left");
                 }}
                 text="Freeze column left"
               />
               <MenuItem
-                disabled={!props.canUserFreezeColumn}
+                disabled={!props.canFreezeColumn}
                 labelElement={column.sticky === "right" ? <Check /> : undefined}
-                onClick={(e) => {
-                  toggleColumnFreeze(e, "right");
+                onClick={() => {
+                  toggleColumnFreeze("right");
                 }}
                 text="Freeze column right"
               />
             </Menu>
           }
           interactionKind="click"
-          isOpen={isMenuClicked}
-          onInteraction={(state) => {
-            setIsMenuClicked(state);
+          isOpen={isMenuOpen}
+          onInteraction={(state: any) => {
+            setIsMenuOpen(state);
           }}
           placement="bottom-end"
         >

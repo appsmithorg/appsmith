@@ -178,7 +178,7 @@ export const TableWrapper = styled.div<{
     }
   }
 
-  .sticky {
+  .column-freeze {
     .body {
       position: relative;
       z-index: 0;

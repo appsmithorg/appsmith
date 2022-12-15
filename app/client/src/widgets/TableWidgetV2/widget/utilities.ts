@@ -695,9 +695,8 @@ export const getColumnType = (
       return ColumnTypes.TEXT;
   }
 };
-
 /**
- * For the columns that are fixed by dev, we need to pass sticky to be undefined.
+ * Function to get new column order when there is a change in column's sticky value.
  */
 export const handleColumnSticky = (
   primaryColumns: Record<string, ColumnProperties>,
@@ -707,7 +706,7 @@ export const handleColumnSticky = (
   leftOrder?: string[],
   rightOrder?: string[],
   renderMode = RenderModes.CANVAS,
-  canUserFreezeColumn = false,
+  canFreezeColumn = false,
 ) => {
   let newColumnOrder = [...columnOrder];
   newColumnOrder = without(newColumnOrder, columnName);
@@ -729,10 +728,10 @@ export const handleColumnSticky = (
     }
 
     /**
-     * Also, iterate over the columns that are frozen by the user.
+     * Also, check over the columns that are frozen by the user.
      * For column that are frozen by the user we refer to meta property
      */
-    if (renderMode === RenderModes.PAGE && canUserFreezeColumn && leftOrder) {
+    if (renderMode === RenderModes.PAGE && canFreezeColumn && leftOrder) {
       lastLeftIndex = lastLeftIndex + leftOrder.length - 1;
     }
 
@@ -749,27 +748,25 @@ export const handleColumnSticky = (
     }
 
     // Check local right columns: local + normal:
-    if (renderMode === RenderModes.PAGE && canUserFreezeColumn && rightOrder) {
+    if (renderMode === RenderModes.PAGE && canFreezeColumn && rightOrder) {
       lastRightIndex = lastRightIndex - rightOrder.length + 1;
     }
 
     newColumnOrder.splice(lastRightIndex, 0, columnName);
   } else {
     /**
-     * This block will manage the unfreezing of the columns.
+     * This block will manage the column order when column is unfrozen.
      * Unfreezing can happen in CANVAS or PAGE mode.
      * Logic:
      * --> If the column is unfrozen when its on the left, then it should be unfrozen after the last left frozen column.
      * --> If the column is unfrozen when its on the right, then it should be unfrozen before the first right frozen column.
      */
     let frozenColumnLastIdx = -1;
-    if (renderMode === RenderModes.PAGE && canUserFreezeColumn) {
+    if (renderMode === RenderModes.PAGE && canFreezeColumn) {
       if (leftOrder) {
         if (leftOrder.includes(columnName)) {
           leftOrder.forEach((colName: string) => {
-            // Unfreeze user column at the index found in the original columnOrder.
-            const originalIdx = columnOrder.indexOf(colName);
-            frozenColumnLastIdx = originalIdx;
+            frozenColumnLastIdx = columnOrder.indexOf(colName);
           });
         }
       } else if (rightOrder) {
@@ -779,8 +776,6 @@ export const handleColumnSticky = (
             frozenColumnLastIdx = originalIdx;
           });
         }
-      } else {
-        frozenColumnLastIdx = columnOrder.indexOf(columnName);
       }
     } else {
       const currentPropertyValue = get(primaryColumns, `${columnName}`);
