@@ -4,7 +4,7 @@ import _, { merge } from "lodash";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import FormTitle from "pages/Editor/DataSourceEditor/FormTitle";
 import { Button as AdsButton, Category } from "design-system";
-import { AuthenticationStatus, Datasource } from "entities/Datasource";
+import { Datasource } from "entities/Datasource";
 import {
   getFormValues,
   InjectedFormProps,
@@ -253,15 +253,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       pageId,
       pluginPackageName,
     } = this.props;
-    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
-
     const params: string = location.search;
     const viewMode =
       !hiddenHeader && new URLSearchParams(params).get("viewMode");
 
-    const isAuthorized =
-      datasource?.datasourceConfiguration?.authentication
-        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
 
     return (
       <>
