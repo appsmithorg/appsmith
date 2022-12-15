@@ -30,7 +30,6 @@ import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
-import "./RBACCommands";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
