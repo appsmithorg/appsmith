@@ -39,7 +39,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             // check db type
             cy.get(".t--ds-list").contains("PostgreSQL");
             // check the postgres form config with default value
-            cy.get(datasource.connectionSettingsSection).should("be.visible");
+            cy.get("[data-cy='section-Connection']").should("be.visible");
             cy.get(datasource.authenticationSettingsSection).should(
               "be.visible",
             );

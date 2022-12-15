@@ -224,7 +224,9 @@ export class JSONtoForm<
     return (
       <FormContainer className="t--json-to-form-wrapper">
         <CloseEditor />
-        <FormContainerBody>{formContent}</FormContainerBody>
+        <FormContainerBody className="t--json-to-form-body">
+          {formContent}
+        </FormContainerBody>
       </FormContainer>
     );
   };
